@@ -686,7 +686,7 @@ export const Products: React.FC<ProductsProps> = () => {
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={(item) => item.name}
-                    renderItem={renderClassItem}
+                    renderItem={renderClassItem} 
                 />
 
                 <View style={{ backgroundColor: '#F0F2F6', flex: 1, padding: 16, borderTopColor: '#aaa', borderTopWidth: 0.5 }}>
