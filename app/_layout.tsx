@@ -1,37 +1,46 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { TamaguiProvider } from 'tamagui';
+import config from '../tamagui.config';
+import { Sign } from './index';
+import { Products } from './screens/products';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Cart } from './screens/cart';
+import { Prices } from './screens/prices';
+import { Confirm } from './screens/confirm';
+import { FinalConfirm } from './screens/finalConfirm';
+import { Register } from './screens/register';
+import { RegisterFinished } from './screens/registerFinished';
 import 'react-native-reanimated';
+import 'react-native-gesture-handler';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+const Navigation = createNativeStackNavigator();
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+export default function App() {
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
+    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
   });
-
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
 
   if (!loaded) {
     return null;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
-  );
+    <NavigationContainer independent={true}>
+      <TamaguiProvider config={config}>
+        <Navigation.Navigator screenOptions={{headerShown: false}} initialRouteName="Home">
+          <Navigation.Screen name="Sign" component={Sign} />
+          <Navigation.Screen name="Products" component={Products} />
+          <Navigation.Screen name="Cart" component={Cart} />
+          <Navigation.Screen name="Prices" component={Prices} />
+          <Navigation.Screen name="Confirm" component={Confirm} />
+          <Navigation.Screen name="FinalConfirm" component={FinalConfirm} />
+          <Navigation.Screen name="Register" component={Register} />
+          <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
+        </Navigation.Navigator>
+      </TamaguiProvider>
+    </ NavigationContainer>
+  )
 }
