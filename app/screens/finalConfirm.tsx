@@ -164,7 +164,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
                         <Text>{supplier?.supplier.name}</Text>
                         <View alignItems="center" flexDirection="row">
                             <Icons color='orange' name="star"></Icons>
-                            <Text color='gray' pl={4}>4,8</Text>
+                            <Text color='gray' pl={4}>{supplier?.supplier.star}</Text>
                         </View>
                     </View>
                     <View pr={5} justifyContent="center">
@@ -174,22 +174,22 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
                 <View alignItems="center" mt={15} flexDirection="row">
                     <Icons size={20} name="location"></Icons>
                     <View ml={10}>
-                        <Text fontSize={16}>Maya Café</Text>
-                        <Text fontSize={12}>Rua exemplo, 215 - esquina</Text>
+                        <Text fontSize={16}>{deliveryData?.restName}</Text>
+                        <Text fontSize={12}>{deliveryData?.address}</Text>
                     </View>
                 </View>
                 <View alignItems="center" mt={15} flexDirection="row">
                     <Icons size={20} name="time"></Icons>
                     <View ml={10}>
-                        <Text fontSize={16}>Entre 10:00 e 12:00</Text>
-                        <Text fontSize={12}>17/07/2024</Text>
+                        <Text fontSize={16}>Entre {deliveryData?.minHour} e {deliveryData?.maxHour}</Text>
+                        <Text fontSize={12}>{new Date(deliveryData?.deliveryDateFormated.substring(0, 10) ?? '').toLocaleDateString('pt-BR')}</Text>
                     </View>
                 </View>
                 <View alignItems="center" mt={15} flexDirection="row">
                     <Icons size={20} name="cash"></Icons>
                     <View ml={10}>
-                        <Text fontSize={16}>Venc. 22/07/2024</Text>
-                        <Text fontSize={12}>Diário: 7 dias após a entrega</Text>
+                        <Text fontSize={16}>Venc. {getPaymentDate(deliveryData?.paymentWay ?? '')}</Text>
+                        <Text fontSize={12}>{getPaymentDescription(deliveryData?.paymentWay ?? '')}</Text>
                     </View>
                 </View>
                 <View paddingTop={40}>

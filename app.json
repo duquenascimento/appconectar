@@ -5,8 +5,8 @@
     "version": "1.0.0",
     "scheme": "conectarapp",
     "orientation": "portrait",
-    "icon": "./assets/images/icon-conectar-positivo.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
       "image": "./assets/images/icon-conectar-positivo.png",
       "resizeMode": "contain",

@@ -158,6 +158,31 @@ export function Register({ navigation }: HomeScreenProps) {
         }
     }, [minHour]);
 
+    const cepChange = async (value: string) => {
+        try {
+            const format = value.replace(/\D/g, '')
+            if (format.length === 8) {
+                setLoading(true)
+                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${format}`)
+                const result = await response.json()
+                if (response.ok) {
+                    const street: string[] = result.street.split(' ')
+                    const localType: string = street[0]
+                    console.log(street.join(' '))
+                    street.shift()
+                    await Promise.all([
+                        setNeigh(result.neighborhood.toUpperCase()), setStreet(street.join(' ').toUpperCase()),
+                        setLocalNumber(''), setComplement(''),
+                        setLocalType(localType.toUpperCase()), setCity(result.city)
+                    ])
+                }
+            }
+            formatCep(value)
+        } finally {
+            setLoading(false)
+        }
+    }
+
     const initData = async () => {
         try {
             const [
@@ -338,7 +363,7 @@ export function Register({ navigation }: HomeScreenProps) {
                         setLocalNumber(result.data.numero), setComplement(result.data.complemento),
                         setLocalType(result.data.descricao_tipo_de_logradouro), setCity(result.data.municipio)
                     ])
-                        setStep(step + 1)
+                    setStep(step + 1)
                 } else {
                     const erros: string[] = []
                     if (result.msg) {
@@ -460,7 +485,7 @@ export function Register({ navigation }: HomeScreenProps) {
         const test = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Remove as aspas ao redor da expressão regular
         return test.test(text);
     };
-    
+
 
     // Função para validar e formatar e-mail alternativo
     const handleAlternativeEmailChange = (text: string) => {
@@ -532,7 +557,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                     <Text>Nome na fachada da rua</Text>
                                     <Input onChangeText={setRestaurantName} value={restaurantName} backgroundColor='white' borderRadius={2}></Input>
                                     <Text mt={15}>CNPJ</Text>
-                                    <Input onChangeText={setCnpj} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
+                                    <Input disabled={step >= 1 ? true : false} opacity={step >= 1 ? 0.5 : 1} onChangeText={setCnpj} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
                                     <Text display={!noStateNumberId ? 'flex' : 'none'} mt={15}>Inscrição estadual</Text>
                                     <Input display={!noStateNumberId ? 'flex' : 'none'} onChangeText={setStateNumberId} value={stateNumberId} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
                                     <View mt={15} alignItems="center" flexDirection="row">
@@ -545,14 +570,14 @@ export function Register({ navigation }: HomeScreenProps) {
                                     <Text display={noStateNumberId ? 'flex' : 'none'} mt={15}>Inscrição municipal</Text>
                                     <Input display={noStateNumberId ? 'flex' : 'none'} onChangeText={setCityNumberId} value={cityNumberId} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
                                     <Text mt={15}>Razão Social</Text>
-                                    <Input onChangeText={setLegalRestaurantName} value={legalRestaurantName} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input disabled opacity={0.5} onChangeText={setLegalRestaurantName} value={legalRestaurantName} backgroundColor='white' borderRadius={2}></Input>
                                 </View>
                                 <Text fontSize={12} mt={10} mb={5} color='gray'>Endereço</Text>
                                 <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                     <Text>CEP</Text>
-                                    <Input onChangeText={formatCep} value={zipcode} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input onChangeText={cepChange} value={zipcode} backgroundColor='white' borderRadius={2}></Input>
                                     <Text mt={15}>Bairro</Text>
-                                    <Input onChangeText={setNeigh} value={neigh} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
+                                    <Input disabled opacity={0.5} onChangeText={setNeigh} value={neigh} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
                                     <Text mt={15}>Logradouro</Text>
                                     <Input onChangeText={setStreet} value={street} backgroundColor='white' borderRadius={2}></Input>
                                     <Text mt={15}>Número</Text>
@@ -690,9 +715,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Perfil de compra</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Quantos pedidos costuma fazer na semana?</Text>
-                                            <TextInputMask type="only-numbers" placeholder="0" onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad" style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray'}}></TextInputMask>
+                                            <TextInputMask type="only-numbers" placeholder="0" onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad" style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }}></TextInputMask>
                                             <Text mt={15}>Qual o valor médio de um pedido?</Text>
-                                            <TextInputMask placeholder="R$ 000,00" type="money" onChangeText={(value) => setOrderValue(value)} value={orderValue} style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray'}} keyboardType="number-pad"></TextInputMask>
+                                            <TextInputMask placeholder="R$ 000,00" type="money" onChangeText={(value) => setOrderValue(value)} value={orderValue} style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }} keyboardType="number-pad"></TextInputMask>
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Formato de pagamento</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>

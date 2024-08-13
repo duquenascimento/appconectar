@@ -49,6 +49,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         const supplierText = await getStorage('supplierSelected')
         if (!supplierText) return
         const supplier = JSON.parse(supplierText)
+        console.log('AQUI2: ', supplier)
         setSupplier(supplier)
     }, [])
 
@@ -334,16 +335,19 @@ export function Confirm({ navigation }: HomeScreenProps) {
                     const token = await getToken();
                     if (!token) return new Map();
 
+                    const body = {
+                        token,
+                        supplier: supplier.supplier,
+                        restaurant: selectedRestaurant
+                    }
+
+
                     const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            token,
-                            supplier: supplier.supplier,
-                            restaurant: selectedRestaurant
-                        })
+                        body: JSON.stringify(body)
                     });
                     if (result.ok) {
                         const response = await result.json()

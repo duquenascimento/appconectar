@@ -42,6 +42,7 @@ export interface Discount {
     missingItens: number;
     orderValueFinish: number;
     products: Product[];
+    sku: string;
 }
 
 export interface Supplier {
@@ -226,7 +227,8 @@ export function Prices({ navigation }: HomeScreenProps) {
         try {
             setLoading(true)
             await setStorage('supplierSelected', JSON.stringify(supplier))
-            await setStorage('restaurantSelected', JSON.stringify(selectedRestaurant))
+            console.log('AQUI: ', supplier)
+            await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }))
             navigation.replace('Confirm')
         } catch (err) {
             console.error(err)
@@ -396,7 +398,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             try {
                 const restaurants = await loadRestaurants()
                 items = restaurants
-                setMinHour(items[0].addressInfos[0].initialDeliveryTime.substring(11, 15))
+                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
                 setSelectedRestaurant(items[0])
                 setAllRestaurants(items)
                 await loadPrices();
@@ -407,8 +409,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                 }
                 hours.push('22:00')
                 setMinhours(hours);
-                setMinHour(items[0].addressInfos[0].initialDeliveryTime.substring(11, 16))
-                setMaxHour(items[0].addressInfos[0].finalDeliveryTime.substring(11, 16))
+                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 16))
+                setMaxHour(items[0]?.addressInfos[0]?.finalDeliveryTime.substring(11, 16))
             } catch (err) {
                 console.error(err);
             } finally {
@@ -421,7 +423,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const updateAddress = async (rest: any) => {
         try {
             setLoading(true)
-            setMinHour(rest.addressInfos[0].initialDeliveryTime.substring(11, 15))
+            setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
             setSelectedRestaurant(rest)
             await loadPricesAux(rest)
         } catch (err) {
@@ -499,12 +501,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 windowSize={4}
                                 scrollEnabled={true}
                             />}
-                            {
-                                tab !== 'onlySupplier' && 
-                                <View p={20} mt={10}>
-                                    <Text pb={10} pt={10} opacity={60} fontSize={12}>Minhas combinações</Text>
-                                </View>
-                            }
+                        {
+                            tab !== 'onlySupplier' &&
+                            <View p={20} mt={10}>
+                                <Text pb={10} pt={10} opacity={60} fontSize={12}>Minhas combinações</Text>
+                            </View>
+                        }
 
                     </View>
                 </View>
@@ -525,7 +527,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='gray' name="storefront"></Icons>
                             <View ml={20}></View>
-                            <Text fontSize={12}>{selectedRestaurant.name}</Text>
+                            <Text fontSize={12}>{selectedRestaurant?.name || ''}</Text>
                         </View>
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='gray' name="time"></Icons>
@@ -573,37 +575,46 @@ export function Prices({ navigation }: HomeScreenProps) {
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
                                 <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} style={{ backgroundColor: 'white', borderRadius: 10, justifyContent: 'center' }}>
                                     <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
-                                    <Picker onValueChange={(value) => {
-                                        setLoading(true)
-                                        const rest = allRestaurants.find((item) => { if (item.name === value) return item })
-                                        setSelectedRestaurant(rest)
-                                        setNeighborhood(rest?.addressInfos[0].neighborhood)
-                                        setCity(rest?.addressInfos[0].city)
-                                        setLocalType(rest?.addressInfos[0].localType)
-                                        setLocalNumber(rest?.addressInfos[0].localNumber)
-                                        setResponsibleReceivingName(rest?.addressInfos[0].responsibleReceivingName)
-                                        setResponsibleReceivingPhoneNumber(rest?.addressInfos[0].responsibleReceivingPhoneNumber)
-                                        setZipCode(rest?.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
-                                        setStreet(rest?.addressInfos[0].address)
-                                        setComplement(rest?.addressInfos[0].complement)
-                                        setDeliveryInformation(rest?.addressInfos[0].deliveryInformation)
-                                        setMaxHour(rest?.addressInfos[0].finalDeliveryTime.substring(11, 16))
-                                        setMinHour(rest?.addressInfos[0].initialDeliveryTime.substring(11, 16))
-                                        setLoading(false)
-                                    }} selectedValue={selectedRestaurant.name} style={{ padding: 10, borderColor: 'lightgray', borderRadius: 5 }}>
-                                        {allRestaurants.map((item) => (<Picker.Item label={item.name} key={item.name} />))}
-                                    </Picker>
+                                    {allRestaurants.length > 0 ? (
+                                        <Picker onValueChange={async (value) => {
+                                            setLoading(true)
+                                            const rest = allRestaurants.find((item) => {
+                                                console.log(item.name)
+                                                if (item?.name === value) return item
+
+                                            })
+                                            console.log('RESST: ', rest)
+                                            await setSelectedRestaurant(rest)
+                                            setNeighborhood(rest?.addressInfos[0].neighborhood)
+                                            setCity(rest?.addressInfos[0].city)
+                                            setLocalType(rest?.addressInfos[0].localType)
+                                            setLocalNumber(rest?.addressInfos[0].localNumber)
+                                            setResponsibleReceivingName(rest?.addressInfos[0].responsibleReceivingName)
+                                            setResponsibleReceivingPhoneNumber(rest?.addressInfos[0].responsibleReceivingPhoneNumber)
+                                            setZipCode(rest?.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
+                                            setStreet(rest?.addressInfos[0].address)
+                                            setComplement(rest?.addressInfos[0].complement)
+                                            setDeliveryInformation(rest?.addressInfos[0].deliveryInformation)
+                                            setMaxHour(rest?.addressInfos[0].finalDeliveryTime.substring(11, 16))
+                                            setMinHour(rest?.addressInfos[0].initialDeliveryTime.substring(11, 16))
+                                            setLoading(false)
+                                        }} selectedValue={selectedRestaurant?.name} style={{ padding: 10, borderColor: 'lightgray', borderRadius: 5 }}>
+                                            {allRestaurants.map((item) => (<Picker.Item label={item?.name} value={item.name} key={item?.name} />))}
+                                        </Picker>
+                                    ) : (
+                                        <Text>Loading...</Text> // Ou algum placeholder
+                                    )}
                                     <View pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                                         <View style={{ flex: 1 }}>
                                             <Text pl={5} fontSize={12} color='gray'>A partir de</Text>
                                             <Picker onValueChange={setMinHour} selectedValue={minHour} style={{ padding: 10, borderColor: 'lightgray', borderRadius: 5 }}>
-                                                {minhours.map((item) => (<Picker.Item label={item} key={item} />))}
+                                                {minhours.map((item) => (<Picker.Item label={item} value={item} key={item} />))}
                                             </Picker>
                                         </View>
                                         <View style={{ flex: 1 }}>
                                             <Text pl={5} fontSize={12} color='gray'>Até</Text>
                                             <Picker onValueChange={setMaxHour} selectedValue={maxHour} style={{ padding: 10, borderColor: 'lightgray', borderRadius: 5, color: 'black' }}>
-                                                {maxhours.map((item) => (<Picker.Item label={item} key={item} />))}
+                                                {maxhours.map((item) => (<Picker.Item label={item} value={item} key={item} />))}
                                             </Picker>
                                         </View>
                                     </View>
@@ -619,7 +630,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                             if (response.ok) {
                                                 const street = result.street.split(' ')
                                                 street.shift()
-                                                console.log(street)
                                                 setCity(result.city.toUpperCase())
                                                 setNeighborhood(result.neighborhood.toUpperCase())
                                                 setLocalType(result.street.split(' ')[0].toUpperCase())
@@ -634,34 +644,34 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     <Text pt={15} pl={5} fontSize={12} color='gray'>Logradouro</Text>
                                     <View flexDirection="row">
                                         <Picker onValueChange={setLocalType} selectedValue={(localType ?? 'RUA').toUpperCase()} style={{ flex: 1, padding: 10, fontSize: 10, borderColor: 'lightgray', borderRadius: 5, color: 'black', borderTopRightRadius: 0, borderBottomRightRadius: 0, maxWidth: 150, overflow: 'visible' }}>
-                                            <Picker.Item label="ALAMEDA" key="ALAMEDA" />
-                                            <Picker.Item label="AVENIDA" key="AVENIDA" />
-                                            <Picker.Item label="BECO" key="BECO" />
-                                            <Picker.Item label="BOULEVARD" key="BOULEVARD" />
-                                            <Picker.Item label="CAMINHO" key="CAMINHO" />
-                                            <Picker.Item label="CHÁCARA" key="CHÁCARA" />
-                                            <Picker.Item label="CIRCUITO" key="CIRCUITO" />
-                                            <Picker.Item label="CONJUNTO" key="CONJUNTO" />
-                                            <Picker.Item label="EIXO" key="EIXO" />
-                                            <Picker.Item label="ESTAÇÃO" key="ESTAÇÃO" />
-                                            <Picker.Item label="ESTRADA" key="ESTRADA" />
-                                            <Picker.Item label="FAVELA" key="FAVELA" />
-                                            <Picker.Item label="JARDIM" key="JARDIM" />
-                                            <Picker.Item label="LADEIRA" key="LADEIRA" />
-                                            <Picker.Item label="LARGO" key="LARGO" />
-                                            <Picker.Item label="PARQUE" key="PARQUE" />
-                                            <Picker.Item label="PASSARELA" key="PASSARELA" />
-                                            <Picker.Item label="PASSEIO" key="PASSEIO" />
-                                            <Picker.Item label="PRAÇA" key="PRAÇA" />
-                                            <Picker.Item label="QUADRA" key="QUADRA" />
-                                            <Picker.Item label="RAMPA" key="RAMPA" />
-                                            <Picker.Item label="RODOVIA" key="RODOVIA" />
-                                            <Picker.Item label="RUA" key="RUA" />
-                                            <Picker.Item label="TRAVESSA" key="TRAVESSA" />
-                                            <Picker.Item label="VIA" key="VIA" />
-                                            <Picker.Item label="VIADUTO" key="VIADUTO" />
-                                            <Picker.Item label="VIELA" key="VIELA" />
-                                            <Picker.Item label="VILA" key="VILA" />
+                                            <Picker.Item label="ALAMEDA" value="ALAMEDA" key="ALAMEDA" />
+                                            <Picker.Item label="AVENIDA" value="AVENIDA" key="AVENIDA" />
+                                            <Picker.Item label="BECO" value="BECO" key="BECO" />
+                                            <Picker.Item label="BOULEVARD" value="BOULEVARD" key="BOULEVARD" />
+                                            <Picker.Item label="CAMINHO" value="CAMINHO" key="CAMINHO" />
+                                            <Picker.Item label="CHÁCARA" value="CHÁCARA" key="CHÁCARA" />
+                                            <Picker.Item label="CIRCUITO" value="CIRCUITO" key="CIRCUITO" />
+                                            <Picker.Item label="CONJUNTO" value="CONJUNTO" key="CONJUNTO" />
+                                            <Picker.Item label="EIXO" value="EIXO" key="EIXO" />
+                                            <Picker.Item label="ESTAÇÃO" value="ESTAÇÃO" key="ESTAÇÃO" />
+                                            <Picker.Item label="ESTRADA" value="ESTRADA" key="ESTRADA" />
+                                            <Picker.Item label="FAVELA" value="FAVELA" key="FAVELA" />
+                                            <Picker.Item label="JARDIM" value="JARDIM" key="JARDIM" />
+                                            <Picker.Item label="LADEIRA" value="LADEIRA" key="LADEIRA" />
+                                            <Picker.Item label="LARGO" value="LARGO" key="LARGO" />
+                                            <Picker.Item label="PARQUE" value="PARQUE" key="PARQUE" />
+                                            <Picker.Item label="PASSARELA" value="PASSARELA" key="PASSARELA" />
+                                            <Picker.Item label="PASSEIO" value="PASSEIO" key="PASSEIO" />
+                                            <Picker.Item label="PRAÇA" value="PRAÇA" key="PRAÇA" />
+                                            <Picker.Item label="QUADRA" value="QUADRA" key="QUADRA" />
+                                            <Picker.Item label="RAMPA" value="RAMPA" key="RAMPA" />
+                                            <Picker.Item label="RODOVIA" value="RODOVIA" key="RODOVIA" />
+                                            <Picker.Item label="RUA" value="RUA" key="RUA" />
+                                            <Picker.Item label="TRAVESSA" value="TRAVESSA" key="TRAVESSA" />
+                                            <Picker.Item label="VIA" value="VIA" key="VIA" />
+                                            <Picker.Item label="VIADUTO" value="VIADUTO" key="VIADUTO" />
+                                            <Picker.Item label="VIELA" value="VIELA" key="VIELA" />
+                                            <Picker.Item label="VILA" value="VILA" key="VILA" />
                                         </Picker>
                                         <Input onChangeText={(value) => {
                                             const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
@@ -796,6 +806,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                             addressInfo.deliveryInformation = deliveryInformation;
                                             addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
                                             addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
+
+                                            setSelectedRestaurant(rest)
+
+                                            setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }))
 
                                             await Promise.all([loadPrices(rest), fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
                                                 body: JSON.stringify({

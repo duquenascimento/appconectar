@@ -20,7 +20,6 @@ import {
     Modal,
     Platform,
     TouchableOpacity,
-    VirtualizedList,
 } from 'react-native';
 import React from 'react';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -227,7 +226,7 @@ const ProductBox = React.memo(({
     const [quant, setQuant] = useState<number>(firstUnit);
     const [valueQuant, setValueQuant] = useState(0);
     const [obs, setObs] = useState('');
-    const [open, setOpen] = useState<boolean>(false)
+    const [open, setOpen] = useState<boolean>(false);
 
     const obsRef = useRef('');
     const quantRef = useRef<number>(firstUnit);
@@ -236,21 +235,14 @@ const ProductBox = React.memo(({
         obsRef.current = obs;
     }, [obs]);
 
-    const isFavorite = useMemo(() => {
-        return favorites.some(favorite => favorite.id === id);
-    }, [favorites, id]);
+    const isFavorite = useMemo(() => favorites.some(favorite => favorite.id === id), [favorites, id]);
+    const isCart = useMemo(() => cart.has(id), [cart, id]);
 
-    const isCart = useMemo(() => {
-        return cart.has(id)
-    }, [cart, id]);
-
-    const toggleOpen = () => {
-        setOpen(!open)
-    }
+    const toggleOpen = useCallback(() => setOpen(prev => !prev), []);
 
     useEffect(() => {
         const cartProduct = cart.get(id);
-        if (cartProduct != null) {
+        if (cartProduct) {
             obsRef.current = cartProduct.obs;
             setObs(cartProduct.obs);
             setValueQuant(Number(cartProduct.amount));
@@ -259,158 +251,146 @@ const ProductBox = React.memo(({
 
     useEffect(() => {
         saveCart({ amount: valueQuant, productId: id, obs }, isCart);
-    }, [obs, valueQuant, isCart, id, saveCart])
+    }, [obs, valueQuant, isCart, id, saveCart]);
 
+    const handleQuantityChange = (newQuant: number) => {
+        setQuant(newQuant);
+        quantRef.current = newQuant;
+    };
+
+    const handleObsChange = (text: string) => setObs(text);
+
+    const handleValueQuantChange = (delta: number) => {
+        setValueQuant(prevValue => Math.max(0, Number((prevValue + delta).toFixed(3))));
+    };
 
     return (
-        <Stack style={{ flex: 1, minHeight: 40, borderWidth: 1, borderRadius: 12, borderColor: '#F0F2F6' }}>
-            <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, flexDirection: 'row', minHeight: 40, backgroundColor: 'white', borderRadius: 12, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <Stack flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+            <View flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
+                <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 0} onPress={() => {
                         setImage(image[0]);
                         setModalVisible(true);
                     }}>
-                        <Image source={{ uri: image[0] }} style={{ width: 60, height: 60 }} />
+                        <Image source={{ uri: image[0] }} width={60} height={60} />
                     </View>
-                    <View style={{ marginLeft: 8, maxWidth: Platform.OS === 'web' ? 250 : 162 }}>
-                        <Text style={{ fontSize: 12 }}>{name}</Text>
-                        <Text style={{ color: '#aaa', fontSize: 10 }}>
+                    <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 250 : 162}>
+                        <Text fontSize={12}>{name}</Text>
+                        <Text color="#aaa" fontSize={10}>
                             Apróx. {mediumWeight < 1 ? (mediumWeight * 1000) : mediumWeight}
                             {orderUnit === 'un' ? 'Un' : mediumWeight < 1 ? 'g' : 'Kg'}
                             /{orderUnit === 'Unid' ? 'Un' : 'Kg'}
                         </Text>
                     </View>
                 </View>
-                <View mr={10} style={{ flexDirection: 'row', alignItems: 'center', gap: 16, cursor: 'pointer' }}>
+                <View mr={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
                     <Icons size={24} name={isFavorite ? 'heart' : 'heart-outline'} color="red" onPress={() => toggleFavorite(id)} />
                     {
-                        isCart ? <View onPress={toggleOpen} borderColor='#FFA500' borderWidth={1} borderRadius={50} gap={8} justifyContent='center' alignItems='center' p={8} height={36} width={80} flexDirection='row'>
+                        isCart ? 
+                        <View onPress={toggleOpen} borderColor='#FFA500' borderWidth={1} borderRadius={50} gap={8} justifyContent='center' alignItems='center' p={8} height={36} width={80} flexDirection='row'>
                             <Text fontSize={12} fontWeight='800'>{valueQuant}<Text fontSize={8} color='gray'>{orderUnit.replace('Unid', 'Un')}</Text></Text>
-                            <Icons name='pencil-sharp' color='#FFA500' size={15}></Icons>
+                            <Icons name='pencil-sharp' color='#FFA500' size={15} />
                         </View>
-                            :
-                            <Icons onPress={toggleOpen} name={open ? "close-circle" : "add-circle"} size={36} color="#0BC07D" />
+                        :
+                        <Icons onPress={toggleOpen} name={open ? "close-circle" : "add-circle"} size={36} color="#0BC07D" />
                     }
                 </View>
             </View>
             {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
-                <View style={{ minHeight: 85, borderTopWidth: 1, borderTopColor: '#ccc', paddingHorizontal: 8, gap: 8, borderBottomWidth: 0, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, backgroundColor: 'white', justifyContent: 'center', transform: [{ translateY: 0 }] }}>
-                    <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} style={{ flexDirection: 'row' }} f={1} alignItems="center" marginTop={10}>
-
-                        <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" f={1} gap={8}>
-
+                <View minHeight={Platform.OS === 'web' ? 50 : 85} borderTopWidth={1} borderTopColor='#ccc' paddingHorizontal={8} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor='white' justifyContent='center' transform={[{ translateY: 0 }]}>
+                    <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} flexDirection='row' alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
+                        <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems='center' flex={1} mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
                             {Platform.OS === 'web' && (
                                 <View alignSelf="flex-start" flex={1}>
-                                    <XStack style={{ backgroundColor: '#F0F2F6', paddingRight: 14, borderWidth: 0, borderRadius: 20, alignItems: 'center', flexDirection: 'row', zIndex: 20, height: 36 }}>
+                                    <XStack backgroundColor='#F0F2F6' flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems='center' flexDirection='row' height={36}>
                                         <Input
                                             focusVisibleStyle={{ outlineWidth: 0 }}
                                             placeholder="Observação para entrega..."
-                                            style={{ backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent', flex: 1, fontSize: 10 }}
+                                            backgroundColor="transparent"
+                                            borderWidth={0}
+                                            borderColor="transparent"
+                                            flex={1}
+                                            fontSize={10}
                                             maxLength={999}
-                                            onChangeText={(text) => {
-                                                setObs(text);
-                                            }}
+                                            onChangeText={handleObsChange}
                                             value={obs}
                                         />
                                     </XStack>
                                 </View>
                             )}
-
-                            {/* Seus Botões */}
                             <Button
-                                onPress={() => {
-                                    setQuant(firstUnit);
-                                    quantRef.current = firstUnit;
-                                }}
-                                style={{
-                                    backgroundColor: quant === firstUnit ? '#0BC07D' : '#F0F2F6',
-                                    height: 30,
-                                    minWidth: 48,
-                                    borderRadius: 12,
-                                }}
+                                onPress={() => handleQuantityChange(firstUnit)}
+                                backgroundColor={quant === firstUnit ? '#0BC07D' : '#F0F2F6'}
+                                height={30}
+                                minWidth={48}
+                                borderRadius={12}
                             >
                                 <Text color={quant === firstUnit ? '#fff' : '#000'}>{firstUnit}</Text>
                             </Button>
                             <Button
-                                onPress={() => {
-                                    setQuant(secondUnit);
-                                    quantRef.current = secondUnit;
-                                }}
-                                style={{
-                                    backgroundColor: quant === secondUnit ? '#0BC07D' : '#F0F2F6',
-                                    color: quant === secondUnit ? '#fff' : '#000',
-                                    height: 30,
-                                    minWidth: 48,
-                                    borderRadius: 12,
-                                }}
+                                onPress={() => handleQuantityChange(secondUnit)}
+                                backgroundColor={quant === secondUnit ? '#0BC07D' : '#F0F2F6'}
+                                color={quant === secondUnit ? '#fff' : '#000'}
+                                height={30}
+                                minWidth={48}
+                                borderRadius={12}
                             >
                                 <Text color={quant === secondUnit ? '#fff' : '#000'}>{secondUnit}</Text>
                             </Button>
                             <Button
-                                onPress={() => {
-                                    setQuant(thirdUnit);
-                                    quantRef.current = thirdUnit;
-                                }}
-                                style={{
-                                    backgroundColor: quant === thirdUnit ? '#0BC07D' : '#F0F2F6',
-                                    height: 30,
-                                    color: quant === thirdUnit ? '#fff' : '#000',
-                                    minWidth: 48,
-                                    borderRadius: 12,
-                                }}
+                                onPress={() => handleQuantityChange(thirdUnit)}
+                                backgroundColor={quant === thirdUnit ? '#0BC07D' : '#F0F2F6'}
+                                height={30}
+                                color={quant === thirdUnit ? '#fff' : '#000'}
+                                minWidth={48}
+                                borderRadius={12}
                             >
                                 <Text color={quant === thirdUnit ? '#fff' : '#000'}>{thirdUnit}</Text>
                             </Button>
                         </View>
-
                         <View alignItems='center' borderColor="#F0F2F6" borderWidth={1} p={4} borderRadius={18} flexDirection="row" gap={16}>
                             <Icons
                                 name="remove"
                                 color="#04BF7B"
                                 size={24}
-                                onPress={() => {
-                                    setValueQuant((prevValue) => {
-                                        if ((prevValue - quant) < 0) return 0;
-                                        return Number((prevValue - quant).toFixed(3));
-                                    });
-                                }}
+                                onPress={() => handleValueQuantChange(-quant)}
                             />
                             <Text>{valueQuant} {orderUnit.replace('Unid', 'Un')}</Text>
                             <Icons
                                 name="add"
                                 color="#04BF7B"
                                 size={24}
-                                onPress={() => {
-                                    setValueQuant((prevValue) => {
-                                        if ((prevValue + quant) < 0) return 0;
-                                        return Number((prevValue + quant).toFixed(3));
-                                    });
-                                }}
+                                onPress={() => handleValueQuantChange(quant)}
                             />
                         </View>
                     </View>
-
                     {Platform.OS !== 'web' && (
                         <View>
-                            <XStack style={{ backgroundColor: '#F0F2F6', paddingRight: 14, borderWidth: 0, borderRadius: 20, alignItems: 'center', flexDirection: 'row', zIndex: 20, marginBottom: 10, height: 36 }}>
+                            <XStack backgroundColor='#F0F2F6' paddingRight={14} borderWidth={0} borderRadius={20} alignItems='center' flexDirection='row' marginBottom={10} height={36}>
                                 <Input
                                     placeholder="Observação para entrega..."
-                                    style={{ backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent', flex: 1, fontSize: 10 }}
+                                    backgroundColor="transparent"
+                                    borderWidth={0}
+                                    borderColor="transparent"
+                                    flex={1}
+                                    fontSize={10}
                                     maxLength={999}
-                                    onChangeText={(text) => {
-                                        setObs(text);
-                                    }}
+                                    onChangeText={handleObsChange}
                                     value={obs}
                                 />
                             </XStack>
                         </View>
                     )}
                 </View>
-
             )}
         </Stack>
     );
-});
+    
+}, (prevProps, nextProps) => {
+    // Função de comparação personalizada
+    return prevProps.id === nextProps.id && prevProps.currentClass === nextProps.currentClass;
+})
+
 
 ProductBox.displayName = 'ProductBox'
 
@@ -553,7 +533,7 @@ export function Products({ navigation }: HomeScreenProps) {
     const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false)
     const [isScrolling, setIsScrolling] = useState(false);
 
-    const flatListRef = useRef<VirtualizedList<Product>>(null);
+    const flatListRef = useRef<FlatList<Product>>(null);
 
     const handleScroll = () => {
         if (!isScrolling) {
@@ -848,35 +828,34 @@ export function Products({ navigation }: HomeScreenProps) {
     }, [productsList]);
 
 
-    useEffect(() => {
-        let filteredProducts = productsList || [];
-
+    const filteredProducts = useMemo(() => {
+        let products = productsList || [];
+    
         if (currentClass === 'Favoritos') {
-            filteredProducts = favorites;
+            products = favorites;
         } else {
-            filteredProducts = productsList?.filter(product => product.class.toLowerCase() === currentClass.toLowerCase()) || [];
+            products = productsList?.filter(product => product.class.toLowerCase() === currentClass.toLowerCase()) || [];
         }
-
+    
         if (searchQuery) {
-            // Determine o valor da classe a ser filtrado com base no nome
             const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
-
-            filteredProducts = (productsList as Product[]).filter(product => {
-                return product.name.toLowerCase().includes(searchQuery.toLowerCase()) && product.class.toUpperCase() !== excludeClass.toUpperCase()
-            }
-            );
+            products = products.filter(product => {
+                return product.name.toLowerCase().includes(searchQuery.toLowerCase()) && product.class.toUpperCase() !== excludeClass.toUpperCase();
+            });
         }
-
-
-        setDisplayedProducts(filteredProducts);
-        setSkeletonLoading(false)
+    
+        return products;
     }, [currentClass, productsList, favorites, searchQuery]);
+    
+    useEffect(() => {
+        setDisplayedProducts(filteredProducts);
+        setSkeletonLoading(false);
+    }, [filteredProducts]);
 
     const handlePress = useCallback((name: string) => {
         if (name !== currentClass) {
-            setSkeletonLoading(true)
+            setSkeletonLoading(true);
             setCurrentClass(name);
-            setIsScrolling(false)
         }
     }, [currentClass]);
 
@@ -920,86 +899,76 @@ export function Products({ navigation }: HomeScreenProps) {
 
     const renderProduct = useCallback(
         ({ item }: { item: Product }) => <ProductBox currentClass={currentClass} setModalVisible={handleSetModalVisible} setImage={handleSetImage} key={item.id} toggleFavorite={toggleFavorite} {...item} favorites={favorites} saveCart={saveCart} cart={cart} />,
-        [currentClass, toggleFavorite, favorites, saveCart, cart]
+        [cart, currentClass, favorites, saveCart, toggleFavorite]
     );
 
-    const MemoizedProductBox = React.memo(ProductBox);
+    // const MemoizedProductBox = React.memo(ProductBox);
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent="center" alignItems="center">
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
     }
-
+    
     return (
-        <Stack pt={20} style={{ backgroundColor: '#f9f9f9', height: '100%', position: 'relative' }}>
-            <Modal visible={isModalVisible} transparent={true} onRequestClose={() => {
-                setModalVisible(false)
-            }}>
+        <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
+            <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <ImageViewer
-                    imageUrls={[{
-                        url: image
-                    }]}
+                    imageUrls={[{ url: image }]}
                     enableSwipeDown={true}
                     onSwipeDown={() => setModalVisible(false)}
                 />
             </Modal>
-            <View style={{ height: 40, flex: 1, paddingTop: 8 }}>
-                {/* <View style={{ alignItems: 'center', paddingLeft: 20, flexDirection: 'row' }}>
-                    <Circle height={46} width={46} style={{ padding: 12, backgroundColor: '#F0F2F6' }}>
-                        <Image source={require('../../assets/images/icon-conectar-positivo.png')} style={{ height: 32, width: 32 }} />
+            <View height={40} flex={1} paddingTop={8}>
+                {/* <View alignItems="center" paddingLeft={20} flexDirection="row">
+                    <Circle height={46} width={46} padding={12} backgroundColor="#F0F2F6">
+                        <Image source={require('../../assets/images/icon-conectar-positivo.png')} height={32} width={32} />
                     </Circle>
-                    <YStack style={{ paddingLeft: 10, paddingTop: 10 }}>
-                        <Text style={{ color: '#666' }}>Entregar para</Text>
+                    <YStack paddingLeft={10} paddingTop={10}>
+                        <Text color="#666">Entregar para</Text>
                         <CustomSelect items={items} />
                     </YStack>
                 </View> */}
-
+    
                 <XStack
-                    style={{
-                        backgroundColor: '#F0F2F6',
-                        marginHorizontal: 20,
-                        marginTop: 30,
-                        paddingRight: 14,
-                        borderWidth: 0,
-                        borderRadius: 20,
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        zIndex: 20,
-                        margin: 10
-                    }}
+                    backgroundColor="#F0F2F6"
+                    marginHorizontal={20}
+                    marginTop={30}
+                    paddingRight={14}
+                    borderWidth={0}
+                    borderRadius={20}
+                    alignItems="center"
+                    flexDirection="row"
+                    margin={10}
                 >
                     <Input
                         placeholder="Buscar produtos..."
-                        style={{
-                            backgroundColor: 'transparent',
-                            borderWidth: 0,
-                            borderColor: 'transparent',
-                            flex: 1,
-                            marginRight: 14,
-
-                        }}
+                        backgroundColor="transparent"
+                        borderWidth={0}
+                        borderColor="transparent"
+                        flex={1}
+                        marginRight={14}
                         maxLength={50}
                         onChangeText={setSearchQuery}
                     />
                     <Icons name="search" size={24} color="#04BF7B" />
                 </XStack>
-
+    
                 <FlatList
-                    style={{ marginTop: 5, maxHeight: 50 }}
+                    style={{maxHeight: 50, marginTop: 5, minHeight: 50}}
                     data={classItems}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={(item) => item.name}
                     renderItem={renderClassItem}
                 />
-
-                <View style={{ backgroundColor: '#F0F2F6', flex: 1, padding: 16, borderTopColor: '#aaa', borderTopWidth: 0.5 }}>
+    
+                <View backgroundColor="#F0F2F6" flex={1} padding={16} borderTopColor="#aaa" borderTopWidth={0.5}>
                     {currentClass.toLowerCase() === 'favoritos' && favorites.length < 1 && !searchQuery ?
-                        <View style={{ flex: 1, paddingTop: 50, alignItems: 'center' }}>
-                            <Text pl={15} marginBottom={5} style={{ alignSelf: 'center', fontSize: 14, color: '#A9A9A9', justifySelf: 'center', textAlign: 'center' }}>
+                        <View flex={1} paddingTop={50} alignItems="center">
+                            <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
                                 Para salvar produtos na lista de favoritos, clique no botão de favoritar
                                 <Text> </Text>
                             </Text>
@@ -1007,131 +976,60 @@ export function Products({ navigation }: HomeScreenProps) {
                         </View>
                         :
                         !skeletonLoading ?
-                            <VirtualizedList
-                                ref={flatListRef}
-                                style={{ flex: 1 }}
-                                data={MemoizedProductBox}
-                                getItemCount={() => displayedProducts.length}
-                                getItem={(data, index) => displayedProducts[index]}
-                                keyExtractor={(item) => item.id}
-                                renderItem={renderProduct}
-                                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
-                                initialNumToRender={10} // Renderiza os primeiros 10 itens inicialmente
-                                windowSize={4} // Quantidade de itens a serem renderizados fora da tela
-                                onScroll={handleScroll}
-                                onMomentumScrollBegin={handleScroll}
-                                onMomentumScrollEnd={handleScrollEnd
-                                }
-                            />
+                        <FlatList
+                            ref={flatListRef}
+                            data={displayedProducts}
+                            renderItem={renderProduct}
+                            keyExtractor={(item) => item.id}
+                            onEndReachedThreshold={0.5}
+                            onEndReached={loadProducts}
+                            onScroll={handleScroll}
+                            onMomentumScrollBegin={handleScroll}
+                            onMomentumScrollEnd={handleScrollEnd}
+                            ItemSeparatorComponent={() => (<View height={8}></View>)}
+                        />
                             :
                             <ScrollView>
-                                <View style={{ flex: 1, minHeight: 40, borderWidth: 1, borderRadius: 12, borderColor: '#F0F2F6' }}>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
-                                    <View style={{ justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingHorizontal: 8, flexDirection: 'row', minHeight: 80, backgroundColor: 'white', borderRadius: 12 }}>
-                                        <MotiView style={{ flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0 }}
-                                        >
-                                            <Skeleton colorMode='light' height={60} width={60} />
-                                            <View marginLeft={8} rowGap={5}>
-                                                <Skeleton colorMode='light' height={20} width={250} />
-                                                <Skeleton colorMode='light' height={10} width={50} />
-                                            </View>
-
-                                        </MotiView>
-                                    </View>
+                                <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+                                    {[...Array(7)].map((_, index) => (
+                                        <View key={index} justifyContent="space-between" alignItems="center" marginTop={8} paddingHorizontal={8} flexDirection="row" minHeight={80} backgroundColor="white" borderRadius={12}>
+                                            <MotiView style={{flexDirection: 'row', alignItems: 'center', marginLeft: Platform.OS === 'web' ? 10 : 0}}>
+                                                <Skeleton colorMode="light" height={60} width={60} />
+                                                <View marginLeft={8} rowGap={5}>
+                                                    <Skeleton colorMode="light" height={20} width={250} />
+                                                    <Skeleton colorMode="light" height={10} width={50} />
+                                                </View>
+                                            </MotiView>
+                                        </View>
+                                    ))}
                                 </View>
                             </ScrollView>
                     }
-
                 </View>
-                <View style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 20 }} height={55} borderTopWidth={0.2} borderTopColor='gray'>
-                    <TouchableOpacity onPress={() => navigation.replace('Products')} style={{ padding: 10, marginVertical: 10, borderRadius: 8, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: 80, height: 70 }}>
-                        <Icons name='home' size={20} color='#04BF7B'></Icons>
-                        <Text style={{ fontSize: 12, color: '#04BF7B' }}>Home</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ padding: 10, marginVertical: 10, borderRadius: 8, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: 80, height: 70 }}>
-                        <Icons name='journal' size={20} color='gray'></Icons>
-                        <Text style={{ fontSize: 12, color: 'gray' }}>Pedidos</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ padding: 10, marginVertical: 10, borderRadius: 8, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: 80, height: 70 }}>
-                        <Icons name='document' size={20} color='gray'></Icons>
-                        <Text style={{ fontSize: 12, color: 'gray' }}>Relatórios</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={async () => {
-                        setLoading(true)
-                        await Promise.all([clearStorage(), deleteToken()])
-                        navigation.replace('Sign')
-                    }} style={{ padding: 10, marginVertical: 10, borderRadius: 8, flexWrap: 'nowrap', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', width: 80, height: 70 }}>
-                        <Icons name='log-out' size={20} color='gray'></Icons>
-                        <Text style={{ fontSize: 12, color: 'gray' }}>Sair</Text>
-                    </TouchableOpacity>
+                <View justifyContent="center" alignItems="center" flexDirection="row" gap={20} height={55} borderTopWidth={0.2} borderTopColor="gray">
+                    <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                        <Icons name="home" size={20} color="#04BF7B" />
+                        <Text fontSize={12} color="#04BF7B">Home</Text>
+                    </View>
+                    <View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                        <Icons name="journal" size={20} color="gray" />
+                        <Text fontSize={12} color="gray">Pedidos</Text>
+                    </View>
+                    <View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                        <Icons name="document" size={20} color="gray" />
+                        <Text fontSize={12} color="gray">Relatórios</Text>
+                    </View>
+                    <View onPress={async () => {
+                        setLoading(true);
+                        await Promise.all([clearStorage(), deleteToken()]);
+                        navigation.replace('Sign');
+                    }} padding={10} marginVertical={10} borderRadius={8} flexWrap="nowrap" flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                        <Icons name="log-out" size={20} color="gray" />
+                        <Text fontSize={12} color="gray">Sair</Text>
+                    </View>
                 </View>
             </View>
-
+    
             <CartButton
                 cartSize={cart.size}
                 isScrolling={isScrolling}
@@ -1141,7 +1039,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     navigation.replace('Cart');
                 }}
             />
-
         </Stack>
     );
+    
 }

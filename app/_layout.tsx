@@ -11,9 +11,8 @@ import { Confirm } from './screens/confirm';
 import { FinalConfirm } from './screens/finalConfirm';
 import { Register } from './screens/register';
 import { RegisterFinished } from './screens/registerFinished';
-import 'react-native-reanimated';
+// import 'react-native-reanimated';
 import 'react-native-gesture-handler';
-
 
 const Navigation = createNativeStackNavigator();
 

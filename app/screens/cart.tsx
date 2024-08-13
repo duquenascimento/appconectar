@@ -90,66 +90,66 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
     }
 
     return (
-        <View style={{ flex: 1, minHeight: 40, borderWidth: 1, borderRadius: 12, borderColor: '#F0F2F6' }}>
-            <View style={{ flex: 1, justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, flexDirection: 'row', minHeight: 40, backgroundColor: 'white', borderRadius: 12, ...(open ? { borderBottomLeftRadius: 0, borderBottomRightRadius: 0 } : {}) }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+            <View flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
+                <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 5}>
                         <View onPress={() => {
-                            produto.setImage(produto.image[0])
-                            produto.setModalVisible(true)
+                            produto.setImage(produto.image[0]);
+                            produto.setModalVisible(true);
                         }}>
-                            <Image source={{ uri: produto.image[0] }} style={{ width: 60, height: 60 }} />
+                            <Image source={{ uri: produto.image[0] }} width={60} height={60} />
                         </View>
                         <View
-                            style={{
-                                position: 'absolute',
-                                bottom: 3,
-                                left: 0,
-                                backgroundColor: 'black',
-                                borderRadius: 10,
-                                width: 25,
-                                height: 25,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderColor: 'white',
-                                borderWidth: 1,
-                                cursor: 'pointer'
-                            }}
                             ml={Platform.OS === 'web' ? 10 : 5}
                             onPress={() => {
-                                produto.setConfirmDeleteItem({ amount: valueQuant, productId: produto.id, obs: obsRef.current })
+                                produto.setConfirmDeleteItem({ amount: valueQuant, productId: produto.id, obs: obsRef.current });
                             }}
+                            backgroundColor="black"
+                            borderRadius={10}
+                            width={25}
+                            height={25}
+                            alignItems="center"
+                            justifyContent="center"
+                            borderColor="white"
+                            borderWidth={1}
+                            cursor="pointer"
+                            position="absolute"
+                            bottom={3}
+                            left={0}
                         >
-                            <Icons name='trash-bin' color='white' size={15}></Icons>
+                            <Icons name='trash-bin' color='white' size={15} />
                         </View>
                     </View>
-                    <View style={{ marginLeft: 8, maxWidth: 162 }}>
-                        <Text style={{ fontSize: 12 }}>{produto.name}</Text>
-                        <Text style={{ color: '#aaa', fontSize: 10 }}>
+                    <View marginLeft={8} maxWidth={162}>
+                        <Text fontSize={12}>{produto.name}</Text>
+                        <Text color="#aaa" fontSize={10}>
                             Obs.: {obsC || '--'}
                         </Text>
                     </View>
                 </View>
-                <View mr={Platform.OS === 'web' ? 10 : 5} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text fontWeight='800'>{valueQuant} {produto.orderUnit.replace('Unid', 'Un')}</Text>
-                    <Icons onPress={toggleOpen} name={open ? "chevron-up" : "chevron-down"} style={{ paddingLeft: 10 }} size={25} color="lightgray" />
+                <View mr={Platform.OS === 'web' ? 10 : 5} gap={Platform.OS === 'web' ? 15 : 0} flexDirection="row" alignItems="center">
+                    <Text fontWeight="800">{valueQuant} {produto.orderUnit.replace('Unid', 'Un')}</Text>
+                    <Icons onPress={toggleOpen} name={open ? "chevron-up" : "chevron-down"} paddingLeft={10} size={25} color="lightgray" />
                 </View>
             </View>
             {open && (
-                <View style={{ minHeight: 85, borderTopWidth: 1, borderTopColor: '#ccc', paddingHorizontal: 8, gap: 8, borderBottomWidth: 0, borderBottomLeftRadius: 12, borderBottomRightRadius: 12, backgroundColor: '#fff', justifyContent: 'center', transform: [{ translateY: 0 }] }}>
-                    <View paddingHorizontal={Platform.OS === 'web' ? 10 : 5} style={{ flexDirection: 'row' }} f={1} alignItems="center" marginTop={10}>
-                        <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" f={1} gap={8}>
+                <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} paddingHorizontal={8} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
+                    <View paddingHorizontal={Platform.OS === 'web' ? 10 : 5} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
+                        <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} flex={1} alignItems='center' mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
                             {Platform.OS === 'web' && (
                                 <View alignSelf="flex-start" flex={1}>
-                                    <XStack style={{ backgroundColor: '#F0F2F6', paddingRight: 14, borderWidth: 0, borderRadius: 20, alignItems: 'center', flexDirection: 'row', zIndex: 20, height: 36 }}>
+                                    <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" zIndex={20} height={36}>
                                         <Input
                                             focusVisibleStyle={{ outlineWidth: 0 }}
                                             placeholder="Observação para entrega..."
-                                            style={{ backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent', flex: 1, fontSize: 10 }}
+                                            backgroundColor="transparent"
+                                            borderWidth={0}
+                                            borderColor="transparent"
+                                            flex={1}
+                                            fontSize={10}
                                             maxLength={999}
-                                            onChangeText={(text) => {
-                                                setObs(text);
-                                            }}
+                                            onChangeText={(text) => setObs(text)}
                                             value={obsC}
                                         />
                                     </XStack>
@@ -160,12 +160,10 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                     setQuant(produto.firstUnit);
                                     quantRef.current = produto.firstUnit;
                                 }}
-                                style={{
-                                    backgroundColor: quant === produto.firstUnit ? '#0BC07D' : '#F0F2F6',
-                                    height: 30,
-                                    minWidth: 48,
-                                    borderRadius: 12,
-                                }}
+                                backgroundColor={quant === produto.firstUnit ? '#0BC07D' : '#F0F2F6'}
+                                height={30}
+                                minWidth={48}
+                                borderRadius={12}
                             >
                                 <Text color={quant === produto.firstUnit ? '#fff' : '#000'}>{produto.firstUnit}</Text>
                             </Button>
@@ -174,12 +172,10 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                     setQuant(produto.secondUnit);
                                     quantRef.current = produto.secondUnit;
                                 }}
-                                style={{
-                                    backgroundColor: quant === produto.secondUnit ? '#0BC07D' : '#F0F2F6',
-                                    height: 30,
-                                    minWidth: 48,
-                                    borderRadius: 12,
-                                }}
+                                backgroundColor={quant === produto.secondUnit ? '#0BC07D' : '#F0F2F6'}
+                                height={30}
+                                minWidth={48}
+                                borderRadius={12}
                             >
                                 <Text color={quant === produto.secondUnit ? '#fff' : '#000'}>{produto.secondUnit}</Text>
                             </Button>
@@ -188,12 +184,10 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                     setQuant(produto.thirdUnit);
                                     quantRef.current = produto.thirdUnit;
                                 }}
-                                style={{
-                                    backgroundColor: quant === produto.thirdUnit ? '#0BC07D' : '#F0F2F6',
-                                    height: 30,
-                                    minWidth: 48,
-                                    borderRadius: 12,
-                                }}
+                                backgroundColor={quant === produto.thirdUnit ? '#0BC07D' : '#F0F2F6'}
+                                height={30}
+                                minWidth={48}
+                                borderRadius={12}
                             >
                                 <Text color={quant === produto.thirdUnit ? '#fff' : '#000'}>{produto.thirdUnit}</Text>
                             </Button>
@@ -207,24 +201,26 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                     const probValue = valueQuant - quant;
                                     if (probValue > 0) setValueQuant(Number((valueQuant - quant).toFixed(3)));
                                     if (probValue <= 0) setValueQuant(0);
-                                    handleAddToCart(true, false, '')
+                                    handleAddToCart(true, false, '');
                                 }}
                             />
                             <Text>{valueQuant}</Text>
-                            <Icons name="add" color="#04BF7B" size={24} onPress={() => { handleAddToCart(false, false, '') }} />
+                            <Icons name="add" color="#04BF7B" size={24} onPress={() => { handleAddToCart(false, false, ''); }} />
                         </View>
                     </View>
                     {Platform.OS !== 'web' && (
-                        <View alignSelf="flex-start" flex={1}>
-                            <XStack style={{ backgroundColor: '#F0F2F6', borderWidth: 0, borderRadius: 20, alignItems: 'center', flexDirection: 'row', zIndex: 20, height: 36 }}>
+                        <View>
+                            <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36} marginBottom={5}>
                                 <Input
                                     focusVisibleStyle={{ outlineWidth: 0 }}
                                     placeholder="Observação para entrega..."
-                                    style={{ backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent', flex: 1, fontSize: 10 }}
+                                    backgroundColor="transparent"
+                                    borderWidth={0}
+                                    borderColor="transparent"
+                                    flex={1}
+                                    fontSize={10}
                                     maxLength={999}
-                                    onChangeText={(text) => {
-                                        setObs(text);
-                                    }}
+                                    onChangeText={(text) => setObs(text)}
                                     value={obsC}
                                 />
                             </XStack>
@@ -234,6 +230,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             )}
         </View>
     );
+    
 });
 
 ProductBox.displayName = 'ProductBox'
