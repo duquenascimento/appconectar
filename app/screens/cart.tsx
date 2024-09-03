@@ -64,34 +64,43 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
     const obsRef = useRef('');
     const quantRef = useRef(produto.firstUnit);
+    const handleObsChange = (text: string) => {setObs(text); setObs(text)};
 
     const isCart = useMemo(() => {
         return produto.cart.has(produto.id);
     }, [produto.cart, produto.id]);
 
     useEffect(() => {
-        const cartProduct = produto.cartInside.get(produto.id)
-        if (cartProduct != null) {
-            obsRef.current = cartProduct.obs
-            setObs(cartProduct.obs)
-            setValueQuant(Number(cartProduct.amount))
+        const cartProduct = produto.cart.get(produto.id);
+        if (cartProduct) {
+            obsRef.current = cartProduct.obs;
+            setObs(cartProduct.obs);
+            setValueQuant(Number(cartProduct.amount));
         }
-    }, [produto.cartInside, produto.id])
+    }, [produto.cart, produto.id]);
+
+
+    const handleValueQuantChange = (delta: number) => {
+        setValueQuant(prevValue => Math.max(0, Number((prevValue + delta).toFixed(3))));
+    };
 
     const toggleOpen = useCallback(() => setOpen(prev => !prev), []);
 
-    const handleAddToCart = async (isMinor: boolean, isObs: boolean, text: string) => {
-        const currentObs = obsRef.current;
-        const currentQuant = quantRef.current;
-        let value = (Number((isObs ? valueQuant : isMinor ? (valueQuant - currentQuant) : (valueQuant + currentQuant)).toFixed(3)))
-        if (value < 0) value = 0
-        setValueQuant(value);
-        produto.saveCart({ amount: value, productId: produto.id, obs: text ? text : currentObs } satisfies TCart, isCart);
-    }
+    useEffect(() => {
+        if (isCart) {
+            produto.saveCart({ amount: valueQuant, productId: produto.id, obs: obsC ?? '' }, isCart);
+        }
+    }, [valueQuant, isCart, produto.id, produto.saveCart, obsC]);
+
+
+    const handleQuantityChange = (newQuant: number) => {
+        setQuant(newQuant);
+        quantRef.current = newQuant;
+    };
 
     return (
         <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-            <View flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
+            <View onPress={toggleOpen} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
                 <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 5}>
                         <View onPress={() => {
@@ -130,7 +139,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                 </View>
                 <View mr={Platform.OS === 'web' ? 10 : 5} gap={Platform.OS === 'web' ? 15 : 0} flexDirection="row" alignItems="center">
                     <Text fontWeight="800">{valueQuant} {produto.orderUnit.replace('Unid', 'Un')}</Text>
-                    <Icons onPress={toggleOpen} name={open ? "chevron-up" : "chevron-down"} paddingLeft={10} size={25} color="lightgray" />
+                    <Icons name={open ? "chevron-up" : "chevron-down"} paddingLeft={10} size={25} color="lightgray" />
                 </View>
             </View>
             {open && (
@@ -149,17 +158,14 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                             flex={1}
                                             fontSize={10}
                                             maxLength={999}
-                                            onChangeText={(text) => setObs(text)}
+                                            onChangeText={handleObsChange}
                                             value={obsC}
                                         />
                                     </XStack>
                                 </View>
                             )}
                             <Button
-                                onPress={() => {
-                                    setQuant(produto.firstUnit);
-                                    quantRef.current = produto.firstUnit;
-                                }}
+                                onPress={() => handleQuantityChange(produto.firstUnit)}
                                 backgroundColor={quant === produto.firstUnit ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
@@ -168,10 +174,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                 <Text color={quant === produto.firstUnit ? '#fff' : '#000'}>{produto.firstUnit}</Text>
                             </Button>
                             <Button
-                                onPress={() => {
-                                    setQuant(produto.secondUnit);
-                                    quantRef.current = produto.secondUnit;
-                                }}
+                                onPress={() => handleQuantityChange(produto.secondUnit)}
                                 backgroundColor={quant === produto.secondUnit ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
@@ -180,10 +183,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                 <Text color={quant === produto.secondUnit ? '#fff' : '#000'}>{produto.secondUnit}</Text>
                             </Button>
                             <Button
-                                onPress={() => {
-                                    setQuant(produto.thirdUnit);
-                                    quantRef.current = produto.thirdUnit;
-                                }}
+                                onPress={() => handleQuantityChange(produto.thirdUnit)}
                                 backgroundColor={quant === produto.thirdUnit ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
@@ -197,15 +197,10 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                 name="remove"
                                 color="#04BF7B"
                                 size={24}
-                                onPress={() => {
-                                    const probValue = valueQuant - quant;
-                                    if (probValue > 0) setValueQuant(Number((valueQuant - quant).toFixed(3)));
-                                    if (probValue <= 0) setValueQuant(0);
-                                    handleAddToCart(true, false, '');
-                                }}
+                                onPress={() => handleValueQuantChange(-quant)}
                             />
                             <Text>{valueQuant}</Text>
-                            <Icons name="add" color="#04BF7B" size={24} onPress={() => { handleAddToCart(false, false, ''); }} />
+                            <Icons name="add" color="#04BF7B" size={24} onPress={() => handleValueQuantChange(quant)} />
                         </View>
                     </View>
                     {Platform.OS !== 'web' && (
@@ -220,7 +215,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                     flex={1}
                                     fontSize={10}
                                     maxLength={999}
-                                    onChangeText={(text) => setObs(text)}
+                                    onChangeText={handleObsChange}
                                     value={obsC}
                                 />
                             </XStack>
@@ -230,7 +225,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             )}
         </View>
     );
-    
+
 });
 
 ProductBox.displayName = 'ProductBox'
@@ -249,65 +244,68 @@ export function Cart({ navigation }: HomeScreenProps) {
     const [image, setImage] = useState<string>('')
 
     const handleSetImage = (imageString: string): void => {
+        console.log('aqui handleSetImage')
         setImage(imageString)
     }
 
     const handleSetModalVisible = (status: boolean): void => {
+        console.log('aqui handleSetModalVisible')
         setModalVisible(status)
     }
+
+    useEffect(() => {
+        setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
+    }, [cart])
 
     const flatListRef = useRef<VirtualizedList<Product>>(null);
 
     const deleteItemFromCart = debounce(async (cartToDelete: TCart) => {
-        const deleteItem = async (): Promise<void> => {
-            const token = await getToken();
-            await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-item`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ token, productId: cartToDelete.productId })
-            });
-            if (Itens.size < 1) navigation.replace('Products')
-            return
-        }
-
-        let Itens: Map<string, TCart>
-
+        console.log('aqui deleteItemFromCart')
+        const token = await getToken();
+    
         setCart((prevCart) => {
             const newCart = new Map(prevCart);
-
+    
+            // Remove o item do carrinho
             newCart.delete(cartToDelete.productId);
+    
+            // Atualiza o estado de exclusão
             setCartToExclude((prevCartToExclude) => {
                 const newCartToExclude = new Map(prevCartToExclude);
                 newCartToExclude.set(cartToDelete.productId, cartToDelete);
                 return newCartToExclude;
             });
+    
+            // Salva o carrinho atualizado no AsyncStorage
+            console.log('deleteItemFromCart: ', newCart)
+            setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
 
-            // Save updated cart to AsyncStorage
-            setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
-            setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
+            // Atualiza os produtos
             setProducts((prevProducts) => {
-                return [...prevProducts.filter(item => item.id !== cartToDelete.productId)]
-            })
+                return prevProducts.filter(item => item.id !== cartToDelete.productId);
+            });
 
-            Itens = newCart
-
-            setConfirmDeleteItem(false)
-            if (newCart.size < 1) {
-                deleteItem()
-            } else {
-                setLoading(false)
-            }
-
+            fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-item`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token, productId: cartToDelete.productId })
+            }).then(res => res).then((result => {
+                if(result.ok) {
+                    if (newCart.size < 1) {
+                        deleteStorage('cart').then()
+                        navigation.replace('Products');
+                    }
+                    
+                }
+            })).finally(() => {setLoading(false);setConfirmDeleteItem(false)})
             return newCart;
         });
-
-        deleteItem()
-
-    }, 300)
+    }, 300);
 
     const loadCart = useCallback(async (): Promise<Map<string, TCart>> => {
+        console.log('aqui LoadCart')
         try {
             const token = await getToken();
             if (!token) return new Map();
@@ -323,6 +321,7 @@ export function Cart({ navigation }: HomeScreenProps) {
             if (!result.ok) return new Map();
 
             const cart = await result.json();
+            console.log('cartloaded: ', cart )
             if (!cart.data || cart.data.length < 1) return new Map();
 
             // Converte o array de cart para um Map
@@ -342,35 +341,41 @@ export function Cart({ navigation }: HomeScreenProps) {
         }
     }, []);
 
-    const saveCart = debounce(async (cart: TCart, isCart: boolean) => {
-        setCart((prevCart) => {
-            const newCart = new Map(prevCart);
+    const saveCart = useCallback(async (cart: TCart, isCart: boolean) => {
+        console.log('aqui saveCart')
+        let newCart = new Map()
+        const attCart = async (): Promise<void> => {
+            setCart((prevCart) => {
+                newCart = new Map(prevCart);
 
-            if (cart.amount === 0) {
-                if (isCart) {
-                    newCart.delete(cart.productId);
+                if (cart.amount === 0) {
+                    if (isCart) {
+                        newCart.delete(cart.productId);
+                        setCartToExclude((prevCartToExclude) => {
+                            const newCartToExclude = new Map(prevCartToExclude);
+                            newCartToExclude.set(cart.productId, cart);
+                            return newCartToExclude;
+                        });
+                    }
+                } else {
+                    newCart.set(cart.productId, cart);
                     setCartToExclude((prevCartToExclude) => {
-                        const newCartToExclude = new Map(prevCartToExclude)
-                        newCartToExclude.set(cart.productId, cart)
-                        return newCartToExclude
-                    })
+                        const newCartToExclude = new Map(prevCartToExclude);
+                        newCartToExclude.delete(cart.productId);
+                        return newCartToExclude;
+                    });
                 }
-            } else {
-                newCart.set(cart.productId, cart);
-                setCartToExclude((prevCartToExclude) => {
-                    const newCartToExclude = new Map(prevCartToExclude)
-                    newCartToExclude.delete(cart.productId)
 
-                    return newCartToExclude
-                })
-            }
-            setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
-            setCartInside(newCart)
-            return newCart;
-        });
-    }, 300)
+
+                return newCart;
+            });
+        }
+        await attCart()
+        await setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
+    }, [])
 
     const loadProducts = useCallback(async () => {
+        console.log('aqui loadProducts')
         try {
             const token = await getToken();
             if (token == null) return [];
@@ -394,12 +399,14 @@ export function Cart({ navigation }: HomeScreenProps) {
     }, [])
 
     const handleTrashItemState = (cart: TCart) => {
+        console.log('aqui handleTrashItemState')
         setItemToDelete(cart)
         setConfirmDeleteItem(true)
     }
 
     const saveCartArray = useCallback(async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
-        const token = await getToken();
+        console.log('aqui saveCartArray')
+        const token = await getToken()
         if (token == null) return [];
         await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
             method: 'POST',
@@ -412,9 +419,11 @@ export function Cart({ navigation }: HomeScreenProps) {
                 cartToExclude: Array.from(cartsToExclude.values())
             })
         });
+        setCartToExclude(new Map());
     }, []);
 
     useEffect(() => {
+        console.log('aqui useEffect1')
         const loadInitialData = async () => {
             setLoading(true);
             try {
@@ -432,6 +441,7 @@ export function Cart({ navigation }: HomeScreenProps) {
     }, [loadCart, loadProducts]);
 
     useEffect(() => {
+        console.log('aqui useEffect2')
         setDisplayedProducts(products);
     }, [products, cart, cartInside]);
 
@@ -490,7 +500,7 @@ export function Cart({ navigation }: HomeScreenProps) {
                 </View>
 
                 <View backgroundColor='#F0F2F6' display={confirmDelte ? 'none' : 'flex'} px={20} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 20 }} height={70}>
-                    <View backgroundColor='#F0F2F6' {...Platform.OS === 'web' ? {minWidth: '50%'} : {}} flexDirection='row' justifyContent='center' gap={5}>
+                    <View backgroundColor='#F0F2F6' {...Platform.OS === 'web' ? { minWidth: '50%' } : {}} flexDirection='row' justifyContent='center' gap={5}>
                         <View justifyContent='center' alignItems='center'>
                             <Button backgroundColor='black' onPress={async () => {
                                 setConfirmDelete(true)
@@ -511,31 +521,26 @@ export function Cart({ navigation }: HomeScreenProps) {
 
                 {confirmDelte && (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-
-                        <Modal
-                            transparent={true}
-                        >
+                        <Modal transparent={true}>
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
-                                <View style={{ maxWidth: 400, backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
-                                    <View flexDirection='row' mb={30} alignItems='center'>
-                                        <View paddingHorizontal={30}>
-                                            <Text fontSize={18}>Apagar carrinho</Text>
+                                <View style={{ maxWidth: 400, width: '90%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
+                                    <View style={{ flexDirection: 'row', marginBottom: 15, alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
+                                        <View style={{ flex: 1 }}>
+                                            <Text style={{ fontSize: 22 }}>Apagar carrinho</Text>
                                         </View>
                                     </View>
-                                    <View marginBottom={20}>
+                                    <View style={{ marginBottom: 20, width: '100%' }}>
                                         <Text style={{ fontSize: 16, marginBottom: 5 }}>Deseja apagar o carrinho e remover todos os produtos adicionados?</Text>
-                                        <Text style={{ fontSize: 10, color: 'gray', textAlign: 'left' }}>Esta ação não podera ser desfeita</Text>
+                                        <Text style={{ fontSize: 10, color: 'gray', textAlign: 'left' }}>Esta ação não poderá ser desfeita</Text>
                                     </View>
-                                    <View style={{ flexDirection: 'row', gap: 10 }}>
-
+                                    <View gap={5} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                                         <TouchableOpacity style={{ flex: 1 }}>
                                             <Button backgroundColor='#04BF7B' onPress={() => setConfirmDelete(false)}>
-                                                <Text color='white'>Cancelar</Text>
+                                                <Text style={{ color: 'white', textAlign: 'center' }}>Cancelar</Text>
                                             </Button>
                                         </TouchableOpacity>
-
-                                        <TouchableOpacity style={{ flex: 1 }} >
-                                            <Button width='100%' backgroundColor='black' onPress={async () => {
+                                        <TouchableOpacity style={{ flex: 1 }}>
+                                            <Button backgroundColor='black' onPress={async () => {
                                                 setLoading(true)
                                                 const token = await getToken();
                                                 if (token == null) return [];
@@ -548,11 +553,10 @@ export function Cart({ navigation }: HomeScreenProps) {
                                                         token
                                                     })
                                                 });
-                                                deleteStorage('cart')
-                                                deleteStorage('cart')
-                                                navigation.replace('Products')
+                                                deleteStorage('cart');
+                                                navigation.replace('Products');
                                             }}>
-                                                <Text color='white'>Apagar</Text>
+                                                <Text style={{ color: 'white', textAlign: 'center' }}>Apagar</Text>
                                             </Button>
                                         </TouchableOpacity>
                                     </View>
@@ -560,37 +564,32 @@ export function Cart({ navigation }: HomeScreenProps) {
                             </View>
                         </Modal>
                     </View>
+
                 )}
                 {confirmDeleteItem && (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
-
-                        <Modal
-                            transparent={true}
-                        >
+                        <Modal transparent={true}>
                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
-                                <View style={{ maxWidth: 400, backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
-                                    <View flexDirection='row' mb={30} alignItems='center'>
-                                        <Text f={1} fontSize={18}>Remover item</Text>
+                                <View style={{ maxWidth: 400, width: '90%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
+                                    <View style={{ flexDirection: 'row', marginBottom: 15, alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
+                                        <Text style={{ flex: 1, fontSize: 22 }}>Remover item</Text>
                                     </View>
-                                    <View marginBottom={20}>
+                                    <View style={{ marginBottom: 20, width: '100%' }}>
                                         <Text style={{ fontSize: 16, marginBottom: 5 }}>Deseja remover o item do carrinho?</Text>
-                                        <Text style={{ fontSize: 10, color: 'gray', textAlign: 'left' }}>Esta ação não podera ser desfeita</Text>
+                                        <Text style={{ fontSize: 10, color: 'gray', textAlign: 'left' }}>Esta ação não poderá ser desfeita</Text>
                                     </View>
-                                    <View style={{ flexDirection: 'row', gap: 10 }}>
-
+                                    <View gap={5} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
                                         <TouchableOpacity style={{ flex: 1 }}>
                                             <Button backgroundColor='#04BF7B' onPress={() => setConfirmDeleteItem(false)}>
-                                                <Text color='white'>Cancelar</Text>
+                                                <Text style={{ color: 'white', textAlign: 'center' }}>Cancelar</Text>
                                             </Button>
                                         </TouchableOpacity>
-
-                                        <TouchableOpacity style={{ flex: 1 }} >
+                                        <TouchableOpacity style={{ flex: 1 }}>
                                             <Button backgroundColor='black' onPress={async () => {
                                                 setLoading(true)
                                                 if (itemToDelete != null) deleteItemFromCart(itemToDelete)
-
                                             }}>
-                                                <Text color='white'>Remover</Text>
+                                                <Text style={{ color: 'white', textAlign: 'center' }}>Remover</Text>
                                             </Button>
                                         </TouchableOpacity>
                                     </View>
@@ -598,6 +597,7 @@ export function Cart({ navigation }: HomeScreenProps) {
                             </View>
                         </Modal>
                     </View>
+
                 )}
             </View>
         </Stack>

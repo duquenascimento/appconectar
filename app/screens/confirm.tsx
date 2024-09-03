@@ -215,7 +215,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                         <Text fontSize={16}>{supplier?.supplier.name}</Text>
                         <View flexDirection="row" alignItems="center">
                             <Icons color='orange' name="star"></Icons>
-                            <Text color='gray' pl={4}>4,8</Text>
+                            <Text color='gray' pl={4}>{supplier?.supplier.star}</Text>
                         </View>
                     </View>
                 </View>
@@ -239,7 +239,15 @@ export function Confirm({ navigation }: HomeScreenProps) {
                     </View>
                 </View>
                 <View paddingHorizontal={16} flex={1} backgroundColor='white'>
-                    {supplier.supplier.discount.products.map(item => {
+                    {supplier.supplier.discount.product.sort((a, b) => {
+                        if (a.price === 0 && b.price !== 0) {
+                            return -1
+                        }
+                        if (a.price !== 0 && b.price === 0) {
+                            return 1
+                        }
+                        return a.name.localeCompare(b.name);
+                    }).map(item => {
                         return (
                             <View key={item.sku} borderBottomColor='lightgray' paddingVertical={1} borderBottomWidth={0.5}>
                                 <View flexDirection="row" alignItems="center">
@@ -285,7 +293,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                     <View pt={10} flexDirection="row">
                         <View f={1}>
                             <Text fontSize={18} >Total</Text>
-                            <Text fontSize={14} color='gray'>{supplier.supplier.discount.products.length} item(s) | {supplier.supplier.discount.products.length - supplier.supplier.missingItens} faltante(s)</Text>
+                            <Text fontSize={14} color='gray'>{supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)</Text>
                         </View>
 
                         <Text fontSize={18}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
@@ -341,7 +349,9 @@ export function Confirm({ navigation }: HomeScreenProps) {
                         restaurant: selectedRestaurant
                     }
 
+                    console.log(JSON.stringify(body))
 
+                    console.log('final: ', JSON.stringify(body))
                     const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
                         method: 'POST',
                         headers: {
@@ -353,6 +363,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
                         const response = await result.json()
                         await setStorage('finalConfirmData', JSON.stringify(response.data))
                         navigation.replace('FinalConfirm')
+                    } else {
+                        setLoadingToConfirm(false)
                     }
                 }} width={170} backgroundColor='#04BF7B' disabled={!isOpen()} opacity={isOpen() ? 1 : 0.3}>
                     <Text color='white'>Confirmar pedido</Text>

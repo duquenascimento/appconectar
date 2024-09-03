@@ -119,6 +119,7 @@ export function Register({ navigation }: HomeScreenProps) {
     const [registerInvalid, setRegisterInvalid] = useState(false)
     const [emailValid, setEmailValid] = useState(false)
     const [emailAlternativeValid, setEmailAlternativeValid] = useState(false)
+    const [isCepValid, setIsCepValid] = useState(true); // Nova variável de estado
 
     useEffect(() => {
 
@@ -160,28 +161,40 @@ export function Register({ navigation }: HomeScreenProps) {
 
     const cepChange = async (value: string) => {
         try {
-            const format = value.replace(/\D/g, '')
+            const format = value.replace(/\D/g, '');
             if (format.length === 8) {
-                setLoading(true)
-                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${format}`)
-                const result = await response.json()
+                setLoading(true);
+                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${format}`);
+                const result = await response.json();
                 if (response.ok) {
-                    const street: string[] = result.street.split(' ')
-                    const localType: string = street[0]
-                    console.log(street.join(' '))
-                    street.shift()
+                    const street: string[] = result.street.split(' ');
+                    const localType: string = street[0];
+                    console.log(street.join(' '));
+                    street.shift();
                     await Promise.all([
                         setNeigh(result.neighborhood.toUpperCase()), setStreet(street.join(' ').toUpperCase()),
                         setLocalNumber(''), setComplement(''),
                         setLocalType(localType.toUpperCase()), setCity(result.city)
-                    ])
+                    ]);
+                    setIsCepValid(true); // CEP válido
+                } else {
+                    setIsCepValid(false); // CEP inválido
                 }
+            } else {
+                setIsCepValid(false); // CEP inválido se tiver menos de 8 caracteres
             }
-            formatCep(value)
+            setZipcode(value); // Atualiza o valor do CEP no estado
         } finally {
-            setLoading(false)
+            formatCep(value)
+            setLoading(false);
         }
-    }
+    };
+
+    // Função para aplicar o estilo da borda
+    const getCepBorderStyle = () => ({
+        borderColor: isCepValid ? '#049A63' : 'red',
+        borderWidth: 1,
+    });
 
     const initData = async () => {
         try {
@@ -280,6 +293,32 @@ export function Register({ navigation }: HomeScreenProps) {
         try {
             setLoading(true)
             if (step === 3) {
+                console.log(JSON.stringify({
+                    token: await getToken(),
+                    cnpj: cnpj.replace(/\D/g, ''),
+                    alternativeEmail,
+                    email,
+                    alternativePhone,
+                    phone,
+                    complement,
+                    localNumber,
+                    street,
+                    neigh,
+                    zipcode: zipcode.replace(/\D/g, ''),
+                    legalRestaurantName,
+                    restaurantName,
+                    cityNumberId,
+                    stateNumberId,
+                    paymentWay,
+                    orderValue: Number(orderValue.replace(/[^\d,]/g, '').replace(',', '.')),
+                    weeklyOrderAmount,
+                    deliveryObs,
+                    closeDoor,
+                    maxHour,
+                    minHour,
+                    localType,
+                    city
+                }))
                 const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -486,6 +525,13 @@ export function Register({ navigation }: HomeScreenProps) {
         return test.test(text);
     };
 
+    const validateInput = (value: string) => value.length >= 8;
+
+    const getBorderStyle = (value: string) => ({
+        borderColor: validateInput(value) ? '#049A63' : 'red',
+        borderWidth: 1,
+    });
+
 
     // Função para validar e formatar e-mail alternativo
     const handleAlternativeEmailChange = (text: string) => {
@@ -543,9 +589,11 @@ export function Register({ navigation }: HomeScreenProps) {
                             <Text fontSize={12} mb={5} color='gray'>Dados do restaurante</Text>
                             <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                 <Text>Nome na fachada da rua</Text>
-                                <Input onChangeText={setRestaurantName} value={restaurantName} backgroundColor='white' borderRadius={2}></Input>
+                                <Input onChangeText={setRestaurantName} value={restaurantName} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                 <Text mt={15}>CNPJ</Text>
-                                <Input onChangeText={handleCnpjChange} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
+                                <Input onChangeText={handleCnpjChange} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                             </View>
                         </View>
                         :
@@ -555,35 +603,80 @@ export function Register({ navigation }: HomeScreenProps) {
                                 <Text fontSize={12} mb={5} color='gray'>Dados do restaurante</Text>
                                 <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                     <Text>Nome na fachada da rua</Text>
-                                    <Input onChangeText={setRestaurantName} value={restaurantName} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input onChangeText={setRestaurantName} value={restaurantName} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                     <Text mt={15}>CNPJ</Text>
-                                    <Input disabled={step >= 1 ? true : false} opacity={step >= 1 ? 0.5 : 1} onChangeText={setCnpj} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
-                                    <Text display={!noStateNumberId ? 'flex' : 'none'} mt={15}>Inscrição estadual</Text>
-                                    <Input display={!noStateNumberId ? 'flex' : 'none'} onChangeText={setStateNumberId} value={stateNumberId} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
+                                    <Input disabled={step >= 1 ? true : false} opacity={step >= 1 ? 0.5 : 1} onChangeText={setCnpj} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                                    {noStateNumberId ? (
+                                        <>
+                                            <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                                <Text>Inscrição municipal</Text>
+                                                <Text style={{ fontSize: 10, color: 'gray' }}>Min. 8 digitos</Text>
+                                            </View>
+                                            <Input
+                                                onChangeText={setCityNumberId}
+                                                value={cityNumberId}
+                                                keyboardType="number-pad"
+                                                backgroundColor="white"
+                                                borderRadius={2}
+                                                focusStyle={getBorderStyle(cityNumberId)}
+                                                hoverStyle={getBorderStyle(cityNumberId)}
+                                            />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                                <Text>Inscrição estadual</Text>
+                                                <Text style={{ fontSize: 10, color: 'gray' }}>Min. 8 digitos</Text>
+                                            </View>
+                                            <Input
+                                                onChangeText={setStateNumberId}
+                                                value={stateNumberId}
+                                                keyboardType="number-pad"
+                                                backgroundColor="white"
+                                                borderRadius={2}
+                                                focusStyle={getBorderStyle(stateNumberId)}
+                                                hoverStyle={getBorderStyle(stateNumberId)}
+                                            />
+                                        </>
+                                    )}
                                     <View mt={15} alignItems="center" flexDirection="row">
                                         <Checkbox onPress={handleCheckBox}>
                                             {noStateNumberId ? <Icons name="checkmark"></Icons> : <></>}
-
                                         </Checkbox>
                                         <Text paddingLeft={5} fontSize={12}>Sou isento de IE</Text>
                                     </View>
-                                    <Text display={noStateNumberId ? 'flex' : 'none'} mt={15}>Inscrição municipal</Text>
-                                    <Input display={noStateNumberId ? 'flex' : 'none'} onChangeText={setCityNumberId} value={cityNumberId} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
                                     <Text mt={15}>Razão Social</Text>
-                                    <Input disabled opacity={0.5} onChangeText={setLegalRestaurantName} value={legalRestaurantName} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input disabled opacity={0.5} onChangeText={setLegalRestaurantName} value={legalRestaurantName} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                 </View>
                                 <Text fontSize={12} mt={10} mb={5} color='gray'>Endereço</Text>
                                 <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
-                                    <Text>CEP</Text>
-                                    <Input onChangeText={cepChange} value={zipcode} backgroundColor='white' borderRadius={2}></Input>
+                                    <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                        <Text>Cep</Text>
+                                        <Text style={{ fontSize: 10, color: 'gray' }}>8 digitos</Text>
+                                    </View>
+                                    <Input
+                                        onChangeText={cepChange}
+                                        value={zipcode}
+                                        backgroundColor="white"
+                                        borderRadius={2}
+                                        focusStyle={getCepBorderStyle()}
+                                        hoverStyle={getCepBorderStyle()}
+                                    />
                                     <Text mt={15}>Bairro</Text>
-                                    <Input disabled opacity={0.5} onChangeText={setNeigh} value={neigh} keyboardType="number-pad" backgroundColor='white' borderRadius={2}></Input>
+                                    <Input disabled opacity={0.5} onChangeText={setNeigh} value={neigh} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                     <Text mt={15}>Logradouro</Text>
-                                    <Input onChangeText={setStreet} value={street} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input onChangeText={setStreet} value={street} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                     <Text mt={15}>Número</Text>
-                                    <Input onChangeText={setLocalNumber} value={localNumber} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input onChangeText={setLocalNumber} value={localNumber} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                     <Text mt={15}>Complemento</Text>
-                                    <Input onChangeText={setComplement} value={complement} backgroundColor='white' borderRadius={2}></Input>
+                                    <Input onChangeText={setComplement} value={complement} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                 </View>
                             </View>
                             :
@@ -627,6 +720,8 @@ export function Register({ navigation }: HomeScreenProps) {
                                             onChangeText={handleEmailChange}
                                             backgroundColor='white' borderRadius={2} borderColor='lightgray'
                                             placeholder="exemplo@exemplo.com"
+                                            focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         />
 
                                         {/* E-mail Alternativo */}
@@ -639,6 +734,8 @@ export function Register({ navigation }: HomeScreenProps) {
                                             onChangeText={handleAlternativeEmailChange}
                                             backgroundColor='white' borderRadius={2} borderColor='lightgray'
                                             placeholder="exemplo@exemplo.com"
+                                            focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         />
                                     </View>
                                 </View>
@@ -710,14 +807,15 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 <Text paddingLeft={5} fontSize={12}>Aceito receber de portas fechadas</Text>
                                             </View>
                                             <Text mt={15}>Obs de entrega</Text>
-                                            <Input onChangeText={setDeliveryObs} value={deliveryObs} backgroundColor='white' borderRadius={2}></Input>
+                                            <Input onChangeText={setDeliveryObs} value={deliveryObs} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Perfil de compra</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Quantos pedidos costuma fazer na semana?</Text>
                                             <TextInputMask type="only-numbers" placeholder="0" onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad" style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }}></TextInputMask>
                                             <Text mt={15}>Qual o valor médio de um pedido?</Text>
-                                            <TextInputMask placeholder="R$ 000,00" type="money" onChangeText={(value) => setOrderValue(value)} value={orderValue} style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }} keyboardType="number-pad"></TextInputMask>
+                                            <TextInputMask placeholder="R$ 000" type="only-numbers" onChangeText={(value) => setOrderValue(value)} value={orderValue} style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }} keyboardType="number-pad"></TextInputMask>
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Formato de pagamento</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
@@ -766,7 +864,7 @@ export function Register({ navigation }: HomeScreenProps) {
                         ?
                         false
                         :
-                        step === 1 && cnpj.length === 18 && restaurantName && legalRestaurantName && zipcode.length === 9 && neigh && street && localNumber && (stateNumberId || cityNumberId).length >= 8
+                        step === 1 && cnpj.length === 18 && restaurantName && legalRestaurantName && zipcode.length === 9 && neigh && street && localNumber && (stateNumberId.length >= 8 || cityNumberId.length >= 8)
                             ?
                             false
                             :
@@ -784,7 +882,7 @@ export function Register({ navigation }: HomeScreenProps) {
                         ?
                         1
                         :
-                        step === 1 && cnpj.length === 18 && restaurantName && legalRestaurantName && zipcode.length === 9 && neigh && street && localNumber && (stateNumberId || cityNumberId).length >= 8
+                        step === 1 && cnpj.length === 18 && restaurantName && legalRestaurantName && zipcode.length === 9 && neigh && street && localNumber && (stateNumberId.length >= 8 || cityNumberId.length >= 8)
                             ?
                             1
                             :

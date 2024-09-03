@@ -29,7 +29,7 @@ export default function App() {
   return (
     <NavigationContainer independent={true}>
       <TamaguiProvider config={config}>
-        <Navigation.Navigator screenOptions={{headerShown: false}} initialRouteName="Home">
+        <Navigation.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
           <Navigation.Screen name="Sign" component={Sign} />
           <Navigation.Screen name="Products" component={Products} />
           <Navigation.Screen name="Cart" component={Cart} />

@@ -1,4 +1,4 @@
-rootProject.name = 'conectarapp'
+rootProject.name = 'Conéctar'
 
 dependencyResolutionManagement {
   versionCatalogs {

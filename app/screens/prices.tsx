@@ -10,7 +10,7 @@ import { getToken, setStorage } from "../utils/utils";
 
 type RootStackParamList = {
     Home: undefined;
-    Products: undefined;
+    Product: undefined;
     Cart: undefined;
     Confirm: undefined
 };
@@ -41,7 +41,7 @@ export interface Discount {
     tax: number;
     missingItens: number;
     orderValueFinish: number;
-    products: Product[];
+    product: Product[];
     sku: string;
 }
 
@@ -96,7 +96,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                 <View>
                     <Text textAlign="left" fontSize={16} fontWeight="800">R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     {available ? (
-                        <Text color={(supplier.supplier.discount.products.length - supplier.supplier.missingItens) > 0 ? 'red' : 'black'} fontSize={12}>{supplier.supplier.discount.products.length - supplier.supplier.missingItens} iten(s) faltante(s)</Text>
+                        <Text color={(supplier.supplier.discount.product.length - supplier.supplier.missingItens) > 0 ? 'red' : 'black'} fontSize={12}>{supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)</Text>
                     ) : (
                         isOpen() ? (
                             <Text color='red' fontSize={12}>Fechado às {supplier.supplier.hour.substring(0, 5)}</Text>
@@ -147,12 +147,11 @@ export function Prices({ navigation }: HomeScreenProps) {
         setSelectedRestaurant(rest)
         updateAddress(rest)
     }
-
     useEffect(() => {
         if (minHour) {
             let [minHourValue, minMinuteValue] = minHour.split(':').map(Number);
-            let [maxHourValue, maxMinuteValue] = maxHour ? maxHour.split(':').map(Number) : [0, 0];
-
+            let [currentMaxHourValue, currentMaxMinuteValue] = maxHour ? maxHour.split(':').map(Number) : [0, 0];
+    
             // Adiciona 1h30m à minHour
             let hour = minHourValue + 1;
             let minute = minMinuteValue + 30;
@@ -160,17 +159,26 @@ export function Prices({ navigation }: HomeScreenProps) {
                 minute -= 60;
                 hour += 1;
             }
-
+    
             // Verifica se o maxHour existente é menor que o novo tempo
-            const maxExistingInMinutes = maxHourValue * 60 + maxMinuteValue;
-            const minPlus1Hour30InMinutes = hour * 60 + minute;
-
-            if (maxExistingInMinutes < minPlus1Hour30InMinutes) {
-                maxHourValue = hour;
-                maxMinuteValue = minute;
+            const newMaxInMinutes = hour * 60 + minute;
+            const currentMaxInMinutes = currentMaxHourValue * 60 + currentMaxMinuteValue;
+    
+            if (currentMaxInMinutes < newMaxInMinutes) {
+                // Atualiza maxHour se o valor atual for menor que o novo calculado
+                const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+                setMaxHour(updatedMaxHour);
             }
-
+    
+            // Gera as opções para maxHour
             const maxOptions = [];
+            hour = minHourValue + 1; // Reinicializa o valor de hour para começar a partir do minHour + 1h30m
+            minute = minMinuteValue + 30;
+            if (minute >= 60) {
+                minute -= 60;
+                hour += 1;
+            }
+            
             while (hour < 24) {
                 maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
                 minute += 30;
@@ -179,13 +187,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                     hour += 1;
                 }
             }
-
+    
             setMaxhours(maxOptions);
-            setMaxHour(`${String(maxHourValue).padStart(2, '0')}:${String(maxMinuteValue).padStart(2, '0')}`);
         } else {
             setMaxhours([]);
         }
-    }, [maxHour, minHour]);
+    }, [minHour, maxHour]); // Remove maxHour da lista de dependências para evitar loop infinito
+    
 
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -227,7 +235,6 @@ export function Prices({ navigation }: HomeScreenProps) {
         try {
             setLoading(true)
             await setStorage('supplierSelected', JSON.stringify(supplier))
-            console.log('AQUI: ', supplier)
             await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }))
             navigation.replace('Confirm')
         } catch (err) {
@@ -242,6 +249,8 @@ export function Prices({ navigation }: HomeScreenProps) {
             const token = await getToken();
             if (!token) return new Map();
 
+            console.log(JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] }))
+
             const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
                 method: 'POST',
                 headers: {
@@ -249,19 +258,21 @@ export function Prices({ navigation }: HomeScreenProps) {
                 },
                 body: JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] })
             });
+
             const response = await result.json();
+
             const currentDate = DateTime.now().setZone('America/Sao_Paulo');
             const currentHour = Number(
-                `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`
+                `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
             );
             const supplier = (response.data as SupplierData[]).filter(item => {
                 return Number(item.supplier.hour.replaceAll(':', '')) >= currentHour && item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish && item.supplier.missingItens > 0;
             });
+            
             const supplierUnavailable = (response.data as SupplierData[]).filter(item => (Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish) && item.supplier.missingItens > 0);
-
             const sortedSuppliers = supplier.sort((a, b) => {
-                const diffA = a.supplier.discount.products.length - a.supplier.missingItens;
-                const diffB = b.supplier.discount.products.length - b.supplier.missingItens;
+                const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
+                const diffB = b.supplier.discount.product.length - b.supplier.missingItens;
 
                 if (diffA !== diffB) {
                     return diffA - diffB;
@@ -288,8 +299,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                 }
 
                 // Se os horários forem iguais, ordenar pelos produtos de desconto e itens ausentes de forma crescente
-                const diffA = a.supplier.discount.products.length - a.supplier.missingItens;
-                const diffB = b.supplier.discount.products.length - b.supplier.missingItens;
+                const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
+                const diffB = b.supplier.discount.product.length - b.supplier.missingItens;
 
                 if (diffA !== diffB) {
                     return diffA - diffB;
@@ -311,7 +322,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             setUnavailableSupplier(sortedUnavailableSuppliers);
 
         } catch (error) {
-            console.error('Error loading products:', error);
+            console.error('Error loading product:', error);
         }
     }, []);
 
@@ -330,16 +341,15 @@ export function Prices({ navigation }: HomeScreenProps) {
             const response = await result.json();
             const currentDate = DateTime.now().setZone('America/Sao_Paulo');
             const currentHour = Number(
-                `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`
+                `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
             );
             const supplier = (response.data as SupplierData[]).filter(item => {
                 return Number(item.supplier.hour.replaceAll(':', '')) >= currentHour && item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish && item.supplier.missingItens > 0;
             });
             const supplierUnavailable = (response.data as SupplierData[]).filter(item => (Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish) && item.supplier.missingItens > 0);
-
             const sortedSuppliers = supplier.sort((a, b) => {
-                const diffA = a.supplier.discount.products.length - a.supplier.missingItens;
-                const diffB = b.supplier.discount.products.length - b.supplier.missingItens;
+                const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
+                const diffB = b.supplier.discount.product.length - b.supplier.missingItens;
 
                 if (diffA !== diffB) {
                     return diffA - diffB;
@@ -366,8 +376,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                 }
 
                 // Se os horários forem iguais, ordenar pelos produtos de desconto e itens ausentes de forma crescente
-                const diffA = a.supplier.discount.products.length - a.supplier.missingItens;
-                const diffB = b.supplier.discount.products.length - b.supplier.missingItens;
+                const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
+                const diffB = b.supplier.discount.product.length - b.supplier.missingItens;
 
                 if (diffA !== diffB) {
                     return diffA - diffB;
@@ -389,7 +399,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             setUnavailableSupplier(sortedUnavailableSuppliers);
 
         } catch (error) {
-            console.error('Error loading products:', error);
+            console.error('Error loading product:', error);
         }
     }, []);
 
@@ -466,23 +476,23 @@ export function Prices({ navigation }: HomeScreenProps) {
     }
 
     return (
-        <Stack pt={20} style={{ backgroundColor: '#F0F2F6', height: '100%', position: 'relative' }}>
+        <Stack pt={20} style={{ backgroundColor: 'white', height: '100%', position: 'relative' }}>
             <View style={{ height: 50, flex: 1, paddingTop: 20 }}>
-                <View height={50} pb={20} alignItems='center' style={{ alignItems: 'center', paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
+                <View pb={20} alignItems='center' style={{ alignItems: 'center', paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
                     <Icons onPress={() => { navigation.replace('Cart') }} size={25} name='chevron-back'></Icons>
                     <Text f={1} textAlign='center' fontSize={20}>Cotações</Text>
                 </View>
                 <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50}>
-                    <View onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
-                        {...tab !== 'onlySupplier' ? { borderBottomColor: 'gray', borderBottomWidth: 0.5 } : {}}
-                        {...tab === 'onlySupplier' ? { backgroundColor: 'white' } : {}}
+                    <View disabled opacity={0.4} onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
                         style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
                         <Text>Conéctar+</Text>
+                        <Text fontSize={10}>(em breve)</Text>
+                        <View mt={10} h={1} width='100%' backgroundColor='white'></View>
                     </View>
-                    <View onPress={() => { setTab('onlySupplier') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
-                        {...tab === 'onlySupplier' ? { borderBottomColor: 'gray', borderBottomWidth: 0.5 } : {}}
-                        {...tab !== 'onlySupplier' ? { backgroundColor: 'white' } : {}} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <Text>Por fornecedor</Text>
+                    <View onPress={() => { setTab('onlySupplier') }} cursor="pointer"
+                        hoverStyle={{ opacity: 0.75 }} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                        <Text color='#04BF7B'>Por fornecedor</Text>
+                        <View mt={10} h={1} width='100%' backgroundColor='#04BF7B'></View>
                     </View>
                 </View>
 
@@ -522,15 +532,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                     setComplement(selectedRestaurant.addressInfos[0].complement)
                     setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation)
                     setEditInfos(true)
-                }} backgroundColor='#F0F2F6' paddingBottom={10} paddingTop={10} paddingHorizontal={20}>
+                }} backgroundColor='white' paddingBottom={10} paddingTop={10} paddingHorizontal={20} borderTopColor='lightgray' borderTopWidth={1}>
                     <View flexDirection="row" alignItems="center">
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                            <Icons size={20} color='gray' name="storefront"></Icons>
+                            <Icons size={20} color='#04BF7B' name="storefront"></Icons>
                             <View ml={20}></View>
                             <Text fontSize={12}>{selectedRestaurant?.name || ''}</Text>
                         </View>
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                            <Icons size={20} color='gray' name="time"></Icons>
+                            <Icons size={20} color='#04BF7B' name="time"></Icons>
                             <View ml={20}></View>
                             <Text fontSize={12}>{selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}</Text>
                         </View>
@@ -542,24 +552,24 @@ export function Prices({ navigation }: HomeScreenProps) {
                     <View display={showRestInfo ? "flex" : "none"}>
                         <View pt={5} flexDirection="row" alignItems="center">
                             <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='gray' name="location"></Icons>
+                                <Icons size={20} color='#04BF7B' name="location"></Icons>
                                 <View ml={20}></View>
                                 <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>{selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}</Text>
                             </View>
                             <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='gray' name="chatbox"></Icons>
+                                <Icons size={20} color='#04BF7B' name="chatbox"></Icons>
                                 <View ml={20}></View>
                                 <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
                             </View>
                         </View>
                         <View pt={5} flexDirection="row" alignItems="center">
                             <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='gray' name="person"></Icons>
+                                <Icons size={20} color='#04BF7B' name="person"></Icons>
                                 <View ml={20}></View>
                                 <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingName}</Text>
                             </View>
                             <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='gray' name="call"></Icons>
+                                <Icons size={20} color='#04BF7B' name="call"></Icons>
                                 <View ml={20}></View>
                                 <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}</Text>
                             </View>
@@ -579,11 +589,9 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         <Picker onValueChange={async (value) => {
                                             setLoading(true)
                                             const rest = allRestaurants.find((item) => {
-                                                console.log(item.name)
                                                 if (item?.name === value) return item
 
                                             })
-                                            console.log('RESST: ', rest)
                                             await setSelectedRestaurant(rest)
                                             setNeighborhood(rest?.addressInfos[0].neighborhood)
                                             setCity(rest?.addressInfos[0].city)
@@ -676,7 +684,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         <Input onChangeText={(value) => {
                                             const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
                                             setStreet(formattedValue);
-                                        }} flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} borderTopLeftRadius={0} borderBottomLeftRadius={0} value={street} />
+                                        }} flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} borderTopLeftRadius={0} borderBottomLeftRadius={0} value={street} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                                         <View style={{ flex: 1 }}>
@@ -693,15 +702,19 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                     const formattedValue = value.replace(/[^0-9]/g, '');
                                                     setLocalNumber(formattedValue);
                                                 }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
                                         <View style={{ flex: 1 }}>
                                             <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
-                                            <Input color='gray' fontSize={14} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} />
+                                            <Input color='gray' fontSize={14} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </View>
                                         <View style={{ flex: 1 }}>
                                             <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
-                                            <Input color='gray' fontSize={14} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} />
+                                            <Input color='gray' fontSize={14} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </View>
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
@@ -719,6 +732,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                     const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
                                                     setResponsibleReceivingName(formattedValue);
                                                 }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
                                         <View style={{ flex: 1 }}>
@@ -732,6 +747,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 borderRadius={5}
                                                 value={responsibleReceivingPhoneNumber}
                                                 keyboardType="phone-pad"
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                                 onChangeText={(value) => {
                                                     // Remove todos os caracteres que não sejam dígitos
                                                     let onlyNums = value.replace(/\D/g, '');
@@ -768,6 +785,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 onChangeText={(value) => {
                                                     setDeliveryInformation(value);
                                                 }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
                                         <View style={{ flex: 1 }}>
@@ -782,6 +801,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 onChangeText={(value) => {
                                                     setComplement(value);
                                                 }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
                                     </View>

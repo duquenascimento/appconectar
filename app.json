@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "conectarapp",
+    "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "1.0.0",
-    "scheme": "conectarapp",
+    "version": "2.0.0",
+    "scheme": "Conéctar",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/icon-conectar-positivo.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -20,11 +20,8 @@
       "bundleIdentifier": "io.bubbleapps.app-conectar"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "io.bubbleapps.app_conectar.twa"
+      "package": "io.bubbleapps.app_conectar.twa",
+      "versionCode": 2
     },
     "web": {
       "favicon": "./assets/images/favicon.png",

@@ -23,9 +23,9 @@ interface RestaurantInfo {
     minHour: string;
     deliveryDateFormated: string;
     paymentWay: string;
-  }
+}
 
-  interface PaymentDescriptions {
+interface PaymentDescriptions {
     [key: string]: string;
 }
 
@@ -64,17 +64,17 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
     const getPaymentDate = (paymentWay: string): string => {
         const today = new Date();
         const todayUTC = new Date(today.getTime() + today.getTimezoneOffset() * 60000);
-        
+
         const offset = -3; // Horário padrão de São Paulo é UTC-3
         const deliveryDay = new Date(todayUTC.getFullYear(), todayUTC.getMonth(), todayUTC.getDate(), todayUTC.getHours() + offset, todayUTC.getMinutes());
         deliveryDay.setDate(deliveryDay.getDate() + 1); // Definir o dia da entrega como 1 dia após o dia atual
-        
+
         const calculateNextWeekday = (date: Date, day: number): Date => {
             const resultDate = new Date(date);
             resultDate.setDate(date.getDate() + ((day + (7 - date.getDay())) % 7));
             return resultDate;
         };
-    
+
         const calculateNextBimonthly = (date: Date, day1: number, day2: number): Date => {
             const day = date.getDate();
             if (day < day1) {
@@ -85,7 +85,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
                 return new Date(date.getFullYear(), date.getMonth() + 1, day1);
             }
         };
-    
+
         const calculateNextMonthly = (date: Date, day: number): Date => {
             const nextDate = new Date(date.getFullYear(), date.getMonth(), day);
             if (date.getDate() >= day) {
@@ -97,7 +97,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
             }
             return nextDate;
         };
-    
+
         const paymentDescriptions: PaymentDescriptions = {
             "DI00": deliveryDay.toLocaleDateString('pt-BR'),
             "DI01": new Date(deliveryDay.getFullYear(), deliveryDay.getMonth(), deliveryDay.getDate() + 1).toLocaleDateString('pt-BR'),
@@ -120,7 +120,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
             "AV01": new Date(deliveryDay.getFullYear(), deliveryDay.getMonth(), deliveryDay.getDate() - 1).toLocaleDateString('pt-BR'), // À Vista: no dia anterior à entrega
             "AV00": deliveryDay.toLocaleDateString('pt-BR') // À Vista: no dia da entrega
         };
-    
+
         return paymentDescriptions[paymentWay] || '';
     }
 
@@ -148,7 +148,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
             "AV01": "À Vista: pix no dia anterior à entrega",
             "AV00": "À Vista: pix no dia da entrega"
         };
-    
+
         return paymentDescriptions[paymentWay] || '';
     }
 

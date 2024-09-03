@@ -70,6 +70,8 @@
 :root ._fos-229441251{font-size:var(--f-si-5);}
 :root ._fow-1366436722{font-weight:var(--f-we-15);}
 :root ._cur-pointer{cursor:pointer;}
+:root ._mt-5px{margin-top:5px;}
+:root ._col-gray{color:gray;}
 :root ._mt-1316330362{margin-top:var(--space-18);}
 :root ._btc-43814526{border-top-color:var(--color-51);}
 :root ._brc-43814526{border-right-color:var(--color-51);}

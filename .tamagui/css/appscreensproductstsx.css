@@ -53,7 +53,7 @@
 :root ._pl-0px{padding-left:0px;}
 :root ._ml-8px{margin-left:8px;}
 :root ._maw-250px{max-width:250px;}
-:root ._maw-162px{max-width:162px;}
+:root ._maw-140px{max-width:140px;}
 :root ._fos-12px{font-size:12px;}
 :root ._col-aaa35{color:#aaa;}
 :root ._fos-10px{font-size:10px;}
@@ -129,10 +129,10 @@
 :root ._mt-8px{margin-top:8px;}
 :root ._mih-80px{min-height:80px;}
 :root ._rowGap-5px{row-gap:5px;}
-:root ._gap-20px{gap:20px;}
+:root ._gap-100px{gap:100px;}
 :root ._h-55px{height:55px;}
 :root ._btw-0d0t2px46{border-top-width:0.2px;}
-:root ._btc-gray{border-top-color:gray;}
+:root ._btc-lightgray{border-top-color:lightgray;}
 :root ._btlr-8px{border-top-left-radius:8px;}
 :root ._btrr-8px{border-top-right-radius:8px;}
 :root ._bbrr-8px{border-bottom-right-radius:8px;}

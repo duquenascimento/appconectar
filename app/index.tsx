@@ -1,7 +1,7 @@
 import { Text, Input, YStack, Button, XStack, Image, View, Stack, Dialog, Adapt, Sheet } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons'
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, Modal, type NativeScrollEvent, type NativeSyntheticEvent, Platform, ScrollView } from 'react-native';
+import { ActivityIndicator, Dimensions, Linking, Modal, type NativeScrollEvent, type NativeSyntheticEvent, Platform, ScrollView } from 'react-native';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { deleteToken, getToken, setToken } from './utils/utils';
@@ -69,8 +69,10 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                         {(!step3 && !step4) && (
                             <>
                                 <Text pt={5} fontSize={10}>Informe o e-mail abaixo e insira o código enviado</Text>
-                                <Input mt={15} mb={15} onChangeText={setEmailModal} f={1} placeholder='E-mail' value={emailModal}></Input>
-                                {step2 && <Input onChangeText={setCodeModal} f={1} maxLength={5} placeholder='Código' value={codeModal}></Input>}
+                                <Input mt={15} mb={15} onChangeText={setEmailModal} f={1} placeholder='E-mail' value={emailModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                                {step2 && <Input onChangeText={setCodeModal} f={1} maxLength={5} placeholder='Código' value={codeModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>}
                                 {erro && <Text color='red'>{erro}</Text>}
                             </>
                         )
@@ -78,85 +80,86 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                         {
                             (step3 && !step4) && (
                                 <>
-                                    <Input mt={15} mb={15} onChangeText={setPasswordModal} f={1} placeholder='Nova senha' value={passwordModal}></Input>
+                                    <Input mt={15} mb={15} onChangeText={setPasswordModal} f={1} placeholder='Nova senha' value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                 </>
                             )
                         }
                         {!step4 && (
                             <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                            <Button onPress={() => {
-                                setStep2(false)
-                                setStep3(false)
-                                setErro('')
-                                setPasswordModal('')
-                                setEmailModal('')
-                                setCodeModal('')
-                                close()
-                            }} backgroundColor='black' style={{ flex: 1 }}>
-                                <Text pl={5} fontSize={12} color='white'>Cancelar</Text>
-                            </Button>
-                            <Button onPress={async () => {
-                                if (step3) {
-                                    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/pwChange`, {
-                                        method: 'POST',
-                                        body: JSON.stringify({ email: emailModal, codeSent: codeModal, newPW: passwordModal }),
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        }
-                                    })
-                                    const result = await response.json()
-                                    if (!response.ok) {
-                                        if (result.msg === 'invalid code') setErro('Usuário não existe')
-                                    } else {
-                                        setStep3(false)
-                                        setStep4(true)
-                                    }
-                                } else {
+                                <Button onPress={() => {
+                                    setStep2(false)
+                                    setStep3(false)
                                     setErro('')
-                                    if (!step2) {
-                                        console.log(emailModal)
-                                        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`, {
+                                    setPasswordModal('')
+                                    setEmailModal('')
+                                    setCodeModal('')
+                                    close()
+                                }} backgroundColor='black' style={{ flex: 1 }}>
+                                    <Text pl={5} fontSize={12} color='white'>Cancelar</Text>
+                                </Button>
+                                <Button onPress={async () => {
+                                    if (step3) {
+                                        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/pwChange`, {
                                             method: 'POST',
-                                            body: JSON.stringify({ email: emailModal }),
+                                            body: JSON.stringify({ email: emailModal, codeSent: codeModal, newPW: passwordModal }),
                                             headers: {
                                                 'Content-Type': 'application/json'
                                             }
                                         })
                                         const result = await response.json()
                                         if (!response.ok) {
-                                            if (result.msg === 'user not exist') setErro('Usuário não existe')
+                                            if (result.msg === 'invalid code') setErro('Usuário não existe')
                                         } else {
-                                            setStep2(true)
+                                            setStep3(false)
+                                            setStep4(true)
                                         }
                                     } else {
-                                        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recoveryCheck`, {
-                                            method: 'POST',
-                                            body: JSON.stringify({ email: emailModal, codeSent: codeModal }),
-                                            headers: {
-                                                'Content-Type': 'application/json'
+                                        setErro('')
+                                        if (!step2) {
+                                            console.log(emailModal)
+                                            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`, {
+                                                method: 'POST',
+                                                body: JSON.stringify({ email: emailModal }),
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                }
+                                            })
+                                            const result = await response.json()
+                                            if (!response.ok) {
+                                                if (result.msg === 'user not exist') setErro('Usuário não existe')
+                                            } else {
+                                                setStep2(true)
                                             }
-                                        })
-                                        const result = await response.json()
-                                        if (!response.ok) {
-                                            if (result.msg === 'invalid code') setErro('Código inválido')
                                         } else {
-                                            setStep3(true)
+                                            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recoveryCheck`, {
+                                                method: 'POST',
+                                                body: JSON.stringify({ email: emailModal, codeSent: codeModal }),
+                                                headers: {
+                                                    'Content-Type': 'application/json'
+                                                }
+                                            })
+                                            const result = await response.json()
+                                            if (!response.ok) {
+                                                if (result.msg === 'invalid code') setErro('Código inválido')
+                                            } else {
+                                                setStep3(true)
+                                            }
                                         }
                                     }
-                                }
-                            }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
-                                <Text pl={5} fontSize={12} color='white'>Avançar</Text>
-                            </Button>
-                        </View>
+                                }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
+                                    <Text pl={5} fontSize={12} color='white'>Avançar</Text>
+                                </Button>
+                            </View>
                         )}
                         {step4 && (
                             <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                            <Button onPress={() => {
-                                close()
-                            }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
-                                <Text pl={5} fontSize={12} color='white'>Fechar</Text>
-                            </Button>
-                        </View>
+                                <Button onPress={() => {
+                                    close()
+                                }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
+                                    <Text pl={5} fontSize={12} color='white'>Fechar</Text>
+                                </Button>
+                            </View>
                         )}
                     </View>
                 </View>
@@ -187,13 +190,13 @@ export function Sign({ navigation }: HomeScreenProps) {
                 setLoading(false);
                 return;
             }
-
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED="0"
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/checkLogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ token })
+                body: JSON.stringify({ token }),
             });
 
             if (response.ok) {
@@ -366,10 +369,12 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
             <Text alignSelf='flex-start' color='$gray10Dark'>Insira suas credenciais abaixo para acessar a sua conta.</Text>
 
             <XStack backgroundColor='white' borderWidth={1} borderRadius={9} borderColor='lightgray' mt='$3.5' alignItems='center' flexDirection='row' zIndex={20}>
-                <Input placeholder='Email' onChangeText={setEmail} backgroundColor='$colorTransparent' borderWidth='$0' borderColor='$colorTransparent' f={1} maxLength={256} />
+                <Input placeholder='Email' onChangeText={setEmail} backgroundColor='$colorTransparent' borderWidth='$0' borderColor='$colorTransparent' f={1} maxLength={256} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
             </XStack>
             <XStack backgroundColor='white' pr='$3.5' borderWidth={1} borderRadius={9} borderColor='lightgray' mt='$3.5' alignItems='center' flexDirection='row' zIndex={20}>
-                <Input placeholder='Senha' onChangeText={setPassword} backgroundColor='$colorTransparent' borderWidth='$0' borderColor='$colorTransparent' secureTextEntry={showPw} f={1} mr='$3.5' maxLength={35} />
+                <Input placeholder='Senha' onChangeText={setPassword} backgroundColor='$colorTransparent' borderWidth='$0' borderColor='$colorTransparent' secureTextEntry={showPw} f={1} mr='$3.5' maxLength={35} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                 <Icons name={showPw ? 'eye' : 'eye-off'} size={24} onPress={() => { setShowPw(!showPw) }}></Icons>
             </XStack>
 
@@ -382,11 +387,18 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
             <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
 
             <Text onPress={props.modal} fontSize='$5' mt='$5' fontWeight='$15' cursor='pointer'>Esqueceu sua senha?</Text>
+            <Text mt={5} color='gray' cursor='pointer' onPress={() => {
+                Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
+            }}>Politica de privacidade</Text>
+            
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9}>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
                 <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page === 'SignUp' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignUp')}>Criar conta</Button>
             </XStack>
+
+            
+            
         </YStack>
     );
 }
@@ -497,6 +509,8 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
                     borderWidth='$0'
                     f={1}
                     maxLength={256}
+                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                 />
             </XStack>
 
@@ -514,6 +528,8 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
                         setPassword(e)
                         passwordIsValid(e, confirmPassword, setPasswordValid)
                     }}
+                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                 />
                 <Icons name={showPw ? 'eye' : 'eye-off'} size={24} onPress={() => { setShowPw(!showPw) }}></Icons>
             </XStack>
@@ -540,6 +556,8 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
                         setConfirmPassword(e)
                         passwordIsValid(e, password, setPasswordValid)
                     }}
+                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                 />
                 <Icons name={showConfirmPw ? 'eye' : 'eye-off'} size={24} onPress={() => { setShowConfirmPw(!showConfirmPw) }}></Icons>
             </XStack>
@@ -551,6 +569,11 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
             <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
             <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
             <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
+
+            <Text mt={5} color='gray' cursor='pointer' onPress={() => {
+                Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
+            }}>Politica de privacidade</Text>
+            
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9}>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
@@ -653,7 +676,8 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
             <XStack width='$20' backgroundColor='white' borderWidth={1} borderRadius={9} borderColor='lightgray' mt='$3.5' alignItems='center' flexDirection='row' zIndex={20}>
                 <Input onChangeText={setEmail} focusStyle={{ outlineStyle: 'none' }} placeholder='Email' backgroundColor='$colorTransparent' borderWidth='$0' borderColor='$colorTransparent' f={1} maxLength={256} width='100%' />
             </XStack>
-            <XStack width='$20' backgroundColor='white' pr='$3.5' borderWidth={1} borderRadius={9} borderColor='lightgray' mt='$3.5' alignItems='center' flexDirection='row' zIndex={20}>
+            <XStack width='$20' backgroundColor='white' pr='$3.5' borderWidth={1} borderRadius={9} borderColor='lightgray' mt='$3.5' alignItems='center' flexDirection='row' zIndex={20} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}>
                 <Input onChangeText={setPassword} focusStyle={{ outlineStyle: 'none' }} placeholder='Senha' backgroundColor='$colorTransparent' borderWidth='$0' borderColor='$colorTransparent' secureTextEntry={showPw} f={1} mr='$3.5' maxLength={20} />
                 <Icons name={showPw ? 'eye' : 'eye-off'} size={24} onPress={() => { setShowPw(!showPw) }}></Icons>
             </XStack>
@@ -665,6 +689,11 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
             <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
 
             <Text onPress={props.modal} fontSize='$5' mt='$5' fontWeight='$15' cursor='pointer'>Esqueceu sua senha?</Text>
+
+            <Text mt={5} color='gray' cursor='pointer' onPress={() => {
+                Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
+            }}>Politica de privacidade</Text>
+            
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9} width='$20'>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
@@ -792,6 +821,11 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
             <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
             <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
             <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
+
+            <Text mt={5} color='gray' cursor='pointer' onPress={() => {
+                Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
+            }}>Politica de privacidade</Text>
+            
 
             <XStack mt='$6' borderColor='$gray7Light' borderWidth={1} borderRadius={9} width='$20'>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
