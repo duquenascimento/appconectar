@@ -2,7 +2,7 @@
   "expo": {
     "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "scheme": "Conéctar",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -17,11 +17,13 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "io.bubbleapps.app-conectar"
+      "bundleIdentifier": "io.bubbleapps.app-conectar",
+      "userInterfaceStyle": "light"
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
-      "versionCode": 2
+      "versionCode": 3,
+      "userInterfaceStyle": "light"
     },
     "web": {
       "favicon": "./assets/images/favicon.png",

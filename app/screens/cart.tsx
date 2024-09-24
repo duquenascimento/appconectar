@@ -81,7 +81,14 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 
     const handleValueQuantChange = (delta: number) => {
-        setValueQuant(prevValue => Math.max(0, Number((prevValue + delta).toFixed(3))));
+        setValueQuant(prevValue => {
+            const newValue = Number((prevValue + delta).toFixed(3));
+            if (newValue > 0) {
+                return newValue;
+            }
+            produto.setConfirmDeleteItem({ amount: valueQuant, productId: produto.id, obs: obsRef.current });
+            return prevValue; // Mantém o valor anterior se for zero ou negativo
+        });
     };
 
     const toggleOpen = useCallback(() => setOpen(prev => !prev), []);

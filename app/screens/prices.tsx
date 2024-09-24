@@ -6,11 +6,11 @@ import { ActivityIndicator, Modal, VirtualizedList } from "react-native";
 import React from "react";
 import { DateTime } from 'luxon'
 import { Picker } from "@react-native-picker/picker";
-import { getToken, setStorage } from "../utils/utils";
+import { clearStorage, getToken, setStorage } from "../utils/utils";
 
 type RootStackParamList = {
     Home: undefined;
-    Product: undefined;
+    Products: undefined;
     Cart: undefined;
     Confirm: undefined
 };
@@ -62,6 +62,7 @@ export interface SupplierData {
 type SelectItem = {
     name: string;
     addressInfos: any[]
+    premium: boolean
 }
 
 const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: { supplier: SupplierData, star: string, available: boolean, selectedRestaurant: any, goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void }) => {
@@ -84,7 +85,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                     <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg` }}
                         style={{ width: 50, height: 50, borderRadius: 50 }} />
                 </View>
-                <View ml={10} justifyContent="center">
+                <View ml={10} maxWidth="75%" justifyContent="center">
                     <Text fs={16}>{supplier.supplier.name}</Text>
                     <View flexDirection="row" alignItems="center">
                         <Icons color='orange' name="star"></Icons>
@@ -141,6 +142,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const [deliveryInformation, setDeliveryInformation] = useState<string>()
     const [complement, setComplement] = useState<string>()
     const [tab, setTab] = useState<string>('onlySupplier')
+    const [finalCotacao, setFinalCotacao] = useState<boolean>(false)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleSelectedRest = async (rest: any) => {
@@ -249,7 +251,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             const token = await getToken();
             if (!token) return new Map();
 
-            console.log(JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] }))
+           // console.log(JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] }))
 
             const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
                 method: 'POST',
@@ -408,8 +410,10 @@ export function Prices({ navigation }: HomeScreenProps) {
             try {
                 const restaurants = await loadRestaurants()
                 items = restaurants
+                console.log(items[0])
                 setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
                 setSelectedRestaurant(items[0])
+                setTab(items[0].premium ? 'plus' : 'onlySupplier')
                 setAllRestaurants(items)
                 await loadPrices();
                 const hours = [];
@@ -459,13 +463,22 @@ export function Prices({ navigation }: HomeScreenProps) {
     const renderItem =
         ({ item }: { item: any }) => {
             if (item.separator) {
-                return <Text pb={10} pt={10} opacity={60} fontSize={12}>Fornecedores indisponíveis</Text>
+                return <Text pb={10} pt={10} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>
             }
             if (item.initialSeparator) {
-                return <Text pb={5} opacity={60} mt={10} fontSize={12}>Fornecedores disponíveis</Text>
+                return <Text pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>
             }
             return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />;
         }
+
+    if (finalCotacao) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ActivityIndicator size="large" color="#04BF7B" />
+                <Text fontSize={12} mt={5} color='gray' textAlign="center">Cotação solicitada, fique de olho no Whatsapp</Text>
+            </View>
+        );
+    }
 
     if (loading) {
         return (
@@ -483,16 +496,16 @@ export function Prices({ navigation }: HomeScreenProps) {
                     <Text f={1} textAlign='center' fontSize={20}>Cotações</Text>
                 </View>
                 <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50}>
-                    <View disabled opacity={0.4} onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
+                    <View disabled={!selectedRestaurant.premium} opacity={selectedRestaurant.premium ? 1 : 0.4} onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
                         style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <Text>Conéctar+</Text>
-                        <Text fontSize={10}>(em breve)</Text>
-                        <View mt={10} h={1} width='100%' backgroundColor='white'></View>
+                        <Text color={tab === 'plus' ? "#04BF7B" : "gray"}>Conéctar+</Text>
+                        <Text display={selectedRestaurant.premium ? "none" : "flex"} color='gray' fontSize={10}>(indisponível)</Text>
+                        <View mt={10} h={1} width='100%' backgroundColor={tab === 'plus' ? "#04BF7B" : "white"}></View>
                     </View>
                     <View onPress={() => { setTab('onlySupplier') }} cursor="pointer"
                         hoverStyle={{ opacity: 0.75 }} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-                        <Text color='#04BF7B'>Por fornecedor</Text>
-                        <View mt={10} h={1} width='100%' backgroundColor='#04BF7B'></View>
+                        <Text color={tab === 'plus' ? "gray" : "#04BF7B"}>Por fornecedor</Text>
+                        <View mt={10} h={1} width='100%' backgroundColor={tab === 'plus' ? "white" : "#04BF7B"}></View>
                     </View>
                 </View>
 
@@ -514,7 +527,35 @@ export function Prices({ navigation }: HomeScreenProps) {
                         {
                             tab !== 'onlySupplier' &&
                             <View p={20} mt={10}>
-                                <Text pb={10} pt={10} opacity={60} fontSize={12}>Minhas combinações</Text>
+                                <Button backgroundColor="#04BF7B" onPress={async () => {
+                                    setLoading(true)
+                                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({ token: await getToken(), selectedRestaurant: selectedRestaurant })
+                                    });
+
+                                    console.log(JSON.stringify({ token: await getToken(), selectedRestaurant: selectedRestaurant }))
+
+                                    if (result.ok) {
+                                        const teste = await result.json()
+                                        console.log(teste)
+                                        setFinalCotacao(true)
+                                        await clearStorage()
+                                        setTimeout(() => { navigation.replace('Products') }, 1000)
+                                        
+                                    } else {
+                                        const teste = await result.json()
+                                        console.log(teste)
+                                        setLoading(false)
+                                    }
+                        
+                                }}>
+                                    <Text fontWeight="500" fontSize={16} color="white">Solicitar cotação</Text>
+                                </Button>
+                                <Text mt={5} textAlign="center" fontSize={12} color='gray'>Você receberá a cotação no Whatsapp</Text>
                             </View>
                         }
 
@@ -593,6 +634,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                                             })
                                             await setSelectedRestaurant(rest)
+                                            setTab(rest?.premium ? 'plus' : 'onlySupplier')
                                             setNeighborhood(rest?.addressInfos[0].neighborhood)
                                             setCity(rest?.addressInfos[0].city)
                                             setLocalType(rest?.addressInfos[0].localType)
@@ -708,12 +750,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         </View>
                                         <View style={{ flex: 1 }}>
                                             <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
-                                            <Input color='gray' fontSize={14} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </View>
                                         <View style={{ flex: 1 }}>
                                             <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
-                                            <Input color='gray' fontSize={14} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </View>
                                     </View>

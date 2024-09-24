@@ -302,7 +302,7 @@ const ProductBox = React.memo(({
                 </View>
             </View>
             {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
-                <View minHeight={Platform.OS === 'web' ? 50 : 85} borderTopWidth={1} borderTopColor='#ccc' paddingHorizontal={8} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor='white' justifyContent='center' transform={[{ translateY: 0 }]}>
+                <View onPress={(e) => e.stopPropagation()} minHeight={Platform.OS === 'web' ? 50 : 85} borderTopWidth={1} borderTopColor='#ccc' paddingHorizontal={8} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor='white' justifyContent='center' transform={[{ translateY: 0 }]}>
                     <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} flexDirection='row' alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
                         <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems='center' flex={1} mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
                             {Platform.OS === 'web' && (
@@ -697,8 +697,6 @@ export function Products({ navigation }: HomeScreenProps) {
         await setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
     }, [])
 
-
-
     const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>) => {
         const token = await getToken()
         if (token == null) return [];
@@ -836,7 +834,7 @@ export function Products({ navigation }: HomeScreenProps) {
         if (flatListRef.current) {
             flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
         }
-    }, [currentClass]);
+    }, [currentClass, searchQuery]);
 
     useEffect(() => {
         if (productsList) {
@@ -1017,7 +1015,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     {currentClass.toLowerCase() === 'favoritos' && favorites.length < 1 && !searchQuery ?
                         <View flex={1} paddingTop={50} alignItems="center">
                             <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
-                                Para salvar produtos na lista de favoritos, clique no botão de favoritar
+                            Para adicionar produtos à sua lista de favoritos, pesquise ou navegue pelas abas para encontrar o produto desejado e clique no ícone de favoritar
                                 <Text> </Text>
                             </Text>
                             <Icons name="heart-outline" size={25} color="gray" />

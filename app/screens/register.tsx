@@ -687,7 +687,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                         {/* Telefone */}
                                         <View style={{ alignItems: 'center', flexDirection: 'row', gap: 8 }}>
                                             <Text>Telefone</Text>
-                                            <Text style={{ fontSize: 10, color: 'gray' }}>Para comunicados sobre a entrega</Text>
+                                            <Text style={{ fontSize: 10, color: 'gray' }}>Para comunicados sobre os pedidos</Text>
                                         </View>
                                         <TextInputMask
                                             type={'cel-phone'}
@@ -747,7 +747,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                             <View borderColor='lightgray' borderWidth={0.5} p={5} gap={5} flexDirection="row">
                                                 <Icons size={25} color='gray' name="information-circle"></Icons>
                                                 <View justifyContent="center">
-                                                    <Text maxWidth='99%' color='gray' fontSize={10}>É necessário ao menos 1:30h de intervalo entre o horário mínimo e máximo de sua entrega</Text>
+                                                    <Text maxWidth='99%' color='gray' fontSize={10}>Você deve definir pelo menos 1 hora e 30 minutos de diferença entre o horário mais cedo e o horário mais tarde para sua entrega.</Text>
                                                 </View>
                                             </View>
                                             <View style={{ flexDirection: 'row', gap: 20 }}>
