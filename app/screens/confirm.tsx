@@ -7,6 +7,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from "luxon";
 import ImageViewer from "react-native-image-zoom-viewer";
 import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
+import * as Notifications from 'expo-notifications';
 
 type RootStackParamList = {
     Home: undefined;
@@ -104,6 +105,14 @@ export function Confirm({ navigation }: HomeScreenProps) {
         return paymentDescriptions[paymentWay] || '';
     }
 
+    const isBefore13Hours = () => {
+        const currentDate = DateTime.now().setZone('America/Sao_Paulo');
+        const currentHour = Number(
+            `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
+        );
+        return (130000 >= currentHour)
+    }
+
     const isOpen = () => {
         const currentDate = DateTime.now().setZone('America/Sao_Paulo');
         const currentHour = Number(
@@ -111,6 +120,24 @@ export function Confirm({ navigation }: HomeScreenProps) {
         );
         return (Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour && supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish && supplier.supplier.missingItens > 0)
     }
+
+    function getSecondsUntil13h() {
+        const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate() // Data e hora atual
+        const target = new Date(); // Cria uma nova data (hoje)
+        
+        target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
+      
+        const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
+      
+        // Converter milissegundos para segundos
+        const differenceInSeconds = Math.floor(differenceInMillis / 1000);
+      
+        // Verifica se o horário já passou e retorna o valor (negativo ou positivo)
+        return differenceInSeconds;
+      }
+      
+      console.log(getSecondsUntil13h());
+      
 
     const getPaymentDate = (paymentWay: string): string => {
         const today = new Date();
@@ -336,38 +363,49 @@ export function Confirm({ navigation }: HomeScreenProps) {
                     </View>
                 </View>
             </ScrollView>
+            <Text display={isBefore13Hours() ? 'flex' : 'none'}>A confirmação só pode ser feita após as 13h, agende uma notificação para avisar quando estiver no horário!</Text>
             <View backgroundColor='white' gap={10} flexDirection="row" height={80} justifyContent="center" alignItems="center">
                 <Button onPress={() => { navigation.replace('Products') }} width={170} backgroundColor='#000'><Text color='white'>Alterar itens</Text></Button>
                 <Button onPress={async () => {
-                    setLoadingToConfirm(true)
-                    const token = await getToken();
-                    if (!token) return new Map();
-
-                    const body = {
-                        token,
-                        supplier: supplier.supplier,
-                        restaurant: selectedRestaurant
-                    }
-
-                    console.log(JSON.stringify(body))
-
-                    console.log('final: ', JSON.stringify(body))
-                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(body)
-                    });
-                    if (result.ok) {
-                        const response = await result.json()
-                        await setStorage('finalConfirmData', JSON.stringify(response.data))
-                        navigation.replace('FinalConfirm')
+                    if (isBefore13Hours()) {
+                        await Notifications.scheduleNotificationAsync({
+                            content: {
+                              title: "Confirme o seu pedido",
+                              body: 'O seu pedido já pode ser confirmado!',
+                            },
+                            trigger: { seconds: 5 }, 
+                          });
                     } else {
-                        setLoadingToConfirm(false)
+                        setLoadingToConfirm(true)
+                        const token = await getToken();
+                        if (!token) return new Map();
+
+                        const body = {
+                            token,
+                            supplier: supplier.supplier,
+                            restaurant: selectedRestaurant
+                        }
+
+                        console.log(JSON.stringify(body))
+
+                        console.log('final: ', JSON.stringify(body))
+                        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(body)
+                        });
+                        if (result.ok) {
+                            const response = await result.json()
+                            await setStorage('finalConfirmData', JSON.stringify(response.data))
+                            navigation.replace('FinalConfirm')
+                        } else {
+                            setLoadingToConfirm(false)
+                        }
                     }
                 }} width={170} backgroundColor='#04BF7B' disabled={!isOpen()} opacity={isOpen() ? 1 : 0.3}>
-                    <Text color='white'>Confirmar pedido</Text>
+                    <Text color='white'>{isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}</Text>
                 </Button>
             </View>
         </Stack>

@@ -868,8 +868,8 @@ export function Products({ navigation }: HomeScreenProps) {
     }, [filteredProducts]);
 
     const handlePress = useCallback((name: string) => {
+        setSearchQuery('')
         if (name !== currentClass) {
-            setSearchQuery('')
             setSkeletonLoading(true);
             setCurrentClass(name);
         }

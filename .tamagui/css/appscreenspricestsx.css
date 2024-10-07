@@ -20,6 +20,7 @@
 :root ._pb-5px{padding-bottom:5px;}
 :root ._pl-5px{padding-left:5px;}
 :root ._ml-10px{margin-left:10px;}
+:root ._maw-7537{max-width:75%;}
 :root ._jc-center{justify-content:center;}
 :root ._ff-299667014{font-family:var(--f-fa);}
 :root ._dsp-inline{display:inline;}
@@ -44,9 +45,11 @@
 :root ._pt-10px{padding-top:10px;}
 :root ._o-60{opacity:60;}
 :root ._mt-10px{margin-top:10px;}
+:root ._mt-5px{margin-top:5px;}
+:root ._col-gray{color:gray;}
+:root ._ta-center{text-align:center;}
 :root ._pt-20px{padding-top:20px;}
 :root ._pb-20px{padding-bottom:20px;}
-:root ._ta-center{text-align:center;}
 :root ._fos-20px{font-size:20px;}
 :root ._btlr-50px{border-top-left-radius:50px;}
 :root ._btrr-50px{border-top-right-radius:50px;}
@@ -54,18 +57,21 @@
 :root ._bblr-50px{border-bottom-left-radius:50px;}
 :root ._jc-441309761{justify-content:space-between;}
 :root ._h-50px{height:50px;}
+:root ._col-04BF7B35{color:#04BF7B;}
 :root ._fos-10px{font-size:10px;}
+:root ._dsp-none{display:none;}
 :root ._h-1px{height:1px;}
 :root ._w-10037{width:100%;}
+:root ._bg-04BF7B35{background-color:#04BF7B;}
 :root ._bg-white{background-color:white;}
 :root ._cur-pointer{cursor:pointer;}
-:root ._col-04BF7B35{color:#04BF7B;}
-:root ._bg-04BF7B35{background-color:#04BF7B;}
 :root ._pt-0px{padding-top:0px;}
 :root ._pr-10px{padding-right:10px;}
 :root ._h-10037{height:100%;}
 :root ._pr-20px{padding-right:20px;}
 :root ._pl-20px{padding-left:20px;}
+:root ._col-white{color:white;}
+:root ._fow-500{font-weight:500;}
 :root ._btc-lightgray{border-top-color:lightgray;}
 :root ._btw-1px{border-top-width:1px;}
 :root ._bts-solid{border-top-style:solid;}
@@ -82,14 +88,11 @@
 :root ._bls-solid{border-left-style:solid;}
 :root ._brs-solid{border-right-style:solid;}
 :root ._ml-20px{margin-left:20px;}
-:root ._dsp-none{display:none;}
 :root ._pb-15px{padding-bottom:15px;}
 :root ._pr-15px{padding-right:15px;}
 :root ._pl-15px{padding-left:15px;}
 :root ._pt-15px{padding-top:15px;}
 @media (max-width: 1650px){:root:root ._miw-_xl_4037{min-width:40%;}}
 @media (max-width: 800px){:root:root:root:root:root ._miw-_sm_9037{min-width:90%;}}
-:root ._col-gray{color:gray;}
 :root ._gap-5px{gap:5px;}
 :root ._h-70px{height:70px;}
-:root ._col-white{color:white;}
