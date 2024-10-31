@@ -1,13 +1,14 @@
 {
   "expo": {
-    "name": "conectarapp",
+    "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "1.0.0",
+    "version": "2.0.1",
+    "scheme": "Conéctar",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,17 +17,27 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "io.bubbleapps.app-conectar"
+      "bundleIdentifier": "io.bubbleapps.app-conectar",
+      "userInterfaceStyle": "light",
+      "infoPlist": {
+        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications.",
+        "NSUserTrackingUsageDescription": "This app tracks your activity to improve your experience and provide personalized notifications."
+      }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "io.bubbleapps.app_conectar.twa"
+      "package": "io.bubbleapps.app_conectar.twa",
+      "versionCode": 3,
+      "userInterfaceStyle": "light",
+      "permissions": [
+        "ACCESS_NOTIFICATION_POLICY",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
     },
     "extra": {
       "eas": {
