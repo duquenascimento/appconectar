@@ -2,12 +2,20 @@ import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { type SupplierData } from "./prices";
 import { useCallback, useEffect, useState } from "react";
 import { View, Image, Text, Stack, ScrollView, Button } from "tamagui";
-import { ActivityIndicator, Modal } from "react-native";
+import { ActivityIndicator } from "react-native";
 import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from "luxon";
-import ImageViewer from "react-native-image-zoom-viewer";
 import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
 import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: true,
+    }),
+});
 
 type RootStackParamList = {
     Home: undefined;
@@ -27,8 +35,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
     const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
     const [loadingToConfirm, setLoadingToConfirm] = useState<boolean>(false);
     const [dots, setDots] = useState('');
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [image, setImage] = useState<string>('')
 
     useEffect(() => {
         if (loadingToConfirm) {
@@ -124,20 +130,20 @@ export function Confirm({ navigation }: HomeScreenProps) {
     function getSecondsUntil13h() {
         const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate() // Data e hora atual
         const target = new Date(); // Cria uma nova data (hoje)
-        
+
         target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
-      
+
         const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
-      
+
         // Converter milissegundos para segundos
         const differenceInSeconds = Math.floor(differenceInMillis / 1000);
-      
+
         // Verifica se o horário já passou e retorna o valor (negativo ou positivo)
         return differenceInSeconds;
-      }
-      
-      console.log(getSecondsUntil13h());
-      
+    }
+
+    console.log(getSecondsUntil13h());
+
 
     const getPaymentDate = (paymentWay: string): string => {
         const today = new Date();
@@ -204,7 +210,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent="center" alignItems="center">
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -212,7 +218,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
     if (loadingToConfirm) {
         return (
-            <View backgroundColor='#e3e6e7' style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View backgroundColor='#e3e6e7' flex={1} justifyContent="center" alignItems="center">
                 <Image width={300} height={300} source={require('../../assets/images/korzina.gif')} />
                 <Text fontWeight='800' pt={20}>Estamos confirmando o seu pedido{dots}</Text>
             </View>
@@ -220,23 +226,12 @@ export function Confirm({ navigation }: HomeScreenProps) {
     }
 
     return (
-        <Stack backgroundColor='white' pt={20} style={{ height: '100%', position: 'relative' }}>
-            <Modal visible={isModalVisible} transparent={true} onRequestClose={() => {
-                setModalVisible(false)
-            }}>
-                <ImageViewer
-                    imageUrls={[{
-                        url: image
-                    }]}
-                    enableSwipeDown={true}
-                    onSwipeDown={() => setModalVisible(false)}
-                />
-            </Modal>
+        <Stack backgroundColor='white' pt={20} height='100%' position="relative">
             <View backgroundColor='white' flexDirection="row" height={80}>
                 <View flexDirection="row" f={1}>
                     <View pl={10} justifyContent="center">
                         <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg` }}
-                            style={{ width: 50, height: 50, borderRadius: 50 }} />
+                            width={50} height={50} borderRadius={50} />
                     </View>
                     <View ml={10} justifyContent="center">
                         <Text fontSize={16}>{supplier?.supplier.name}</Text>
@@ -279,10 +274,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             <View key={item.sku} borderBottomColor='lightgray' paddingVertical={1} borderBottomWidth={0.5}>
                                 <View flexDirection="row" alignItems="center">
                                     <View f={1} flexDirection="row" alignItems="center">
-                                        <View padding={5} onPress={() => {
-                                            setImage(image[0])
-                                            setModalVisible(true)
-                                        }}>
+                                        <View padding={5}>
                                             <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
                                         </View>
                                         <View maxWidth={150}>
@@ -363,51 +355,67 @@ export function Confirm({ navigation }: HomeScreenProps) {
                     </View>
                 </View>
             </ScrollView>
-            <Text display={isBefore13Hours() ? 'flex' : 'none'}>A confirmação só pode ser feita após as 13h, agende uma notificação para avisar quando estiver no horário!</Text>
-            <View backgroundColor='white' gap={10} flexDirection="row" height={80} justifyContent="center" alignItems="center">
-                <Button onPress={() => { navigation.replace('Products') }} width={170} backgroundColor='#000'><Text color='white'>Alterar itens</Text></Button>
+            <View pt={10} px={10}>
+                <Text mx='auto' color='red' fontSize={10} textAlign="center" display={isBefore13Hours() ? 'flex' : 'none'}>A confirmação só pode ser feita após as 13h{Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário'}</Text>
+            </View>
+            <View backgroundColor='white' gap={10} flexDirection="row" p={10} justifyContent="center" alignItems="center">
+                <Button onPress={() => { navigation.replace('Cart') }} width={170} backgroundColor='#000'><Text color='white'>Alterar itens</Text></Button>
                 <Button onPress={async () => {
-                    if (isBefore13Hours()) {
-                        await Notifications.scheduleNotificationAsync({
-                            content: {
-                              title: "Confirme o seu pedido",
-                              body: 'O seu pedido já pode ser confirmado!',
-                            },
-                            trigger: { seconds: 5 }, 
-                          });
-                    } else {
-                        setLoadingToConfirm(true)
-                        const token = await getToken();
-                        if (!token) return new Map();
-
-                        const body = {
-                            token,
-                            supplier: supplier.supplier,
-                            restaurant: selectedRestaurant
-                        }
-
-                        console.log(JSON.stringify(body))
-
-                        console.log('final: ', JSON.stringify(body))
-                        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(body)
-                        });
-                        if (result.ok) {
-                            const response = await result.json()
-                            await setStorage('finalConfirmData', JSON.stringify(response.data))
-                            navigation.replace('FinalConfirm')
+                    try {
+                        if (isBefore13Hours() && Platform.OS !== 'web') {
+                            const { status } = await Notifications.getPermissionsAsync();
+                            if (status !== 'granted') {
+                                const result = await Notifications.requestPermissionsAsync();
+                                if (result.status !== 'granted') {
+                                    console.log('No notification permissions granted!');
+                                    return;
+                                }
+                            }
+                            console.log('Permission granted');
+                            await Notifications.scheduleNotificationAsync({
+                                content: {
+                                    title: "Confirme o seu pedido",
+                                    body: 'O seu pedido já pode ser confirmado!',
+                                },
+                                trigger: { seconds: getSecondsUntil13h() },
+                            });
+                            console.log('Notification scheduled');
                         } else {
-                            setLoadingToConfirm(false)
+                            setLoadingToConfirm(true)
+                            const token = await getToken();
+                            if (!token) return new Map();
+
+                            const body = {
+                                token,
+                                supplier: supplier.supplier,
+                                restaurant: selectedRestaurant
+                            }
+
+                            // console.log(JSON.stringify(body))
+
+                            console.log('final: ', JSON.stringify(body))
+                            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify(body)
+                            });
+                            if (result.ok) {
+                                const response = await result.json()
+                                await setStorage('finalConfirmData', JSON.stringify(response.data))
+                                navigation.replace('FinalConfirm')
+                            } else {
+                                setLoadingToConfirm(false)
+                            }
                         }
+                    } catch (err) {
+                        console.log(err)
                     }
-                }} width={170} backgroundColor='#04BF7B' disabled={!isOpen()} opacity={isOpen() ? 1 : 0.3}>
-                    <Text color='white'>{isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}</Text>
+                }} width={170} backgroundColor='#04BF7B' disabled={(isBefore13Hours() && Platform.OS === 'web') || !isOpen()} opacity={isBefore13Hours() && Platform.OS === 'web' ? isOpen() ? 0.3 : 1 : isOpen() ? 1 : 3}>
+                    <Text fontSize={13} color='white'>{isBefore13Hours() && Platform.OS !== 'web' ? 'Agendar notificação' : 'Confirmar pedido'}</Text>
                 </Button>
             </View>
-        </Stack>
+        </Stack >
     )
 }

@@ -553,7 +553,7 @@ export function Register({ navigation }: HomeScreenProps) {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -610,9 +610,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                                     {noStateNumberId ? (
                                         <>
-                                            <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                            <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                                 <Text>Inscrição municipal</Text>
-                                                <Text style={{ fontSize: 10, color: 'gray' }}>Min. 8 digitos</Text>
+                                                <Text fontSize={10} color='gray'>Min. 8 digitos</Text>
                                             </View>
                                             <Input
                                                 onChangeText={setCityNumberId}
@@ -626,9 +626,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                         </>
                                     ) : (
                                         <>
-                                            <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                            <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                                 <Text>Inscrição estadual</Text>
-                                                <Text style={{ fontSize: 10, color: 'gray' }}>Min. 8 digitos</Text>
+                                                <Text fontSize={10} color='gray'>Min. 8 digitos</Text>
                                             </View>
                                             <Input
                                                 onChangeText={setStateNumberId}
@@ -653,9 +653,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                 </View>
                                 <Text fontSize={12} mt={10} mb={5} color='gray'>Endereço</Text>
                                 <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
-                                    <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                    <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                         <Text>Cep</Text>
-                                        <Text style={{ fontSize: 10, color: 'gray' }}>8 digitos</Text>
+                                        <Text fontSize={10} color='gray'>8 digitos</Text>
                                     </View>
                                     <Input
                                         onChangeText={cepChange}
@@ -681,13 +681,12 @@ export function Register({ navigation }: HomeScreenProps) {
                             </View>
                             :
                             step === 2 ?
-                                <View style={{ flex: 1, marginTop: 20, padding: 20 }}>
-                                    <Text style={{ fontSize: 12, marginBottom: 5, color: 'gray' }}>Contato</Text>
-                                    <View style={{ backgroundColor: 'white', borderColor: 'lightgray', borderWidth: 1, borderRadius: 5, padding: 10 }}>
-                                        {/* Telefone */}
-                                        <View style={{ alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                <View flex={10} marginTop={20} padding={20}>
+                                    <Text fontSize={12} marginBottom={5} color='gray'>Contato</Text>
+                                    <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} padding={10}>
+                                        <View alignItems="center" flexDirection="row" gap={8}>
                                             <Text>Telefone</Text>
-                                            <Text style={{ fontSize: 10, color: 'gray' }}>Para comunicados sobre os pedidos</Text>
+                                            <Text fontSize={10} color='gray'>Para comunicados sobre os pedidos</Text>
                                         </View>
                                         <TextInputMask
                                             type={'cel-phone'}
@@ -697,10 +696,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                             placeholder="(00) 00000-0000"
                                         />
 
-                                        {/* Telefone Alternativo */}
-                                        <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                        <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                             <Text>Telefone alternativo</Text>
-                                            <Text style={{ fontSize: 10, color: 'gray' }}>Opcional</Text>
+                                            <Text fontSize={10} color='gray'>Opcional</Text>
                                         </View>
                                         <TextInputMask
                                             type={'cel-phone'}
@@ -710,10 +708,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                             placeholder="(00) 00000-0000"
                                         />
 
-                                        {/* E-mail */}
-                                        <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                        <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                             <Text>E-mail</Text>
-                                            <Text style={{ fontSize: 10, color: 'gray' }}>Para comunicados</Text>
+                                            <Text fontSize={10} color='gray'>Para comunicados</Text>
                                         </View>
                                         <Input
                                             value={email}
@@ -724,10 +721,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                             hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         />
 
-                                        {/* E-mail Alternativo */}
-                                        <View style={{ marginTop: 15, alignItems: 'center', flexDirection: 'row', gap: 8 }}>
+                                        <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                             <Text>E-mail alternativo</Text>
-                                            <Text style={{ fontSize: 10, color: 'gray' }}>Opcional</Text>
+                                            <Text fontSize={10} color='gray'>Opcional</Text>
                                         </View>
                                         <Input
                                             value={alternativeEmail}
@@ -750,14 +746,10 @@ export function Register({ navigation }: HomeScreenProps) {
                                                     <Text maxWidth='99%' color='gray' fontSize={10}>Você deve definir pelo menos 1 hora e 30 minutos de diferença entre o horário mais cedo e o horário mais tarde para sua entrega.</Text>
                                                 </View>
                                             </View>
-                                            <View style={{ flexDirection: 'row', gap: 20 }}>
-                                                <View style={{ flex: 1 }}>
-                                                    <Text style={{ marginTop: 15 }}>Quero receber de</Text>
-                                                    <View style={{
-                                                        flex: 1,
-                                                        borderWidth: 0.5,
-                                                        borderColor: 'lightgray'
-                                                    }}>
+                                            <View flexDirection="row" gap={20}>
+                                                <View flex={1}>
+                                                    <Text marginTop={15}>Quero receber de</Text>
+                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
                                                         <Picker
                                                             selectedValue={minHour}
                                                             style={{
@@ -775,13 +767,9 @@ export function Register({ navigation }: HomeScreenProps) {
                                                         </Picker>
                                                     </View>
                                                 </View>
-                                                <View style={{ flex: 1 }}>
-                                                    <Text style={{ marginTop: 15 }}>Até</Text>
-                                                    <View style={{
-                                                        flex: 1,
-                                                        borderWidth: 0.5,
-                                                        borderColor: 'lightgray'
-                                                    }}>
+                                                <View flex={1}>
+                                                    <Text marginTop={15}>Até</Text>
+                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
                                                         <Picker
                                                             selectedValue={maxHour}
                                                             style={{
@@ -820,12 +808,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Formato de pagamento</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Qual o formato de pagamento preferido?</Text>
-                                            <View style={{
-                                                marginTop: 10,
-                                                justifyContent: 'flex-start',
-                                                borderWidth: 0.5,
-                                                borderColor: 'lightgray'
-                                            }}>
+                                            <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor='lightgray'>
                                                 <Picker
                                                     selectedValue={paymentWay}
                                                     style={{

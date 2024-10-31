@@ -12,7 +12,6 @@ import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native';
-import ImageViewer from 'react-native-image-zoom-viewer';
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
 
 type RootStackParamList = {
@@ -54,7 +53,7 @@ type TCart = {
     obs: string
 }
 
-type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void, setImage: (imageString: string) => void, setModalVisible: (status: boolean) => void };
+type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void};
 
 const ProductBox = React.memo((produto: ProductBoxProps) => {
     const [open, setOpen] = useState(false);
@@ -110,10 +109,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             <View onPress={toggleOpen} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
                 <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 5}>
-                        <View onPress={() => {
-                            produto.setImage(produto.image[0]);
-                            produto.setModalVisible(true);
-                        }}>
+                        <View>
                             <Image source={{ uri: produto.image[0] }} width={60} height={60} />
                         </View>
                         <View
@@ -247,18 +243,6 @@ export function Cart({ navigation }: HomeScreenProps) {
     const [confirmDelte, setConfirmDelete] = useState<boolean>(false)
     const [confirmDeleteItem, setConfirmDeleteItem] = useState<boolean>(false)
     const [itemToDelete, setItemToDelete] = useState<TCart>()
-    const [isModalVisible, setModalVisible] = useState(false);
-    const [image, setImage] = useState<string>('')
-
-    const handleSetImage = (imageString: string): void => {
-        console.log('aqui handleSetImage')
-        setImage(imageString)
-    }
-
-    const handleSetModalVisible = (status: boolean): void => {
-        console.log('aqui handleSetModalVisible')
-        setModalVisible(status)
-    }
 
     useEffect(() => {
         setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
@@ -453,7 +437,7 @@ export function Cart({ navigation }: HomeScreenProps) {
     }, [products, cart, cartInside]);
 
     const renderProduct = useCallback(
-        ({ item }: { item: Product }) => <ProductBox key={item.id} setImage={handleSetImage} setModalVisible={handleSetModalVisible} {...item} saveCart={saveCart} cart={cart} cartInside={cartInside} setConfirmDeleteItem={handleTrashItemState} />,
+        ({ item }: { item: Product }) => <ProductBox key={item.id} {...item} saveCart={saveCart} cart={cart} cartInside={cartInside} setConfirmDeleteItem={handleTrashItemState} />,
         [saveCart, cart, cartInside]
     );
 
@@ -461,27 +445,16 @@ export function Cart({ navigation }: HomeScreenProps) {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
     }
 
     return (
-        <Stack pt={20} style={{ backgroundColor: '#F0F2F6', height: '100%', position: 'relative' }}>
-            <Modal visible={isModalVisible} transparent={true} onRequestClose={() => {
-                setModalVisible(false)
-            }}>
-                <ImageViewer
-                    imageUrls={[{
-                        url: image
-                    }]}
-                    enableSwipeDown={true}
-                    onSwipeDown={() => setModalVisible(false)}
-                />
-            </Modal>
-            <View style={{ height: 50, flex: 1, paddingTop: 20 }}>
-                <View height={50} alignItems='center' style={{ alignItems: 'center', paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
+        <Stack pt={20} backgroundColor='#F0F2F6' height='100%' position='relative'>
+            <View height={50} flex={1} paddingTop={20}>
+                <View height={50} alignItems='center' paddingLeft={20} paddingRight={20} flexDirection='row'>
                     <Icons onPress={async () => {
                         setLoading(true)
                         await saveCartArray(cart, cartToExclude)
@@ -491,7 +464,7 @@ export function Cart({ navigation }: HomeScreenProps) {
                     <Text f={1} textAlign='center' fontSize={20}>Meu carrinho</Text>
                 </View>
 
-                <View style={{ backgroundColor: '#F0F2F6', flex: 1, padding: 16 }}>
+                <View backgroundColor='#F0F2F6' flex={1} padding={16}>
                     <VirtualizedList
                         ref={flatListRef}
                         style={{ flex: 1 }}
@@ -500,13 +473,14 @@ export function Cart({ navigation }: HomeScreenProps) {
                         getItem={(data, index) => displayedProducts[index]}
                         keyExtractor={(item) => item.id}
                         renderItem={renderProduct}
-                        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+                        ItemSeparatorComponent={() => <View height={8}/>}
                         initialNumToRender={10}
                         windowSize={4}
                     />
                 </View>
 
-                <View backgroundColor='#F0F2F6' display={confirmDelte ? 'none' : 'flex'} px={20} style={{ justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 20 }} height={70}>
+                <View backgroundColor='#F0F2F6' display={confirmDelte ? 'none' : 'flex'} px={20}
+                    justifyContent='center' alignItems='center' flexDirection='row' gap={20} height={70}>
                     <View backgroundColor='#F0F2F6' {...Platform.OS === 'web' ? { minWidth: '50%' } : {}} flexDirection='row' justifyContent='center' gap={5}>
                         <View justifyContent='center' alignItems='center'>
                             <Button backgroundColor='black' onPress={async () => {
@@ -527,23 +501,23 @@ export function Cart({ navigation }: HomeScreenProps) {
                 </View>
 
                 {confirmDelte && (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+                    <View flex={1} justifyContent='center' alignItems='center' backgroundColor='white'>
                         <Modal transparent={true}>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
-                                <View style={{ maxWidth: 400, width: '90%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
-                                    <View style={{ flexDirection: 'row', marginBottom: 15, alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
-                                        <View style={{ flex: 1 }}>
-                                            <Text style={{ fontSize: 22 }}>Apagar carrinho</Text>
+                            <View flex={1} justifyContent='center' alignItems='center' backgroundColor='rgba(0, 0, 0, 0.9)'>
+                                <View maxWidth={400} width='90%' backgroundColor='white' padding={20} borderRadius={10} alignItems='center' justifyContent='center'>
+                                    <View flexDirection='row' marginBottom={15} alignItems='flex-start' justifyContent='flex-start' width='100%'>
+                                        <View flex={1}>
+                                            <Text fontSize={22}>Apagar carrinho</Text>
                                         </View>
                                     </View>
-                                    <View style={{ marginBottom: 20, width: '100%' }}>
-                                        <Text style={{ fontSize: 16, marginBottom: 5 }}>Deseja apagar o carrinho e remover todos os produtos adicionados?</Text>
-                                        <Text style={{ fontSize: 10, color: 'gray', textAlign: 'left' }}>Esta ação não poderá ser desfeita</Text>
+                                    <View marginBottom={20} width='100%'>
+                                        <Text fontSize={16} marginBottom={5}>Deseja apagar o carrinho e remover todos os produtos adicionados?</Text>
+                                        <Text fontSize={10} color='gray' textAlign='left'>Esta ação não poderá ser desfeita</Text>
                                     </View>
-                                    <View gap={5} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                                    <View gap={5} flexDirection='row' justifyContent='space-between' width='100%' alignItems='center'>
                                         <TouchableOpacity style={{ flex: 1 }}>
                                             <Button backgroundColor='#04BF7B' onPress={() => setConfirmDelete(false)}>
-                                                <Text style={{ color: 'white', textAlign: 'center' }}>Cancelar</Text>
+                                                <Text color='white' textAlign='center'>Cancelar</Text>
                                             </Button>
                                         </TouchableOpacity>
                                         <TouchableOpacity style={{ flex: 1 }}>
@@ -563,7 +537,7 @@ export function Cart({ navigation }: HomeScreenProps) {
                                                 deleteStorage('cart');
                                                 navigation.replace('Products');
                                             }}>
-                                                <Text style={{ color: 'white', textAlign: 'center' }}>Apagar</Text>
+                                                <Text color='white' textAlign='center'>Apagar</Text>
                                             </Button>
                                         </TouchableOpacity>
                                     </View>
@@ -574,21 +548,21 @@ export function Cart({ navigation }: HomeScreenProps) {
 
                 )}
                 {confirmDeleteItem && (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+                    <View flex={1} justifyContent='center' alignItems='center' backgroundColor='white'>
                         <Modal transparent={true}>
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
-                                <View style={{ maxWidth: 400, width: '90%', backgroundColor: 'white', padding: 20, borderRadius: 10, alignItems: 'center', justifyContent: 'center' }}>
-                                    <View style={{ flexDirection: 'row', marginBottom: 15, alignItems: 'flex-start', justifyContent: 'flex-start', width: '100%' }}>
-                                        <Text style={{ flex: 1, fontSize: 22 }}>Remover item</Text>
+                            <View flex={1} justifyContent='center' alignItems='center' backgroundColor='rgba(0, 0, 0, 0.9)'>
+                                <View maxWidth={400} width='90%' backgroundColor='white' padding={20} borderRadius={10} alignItems='center' justifyContent='center'>
+                                    <View flexDirection='row' marginBottom={15} alignItems='flex-start' justifyContent='flex-start' width='100%'>
+                                        <Text flex={1} fontSize={22}>Remover item</Text>
                                     </View>
-                                    <View style={{ marginBottom: 20, width: '100%' }}>
-                                        <Text style={{ fontSize: 16, marginBottom: 5 }}>Deseja remover o item do carrinho?</Text>
-                                        <Text style={{ fontSize: 10, color: 'gray', textAlign: 'left' }}>Esta ação não poderá ser desfeita</Text>
+                                    <View marginBottom={20} width='100%'>
+                                        <Text fontSize={16} marginBottom={5}>Deseja remover o item do carrinho?</Text>
+                                        <Text fontSize={10} color='gray' textAlign='left'>Esta ação não poderá ser desfeita</Text>
                                     </View>
-                                    <View gap={5} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+                                    <View gap={5} flexDirection='row' justifyContent='space-between' width='100%'>
                                         <TouchableOpacity style={{ flex: 1 }}>
                                             <Button backgroundColor='#04BF7B' onPress={() => setConfirmDeleteItem(false)}>
-                                                <Text style={{ color: 'white', textAlign: 'center' }}>Cancelar</Text>
+                                                <Text color='white' textAlign='center'>Cancelar</Text>
                                             </Button>
                                         </TouchableOpacity>
                                         <TouchableOpacity style={{ flex: 1 }}>
@@ -596,7 +570,7 @@ export function Cart({ navigation }: HomeScreenProps) {
                                                 setLoading(true)
                                                 if (itemToDelete != null) deleteItemFromCart(itemToDelete)
                                             }}>
-                                                <Text style={{ color: 'white', textAlign: 'center' }}>Remover</Text>
+                                                <Text color='white' textAlign='center'>Remover</Text>
                                             </Button>
                                         </TouchableOpacity>
                                     </View>

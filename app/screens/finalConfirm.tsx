@@ -159,7 +159,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
             <View padding={15} backgroundColor='white' borderRadius={5} width='80%'>
                 <View borderBottomColor='gray' borderBottomWidth={0.5} flexDirection="row">
                     <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg` }}
-                        style={{ width: 50, height: 50, borderRadius: 50 }} />
+                        width={50} height={50} borderRadius={50}/>
                     <View ml={5} justifyContent="center" f={1}>
                         <Text>{supplier?.supplier.name}</Text>
                         <View alignItems="center" flexDirection="row">
@@ -182,7 +182,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
                     <Icons size={20} name="time"></Icons>
                     <View ml={10}>
                         <Text fontSize={16}>Entre {deliveryData?.minHour} e {deliveryData?.maxHour}</Text>
-                        <Text fontSize={12}>{new Date(deliveryData?.deliveryDateFormated.substring(0, 10) ?? '').toLocaleDateString('pt-BR')}</Text>
+                        <Text fontSize={12}>{deliveryData?.deliveryDateFormated}</Text>
                     </View>
                 </View>
                 <View alignItems="center" mt={15} flexDirection="row">

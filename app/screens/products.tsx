@@ -183,40 +183,36 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
         }, animatedStyle]}>
             <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
                 <View
-                    style={{
-                        backgroundColor: '#FFA500',
-                        width: 160,
-                        height: 45,
-                        borderRadius: 24,
-                        paddingHorizontal: 16,
-                        paddingVertical: 8,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        pointerEvents: 'auto'
-                    }}
+                    backgroundColor='#FFA500'
+                    width={160}
+                    height={45}
+                    borderRadius={24}
+                    paddingHorizontal={16}
+                    paddingVertical={8}
+                    flexDirection='row'
+                    alignItems='center'
+                    justifyContent='center'
+                    pointerEvents='auto'
                 >
                     <View>
                         <Icons size={25} color='white' name='cart' />
                         <View
-                            style={{
-                                position: 'absolute',
-                                bottom: -1,
-                                right: -5,
-                                backgroundColor: 'white',
-                                borderRadius: 10,
-                                width: 15,
-                                height: 15,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderColor: '#FFA500',
-                                borderWidth: 1
-                            }}
+                            position='absolute'
+                            bottom={-1}
+                            right={-5}
+                            backgroundColor='white'
+                            borderRadius={10}
+                            width={15}
+                            height={15}
+                            alignItems='center'
+                            justifyContent='center'
+                            borderColor='#FFA500'
+                            borderWidth={1}
                         >
-                            <Text style={{ fontSize: 9, color: '#FFA500' }}>{cartSize}</Text>
+                            <Text fontSize={9} color='#FFA500'>{cartSize}</Text>
                         </View>
                     </View>
-                    <Text style={{ color: '#fff', paddingLeft: 8 }}>Carrinho</Text>
+                    <Text color='white' paddingLeft={8}>Carrinho</Text>
                 </View>
             </TouchableOpacity>
         </Animated.View>
@@ -423,20 +419,18 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
             handleChange(value)
         }} disablePreventBodyScroll {...props}>
             <Select.Trigger
-                style={{
-                    backgroundColor: 'transparent',
-                    paddingRight: 20,
-                    alignItems: 'flex-start',
-                    paddingLeft: 0,
-                    paddingVertical: 0,
-                    borderWidth: 0,
-                    width: 220,
-                }}
+                backgroundColor='$colorTransparent'
+                paddingRight={20}
+                alignItems='flex-start'
+                paddingLeft={0}
+                paddingVertical={0}
+                borderWidth={0}
+                width={220}
                 pressStyle={{ backgroundColor: 'transparent' }}
                 iconAfter={<Icons name="chevron-down" />}
             >
                 <Select.Value
-                    style={{ fontSize: 16, fontWeight: '900' }}
+                    fontSize={16} fontWeight='900'
                     placeholder={typeof items[0].name != 'undefined' ? items[0].name : ''}
                 />
             </Select.Trigger>
@@ -459,19 +453,17 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 
             <Select.Content zIndex={200_000}>
                 <Select.ScrollUpButton
-                    style={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'relative',
-                        width: '100%',
-                        height: 12,
-                    }}
+                    alignItems='center'
+                    justifyContent='center'
+                    position='relative'
+                    width='100%'
+                    height={12}
                 >
-                    <YStack style={{ zIndex: 10 }}>
+                    <YStack zIndex={10}>
                         <Icons name="chevron-up" size={20} />
                     </YStack>
                 </Select.ScrollUpButton>
-                <Select.Viewport style={{ minWidth: 200 }}>
+                <Select.Viewport minWidth={200}>
                     <Select.Group>
                         <Select.Label>Restaurantes</Select.Label>
                         {useMemo(
@@ -483,7 +475,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
                                         value={typeof item.name != 'undefined' ? item.name.toLowerCase() : ''}
                                     >
                                         <Select.ItemText>{typeof item.name != 'undefined' ? item.name : ''}</Select.ItemText>
-                                        <Select.ItemIndicator style={{ marginLeft: 'auto' }}>
+                                        <Select.ItemIndicator marginLeft='auto'>
                                             <Icons name="checkmark" size={16} />
                                         </Select.ItemIndicator>
                                     </Select.Item>
@@ -493,16 +485,14 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
                     </Select.Group>
                     {props.native && (
                         <YStack
-                            style={{
-                                position: 'absolute',
-                                right: 0,
-                                top: 0,
-                                bottom: 0,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 16,
-                                pointerEvents: 'none',
-                            }}
+                            position='absolute'
+                            right={0}
+                            top={0}
+                            bottom={0}
+                            alignItems='center'
+                            justifyContent='center'
+                            width={16}
+                            pointerEvents='none'
                         >
                             <Icons name="chevron-down" />
                         </YStack>
@@ -510,15 +500,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
                 </Select.Viewport>
 
                 <Select.ScrollDownButton
-                    style={{
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        position: 'relative',
-                        width: '100%',
-                        height: 12,
-                    }}
+                    alignItems='center'
+                    justifyContent='center'
+                    position='relative'
+                    width='100%'
+                    height={12}
                 >
-                    <YStack style={{ zIndex: 10 }}>
+                    <YStack zIndex={10}>
                         <Icons name="chevron-down" size={20} />
                     </YStack>
                 </Select.ScrollDownButton>
@@ -845,22 +833,40 @@ export function Products({ navigation }: HomeScreenProps) {
 
     const filteredProducts = useMemo(() => {
         let products = productsList || [];
-
+    
+        // Favoritos
         if (currentClass === 'Favoritos') {
             products = favorites;
         } else {
-            products = productsList?.filter(product => product.class.toLowerCase() === currentClass.toLowerCase()) || [];
+            products = productsList?.filter(product => 
+                product.class.toLowerCase() === currentClass.toLowerCase()
+            ) || [];
         }
-
+    
+        // Normalizar a pesquisa (remover acentos e caracteres especiais)
+        const normalizeText = (text: string) => 
+            text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    
+        // Aplicar pesquisa
         if (searchQuery) {
             const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+            const normalizedQuery = normalizeText(searchQuery); // Normaliza o termo de busca
+    
             products = productsList?.filter(product => {
-                return product.name.toLowerCase().includes(searchQuery.toLowerCase()) && product.class.toUpperCase() !== excludeClass.toUpperCase()
-            }) ?? []
+                const normalizedProductName = normalizeText(product.name); // Normaliza o nome do produto
+                const isMatchingName = normalizedProductName.includes(normalizedQuery);
+                const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
+    
+                return isMatchingName && isNotExcludedClass;
+            }) ?? [];
         }
-
-        return products.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    
+        // Ordenar por nome
+        return products.sort((a, b) => 
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        );
     }, [currentClass, productsList, favorites, searchQuery]);
+    
 
     useEffect(() => {
         setDisplayedProducts(filteredProducts);
@@ -888,15 +894,12 @@ export function Products({ navigation }: HomeScreenProps) {
                 onPress={() => handlePress(item.name)}
             >
                 <Text
-                    style={{
-                        color:
-                            currentClass.toLowerCase() !== item.name.toLowerCase()
-                                ? '#aaa'
-                                : '#04BF7B',
-                        fontSize: 14,
-                        width: 90,
-                        textAlign: 'center',
-                    }}
+                    color={currentClass.toLowerCase() !== item.name.toLowerCase()
+                        ? '#aaa'
+                        : '#04BF7B'}
+                    fontSize={14}
+                    width={90}
+                    textAlign='center'
                 >
                     {item.name}
                 </Text>
@@ -936,7 +939,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     activeOpacity={1}
                     onPress={() => setModalVisible(false)}
                 >
-                    <View style={{ width: '100%', height: '80%', backgroundColor: 'white', borderRadius: 10, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' }}>
+                    <View width='100%' height='80%' backgroundColor='white' borderRadius={10} overflow='hidden' justifyContent='center' alignItems='center'>
                         <ImageViewer
                             imageUrls={[{ url: image }]}
                             enableSwipeDown={true}
@@ -955,7 +958,7 @@ export function Products({ navigation }: HomeScreenProps) {
                             }}
                             onPress={() => setModalVisible(false)}
                         >
-                            <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>X</Text>
+                            <Text color='white' fontSize={20} fontWeight='bold'>X</Text>
                         </TouchableOpacity>
                     </View>
                 </TouchableOpacity>

@@ -83,7 +83,9 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
             <View flexDirection="row" f={1}>
                 <View p={5}>
                     <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg` }}
-                        style={{ width: 50, height: 50, borderRadius: 50 }} />
+                        width={50}
+                        height={50}
+                        borderRadius={50}/>
                 </View>
                 <View ml={10} maxWidth="75%" justifyContent="center">
                     <Text fs={16}>{supplier.supplier.name}</Text>
@@ -473,7 +475,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
     if (finalCotacao) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent="center" alignItems="center">
                 <ActivityIndicator size="large" color="#04BF7B" />
                 <Text fontSize={12} mt={5} color='gray' textAlign="center">Cotação solicitada, fique de olho no Whatsapp</Text>
             </View>
@@ -482,34 +484,34 @@ export function Prices({ navigation }: HomeScreenProps) {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent="center" alignItems="center">
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
     }
 
     return (
-        <Stack pt={20} style={{ backgroundColor: 'white', height: '100%', position: 'relative' }}>
-            <View style={{ height: 50, flex: 1, paddingTop: 20 }}>
-                <View pb={20} alignItems='center' style={{ alignItems: 'center', paddingLeft: 20, paddingRight: 20, flexDirection: 'row' }}>
+        <Stack pt={20} backgroundColor='white' height='100%' position="relative">
+            <View height={50} flex={1} paddingTop={20}>
+                <View pb={20} alignItems='center' paddingLeft={20} paddingRight={20} flexDirection="row">
                     <Icons onPress={() => { navigation.replace('Cart') }} size={25} name='chevron-back'></Icons>
                     <Text f={1} textAlign='center' fontSize={20}>Cotações</Text>
                 </View>
                 <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50}>
                     <View disabled={!selectedRestaurant.premium} opacity={selectedRestaurant.premium ? 1 : 0.4} onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
-                        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                        flex={1} alignItems="center" justifyContent="center">
                         <Text color={tab === 'plus' ? "#04BF7B" : "gray"}>Conéctar+</Text>
                         <Text display={selectedRestaurant.premium ? "none" : "flex"} color='gray' fontSize={10}>(indisponível)</Text>
                         <View mt={10} h={1} width='100%' backgroundColor={tab === 'plus' ? "#04BF7B" : "white"}></View>
                     </View>
                     <View onPress={() => { setTab('onlySupplier') }} cursor="pointer"
-                        hoverStyle={{ opacity: 0.75 }} style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+                        hoverStyle={{ opacity: 0.75 }} flex={1} alignItems="center" justifyContent="center">
                         <Text color={tab === 'plus' ? "gray" : "#04BF7B"}>Por fornecedor</Text>
                         <View mt={10} h={1} width='100%' backgroundColor={tab === 'plus' ? "white" : "#04BF7B"}></View>
                     </View>
                 </View>
 
-                <View style={{ backgroundColor: 'white', flex: 1, paddingHorizontal: 5 }}>
+                <View backgroundColor='white' flex={1} paddingHorizontal={5}>
                     <View p={10} paddingTop={0} height='100%'>
                         {tab === 'onlySupplier' &&
                             <VirtualizedList
@@ -519,7 +521,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 getItem={getItem}
                                 keyExtractor={(item, index) => item.supplier ? item.supplier.name : `separator-${index}`}
                                 renderItem={renderItem}
-                                ItemSeparatorComponent={() => <View style={{ height: 2 }} />}
+                                ItemSeparatorComponent={() => <View height={2}/>}
                                 initialNumToRender={10}
                                 windowSize={4}
                                 scrollEnabled={true}
@@ -618,13 +620,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                     </View>
                 </View>
                 {editInfos && (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+                    <View flex={1} justifyContent="center" alignItems="center" backgroundColor='white'>
 
                         <Modal
                             transparent={true}
                         >
-                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
-                                <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} style={{ backgroundColor: 'white', borderRadius: 10, justifyContent: 'center' }}>
+                            <View flex={1} justifyContent="center" alignItems="center" backgroundColor='rgba(0, 0, 0, 0.9)'>
+                                <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center">
                                     <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
                                     {allRestaurants.length > 0 ? (
                                         <Picker onValueChange={async (value) => {
@@ -655,13 +657,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         <Text>Loading...</Text> // Ou algum placeholder
                                     )}
                                     <View pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>A partir de</Text>
                                             <Picker onValueChange={setMinHour} selectedValue={minHour} style={{ padding: 10, borderColor: 'lightgray', borderRadius: 5 }}>
                                                 {minhours.map((item) => (<Picker.Item label={item} value={item} key={item} />))}
                                             </Picker>
                                         </View>
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Até</Text>
                                             <Picker onValueChange={setMaxHour} selectedValue={maxHour} style={{ padding: 10, borderColor: 'lightgray', borderRadius: 5, color: 'black' }}>
                                                 {maxhours.map((item) => (<Picker.Item label={item} value={item} key={item} />))}
@@ -730,7 +732,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                             hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Nº</Text>
                                             <Input
                                                 fontSize={14}
@@ -748,19 +750,19 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
                                             <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </View>
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
                                             <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </View>
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Resp. recebimento</Text>
                                             <Input
                                                 fontSize={14}
@@ -778,7 +780,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Cel Resp. recebimento</Text>
                                             <Input
                                                 maxLength={15}
@@ -815,7 +817,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         </View>
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Info de entrega</Text>
                                             <Input
                                                 fontSize={14}
@@ -831,7 +833,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                             />
                                         </View>
-                                        <View style={{ flex: 1 }}>
+                                        <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Complemento</Text>
                                             <Input
                                                 fontSize={14}
@@ -849,7 +851,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         </View>
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                                        <Button onPress={() => setEditInfos(false)} backgroundColor='black' style={{ flex: 1 }}>
+                                        <Button onPress={() => setEditInfos(false)} backgroundColor='black' flex={1}>
                                             <Text pl={5} fontSize={12} color='white'>Cancelar</Text>
                                         </Button>
                                         <Button onPress={async () => {
@@ -886,7 +888,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                                             setEditInfos(false)
                                             setLoading(false)
-                                        }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
+                                        }} backgroundColor='#04BF7B' flex={1}>
                                             <Text pl={5} fontSize={12} color='white'>Salvar</Text>
                                         </Button>
                                     </View>

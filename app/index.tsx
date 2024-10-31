@@ -53,17 +53,15 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
     const [erro, setErro] = useState<string>('')
 
     return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#fff' }}>
+        <View flex={1} justifyContent='center' alignItems='center' backgroundColor='$white9'>
 
             <Modal transparent={true}>
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.9)' }}>
-                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} style={{ backgroundColor: 'white', borderRadius: 10, justifyContent: 'center' }}>
+                <View flex={1} justifyContent='center' alignItems='center' backgroundColor='rgba(0, 0, 0, 0.9)'>
+                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='$white9' borderRadius={10} justifyContent='center'>
                         <Text>Redefinição de senha</Text>
                         {
                             step4 && (
-                                <>
-                                    <Text fontSize={20} mt={15} mb={15}>Senha redefinida com sucesso</Text>
-                                </>
+                                <Text fontSize={20} mt={15} mb={15}>Senha redefinida com sucesso</Text>
                             )
                         }
                         {(!step3 && !step4) && (
@@ -79,10 +77,8 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                         }
                         {
                             (step3 && !step4) && (
-                                <>
-                                    <Input mt={15} mb={15} onChangeText={setPasswordModal} f={1} placeholder='Nova senha' value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
-                                </>
+                                <Input mt={15} mb={15} onChangeText={setPasswordModal} f={1} placeholder='Nova senha' value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                             )
                         }
                         {!step4 && (
@@ -95,7 +91,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                                     setEmailModal('')
                                     setCodeModal('')
                                     close()
-                                }} backgroundColor='black' style={{ flex: 1 }}>
+                                }} backgroundColor='black' flex={1}>
                                     <Text pl={5} fontSize={12} color='white'>Cancelar</Text>
                                 </Button>
                                 <Button onPress={async () => {
@@ -147,7 +143,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                                             }
                                         }
                                     }
-                                }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
+                                }} backgroundColor='#04BF7B' flex={1}>
                                     <Text pl={5} fontSize={12} color='white'>Avançar</Text>
                                 </Button>
                             </View>
@@ -156,7 +152,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                             <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                                 <Button onPress={() => {
                                     close()
-                                }} backgroundColor='#04BF7B' style={{ flex: 1 }}>
+                                }} backgroundColor='#04BF7B' flex={1}>
                                     <Text pl={5} fontSize={12} color='white'>Fechar</Text>
                                 </Button>
                             </View>
@@ -190,7 +186,7 @@ export function Sign({ navigation }: HomeScreenProps) {
                 setLoading(false);
                 return;
             }
-            process.env.NODE_TLS_REJECT_UNAUTHORIZED="0"
+            process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/checkLogin`, {
                 method: 'POST',
                 headers: {
@@ -237,7 +233,7 @@ export function Sign({ navigation }: HomeScreenProps) {
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -294,7 +290,7 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
     const login = async (email: string, password: string, registerInvalid: Function, setErros: Function) => {
         if (email.length && password.length && email.length <= 256 && password.length <= 35) {
             dataSignin = {
-                email,
+                email: email.toLowerCase(),
                 password
             }
 
@@ -353,7 +349,7 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -390,15 +386,15 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
                 Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
             }}>Politica de privacidade</Text>
-            
+
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9}>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
                 <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page === 'SignUp' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignUp')}>Criar conta</Button>
             </XStack>
 
-            
-            
+
+
         </YStack>
     );
 }
@@ -419,7 +415,7 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
         const erros: string[] = []
         if (email.length > 1 && emailValid && password.length >= 8 && passwordValid) {
             dataSignup = {
-                email,
+                email: email.toLowerCase(),
                 password
             }
             try {
@@ -476,7 +472,7 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -573,7 +569,7 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
                 Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
             }}>Politica de privacidade</Text>
-            
+
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9}>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
@@ -597,7 +593,7 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
     const login = async (email: string, password: string, registerInvalid: Function, setErros: Function) => {
         if (email.length && password.length && email.length <= 256 && password.length <= 35) {
             dataSignin = {
-                email,
+                email: email.toLowerCase(),
                 password
             }
 
@@ -656,7 +652,7 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -693,7 +689,7 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
                 Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
             }}>Politica de privacidade</Text>
-            
+
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9} width='$20'>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
@@ -719,7 +715,7 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
         const erros: string[] = []
         if (email.length > 1 && emailValid && password.length >= 8 && passwordValid) {
             dataSignup = {
-                email,
+                email: email.toLowerCase(),
                 password
             }
             try {
@@ -777,7 +773,7 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
 
     if (loading) {
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <View flex={1} justifyContent='center' alignItems='center'>
                 <ActivityIndicator size="large" color="#04BF7B" />
             </View>
         );
@@ -825,7 +821,7 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
                 Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
             }}>Politica de privacidade</Text>
-            
+
 
             <XStack mt='$6' borderColor='$gray7Light' borderWidth={1} borderRadius={9} width='$20'>
                 <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>

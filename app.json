@@ -18,12 +18,22 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.bubbleapps.app-conectar",
-      "userInterfaceStyle": "light"
+      "userInterfaceStyle": "light",
+      "infoPlist": {
+        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications.",
+        "NSUserTrackingUsageDescription": "This app tracks your activity to improve your experience and provide personalized notifications."
+      }
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
       "versionCode": 3,
-      "userInterfaceStyle": "light"
+      "userInterfaceStyle": "light",
+      "permissions": [
+        "ACCESS_NOTIFICATION_POLICY",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
+      ]
     },
     "web": {
       "favicon": "./assets/images/favicon.png",
