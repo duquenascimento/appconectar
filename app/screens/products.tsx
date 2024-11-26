@@ -10,7 +10,8 @@ import {
     Input,
     Button,
     Stack,
-    ScrollView
+    ScrollView,
+    Dialog
 } from 'tamagui';
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Icons from '@expo/vector-icons/Ionicons';
@@ -28,6 +29,7 @@ import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStorage } from '../utils/utils';
+import * as Linking from 'expo-linking';
 
 type Product = {
     name: string;
@@ -219,6 +221,151 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
     );
 };
 
+export function DialogComercialInstance(props: { openModal: boolean, setRegisterInvalid: Function, rest: any }) {
+    return (
+        <Dialog modal open={props.openModal}>
+            <Adapt when="sm" platform="touch">
+                <Sheet animationConfig={{
+                    type: 'spring',
+                    damping: 20,
+                    mass: 0.5,
+                    stiffness: 200,
+                }} animation="medium" zIndex={200000} modal dismissOnSnapToBottom snapPointsMode='fit'>
+                    <Sheet.Frame padding="$4" gap="$4">
+                        <Adapt.Contents />
+                    </Sheet.Frame>
+                    <Sheet.Overlay
+                        animation="quickest"
+                        enterStyle={{ opacity: 0 }}
+                        exitStyle={{ opacity: 0 }}
+                    />
+                </Sheet>
+            </Adapt>
+
+            <Dialog.Portal>
+                <Dialog.Overlay
+                    key="overlay"
+                    animation="quick"
+                    opacity={0.5}
+                    enterStyle={{ opacity: 0 }}
+                    exitStyle={{ opacity: 0 }}
+                />
+
+                <Dialog.Content
+                    bordered
+                    elevate
+                    key="content"
+                    animateOnly={['transform', 'opacity']}
+                    animation={[
+                        'quicker',
+                        {
+                            opacity: {
+                                overshootClamping: true,
+                            },
+                        },
+                    ]}
+                    enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                    exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                    gap="$4"
+                >
+                    <Dialog.Title mx='auto'>Bem vindo à Conéctar!</Dialog.Title>
+                    <Dialog.Description>
+                        Entre em contato conosco para agendar um contato rápido e começar a utilizar o aplicativo!
+                    </Dialog.Description>
+
+                    <XStack alignSelf="center" gap="$4">
+                        <Dialog.Close displayWhenAdapted asChild>
+                            <Button width='$20' theme="active" aria-label="Close" backgroundColor='#04BF7B' color='$white1' onPress={async () => {
+                                const text = encodeURIComponent(`Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
+${props.rest.map((item: any) => `
+- ${item.name}`)}
+
+Consegue me ajudar?`).replace('!', '%21').replace('\'', '%27').replace('(', '%28').replace(')', '%29').replace('*', '%2A')
+                                await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
+                            }}>
+                                Entre em contato
+                            </Button>
+                        </Dialog.Close>
+                    </XStack>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog>
+    )
+}
+
+export function DialogFinanceInstance(props: { openModal: boolean, setRegisterInvalid: Function, rest: any }) {
+    return (
+        <Dialog modal open={props.openModal}>
+            <Adapt when="sm" platform="touch">
+                <Sheet animationConfig={{
+                    type: 'spring',
+                    damping: 20,
+                    mass: 0.5,
+                    stiffness: 200,
+                }} animation="medium" zIndex={200000} modal dismissOnSnapToBottom snapPointsMode='fit'>
+                    <Sheet.Frame padding="$4" gap="$4">
+                        <Adapt.Contents />
+                    </Sheet.Frame>
+                    <Sheet.Overlay
+                        animation="quickest"
+                        enterStyle={{ opacity: 0 }}
+                        exitStyle={{ opacity: 0 }}
+                    />
+                </Sheet>
+            </Adapt>
+
+            <Dialog.Portal>
+                <Dialog.Overlay
+                    key="overlay"
+                    animation="quick"
+                    opacity={0.5}
+                    enterStyle={{ opacity: 0 }}
+                    exitStyle={{ opacity: 0 }}
+                />
+
+                <Dialog.Content
+                    bordered
+                    elevate
+                    key="content"
+                    animateOnly={['transform', 'opacity']}
+                    animation={[
+                        'quicker',
+                        {
+                            opacity: {
+                                overshootClamping: true,
+                            },
+                        },
+                    ]}
+                    enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                    exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                    gap="$4"
+                >
+                    <Dialog.Title mx='auto'>Conta bloqueada</Dialog.Title>
+                    <Dialog.Description>
+                        Informamos que sua conta está bloqueada devido a pendências com a plataforma.
+
+                        Por favor, entre em contato agora para desbloquear a sua conta
+                    </Dialog.Description>
+
+                    <XStack alignSelf="center" gap="$4">
+                        <Dialog.Close displayWhenAdapted asChild>
+                            <Button width='$20' theme="active" aria-label="Close" backgroundColor='$red9' color='$white1' onPress={async () => {
+                                const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
+${props.rest.map((item: any) => `
+- ${item.name}`)}
+
+Consegue me ajudar?`).replace('!', '%21').replace('\'', '%27').replace('(', '%28').replace(')', '%29').replace('*', '%2A')
+                                await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
+                            }}>
+                                Entre em contato
+                            </Button>
+                        </Dialog.Close>
+                    </XStack>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog>
+    )
+}
 
 const ProductBox = React.memo(({
     id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit,
@@ -279,9 +426,9 @@ const ProductBox = React.memo(({
                     </View>
                     <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 250 : 140}>
                         <Text fontSize={12}>{name}</Text>
-                        <Text color="#aaa" fontSize={10}>
+                        {/* <Text color="#aaa" fontSize={10}>
                             Apróx. {mediumWeight}{(orderUnit === 'Unid' ? 'Kg' : 'Un')}
-                        </Text>
+                        </Text> */}
                     </View>
                 </View>
                 <View mr={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
@@ -321,7 +468,7 @@ const ProductBox = React.memo(({
                                 </View>
                             )}
                             <Button
-                                onPress={(e) => {e.stopPropagation();handleQuantityChange(firstUnit ? firstUnit : 1)}}
+                                onPress={(e) => { e.stopPropagation(); handleQuantityChange(firstUnit ? firstUnit : 1) }}
                                 backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
@@ -330,7 +477,7 @@ const ProductBox = React.memo(({
                                 <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>{firstUnit ? firstUnit : 1}</Text>
                             </Button>
                             <Button
-                                onPress={(e) => {e.stopPropagation();handleQuantityChange(secondUnit ? secondUnit : 5)}}
+                                onPress={(e) => { e.stopPropagation(); handleQuantityChange(secondUnit ? secondUnit : 5) }}
                                 backgroundColor={quant === (secondUnit ? secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
                                 color={quant === secondUnit ? '#fff' : '#000'}
                                 height={30}
@@ -340,7 +487,7 @@ const ProductBox = React.memo(({
                                 <Text color={quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'}>{secondUnit ? secondUnit : 5}</Text>
                             </Button>
                             <Button
-                                onPress={(e) => {e.stopPropagation();handleQuantityChange(thirdUnit ? thirdUnit : 10)}}
+                                onPress={(e) => { e.stopPropagation(); handleQuantityChange(thirdUnit ? thirdUnit : 10) }}
                                 backgroundColor={quant === (thirdUnit ? thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 color={quant === thirdUnit ? '#fff' : '#000'}
@@ -355,14 +502,14 @@ const ProductBox = React.memo(({
                                 name="remove"
                                 color="#04BF7B"
                                 size={24}
-                                onPress={(e) => {e.stopPropagation(); handleValueQuantChange(-quant)}}
+                                onPress={(e) => { e.stopPropagation(); handleValueQuantChange(-quant) }}
                             />
                             <Text>{valueQuant} {orderUnit.replace('Unid', 'Un')}</Text>
                             <Icons
                                 name="add"
                                 color="#04BF7B"
                                 size={24}
-                                onPress={(e) => {e.stopPropagation(); handleValueQuantChange(quant)}}
+                                onPress={(e) => { e.stopPropagation(); handleValueQuantChange(quant) }}
                             />
                         </View>
                     </View>
@@ -530,6 +677,10 @@ export function Products({ navigation }: HomeScreenProps) {
     const [image, setImage] = useState<string>('')
     const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false)
     const [isScrolling, setIsScrolling] = useState(false);
+    const [showComercialBlock, setShowComercialBlock] = useState(false)
+    const [showFinanceBlock, setShowFinanceBlock] = useState(false)
+    const [restaurantes, setRestaurantes] = useState()
+
 
     const flatListRef = useRef<FlatList<Product>>(null);
 
@@ -712,6 +863,7 @@ export function Products({ navigation }: HomeScreenProps) {
             setLoading(true);
             try {
                 const [favs, cartMap, restaurants] = await Promise.all([loadFavorites(), loadCart(), loadRestaurants(), loadProducts()])
+                console.log(restaurants)
                 const verduraKg = restaurants.filter((rest: any) => {
                     return rest.verduraKg === true
                 })
@@ -737,6 +889,19 @@ export function Products({ navigation }: HomeScreenProps) {
                         { name: 'Cogumelos e trufas' },
                         { name: 'Higienizados' }
                     ]
+                }
+
+                setRestaurantes(restaurants)
+
+                const restFilteredComercial = restaurants.filter((item: any) => item.comercialBlock)
+                const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock)
+
+                if (restFilteredComercial.length) {
+                    setShowComercialBlock(true)
+                }
+
+                if (restFilteredFinance.length) {
+                    setShowFinanceBlock(true)
                 }
 
                 setStorage('selectedRestaurant', JSON.stringify({ restaurant: restaurants[0] }))
@@ -833,40 +998,40 @@ export function Products({ navigation }: HomeScreenProps) {
 
     const filteredProducts = useMemo(() => {
         let products = productsList || [];
-    
+
         // Favoritos
         if (currentClass === 'Favoritos') {
             products = favorites;
         } else {
-            products = productsList?.filter(product => 
+            products = productsList?.filter(product =>
                 product.class.toLowerCase() === currentClass.toLowerCase()
             ) || [];
         }
-    
+
         // Normalizar a pesquisa (remover acentos e caracteres especiais)
-        const normalizeText = (text: string) => 
+        const normalizeText = (text: string) =>
             text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    
+
         // Aplicar pesquisa
         if (searchQuery) {
             const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
             const normalizedQuery = normalizeText(searchQuery); // Normaliza o termo de busca
-    
+
             products = productsList?.filter(product => {
                 const normalizedProductName = normalizeText(product.name); // Normaliza o nome do produto
                 const isMatchingName = normalizedProductName.includes(normalizedQuery);
                 const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
-    
+
                 return isMatchingName && isNotExcludedClass;
             }) ?? [];
         }
-    
+
         // Ordenar por nome
-        return products.sort((a, b) => 
+        return products.sort((a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         );
     }, [currentClass, productsList, favorites, searchQuery]);
-    
+
 
     useEffect(() => {
         setDisplayedProducts(filteredProducts);
@@ -933,6 +1098,8 @@ export function Products({ navigation }: HomeScreenProps) {
 
     return (
         <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
+            <DialogComercialInstance openModal={showComercialBlock} setRegisterInvalid={setShowComercialBlock} rest={restaurantes} />
+            <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
             <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
                 <TouchableOpacity
                     style={{ flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.8)', justifyContent: 'center', alignItems: 'center' }}
@@ -1018,7 +1185,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     {currentClass.toLowerCase() === 'favoritos' && favorites.length < 1 && !searchQuery ?
                         <View flex={1} paddingTop={50} alignItems="center">
                             <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
-                            Para adicionar produtos à sua lista de favoritos, pesquise ou navegue pelas abas para encontrar o produto desejado e clique no ícone de favoritar
+                                Para adicionar produtos à sua lista de favoritos, pesquise ou navegue pelas abas para encontrar o produto desejado e clique no ícone de favoritar
                                 <Text> </Text>
                             </Text>
                             <Icons name="heart-outline" size={25} color="gray" />

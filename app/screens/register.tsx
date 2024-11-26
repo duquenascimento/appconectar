@@ -3,10 +3,10 @@ import { View, Text, Input, Button, ScrollView, Checkbox } from "tamagui";
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { Picker } from '@react-native-picker/picker';
 import { DialogInstance } from "../index";
 import { TextInputMask } from 'react-native-masked-text';
 import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
+import DropDownPicker from 'react-native-dropdown-picker';
 
 type RootStackParamList = {
     Home: undefined;
@@ -120,6 +120,10 @@ export function Register({ navigation }: HomeScreenProps) {
     const [emailValid, setEmailValid] = useState(false)
     const [emailAlternativeValid, setEmailAlternativeValid] = useState(false)
     const [isCepValid, setIsCepValid] = useState(true); // Nova variável de estado
+    const [inviteCode, setInviteCode] = useState('')
+    const [minHourOpen, setMinHourOpen] = useState(false)
+    const [maxHourOpen, setMaxHourOpen] = useState(false)
+    const [paymentWayOpen, setPaymentWayOpen] = useState(false)
 
     useEffect(() => {
 
@@ -223,7 +227,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 paymentWayAsync,
                 orderValueAsync,
                 localtype,
-                city
+                city,
+                inviteCode
             ] = await Promise.all([
                 getStorage('cnpj'),
                 getStorage('stateNumberId'),
@@ -249,7 +254,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 getStorage('paymentWay'),
                 getStorage('orderValue'),
                 getStorage('localType'),
-                getStorage('city')
+                getStorage('city'),
+                getStorage('inviteCode')
             ]);
 
             await Promise.all([
@@ -277,7 +283,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 setWeeklyOrderAmount(weeklyOrderAmountAsync ?? ''),
                 setpaymentWay(paymentWayAsync || ''),
                 setLocalType(localtype ?? ''),
-                setCity(city ?? '')
+                setCity(city ?? ''),
+                setInviteCode(inviteCode ?? '')
             ])
         } finally {
             setLoading(false)
@@ -317,7 +324,36 @@ export function Register({ navigation }: HomeScreenProps) {
                     maxHour,
                     minHour,
                     localType,
-                    city
+                    city,
+                    inviteCode
+                }))
+
+                console.log('BODY:', JSON.stringify({
+                    token: await getToken(),
+                    cnpj: cnpj.replace(/\D/g, ''),
+                    alternativeEmail,
+                    email,
+                    alternativePhone,
+                    phone,
+                    complement,
+                    localNumber,
+                    street,
+                    neigh,
+                    zipcode: zipcode.replace(/\D/g, ''),
+                    legalRestaurantName,
+                    restaurantName,
+                    cityNumberId,
+                    stateNumberId,
+                    paymentWay,
+                    orderValue: Number(orderValue.replace(/[^\d,]/g, '').replace(',', '.')),
+                    weeklyOrderAmount,
+                    deliveryObs,
+                    closeDoor,
+                    maxHour,
+                    minHour,
+                    localType,
+                    city,
+                    inviteCode
                 }))
                 const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
                     method: 'POST',
@@ -345,7 +381,8 @@ export function Register({ navigation }: HomeScreenProps) {
                         maxHour,
                         minHour,
                         localType,
-                        city
+                        city,
+                        inviteCode
                     }),
                     headers: {
                         'Content-type': 'application/json'
@@ -378,6 +415,7 @@ export function Register({ navigation }: HomeScreenProps) {
                         deleteStorage('paymentWay'),
                         deleteStorage('localType'),
                         deleteStorage('city'),
+                        deleteStorage('inviteCode'),
                         setStorage('role', 'registered')
                     ])
 
@@ -444,7 +482,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 setStorage('orderValue', orderValue),
                 setStorage('paymentWay', paymentWay),
                 setStorage('localType', localType),
-                setStorage('city', city)
+                setStorage('city', city),
+                setStorage('inviteCode', inviteCode)
             ])
             setLoading(false)
         }
@@ -505,7 +544,8 @@ export function Register({ navigation }: HomeScreenProps) {
             setStorage('orderValue', orderValue),
             setStorage('paymentWay', paymentWay),
             setStorage('localType', localType),
-            setStorage('city', city)
+            setStorage('city', city),
+            setStorage('inviteCode', inviteCode)
         ])
         setLoading(false)
     }
@@ -750,41 +790,47 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 <View flex={1}>
                                                     <Text marginTop={15}>Quero receber de</Text>
                                                     <View flex={1} borderWidth={0.5} borderColor='lightgray'>
-                                                        <Picker
-                                                            selectedValue={minHour}
+                                                        <DropDownPicker
+                                                            value={minHour}
+                                                            style={{
+                                                                borderWidth: 1,
+                                                                borderColor: 'lightgray',
+                                                                borderRadius: 5,
+                                                                zIndex: 1000,
+                                                            }}
+                                                            listMode="MODAL"
+                                                            dropDownDirection="TOP"
+                                                            setValue={setMinHour}
+                                                            items={minhours.map((item) => { return { label: item, value: item } })}
+                                                            multiple={false}
+                                                            open={minHourOpen}
+                                                            setOpen={setMinHourOpen}
+                                                            placeholder="Escolha um horário"
+                                                        >
+                                                        </DropDownPicker>
+                                                    </View>
+                                                </View>
+                                                <View flex={1}>
+                                                    <Text marginTop={15}>Até</Text>
+                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
+                                                    <DropDownPicker
+                                                            value={maxHour}
                                                             style={{
                                                                 borderWidth: 1,
                                                                 borderColor: 'lightgray',
                                                                 borderRadius: 5,
                                                                 flex: 1,
                                                             }}
-                                                            onValueChange={(itemValue) => setMinHour(itemValue)}
+                                                            listMode="MODAL"
+                                                            dropDownDirection="TOP"
+                                                            setValue={setMaxHour}
+                                                            items={maxhours.map((item) => { return { label: item, value: item } })}
+                                                            multiple={false}
+                                                            open={maxHourOpen}
+                                                            setOpen={setMaxHourOpen}
+                                                            placeholder=""
                                                         >
-                                                            <Picker.Item enabled={minHour ? false : true} style={{ flex: 1 }} label="Selecione..." value="" />
-                                                            {minhours.map((item) => (
-                                                                <Picker.Item key={item} label={item} value={item} />
-                                                            ))}
-                                                        </Picker>
-                                                    </View>
-                                                </View>
-                                                <View flex={1}>
-                                                    <Text marginTop={15}>Até</Text>
-                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
-                                                        <Picker
-                                                            selectedValue={maxHour}
-                                                            style={{
-                                                                height: 50,
-                                                                borderWidth: 1,
-                                                                borderColor: 'lightgray',
-                                                                borderRadius: 5,
-                                                                flex: 1
-                                                            }}
-                                                            onValueChange={(itemValue) => setMaxHour(itemValue)}
-                                                        >
-                                                            {maxhours.map((item) => (
-                                                                <Picker.Item key={item} label={item} value={item} />
-                                                            ))}
-                                                        </Picker>
+                                                        </DropDownPicker>
                                                     </View>
                                                 </View>
                                             </View>
@@ -809,21 +855,24 @@ export function Register({ navigation }: HomeScreenProps) {
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Qual o formato de pagamento preferido?</Text>
                                             <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor='lightgray'>
-                                                <Picker
-                                                    selectedValue={paymentWay}
-                                                    style={{
-                                                        padding: 10,
-                                                        borderWidth: 1,
-                                                        borderColor: 'lightgray',
-                                                        borderRadius: 5,
-                                                        flex: 1
-                                                    }}
-                                                    onValueChange={(itemValue) => setpaymentWay(itemValue)}
-                                                >
-                                                    <Picker.Item enabled={paymentWay ? false : true} style={{ flex: 1 }} label="Selecione..." value="" />
-                                                    <Picker.Item label="Diário: 7 dias após a entrega" value='DI07'></Picker.Item>
-                                                    <Picker.Item label="Semanal: vencimento na quarta" value='UQ10'></Picker.Item>
-                                                </Picker>
+                                            <DropDownPicker
+                                                            value={paymentWay}
+                                                            style={{
+                                                                borderWidth: 1,
+                                                                borderColor: 'lightgray',
+                                                                borderRadius: 5,
+                                                                flex: 1,
+                                                            }}
+                                                            setValue={setpaymentWay}
+                                                            listMode="MODAL"
+                                                            dropDownDirection="TOP"
+                                                            items={[{ label: 'Diário: 7 dias após a entrega', value: 'DI07' }, { label: 'Semanal: vencimento na quarta', value: 'UQ10' }]}
+                                                            multiple={false}
+                                                            open={paymentWayOpen}
+                                                            setOpen={setPaymentWayOpen}
+                                                            placeholder=""
+                                                        >
+                                                        </DropDownPicker>
                                             </View>
                                             <View mt={15} borderColor='lightgray' borderWidth={0.5} p={5} gap={5} flexDirection="row">
                                                 <Icons size={25} color='gray' name="information-circle"></Icons>
@@ -831,6 +880,13 @@ export function Register({ navigation }: HomeScreenProps) {
                                                     <Text maxWidth='100%' color='gray' fontSize={10}>Prazos são sujeitos a avaliação de crédito</Text>
                                                 </View>
                                             </View>
+                                        </View>
+                                        <Text mt={10} fontSize={12} mb={5} color='gray'>Código do promotor</Text>
+                                        <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
+                                        <Input onChangeText={(text) => {
+                                            setInviteCode(text.toUpperCase())
+                                        }} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} maxLength={5} value={inviteCode}></Input>
                                         </View>
                                     </View>
                                     :

@@ -2,8 +2,8 @@
   "expo": {
     "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "2.0.1",
-    "scheme": "Conéctar",
+    "version": "2.1.1",
+    "scheme": "conectarapp",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
@@ -27,7 +27,7 @@
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
-      "versionCode": 3,
+      "versionCode": 4,
       "userInterfaceStyle": "light",
       "permissions": [
         "ACCESS_NOTIFICATION_POLICY",
