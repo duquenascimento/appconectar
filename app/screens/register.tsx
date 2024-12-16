@@ -168,32 +168,38 @@ export function Register({ navigation }: HomeScreenProps) {
             const format = value.replace(/\D/g, '');
             if (format.length === 8) {
                 setLoading(true);
-                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${format}`);
+                const response = await fetch(`https://viacep.com.br/ws/${format}/json/`);
                 const result = await response.json();
-                if (response.ok) {
-                    const street: string[] = result.street.split(' ');
+                if (response.ok && !result.erro) {
+                    const street: string[] = result.logradouro.split(' ');
                     const localType: string = street[0];
                     console.log(street.join(' '));
                     street.shift();
                     await Promise.all([
-                        setNeigh(result.neighborhood.toUpperCase()), setStreet(street.join(' ').toUpperCase()),
-                        setLocalNumber(''), setComplement(''),
-                        setLocalType(localType.toUpperCase()), setCity(result.city)
+                        setNeigh(result.bairro.toUpperCase()), 
+                        setStreet(street.join(' ').toUpperCase()),
+                        setLocalNumber(''), 
+                        setComplement(''),
+                        setLocalType(localType.toUpperCase()), 
+                        setCity(result.localidade)
                     ]);
-                    setIsCepValid(true); // CEP válido
+                    setIsCepValid(true); 
                 } else {
-                    setIsCepValid(false); // CEP inválido
+                    setIsCepValid(false); 
                 }
             } else {
-                setIsCepValid(false); // CEP inválido se tiver menos de 8 caracteres
+                setIsCepValid(false);
             }
             setZipcode(value); // Atualiza o valor do CEP no estado
+        } catch (error) {
+            console.error("Erro ao buscar CEP:", error);
+            setIsCepValid(false); // CEP inválido em caso de erro
         } finally {
-            formatCep(value)
+            formatCep(value);
             setLoading(false);
         }
     };
-
+    
     // Função para aplicar o estilo da borda
     const getCepBorderStyle = () => ({
         borderColor: isCepValid ? '#049A63' : 'red',
