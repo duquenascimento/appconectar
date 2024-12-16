@@ -57,7 +57,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
 
             <Modal transparent={true}>
                 <View flex={1} justifyContent='center' alignItems='center' backgroundColor='rgba(0, 0, 0, 0.9)'>
-                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent='center'>
+                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='$white9' borderRadius={10} justifyContent='center'>
                         <Text>Redefinição de senha</Text>
                         {
                             step4 && (
@@ -67,9 +67,9 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                         {(!step3 && !step4) && (
                             <>
                                 <Text pt={5} fontSize={10}>Informe o e-mail abaixo e insira o código enviado</Text>
-                                <Input mt={15} mb={15} onChangeText={setEmailModal} placeholder='E-mail' value={emailModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                <Input mt={15} mb={15} onChangeText={setEmailModal} f={1} placeholder='E-mail' value={emailModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
-                                {step2 && <Input onChangeText={setCodeModal} maxLength={5} placeholder='Código' value={codeModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                {step2 && <Input onChangeText={setCodeModal} f={1} maxLength={5} placeholder='Código' value={codeModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>}
                                 {erro && <Text color='red'>{erro}</Text>}
                             </>
@@ -77,7 +77,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                         }
                         {
                             (step3 && !step4) && (
-                                <Input mt={15} mb={15} onChangeText={setPasswordModal} placeholder='Nova senha' value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                <Input mt={15} mb={15} onChangeText={setPasswordModal} f={1} placeholder='Nova senha' value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                             )
                         }
@@ -98,7 +98,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                                     if (step3) {
                                         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/pwChange`, {
                                             method: 'POST',
-                                            body: JSON.stringify({ email: emailModal.toLowerCase(), codeSent: codeModal, newPW: passwordModal }),
+                                            body: JSON.stringify({ email: emailModal, codeSent: codeModal, newPW: passwordModal }),
                                             headers: {
                                                 'Content-Type': 'application/json'
                                             }
@@ -116,7 +116,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                                             console.log(emailModal)
                                             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`, {
                                                 method: 'POST',
-                                                body: JSON.stringify({ email: emailModal.toLowerCase() }),
+                                                body: JSON.stringify({ email: emailModal }),
                                                 headers: {
                                                     'Content-Type': 'application/json'
                                                 }
@@ -130,7 +130,7 @@ const PwRecovery = ({ close, loading }: { close: () => void, loading: (active: b
                                         } else {
                                             const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recoveryCheck`, {
                                                 method: 'POST',
-                                                body: JSON.stringify({ email: emailModal.toLowerCase(), codeSent: codeModal }),
+                                                body: JSON.stringify({ email: emailModal, codeSent: codeModal }),
                                                 headers: {
                                                     'Content-Type': 'application/json'
                                                 }
@@ -316,7 +316,6 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
                     if (res.msg) {
                         const erros = []
                         if (res.msg === 'invalid password') erros.push('Senha inválida')
-                        if (res.msg === 'user not found') erros.push('Usuário não encontrado')
 
                         if (erros.length > 0) {
                             registerInvalid(true)
@@ -360,8 +359,9 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
 
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
             <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />
-            <Image src={require('../assets/images/logo-conectar-positivo.png')} objectFit='contain' maxWidth={200} height={80} mb='$9'></Image>
-            <Text alignSelf='flex-start' fontSize='$8'>Bem-vindo de volta</Text>
+            <Image src={require('../assets/images/logo-conectar-positivo.png')} width='70%' height='10%' mb='$9'></Image>
+
+            <Text alignSelf='flex-start' fontSize='$8'>Bem vindo de volta</Text>
             <Text alignSelf='flex-start' color='$gray10Dark'>Insira suas credenciais abaixo para acessar a sua conta.</Text>
 
             <XStack backgroundColor='white' borderWidth={1} borderRadius={9} borderColor='lightgray' mt='$3.5' alignItems='center' flexDirection='row' zIndex={20}>
@@ -378,9 +378,9 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
                 await login(email, password, setRegisterInvalid, setErros)
             }}>Entrar</Button>
 
-            {/* <Text color='$gray10Dark' mt='$3.5'>Ou entre com</Text>
+            <Text color='$gray10Dark' mt='$3.5'>Ou entre com</Text>
             <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
 
             <Text onPress={props.modal} fontSize='$5' mt='$5' fontWeight='$15' cursor='pointer'>Esqueceu sua senha?</Text>
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
@@ -389,8 +389,8 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
 
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9}>
-                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
-                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignUp')}>Criar conta</Button>
+                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
+                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page === 'SignUp' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignUp')}>Criar conta</Button>
             </XStack>
 
 
@@ -481,7 +481,7 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
     return (
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
             <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />
-            <Image src={require('../assets/images/logo-conectar-positivo.png')} objectFit='contain' maxWidth={200} height={80} mb='$9'></Image>
+            <Image src={require('../assets/images/logo-conectar-positivo.png')} width='70%' height='10%' mb='$9'></Image>
 
             <Text alignSelf='flex-start' fontSize='$8'>Criar conta</Text>
             <Text alignSelf='flex-start' color='$gray10Dark'>Vamos começar preenchendo as informações abaixo.</Text>
@@ -562,9 +562,9 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
                 await register(email, emailValid, password, passwordValid, setRegisterInvalid, setErros)
             }}>Cadastrar</Button>
 
-            {/* <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
+            <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
             <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
 
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
                 Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
@@ -572,8 +572,8 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
 
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9}>
-                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
-                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'}>Criar conta</Button>
+                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
+                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page === 'SignUp' ? '$gray1Light' : '$background'}>Criar conta</Button>
             </XStack>
         </YStack>
     )
@@ -619,7 +619,6 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
                     if (res.msg) {
                         const erros = []
                         if (res.msg === 'invalid password') erros.push('Senha inválida')
-                        if (res.msg === 'user not found') erros.push('Usuário não encontrado')
 
                         if (erros.length > 0) {
                             registerInvalid(true)
@@ -663,16 +662,10 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
 
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
             <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />
-            <Image
-                    src={require('../assets/images/logo-conectar-positivo.svg')}
-                    width={240}
-                    height={80}
-                    objectFit="fill"
-                    mb='$8'
-            />
+            <Image src={require('../assets/images/logo-conectar-positivo.svg')} width='$18' height='$7' mb='$9'></Image>
 
             <Stack width='$20'>
-                <Text fontSize='$8'>Bem-vindo de volta</Text>
+                <Text fontSize='$8'>Bem vindo de volta</Text>
                 <Text color='$gray10Dark'>Insira suas credenciais abaixo para acessar a sua conta.</Text>
             </Stack>
 
@@ -687,9 +680,9 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
 
             <Button onPress={async () => { await login(email, password, setRegisterInvalid, setErros) }} hoverStyle={{ backgroundColor: '#03a86c' }} mt='$3.5' backgroundColor='#04BF7B' color='white' fontWeight='$10' width='$20'>Entrar</Button>
 
-            {/* <Text color='$gray10Dark' mt='$3.5'>Ou entre com</Text>
+            <Text color='$gray10Dark' mt='$3.5'>Ou entre com</Text>
             <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
 
             <Text onPress={props.modal} fontSize='$5' mt='$5' fontWeight='$15' cursor='pointer'>Esqueceu sua senha?</Text>
 
@@ -699,8 +692,8 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
 
 
             <XStack mt='$9' borderColor='$gray7Light' borderWidth={1} borderRadius={9} width='$20'>
-                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
-                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignUp')}>Criar conta</Button>
+                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'}>Entrar</Button>
+                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page === 'SignUp' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignUp')}>Criar conta</Button>
             </XStack>
         </YStack>
     );
@@ -789,13 +782,7 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
     return (
 
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
-            <Image
-                    src={require('../assets/images/logo-conectar-positivo.svg')}
-                    width={240}
-                    height={80}
-                    objectFit="fill"
-                    mb='$8'
-            />
+            <Image src={require('../assets/images/logo-conectar-positivo.svg')} width='$18' height='$7' mb='$9'></Image>
             {registerInvalid && <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />}
 
             <Stack width='$20'>
@@ -827,9 +814,9 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
                 await register(email, emailValid, password, passwordValid, setRegisterInvalid, setErros)
             }} hoverStyle={{ backgroundColor: '#03a86c' }} mt='$3.5' backgroundColor='#04BF7B' color='white' fontWeight='$10' width='$20'>Cadastrar</Button>
 
-            {/* <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
+            <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
             <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button>
 
             <Text mt={5} color='gray' cursor='pointer' onPress={() => {
                 Linking.openURL('https://www.conectarhortifruti.com.br/termos/politica-de-privacidade').catch((err) => console.error('Erro ao abrir URL:', err));
@@ -837,8 +824,8 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
 
 
             <XStack mt='$6' borderColor='$gray7Light' borderWidth={1} borderRadius={9} width='$20'>
-                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
-                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'}>Criar conta</Button>
+                <Button width='50%' borderTopRightRadius={0} borderBottomRightRadius={0} height='$5' bg={props.page === 'SignIn' ? '$gray1Light' : '$background'} onPress={() => props.onButtonPress('SignIn')}>Entrar</Button>
+                <Button width='50%' borderTopLeftRadius={0} borderBottomLeftRadius={0} height='$5' bg={props.page === 'SignUp' ? '$gray1Light' : '$background'}>Criar conta</Button>
             </XStack>
         </YStack>
     );
