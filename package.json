@@ -68,6 +68,5 @@
     "tamagui": "1.115.4",
     "typescript": "~5.3.3"
   },
-  "devDependencies": {},
   "private": true
 }
