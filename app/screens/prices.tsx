@@ -5,8 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, TouchableWithoutFeedback, VirtualizedList } from "react-native";
 import React from "react";
 import { DateTime } from 'luxon'
-import { clearStorage, getToken, setStorage } from "../utils/utils";
+import { Picker } from "@react-native-picker/picker";
 import DropDownPicker from "react-native-dropdown-picker";
+import { clearStorage, getToken, setStorage } from "../utils/utils";
 
 type RootStackParamList = {
     Home: undefined;
@@ -159,7 +160,7 @@ export function Prices({ navigation }: HomeScreenProps) {
         if (minHour) {
             let [minHourValue, minMinuteValue] = minHour.split(':').map(Number);
             let [currentMaxHourValue, currentMaxMinuteValue] = maxHour ? maxHour.split(':').map(Number) : [0, 0];
-
+    
             // Adiciona 1h30m à minHour
             let hour = minHourValue + 1;
             let minute = minMinuteValue + 30;
@@ -167,17 +168,17 @@ export function Prices({ navigation }: HomeScreenProps) {
                 minute -= 60;
                 hour += 1;
             }
-
+    
             // Verifica se o maxHour existente é menor que o novo tempo
             const newMaxInMinutes = hour * 60 + minute;
             const currentMaxInMinutes = currentMaxHourValue * 60 + currentMaxMinuteValue;
-
+    
             if (currentMaxInMinutes < newMaxInMinutes) {
                 // Atualiza maxHour se o valor atual for menor que o novo calculado
                 const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
                 setMaxHour(updatedMaxHour);
             }
-
+    
             // Gera as opções para maxHour
             const maxOptions = [];
             hour = minHourValue + 1; // Reinicializa o valor de hour para começar a partir do minHour + 1h30m
@@ -186,7 +187,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                 minute -= 60;
                 hour += 1;
             }
-
+            
             while (hour < 24) {
                 maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
                 minute += 30;
@@ -195,13 +196,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                     hour += 1;
                 }
             }
-
+    
             setMaxhours(maxOptions);
         } else {
             setMaxhours([]);
         }
     }, [minHour, maxHour]); // Remove maxHour da lista de dependências para evitar loop infinito
-
+    
 
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -257,7 +258,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             const token = await getToken();
             if (!token) return new Map();
 
-            // console.log(JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] }))
+           // console.log(JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] }))
 
             const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
                 method: 'POST',
@@ -276,7 +277,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             const supplier = (response.data as SupplierData[]).filter(item => {
                 return Number(item.supplier.hour.replaceAll(':', '')) >= currentHour && item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish && item.supplier.missingItens > 0;
             });
-
+            
             const supplierUnavailable = (response.data as SupplierData[]).filter(item => (Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish) && item.supplier.missingItens > 0);
             const sortedSuppliers = supplier.sort((a, b) => {
                 const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
@@ -477,7 +478,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                 available: false,
             }))
         );
-    
+
         return itens;
     }, [suppliers, unavailableSupplier]);
     
@@ -596,13 +597,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         setFinalCotacao(true)
                                         await clearStorage()
                                         setTimeout(() => { navigation.replace('Products') }, 1000)
-
+                                        
                                     } else {
                                         const teste = await result.json()
                                         console.log(teste)
                                         setLoading(false)
                                     }
-
+                        
                                 }}>
                                     <Text fontWeight="500" fontSize={16} color="white">Solicitar cotação</Text>
                                 </Button>
@@ -674,7 +675,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                         <Modal
                             transparent={true}
                         >
-                            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                            <TouchableWithoutFeedback >
                             <View flex={1} justifyContent="center" alignItems="center" backgroundColor='rgba(0, 0, 0, 0.9)'>
                                 <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center">
                                     <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
@@ -750,28 +751,26 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     </View>
                                     <Text pt={15} pl={5} fontSize={12} color='gray'>Cep</Text>
                                     <KeyboardAvoidingView>
-                                        <Input maxLength={9} backgroundColor='white' borderColor='lightgray' borderRadius={5} onChangeText={async (value) => {
-                                            const cleaned = value.replace(/\D/g, '');
-                                            const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
+                                    <Input maxLength={9} backgroundColor='white' borderColor='lightgray' borderRadius={5} onChangeText={async (value) => {
+                                        const cleaned = value.replace(/\D/g, '');
+                                        const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
 
-                                            if (formatted.length === 9) {
-                                                setLoading(true)
-                                                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${formatted}`)
-                                                const result = await response.json()
-                                                if (response.ok) {
-                                                    const street = result.street.split(' ')
-                                                    street.shift()
-                                                    setCity(result.city.toUpperCase())
-                                                    setNeighborhood(result.neighborhood.toUpperCase())
-                                                    setLocalType(result.street.split(' ')[0].toUpperCase())
-                                                    setLocalNumber('')
-                                                    setStreet(street.join(' ').toUpperCase())
-                                                }
-                                                setLoading(false)
+                                        if (formatted.length === 9) {
+                                            setLoading(true)
+                                            const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
+                                            const result = await response.json()
+                                            if (response.ok && !result.erro) {
+                                                setCity(result.localidade.toUpperCase())
+                                                setNeighborhood(result.bairro.toUpperCase())
+                                                setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                                setLocalNumber('')
+                                                setStreet(result.logradouro.split(' ').slice(1).join(' ').toUpperCase())
                                             }
+                                            setLoading(false)
+                                        }
 
-                                            setZipCode(formatted);
-                                        }} value={zipCode} />
+                                        setZipCode(formatted);
+                                    }} value={zipCode} />
                                     </KeyboardAvoidingView>
                                     <Text pt={15} pl={5} fontSize={12} color='gray'>Logradouro</Text>
                                     <View flexDirection="column" gap={Platform.OS === 'web' ? 10 : 50}>
@@ -824,49 +823,49 @@ export function Prices({ navigation }: HomeScreenProps) {
                                             </DropDownPicker>
                                         </View>
                                         <KeyboardAvoidingView>
-                                            <Input onChangeText={(value) => {
-                                                const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                                setStreet(formattedValue);
+                                        <Input onChangeText={(value) => {
+                                            const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                                            setStreet(formattedValue);
                                             }} backgroundColor='white' borderColor='lightgray' borderRadius={5} borderTopLeftRadius={0} borderBottomLeftRadius={0} value={street} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+                                            hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                         </KeyboardAvoidingView>
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
 
                                         <View flex={1}>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Text pl={5} fontSize={12} color='gray'>Nº</Text>
-                                                <Input
-                                                    fontSize={14}
-                                                    flex={1}
-                                                    backgroundColor='white'
-                                                    borderColor='lightgray'
-                                                    borderRadius={5}
-                                                    value={localNumber}
-                                                    keyboardType="numeric"
-                                                    onChangeText={(value) => {
-                                                        const formattedValue = value.replace(/[^0-9]/g, '');
-                                                        setLocalNumber(formattedValue);
-                                                    }}
-                                                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            <Text pl={5} fontSize={12} color='gray'>Nº</Text>
+                                            <Input
+                                                fontSize={14}
+                                                flex={1}
+                                                backgroundColor='white'
+                                                borderColor='lightgray'
+                                                borderRadius={5}
+                                                value={localNumber}
+                                                keyboardType="numeric"
+                                                onChangeText={(value) => {
+                                                    const formattedValue = value.replace(/[^0-9]/g, '');
+                                                    setLocalNumber(formattedValue);
+                                                }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
 
-                                                />
+                                            />
                                             </KeyboardAvoidingView>
                                         </View>
 
                                         <View flex={1}>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
-                                                <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+                                            <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
+                                            <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={neighborhood} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                             </KeyboardAvoidingView>
                                         </View>
                                         <View flex={1}>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
-                                                <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+                                            <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
+                                            <Input color='gray' fontSize={9} disabled flex={1} backgroundColor='white' borderColor='lightgray' borderRadius={5} value={city} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                             </KeyboardAvoidingView>
                                         </View>
                                     </View>
@@ -874,96 +873,96 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         <View flex={1}>
                                             <Text pl={5} fontSize={12} color='gray'>Resp. recebimento</Text>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Input
-                                                    fontSize={14}
-                                                    flex={1}
-                                                    backgroundColor='white'
-                                                    borderColor='lightgray'
-                                                    borderRadius={5}
-                                                    value={responsibleReceivingName}
-                                                    onChangeText={(value) => {
-                                                        // Remove todos os caracteres que não sejam letras ou espaços
-                                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
-                                                        setResponsibleReceivingName(formattedValue);
-                                                    }}
-                                                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                />
+                                            <Input
+                                                fontSize={14}
+                                                flex={1}
+                                                backgroundColor='white'
+                                                borderColor='lightgray'
+                                                borderRadius={5}
+                                                value={responsibleReceivingName}
+                                                onChangeText={(value) => {
+                                                    // Remove todos os caracteres que não sejam letras ou espaços
+                                                    const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                                                    setResponsibleReceivingName(formattedValue);
+                                                }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            />
                                             </KeyboardAvoidingView>
                                         </View>
                                         <View flex={1}>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Text pl={5} fontSize={12} color='gray'>Cel Resp. recebimento</Text>
-                                                <Input
-                                                    maxLength={15}
-                                                    fontSize={14}
-                                                    flex={1}
-                                                    backgroundColor='white'
-                                                    borderColor='lightgray'
-                                                    borderRadius={5}
-                                                    value={responsibleReceivingPhoneNumber}
-                                                    keyboardType="phone-pad"
-                                                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    onChangeText={(value) => {
-                                                        // Remove todos os caracteres que não sejam dígitos
-                                                        let onlyNums = value.replace(/\D/g, '');
+                                            <Text pl={5} fontSize={12} color='gray'>Cel Resp. recebimento</Text>
+                                            <Input
+                                                maxLength={15}
+                                                fontSize={14}
+                                                flex={1}
+                                                backgroundColor='white'
+                                                borderColor='lightgray'
+                                                borderRadius={5}
+                                                value={responsibleReceivingPhoneNumber}
+                                                keyboardType="phone-pad"
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                onChangeText={(value) => {
+                                                    // Remove todos os caracteres que não sejam dígitos
+                                                    let onlyNums = value.replace(/\D/g, '');
 
-                                                        if (onlyNums.length > 10) {
-                                                            // Formato moderno (celular): (XX) XXXXX-XXXX
-                                                            onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-                                                        } else if (onlyNums.length > 6) {
-                                                            // Formato convencional (fixo): (XX) XXXX-XXXX
-                                                            onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
-                                                        } else if (onlyNums.length > 2) {
-                                                            // Formato parcial: (XX) XXXX
-                                                            onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
-                                                        } else if (onlyNums.length > 0) {
-                                                            // Formato parcial: (XX
-                                                            onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
-                                                        }
+                                                    if (onlyNums.length > 10) {
+                                                        // Formato moderno (celular): (XX) XXXXX-XXXX
+                                                        onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                                                    } else if (onlyNums.length > 6) {
+                                                        // Formato convencional (fixo): (XX) XXXX-XXXX
+                                                        onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                                                    } else if (onlyNums.length > 2) {
+                                                        // Formato parcial: (XX) XXXX
+                                                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+                                                    } else if (onlyNums.length > 0) {
+                                                        // Formato parcial: (XX
+                                                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
+                                                    }
 
-                                                        setResponsibleReceivingPhoneNumber(onlyNums);
-                                                    }}
-                                                />
+                                                    setResponsibleReceivingPhoneNumber(onlyNums);
+                                                }}
+                                            />
                                             </KeyboardAvoidingView>
                                         </View>
                                     </View>
                                     <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                                         <View flex={1}>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Text pl={5} fontSize={12} color='gray'>Info de entrega</Text>
-                                                <Input
-                                                    fontSize={14}
-                                                    flex={1}
-                                                    backgroundColor='white'
-                                                    borderColor='lightgray'
-                                                    borderRadius={5}
-                                                    value={deliveryInformation}
-                                                    onChangeText={(value) => {
-                                                        setDeliveryInformation(value);
-                                                    }}
-                                                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                />
+                                            <Text pl={5} fontSize={12} color='gray'>Info de entrega</Text>
+                                            <Input
+                                                fontSize={14}
+                                                flex={1}
+                                                backgroundColor='white'
+                                                borderColor='lightgray'
+                                                borderRadius={5}
+                                                value={deliveryInformation}
+                                                onChangeText={(value) => {
+                                                    setDeliveryInformation(value);
+                                                }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            />
                                             </KeyboardAvoidingView>
                                         </View>
                                         <View flex={1}>
                                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                <Text pl={5} fontSize={12} color='gray'>Complemento</Text>
-                                                <Input
-                                                    fontSize={14}
-                                                    flex={1}
-                                                    backgroundColor='white'
-                                                    borderColor='lightgray'
-                                                    borderRadius={5}
-                                                    value={complement}
-                                                    onChangeText={(value) => {
-                                                        setComplement(value);
-                                                    }}
-                                                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                />
+                                            <Text pl={5} fontSize={12} color='gray'>Complemento</Text>
+                                            <Input
+                                                fontSize={14}
+                                                flex={1}
+                                                backgroundColor='white'
+                                                borderColor='lightgray'
+                                                borderRadius={5}
+                                                value={complement}
+                                                onChangeText={(value) => {
+                                                    setComplement(value);
+                                                }}
+                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                            />
                                             </KeyboardAvoidingView>
                                         </View>
                                     </View>
