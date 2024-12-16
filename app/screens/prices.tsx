@@ -2,7 +2,7 @@ import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Stack, Text, View, Image, Button, Input } from "tamagui";
 import Icons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, TouchableWithoutFeedback, VirtualizedList } from "react-native";
+import { ActivityIndicator, Keyboard, KeyboardAvoidingView, Modal, Platform, ScrollView, TouchableWithoutFeedback, VirtualizedList } from "react-native";
 import React from "react";
 import { DateTime } from 'luxon'
 import { Picker } from "@react-native-picker/picker";
@@ -675,7 +675,11 @@ export function Prices({ navigation }: HomeScreenProps) {
                         <Modal
                             transparent={true}
                         >
-                            <TouchableWithoutFeedback >
+                              <ScrollView
+      contentContainerStyle={{ flex: 1, justifyContent: 'center', padding: 20 }}
+      keyboardShouldPersistTaps="handled"
+    >
+                            {/*<TouchableWithoutFeedback  onPress={Keyboard.dismiss} >*/}
                             <View flex={1} justifyContent="center" alignItems="center" backgroundColor='rgba(0, 0, 0, 0.9)'>
                                 <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center">
                                     <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
@@ -1010,7 +1014,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     </View>
                                 </View>
                             </View>
-                            </TouchableWithoutFeedback>
+                            </ScrollView>
+                            {/*</TouchableWithoutFeedback>*/}
+                            
+                           
                         </Modal>
                     </View>
                 )}
