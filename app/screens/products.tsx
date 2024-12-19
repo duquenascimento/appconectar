@@ -415,6 +415,7 @@ const ProductBox = React.memo(({
 
     return (
         <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+            {/**item da lista */}
             <View flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
                 <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 0} onPress={(e) => {
@@ -424,11 +425,8 @@ const ProductBox = React.memo(({
                     }}>
                         <Image source={{ uri: image[0] }} width={60} height={60} />
                     </View>
-                    <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 250 : 140}>
+                    <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 130 : 130}>
                         <Text fontSize={12}>{name}</Text>
-                        {/* <Text color="#aaa" fontSize={10}>
-                            Apróx. {mediumWeight}{(orderUnit === 'Unid' ? 'Kg' : 'Un')}
-                        </Text> */}
                     </View>
                 </View>
                 <View mr={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
@@ -447,7 +445,7 @@ const ProductBox = React.memo(({
             {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
                 <View onPress={(e) => e.stopPropagation()} minHeight={Platform.OS === 'web' ? 50 : 85} borderTopWidth={1} borderTopColor='#ccc' paddingHorizontal={8} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor='white' justifyContent='center' transform={[{ translateY: 0 }]}>
                     <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} flexDirection='row' alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
-                        <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems='center' flex={1} mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
+                        <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems='center' flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
                             {Platform.OS === 'web' && (
                                 <View alignSelf="flex-start" flex={1}>
                                     <XStack backgroundColor='#F0F2F6' flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems='center' flexDirection='row' height={36}>
@@ -467,11 +465,14 @@ const ProductBox = React.memo(({
                                     </XStack>
                                 </View>
                             )}
+
+                            {/*botao verde */}
                             <Button
                                 onPress={(e) => { e.stopPropagation(); handleQuantityChange(firstUnit ? firstUnit : 1) }}
                                 backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
+                                
                                 borderRadius={12}
                             >
                                 <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>{firstUnit ? firstUnit : 1}</Text>
