@@ -9,7 +9,8 @@ import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils"
 import DropDownPicker from 'react-native-dropdown-picker';
 import { formatCNPJ } from '../utils/formatCNPJ'
 import { formatCep } from '../utils/formatCep'
-import { encontrarInscricaoRJ } from "../utils/encontrarInscricaoEstadual";
+import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
+import { dividirLogradouro } from '../utils/DividirLogradouro'
 
 type RootStackParamList = {
     Home: undefined;
@@ -173,15 +174,13 @@ export function Register({ navigation }: HomeScreenProps) {
                 const response = await fetch(`https://viacep.com.br/ws/${format}/json/`);
                 const result = await response.json();
                 if (response.ok && !result.erro) {
-                    const street: string[] = result.logradouro.split(' ');
-                    const localType: string = street[0];
-                    street.shift();
+                    const endereco: any = dividirLogradouro(result.logradouro)
                     await Promise.all([
                         setNeigh(result.bairro.toUpperCase()), 
-                        setStreet(street.join(' ').toUpperCase()),
+                        setStreet(endereco.logradouro),
                         setLocalNumber(''), 
                         setComplement(''),
-                        setLocalType(localType.toUpperCase()), 
+                        setLocalType(endereco.tipoLogradouro), 
                         setCity(result.localidade)
                     ]);
                     setIsCepValid(true); 
@@ -194,7 +193,7 @@ export function Register({ navigation }: HomeScreenProps) {
             setZipcode(value); // Atualiza o valor do CEP no estado
         } catch (error) {
             console.error("Erro ao buscar CEP:", error);
-            setIsCepValid(false); // CEP inválido em caso de erro
+            setIsCepValid(false); 
         } finally {
             const cepFormatado = formatCep(value);
             setZipcode(cepFormatado);
@@ -442,13 +441,13 @@ export function Register({ navigation }: HomeScreenProps) {
                 })
                 const result: CheckCnpj = await response.json()       
                 if (response.ok) {
+                    const endereco: any = dividirLogradouro(result.data.logradouro)
                     await Promise.all([
-                        
                         setLegalRestaurantName(result.data.razao_social), setZipcode(result.data.cep.replace(/(\d{5})(\d{3})/, '$1-$2')),
-                        setNeigh(result.data.bairro), setStreet(result.data.logradouro),
+                        setNeigh(result.data.bairro), setStreet(endereco.logradouro),
                         setLocalNumber(result.data.numero), setComplement(result.data.complemento ?? ''),
-                        setLocalType(result.data.descricao_tipo_de_logradouro), setCity(result.data.municipio),
-                        setStateNumberId(encontrarInscricaoRJ(result.data.inscricoes_estaduais) || '')
+                        setLocalType(endereco.tipoLogradouro), setCity(result.data.municipio),
+                        setStateNumberId(encontrarInscricaoRJ(result.data.inscricoes_estaduais) ?? '')
                     ])
                     setStep(step + 1)
                 } else {
