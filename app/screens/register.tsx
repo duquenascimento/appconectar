@@ -7,6 +7,10 @@ import { DialogInstance } from "../index";
 import { TextInputMask } from 'react-native-masked-text';
 import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
 import DropDownPicker from 'react-native-dropdown-picker';
+import { formatCNPJ } from '../utils/formatCNPJ'
+import { formatCep } from '../utils/formatCep'
+import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
+import { dividirLogradouro } from '../utils/DividirLogradouro'
 
 type RootStackParamList = {
     Home: undefined;
@@ -21,6 +25,7 @@ type HomeScreenProps = {
 };
 
 interface Empresa {
+    inscricoes_estaduais: any | null;
     msg: string;
     cnpj: string;
     identificador_matriz_filial: number;
@@ -126,7 +131,6 @@ export function Register({ navigation }: HomeScreenProps) {
     const [paymentWayOpen, setPaymentWayOpen] = useState(false)
 
     useEffect(() => {
-
         const hours = [];
         for (let hour = 0; hour < 22; hour++) {
             hours.push(`${String(hour).padStart(2, '0')}:00`);
@@ -139,7 +143,6 @@ export function Register({ navigation }: HomeScreenProps) {
     useEffect(() => {
         if (minHour) {
             let [hour, minute] = minHour.split(':').map(Number);
-
             hour += 1;
             minute += 30;
             if (minute >= 60) {
@@ -171,16 +174,13 @@ export function Register({ navigation }: HomeScreenProps) {
                 const response = await fetch(`https://viacep.com.br/ws/${format}/json/`);
                 const result = await response.json();
                 if (response.ok && !result.erro) {
-                    const street: string[] = result.logradouro.split(' ');
-                    const localType: string = street[0];
-                    console.log(street.join(' '));
-                    street.shift();
+                    const endereco: any = dividirLogradouro(result.logradouro)
                     await Promise.all([
                         setNeigh(result.bairro.toUpperCase()), 
-                        setStreet(street.join(' ').toUpperCase()),
+                        setStreet(endereco.logradouro),
                         setLocalNumber(''), 
                         setComplement(''),
-                        setLocalType(localType.toUpperCase()), 
+                        setLocalType(endereco.tipoLogradouro), 
                         setCity(result.localidade)
                     ]);
                     setIsCepValid(true); 
@@ -193,9 +193,10 @@ export function Register({ navigation }: HomeScreenProps) {
             setZipcode(value); // Atualiza o valor do CEP no estado
         } catch (error) {
             console.error("Erro ao buscar CEP:", error);
-            setIsCepValid(false); // CEP inválido em caso de erro
+            setIsCepValid(false); 
         } finally {
-            formatCep(value);
+            const cepFormatado = formatCep(value);
+            setZipcode(cepFormatado);
             setLoading(false);
         }
     };
@@ -438,13 +439,15 @@ export function Register({ navigation }: HomeScreenProps) {
                         'Content-type': 'application/json'
                     }
                 })
-                const result: CheckCnpj = await response.json()
+                const result: CheckCnpj = await response.json()       
                 if (response.ok) {
+                    const endereco: any = dividirLogradouro(result.data.logradouro)
                     await Promise.all([
                         setLegalRestaurantName(result.data.razao_social), setZipcode(result.data.cep.replace(/(\d{5})(\d{3})/, '$1-$2')),
-                        setNeigh(result.data.bairro), setStreet(result.data.logradouro),
-                        setLocalNumber(result.data.numero), setComplement(result.data.complemento),
-                        setLocalType(result.data.descricao_tipo_de_logradouro), setCity(result.data.municipio)
+                        setNeigh(result.data.bairro), setStreet(endereco.logradouro),
+                        setLocalNumber(result.data.numero), setComplement(result.data.complemento ?? ''),
+                        setLocalType(endereco.tipoLogradouro), setCity(result.data.municipio),
+                        setStateNumberId(encontrarInscricaoRJ(result.data.inscricoes_estaduais) ?? '')
                     ])
                     setStep(step + 1)
                 } else {
@@ -495,30 +498,9 @@ export function Register({ navigation }: HomeScreenProps) {
         }
     }
 
-    const formatCNPJ = (value: string) => {
-        return value
-            .replace(/\D/g, '') // Remove caracteres não numéricos
-            .replace(/^(\d{2})(\d)/, '$1.$2') // Adiciona ponto após os dois primeiros dígitos
-            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3') // Adiciona ponto após o terceiro grupo de três dígitos
-            .replace(/\.(\d{3})(\d)/, '.$1/$2') // Adiciona barra após o segundo grupo de três dígitos
-            .replace(/(\d{4})(\d)/, '$1-$2') // Adiciona traço após o grupo de quatro dígitos
-            .replace(/(-\d{2})\d+?$/, '$1'); // Limita a 14 caracteres (com pontuação)
-    }
-
-    const formatCep = (value: string) => {
-        // Remove todos os caracteres não numéricos
-        const cleaned = value.replace(/\D/g, '');
-
-        // Aplica a máscara de CEP
-        const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
-
-        // Define o valor formatado
-        setZipcode(formatted);
-    }
-
     const handleCnpjChange = (text: string) => {
         setCnpj(formatCNPJ(text));
-    };
+    }
 
 
     const handleBackBtn = async () => {
