@@ -395,9 +395,9 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
             <ScrollView backgroundColor='white'>
                 <View backgroundColor='white' p={15}>
-                    <View alignItems="center" paddingHorizontal={5} borderColor='gray' h={40} flexDirection="row" borderWidth={0.5}>
+                    <View alignItems="center" paddingHorizontal={5} borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
                         <Icons color='gray' size={24} name="warning"></Icons>
-                        <Text color='gray' ml={5} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
+                        <Text color='gray' ml={5} margin={5} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
                     </View>
                     <View pt={25}>
                         <Text>Produtos selecionados</Text>

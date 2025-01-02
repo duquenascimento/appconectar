@@ -2,12 +2,13 @@ import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Stack, Text, View, Image, Button, Input } from "tamagui";
 import Icons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, TouchableWithoutFeedback, VirtualizedList } from "react-native";
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, VirtualizedList } from "react-native";
 import React from "react";
 import { DateTime } from 'luxon'
 import DropDownPicker from "react-native-dropdown-picker";
 import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
+import CustomAlert from '../../src/components/modais/CustomAlert'; // Importe o CustomAlert
 
 type RootStackParamList = {
     Home: undefined;
@@ -126,8 +127,8 @@ export function Prices({ navigation }: HomeScreenProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
     const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([]);
-    const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
-    const [showRestInfo, setShowRestInfo] = useState<boolean>(false)
+    const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
+    const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
     const [minhours, setMinhours] = useState<string[]>([]);
     const [maxhours, setMaxhours] = useState<string[]>([]);
     const [minHour, setMinHour] = useState<string>('')
@@ -151,6 +152,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const [restOpen, setRestOpen] = useState(false)
     const [localTypeOpen, setLocalTypeOpen] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
+    const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
 
     const handleConfirm = () => {
         setFinalCotacao(true);
@@ -158,11 +160,11 @@ export function Prices({ navigation }: HomeScreenProps) {
         setTimeout(() => { navigation.replace('Products') }, 1000);
     };
 
-    
     const handleSelectedRest = async (rest: any) => {
-        setSelectedRestaurant(rest)
-        updateAddress(rest)
-    }
+        console.log("restaurante<><><>", rest);
+        setSelectedRestaurant(rest);
+        updateAddress(rest);
+    };
 
     useEffect(() => {
         if (minHour) {
@@ -210,8 +212,6 @@ export function Prices({ navigation }: HomeScreenProps) {
             setMaxhours([]);
         }
     }, [minHour, maxHour]); // Remove maxHour da lista de dependências para evitar loop infinito
-
-
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleChangeAddress = (minHour: string, maxHour: string, neigh: string) => {
@@ -266,8 +266,6 @@ export function Prices({ navigation }: HomeScreenProps) {
             const token = await getToken();
             if (!token) return new Map();
 
-            // console.log(JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] }))
-
             const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
                 method: 'POST',
                 headers: {
@@ -306,16 +304,13 @@ export function Prices({ navigation }: HomeScreenProps) {
             });
 
             const sortedUnavailableSuppliers = supplierUnavailable.sort((a, b) => {
-                // Converter horário para número para ambos fornecedores
                 const hourA = Number(a.supplier.hour.replaceAll(':', ''));
                 const hourB = Number(b.supplier.hour.replaceAll(':', ''));
 
-                // Ordenar primeiro pelos horários de forma decrescente
                 if (hourA !== hourB) {
                     return hourB - hourA;
                 }
 
-                // Se os horários forem iguais, ordenar pelos produtos de desconto e itens ausentes de forma crescente
                 const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
                 const diffB = b.supplier.discount.product.length - b.supplier.missingItens;
 
@@ -323,17 +318,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                     return diffA - diffB;
                 }
 
-                const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
-                const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
+                const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star);
+                const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star);
 
                 if (notaA !== notaB) {
                     return notaB - notaA
                 }
 
-                // Se ambos os critérios acima forem iguais, ordenar pelo valor final do pedido de forma crescente
                 return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
             });
-
 
             setSuppliers(sortedSuppliers);
             setUnavailableSupplier(sortedUnavailableSuppliers);
@@ -372,27 +365,24 @@ export function Prices({ navigation }: HomeScreenProps) {
                     return diffA - diffB;
                 }
 
-                const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
-                const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
+                const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star);
+                const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star);
 
                 if (notaA !== notaB) {
-                    return notaB - notaA
+                    return notaB - notaA;
                 }
 
                 return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
             });
 
             const sortedUnavailableSuppliers = supplierUnavailable.sort((a, b) => {
-                // Converter horário para número para ambos fornecedores
                 const hourA = Number(a.supplier.hour.replaceAll(':', ''));
                 const hourB = Number(b.supplier.hour.replaceAll(':', ''));
 
-                // Ordenar primeiro pelos horários de forma decrescente
                 if (hourA !== hourB) {
                     return hourB - hourA;
                 }
 
-                // Se os horários forem iguais, ordenar pelos produtos de desconto e itens ausentes de forma crescente
                 const diffA = a.supplier.discount.product.length - a.supplier.missingItens;
                 const diffB = b.supplier.discount.product.length - b.supplier.missingItens;
 
@@ -400,17 +390,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                     return diffA - diffB;
                 }
 
-                const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
-                const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
+                const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star);
+                const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star);
 
                 if (notaA !== notaB) {
-                    return notaB - notaA
+                    return notaB - notaA;
                 }
 
-                // Se ambos os critérios acima forem iguais, ordenar pelo valor final do pedido de forma crescente
                 return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
             });
-
 
             setSuppliers(sortedSuppliers);
             setUnavailableSupplier(sortedUnavailableSuppliers);
@@ -423,23 +411,23 @@ export function Prices({ navigation }: HomeScreenProps) {
     useEffect(() => {
         const loadPricesAsync = async () => {
             try {
-                const restaurants = await loadRestaurants()
-                items = restaurants
-                console.log(items[0])
-                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
-                setSelectedRestaurant(items[0])
-                setTab(items[0].premium ? 'plus' : 'onlySupplier')
-                setAllRestaurants(items)
+                const restaurants = await loadRestaurants();
+                items = restaurants;
+                console.log(items[0]);
+                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 15));
+                setSelectedRestaurant(items[0]);
+                setTab(items[0].premium ? 'plus' : 'onlySupplier');
+                setAllRestaurants(items);
                 await loadPrices();
                 const hours = [];
                 for (let hour = 0; hour < 22; hour++) {
                     hours.push(`${String(hour).padStart(2, '0')}:00`);
                     hours.push(`${String(hour).padStart(2, '0')}:30`);
                 }
-                hours.push('22:00')
+                hours.push('22:00');
                 setMinhours(hours);
-                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 16))
-                setMaxHour(items[0]?.addressInfos[0]?.finalDeliveryTime.substring(11, 16))
+                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
+                setMaxHour(items[0]?.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
             } catch (err) {
                 console.error(err);
             } finally {
@@ -451,31 +439,28 @@ export function Prices({ navigation }: HomeScreenProps) {
 
     const updateAddress = async (rest: any) => {
         try {
-            setLoading(true)
-            setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
-            setSelectedRestaurant(rest)
-            await loadPricesAux(rest)
+            setLoading(true);
+            setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15));
+            setSelectedRestaurant(rest);
+            await loadPricesAux(rest);
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const combinedSuppliers = useMemo(() => {
         const itens: any[] = [];
 
-        // Filtrar os fornecedores disponíveis que não têm o horário "06:00"
         const filteredSuppliers = suppliers.filter(
             item => item.supplier.hour.substring(0, 5) !== "06:00"
         );
 
-        // Filtrar os fornecedores indisponíveis que não têm o horário "06:00"
         const filteredUnavailableSuppliers = unavailableSupplier.filter(
             item => item.supplier.hour.substring(0, 5) !== "06:00"
         );
 
-        // Adicionar separadores e itens filtrados
         if (filteredSuppliers.length) itens.push({ initialSeparator: true });
         itens.push(...filteredSuppliers.map(item => ({ ...item, available: true })));
 
@@ -489,7 +474,6 @@ export function Prices({ navigation }: HomeScreenProps) {
 
         return itens;
     }, [suppliers, unavailableSupplier]);
-
 
     useEffect(() => {
         if (selectedRestaurant) {
@@ -514,23 +498,41 @@ export function Prices({ navigation }: HomeScreenProps) {
                 console.log("Address info not found for the selected restaurant");
             }
 
-            setLoading(false); 
+            setLoading(false);
         }
     }, [selectedRestaurant]);
-
 
     const getItem = (data: SupplierData[], index: number) => data[index];
     const getItemCount = (data: SupplierData[]) => data.length;
     const renderItem =
         ({ item }: { item: any }) => {
             if (item.separator) {
-                return <Text pb={10} pt={10} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>
+                return <Text pb={10} pt={10} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
             }
             if (item.initialSeparator) {
-                return <Text pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>
+                return <Text pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
             }
             return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />;
         }
+
+    const validateFields = () => {
+        const requiredFields = [
+            zipCode,
+            localNumber,
+            street,
+            responsibleReceivingName,
+            responsibleReceivingPhoneNumber,
+            localType,
+            city,
+            neighborhood,
+        ];
+
+        const isValid = requiredFields.every(field => field?.trim());
+        if (!isValid) {
+            setIsAlertVisible(true); // Exibe o modal de validação
+        }
+        return isValid;
+    };
 
     if (finalCotacao) {
         return (
@@ -560,7 +562,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                     <View disabled={!selectedRestaurant.premium} opacity={selectedRestaurant.premium ? 1 : 0.4} onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
                         flex={1} alignItems="center" justifyContent="center">
                         <Text color={tab === 'plus' ? "#04BF7B" : "gray"}>Conéctar+</Text>
-                        <Text display={selectedRestaurant.premium ? "none" : "flex"} color='gray' fontSize={10}>(indisponível)</Text>
                         <View mt={10} h={1} width='100%' backgroundColor={tab === 'plus' ? "#04BF7B" : "white"}></View>
                     </View>
                     <View onPress={() => { setTab('onlySupplier') }} cursor="pointer"
@@ -598,9 +599,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     onConfirm={handleConfirm}
                                 />
 
-
                                 <Button backgroundColor="#04BF7B" onPress={async () => {
-                                    setLoading(true)
+                                    if (!validateFields()) return;
+
+                                    setLoading(true);
                                     const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
                                         method: 'POST',
                                         headers: {
@@ -609,22 +611,22 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         body: JSON.stringify({ token: await getToken(), selectedRestaurant: selectedRestaurant })
                                     });
 
-                                    console.log(JSON.stringify({ token: await getToken(), selectedRestaurant: selectedRestaurant }))
+                                    console.log(JSON.stringify({ token: await getToken(), selectedRestaurant: selectedRestaurant }));
 
                                     if (result.ok) {
-                                        const teste = await result.json()
-                                        console.log(teste)
-                                        setLoading(false)
-                                        setShowNotification(true) 
+                                        const teste = await result.json();
+                                        console.log(teste);
+                                        setLoading(false);
+                                        setShowNotification(true);
                                     } else {
-                                        const teste = await result.json()
-                                        console.log(teste)
-                                        setLoading(false)
+                                        const teste = await result.json();
+                                        console.log(teste);
+                                        setLoading(false);
                                     }
-                        
+
                                 }}>
                                     <Text fontWeight="500" fontSize={16} color="white">Solicitar cotação</Text>
-                                </Button> 
+                                </Button>
                                 <Text mt={5} textAlign="center" fontSize={12} color='gray'>Você receberá a cotação no Whatsapp</Text>
                             </View>
                         }
@@ -632,17 +634,17 @@ export function Prices({ navigation }: HomeScreenProps) {
                     </View>
                 </View>
                 <View onPress={() => {
-                    setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)
-                    setCity(selectedRestaurant.addressInfos[0].city)
-                    setLocalType(selectedRestaurant.addressInfos[0].localType)
-                    setLocalNumber(selectedRestaurant.addressInfos[0].localNumber)
-                    setResponsibleReceivingName(selectedRestaurant.addressInfos[0].responsibleReceivingName)
-                    setResponsibleReceivingPhoneNumber(selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber)
-                    setZipCode(selectedRestaurant.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
-                    setStreet(selectedRestaurant.addressInfos[0].address)
-                    setComplement(selectedRestaurant.addressInfos[0].complement)
-                    setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation)
-                    setEditInfos(true)
+                    setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
+                    setCity(selectedRestaurant.addressInfos[0].city);
+                    setLocalType(selectedRestaurant.addressInfos[0].localType);
+                    setLocalNumber(selectedRestaurant.addressInfos[0].localNumber);
+                    setResponsibleReceivingName(selectedRestaurant.addressInfos[0].responsibleReceivingName);
+                    setResponsibleReceivingPhoneNumber(selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber);
+                    setZipCode(selectedRestaurant.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'));
+                    setStreet(selectedRestaurant.addressInfos[0].address);
+                    setComplement(selectedRestaurant.addressInfos[0].complement);
+                    setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
+                    setEditInfos(true);
                 }} backgroundColor='white' paddingBottom={10} paddingTop={10} paddingHorizontal={20} borderTopColor='lightgray' borderTopWidth={1}>
                     <View flexDirection="row" alignItems="center">
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
@@ -657,9 +659,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                         </View>
                         <Icons size={20} onPress={() => { setShowRestInfo(!showRestInfo) }} name={showRestInfo ? "chevron-up" : "chevron-down"}></Icons>
                     </View>
-                    {/* <Text pl={5} display={showRestInfo ? "none" : "flex"} pt={5} color='gray' fontSize={12}>
-                        {selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}
-                    </Text> */}
                     <View display={showRestInfo ? "flex" : "none"}>
                         <View pt={5} flexDirection="row" alignItems="center">
                             <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
@@ -697,7 +696,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 contentContainerStyle={{ flex: 1, justifyContent: 'center', padding: 20 }}
                                 keyboardShouldPersistTaps="handled"
                             >
-                                {/*<TouchableWithoutFeedback  onPress={Keyboard.dismiss} >*/}
                                 <View flex={1} justifyContent="center" alignItems="center" backgroundColor='rgba(0, 0, 0, 0.9)'>
                                     <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center">
                                         <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
@@ -893,7 +891,9 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         </View>
                                         <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                                             <View flex={1}>
-                                                <Text pl={5} fontSize={12} color='gray'>Resp. recebimento</Text>
+                                                <Text pl={5} fontSize={12} color='gray'>
+                                                    Resp. recebimento <Text color="red">*</Text>
+                                                </Text>
                                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                                     <Input
                                                         fontSize={14}
@@ -913,8 +913,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 </KeyboardAvoidingView>
                                             </View>
                                             <View flex={1}>
+                                                <Text pl={5} fontSize={12} color='gray'>
+                                                    Cel Resp. recebimento <Text color="red">*</Text>
+                                                </Text>
                                                 <KeyboardAvoidingView style={{ flex: 1 }}>
-                                                    <Text pl={5} fontSize={12} color='gray'>Cel Resp. recebimento</Text>
                                                     <Input
                                                         maxLength={15}
                                                         fontSize={14}
@@ -993,17 +995,19 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                 <Text pl={5} fontSize={12} color='white'>Cancelar</Text>
                                             </Button>
                                             <Button {...(zipCode?.length === 9 && localNumber?.length && street?.length && responsibleReceivingName?.length && responsibleReceivingPhoneNumber?.length && localType?.length && city?.length) ? {} : { opacity: 0.4, disabled: true }} onPress={async () => {
-                                                setLoading(true)
-                                                const rest: SelectItem = selectedRestaurant
-                                                const addressInfo = rest.addressInfos[0]
+                                                if (!validateFields()) return; // Valida os campos antes de prosseguir
 
-                                                addressInfo.neighborhood = neighborhood
-                                                addressInfo.city = city
-                                                addressInfo.localType = localType
-                                                addressInfo.localNumber = localNumber
+                                                setLoading(true);
+                                                const rest: SelectItem = selectedRestaurant;
+                                                const addressInfo = rest.addressInfos[0];
+
+                                                addressInfo.neighborhood = neighborhood;
+                                                addressInfo.city = city;
+                                                addressInfo.localType = localType;
+                                                addressInfo.localNumber = localNumber;
                                                 addressInfo.responsibleReceivingName = responsibleReceivingName;
                                                 addressInfo.responsibleReceivingPhoneNumber = responsibleReceivingPhoneNumber;
-                                                addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '')
+                                                addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '');
                                                 addressInfo.address = street;
                                                 addressInfo.complement = complement;
                                                 addressInfo.deliveryInformation = deliveryInformation;
@@ -1033,13 +1037,22 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     </View>
                                 </View>
                             </ScrollView>
-                            {/*</TouchableWithoutFeedback>*/}
-
-
+                            <CustomAlert
+                                visible={isAlertVisible}
+                                title="Campos obrigatórios"
+                                message="Por favor, preencha todos os campos obrigatórios."
+                                onConfirm={() => setIsAlertVisible(false)} // Fecha o alerta ao confirmar
+                            />
                         </Modal>
                     </View>
                 )}
             </View>
+            <CustomAlert
+                visible={isAlertVisible}
+                title="Campos obrigatórios"
+                message="Por favor, preencha todos os campos obrigatórios."
+                onConfirm={() => setIsAlertVisible(false)} // Fecha o alerta ao confirmar
+            />
         </Stack>
     );
 }
