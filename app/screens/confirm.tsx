@@ -553,29 +553,31 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
                             let erros = []
 
-                            if (!isOpen()) erros.push('O fornecedor está fechado')
+                            if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
                             if (isBefore13Hours() && Platform.OS === 'web') erros.push('O pedido só pode ser confirmado após as 13h')
-                            if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish) erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
+                            if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+                                !selectedRestaurant.restaurant.allowMinimumOrder)
+                                erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
                             
                             setShowErros(erros)
-                            
 
                             if (!erros.length) {
-                                const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(body)
-                                });
-                                if (result.ok) {
-                                    const response = await result.json()
-                                    await setStorage('finalConfirmData', JSON.stringify(response.data))
-                                    navigation.replace('FinalConfirm')
-                                } else {
-                                    setLoadingToConfirm(false)
-                                }
+                                // const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+                                //     method: 'POST',
+                                //     headers: {
+                                //         'Content-Type': 'application/json',
+                                //     },
+                                //     body: JSON.stringify(body)
+                                // });
+                                // if (result.ok) {
+                                //     const response = await result.json()
+                                //     await setStorage('finalConfirmData', JSON.stringify(response.data))
+                                //     navigation.replace('FinalConfirm')
+                                // } else {
+                                //     setLoadingToConfirm(false)
+                                // }
                             } else {
+                                console.log('falhou')
                                 setBooleanErros(true)
                                 setLoadingToConfirm(false)
                             }
