@@ -577,7 +577,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                     setLoadingToConfirm(false)
                                 }
                             } else {
-                                console.log('falhou')
                                 setBooleanErros(true)
                                 setLoadingToConfirm(false)
                             }
