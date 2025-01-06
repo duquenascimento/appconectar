@@ -562,20 +562,20 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             setShowErros(erros)
 
                             if (!erros.length) {
-                                // const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                                //     method: 'POST',
-                                //     headers: {
-                                //         'Content-Type': 'application/json',
-                                //     },
-                                //     body: JSON.stringify(body)
-                                // });
-                                // if (result.ok) {
-                                //     const response = await result.json()
-                                //     await setStorage('finalConfirmData', JSON.stringify(response.data))
-                                //     navigation.replace('FinalConfirm')
-                                // } else {
-                                //     setLoadingToConfirm(false)
-                                // }
+                                const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(body)
+                                });
+                                if (result.ok) {
+                                    const response = await result.json()
+                                    await setStorage('finalConfirmData', JSON.stringify(response.data))
+                                    navigation.replace('FinalConfirm')
+                                } else {
+                                    setLoadingToConfirm(false)
+                                }
                             } else {
                                 console.log('falhou')
                                 setBooleanErros(true)
