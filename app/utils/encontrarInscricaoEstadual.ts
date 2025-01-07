@@ -1,4 +1,4 @@
-export function encontrarInscricaoRJ(objeto: any) {
+export function encontrarInscricaoRJ(objeto: any): string | null {
     if (objeto) {
         for (let inscricao of objeto) {
             if (inscricao.estado === "RJ") {
@@ -6,5 +6,5 @@ export function encontrarInscricaoRJ(objeto: any) {
             }
         }
     }
-    return '';
+    return null;
 }

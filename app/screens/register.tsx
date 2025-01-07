@@ -442,13 +442,15 @@ export function Register({ navigation }: HomeScreenProps) {
                 const result: CheckCnpj = await response.json()       
                 if (response.ok) {
                     const endereco: any = dividirLogradouro(result.data.logradouro)
+                    const IE = encontrarInscricaoRJ(result.data.inscricoes_estaduais)
                     await Promise.all([
                         setLegalRestaurantName(result.data.razao_social), setZipcode(result.data.cep.replace(/(\d{5})(\d{3})/, '$1-$2')),
                         setNeigh(result.data.bairro), setStreet(endereco.logradouro),
                         setLocalNumber(result.data.numero), setComplement(result.data.complemento ?? ''),
                         setLocalType(endereco.tipoLogradouro), setCity(result.data.municipio),
-                        setStateNumberId(encontrarInscricaoRJ(result.data.inscricoes_estaduais) ?? '')
+                        setStateNumberId(IE ?? '')
                     ])
+                    setNoStateNumberId(!IE)
                     setStep(step + 1)
                 } else {
                     const erros: string[] = []
@@ -636,7 +638,29 @@ export function Register({ navigation }: HomeScreenProps) {
                                     <Text mt={15}>CNPJ</Text>
                                     <Input disabled={step >= 1 ? true : false} opacity={step >= 1 ? 0.5 : 1} onChangeText={setCnpj} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
-                                    {noStateNumberId ? (
+                                    <View opacity={noStateNumberId ? 0.5 : 1} marginTop={15} alignItems="center" flexDirection="row" gap={8}>
+                                        <Text>Inscrição estadual</Text>
+                                        <Text fontSize={10} color='gray'>Min. 8 digitos</Text>
+                                    </View>
+                                    <Input
+                                        onChangeText={setStateNumberId}
+                                        value={stateNumberId}
+                                        keyboardType="number-pad"
+                                        backgroundColor="white"
+                                        borderRadius={2}
+                                        focusStyle={getBorderStyle(stateNumberId)}
+                                        hoverStyle={getBorderStyle(stateNumberId)}
+                                        disabled={noStateNumberId}
+                                        opacity={noStateNumberId ? 0.5 : 1}
+                                        placeholder={noStateNumberId ? 'Isento' : ''}
+                                    />
+                                    <View mt={15} alignItems="center" flexDirection="row">
+                                        <Checkbox onPress={handleCheckBox}>
+                                            {noStateNumberId ? <Icons name="checkmark"></Icons> : <></>}
+                                        </Checkbox>
+                                        <Text paddingLeft={5} fontSize={12}>Sou isento de IE</Text>
+                                    </View>
+                                    {noStateNumberId &&
                                         <>
                                             <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                                 <Text>Inscrição municipal</Text>
@@ -651,30 +675,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 focusStyle={getBorderStyle(cityNumberId)}
                                                 hoverStyle={getBorderStyle(cityNumberId)}
                                             />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                                                <Text>Inscrição estadual</Text>
-                                                <Text fontSize={10} color='gray'>Min. 8 digitos</Text>
-                                            </View>
-                                            <Input
-                                                onChangeText={setStateNumberId}
-                                                value={stateNumberId}
-                                                keyboardType="number-pad"
-                                                backgroundColor="white"
-                                                borderRadius={2}
-                                                focusStyle={getBorderStyle(stateNumberId)}
-                                                hoverStyle={getBorderStyle(stateNumberId)}
-                                            />
-                                        </>
-                                    )}
-                                    <View mt={15} alignItems="center" flexDirection="row">
-                                        <Checkbox onPress={handleCheckBox}>
-                                            {noStateNumberId ? <Icons name="checkmark"></Icons> : <></>}
-                                        </Checkbox>
-                                        <Text paddingLeft={5} fontSize={12}>Sou isento de IE</Text>
-                                    </View>
+                                        </>}
                                     <Text mt={15}>Razão Social</Text>
                                     <Input disabled opacity={0.5} onChangeText={setLegalRestaurantName} value={legalRestaurantName} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
