@@ -1633,7 +1633,7 @@ export function DialogInstance(props: {
                   .catch(err => console.error(`Erro ao redirecionar ao Whatsapp: ${err}`))
                 }}
               >
-                Ok
+                Suporte
               </Button>
               }
             </Dialog.Close>
