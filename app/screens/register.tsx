@@ -591,7 +591,7 @@ export function Register({ navigation }: HomeScreenProps) {
 
     return (
         <View flex={1} backgroundColor='#F0F2F6'>
-            <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />
+            <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} cnpj={cnpj} />
             <View mb={10} pt={50} alignItems="center" justifyContent="center">
                 <Text fontSize={20}>Cadastro</Text>
                 <View pt={20} justifyContent="center" flexDirection="row">
