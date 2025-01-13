@@ -1628,7 +1628,7 @@ export function DialogInstance(props: {
                   .replace(')', '%29')
                   .replace('*', '%2A')
 
-                  const endpoint = `https://wa.me/5521999954372?text${msg}`
+                  const endpoint = `https://wa.me/5521999954372?text=${msg}`
                   openURL(endpoint)
                   .catch(err => console.error(`Erro ao redirecionar ao Whatsapp: ${err}`))
                 }}
