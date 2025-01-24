@@ -644,7 +644,7 @@ export const Products: React.FC<ProductsProps> = () => {
             <View style={{ height: 40, flex: 1, paddingTop: 8 }}>
                 <View style={{ alignItems: 'center', paddingLeft: 20, flexDirection: 'row' }}>
                     <Circle height={46} width={46} style={{ padding: 12, backgroundColor: '#F0F2F6' }}>
-                        <Image source={require('../assets/icon-conectar-positivo.png')} style={{ height: 32, width: 32 }} />
+                        <Image source={require('../../assets/icon-conectar-positivo.png')} style={{ height: 32, width: 32 }} />
                     </Circle>
                     <YStack style={{ paddingLeft: 10, paddingTop: 10 }}>
                         <Text style={{ color: '#666' }}>Entregar para</Text>

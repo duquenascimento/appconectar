@@ -1,7 +1,7 @@
 import { useFonts } from 'expo-font';
 import { TamaguiProvider, YStack, Stack } from 'tamagui';
 import config from '../tamagui.config';
-import { Sign } from './components/Sign';
+import { Sign } from './components/sign';
 import { Products } from './components/products';
 import { Slot } from 'expo-router';
 import { NavigationContainer } from '@react-navigation/native';
