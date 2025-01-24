@@ -28,8 +28,10 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStorage } from '../utils/utils';
+import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
 import * as Linking from 'expo-linking';
+import { BottomNavigation } from '../components/navigation/BottomNavigation'; 
+
 
 type Product = {
     name: string;
@@ -87,6 +89,10 @@ type ProductBoxProps = Product &
     thirdUnit: number,
     currentClass: string
 }
+
+type ProductsScreenProps = {
+    navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>; // Tipagem corrigida
+};
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
     const opacity = useSharedValue(0);
@@ -665,22 +671,22 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 
 let classItems: { name: string }[] = []
 
-export function Products({ navigation }: HomeScreenProps) {
+export function Products({ navigation }: ProductsScreenProps) {
     const [currentClass, setCurrentClass] = useState('Favoritos');
     const [productsList, setProductsList] = useState<Product[] | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [loading, setLoading] = useState(true);
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-    const [favorites, setFavorites] = useState<Product[]>([])
+    const [favorites, setFavorites] = useState<Product[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [cart, setCart] = useState<Map<string, Cart>>(new Map());
     const [cartToExclude, setCartToExclude] = useState<Map<string, Cart>>(new Map());
     const [isModalVisible, setModalVisible] = useState(false);
-    const [image, setImage] = useState<string>('')
-    const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false)
+    const [image, setImage] = useState<string>('');
+    const [skeletonLoading, setSkeletonLoading] = useState(false);
     const [isScrolling, setIsScrolling] = useState(false);
-    const [showComercialBlock, setShowComercialBlock] = useState(false)
-    const [showFinanceBlock, setShowFinanceBlock] = useState(false)
-    const [restaurantes, setRestaurantes] = useState()
+    const [showComercialBlock, setShowComercialBlock] = useState(false);
+    const [showFinanceBlock, setShowFinanceBlock] = useState(false);
+    const [restaurantes, setRestaurantes] = useState();
 
 
     const flatListRef = useRef<FlatList<Product>>(null);
@@ -1087,6 +1093,12 @@ export function Products({ navigation }: HomeScreenProps) {
         [cart, currentClass, favorites, saveCart, toggleFavorite]
     );
 
+    const handleCartPress = async () => {
+        setLoading(true);
+        await saveCartArray(cart, cartToExclude);
+        navigation.replace('Cart');
+    };
+
     //const MemoizedProductBox = React.memo(ProductBox);
 
     if (loading) {
@@ -1223,29 +1235,6 @@ export function Products({ navigation }: HomeScreenProps) {
                             </ScrollView>
                     }
                 </View>
-                <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
-                    <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
-                        <Icons name="home" size={20} color="#04BF7B" />
-                        <Text fontSize={12} color="#04BF7B">Home</Text>
-                    </View>
-                    {/* <View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
-                        <Icons name="journal" size={20} color="gray" />
-                        <Text fontSize={12} color="gray">Pedidos</Text>
-                    </View>
-                    <View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
-                        <Icons name="document" size={20} color="gray" />
-                        <Text fontSize={12} color="gray">Relatórios</Text>
-                    </View> */}
-                    <View onPress={async () => {
-                        setLoading(true);
-                        await saveCartArray(cart, cartToExclude);
-                        await Promise.all([clearStorage(), deleteToken()]);
-                        navigation.replace('Sign');
-                    }} padding={10} marginVertical={10} borderRadius={8} flexWrap="nowrap" flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
-                        <Icons name="log-out" size={20} color="gray" />
-                        <Text fontSize={12} color="gray">Sair</Text>
-                    </View>
-                </View>
             </View>
 
             <CartButton
@@ -1257,6 +1246,14 @@ export function Products({ navigation }: HomeScreenProps) {
                     navigation.replace('Cart');
                 }}
             />
+           
+            <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
+            <BottomNavigation
+                navigation={navigation}
+                cartSize={cart.size}
+                onCartPress={handleCartPress}
+            />
+            </View>
         </Stack>
     );
 
