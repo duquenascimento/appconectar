@@ -1,4 +1,4 @@
-// src/App.tsx
+// src/_layout.tsx
 import { useFonts } from 'expo-font';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
@@ -16,7 +16,6 @@ import { OrdersScreen } from './screens/OrdersScreen';
 import { OrderDetailsScreen } from './screens/OrderDetailsScreen';
 import 'react-native-gesture-handler';
 
-// Defina o tipo RootStackParamList
 type RootStackParamList = {
     Sign: undefined;
     Products: undefined;
@@ -27,10 +26,9 @@ type RootStackParamList = {
     Register: undefined;
     RegisterFinished: undefined;
     Orders: undefined;
-    OrderDetails: { orderId: string }; // Adicione a rota OrderDetails com o parâmetro orderId
+    OrderDetails: { orderId: string }; 
 };
 
-// Crie o navigator com o tipo RootStackParamList
 const Navigation = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
@@ -59,7 +57,7 @@ export default function App() {
                     <Navigation.Screen
                         name="OrderDetails"
                         component={OrderDetailsScreen}
-                        options={{ title: 'Detalhes do Pedido' }} // Opcional: adicione um título para a tela
+                        options={{ title: 'Detalhes do Pedido' }}
                     />
                 </Navigation.Navigator>
             </TamaguiProvider>

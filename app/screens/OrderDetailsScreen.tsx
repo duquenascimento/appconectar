@@ -2,9 +2,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../types/navigationTypes'; // Importe o tipo de navegação
+import { RootStackParamList } from '../types/navigationTypes'; 
 
-// Defina o tipo para a prop 'route'
 type OrderDetailsScreenRouteProp = RouteProp<RootStackParamList, 'OrderDetails'>;
 
 interface OrderDetailsScreenProps {
@@ -18,12 +17,10 @@ export function OrderDetailsScreen({ route }: OrderDetailsScreenProps) {
         <View style={styles.container}>
             <Text style={styles.title}>Detalhes do Pedido</Text>
             <Text style={styles.detailText}>ID do Pedido: {orderId}</Text>
-            {/* Adicione mais detalhes do pedido aqui */}
         </View>
     );
 }
 
-// Defina os estilos com StyleSheet
 const styles = StyleSheet.create({
     container: {
         flex: 1,

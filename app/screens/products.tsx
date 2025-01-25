@@ -28,9 +28,12 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
+import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStorage } from '../utils/utils';
 import * as Linking from 'expo-linking';
 import { BottomNavigation } from '../components/navigation/BottomNavigation'; 
+import { RootStackParamList } from '../types/navigationTypes';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+
 
 
 type Product = {
@@ -54,16 +57,6 @@ type Product = {
     thirdUnit: number
 }
 
-type HomeScreenProps = {
-    navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
-}
-
-type RootStackParamList = {
-    Home: undefined;
-    Products: undefined;
-    Cart: undefined
-    Sign: undefined
-}
 
 type Cart = {
     productId: string
@@ -1095,11 +1088,25 @@ export function Products({ navigation }: ProductsScreenProps) {
 
     const handleCartPress = async () => {
         setLoading(true);
-        await saveCartArray(cart, cartToExclude);
-        navigation.replace('Cart');
+        await saveCartArray(cart, cartToExclude); // Salva o carrinho
+        navigation.navigate('Cart'); // Navega para Cart sem substituir a tela atual
     };
 
-    //const MemoizedProductBox = React.memo(ProductBox);
+
+const isFocused = useIsFocused(); // Verifica se a tela está em foco
+
+useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+        if (isFocused) { 
+            e.preventDefault(); 
+            handleCartPress().then(() => {
+                navigation.dispatch(e.data.action); 
+            });
+        }
+    });
+
+    return unsubscribe;
+}, [navigation, cart, cartToExclude, isFocused]);
 
     if (loading) {
         return (
@@ -1148,16 +1155,6 @@ export function Products({ navigation }: ProductsScreenProps) {
 
 
             <View height={40} flex={1} paddingTop={8}>
-                {/* <View alignItems="center" paddingLeft={20} flexDirection="row">
-                    <Circle height={46} width={46} padding={12} backgroundColor="#F0F2F6">
-                        <Image source={require('../../assets/images/icon-conectar-positivo.png')} height={32} width={32} />
-                    </Circle>
-                    <YStack paddingLeft={10} paddingTop={10}>
-                        <Text color="#666">Entregar para</Text>
-                        <CustomSelect items={items} />
-                    </YStack>
-                </View> */}
-
                 <XStack
                     backgroundColor="#F0F2F6"
                     marginHorizontal={20}
@@ -1248,11 +1245,7 @@ export function Products({ navigation }: ProductsScreenProps) {
             />
            
             <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
-            <BottomNavigation
-                navigation={navigation}
-                cartSize={cart.size}
-                onCartPress={handleCartPress}
-            />
+            <BottomNavigation navigation={navigation} />
             </View>
         </Stack>
     );

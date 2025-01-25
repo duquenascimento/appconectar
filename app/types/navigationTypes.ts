@@ -11,8 +11,8 @@ export type RootStackParamList = {
     Register: undefined;
     RegisterFinished: undefined;
     Orders: undefined;
-    OrderDetails: { orderId: string }; // Adicione a rota OrderDetails com o parâmetro orderId
+    OrderDetails: { orderId: string }; 
 };
 
-// Tipos para as props de navegação
+
 export type OrderDetailsScreenRouteProp = RouteProp<RootStackParamList, 'OrderDetails'>;
