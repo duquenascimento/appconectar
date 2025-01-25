@@ -1,7 +1,8 @@
 import { RootStackParamList } from '../../types/navigationTypes';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { styles } from './styles'
 
 
 type BottomNavigationProps = {
@@ -48,23 +49,3 @@ export function BottomNavigation({ navigation }: BottomNavigationProps) {
 }
 
 
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        height: 55,
-        borderTopWidth: 0.2,
-        borderTopColor: 'lightgray',
-        backgroundColor: 'white',
-    },
-    navItem: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 10,
-    },
-    navText: {
-        fontSize: 12,
-        color: '#04BF7B',
-    },
-});
