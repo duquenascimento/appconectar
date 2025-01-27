@@ -650,7 +650,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='#04BF7B' name="storefront"></Icons>
                             <View ml={20}></View>
-                            <Text fontSize={12}>{selectedRestaurant?.name || ''}</Text>
+                            <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail"  fontSize={12}  style={{ flexShrink: 1, width: '100%'}}>{selectedRestaurant?.name || ''}</Text>
                         </View>
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='#04BF7B' name="time"></Icons>
