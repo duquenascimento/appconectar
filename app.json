@@ -15,6 +15,7 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "platforms": ["android", "ios", "web"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.bubbleapps.app-conectar",
@@ -35,7 +36,8 @@
         "ACCESS_NOTIFICATION_POLICY",
         "VIBRATE",
         "RECEIVE_BOOT_COMPLETED",
-        "android.permission.INTERNET"
+        "android.permission.INTERNET",
+        "INTERNET"
       ]
     },
     "web": {
@@ -43,12 +45,16 @@
       "bundler": "metro"
     },
     "extra": {
+      "apiUrl": "http://192.168.1.13:8080",
       "eas": {
         "projectId": "2152830c-0079-47fc-a3b3-b1d510c77aa7"
       }
     },
     "plugins": [
       "expo-router"
-    ]
+    ],
+    "packagerOpts": {
+      "dev": true
+    }
   }
 }
