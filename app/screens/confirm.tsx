@@ -397,11 +397,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 <View backgroundColor='white' p={15}>
                     <View alignItems="center" paddingHorizontal={5} borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
                         <Icons color='gray' size={24} name="warning"></Icons>
-<<<<<<< HEAD
-                        <Text color='gray' ml={5} margin={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
-=======
-                        <Text color='gray' ml={5} mr={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
->>>>>>> develop
+                        <Text color='gray' ml={5} marginRight={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
                     </View>
                     <View pt={25}>
                         <Text>Produtos selecionados</Text>
