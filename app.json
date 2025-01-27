@@ -34,7 +34,8 @@
       "permissions": [
         "ACCESS_NOTIFICATION_POLICY",
         "VIBRATE",
-        "RECEIVE_BOOT_COMPLETED"
+        "RECEIVE_BOOT_COMPLETED",
+        "android.permission.INTERNET"
       ]
     },
     "web": {
