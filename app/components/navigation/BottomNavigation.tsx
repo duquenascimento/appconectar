@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { styles } from './styles';
+import { deleteToken } from '@/app/utils/utils';
 
 type BottomNavigationProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>;
@@ -35,17 +36,15 @@ export function BottomNavigation({ navigation }: BottomNavigationProps) {
 
             <TouchableOpacity
                 style={styles.navItem}
-                onPress={() => {
+                onPress={async () => {
                     console.log('Navegando para Sign');
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'Sign' }],
-                    });
+                    navigation.navigate('Sign');
+                    await deleteToken(); 
                 }}
-            >
+                        >
                 <Icons name="log-out" size={20} color="gray" />
                 <Text style={styles.navText}>Sair</Text>
-            </TouchableOpacity>
+           </TouchableOpacity>
         </View>
     );
 }

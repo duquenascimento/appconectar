@@ -13,6 +13,7 @@ export const ordersScreenStyles = StyleSheet.create({
         borderRadius: 20,
         paddingHorizontal: 16,
         marginBottom: 16,
+        marginTop: 20
     },
     searchInput: {
         flex: 1,
@@ -59,6 +60,10 @@ export const ordersScreenStyles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'flex-end',
     },
+    buttonContainer: {
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+    },
     orderId: {
         fontSize: Platform.OS === 'web' ? 16 : 14,
         fontWeight: 'bold',
@@ -90,6 +95,33 @@ export const ordersScreenStyles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
     },
+    downloadButton: {
+        backgroundColor: '#04BF7B',
+        padding: 10,
+        borderRadius: 20,
+        alignItems: 'center',
+        marginBottom: 16,
+        opacity: 1,
+    },
+    downloadButtonDisabled: {
+        opacity: 0.5,
+    },
+    downloadButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+
+    checkbox: {
+        width: 24,
+        height: 24,
+        borderWidth: 1,
+        borderColor: '#04BF7B',
+        borderRadius: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+    },
 });
 
 
@@ -109,3 +141,5 @@ export const ordersDetailsScreenStyles = StyleSheet.create({
         marginBottom: 8,
     },
 });
+
+
