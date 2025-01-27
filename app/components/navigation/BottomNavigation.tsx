@@ -2,8 +2,7 @@ import { RootStackParamList } from '../../types/navigationTypes';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { styles } from './styles'
-
+import { styles } from './styles';
 
 type BottomNavigationProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>;
@@ -38,7 +37,10 @@ export function BottomNavigation({ navigation }: BottomNavigationProps) {
                 style={styles.navItem}
                 onPress={() => {
                     console.log('Navegando para Sign');
-                    navigation.replace('Sign');
+                    navigation.reset({
+                        index: 0,
+                        routes: [{ name: 'Sign' }],
+                    });
                 }}
             >
                 <Icons name="log-out" size={20} color="gray" />
@@ -47,5 +49,3 @@ export function BottomNavigation({ navigation }: BottomNavigationProps) {
         </View>
     );
 }
-
-
