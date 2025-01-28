@@ -77,19 +77,36 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
+        let filtered = orders;
+    
         if (query) {
-            const filtered = orders.filter((order) => {
-                return (
-                    order.id.toLowerCase().includes(query.toLowerCase()) ||
-                    order.orderDate.toLowerCase().includes(query.toLowerCase()) ||
-                    order.totalConectar.toString().includes(query) ||
-                    order.calcOrderAgain.data[0].supplier.name.toLowerCase().includes(query.toLowerCase())
-                );
-            });
-            setFilteredOrders(filtered);
-        } else {
-            setFilteredOrders(orders); // Se a busca estiver vazia, mostra todos os pedidos
+            // Verifica se a query é uma data no formato DD/MM/YYYY
+            const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+            const isDateQuery = dateRegex.test(query);
+    
+            if (isDateQuery) {
+                // Converte a data digitada (DD/MM/YYYY) para o formato YYYY-MM-DD
+                const [day, month, year] = query.split('/');
+                const formattedQueryDate = `${year}-${month}-${day}`;
+    
+                // Filtra os pedidos pela data
+                filtered = filtered.filter((order) => {
+                    const orderDate = order.orderDate.split('T')[0]; // Remove o horário, se houver
+                    return orderDate === formattedQueryDate;
+                });
+            } else {
+                // Filtra por outros campos (id, valor, fornecedor, etc.)
+                filtered = filtered.filter((order) => {
+                    return (
+                        order.id.toLowerCase().includes(query.toLowerCase()) ||
+                        order.totalConectar.toString().includes(query) ||
+                        order.calcOrderAgain.data[0].supplier.name.toLowerCase().includes(query.toLowerCase())
+                    );
+                });
+            }
         }
+    
+        setFilteredOrders(filtered);
     };
 
     const toggleOrderSelection = (orderId: string) => {
