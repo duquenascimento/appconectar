@@ -474,6 +474,8 @@ export function SignInMobile(props: {
             body: JSON.stringify(dataSignin),
           }
         );
+
+        console.log("login", response);
         const res: {
           data: { token: string; role: string[] };
           status: number;

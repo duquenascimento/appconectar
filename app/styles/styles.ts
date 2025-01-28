@@ -10,16 +10,16 @@ export const ordersScreenStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F0F2F6',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        marginBottom: 16,
+        borderRadius: 5,
+        paddingHorizontal: 20,
+        marginBottom: 20,
         marginTop: 20
     },
     searchInput: {
         flex: 1,
-        height: 40,
+        height: 35,
         fontSize: 14,
-        color: '#000',
+        color: '#000'
     },
     searchIcon: {
         marginLeft: 8,
@@ -129,8 +129,25 @@ export const ordersScreenStyles = StyleSheet.create({
         borderRadius: 4,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 8, // Espaçamento entre o checkbox e o texto
+        marginRight: 8, 
     },
+    pickerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 5,
+        
+        marginBottom: 2,
+        marginTop: 20,
+        borderColor:'#F0F2F6'
+    },
+    picker: {
+        flex: 1,
+        height: 35,
+        fontSize: 14,
+        color: '#000',
+        paddingHorizontal: 20
+    }
 });
 
 

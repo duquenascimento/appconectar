@@ -1,8 +1,11 @@
+// screens/OrdersScreen.tsx
+
 import React, { ReactNode, useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking, Picker } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icons from '@expo/vector-icons/Ionicons';
 import { getOrders } from '../services/orderService';
+import { loadRestaurants } from '../services/restaurantService';
 import { RootStackParamList } from '../types/navigationTypes';
 import { ordersScreenStyles as styles } from '../styles/styles';
 import { BottomNavigation } from '../components/navigation/BottomNavigation';
@@ -23,6 +26,11 @@ interface Order {
     };
 }
 
+interface Restaurant {
+    id: string;
+    name: string;
+}
+
 export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -30,11 +38,31 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+    const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
+
+    useEffect(() => {
+        const LoadRestaurants = async () => {
+            try {
+                const restaurantsData = await loadRestaurants();
+                setRestaurants(restaurantsData);
+                if (restaurantsData.length > 0) {
+                    setSelectedRestaurant(restaurantsData[0].externalId);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar restaurantes:', error);
+            }
+        };
+
+        LoadRestaurants();
+    }, []);
 
     useEffect(() => {
         const loadOrders = async () => {
+            if (!selectedRestaurant) return;
+
             try {
-                const ordersData = await getOrders();
+                const ordersData = await getOrders(1, 10, selectedRestaurant);
                 setOrders(ordersData);
                 setFilteredOrders(ordersData); // Inicializa a lista filtrada com todos os pedidos
             } catch (error) {
@@ -45,7 +73,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         };
 
         loadOrders();
-    }, []);
+    }, [selectedRestaurant]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -89,7 +117,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                         console.error(`Erro ao abrir o link:`, error);
                     }
                 }
-                await new Promise(resolve => setTimeout(resolve, 1000)); // 1 segundo de atraso
+                await new Promise(resolve => setTimeout(resolve, 1000)); 
             }
         }
         setIsDownloading(false);
@@ -104,7 +132,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     
     const renderItem = ({ item }: { item: Order }) => {
         const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
-        const truncatedSupplierName = truncateText(supplierName, 20); // Limita a 20 caracteres
+        const truncatedSupplierName = truncateText(supplierName, 20);
     
         return (
             <TouchableOpacity
@@ -130,18 +158,19 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                     </View>
     
                     <View style={styles.buttonContainer}>
-    <TouchableOpacity
-        style={styles.checkbox}
-        onPress={() => toggleOrderSelection(item.id)}
-    >
-        <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
-    </TouchableOpacity>
-</View>
+                        <TouchableOpacity
+                            style={styles.checkbox}
+                            onPress={() => toggleOrderSelection(item.id)}
+                        >
+                            <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
+                        </TouchableOpacity>
+                    </View>
                     <Icons name="chevron-forward" size={24} color="#04BF7B" />
                 </View>
             </TouchableOpacity>
         );
     };
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -153,6 +182,19 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     return (
         <>
             <View style={styles.container}>
+
+                <View style={styles.pickerContainer}>
+                    <Picker
+                        selectedValue={selectedRestaurant}
+                        style={styles.picker}
+                        onValueChange={( itemValue: string) => setSelectedRestaurant(itemValue)}
+                    >
+                        {restaurants.map((restaurant) => (
+                            <Picker.Item key={restaurant.id} label={restaurant.name} value={restaurant.id} />
+                        ))}
+                    </Picker>
+                </View>
+
                 <View style={styles.searchContainer}>
                     <TextInput
                         style={styles.searchInput}
@@ -162,20 +204,24 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                     />
                     <Icons name="search" size={24} color="#04BF7B" style={styles.searchIcon} />
                 </View>
+
+                
+
                 <TouchableOpacity
-    style={[
-        styles.downloadButton,
-        (selectedOrders.length === 0 || isDownloading) && styles.downloadButtonDisabled,
-    ]}
-    onPress={handleDownloadSelectedOrders}
-    disabled={selectedOrders.length === 0 || isDownloading}
->
-    {isDownloading ? (
-        <ActivityIndicator size="small" color="#fff" />
-    ) : (
-        <Text style={styles.downloadButtonText}>Baixar Selecionados</Text>
-    )}
-</TouchableOpacity>
+                    style={[
+                        styles.downloadButton,
+                        (selectedOrders.length === 0 || isDownloading) && styles.downloadButtonDisabled,
+                    ]}
+                    onPress={handleDownloadSelectedOrders}
+                    disabled={selectedOrders.length === 0 || isDownloading}
+                >
+                    {isDownloading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                        <Text style={styles.downloadButtonText}>Baixar Recibo Selecionados</Text>
+                    )}
+                </TouchableOpacity>
+
                 <FlatList
                     data={filteredOrders}
                     renderItem={renderItem}
