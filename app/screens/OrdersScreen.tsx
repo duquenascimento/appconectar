@@ -94,12 +94,19 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         }
         setIsDownloading(false);
     };
+
+    const truncateText = (text: string, maxLength: number) => {
+        if (text.length > maxLength) {
+            return text.substring(0, maxLength) + '...';
+        }
+        return text;
+    };
     
     const renderItem = ({ item }: { item: Order }) => {
         const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
- 
+        const truncatedSupplierName = truncateText(supplierName, 20); // Limita a 20 caracteres
+    
         return (
-            
             <TouchableOpacity
                 style={[
                     styles.stackContainer,
@@ -119,20 +126,17 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                         <Text style={styles.totalConectar}>
                             R$ {item.totalConectar.toFixed(2)}
                         </Text>
-                        <Text style={styles.supplierName}>{supplierName}</Text>
+                        <Text style={styles.supplierName}>{truncatedSupplierName}</Text>
                     </View>
     
                     <View style={styles.buttonContainer}>
-                        <TouchableOpacity
-                            style={styles.checkbox}
-                            onPress={() => toggleOrderSelection(item.id)}
-                        >
-                            <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>{/*{selectedOrders.includes(item.id) ? '✓' : ''}*/}
-                        </TouchableOpacity>
-                        <Text style={styles.totalConectar} >
-                            {/*item.orderDocument*/}
-                        </Text>
-                    </View>
+    <TouchableOpacity
+        style={styles.checkbox}
+        onPress={() => toggleOrderSelection(item.id)}
+    >
+        <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
+    </TouchableOpacity>
+</View>
                     <Icons name="chevron-forward" size={24} color="#04BF7B" />
                 </View>
             </TouchableOpacity>
