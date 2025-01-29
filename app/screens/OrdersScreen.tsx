@@ -1,7 +1,6 @@
-// screens/OrdersScreen.tsx
-
 import React, { ReactNode, useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking, Picker } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';  // Importando o DropDownPicker
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icons from '@expo/vector-icons/Ionicons';
 import { getOrders } from '../services/orderService';
@@ -40,6 +39,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     const [isDownloading, setIsDownloading] = useState(false);
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
+    const [restaurantOpen, setRestaurantOpen] = useState(false);  // Estado para controlar abertura do DropDownPicker
 
     useEffect(() => {
         const LoadRestaurants = async () => {
@@ -199,17 +199,26 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     return (
         <>
             <View style={styles.container}>
-
+                {/* Substituindo o Picker por DropDownPicker */}
                 <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={selectedRestaurant}
-                        style={styles.picker}
-                        onValueChange={( itemValue: string) => setSelectedRestaurant(itemValue)}
-                    >
-                        {restaurants.map((restaurant) => (
-                            <Picker.Item key={restaurant.id} label={restaurant.name} value={restaurant.id} />
-                        ))}
-                    </Picker>
+                    <DropDownPicker
+                        value={selectedRestaurant}
+                        style={{
+                            borderWidth: 1,
+                            borderColor: 'lightgray',
+                            borderRadius: 5,
+                            flex: 1,
+                        }}
+                        setValue={setSelectedRestaurant}
+                        items={restaurants.map((restaurant) => ({
+                            label: restaurant.name,
+                            value: restaurant.id,
+                        }))}
+                        open={restaurantOpen}
+                        setOpen={setRestaurantOpen}
+                        placeholder="Selecione um restaurante"
+                        listMode="MODAL"
+                    />
                 </View>
 
                 <View style={styles.searchContainer}>
@@ -221,8 +230,6 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                     />
                     <Icons name="search" size={24} color="#04BF7B" style={styles.searchIcon} />
                 </View>
-
-                
 
                 <TouchableOpacity
                     style={[

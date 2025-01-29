@@ -25,7 +25,7 @@ export const getOrder = async (orderId: string) => {
             throw new Error('Pedido selecionado não encontrado.');
         }
 
-        const response = await axios.get(`${API_URL}/order/${orderId}`)
+        const response = await axios.get(`${API_URL}/orders/${orderId}`)
         return response.data.data;
     } catch (error) {
         console.error('Erro ao buscar pedido:', error);
