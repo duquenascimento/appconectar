@@ -217,7 +217,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                         open={restaurantOpen}
                         setOpen={setRestaurantOpen}
                         placeholder="Selecione um restaurante"
-                        listMode="MODAL"
+                        listMode="SCROLLVIEW"
                     />
                 </View>
 
