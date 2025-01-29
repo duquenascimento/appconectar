@@ -20,14 +20,16 @@
       "bundleIdentifier": "io.bubbleapps.app-conectar",
       "userInterfaceStyle": "light",
       "infoPlist": {
-        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications.",
         "NSUserTrackingUsageDescription": "This app tracks your activity to improve your experience and provide personalized notifications."
       }
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
-      "versionCode": 3,
       "userInterfaceStyle": "light",
       "permissions": [
         "ACCESS_NOTIFICATION_POLICY",
@@ -43,6 +45,9 @@
       "eas": {
         "projectId": "2152830c-0079-47fc-a3b3-b1d510c77aa7"
       }
-    }
+    },
+    "plugins": [
+      "expo-router"
+    ]
   }
 }

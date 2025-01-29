@@ -57,12 +57,12 @@ type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => P
 
 const ProductBox = React.memo((produto: ProductBoxProps) => {
     const [open, setOpen] = useState(false);
-    const [quant, setQuant] = useState(produto.firstUnit);
+    const [quant, setQuant] = useState(produto.firstUnit ? produto.firstUnit : 1);
     const [valueQuant, setValueQuant] = useState(Number(produto.amount) || 0);
     const [obsC, setObs] = useState(produto.obs);
 
     const obsRef = useRef('');
-    const quantRef = useRef(produto.firstUnit);
+    const quantRef = useRef(produto.firstUnit ? produto.firstUnit : 1);
     const handleObsChange = (text: string) => {setObs(text); setObs(text)};
 
     const isCart = useMemo(() => {
@@ -168,31 +168,31 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                                 </View>
                             )}
                             <Button
-                                onPress={() => handleQuantityChange(produto.firstUnit)}
-                                backgroundColor={quant === produto.firstUnit ? '#0BC07D' : '#F0F2F6'}
+                                onPress={() => handleQuantityChange(produto.firstUnit ? produto.firstUnit : 1)}
+                                backgroundColor={quant === (produto.firstUnit ? produto.firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
                                 borderRadius={12}
                             >
-                                <Text color={quant === produto.firstUnit ? '#fff' : '#000'}>{produto.firstUnit}</Text>
+                                <Text color={quant === (produto.firstUnit ? produto.firstUnit : 1) ? '#fff' : '#000'}>{produto.firstUnit ? produto.firstUnit : 1}</Text>
                             </Button>
                             <Button
-                                onPress={() => handleQuantityChange(produto.secondUnit)}
-                                backgroundColor={quant === produto.secondUnit ? '#0BC07D' : '#F0F2F6'}
+                                onPress={() => handleQuantityChange(produto.secondUnit ? produto.secondUnit : 5)}
+                                backgroundColor={quant === (produto.secondUnit ? produto.secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
                                 borderRadius={12}
                             >
-                                <Text color={quant === produto.secondUnit ? '#fff' : '#000'}>{produto.secondUnit}</Text>
+                                <Text color={quant === (produto.secondUnit ? produto.secondUnit : 5) ? '#fff' : '#000'}>{produto.secondUnit ? produto.secondUnit : 5}</Text>
                             </Button>
                             <Button
-                                onPress={() => handleQuantityChange(produto.thirdUnit)}
-                                backgroundColor={quant === produto.thirdUnit ? '#0BC07D' : '#F0F2F6'}
+                                onPress={() => handleQuantityChange(produto.thirdUnit ? produto.thirdUnit : 10)}
+                                backgroundColor={quant === (produto.thirdUnit ? produto.thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
                                 borderRadius={12}
                             >
-                                <Text color={quant === produto.thirdUnit ? '#fff' : '#000'}>{produto.thirdUnit}</Text>
+                                <Text color={quant === (produto.thirdUnit ? produto.thirdUnit : 10) ? '#fff' : '#000'}>{produto.thirdUnit ? produto.thirdUnit : 10}</Text>
                             </Button>
                         </View>
                         <View borderColor="#F0F2F6" borderWidth={1} p={3} borderRadius={18} flexDirection="row" justifyContent="flex-end" gap={16}>
@@ -433,7 +433,7 @@ export function Cart({ navigation }: HomeScreenProps) {
 
     useEffect(() => {
         console.log('aqui useEffect2')
-        setDisplayedProducts(products);
+        setDisplayedProducts(products.sort((a, b) => a.name.localeCompare(b.name)));
     }, [products, cart, cartInside]);
 
     const renderProduct = useCallback(

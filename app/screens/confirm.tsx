@@ -1,7 +1,7 @@
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { type SupplierData } from "./prices";
 import { useCallback, useEffect, useState } from "react";
-import { View, Image, Text, Stack, ScrollView, Button } from "tamagui";
+import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Adapt } from "tamagui";
 import { ActivityIndicator } from "react-native";
 import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from "luxon";
@@ -29,12 +29,153 @@ type HomeScreenProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
 };
 
+export function DialogInstance(props: { openModal: boolean, setRegisterInvalid: Function, erros: string[] }) {
+    return (
+        <Dialog modal open={props.openModal}>
+            <Adapt when="sm" platform="touch">
+                <Sheet animationConfig={{
+                    type: 'spring',
+                    damping: 20,
+                    mass: 0.5,
+                    stiffness: 200,
+                }} animation="medium" zIndex={200000} modal dismissOnSnapToBottom snapPointsMode='fit'>
+                    <Sheet.Frame padding="$4" gap="$4">
+                        <Adapt.Contents />
+                    </Sheet.Frame>
+                    <Sheet.Overlay
+                        animation="quickest"
+                        enterStyle={{ opacity: 0 }}
+                        exitStyle={{ opacity: 0 }}
+                    />
+                </Sheet>
+            </Adapt>
+
+            <Dialog.Portal>
+                <Dialog.Overlay
+                    key="overlay"
+                    animation="quick"
+                    opacity={0.5}
+                    enterStyle={{ opacity: 0 }}
+                    exitStyle={{ opacity: 0 }}
+                />
+
+                <Dialog.Content
+                    bordered
+                    elevate
+                    key="content"
+                    animateOnly={['transform', 'opacity']}
+                    animation={[
+                        'quicker',
+                        {
+                            opacity: {
+                                overshootClamping: true,
+                            },
+                        },
+                    ]}
+                    enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                    exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                    gap="$4"
+                >
+                    <Dialog.Title>Ops!</Dialog.Title>
+                    <Dialog.Description>
+                        Houve algum(ns) problema(s)
+                    </Dialog.Description>
+
+                    {props.erros.map(erro => {
+                        return (
+                            <Text key={erro}>- {erro}</Text>
+                        )
+                    })}
+
+                    <XStack alignSelf="center" gap="$4">
+                        <Dialog.Close displayWhenAdapted asChild>
+                            <Button width='$20' theme="active" aria-label="Close" backgroundColor='#04BF7B' color='$white1' onPress={() => props.setRegisterInvalid(false)}>
+                                Ok
+                            </Button>
+                        </Dialog.Close>
+                    </XStack>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog>
+    )
+}
+
+function DialogInstanceNotification(props: { openModal: boolean, setRegisterInvalid: Function }) {
+    return (
+        <Dialog modal open={props.openModal}>
+            <Adapt when="sm" platform="touch">
+                <Sheet animationConfig={{
+                    type: 'spring',
+                    damping: 20,
+                    mass: 0.5,
+                    stiffness: 200,
+                }} animation="medium" zIndex={200000} modal dismissOnSnapToBottom snapPointsMode='fit'>
+                    <Sheet.Frame padding="$4" gap="$4">
+                        <Adapt.Contents />
+                    </Sheet.Frame>
+                    <Sheet.Overlay
+                        animation="quickest"
+                        enterStyle={{ opacity: 0 }}
+                        exitStyle={{ opacity: 0 }}
+                    />
+                </Sheet>
+            </Adapt>
+
+            <Dialog.Portal>
+                <Dialog.Overlay
+                    key="overlay"
+                    animation="quick"
+                    opacity={0.5}
+                    enterStyle={{ opacity: 0 }}
+                    exitStyle={{ opacity: 0 }}
+                />
+
+                <Dialog.Content
+                    bordered
+                    elevate
+                    key="content"
+                    animateOnly={['transform', 'opacity']}
+                    animation={[
+                        'quicker',
+                        {
+                            opacity: {
+                                overshootClamping: true,
+                            },
+                        },
+                    ]}
+                    enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+                    exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+                    gap="$4"
+                >
+                    <Dialog.Title>Pronto!</Dialog.Title>
+                    <Dialog.Description>
+                        Sua notificação foi agendada
+                    </Dialog.Description>
+
+                    <Text>As 13h você será alertado em sua barra de notificação, até logo.</Text>
+
+                    <XStack alignSelf="center" gap="$4">
+                        <Dialog.Close displayWhenAdapted asChild>
+                            <Button width='$20' theme="active" aria-label="Close" backgroundColor='#04BF7B' color='$white1' onPress={() => props.setRegisterInvalid(false)}>
+                                Ok
+                            </Button>
+                        </Dialog.Close>
+                    </XStack>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog>
+    )
+}
+
 export function Confirm({ navigation }: HomeScreenProps) {
     const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
     const [loadingToConfirm, setLoadingToConfirm] = useState<boolean>(false);
     const [dots, setDots] = useState('');
+    const [showErros, setShowErros] = useState<string[]>([])
+    const [booleanErros, setBooleanErros] = useState(false)
+    const [showNotification, setShowNotification] = useState(false)
 
     useEffect(() => {
         if (loadingToConfirm) {
@@ -227,6 +368,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
     return (
         <Stack backgroundColor='white' pt={20} height='100%' position="relative">
+            <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
+            <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification}/>
             <View backgroundColor='white' flexDirection="row" height={80}>
                 <View flexDirection="row" f={1}>
                     <View pl={10} justifyContent="center">
@@ -252,9 +395,9 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
             <ScrollView backgroundColor='white'>
                 <View backgroundColor='white' p={15}>
-                    <View alignItems="center" paddingHorizontal={5} borderColor='gray' h={40} flexDirection="row" borderWidth={0.5}>
+                    <View alignItems="center" paddingHorizontal={5} borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
                         <Icons color='gray' size={24} name="warning"></Icons>
-                        <Text color='gray' ml={5} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
+                        <Text color='gray' ml={5} mr={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
                     </View>
                     <View pt={25}>
                         <Text>Produtos selecionados</Text>
@@ -283,7 +426,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                         </View>
                                     </View>
                                     <View>
-                                        <Text fontWeight='800' alignSelf="flex-end" fontSize={16}>{item.price ? 'R$ ' + item.price.toFixed(2).replace('.', ',') : 'Indisponível'}</Text>
+                                        <Text fontWeight='800' color={item.price ? 'black' : 'red'} alignSelf="flex-end" fontSize={16}>{item.price ? 'R$ ' + item.price.toFixed(2).replace('.', ',') : 'Indisponível'}</Text>
                                         <View alignSelf="flex-end" flexDirection="row" alignItems="center">
                                             <Text pr={5} fontSize={12}>{item.quant} {item.orderUnit.replace('Unid', 'Un')}</Text>
                                             <Text color='gray'>
@@ -372,14 +515,27 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                 }
                             }
                             console.log('Permission granted');
-                            await Notifications.scheduleNotificationAsync({
-                                content: {
-                                    title: "Confirme o seu pedido",
-                                    body: 'O seu pedido já pode ser confirmado!',
-                                },
-                                trigger: { seconds: getSecondsUntil13h() },
-                            });
-                            console.log('Notification scheduled');
+                            const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
+                            const isAlreadyScheduled = scheduledNotifications.some(
+                                (notification) =>
+                                    notification.content.title === "Confirme o seu pedido" &&
+                                    notification.content.body === 'O seu pedido já pode ser confirmado!'
+                            );
+                    
+                            if (isAlreadyScheduled) {
+                                console.log('Notification already scheduled!');
+                            } else {
+                                await Notifications.scheduleNotificationAsync({
+                                    content: {
+                                        title: "Confirme o seu pedido",
+                                        body: 'O seu pedido já pode ser confirmado!',
+                                    },
+                                    trigger: { seconds: getSecondsUntil13h() },
+                                });
+                                console.log('Notification scheduled');
+                            }
+
+                            setShowNotification(true)
                         } else {
                             setLoadingToConfirm(true)
                             const token = await getToken();
@@ -394,25 +550,41 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             // console.log(JSON.stringify(body))
 
                             console.log('final: ', JSON.stringify(body))
-                            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify(body)
-                            });
-                            if (result.ok) {
-                                const response = await result.json()
-                                await setStorage('finalConfirmData', JSON.stringify(response.data))
-                                navigation.replace('FinalConfirm')
+
+                            let erros = []
+
+                            if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
+                            if (isBefore13Hours() && Platform.OS === 'web') erros.push('O pedido só pode ser confirmado após as 13h')
+                            if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+                                !selectedRestaurant.restaurant.allowMinimumOrder)
+                                erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
+                            
+                            setShowErros(erros)
+
+                            if (!erros.length) {
+                                const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(body)
+                                });
+                                if (result.ok) {
+                                    const response = await result.json()
+                                    await setStorage('finalConfirmData', JSON.stringify(response.data))
+                                    navigation.replace('FinalConfirm')
+                                } else {
+                                    setLoadingToConfirm(false)
+                                }
                             } else {
+                                setBooleanErros(true)
                                 setLoadingToConfirm(false)
                             }
                         }
                     } catch (err) {
                         console.log(err)
                     }
-                }} width={170} backgroundColor='#04BF7B' disabled={(isBefore13Hours() && Platform.OS === 'web') || !isOpen()} opacity={isBefore13Hours() && Platform.OS === 'web' ? isOpen() ? 0.3 : 1 : isOpen() ? 1 : 3}>
+                }} width={170} backgroundColor='#04BF7B'>
                     <Text fontSize={13} color='white'>{isBefore13Hours() && Platform.OS !== 'web' ? 'Agendar notificação' : 'Confirmar pedido'}</Text>
                 </Button>
             </View>

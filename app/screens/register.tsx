@@ -3,10 +3,14 @@ import { View, Text, Input, Button, ScrollView, Checkbox } from "tamagui";
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { Picker } from '@react-native-picker/picker';
 import { DialogInstance } from "../index";
 import { TextInputMask } from 'react-native-masked-text';
 import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
+import DropDownPicker from 'react-native-dropdown-picker';
+import { formatCNPJ } from '../utils/formatCNPJ'
+import { formatCep } from '../utils/formatCep'
+import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
+import { dividirLogradouro } from '../utils/DividirLogradouro'
 
 type RootStackParamList = {
     Home: undefined;
@@ -21,6 +25,7 @@ type HomeScreenProps = {
 };
 
 interface Empresa {
+    inscricoes_estaduais: any | null;
     msg: string;
     cnpj: string;
     identificador_matriz_filial: number;
@@ -120,9 +125,12 @@ export function Register({ navigation }: HomeScreenProps) {
     const [emailValid, setEmailValid] = useState(false)
     const [emailAlternativeValid, setEmailAlternativeValid] = useState(false)
     const [isCepValid, setIsCepValid] = useState(true); // Nova variável de estado
+    const [inviteCode, setInviteCode] = useState('')
+    const [minHourOpen, setMinHourOpen] = useState(false)
+    const [maxHourOpen, setMaxHourOpen] = useState(false)
+    const [paymentWayOpen, setPaymentWayOpen] = useState(false)
 
     useEffect(() => {
-
         const hours = [];
         for (let hour = 0; hour < 22; hour++) {
             hours.push(`${String(hour).padStart(2, '0')}:00`);
@@ -135,7 +143,6 @@ export function Register({ navigation }: HomeScreenProps) {
     useEffect(() => {
         if (minHour) {
             let [hour, minute] = minHour.split(':').map(Number);
-
             hour += 1;
             minute += 30;
             if (minute >= 60) {
@@ -164,32 +171,36 @@ export function Register({ navigation }: HomeScreenProps) {
             const format = value.replace(/\D/g, '');
             if (format.length === 8) {
                 setLoading(true);
-                const response = await fetch(`https://brasilapi.com.br/api/cep/v1/${format}`);
+                const response = await fetch(`https://viacep.com.br/ws/${format}/json/`);
                 const result = await response.json();
-                if (response.ok) {
-                    const street: string[] = result.street.split(' ');
-                    const localType: string = street[0];
-                    console.log(street.join(' '));
-                    street.shift();
+                if (response.ok && !result.erro) {
+                    const endereco: any = dividirLogradouro(result.logradouro)
                     await Promise.all([
-                        setNeigh(result.neighborhood.toUpperCase()), setStreet(street.join(' ').toUpperCase()),
-                        setLocalNumber(''), setComplement(''),
-                        setLocalType(localType.toUpperCase()), setCity(result.city)
+                        setNeigh(result.bairro.toUpperCase()), 
+                        setStreet(endereco.logradouro),
+                        setLocalNumber(''), 
+                        setComplement(''),
+                        setLocalType(endereco.tipoLogradouro), 
+                        setCity(result.localidade)
                     ]);
-                    setIsCepValid(true); // CEP válido
+                    setIsCepValid(true); 
                 } else {
-                    setIsCepValid(false); // CEP inválido
+                    setIsCepValid(false); 
                 }
             } else {
-                setIsCepValid(false); // CEP inválido se tiver menos de 8 caracteres
+                setIsCepValid(false);
             }
             setZipcode(value); // Atualiza o valor do CEP no estado
+        } catch (error) {
+            console.error("Erro ao buscar CEP:", error);
+            setIsCepValid(false); 
         } finally {
-            formatCep(value)
+            const cepFormatado = formatCep(value);
+            setZipcode(cepFormatado);
             setLoading(false);
         }
     };
-
+    
     // Função para aplicar o estilo da borda
     const getCepBorderStyle = () => ({
         borderColor: isCepValid ? '#049A63' : 'red',
@@ -223,7 +234,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 paymentWayAsync,
                 orderValueAsync,
                 localtype,
-                city
+                city,
+                inviteCode
             ] = await Promise.all([
                 getStorage('cnpj'),
                 getStorage('stateNumberId'),
@@ -249,7 +261,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 getStorage('paymentWay'),
                 getStorage('orderValue'),
                 getStorage('localType'),
-                getStorage('city')
+                getStorage('city'),
+                getStorage('inviteCode')
             ]);
 
             await Promise.all([
@@ -277,7 +290,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 setWeeklyOrderAmount(weeklyOrderAmountAsync ?? ''),
                 setpaymentWay(paymentWayAsync || ''),
                 setLocalType(localtype ?? ''),
-                setCity(city ?? '')
+                setCity(city ?? ''),
+                setInviteCode(inviteCode ?? '')
             ])
         } finally {
             setLoading(false)
@@ -317,7 +331,36 @@ export function Register({ navigation }: HomeScreenProps) {
                     maxHour,
                     minHour,
                     localType,
-                    city
+                    city,
+                    inviteCode
+                }))
+
+                console.log('BODY:', JSON.stringify({
+                    token: await getToken(),
+                    cnpj: cnpj.replace(/\D/g, ''),
+                    alternativeEmail,
+                    email,
+                    alternativePhone,
+                    phone,
+                    complement,
+                    localNumber,
+                    street,
+                    neigh,
+                    zipcode: zipcode.replace(/\D/g, ''),
+                    legalRestaurantName,
+                    restaurantName,
+                    cityNumberId,
+                    stateNumberId,
+                    paymentWay,
+                    orderValue: Number(orderValue.replace(/[^\d,]/g, '').replace(',', '.')),
+                    weeklyOrderAmount,
+                    deliveryObs,
+                    closeDoor,
+                    maxHour,
+                    minHour,
+                    localType,
+                    city,
+                    inviteCode
                 }))
                 const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
                     method: 'POST',
@@ -345,7 +388,8 @@ export function Register({ navigation }: HomeScreenProps) {
                         maxHour,
                         minHour,
                         localType,
-                        city
+                        city,
+                        inviteCode
                     }),
                     headers: {
                         'Content-type': 'application/json'
@@ -378,6 +422,7 @@ export function Register({ navigation }: HomeScreenProps) {
                         deleteStorage('paymentWay'),
                         deleteStorage('localType'),
                         deleteStorage('city'),
+                        deleteStorage('inviteCode'),
                         setStorage('role', 'registered')
                     ])
 
@@ -394,14 +439,18 @@ export function Register({ navigation }: HomeScreenProps) {
                         'Content-type': 'application/json'
                     }
                 })
-                const result: CheckCnpj = await response.json()
+                const result: CheckCnpj = await response.json()       
                 if (response.ok) {
+                    const endereco: any = dividirLogradouro(result.data.logradouro)
+                    const IE = encontrarInscricaoRJ(result.data.inscricoes_estaduais)
                     await Promise.all([
                         setLegalRestaurantName(result.data.razao_social), setZipcode(result.data.cep.replace(/(\d{5})(\d{3})/, '$1-$2')),
-                        setNeigh(result.data.bairro), setStreet(result.data.logradouro),
-                        setLocalNumber(result.data.numero), setComplement(result.data.complemento),
-                        setLocalType(result.data.descricao_tipo_de_logradouro), setCity(result.data.municipio)
+                        setNeigh(result.data.bairro), setStreet(endereco.logradouro),
+                        setLocalNumber(result.data.numero), setComplement(result.data.complemento ?? ''),
+                        setLocalType(endereco.tipoLogradouro), setCity(result.data.municipio),
+                        setStateNumberId(IE ?? '')
                     ])
+                    setNoStateNumberId(!IE)
                     setStep(step + 1)
                 } else {
                     const erros: string[] = []
@@ -444,36 +493,16 @@ export function Register({ navigation }: HomeScreenProps) {
                 setStorage('orderValue', orderValue),
                 setStorage('paymentWay', paymentWay),
                 setStorage('localType', localType),
-                setStorage('city', city)
+                setStorage('city', city),
+                setStorage('inviteCode', inviteCode)
             ])
             setLoading(false)
         }
     }
 
-    const formatCNPJ = (value: string) => {
-        return value
-            .replace(/\D/g, '') // Remove caracteres não numéricos
-            .replace(/^(\d{2})(\d)/, '$1.$2') // Adiciona ponto após os dois primeiros dígitos
-            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3') // Adiciona ponto após o terceiro grupo de três dígitos
-            .replace(/\.(\d{3})(\d)/, '.$1/$2') // Adiciona barra após o segundo grupo de três dígitos
-            .replace(/(\d{4})(\d)/, '$1-$2') // Adiciona traço após o grupo de quatro dígitos
-            .replace(/(-\d{2})\d+?$/, '$1'); // Limita a 14 caracteres (com pontuação)
-    }
-
-    const formatCep = (value: string) => {
-        // Remove todos os caracteres não numéricos
-        const cleaned = value.replace(/\D/g, '');
-
-        // Aplica a máscara de CEP
-        const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
-
-        // Define o valor formatado
-        setZipcode(formatted);
-    }
-
     const handleCnpjChange = (text: string) => {
         setCnpj(formatCNPJ(text));
-    };
+    }
 
 
     const handleBackBtn = async () => {
@@ -505,7 +534,8 @@ export function Register({ navigation }: HomeScreenProps) {
             setStorage('orderValue', orderValue),
             setStorage('paymentWay', paymentWay),
             setStorage('localType', localType),
-            setStorage('city', city)
+            setStorage('city', city),
+            setStorage('inviteCode', inviteCode)
         ])
         setLoading(false)
     }
@@ -561,7 +591,7 @@ export function Register({ navigation }: HomeScreenProps) {
 
     return (
         <View flex={1} backgroundColor='#F0F2F6'>
-            <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />
+            <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} cnpj={cnpj} />
             <View mb={10} pt={50} alignItems="center" justifyContent="center">
                 <Text fontSize={20}>Cadastro</Text>
                 <View pt={20} justifyContent="center" flexDirection="row">
@@ -608,7 +638,29 @@ export function Register({ navigation }: HomeScreenProps) {
                                     <Text mt={15}>CNPJ</Text>
                                     <Input disabled={step >= 1 ? true : false} opacity={step >= 1 ? 0.5 : 1} onChangeText={setCnpj} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
-                                    {noStateNumberId ? (
+                                    <View opacity={noStateNumberId ? 0.5 : 1} marginTop={15} alignItems="center" flexDirection="row" gap={8}>
+                                        <Text>Inscrição estadual</Text>
+                                        <Text fontSize={10} color='gray'>Min. 8 digitos</Text>
+                                    </View>
+                                    <Input
+                                        onChangeText={setStateNumberId}
+                                        value={stateNumberId}
+                                        keyboardType="number-pad"
+                                        backgroundColor="white"
+                                        borderRadius={2}
+                                        focusStyle={getBorderStyle(stateNumberId)}
+                                        hoverStyle={getBorderStyle(stateNumberId)}
+                                        disabled={noStateNumberId}
+                                        opacity={noStateNumberId ? 0.5 : 1}
+                                        placeholder={noStateNumberId ? 'Isento' : ''}
+                                    />
+                                    <View mt={15} alignItems="center" flexDirection="row">
+                                        <Checkbox onPress={handleCheckBox}>
+                                            {noStateNumberId ? <Icons name="checkmark"></Icons> : <></>}
+                                        </Checkbox>
+                                        <Text paddingLeft={5} fontSize={12}>Sou isento de IE</Text>
+                                    </View>
+                                    {noStateNumberId &&
                                         <>
                                             <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                                                 <Text>Inscrição municipal</Text>
@@ -623,30 +675,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 focusStyle={getBorderStyle(cityNumberId)}
                                                 hoverStyle={getBorderStyle(cityNumberId)}
                                             />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                                                <Text>Inscrição estadual</Text>
-                                                <Text fontSize={10} color='gray'>Min. 8 digitos</Text>
-                                            </View>
-                                            <Input
-                                                onChangeText={setStateNumberId}
-                                                value={stateNumberId}
-                                                keyboardType="number-pad"
-                                                backgroundColor="white"
-                                                borderRadius={2}
-                                                focusStyle={getBorderStyle(stateNumberId)}
-                                                hoverStyle={getBorderStyle(stateNumberId)}
-                                            />
-                                        </>
-                                    )}
-                                    <View mt={15} alignItems="center" flexDirection="row">
-                                        <Checkbox onPress={handleCheckBox}>
-                                            {noStateNumberId ? <Icons name="checkmark"></Icons> : <></>}
-                                        </Checkbox>
-                                        <Text paddingLeft={5} fontSize={12}>Sou isento de IE</Text>
-                                    </View>
+                                        </>}
                                     <Text mt={15}>Razão Social</Text>
                                     <Input disabled opacity={0.5} onChangeText={setLegalRestaurantName} value={legalRestaurantName} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
@@ -750,41 +779,47 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 <View flex={1}>
                                                     <Text marginTop={15}>Quero receber de</Text>
                                                     <View flex={1} borderWidth={0.5} borderColor='lightgray'>
-                                                        <Picker
-                                                            selectedValue={minHour}
+                                                        <DropDownPicker
+                                                            value={minHour}
+                                                            style={{
+                                                                borderWidth: 1,
+                                                                borderColor: 'lightgray',
+                                                                borderRadius: 5,
+                                                                zIndex: 1000,
+                                                            }}
+                                                            listMode="MODAL"
+                                                            dropDownDirection="TOP"
+                                                            setValue={setMinHour}
+                                                            items={minhours.map((item) => { return { label: item, value: item } })}
+                                                            multiple={false}
+                                                            open={minHourOpen}
+                                                            setOpen={setMinHourOpen}
+                                                            placeholder="Escolha um horário"
+                                                        >
+                                                        </DropDownPicker>
+                                                    </View>
+                                                </View>
+                                                <View flex={1}>
+                                                    <Text marginTop={15}>Até</Text>
+                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
+                                                    <DropDownPicker
+                                                            value={maxHour}
                                                             style={{
                                                                 borderWidth: 1,
                                                                 borderColor: 'lightgray',
                                                                 borderRadius: 5,
                                                                 flex: 1,
                                                             }}
-                                                            onValueChange={(itemValue) => setMinHour(itemValue)}
+                                                            listMode="MODAL"
+                                                            dropDownDirection="TOP"
+                                                            setValue={setMaxHour}
+                                                            items={maxhours.map((item) => { return { label: item, value: item } })}
+                                                            multiple={false}
+                                                            open={maxHourOpen}
+                                                            setOpen={setMaxHourOpen}
+                                                            placeholder=""
                                                         >
-                                                            <Picker.Item enabled={minHour ? false : true} style={{ flex: 1 }} label="Selecione..." value="" />
-                                                            {minhours.map((item) => (
-                                                                <Picker.Item key={item} label={item} value={item} />
-                                                            ))}
-                                                        </Picker>
-                                                    </View>
-                                                </View>
-                                                <View flex={1}>
-                                                    <Text marginTop={15}>Até</Text>
-                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
-                                                        <Picker
-                                                            selectedValue={maxHour}
-                                                            style={{
-                                                                height: 50,
-                                                                borderWidth: 1,
-                                                                borderColor: 'lightgray',
-                                                                borderRadius: 5,
-                                                                flex: 1
-                                                            }}
-                                                            onValueChange={(itemValue) => setMaxHour(itemValue)}
-                                                        >
-                                                            {maxhours.map((item) => (
-                                                                <Picker.Item key={item} label={item} value={item} />
-                                                            ))}
-                                                        </Picker>
+                                                        </DropDownPicker>
                                                     </View>
                                                 </View>
                                             </View>
@@ -800,7 +835,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Perfil de compra</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
-                                            <Text>Quantos pedidos costuma fazer na semana?</Text>
+                                            <Text>Quantos dias na semana você costuma pedir?</Text>
                                             <TextInputMask type="only-numbers" placeholder="0" onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad" style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }}></TextInputMask>
                                             <Text mt={15}>Qual o valor médio de um pedido?</Text>
                                             <TextInputMask placeholder="R$ 000" type="only-numbers" onChangeText={(value) => setOrderValue(value)} value={orderValue} style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }} keyboardType="number-pad"></TextInputMask>
@@ -809,21 +844,24 @@ export function Register({ navigation }: HomeScreenProps) {
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Qual o formato de pagamento preferido?</Text>
                                             <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor='lightgray'>
-                                                <Picker
-                                                    selectedValue={paymentWay}
-                                                    style={{
-                                                        padding: 10,
-                                                        borderWidth: 1,
-                                                        borderColor: 'lightgray',
-                                                        borderRadius: 5,
-                                                        flex: 1
-                                                    }}
-                                                    onValueChange={(itemValue) => setpaymentWay(itemValue)}
-                                                >
-                                                    <Picker.Item enabled={paymentWay ? false : true} style={{ flex: 1 }} label="Selecione..." value="" />
-                                                    <Picker.Item label="Diário: 7 dias após a entrega" value='DI07'></Picker.Item>
-                                                    <Picker.Item label="Semanal: vencimento na quarta" value='UQ10'></Picker.Item>
-                                                </Picker>
+                                            <DropDownPicker
+                                                            value={paymentWay}
+                                                            style={{
+                                                                borderWidth: 1,
+                                                                borderColor: 'lightgray',
+                                                                borderRadius: 5,
+                                                                flex: 1,
+                                                            }}
+                                                            setValue={setpaymentWay}
+                                                            listMode="MODAL"
+                                                            dropDownDirection="TOP"
+                                                            items={[{ label: 'Diário: 7 dias após a entrega', value: 'DI07' }, { label: 'Semanal: vencimento na quarta', value: 'UQ10' }]}
+                                                            multiple={false}
+                                                            open={paymentWayOpen}
+                                                            setOpen={setPaymentWayOpen}
+                                                            placeholder=""
+                                                        >
+                                                        </DropDownPicker>
                                             </View>
                                             <View mt={15} borderColor='lightgray' borderWidth={0.5} p={5} gap={5} flexDirection="row">
                                                 <Icons size={25} color='gray' name="information-circle"></Icons>
@@ -831,6 +869,13 @@ export function Register({ navigation }: HomeScreenProps) {
                                                     <Text maxWidth='100%' color='gray' fontSize={10}>Prazos são sujeitos a avaliação de crédito</Text>
                                                 </View>
                                             </View>
+                                        </View>
+                                        <Text mt={10} fontSize={12} mb={5} color='gray'>Código do promotor</Text>
+                                        <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
+                                        <Input onChangeText={(text) => {
+                                            setInviteCode(text.toUpperCase())
+                                        }} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} maxLength={5} value={inviteCode}></Input>
                                         </View>
                                     </View>
                                     :
