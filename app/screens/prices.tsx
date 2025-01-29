@@ -675,11 +675,11 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 keyboardShouldPersistTaps="handled"
                             >
                                 <View flex={1} justifyContent="center" alignItems="center" backgroundColor='rgba(0, 0, 0, 0.9)'>
-                                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center">
+                                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center" zIndex={101}>
                                         <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
                                         {allRestaurants.length > 0 ? (
                                             <DropDownPicker
-                                                listMode="MODAL"
+                                                listMode="SCROLLVIEW"
                                                 value={selectedRestaurant?.name}
                                                 style={{
                                                     borderWidth: 1,
@@ -705,7 +705,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         ) : (
                                             <Text>Loading...</Text> // Ou algum placeholder
                                         )}
-                                        <View pt={15} gap={5} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row">
+                                        <View pt={15} gap={5} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row" zIndex={100}>
                                             <View flex={1}>
                                                 <Text pl={5} fontSize={12} color='gray'>A partir de</Text>
                                                 <DropDownPicker
@@ -722,15 +722,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                     open={minHourOpen}
                                                     setOpen={setMinHourOpen}
                                                     placeholder=""
-                                                    listMode="MODAL"
+                                                    listMode="SCROLLVIEW"
                                                 >
                                                 </DropDownPicker>
                                             </View>
-                                            <View flex={1}>
+                                            <View flex={1} zIndex={100}>
                                                 <Text pl={5} fontSize={12} color='gray'>Até</Text>
                                                 <DropDownPicker
                                                     value={maxHour}
-                                                    listMode="MODAL"
+                                                    listMode="SCROLLVIEW"
                                                     style={{
                                                         borderWidth: 1,
                                                         borderColor: 'lightgray',
@@ -772,7 +772,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         </KeyboardAvoidingView>
                                         <Text pt={15} pl={5} fontSize={12} color='gray'>Logradouro</Text>
                                         <View flexDirection="column" gap={Platform.OS === 'web' ? 10 : 50}>
-                                            <View pb={0}>
+                                            <View pb={0} zIndex={99}>
                                                 <DropDownPicker
                                                     value={localType ?? 'RUA'}
                                                     style={{
@@ -781,7 +781,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                         borderRadius: 5,
                                                         flex: 1
                                                     }}
-                                                    listMode="MODAL"
+                                                    listMode="SCROLLVIEW"
                                                     setValue={setLocalType}
                                                     items={[
                                                         { label: "ALAMEDA", value: "ALAMEDA" },

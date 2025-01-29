@@ -136,7 +136,7 @@ export const ordersScreenStyles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#FFFFFF',
         borderRadius: 5,
-        
+        zIndex:100,
         marginBottom: 2,
         marginTop: 20,
         borderColor:'#F0F2F6'

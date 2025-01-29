@@ -778,7 +778,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                             <View flexDirection="row" gap={20}>
                                                 <View flex={1}>
                                                     <Text marginTop={15}>Quero receber de</Text>
-                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
+                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={101}>
                                                         <DropDownPicker
                                                             value={minHour}
                                                             style={{
@@ -787,7 +787,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                                 borderRadius: 5,
                                                                 zIndex: 1000,
                                                             }}
-                                                            listMode="MODAL"
+                                                            listMode="SCROLLVIEW"
                                                             dropDownDirection="TOP"
                                                             setValue={setMinHour}
                                                             items={minhours.map((item) => { return { label: item, value: item } })}
@@ -801,7 +801,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 </View>
                                                 <View flex={1}>
                                                     <Text marginTop={15}>Até</Text>
-                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray'>
+                                                    <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={100}>
                                                     <DropDownPicker
                                                             value={maxHour}
                                                             style={{
@@ -810,7 +810,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                                 borderRadius: 5,
                                                                 flex: 1,
                                                             }}
-                                                            listMode="MODAL"
+                                                            listMode="SCROLLVIEW"
                                                             dropDownDirection="TOP"
                                                             setValue={setMaxHour}
                                                             items={maxhours.map((item) => { return { label: item, value: item } })}
@@ -843,7 +843,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Formato de pagamento</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Qual o formato de pagamento preferido?</Text>
-                                            <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor='lightgray'>
+                                            <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor='lightgray' zIndex={99}>
                                             <DropDownPicker
                                                             value={paymentWay}
                                                             style={{
@@ -853,7 +853,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                                 flex: 1,
                                                             }}
                                                             setValue={setpaymentWay}
-                                                            listMode="MODAL"
+                                                            listMode="SCROLLVIEW"
                                                             dropDownDirection="TOP"
                                                             items={[{ label: 'Diário: 7 dias após a entrega', value: 'DI07' }, { label: 'Semanal: vencimento na quarta', value: 'UQ10' }]}
                                                             multiple={false}

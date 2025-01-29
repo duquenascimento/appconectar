@@ -26,6 +26,7 @@ interface Order {
 }
 
 interface Restaurant {
+    externalId: any;
     id: string;
     name: string;
 }
@@ -44,25 +45,37 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     useEffect(() => {
         const LoadRestaurants = async () => {
             try {
+                console.log('Iniciando o carregamento dos restaurantes...');
                 const restaurantsData = await loadRestaurants();
+                console.log('Restaurantes carregados:', restaurantsData);
+    
                 setRestaurants(restaurantsData);
                 if (restaurantsData.length > 0) {
+                    console.log('Restaurante selecionado automaticamente:', restaurantsData[0].externalId);
                     setSelectedRestaurant(restaurantsData[0].externalId);
                 }
             } catch (error) {
                 console.error('Erro ao carregar restaurantes:', error);
             }
         };
-
+    
         LoadRestaurants();
-    }, []);
-
+    }, []); // Este useEffect é chamado uma vez na montagem do componente
+    
     useEffect(() => {
+        console.log('selectedRestaurant mudou:', selectedRestaurant); // Verificando a mudança do selectedRestaurant
         const loadOrders = async () => {
-            if (!selectedRestaurant) return;
-
+            if (!selectedRestaurant) {
+                console.log('Nenhum restaurante selecionado. Não carregando pedidos.');
+                return;
+            }
+    
+            console.log('Carregando pedidos para o restaurante:', selectedRestaurant);
+            setLoading(true); // Mostra o carregando antes de fazer a requisição
+    
             try {
                 const ordersData = await getOrders(1, 10, selectedRestaurant);
+                console.log('Pedidos carregados:', ordersData);
                 setOrders(ordersData);
                 setFilteredOrders(ordersData); // Inicializa a lista filtrada com todos os pedidos
             } catch (error) {
@@ -71,9 +84,12 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                 setLoading(false);
             }
         };
-
+    
         loadOrders();
-    }, [selectedRestaurant]);
+    }, [selectedRestaurant]); // O segundo useEffect depende de selectedRestaurant
+    
+   
+    
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
@@ -199,27 +215,32 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     return (
         <>
             <View style={styles.container}>
-                {/* Substituindo o Picker por DropDownPicker */}
-                <View style={styles.pickerContainer}>
-                    <DropDownPicker
-                        value={selectedRestaurant}
-                        style={{
-                            borderWidth: 1,
-                            borderColor: 'lightgray',
-                            borderRadius: 5,
-                            flex: 1,
-                        }}
-                        setValue={setSelectedRestaurant}
-                        items={restaurants.map((restaurant) => ({
-                            label: restaurant.name,
-                            value: restaurant.id,
-                        }))}
-                        open={restaurantOpen}
-                        setOpen={setRestaurantOpen}
-                        placeholder="Selecione um restaurante"
-                        listMode="SCROLLVIEW"
-                    />
-                </View>
+            <View style={styles.pickerContainer}>
+    <DropDownPicker
+        value={selectedRestaurant}
+        style={{
+            borderWidth: 1,
+            borderColor: 'lightgray',
+            borderRadius: 5,
+            flex: 1,
+            paddingHorizontal: 20,
+            marginTop: 20
+        }}
+        setValue={(value) => {
+            console.log('Novo restaurante selecionado:', value); // Verificando a mudança ao selecionar um novo restaurante
+            setSelectedRestaurant(value);
+        }}
+        items={restaurants.map((restaurant) => ({
+            label: restaurant.name,
+            value: restaurant.externalId,  // Alterado para externalId
+        }))}
+        open={restaurantOpen}
+        setOpen={setRestaurantOpen}
+        placeholder="Selecione um restaurante"
+        listMode="SCROLLVIEW"
+    />
+</View>
+
 
                 <View style={styles.searchContainer}>
                     <TextInput
