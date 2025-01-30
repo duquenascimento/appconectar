@@ -1,5 +1,7 @@
 import { YStack } from "tamagui";
 
-export const Cart: React.FC<any> = () => {
-    return (<YStack></YStack>)
+const Cart: React.FC<any> = () => {
+    return (<YStack></YStack>);
 };
+
+export default Cart; // Exportação padrão

@@ -3,11 +3,11 @@ import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, Te
 import DropDownPicker from 'react-native-dropdown-picker';  // Importando o DropDownPicker
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icons from '@expo/vector-icons/Ionicons';
-import { getOrders } from '../services/orderService';
-import { loadRestaurants } from '../services/restaurantService';
+import { getOrders } from '../utils/services/orderService';
+import { loadRestaurants } from '../utils/services/restaurantService';
 import { RootStackParamList } from '../types/navigationTypes';
 import { ordersScreenStyles as styles } from '../styles/styles';
-import { BottomNavigation } from '../components/navigation/BottomNavigation';
+import  BottomNavigation from '../components/navigation/BottomNavigation';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
@@ -31,7 +31,7 @@ interface Restaurant {
     name: string;
 }
 
-export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
+export default function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);

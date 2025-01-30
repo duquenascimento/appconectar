@@ -2,14 +2,14 @@ import { RootStackParamList } from '../../types/navigationTypes';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { styles } from './styles';
+import styles from '../../styles/stylesNavigator';
 import { deleteToken } from '@/app/utils/utils';
 
 type BottomNavigationProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>;
 };
 
-export function BottomNavigation({ navigation }: BottomNavigationProps) {
+export default function BottomNavigation({ navigation }: BottomNavigationProps) {
     return (
         <View style={styles.container}>
             <TouchableOpacity

@@ -37,7 +37,7 @@ const passwordIsValid = (password: string, confirmPassword: string, setPasswordV
     return false
 }
 
-export function Sign({ navigation }: HomeScreenProps) {
+export default function Sign({ navigation }: HomeScreenProps) {
     const [currentPage, setCurrentPage] = useState('SignIn');
     const [visiblePage, setVisiblePage] = useState(true)
     const scrollRef = useRef<ScrollView>(null);

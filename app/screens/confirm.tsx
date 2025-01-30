@@ -8,6 +8,7 @@ import { DateTime } from "luxon";
 import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { defaultLightColors } from "moti/build/skeleton/shared";
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -167,7 +168,7 @@ function DialogInstanceNotification(props: { openModal: boolean, setRegisterInva
     )
 }
 
-export function Confirm({ navigation }: HomeScreenProps) {
+export default function Confirm({ navigation }: HomeScreenProps) {
     const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedRestaurant, setSelectedRestaurant] = useState<any>()

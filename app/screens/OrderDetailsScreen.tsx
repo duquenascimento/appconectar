@@ -2,7 +2,7 @@ import { Button, Text, View } from "tamagui";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigationTypes";
 import { useEffect, useState } from "react";
-import { cancelOrder, getOrder } from "../services/orderService";
+import { cancelOrder, getOrder } from "../utils/services/orderService";
 import { OrderData } from "../types/IOrder";
 import { ActivityIndicator } from "react-native";
 import Icons from "@expo/vector-icons/Ionicons";
@@ -10,34 +10,29 @@ import LabelAndBoxContent from "../components/box/LabelAndBoxContent";
 import { openURL } from "expo-linking";
 import CustomAlert from "../components/modais/CustomAlert";
 
-type OrderDetailsScreenRouteProp = RouteProp<
-  RootStackParamList,
-  "OrderDetails"
->;
-
-interface OrderDetailsScreenProps {
-  params: { orderId: string };
-  route: OrderDetailsScreenRouteProp;
-}
-
-export function OrderDetailsScreen() {
-  const route = useRoute() as unknown as OrderDetailsScreenProps;
+export default function OrderDetailsScreen() {
+  const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();
   const navigation = useNavigation();
 
-  const [order, setOrder] = useState<OrderData>({} as OrderData);
+  const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalErrorVisibility, setModalErrorVisibility] = useState(false);
-  const [modalCancelOrderVisibility, setModalCancelOrderVisibility] =
-    useState(false);
-  const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] =
-    useState(false);
-  const { orderId } = route.params;
+  const [modalCancelOrderVisibility, setModalCancelOrderVisibility] = useState(false);
+  const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] = useState(false);
+
+  const orderId = route.params?.orderId;
 
   useEffect(() => {
     const loadOrders = async () => {
+      if (!orderId) {
+        console.error("orderId não encontrado nos parâmetros da rota");
+        setLoading(false);
+        return;
+      }
+
       try {
         const orderData: OrderData = await getOrder(orderId);
-        console.log(orderData);
+        console.log("Order Data:", orderData);
         setOrder(orderData);
       } catch (error) {
         console.error("Erro ao carregar pedidos:", error);
@@ -61,6 +56,20 @@ export function OrderDetailsScreen() {
       </View>
     );
   }
+
+  if (!order) {
+    return (
+      <View flex={1} justifyContent="center" alignItems="center">
+        <Text>Pedido não encontrado</Text>
+      </View>
+    );
+  }
+
+  const supplier = order.calcOrderAgain?.data?.find(
+    (item) => item.supplier.externalId === order.supplierId
+  )?.supplier;
+
+  const supplierName = supplier ? supplier.name : "Fornecedor não encontrado";
 
   return (
     <View flex={1} backgroundColor="#F0F2F6">
@@ -130,17 +139,19 @@ export function OrderDetailsScreen() {
           title="Recibo"
           subtitle="Por Conéctar"
           icon={true}
-          iconAction={() => openURL(order.orderDocument)}
+          iconAction={() => {
+            if (order.orderDocument) {
+              openURL(order.orderDocument);
+            } else {
+              console.warn("Documento não disponível");
+            }
+          }}
         />
         <LabelAndBoxContent
           iconName="download"
           icon={true}
           title="Nota Fiscal"
-          subtitle={`Por ${
-            order.calcOrderAgain.data.find(
-              (item) => item.supplier.externalId === order.supplierId
-            )!.supplier.name
-          }`}
+          subtitle={`Por ${supplierName}`}
         />
         <Button
           borderColor="red"

@@ -91,7 +91,7 @@ interface Socio {
 }
 
 
-export function Register({ navigation }: HomeScreenProps) {
+export default function Register({ navigation }: HomeScreenProps) {
     const [cnpj, setCnpj] = useState<string>('')
     const [stateNumberId, setStateNumberId] = useState<string>('')
     const [cityNumberId, setCityNumberId] = useState<string>('')

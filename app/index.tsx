@@ -432,7 +432,7 @@ export function Sign({ navigation }: HomeScreenProps) {
 
 /* Mobile: */
 
-export function SignInMobile(props: {
+export default function SignInMobile(props: {
   page: string;
   onButtonPress: (page: string) => void;
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;

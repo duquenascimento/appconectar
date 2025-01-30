@@ -9,7 +9,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from '../components/modais/DialogInstanceNotification';
 import CustomAlert from '../components/modais/CustomAlert'; 
-import { loadRestaurants } from '../services/restaurantService'
+import { loadRestaurants } from '../utils/services/restaurantService'
 
 type RootStackParamList = {
     Home: undefined;
@@ -124,7 +124,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
     );
 };
 
-export function Prices({ navigation }: HomeScreenProps) {
+export default function Prices({ navigation }: HomeScreenProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
     const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([]);
