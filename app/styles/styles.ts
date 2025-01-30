@@ -73,7 +73,7 @@ export const ordersScreenStyles = StyleSheet.create({
         fontSize: Platform.select({ web: 16, default: 14 }),
         fontWeight: 'bold',
     },
-    orderDate: {
+    deliveryDate: {
         fontSize: Platform.select({ web: 14, default: 12 }),
         color: '#666',
     },

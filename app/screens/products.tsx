@@ -1245,7 +1245,7 @@ useEffect(() => {
             />
            
             <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
-            <BottomNavigation navigation={navigation} />
+               <BottomNavigation navigation={navigation} />
             </View>
         </Stack>
     );

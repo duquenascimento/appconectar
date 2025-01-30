@@ -2,7 +2,7 @@ import { Button, Text, View } from "tamagui";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackParamList } from "../types/navigationTypes";
 import { useEffect, useState } from "react";
-import { cancelOrder, getOrder } from "../utils/services/orderService";
+import { cancelOrder, getOrder } from "../services/orderService";
 import { OrderData } from "../types/IOrder";
 import { ActivityIndicator } from "react-native";
 import Icons from "@expo/vector-icons/Ionicons";

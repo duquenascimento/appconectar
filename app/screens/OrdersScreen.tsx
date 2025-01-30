@@ -1,20 +1,21 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';  // Importando o DropDownPicker
+import { View } from 'tamagui';
+import { Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker'; 
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icons from '@expo/vector-icons/Ionicons';
-import { getOrders } from '../utils/services/orderService';
-import { loadRestaurants } from '../utils/services/restaurantService';
+import { getOrders } from '../services/orderService'
+import { loadRestaurants } from '../services/restaurantService';
 import { RootStackParamList } from '../types/navigationTypes';
 import { ordersScreenStyles as styles } from '../styles/styles';
-import  BottomNavigation from '../components/navigation/BottomNavigation';
+import BottomNavigation from '../components/navigation/BottomNavigation';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
 interface Order {
     orderDocument: ReactNode;
     id: string;
-    orderDate: string;
+    deliveryDate: string;
     totalConectar: number;
     calcOrderAgain: {
         data: {
@@ -31,6 +32,15 @@ interface Restaurant {
     name: string;
 }
 
+// Função para formatar a data
+const formatDate = (isoDate: string) => {
+    const date = new Date(isoDate);
+    console.log(`Data ISO recebida: ${isoDate}`);
+    console.log(`Data convertida para objeto Date: ${date}`);
+    console.log(`Data formatada (pt-BR, UTC): ${date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`);
+    return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+};
+
 export default function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
@@ -40,7 +50,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
     const [isDownloading, setIsDownloading] = useState(false);
     const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
     const [selectedRestaurant, setSelectedRestaurant] = useState<string>('');
-    const [restaurantOpen, setRestaurantOpen] = useState(false);  // Estado para controlar abertura do DropDownPicker
+    const [restaurantOpen, setRestaurantOpen] = useState(false);
 
     useEffect(() => {
         const LoadRestaurants = async () => {
@@ -60,10 +70,10 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
         };
     
         LoadRestaurants();
-    }, []); // Este useEffect é chamado uma vez na montagem do componente
+    }, []);
     
     useEffect(() => {
-        console.log('selectedRestaurant mudou:', selectedRestaurant); // Verificando a mudança do selectedRestaurant
+        console.log('selectedRestaurant mudou:', selectedRestaurant);
         const loadOrders = async () => {
             if (!selectedRestaurant) {
                 console.log('Nenhum restaurante selecionado. Não carregando pedidos.');
@@ -71,13 +81,13 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
             }
     
             console.log('Carregando pedidos para o restaurante:', selectedRestaurant);
-            setLoading(true); // Mostra o carregando antes de fazer a requisição
+            setLoading(true); 
     
             try {
                 const ordersData = await getOrders(1, 10, selectedRestaurant);
                 console.log('Pedidos carregados:', ordersData);
                 setOrders(ordersData);
-                setFilteredOrders(ordersData); // Inicializa a lista filtrada com todos os pedidos
+                setFilteredOrders(ordersData);
             } catch (error) {
                 console.error('Erro ao carregar pedidos:', error);
             } finally {
@@ -86,32 +96,28 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
         };
     
         loadOrders();
-    }, [selectedRestaurant]); // O segundo useEffect depende de selectedRestaurant
-    
-   
-    
+    }, [selectedRestaurant]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
         let filtered = orders;
     
         if (query) {
-            // Verifica se a query é uma data no formato DD/MM/YYYY
             const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
             const isDateQuery = dateRegex.test(query);
     
             if (isDateQuery) {
-                // Converte a data digitada (DD/MM/YYYY) para o formato YYYY-MM-DD
                 const [day, month, year] = query.split('/');
                 const formattedQueryDate = `${year}-${month}-${day}`;
     
-                // Filtra os pedidos pela data
                 filtered = filtered.filter((order) => {
-                    const orderDate = order.orderDate.split('T')[0]; // Remove o horário, se houver
-                    return orderDate === formattedQueryDate;
+                    console.log("order>>>>>", order);
+                    const deliveryDate = order.deliveryDate.split('T')[0]; 
+                    console.log(`Data do pedido (deliveryDate): ${deliveryDate}`);
+                    console.log(`Data da busca (formattedQueryDate): ${formattedQueryDate}`);
+                    return deliveryDate === formattedQueryDate;
                 });
             } else {
-                // Filtra por outros campos (id, valor, fornecedor, etc.)
                 filtered = filtered.filter((order) => {
                     return (
                         order.id.toLowerCase().includes(query.toLowerCase()) ||
@@ -167,6 +173,10 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
         const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
         const truncatedSupplierName = truncateText(supplierName, 20);
     
+        console.log(`Renderizando item: ${item.id}`);
+        console.log(`Data do pedido (deliveryDate): ${item.deliveryDate}`);
+        console.log(`Data formatada (formatDate): ${formatDate(item.deliveryDate)}`);
+    
         return (
             <TouchableOpacity
                 style={[
@@ -178,8 +188,8 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 <View style={styles.itemContainer}>
                     <View style={styles.leftContainer}>
                         <Text style={styles.orderId}>{item.id}</Text>
-                        <Text style={styles.orderDate}>
-                            {new Date(item.orderDate).toLocaleDateString('pt-BR')}
+                        <Text style={styles.deliveryDate}>
+                            {formatDate(item.deliveryDate)} {/* Usando a função formatDate corrigida */}
                         </Text>
                     </View>
     
@@ -215,40 +225,42 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
     return (
         <>
             <View style={styles.container}>
-            <View style={styles.pickerContainer}>
-    <DropDownPicker
-        value={selectedRestaurant}
-        style={{
-            borderWidth: 1,
-            borderColor: 'lightgray',
-            borderRadius: 5,
-            flex: 1,
-            paddingHorizontal: 20,
-            marginTop: 20
-        }}
-        setValue={(value) => {
-            console.log('Novo restaurante selecionado:', value); // Verificando a mudança ao selecionar um novo restaurante
-            setSelectedRestaurant(value);
-        }}
-        items={restaurants.map((restaurant) => ({
-            label: restaurant.name,
-            value: restaurant.externalId,  // Alterado para externalId
-        }))}
-        open={restaurantOpen}
-        setOpen={setRestaurantOpen}
-        placeholder="Selecione um restaurante"
-        listMode="SCROLLVIEW"
-    />
-</View>
-
+                <View style={styles.pickerContainer}>
+                    <DropDownPicker
+                        value={selectedRestaurant}
+                        style={{
+                            borderWidth: 1,
+                            borderColor: 'lightgray',
+                            borderRadius: 5,
+                            flex: 1,
+                            paddingHorizontal: 20,
+                            marginTop: 20
+                        }}
+                        setValue={(value) => {
+                            console.log('Novo restaurante selecionado:', value);
+                            setSelectedRestaurant(value);
+                        }}
+                        items={restaurants.map((restaurant) => ({
+                            label: restaurant.name,
+                            value: restaurant.externalId, 
+                        }))}
+                        open={restaurantOpen}
+                        setOpen={setRestaurantOpen}
+                        placeholder="Selecione um restaurante"
+                        listMode="SCROLLVIEW"
+                    />
+                </View>
 
                 <View style={styles.searchContainer}>
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Buscar pedidos..."
-                        value={searchQuery}
-                        onChangeText={handleSearch}
-                    />
+                <TextInput
+    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }} // Estilo simples
+    placeholder="Buscar pedidos..."
+    value={searchQuery}
+    onChangeText={(text) => {
+        setSearchQuery(text);
+        handleSearch(text);
+    }}
+/>
                     <Icons name="search" size={24} color="#04BF7B" style={styles.searchIcon} />
                 </View>
 
@@ -263,7 +275,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                     {isDownloading ? (
                         <ActivityIndicator size="small" color="#fff" />
                     ) : (
-                        <Text style={styles.downloadButtonText}>Baixar Recibo Selecionados</Text>
+                        <Text style={styles.downloadButtonText}>Baixar Documentos Selecionados</Text>
                     )}
                 </TouchableOpacity>
 
@@ -278,7 +290,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                     }
                 />
             </View>
-            <View>
+            <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
                 <BottomNavigation navigation={navigation} />
             </View>
         </>

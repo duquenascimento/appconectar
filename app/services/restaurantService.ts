@@ -1,4 +1,4 @@
-import { getToken } from '../utils';
+import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 

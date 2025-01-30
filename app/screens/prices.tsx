@@ -9,7 +9,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from '../components/modais/DialogInstanceNotification';
 import CustomAlert from '../components/modais/CustomAlert'; 
-import { loadRestaurants } from '../utils/services/restaurantService'
+import { loadRestaurants } from '../services/restaurantService'
 
 type RootStackParamList = {
     Home: undefined;
