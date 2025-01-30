@@ -1,14 +1,14 @@
 import { Button, Text, View } from "tamagui";
 import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "../types/navigationTypes";
+import { RootStackParamList } from "../../src/types/navigationTypes";
 import { useEffect, useState } from "react";
-import { cancelOrder, getOrder } from "../services/orderService";
-import { OrderData } from "../types/IOrder";
+import { cancelOrder, getOrder } from "../../src/services/orderService";
+import { OrderData } from "../../src/types/IOrder";
 import { ActivityIndicator } from "react-native";
 import Icons from "@expo/vector-icons/Ionicons";
-import LabelAndBoxContent from "../components/box/LabelAndBoxContent";
+import LabelAndBoxContent from "../../src/components/box/LabelAndBoxContent";
 import { openURL } from "expo-linking";
-import CustomAlert from "../components/modais/CustomAlert";
+import CustomAlert from "../../src/components/modais/CustomAlert";
 
 export default function OrderDetailsScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();

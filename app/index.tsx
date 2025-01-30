@@ -25,7 +25,7 @@ import {
 } from "react-native";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { deleteToken, getToken, setToken } from "./utils/utils";
+import { deleteToken, getToken, setToken } from "../src/utils/utils";
 import { openURL } from "expo-linking";
 
 type RootStackParamList = {

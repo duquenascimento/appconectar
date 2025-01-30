@@ -3,7 +3,7 @@ import { View, Image, Text, Button } from "tamagui";
 import Icons from '@expo/vector-icons/Ionicons';
 import { SupplierData } from "./prices";
 import { useCallback, useEffect, useState } from "react";
-import { clearStorage, getStorage } from "../utils/utils";
+import { clearStorage, getStorage } from "../../src/utils/utils";
 
 type RootStackParamList = {
     Home: undefined;

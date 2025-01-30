@@ -28,10 +28,10 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
+import { deleteStorage, getStorage, getToken, setStorage } from '../../src/utils/utils';
 import * as Linking from 'expo-linking';
-import  BottomNavigation  from '../components/navigation/BottomNavigation'; 
-import { RootStackParamList } from '../types/navigationTypes';
+import  BottomNavigation  from '../../src/components/navigation/BottomNavigation'; 
+import { RootStackParamList } from '../../src/types/navigationTypes';
 import {  useIsFocused } from '@react-navigation/native';
 
 
@@ -1244,9 +1244,7 @@ useEffect(() => {
                 }}
             />
            
-            <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
                <BottomNavigation navigation={navigation} />
-            </View>
         </Stack>
     );
 

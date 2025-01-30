@@ -1,14 +1,13 @@
 import React, { ReactNode, useEffect, useState } from 'react';
-import { View } from 'tamagui';
-import { Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker'; 
+import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Icons from '@expo/vector-icons/Ionicons';
-import { getOrders } from '../services/orderService'
-import { loadRestaurants } from '../services/restaurantService';
-import { RootStackParamList } from '../types/navigationTypes';
-import { ordersScreenStyles as styles } from '../styles/styles';
-import BottomNavigation from '../components/navigation/BottomNavigation';
+import { getOrders } from '../../src/services/orderService'
+import { loadRestaurants } from '../../src/services/restaurantService';
+import { RootStackParamList } from '../../src/types/navigationTypes';
+import { ordersScreenStyles as styles } from '../../src/styles/styles';
+import BottomNavigation from '../../src/components/navigation/BottomNavigation';
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
@@ -35,9 +34,6 @@ interface Restaurant {
 // Função para formatar a data
 const formatDate = (isoDate: string) => {
     const date = new Date(isoDate);
-    console.log(`Data ISO recebida: ${isoDate}`);
-    console.log(`Data convertida para objeto Date: ${date}`);
-    console.log(`Data formatada (pt-BR, UTC): ${date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })}`);
     return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 };
 
@@ -58,7 +54,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 console.log('Iniciando o carregamento dos restaurantes...');
                 const restaurantsData = await loadRestaurants();
                 console.log('Restaurantes carregados:', restaurantsData);
-    
+
                 setRestaurants(restaurantsData);
                 if (restaurantsData.length > 0) {
                     console.log('Restaurante selecionado automaticamente:', restaurantsData[0].externalId);
@@ -68,10 +64,10 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 console.error('Erro ao carregar restaurantes:', error);
             }
         };
-    
+
         LoadRestaurants();
     }, []);
-    
+
     useEffect(() => {
         console.log('selectedRestaurant mudou:', selectedRestaurant);
         const loadOrders = async () => {
@@ -79,10 +75,10 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 console.log('Nenhum restaurante selecionado. Não carregando pedidos.');
                 return;
             }
-    
+
             console.log('Carregando pedidos para o restaurante:', selectedRestaurant);
-            setLoading(true); 
-    
+            setLoading(true);
+
             try {
                 const ordersData = await getOrders(1, 10, selectedRestaurant);
                 console.log('Pedidos carregados:', ordersData);
@@ -94,27 +90,24 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 setLoading(false);
             }
         };
-    
+
         loadOrders();
     }, [selectedRestaurant]);
 
     const handleSearch = (query: string) => {
         setSearchQuery(query);
         let filtered = orders;
-    
+
         if (query) {
             const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
             const isDateQuery = dateRegex.test(query);
-    
+
             if (isDateQuery) {
                 const [day, month, year] = query.split('/');
                 const formattedQueryDate = `${year}-${month}-${day}`;
-    
+
                 filtered = filtered.filter((order) => {
-                    console.log("order>>>>>", order);
-                    const deliveryDate = order.deliveryDate.split('T')[0]; 
-                    console.log(`Data do pedido (deliveryDate): ${deliveryDate}`);
-                    console.log(`Data da busca (formattedQueryDate): ${formattedQueryDate}`);
+                    const deliveryDate = order.deliveryDate.split('T')[0];
                     return deliveryDate === formattedQueryDate;
                 });
             } else {
@@ -127,7 +120,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 });
             }
         }
-    
+
         setFilteredOrders(filtered);
     };
 
@@ -156,7 +149,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                         console.error(`Erro ao abrir o link:`, error);
                     }
                 }
-                await new Promise(resolve => setTimeout(resolve, 1000)); 
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
         }
         setIsDownloading(false);
@@ -168,15 +161,11 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
         }
         return text;
     };
-    
+
     const renderItem = ({ item }: { item: Order }) => {
         const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
         const truncatedSupplierName = truncateText(supplierName, 20);
-    
-        console.log(`Renderizando item: ${item.id}`);
-        console.log(`Data do pedido (deliveryDate): ${item.deliveryDate}`);
-        console.log(`Data formatada (formatDate): ${formatDate(item.deliveryDate)}`);
-    
+
         return (
             <TouchableOpacity
                 style={[
@@ -189,17 +178,17 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                     <View style={styles.leftContainer}>
                         <Text style={styles.orderId}>{item.id}</Text>
                         <Text style={styles.deliveryDate}>
-                            {formatDate(item.deliveryDate)} {/* Usando a função formatDate corrigida */}
+                            {formatDate(item.deliveryDate)}
                         </Text>
                     </View>
-    
+
                     <View style={styles.rightContainer}>
                         <Text style={styles.totalConectar}>
                             R$ {item.totalConectar.toFixed(2)}
                         </Text>
                         <Text style={styles.supplierName}>{truncatedSupplierName}</Text>
                     </View>
-    
+
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
                             style={styles.checkbox}
@@ -242,7 +231,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                         }}
                         items={restaurants.map((restaurant) => ({
                             label: restaurant.name,
-                            value: restaurant.externalId, 
+                            value: restaurant.externalId,
                         }))}
                         open={restaurantOpen}
                         setOpen={setRestaurantOpen}
@@ -252,15 +241,15 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                 </View>
 
                 <View style={styles.searchContainer}>
-                <TextInput
-    style={{ height: 40, borderColor: 'gray', borderWidth: 1 }} // Estilo simples
-    placeholder="Buscar pedidos..."
-    value={searchQuery}
-    onChangeText={(text) => {
-        setSearchQuery(text);
-        handleSearch(text);
-    }}
-/>
+                    <TextInput
+                        style={{ height: 40, borderColor: 'gray', borderWidth: 1 }}
+                        placeholder="Buscar pedidos..."
+                        value={searchQuery}
+                        onChangeText={(text) => {
+                            setSearchQuery(text);
+                            handleSearch(text);
+                        }}
+                    />
                     <Icons name="search" size={24} color="#04BF7B" style={styles.searchIcon} />
                 </View>
 
@@ -290,9 +279,8 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
                     }
                 />
             </View>
-            <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
-                <BottomNavigation navigation={navigation} />
-            </View>
+
+            <BottomNavigation navigation={navigation} />
         </>
     );
 }

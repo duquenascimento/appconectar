@@ -6,10 +6,10 @@ import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, V
 import React from "react";
 import { DateTime } from 'luxon'
 import DropDownPicker from "react-native-dropdown-picker";
-import { clearStorage, getToken, setStorage } from "../utils/utils";
-import DialogInstanceNotification from '../components/modais/DialogInstanceNotification';
-import CustomAlert from '../components/modais/CustomAlert'; 
-import { loadRestaurants } from '../services/restaurantService'
+import { clearStorage, getToken, setStorage } from "../../src/utils/utils";
+import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
+import CustomAlert from '../../src/components/modais/CustomAlert'; 
+import { loadRestaurants } from '../../src/services/restaurantService'
 
 type RootStackParamList = {
     Home: undefined;

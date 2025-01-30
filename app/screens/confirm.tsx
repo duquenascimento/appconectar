@@ -5,7 +5,7 @@ import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Ad
 import { ActivityIndicator } from "react-native";
 import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from "luxon";
-import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
+import { deleteStorage, getStorage, getToken, setStorage } from "../../src/utils/utils";
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { defaultLightColors } from "moti/build/skeleton/shared";

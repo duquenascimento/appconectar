@@ -10,6 +10,14 @@ const styles = StyleSheet.create({
         borderTopColor: 'lightgray',
         backgroundColor: 'white',
     },
+    containerExternal: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        height: 55,
+        borderTopWidth: 0.2,
+        borderTopColor: 'lightgray',
+    },
     navItem: {
         alignItems: 'center',
         justifyContent: 'center',

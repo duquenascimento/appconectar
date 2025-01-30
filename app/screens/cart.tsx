@@ -12,7 +12,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native';
-import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
+import { deleteStorage, getStorage, getToken, setStorage } from '../../src/utils/utils';
 
 type RootStackParamList = {
     Home: undefined;
