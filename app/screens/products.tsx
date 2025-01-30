@@ -28,11 +28,11 @@ import ImageViewer from 'react-native-image-zoom-viewer';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStorage } from '../utils/utils';
+import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
 import * as Linking from 'expo-linking';
-import { BottomNavigation } from '../components/navigation/BottomNavigation'; 
+import  BottomNavigation  from '../components/navigation/BottomNavigation'; 
 import { RootStackParamList } from '../types/navigationTypes';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import {  useIsFocused } from '@react-navigation/native';
 
 
 
@@ -664,7 +664,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 
 let classItems: { name: string }[] = []
 
-export function Products({ navigation }: ProductsScreenProps) {
+export default function Products({ navigation }: ProductsScreenProps) {
     const [currentClass, setCurrentClass] = useState('Favoritos');
     const [productsList, setProductsList] = useState<Product[] | null>(null);
     const [loading, setLoading] = useState(true);

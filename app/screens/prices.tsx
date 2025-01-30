@@ -8,7 +8,8 @@ import { DateTime } from 'luxon'
 import DropDownPicker from "react-native-dropdown-picker";
 import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from '../components/modais/DialogInstanceNotification';
-import CustomAlert from '../components/modais/CustomAlert'; // Importe o CustomAlert
+import CustomAlert from '../components/modais/CustomAlert'; 
+import { loadRestaurants } from '../utils/services/restaurantService'
 
 type RootStackParamList = {
     Home: undefined;
@@ -123,7 +124,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
     );
 };
 
-export function Prices({ navigation }: HomeScreenProps) {
+export default function Prices({ navigation }: HomeScreenProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
     const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([]);
@@ -223,29 +224,6 @@ export function Prices({ navigation }: HomeScreenProps) {
             return newValue
         })
         updateAddress(newValue)
-    }
-
-    const loadRestaurants = async () => {
-        try {
-            const token = await getToken();
-            if (token == null) return [];
-            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    token
-                })
-            });
-            if (!result.ok) return []
-            const restaurants = await result.json();
-            if (restaurants.data.length < 1) return []
-            return restaurants.data
-        } catch (error) {
-            console.error('Erro ao carregar restaurantes:', error);
-            return [];
-        }
     }
 
     const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {

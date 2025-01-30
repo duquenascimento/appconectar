@@ -363,7 +363,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) => {
 
 type ProductsProps = {};
 
-export const Products: React.FC<ProductsProps> = () => {
+const Products: React.FC<ProductsProps> = () => {
     const [currentClass, setCurrentClass] = useState('Favoritos');
     const memoizedClassItems = useMemo(() => classItems, []);
     const [productsList, setProductsList] = useState<Product[] | null>(null);
@@ -744,3 +744,6 @@ const classItems = [
     { name: 'Cogumelos e trufas' },
     { name: 'Higienizados' },
 ];
+
+
+export default Products

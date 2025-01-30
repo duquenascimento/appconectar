@@ -30,7 +30,7 @@ interface PaymentDescriptions {
 }
 
 
-export function FinalConfirm({ navigation }: HomeScreenProps) {
+export default function FinalConfirm({ navigation }: HomeScreenProps) {
     const [supplier, setSupplier] = useState<SupplierData>();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [deliveryData, setDeliveryData] = useState<RestaurantInfo>();

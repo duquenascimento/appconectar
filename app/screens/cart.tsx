@@ -233,7 +233,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox'
 
-export function Cart({ navigation }: HomeScreenProps) {
+ const Cart = ({ navigation }: HomeScreenProps) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<Map<string, TCart>>(new Map());
@@ -584,3 +584,5 @@ export function Cart({ navigation }: HomeScreenProps) {
         </Stack>
     )
 }
+
+export default Cart

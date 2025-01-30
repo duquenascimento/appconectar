@@ -10,16 +10,16 @@ export const ordersScreenStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F0F2F6',
-        borderRadius: 20,
-        paddingHorizontal: 16,
-        marginBottom: 16,
+        borderRadius: 5,
+        paddingHorizontal: 20,
+        marginBottom: 20,
         marginTop: 20
     },
     searchInput: {
         flex: 1,
-        height: 40,
+        height: 35,
         fontSize: 14,
-        color: '#000',
+        color: '#000'
     },
     searchIcon: {
         marginLeft: 8,
@@ -46,39 +46,48 @@ export const ordersScreenStyles = StyleSheet.create({
         flex: 1,
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: Platform.OS === 'web' ? 16 : 8,
+        paddingHorizontal: Platform.select({ web: 16, default: 8 }), // Menos padding no mobile
         flexDirection: 'row',
-        minHeight: Platform.OS === 'web' ? 80 : 60,
+        minHeight: Platform.select({ web: 80, default: 60 }), // Altura menor no mobile
         backgroundColor: 'white',
         borderRadius: 12,
     },
     leftContainer: {
         flexDirection: 'column',
         alignItems: 'flex-start',
+        flex: 1, // Ocupa mais espaço
+        marginRight: 8, // Espaçamento entre os contêineres
     },
     rightContainer: {
         flexDirection: 'column',
         alignItems: 'flex-end',
+        flex: 1, // Ocupa mais espaço
+        marginLeft: 8, // Espaçamento entre os contêineres
     },
     buttonContainer: {
-        flexDirection: 'column',
-        alignItems: 'flex-end',
+        flexDirection: 'row',
+        alignItems: 'center', // Alinha o checkbox e o texto verticalmente
+        marginLeft: 8, // Espaçamento entre o checkbox e os outros elementos
     },
     orderId: {
-        fontSize: Platform.OS === 'web' ? 16 : 14,
+        fontSize: Platform.select({ web: 16, default: 14 }),
         fontWeight: 'bold',
     },
     orderDate: {
-        fontSize: Platform.OS === 'web' ? 14 : 12,
+        fontSize: Platform.select({ web: 14, default: 12 }),
         color: '#666',
     },
     totalConectar: {
-        fontSize: Platform.OS === 'web' ? 16 : 14,
+        fontSize: Platform.select({ web: 16, default: 14 }),
         fontWeight: 'bold',
     },
     supplierName: {
-        fontSize: Platform.OS === 'web' ? 14 : 12,
+        fontSize: Platform.select({ web: 14, default: 12 }),
         color: '#666',
+        maxWidth: 100, // Largura máxima para o nome do fornecedor
+        overflow: 'hidden', // Esconde o texto que ultrapassar
+        //whiteSpace: 'nowrap', // Impede a quebra de linha
+        //textOverflow: 'ellipsis', // Adiciona "..." ao final
     },
     loadingContainer: {
         flex: 1,
@@ -120,8 +129,25 @@ export const ordersScreenStyles = StyleSheet.create({
         borderRadius: 4,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 8,
+        marginRight: 8, 
     },
+    pickerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 5,
+        zIndex:100,
+        marginBottom: 2,
+        marginTop: 20,
+        borderColor:'#F0F2F6'
+    },
+    picker: {
+        flex: 1,
+        height: 35,
+        fontSize: 14,
+        color: '#000',
+        paddingHorizontal: 20
+    }
 });
 
 

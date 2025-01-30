@@ -14,7 +14,7 @@ type HomeScreenProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
 };
 
-export function RegisterFinished({ navigation }: HomeScreenProps) {
+export default function RegisterFinished({ navigation }: HomeScreenProps) {
     return (
         <View padding={30} backgroundColor='#F0F2F6' f={1} justifyContent="center" alignItems="center">
             <Icons size={90} color='#04BF7B' name="checkmark-circle"></Icons>
