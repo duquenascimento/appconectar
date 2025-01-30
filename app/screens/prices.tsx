@@ -162,7 +162,6 @@ export default function Prices({ navigation }: HomeScreenProps) {
     };
 
     const handleSelectedRest = async (rest: any) => {
-        console.log("restaurante<><><>", rest);
         setSelectedRestaurant(rest);
         updateAddress(rest);
     };
@@ -253,6 +252,8 @@ export default function Prices({ navigation }: HomeScreenProps) {
             });
 
             const response = await result.json();
+
+            console.log("response>>>>>>>>>>", response);
 
             const currentDate = DateTime.now().setZone('America/Sao_Paulo');
             const currentHour = Number(

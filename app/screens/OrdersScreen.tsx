@@ -9,6 +9,7 @@ import { RootStackParamList } from '../../src/types/navigationTypes';
 import { ordersScreenStyles as styles } from '../../src/styles/styles';
 import BottomNavigation from '../../src/components/navigation/BottomNavigation';
 
+
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Orders'>;
 
 interface Order {
@@ -95,34 +96,54 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
     }, [selectedRestaurant]);
 
     const handleSearch = (query: string) => {
+        console.log('Iniciando handleSearch com query:', query);
         setSearchQuery(query);
-        let filtered = orders;
-
-        if (query) {
-            const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-            const isDateQuery = dateRegex.test(query);
-
-            if (isDateQuery) {
+    
+        // Verificar se a query pode ser uma data parcial (D, DD, DD/MM ou DD/MM/YYYY)
+        const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
+        const isDatePartial = datePartialRegex.test(query);
+    
+        const filtered = orders.filter((order) => {
+            // Filtragem por data parcial (se aplicável)
+            if (isDatePartial) {
                 const [day, month, year] = query.split('/');
-                const formattedQueryDate = `${year}-${month}-${day}`;
-
-                filtered = filtered.filter((order) => {
-                    const deliveryDate = order.deliveryDate.split('T')[0];
-                    return deliveryDate === formattedQueryDate;
-                });
-            } else {
-                filtered = filtered.filter((order) => {
-                    return (
-                        order.id.toLowerCase().includes(query.toLowerCase()) ||
-                        order.totalConectar.toString().includes(query) ||
-                        order.calcOrderAgain.data[0].supplier.name.toLowerCase().includes(query.toLowerCase())
-                    );
-                });
+                const deliveryDate = order.deliveryDate.split('T')[0]; // Formato: YYYY-MM-DD
+                const [orderYear, orderMonth, orderDay] = deliveryDate.split('-');
+    
+                // Comparar dia
+                if (day && !orderDay.startsWith(day)) return false;
+    
+                // Comparar mês (se fornecido)
+                if (month && !orderMonth.startsWith(month)) return false;
+    
+                // Comparar ano (se fornecido)
+                if (year && !orderYear.startsWith(year)) return false;
+    
+                return true;
             }
-        }
-
+    
+            // Filtragem por ID, valor total ou nome do fornecedor
+            const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
+            const matchesTotal = order.totalConectar.toString().includes(query);
+            const matchesSupplier = order.calcOrderAgain.data[0].supplier.name.toLowerCase().includes(query.toLowerCase());
+    
+            console.log('Pedido:', order.id);
+            console.log('Matches ID:', matchesId);
+            console.log('Matches Total:', matchesTotal);
+            console.log('Matches Supplier:', matchesSupplier);
+    
+            return matchesId || matchesTotal || matchesSupplier;
+        });
+    
+        console.log('Pedidos filtrados:', filtered);
         setFilteredOrders(filtered);
+    
+        // Exibir mensagem se nenhum pedido for encontrado
+        if (filtered.length === 0 && query.length > 0) {
+            console.log('Nenhum pedido encontrado para a query:', query);
+        }
     };
+
 
     const toggleOrderSelection = (orderId: string) => {
         setSelectedOrders((prevSelected) => {
