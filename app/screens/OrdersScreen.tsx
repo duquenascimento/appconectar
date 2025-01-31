@@ -101,6 +101,7 @@ export default function OrdersScreen({ navigation }: { navigation: OrdersScreenN
     
         // Verificar se a query pode ser uma data parcial (D, DD, DD/MM ou DD/MM/YYYY)
         const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
+        
         const isDatePartial = datePartialRegex.test(query);
     
         const filtered = orders.filter((order) => {

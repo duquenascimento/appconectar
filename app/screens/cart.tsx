@@ -13,6 +13,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native';
 import { deleteStorage, getStorage, getToken, setStorage } from '../../src/utils/utils';
+import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
 
 type RootStackParamList = {
     Home: undefined;
@@ -53,7 +54,7 @@ type TCart = {
     obs: string
 }
 
-type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void};
+type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void };
 
 const ProductBox = React.memo((produto: ProductBoxProps) => {
     const [open, setOpen] = useState(false);
@@ -63,7 +64,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
     const obsRef = useRef('');
     const quantRef = useRef(produto.firstUnit ? produto.firstUnit : 1);
-    const handleObsChange = (text: string) => {setObs(text); setObs(text)};
+    const handleObsChange = (text: string) => { setObs(text); setObs(text) };
 
     const isCart = useMemo(() => {
         return produto.cart.has(produto.id);
@@ -233,7 +234,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox'
 
- const Cart = ({ navigation }: HomeScreenProps) => {
+const Cart = ({ navigation }: HomeScreenProps) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<Map<string, TCart>>(new Map());
@@ -243,6 +244,14 @@ ProductBox.displayName = 'ProductBox'
     const [confirmDelte, setConfirmDelete] = useState<boolean>(false)
     const [confirmDeleteItem, setConfirmDeleteItem] = useState<boolean>(false)
     const [itemToDelete, setItemToDelete] = useState<TCart>()
+    const [alertItems, setAlertItems] = useState<Product[]>([]);;
+    const [showNotification, setShowNotification] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalSubtitle, setModalSubtitle] = useState('');
+    const [modalDescription, setModalDescription] = useState('');
+    const [modalButtonText, setModalButtonText] = useState('Ok');
+    const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => { });
+
 
     useEffect(() => {
         setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
@@ -253,20 +262,20 @@ ProductBox.displayName = 'ProductBox'
     const deleteItemFromCart = debounce(async (cartToDelete: TCart) => {
         console.log('aqui deleteItemFromCart')
         const token = await getToken();
-    
+
         setCart((prevCart) => {
             const newCart = new Map(prevCart);
-    
+
             // Remove o item do carrinho
             newCart.delete(cartToDelete.productId);
-    
+
             // Atualiza o estado de exclusão
             setCartToExclude((prevCartToExclude) => {
                 const newCartToExclude = new Map(prevCartToExclude);
                 newCartToExclude.set(cartToDelete.productId, cartToDelete);
                 return newCartToExclude;
             });
-    
+
             // Salva o carrinho atualizado no AsyncStorage
             console.log('deleteItemFromCart: ', newCart)
             setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
@@ -288,7 +297,7 @@ ProductBox.displayName = 'ProductBox'
                         deleteStorage('cart').then()
                         navigation.replace('Products');
                     }
-                    
+
                 }
             })).finally(() => {setLoading(false);setConfirmDeleteItem(false)})
             return newCart;
@@ -381,13 +390,53 @@ ProductBox.displayName = 'ProductBox'
             });
             if (!result.ok) return []
             const cart = await result.json();
-            if (cart.data.length < 1) return []
-            return cart.data; // Ajuste conforme a estrutura de resposta da sua API
+            if (cart.data.length < 1) return [];
+
+            const alertItems = cart.data.filter((item: Product) =>
+                item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca')
+            );
+
+            setAlertItems(alertItems);
+
+            return cart.data; 
         } catch (error) {
             console.error('Erro ao carregar favoritos:', error);
             return [];
         }
-    }, [])
+    }, []);
+
+
+    const showModal = (title: string, subtitle: string, description: string, buttonText: string, onConfirm: () => void) => {
+        setModalTitle(title);
+        setModalSubtitle(subtitle);
+        setModalDescription(description);
+        setModalButtonText(buttonText);
+        setModalOnConfirm(() => onConfirm);
+        setShowNotification(true);
+    };
+
+    const checkAlertItems = (products: Product[]) => {
+        const alertItems = products.filter((item: Product) =>
+            item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca')
+        );
+
+        if (alertItems.length > 0) {
+            const alertMessage = alertItems.map(item => item.name).join('\n');
+            showModal(
+                'Atenção!',
+                'Itens em caixa ou saca',
+                `Os seguintes itens são vendidos em caixa ou saca:\n${alertMessage}`,
+                'Entendi',
+                () => setShowNotification(false)
+            );
+        }
+    };
+
+    useEffect(() => {
+        if (alertItems.length > 0) {
+            checkAlertItems(alertItems);
+        }
+    }, [alertItems]);
 
     const handleTrashItemState = (cart: TCart) => {
         console.log('aqui handleTrashItemState')
@@ -489,15 +538,33 @@ ProductBox.displayName = 'ProductBox'
                                 <Icons name='trash' color='white' size={20}></Icons>
                             </Button>
                         </View>
-                        <Button borderRadius={10} onPress={() => {
-                            setLoading(true)
-                            saveCartArray(cart, cartToExclude)
-                            navigation.replace('Prices')
-                        }} justifyContent='center' alignItems='center' backgroundColor='#04BF7B' f={1}>
+                        <Button
+                            borderRadius={10}
+                            onPress={() => {
+                                setLoading(true);
+                                checkAlertItems(products);
+                                saveCartArray(cart, cartToExclude).then(() => {
+                                    navigation.replace('Prices');
+                                });
+                            }}
+                            justifyContent='center'
+                            alignItems='center'
+                            backgroundColor='#04BF7B'
+                            f={1}
+                        >
                             <Text fontSize={16} color='white'>Ver cotações</Text>
                             <Icons size={18} style={{ paddingLeft: 10 }} color='white' name='arrow-forward'></Icons>
                         </Button>
                     </View>
+                    <DialogInstanceNotification
+                        openModal={showNotification}
+                        setOpenModal={setShowNotification}
+                        title={modalTitle}
+                        subtitle={modalSubtitle}
+                        description={modalDescription}
+                        buttonText={modalButtonText}
+                        onConfirm={modalOnConfirm}
+                    />
                 </View>
 
                 {confirmDelte && (
