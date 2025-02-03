@@ -28,7 +28,7 @@ export default function BottomNavigation({ navigation }: BottomNavigationProps) 
                     <Text style={styles.navText}>Home</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                {/*<TouchableOpacity
                     style={styles.navItem}
                     onPress={() => {
                         console.log('Navegando para Orders');
@@ -37,7 +37,7 @@ export default function BottomNavigation({ navigation }: BottomNavigationProps) 
                 >
                     <Icons name="journal" size={20} color="gray" />
                     <Text style={styles.navText}>Meus Pedidos</Text>
-                </TouchableOpacity>
+                </TouchableOpacity>*/}
 
                 <TouchableOpacity
                     style={styles.navItem}
