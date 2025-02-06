@@ -5,9 +5,10 @@ import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Ad
 import { ActivityIndicator } from "react-native";
 import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from "luxon";
-import { deleteStorage, getStorage, getToken, setStorage } from "../../src/utils/utils";
+import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+// modified add
 import { defaultLightColors } from "moti/build/skeleton/shared";
 
 Notifications.setNotificationHandler({
@@ -168,7 +169,7 @@ function DialogInstanceNotification(props: { openModal: boolean, setRegisterInva
     )
 }
 
-export default function Confirm({ navigation }: HomeScreenProps) {
+export function Confirm({ navigation }: HomeScreenProps) {
     const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
@@ -398,7 +399,8 @@ export default function Confirm({ navigation }: HomeScreenProps) {
                 <View backgroundColor='white' p={15}>
                     <View alignItems="center" paddingHorizontal={5} borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
                         <Icons color='gray' size={24} name="warning"></Icons>
-                        <Text color='gray' ml={5} marginRight={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
+                        {/*// modified add*/ }
+                        <Text color='gray' ml={5} mr={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
                     </View>
                     <View pt={25}>
                         <Text>Produtos selecionados</Text>

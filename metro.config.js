@@ -20,8 +20,5 @@ module.exports = withTamagui(config, {
   config: './tamagui.config.ts',
 
   outputCSS: './tamagui-web.css',
-  blockList: [
-    /.*\/services\//, 
-  ]
 
 })

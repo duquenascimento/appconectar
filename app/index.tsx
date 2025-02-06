@@ -25,7 +25,7 @@ import {
 } from "react-native";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { deleteToken, getToken, setToken } from "../src/utils/utils";
+import { deleteToken, getToken, setToken } from "./utils/utils";
 import { openURL } from "expo-linking";
 
 type RootStackParamList = {
@@ -432,7 +432,7 @@ export function Sign({ navigation }: HomeScreenProps) {
 
 /* Mobile: */
 
-export default function SignInMobile(props: {
+export function SignInMobile(props: {
   page: string;
   onButtonPress: (page: string) => void;
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
@@ -474,8 +474,6 @@ export default function SignInMobile(props: {
             body: JSON.stringify(dataSignin),
           }
         );
-
-        console.log("login", response);
         const res: {
           data: { token: string; role: string[] };
           status: number;

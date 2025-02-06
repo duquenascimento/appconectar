@@ -6,10 +6,9 @@ import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, V
 import React from "react";
 import { DateTime } from 'luxon'
 import DropDownPicker from "react-native-dropdown-picker";
-import { clearStorage, getToken, setStorage } from "../../src/utils/utils";
+import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
-import CustomAlert from '../../src/components/modais/CustomAlert'; 
-import { loadRestaurants } from '../../src/services/restaurantService'
+import CustomAlert from '../../src/components/modais/CustomAlert'; // Importe o CustomAlert
 
 type RootStackParamList = {
     Home: undefined;
@@ -124,7 +123,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
     );
 };
 
-export default function Prices({ navigation }: HomeScreenProps) {
+export function Prices({ navigation }: HomeScreenProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
     const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([]);
@@ -162,6 +161,7 @@ export default function Prices({ navigation }: HomeScreenProps) {
     };
 
     const handleSelectedRest = async (rest: any) => {
+        console.log("restaurante<><><>", rest);
         setSelectedRestaurant(rest);
         updateAddress(rest);
     };
@@ -252,8 +252,6 @@ export default function Prices({ navigation }: HomeScreenProps) {
             });
 
             const response = await result.json();
-
-            console.log("response>>>>>>>>>>", response);
 
             const currentDate = DateTime.now().setZone('America/Sao_Paulo');
             const currentHour = Number(
