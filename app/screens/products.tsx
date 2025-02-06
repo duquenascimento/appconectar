@@ -61,6 +61,7 @@ type RootStackParamList = {
     Products: undefined;
     Cart: undefined
     Sign: undefined
+    Orders: undefined
 }
 
 type Cart = {
@@ -1236,6 +1237,14 @@ export function Products({ navigation }: HomeScreenProps) {
                         <Icons name="document" size={20} color="gray" />
                         <Text fontSize={12} color="gray">Relatórios</Text>
                     </View> */}
+                    {/*<View onPress={async () => {
+                        setLoading(true);
+                        await saveCartArray(cart, cartToExclude);
+                        navigation.replace('Orders');
+                    }} padding={10} marginVertical={10} borderRadius={8} flexWrap="nowrap" flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                        <Icons name="journal" size={20} color="gray" />
+                        <Text fontSize={12} color="gray">Meus Pedidos</Text>
+                    </View>*/}
                     <View onPress={async () => {
                         setLoading(true);
                         await saveCartArray(cart, cartToExclude);

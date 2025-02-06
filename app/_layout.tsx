@@ -11,6 +11,8 @@ import { Confirm } from './screens/confirm';
 import { FinalConfirm } from './screens/finalConfirm';
 import { Register } from './screens/register';
 import { RegisterFinished } from './screens/registerFinished';
+import { OrdersScreen } from './screens/OrdersScreen';
+import {OrderDetailsScreen } from './screens/OrderDetailsScreen';
 // import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 
@@ -38,6 +40,8 @@ export default function App() {
           <Navigation.Screen name="FinalConfirm" component={FinalConfirm} />
           <Navigation.Screen name="Register" component={Register} />
           <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
+          <Navigation.Screen name="orders" component={OrdersScreen} />
+          <Navigation.Screen name="ordersDetails" component={OrderDetailsScreen} />
         </Navigation.Navigator>
       </TamaguiProvider>
     </ NavigationContainer>
