@@ -38,7 +38,7 @@ const formatDate = (isoDate: string) => {
     return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 };
 
-export default function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
+export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
     const [orders, setOrders] = useState<Order[]>([]);
     const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);

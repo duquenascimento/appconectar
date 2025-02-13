@@ -10,7 +10,7 @@ import LabelAndBoxContent from "../../src/components/box/LabelAndBoxContent";
 import { openURL } from "expo-linking";
 import CustomAlert from "../../src/components/modais/CustomAlert";
 
-export default function OrderDetailsScreen() {
+export function OrderDetailsScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();
   const navigation = useNavigation();
 

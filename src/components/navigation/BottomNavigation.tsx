@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import styles from '../../styles/stylesNavigator';
-import { deleteToken } from '@/src/utils/utils';
+import { deleteToken } from '../../../app/utils/utils';
 
 type BottomNavigationProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, keyof RootStackParamList>;
