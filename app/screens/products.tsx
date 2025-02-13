@@ -473,7 +473,7 @@ const ProductBox = React.memo(({
                                 backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
                                 height={30}
                                 minWidth={48}
-                                
+
                                 borderRadius={12}
                             >
                                 <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>{firstUnit ? firstUnit : 1}</Text>
@@ -1179,7 +1179,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     data={classItems}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item) => item.name}
+                    keyExtractor={(item: any) => item.name}
                     renderItem={renderClassItem}
                 />
 
@@ -1198,7 +1198,7 @@ export function Products({ navigation }: HomeScreenProps) {
                                 ref={flatListRef}
                                 data={displayedProducts}
                                 renderItem={renderProduct}
-                                keyExtractor={(item) => item.id}
+                                keyExtractor={(item: any) => item.id}
                                 onEndReachedThreshold={0.5}
                                 onEndReached={loadProducts}
                                 onScroll={handleScroll}
@@ -1229,22 +1229,22 @@ export function Products({ navigation }: HomeScreenProps) {
                         <Icons name="home" size={20} color="#04BF7B" />
                         <Text fontSize={12} color="#04BF7B">Home</Text>
                     </View>
-                    {/* <View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                    {/* <View onPress={() => navigation.replace('Orders')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
                         <Icons name="journal" size={20} color="gray" />
                         <Text fontSize={12} color="gray">Pedidos</Text>
                     </View>
-                    <View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                    {/*<View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
                         <Icons name="document" size={20} color="gray" />
                         <Text fontSize={12} color="gray">Relatórios</Text>
                     </View> */}
-                    {/*<View onPress={async () => {
-                        setLoading(true);
+                    <View onPress={async () => {
+                        //setLoading(true);
                         await saveCartArray(cart, cartToExclude);
                         navigation.replace('Orders');
                     }} padding={10} marginVertical={10} borderRadius={8} flexWrap="nowrap" flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
                         <Icons name="journal" size={20} color="gray" />
                         <Text fontSize={12} color="gray">Meus Pedidos</Text>
-                    </View>*/}
+                    </View>
                     <View onPress={async () => {
                         setLoading(true);
                         await saveCartArray(cart, cartToExclude);
@@ -1265,7 +1265,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     await saveCartArray(cart, cartToExclude);
                     navigation.replace('Cart');
                 }}
-            /> 
+            />
         </Stack>
     );
 

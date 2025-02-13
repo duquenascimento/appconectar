@@ -6,20 +6,24 @@ export const ordersScreenStyles = StyleSheet.create({
         padding: Platform.OS === 'web' ? 24 : 16,
         backgroundColor: '#fff',
     },
+
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: '#F0F2F6',
         borderRadius: 5,
-        paddingHorizontal: 20,
+        paddingHorizontal: 10, // Reduzido para dar mais espaço ao campo de busca
         marginBottom: 20,
-        marginTop: 20
+        marginTop: 20,
+        width: '100%', // Garante que o contêiner ocupe toda a largura
     },
     searchInput: {
         flex: 1,
         height: 35,
         fontSize: 14,
-        color: '#000'
+        color: '#000',
+        marginLeft: 8, // Espaçamento entre o ícone e o texto
+        minWidth: 200, // Largura mínima para garantir que o campo seja visível
     },
     searchIcon: {
         marginLeft: 8,
@@ -42,16 +46,7 @@ export const ordersScreenStyles = StyleSheet.create({
         },
         default: {}, // Estilo vazio para outras plataformas
     }),
-    itemContainer: {
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: Platform.select({ web: 16, default: 8 }), // Menos padding no mobile
-        flexDirection: 'row',
-        minHeight: Platform.select({ web: 80, default: 60 }), // Altura menor no mobile
-        backgroundColor: 'white',
-        borderRadius: 12,
-    },
+
     leftContainer: {
         flexDirection: 'column',
         alignItems: 'flex-start',
@@ -84,7 +79,8 @@ export const ordersScreenStyles = StyleSheet.create({
     supplierName: {
         fontSize: Platform.select({ web: 14, default: 12 }),
         color: '#666',
-        maxWidth: 100, // Largura máxima para o nome do fornecedor
+        maxWidth: 100, 
+        // Largura máxima para o nome do fornecedor
         overflow: 'hidden', // Esconde o texto que ultrapassar
         //whiteSpace: 'nowrap', // Impede a quebra de linha
         //textOverflow: 'ellipsis', // Adiciona "..." ao final
@@ -147,7 +143,55 @@ export const ordersScreenStyles = StyleSheet.create({
         fontSize: 14,
         color: '#000',
         paddingHorizontal: 20
-    }
+    },
+    actionsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 8,
+    },
+
+
+    scrollView: {
+        flex: 1,
+    },
+    itemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center', // Alinha todos os elementos verticalmente
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+    },
+    checkboxContainer: {
+        width: 24,
+        height: 24,
+        borderWidth: 1,
+        borderColor: '#04BF7B',
+        borderRadius: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 16, // Espaçamento entre o checkbox e os dados principais
+    },
+    checkboxText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#04BF7B',
+    },
+    leftColumn: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+    rightColumn: {
+        flex: 1,
+        flexDirection: 'column',
+        alignItems: 'flex-end',
+    },
+    arrowIcon: {
+        marginLeft: 16, // Espaçamento entre o conteúdo e o ícone de seta
+    },
+ 
+   
+    
 });
 
 

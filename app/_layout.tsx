@@ -40,8 +40,8 @@ export default function App() {
           <Navigation.Screen name="FinalConfirm" component={FinalConfirm} />
           <Navigation.Screen name="Register" component={Register} />
           <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
-          <Navigation.Screen name="orders" component={OrdersScreen} />
-          <Navigation.Screen name="ordersDetails" component={OrderDetailsScreen} />
+          <Navigation.Screen name="Orders" component={OrdersScreen} />
+          <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
         </Navigation.Navigator>
       </TamaguiProvider>
     </ NavigationContainer>

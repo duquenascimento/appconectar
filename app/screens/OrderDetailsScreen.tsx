@@ -9,10 +9,14 @@ import Icons from "@expo/vector-icons/Ionicons";
 import LabelAndBoxContent from "../../src/components/box/LabelAndBoxContent";
 import { openURL } from "expo-linking";
 import CustomAlert from "../../src/components/modais/CustomAlert";
+import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
 
 export function OrderDetailsScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();
   const navigation = useNavigation();
+  /*type OrderDetailsScreenProps = {
+      navigation: NativeStackNavigationProp<RootStackParamList, 'OrderDetails'>;
+  }*/
 
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -66,7 +70,7 @@ export function OrderDetailsScreen() {
   }
 
   const supplier = order.calcOrderAgain?.data?.find(
-    (item) => item.supplier.externalId === order.supplierId
+    (item: any) => item.supplier.externalId === order.supplierId
   )?.supplier;
 
   const supplierName = supplier ? supplier.name : "Fornecedor não encontrado";
@@ -117,9 +121,9 @@ export function OrderDetailsScreen() {
         borderBottomColor="lightgray"
       >
         <Icons
-          onPress={() => {
-            navigation.goBack();
-          }}
+          onPress={() => 
+            navigation.replace('Orders')
+          }
           size={25}
           name="chevron-back"
         ></Icons>
