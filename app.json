@@ -3,7 +3,7 @@
     "name": "Conéctar",
     "slug": "conectarapp",
     "version": "2.0.1",
-    "scheme": "Conéctar",
+    "scheme": "Conectar",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
@@ -15,24 +15,33 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "platforms": [
+      "android",
+      "ios",
+      "web"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "io.bubbleapps.app-conectar",
       "userInterfaceStyle": "light",
       "infoPlist": {
-        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications.",
         "NSUserTrackingUsageDescription": "This app tracks your activity to improve your experience and provide personalized notifications."
       }
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
-      "versionCode": 3,
       "userInterfaceStyle": "light",
       "permissions": [
         "ACCESS_NOTIFICATION_POLICY",
         "VIBRATE",
-        "RECEIVE_BOOT_COMPLETED"
+        "RECEIVE_BOOT_COMPLETED",
+        "android.permission.INTERNET",
+        "INTERNET"
       ]
     },
     "web": {
@@ -40,9 +49,18 @@
       "bundler": "metro"
     },
     "extra": {
+      "apiUrl": "http://192.168.1.13:8080",
       "eas": {
         "projectId": "2152830c-0079-47fc-a3b3-b1d510c77aa7"
       }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store"
+    ],
+    "packagerOpts": {
+      "dev": true
     }
   }
 }

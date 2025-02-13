@@ -4334,7 +4334,7 @@ function __importStar(mod) {
   if (mod && mod.__esModule) return mod;
   var result = {};
   if (mod != null) {
-    for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
   }
   __setModuleDefault(result, mod);
   return result;
@@ -4420,7 +4420,7 @@ function __rewriteRelativeImportExtension(path, preserveJsx) {
   }
   return path;
 }
-var extendStatics, __assign, __createBinding, __setModuleDefault, _SuppressedError, tslib_es6_default;
+var extendStatics, __assign, __createBinding, __setModuleDefault, ownKeys, _SuppressedError, tslib_es6_default;
 var init_tslib_es6 = __esm({
   "node_modules/tslib/tslib.es6.mjs"() {
     extendStatics = /* @__PURE__ */ __name(function(d, b) {
@@ -4481,6 +4481,14 @@ var init_tslib_es6 = __esm({
     } : function(o, v) {
       o["default"] = v;
     };
+    ownKeys = /* @__PURE__ */ __name(function(o) {
+      ownKeys = Object.getOwnPropertyNames || function(o2) {
+        var ar = [];
+        for (var k in o2) if (Object.prototype.hasOwnProperty.call(o2, k)) ar[ar.length] = k;
+        return ar;
+      };
+      return ownKeys(o);
+    }, "ownKeys");
     __name(__importStar, "__importStar");
     __name(__importDefault, "__importDefault");
     __name(__classPrivateFieldGet, "__classPrivateFieldGet");
@@ -6031,7 +6039,7 @@ var require_defineProperty = __commonJS({
 var require_objectSpread2 = __commonJS({
   "node_modules/@babel/runtime/helpers/objectSpread2.js"(exports2, module2) {
     var defineProperty = require_defineProperty();
-    function ownKeys(e, r) {
+    function ownKeys2(e, r) {
       var t = Object.keys(e);
       if (Object.getOwnPropertySymbols) {
         var o = Object.getOwnPropertySymbols(e);
@@ -6041,13 +6049,13 @@ var require_objectSpread2 = __commonJS({
       }
       return t;
     }
-    __name(ownKeys, "ownKeys");
+    __name(ownKeys2, "ownKeys");
     function _objectSpread2(e) {
       for (var r = 1; r < arguments.length; r++) {
         var t = null != arguments[r] ? arguments[r] : {};
-        r % 2 ? ownKeys(Object(t), true).forEach(function(r2) {
+        r % 2 ? ownKeys2(Object(t), true).forEach(function(r2) {
           defineProperty(e, r2, t[r2]);
-        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function(r2) {
+        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys2(Object(t)).forEach(function(r2) {
           Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
         });
       }
@@ -6065,7 +6073,7 @@ var require_objectWithoutPropertiesLoose = __commonJS({
       if (null == r) return {};
       var t = {};
       for (var n in r) if ({}.hasOwnProperty.call(r, n)) {
-        if (e.includes(n)) continue;
+        if (-1 !== e.indexOf(n)) continue;
         t[n] = r[n];
       }
       return t;
@@ -32456,7 +32464,7 @@ __name(isTopLayer, "isTopLayer");
 function isContainingBlock(elementOrCss) {
   const webkit = isWebKit();
   const css = isElement(elementOrCss) ? getComputedStyle2(elementOrCss) : elementOrCss;
-  return css.transform !== "none" || css.perspective !== "none" || (css.containerType ? css.containerType !== "normal" : false) || !webkit && (css.backdropFilter ? css.backdropFilter !== "none" : false) || !webkit && (css.filter ? css.filter !== "none" : false) || ["transform", "perspective", "filter"].some((value) => (css.willChange || "").includes(value)) || ["paint", "layout", "strict", "content"].some((value) => (css.contain || "").includes(value));
+  return ["transform", "translate", "scale", "rotate", "perspective"].some((value) => css[value] ? css[value] !== "none" : false) || (css.containerType ? css.containerType !== "normal" : false) || !webkit && (css.backdropFilter ? css.backdropFilter !== "none" : false) || !webkit && (css.filter ? css.filter !== "none" : false) || ["transform", "translate", "scale", "rotate", "perspective", "filter"].some((value) => (css.willChange || "").includes(value)) || ["paint", "layout", "strict", "content"].some((value) => (css.contain || "").includes(value));
 }
 __name(isContainingBlock, "isContainingBlock");
 function getContainingBlock(element) {
@@ -32670,6 +32678,30 @@ function getBoundingClientRect(element, includeScale, isFixedStrategy, offsetPar
   });
 }
 __name(getBoundingClientRect, "getBoundingClientRect");
+function getWindowScrollBarX(element, rect) {
+  const leftScroll = getNodeScroll(element).scrollLeft;
+  if (!rect) {
+    return getBoundingClientRect(getDocumentElement(element)).left + leftScroll;
+  }
+  return rect.left + leftScroll;
+}
+__name(getWindowScrollBarX, "getWindowScrollBarX");
+function getHTMLOffset(documentElement, scroll, ignoreScrollbarX) {
+  if (ignoreScrollbarX === void 0) {
+    ignoreScrollbarX = false;
+  }
+  const htmlRect = documentElement.getBoundingClientRect();
+  const x = htmlRect.left + scroll.scrollLeft - (ignoreScrollbarX ? 0 : (
+    // RTL <body> scrollbar.
+    getWindowScrollBarX(documentElement, htmlRect)
+  ));
+  const y = htmlRect.top + scroll.scrollTop;
+  return {
+    x,
+    y
+  };
+}
+__name(getHTMLOffset, "getHTMLOffset");
 function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
   let {
     elements,
@@ -32701,11 +32733,12 @@ function convertOffsetParentRelativeRectToViewportRelativeRect(_ref) {
       offsets.y = offsetRect.y + offsetParent.clientTop;
     }
   }
+  const htmlOffset = documentElement && !isOffsetParentAnElement && !isFixed ? getHTMLOffset(documentElement, scroll, true) : createCoords(0);
   return {
     width: rect.width * scale.x,
     height: rect.height * scale.y,
-    x: rect.x * scale.x - scroll.scrollLeft * scale.x + offsets.x,
-    y: rect.y * scale.y - scroll.scrollTop * scale.y + offsets.y
+    x: rect.x * scale.x - scroll.scrollLeft * scale.x + offsets.x + htmlOffset.x,
+    y: rect.y * scale.y - scroll.scrollTop * scale.y + offsets.y + htmlOffset.y
   };
 }
 __name(convertOffsetParentRelativeRectToViewportRelativeRect, "convertOffsetParentRelativeRectToViewportRelativeRect");
@@ -32713,14 +32746,6 @@ function getClientRects(element) {
   return Array.from(element.getClientRects());
 }
 __name(getClientRects, "getClientRects");
-function getWindowScrollBarX(element, rect) {
-  const leftScroll = getNodeScroll(element).scrollLeft;
-  if (!rect) {
-    return getBoundingClientRect(getDocumentElement(element)).left + leftScroll;
-  }
-  return rect.left + leftScroll;
-}
-__name(getWindowScrollBarX, "getWindowScrollBarX");
 function getDocumentRect(element) {
   const html = getDocumentElement(element);
   const scroll = getNodeScroll(element);
@@ -32793,9 +32818,10 @@ function getClientRectFromClippingAncestor(element, clippingAncestor, strategy) 
   } else {
     const visualOffsets = getVisualOffsets(element);
     rect = {
-      ...clippingAncestor,
       x: clippingAncestor.x - visualOffsets.x,
-      y: clippingAncestor.y - visualOffsets.y
+      y: clippingAncestor.y - visualOffsets.y,
+      width: clippingAncestor.width,
+      height: clippingAncestor.height
     };
   }
   return rectToClientRect(rect);
@@ -32895,16 +32921,9 @@ function getRectRelativeToOffsetParent(element, offsetParent, strategy) {
       offsets.x = getWindowScrollBarX(documentElement);
     }
   }
-  let htmlX = 0;
-  let htmlY = 0;
-  if (documentElement && !isOffsetParentAnElement && !isFixed) {
-    const htmlRect = documentElement.getBoundingClientRect();
-    htmlY = htmlRect.top + scroll.scrollTop;
-    htmlX = htmlRect.left + scroll.scrollLeft - // RTL <body> scrollbar.
-    getWindowScrollBarX(documentElement, htmlRect);
-  }
-  const x = rect.left + scroll.scrollLeft - offsets.x - htmlX;
-  const y = rect.top + scroll.scrollTop - offsets.y - htmlY;
+  const htmlOffset = documentElement && !isOffsetParentAnElement && !isFixed ? getHTMLOffset(documentElement, scroll) : createCoords(0);
+  const x = rect.left + scroll.scrollLeft - offsets.x - htmlOffset.x;
+  const y = rect.top + scroll.scrollTop - offsets.y - htmlOffset.y;
   return {
     x,
     y,
@@ -32986,6 +33005,10 @@ var platform = {
   isElement,
   isRTL
 };
+function rectsAreEqual(a, b) {
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+}
+__name(rectsAreEqual, "rectsAreEqual");
 function observeMove(element, onMove) {
   let io = null;
   let timeoutId2;
@@ -33005,12 +33028,13 @@ function observeMove(element, onMove) {
       threshold = 1;
     }
     cleanup2();
+    const elementRectForRootMargin = element.getBoundingClientRect();
     const {
       left,
       top,
       width,
       height
-    } = element.getBoundingClientRect();
+    } = elementRectForRootMargin;
     if (!skip) {
       onMove();
     }
@@ -33040,6 +33064,9 @@ function observeMove(element, onMove) {
         } else {
           refresh(false, ratio);
         }
+      }
+      if (ratio === 1 && !rectsAreEqual(elementRectForRootMargin, element.getBoundingClientRect())) {
+        refresh();
       }
       isFirstUpdate = false;
     }
@@ -33107,7 +33134,7 @@ function autoUpdate(reference, floating, update, options) {
   }
   function frameLoop() {
     const nextRefRect = getBoundingClientRect(reference);
-    if (prevRefRect && (nextRefRect.x !== prevRefRect.x || nextRefRect.y !== prevRefRect.y || nextRefRect.width !== prevRefRect.width || nextRefRect.height !== prevRefRect.height)) {
+    if (prevRefRect && !rectsAreEqual(prevRefRect, nextRefRect)) {
       update();
     }
     prevRefRect = nextRefRect;
@@ -33932,6 +33959,7 @@ function getGridNavigatedIndex(elementsRef, _ref) {
     event,
     orientation,
     loop,
+    rtl,
     cols,
     disabledIndices,
     minIndex,
@@ -33990,7 +34018,7 @@ function getGridNavigatedIndex(elementsRef, _ref) {
   }
   if (orientation === "both") {
     const prevRow = floor(prevIndex / cols);
-    if (event.key === ARROW_RIGHT) {
+    if (event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT)) {
       stop && stopEvent(event);
       if (prevIndex % cols !== cols - 1) {
         nextIndex = findNonDisabledIndex(elementsRef, {
@@ -34013,7 +34041,7 @@ function getGridNavigatedIndex(elementsRef, _ref) {
         nextIndex = prevIndex;
       }
     }
-    if (event.key === ARROW_LEFT) {
+    if (event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT)) {
       stop && stopEvent(event);
       if (prevIndex % cols !== 0) {
         nextIndex = findNonDisabledIndex(elementsRef, {
@@ -34042,7 +34070,7 @@ function getGridNavigatedIndex(elementsRef, _ref) {
     const lastRow = floor(maxIndex / cols) === prevRow;
     if (isIndexOutOfBounds(elementsRef, nextIndex)) {
       if (loop && lastRow) {
-        nextIndex = event.key === ARROW_LEFT ? maxIndex : findNonDisabledIndex(elementsRef, {
+        nextIndex = event.key === (rtl ? ARROW_RIGHT : ARROW_LEFT) ? maxIndex : findNonDisabledIndex(elementsRef, {
           startingIndex: prevIndex - prevIndex % cols - 1,
           disabledIndices
         });
@@ -34125,27 +34153,6 @@ function isDisabled(list, index3, disabledIndices) {
   return element == null || element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true";
 }
 __name(isDisabled, "isDisabled");
-var rafId = 0;
-function enqueueFocus(el, options) {
-  if (options === void 0) {
-    options = {};
-  }
-  const {
-    preventScroll = false,
-    cancelPrevious = true,
-    sync = false
-  } = options;
-  cancelPrevious && cancelAnimationFrame(rafId);
-  const exec = /* @__PURE__ */ __name(() => el == null ? void 0 : el.focus({
-    preventScroll
-  }), "exec");
-  if (sync) {
-    exec();
-  } else {
-    rafId = requestAnimationFrame(exec);
-  }
-}
-__name(enqueueFocus, "enqueueFocus");
 var index2 = typeof document !== "undefined" ? import_react31.useLayoutEffect : import_react31.useEffect;
 var horizontalKeys = [ARROW_LEFT, ARROW_RIGHT];
 var verticalKeys = [ARROW_UP, ARROW_DOWN];
@@ -34365,12 +34372,11 @@ function useHover(context, props) {
       performedPointerEventsMutationRef.current = false;
     }
   });
+  const isClickLikeOpenEvent = useEffectEvent(() => {
+    return dataRef.current.openEvent ? ["click", "mousedown"].includes(dataRef.current.openEvent.type) : false;
+  });
   React47.useEffect(() => {
     if (!enabled) return;
-    function isClickLikeOpenEvent() {
-      return dataRef.current.openEvent ? ["click", "mousedown"].includes(dataRef.current.openEvent.type) : false;
-    }
-    __name(isClickLikeOpenEvent, "isClickLikeOpenEvent");
     function onMouseEnter(event) {
       clearTimeout(timeoutRef.current);
       blockMouseMoveRef.current = false;
@@ -34384,7 +34390,7 @@ function useHover(context, props) {
             onOpenChange(true, event, "hover");
           }
         }, openDelay);
-      } else {
+      } else if (!open) {
         onOpenChange(true, event, "hover");
       }
     }
@@ -34407,7 +34413,9 @@ function useHover(context, props) {
           onClose() {
             clearPointerEvents();
             cleanupMouseMoveHandler();
-            closeWithDelay(event, true, "safe-polygon");
+            if (!isClickLikeOpenEvent()) {
+              closeWithDelay(event, true, "safe-polygon");
+            }
           }
         });
         const handler = handlerRef.current;
@@ -34434,7 +34442,9 @@ function useHover(context, props) {
         onClose() {
           clearPointerEvents();
           cleanupMouseMoveHandler();
-          closeWithDelay(event);
+          if (!isClickLikeOpenEvent()) {
+            closeWithDelay(event);
+          }
         }
       })(event);
     }
@@ -34458,7 +34468,7 @@ function useHover(context, props) {
         ref.removeEventListener("mouseleave", onMouseLeave);
       };
     }
-  }, [elements, enabled, context, mouseOnly, restMs, move, closeWithDelay, cleanupMouseMoveHandler, clearPointerEvents, onOpenChange, open, openRef, tree, delayRef, handleCloseRef, dataRef]);
+  }, [elements, enabled, context, mouseOnly, restMs, move, closeWithDelay, cleanupMouseMoveHandler, clearPointerEvents, onOpenChange, open, openRef, tree, delayRef, handleCloseRef, dataRef, isClickLikeOpenEvent]);
   index2(() => {
     var _handleCloseRef$curre;
     if (!enabled) return;
@@ -34543,9 +34553,11 @@ function useHover(context, props) {
       clearTimeout(timeoutRef.current);
     },
     onMouseLeave(event) {
-      closeWithDelay(event.nativeEvent, false);
+      if (!isClickLikeOpenEvent()) {
+        closeWithDelay(event.nativeEvent, false);
+      }
     }
-  }), [closeWithDelay]);
+  }), [closeWithDelay, isClickLikeOpenEvent]);
   return React47.useMemo(() => enabled ? {
     reference,
     floating
@@ -34677,6 +34689,27 @@ function useDelayGroup(context, options) {
   return groupContext;
 }
 __name(useDelayGroup, "useDelayGroup");
+var rafId = 0;
+function enqueueFocus(el, options) {
+  if (options === void 0) {
+    options = {};
+  }
+  const {
+    preventScroll = false,
+    cancelPrevious = true,
+    sync = false
+  } = options;
+  cancelPrevious && cancelAnimationFrame(rafId);
+  const exec = /* @__PURE__ */ __name(() => el == null ? void 0 : el.focus({
+    preventScroll
+  }), "exec");
+  if (sync) {
+    exec();
+  } else {
+    rafId = requestAnimationFrame(exec);
+  }
+}
+__name(enqueueFocus, "enqueueFocus");
 function getAncestors(nodes, id) {
   var _nodes$find;
   let allAncestors = [];
@@ -34965,6 +34998,7 @@ function useFloatingPortalNode(props) {
     setPortalNode(subRoot);
   }, [id, uniqueId]);
   index2(() => {
+    if (root === null) return;
     if (!uniqueId) return;
     if (portalNodeRef.current) return;
     let container = root || (portalContext == null ? void 0 : portalContext.portalNode);
@@ -34991,7 +35025,7 @@ function FloatingPortal(props) {
   const {
     children,
     id,
-    root = null,
+    root,
     preserveTabOrder = true
   } = props;
   const portalNode = useFloatingPortalNode({
@@ -35177,9 +35211,6 @@ function FloatingFocusManager(props) {
     }).filter(Boolean).flat();
   });
   React47.useEffect(() => {
-    preventReturnFocusRef.current = false;
-  }, [disabled]);
-  React47.useEffect(() => {
     if (disabled) return;
     if (!modal) return;
     function onKeyDown(event) {
@@ -35346,6 +35377,13 @@ function FloatingFocusManager(props) {
     if (isInsidePortal && domReference) {
       domReference.insertAdjacentElement("afterend", fallbackEl);
     }
+    function getReturnElement() {
+      if (typeof returnFocusRef.current === "boolean") {
+        return getPreviouslyFocusedElement() || fallbackEl;
+      }
+      return returnFocusRef.current.current || fallbackEl;
+    }
+    __name(getReturnElement, "getReturnElement");
     return () => {
       events.off("openchange", onOpenChange2);
       const activeEl = activeElement(doc);
@@ -35357,7 +35395,7 @@ function FloatingFocusManager(props) {
       if (shouldFocusReference && refs.domReference.current) {
         addPreviouslyFocusedElement(refs.domReference.current);
       }
-      const returnElement = getPreviouslyFocusedElement() || fallbackEl;
+      const returnElement = getReturnElement();
       queueMicrotask(() => {
         if (
           // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -35374,6 +35412,11 @@ function FloatingFocusManager(props) {
       });
     };
   }, [disabled, floating, floatingFocusElement, returnFocusRef, dataRef, refs, events, tree, nodeId, isInsidePortal, domReference]);
+  React47.useEffect(() => {
+    queueMicrotask(() => {
+      preventReturnFocusRef.current = false;
+    });
+  }, [disabled]);
   index2(() => {
     if (disabled) return;
     if (!portalContext) return;
@@ -35571,7 +35614,8 @@ function useClick(context, props) {
     event: eventOption = "click",
     toggle = true,
     ignoreMouse = false,
-    keyboardHandlers = true
+    keyboardHandlers = true,
+    stickIfOpen = true
   } = props;
   const pointerTypeRef = React47.useRef();
   const didKeyDownRef = React47.useRef(false);
@@ -35584,7 +35628,7 @@ function useClick(context, props) {
       if (event.button !== 0) return;
       if (eventOption === "click") return;
       if (isMouseLikePointerType(pointerType, true) && ignoreMouse) return;
-      if (open && toggle && (dataRef.current.openEvent ? dataRef.current.openEvent.type === "mousedown" : true)) {
+      if (open && toggle && (dataRef.current.openEvent && stickIfOpen ? dataRef.current.openEvent.type === "mousedown" : true)) {
         onOpenChange(false, event.nativeEvent, "click");
       } else {
         event.preventDefault();
@@ -35598,7 +35642,7 @@ function useClick(context, props) {
         return;
       }
       if (isMouseLikePointerType(pointerType, true) && ignoreMouse) return;
-      if (open && toggle && (dataRef.current.openEvent ? dataRef.current.openEvent.type === "click" : true)) {
+      if (open && toggle && (dataRef.current.openEvent && stickIfOpen ? dataRef.current.openEvent.type === "click" : true)) {
         onOpenChange(false, event.nativeEvent, "click");
       } else {
         onOpenChange(true, event.nativeEvent, "click");
@@ -35634,7 +35678,7 @@ function useClick(context, props) {
         }
       }
     }
-  }), [dataRef, domReference, eventOption, ignoreMouse, keyboardHandlers, onOpenChange, open, toggle]);
+  }), [dataRef, domReference, eventOption, ignoreMouse, keyboardHandlers, onOpenChange, open, stickIfOpen, toggle]);
   return React47.useMemo(() => enabled ? {
     reference
   } : {}, [enabled, reference]);
@@ -35970,7 +36014,7 @@ function useFloating3(options) {
   const computedElements = rootContext.elements;
   const [_domReference, setDomReference] = React47.useState(null);
   const [positionReference, _setPositionReference] = React47.useState(null);
-  const optionDomReference = computedElements == null ? void 0 : computedElements.reference;
+  const optionDomReference = computedElements == null ? void 0 : computedElements.domReference;
   const domReference = optionDomReference || _domReference;
   const domReferenceRef = React47.useRef(null);
   const tree = useFloatingTree();
@@ -36314,6 +36358,7 @@ function useListNavigation(context, props) {
   const parentId = useFloatingParentNodeId();
   const tree = useFloatingTree();
   const onNavigate = useEffectEvent(unstable_onNavigate);
+  const typeableComboboxReference = isTypeableCombobox(elements.domReference);
   const focusItemOnOpenRef = React47.useRef(focusItemOnOpen);
   const indexRef = React47.useRef(selectedIndex != null ? selectedIndex : -1);
   const keyRef = React47.useRef(null);
@@ -36542,23 +36587,29 @@ function useListNavigation(context, props) {
     if (nested && isCrossOrientationCloseKey(event.key, orientation, rtl)) {
       stopEvent(event);
       onOpenChange(false, event.nativeEvent, "list-navigation");
-      if (isHTMLElement(elements.domReference) && !virtual) {
-        elements.domReference.focus();
+      if (isHTMLElement(elements.domReference)) {
+        if (virtual) {
+          tree == null || tree.events.emit("virtualfocus", elements.domReference);
+        } else {
+          elements.domReference.focus();
+        }
       }
       return;
     }
     const currentIndex = indexRef.current;
     const minIndex = getMinIndex(listRef, disabledIndices);
     const maxIndex = getMaxIndex(listRef, disabledIndices);
-    if (event.key === "Home") {
-      stopEvent(event);
-      indexRef.current = minIndex;
-      onNavigate(indexRef.current);
-    }
-    if (event.key === "End") {
-      stopEvent(event);
-      indexRef.current = maxIndex;
-      onNavigate(indexRef.current);
+    if (!typeableComboboxReference) {
+      if (event.key === "Home") {
+        stopEvent(event);
+        indexRef.current = minIndex;
+        onNavigate(indexRef.current);
+      }
+      if (event.key === "End") {
+        stopEvent(event);
+        indexRef.current = maxIndex;
+        onNavigate(indexRef.current);
+      }
     }
     if (cols > 1) {
       const sizes = itemSizes || Array.from({
@@ -36576,6 +36627,7 @@ function useListNavigation(context, props) {
         event,
         orientation,
         loop,
+        rtl,
         cols,
         // treat undefined (empty grid spaces) as disabled indices so we
         // don't end up in them
@@ -36590,7 +36642,7 @@ function useListNavigation(context, props) {
           // use a corner matching the edge closest to the direction
           // we're moving in so we don't end up in the same item. Prefer
           // top/left over bottom/right.
-          event.key === ARROW_DOWN ? "bl" : event.key === ARROW_RIGHT ? "tr" : "tl"
+          event.key === ARROW_DOWN ? "bl" : event.key === (rtl ? ARROW_LEFT : ARROW_RIGHT) ? "tr" : "tl"
         ),
         stopEvent: true
       })];
@@ -37042,7 +37094,7 @@ var inner = /* @__PURE__ */ __name((props) => ({
     scrollEl.style.maxHeight = maxHeight + "px";
     scrollEl.scrollTop = diffY;
     if (onFallbackChange) {
-      const shouldFallback = isScrollable && scrollEl.offsetHeight < item.offsetHeight * minItemsVisible - 1 || refOverflow.top >= -referenceOverflowThreshold || refOverflow.bottom >= -referenceOverflowThreshold;
+      const shouldFallback = scrollEl.offsetHeight < item.offsetHeight * min(minItemsVisible, listRef.current.length) - 1 || refOverflow.top >= -referenceOverflowThreshold || refOverflow.bottom >= -referenceOverflowThreshold;
       ReactDOM3.flushSync(() => onFallbackChange(shouldFallback));
     }
     if (overflowRef) {
