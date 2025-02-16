@@ -1137,16 +1137,6 @@ export function Products({ navigation }: HomeScreenProps) {
 
 
             <View height={40} flex={1} paddingTop={8}>
-                {/* <View alignItems="center" paddingLeft={20} flexDirection="row">
-                    <Circle height={46} width={46} padding={12} backgroundColor="#F0F2F6">
-                        <Image source={require('../../assets/images/icon-conectar-positivo.png')} height={32} width={32} />
-                    </Circle>
-                    <YStack paddingLeft={10} paddingTop={10}>
-                        <Text color="#666">Entregar para</Text>
-                        <CustomSelect items={items} />
-                    </YStack>
-                </View> */}
-
                 <XStack
                     backgroundColor="#F0F2F6"
                     marginHorizontal={20}
@@ -1224,7 +1214,7 @@ export function Products({ navigation }: HomeScreenProps) {
                             </ScrollView>
                     }
                 </View>
-                <View justifyContent="center" alignItems="center" flexDirection="row" gap={100} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
+                <View justifyContent="center" alignItems="center" flexDirection="row" gap={70} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
                     <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
                         <Icons name="home" size={20} color="#04BF7B" />
                         <Text fontSize={12} color="#04BF7B">Home</Text>

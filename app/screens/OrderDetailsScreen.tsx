@@ -36,7 +36,6 @@ export function OrderDetailsScreen() {
 
       try {
         const orderData: OrderData = await getOrder(orderId);
-        console.log("Order Data:", orderData);
         setOrder(orderData);
       } catch (error) {
         console.error("Erro ao carregar pedidos:", error);
@@ -77,6 +76,12 @@ export function OrderDetailsScreen() {
 
   return (
     <View flex={1} backgroundColor="#F0F2F6">
+       <Text
+           style={{
+            marginTop: 35,
+            marginHorizontal: 15
+          }}
+          >Detalhamento</Text>
       <CustomAlert
         message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
         title="Ops!"
@@ -151,11 +156,20 @@ export function OrderDetailsScreen() {
             }
           }}
         />
+         <Text fontSize={10} color="gray">
+        </Text>
         <LabelAndBoxContent
           iconName="download"
           icon={true}
           title="Nota Fiscal"
           subtitle={`Por ${supplierName}`}
+          iconAction={() => {
+            if (order.orderInvoices) {
+              openURL (order.orderInvoices?.filePath[0]);
+            } else {
+              console.warn("Documento não disponível");
+            }
+          }}
         />
         <Button
           borderColor="red"
