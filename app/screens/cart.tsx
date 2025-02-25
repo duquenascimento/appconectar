@@ -12,7 +12,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native';
-import { deleteStorage, getStorage, getToken, setStorage } from '../../src/utils/utils';
+import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
 
 type RootStackParamList = {
@@ -54,7 +54,7 @@ type TCart = {
     obs: string
 }
 
-type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void };
+type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void};
 
 const ProductBox = React.memo((produto: ProductBoxProps) => {
     const [open, setOpen] = useState(false);
@@ -64,7 +64,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
     const obsRef = useRef('');
     const quantRef = useRef(produto.firstUnit ? produto.firstUnit : 1);
-    const handleObsChange = (text: string) => { setObs(text); setObs(text) };
+    const handleObsChange = (text: string) => {setObs(text); setObs(text)};
 
     const isCart = useMemo(() => {
         return produto.cart.has(produto.id);
@@ -234,7 +234,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox'
 
-const Cart = ({ navigation }: HomeScreenProps) => {
+export function Cart({ navigation }: HomeScreenProps) {
     const [loading, setLoading] = useState<boolean>(true);
     const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
     const [cart, setCart] = useState<Map<string, TCart>>(new Map());
@@ -652,4 +652,3 @@ const Cart = ({ navigation }: HomeScreenProps) => {
     )
 }
 
-export default Cart

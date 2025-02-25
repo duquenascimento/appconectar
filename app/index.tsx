@@ -25,7 +25,7 @@ import {
 } from "react-native";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { deleteToken, getToken, setToken } from "../src/utils/utils";
+import { deleteToken, getToken, setToken } from "./utils/utils";
 import { openURL } from "expo-linking";
 
 type RootStackParamList = {
@@ -432,7 +432,7 @@ export function Sign({ navigation }: HomeScreenProps) {
 
 /* Mobile: */
 
-export default function SignInMobile(props: {
+export function SignInMobile(props: {
   page: string;
   onButtonPress: (page: string) => void;
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
@@ -1598,48 +1598,49 @@ export function DialogInstance(props: {
           </Dialog.Description>
 
           {props.erros.map((erro) => {
-            return <Text key={erro}>- {erro}</Text>;
+            return <Text key={erro}>{erro}</Text>;
           })}
 
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="#04BF7B"
-                color="$white1"
-                onPress={() => props.setRegisterInvalid(false)}
-              >
-                Ok
-              </Button>
-              {
-                props.erros.find(erro => erro === 'Este cnpj já existe na plataforma, utilize outro ou logue ao invés disso')
-                &&
-                <Button
-                width="$20"
-                theme="active"
-                backgroundColor="#FFA500"
-                color="$white1"
-                onPress={() => {
-                  let msg = `Olá! Gostaria de acessar a conta com o CNPJ ${props.cnpj ?? ''}, pode me ajudar?`
-                  msg = encodeURIComponent(msg)
-                  .replace('!', '%21')
-                  .replace('\'', '%27')
-                  .replace('(', '%28')
-                  .replace(')', '%29')
-                  .replace('*', '%2A')
+<XStack alignSelf="center" gap="$4">
+  <Dialog.Close displayWhenAdapted asChild>
+    {/* Envolva os botões em um container único */}
+    <XStack gap="$4">
+      <Button
+        width="$20"
+        theme="active"
+        aria-label="Close"
+        backgroundColor="#04BF7B"
+        color="$white1"
+        onPress={() => props.setRegisterInvalid(false)}
+      >
+        Ok
+      </Button>
+      {props.erros.find(erro => erro === 'Este cnpj já existe na plataforma, utilize outro ou logue ao invés disso') && (
+        <Button
+          width="$20"
+          theme="active"
+          backgroundColor="#FFA500"
+          color="$white1"
+          onPress={() => {
+            let msg = `Olá! Gostaria de acessar a conta com o CNPJ ${props.cnpj ?? ''}, pode me ajudar?`
+            msg = encodeURIComponent(msg)
+              .replace('!', '%21')
+              .replace('\'', '%27')
+              .replace('(', '%28')
+              .replace(')', '%29')
+              .replace('*', '%2A')
 
-                  const endpoint = `https://wa.me/5521999954372?text=${msg}`
-                  openURL(endpoint)
-                  .catch(err => console.error(`Erro ao redirecionar ao Whatsapp: ${err}`))
-                }}
-              >
-                Suporte
-              </Button>
-              }
-            </Dialog.Close>
-          </XStack>
+            const endpoint = `https://wa.me/5521999954372?text=${msg}`
+            openURL(endpoint)
+              .catch(err => console.error(`Erro ao redirecionar ao Whatsapp: ${err}`))
+          }}
+        >
+          Suporte
+        </Button>
+      )}
+    </XStack>
+  </Dialog.Close>
+</XStack>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
