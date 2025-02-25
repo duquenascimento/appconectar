@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { DialogInstance } from "../index";
 import { TextInputMask } from 'react-native-masked-text';
-import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
+import { deleteStorage, getStorage, getToken, setStorage, deleteToken } from "../utils/utils";
 import DropDownPicker from 'react-native-dropdown-picker';
 import { formatCNPJ } from '../utils/formatCNPJ'
 import { formatCep } from '../utils/formatCep'
@@ -129,6 +129,7 @@ export function Register({ navigation }: HomeScreenProps) {
     const [minHourOpen, setMinHourOpen] = useState(false)
     const [maxHourOpen, setMaxHourOpen] = useState(false)
     const [paymentWayOpen, setPaymentWayOpen] = useState(false)
+    const [daysOpen, setDaysOpen] = useState(false);
 
     useEffect(() => {
         const hours = [];
@@ -176,16 +177,16 @@ export function Register({ navigation }: HomeScreenProps) {
                 if (response.ok && !result.erro) {
                     const endereco: any = dividirLogradouro(result.logradouro)
                     await Promise.all([
-                        setNeigh(result.bairro.toUpperCase()), 
+                        setNeigh(result.bairro.toUpperCase()),
                         setStreet(endereco.logradouro),
-                        setLocalNumber(''), 
+                        setLocalNumber(''),
                         setComplement(''),
-                        setLocalType(endereco.tipoLogradouro), 
+                        setLocalType(endereco.tipoLogradouro),
                         setCity(result.localidade)
                     ]);
-                    setIsCepValid(true); 
+                    setIsCepValid(true);
                 } else {
-                    setIsCepValid(false); 
+                    setIsCepValid(false);
                 }
             } else {
                 setIsCepValid(false);
@@ -193,14 +194,14 @@ export function Register({ navigation }: HomeScreenProps) {
             setZipcode(value); // Atualiza o valor do CEP no estado
         } catch (error) {
             console.error("Erro ao buscar CEP:", error);
-            setIsCepValid(false); 
+            setIsCepValid(false);
         } finally {
             const cepFormatado = formatCep(value);
             setZipcode(cepFormatado);
             setLoading(false);
         }
     };
-    
+
     // Função para aplicar o estilo da borda
     const getCepBorderStyle = () => ({
         borderColor: isCepValid ? '#049A63' : 'red',
@@ -439,7 +440,7 @@ export function Register({ navigation }: HomeScreenProps) {
                         'Content-type': 'application/json'
                     }
                 })
-                const result: CheckCnpj = await response.json()       
+                const result: CheckCnpj = await response.json()
                 if (response.ok) {
                     const endereco: any = dividirLogradouro(result.data.logradouro)
                     const IE = encontrarInscricaoRJ(result.data.inscricoes_estaduais)
@@ -504,9 +505,24 @@ export function Register({ navigation }: HomeScreenProps) {
         setCnpj(formatCNPJ(text));
     }
 
+    const clearToken = async () => {
+        try {
+            await deleteToken(); // Exclui o token do armazenamento local
+            console.log("Token excluído com sucesso.");
+        } catch (error) {
+            console.error("Erro ao excluir o token:", error);
+        }
+    };
+
 
     const handleBackBtn = async () => {
         setLoading(true)
+
+        if (step === 0) {
+            await clearToken();
+            navigation.navigate('Sign');
+        }
+        
         const tempStep = step - 1 < 0 ? 0 : step - 1 > 3 ? 3 : step - 1
         await Promise.all([
             setStep(tempStep),
@@ -581,6 +597,17 @@ export function Register({ navigation }: HomeScreenProps) {
         await setCloseDoor(!closeDoor)
     }
 
+    const daysOptions = [
+        { value: '1', label: '1 dia' },
+        { value: '2', label: '2 dias' },
+        { value: '3', label: '3 dias' },
+        { value: '4', label: '4 dias' },
+        { value: '5', label: '5 dias' },
+        { value: '6', label: '6 dias' },
+        { value: '7', label: '7 dias' },
+    ];
+
+
     if (loading) {
         return (
             <View flex={1} justifyContent='center' alignItems='center'>
@@ -625,6 +652,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                 <Input onChangeText={handleCnpjChange} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                             </View>
+                            
                         </View>
                         :
                         step === 1
@@ -802,7 +830,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                                 <View flex={1}>
                                                     <Text marginTop={15}>Até</Text>
                                                     <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={100}>
-                                                    <DropDownPicker
+                                                        <DropDownPicker
                                                             value={maxHour}
                                                             style={{
                                                                 borderWidth: 1,
@@ -835,8 +863,27 @@ export function Register({ navigation }: HomeScreenProps) {
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Perfil de compra</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
+
+
                                             <Text>Quantos dias na semana você costuma pedir?</Text>
-                                            <TextInputMask type="only-numbers" placeholder="0" onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad" style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }}></TextInputMask>
+                                            <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={101} marginTop={10}>
+                                                <DropDownPicker
+                                                /// onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad"
+                                                    value={weeklyOrderAmount}
+                                                    setValue={setWeeklyOrderAmount}
+                                                    items={daysOptions}
+                                                    open={daysOpen}
+                                                    setOpen={setDaysOpen}
+                                                    placeholder="Escolha uma opção"
+                                                    listMode="SCROLLVIEW"
+                                                    dropDownDirection="TOP"
+                                                    style={{
+                                                        borderWidth: 1,
+                                                        borderColor: 'lightgray',
+                                                        borderRadius: 5,
+                                                    }}
+                                                />
+                                            </View>
                                             <Text mt={15}>Qual o valor médio de um pedido?</Text>
                                             <TextInputMask placeholder="R$ 000" type="only-numbers" onChangeText={(value) => setOrderValue(value)} value={orderValue} style={{ padding: 8, backgroundColor: 'white', borderRadius: 2, borderWidth: 1, borderColor: 'lightgray' }} keyboardType="number-pad"></TextInputMask>
                                         </View>
@@ -844,24 +891,24 @@ export function Register({ navigation }: HomeScreenProps) {
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
                                             <Text>Qual o formato de pagamento preferido?</Text>
                                             <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor='lightgray' zIndex={99}>
-                                            <DropDownPicker
-                                                            value={paymentWay}
-                                                            style={{
-                                                                borderWidth: 1,
-                                                                borderColor: 'lightgray',
-                                                                borderRadius: 5,
-                                                                flex: 1,
-                                                            }}
-                                                            setValue={setpaymentWay}
-                                                            listMode="SCROLLVIEW"
-                                                            dropDownDirection="TOP"
-                                                            items={[{ label: 'Diário: 7 dias após a entrega', value: 'DI07' }, { label: 'Semanal: vencimento na quarta', value: 'UQ10' }]}
-                                                            multiple={false}
-                                                            open={paymentWayOpen}
-                                                            setOpen={setPaymentWayOpen}
-                                                            placeholder=""
-                                                        >
-                                                        </DropDownPicker>
+                                                <DropDownPicker
+                                                    value={paymentWay}
+                                                    style={{
+                                                        borderWidth: 1,
+                                                        borderColor: 'lightgray',
+                                                        borderRadius: 5,
+                                                        flex: 1,
+                                                    }}
+                                                    setValue={setpaymentWay}
+                                                    listMode="SCROLLVIEW"
+                                                    dropDownDirection="TOP"
+                                                    items={[{ label: 'Diário: 7 dias após a entrega', value: 'DI07' }, { label: 'Semanal: vencimento na quarta', value: 'UQ10' }]}
+                                                    multiple={false}
+                                                    open={paymentWayOpen}
+                                                    setOpen={setPaymentWayOpen}
+                                                    placeholder=""
+                                                >
+                                                </DropDownPicker>
                                             </View>
                                             <View mt={15} borderColor='lightgray' borderWidth={0.5} p={5} gap={5} flexDirection="row">
                                                 <Icons size={25} color='gray' name="information-circle"></Icons>
@@ -872,10 +919,10 @@ export function Register({ navigation }: HomeScreenProps) {
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Código do promotor</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
-                                        <Input onChangeText={(text) => {
-                                            setInviteCode(text.toUpperCase())
-                                        }} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} maxLength={5} value={inviteCode}></Input>
+                                            <Input onChangeText={(text) => {
+                                                setInviteCode(text.toUpperCase())
+                                            }} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} maxLength={5} value={inviteCode}></Input>
                                         </View>
                                     </View>
                                     :
@@ -884,7 +931,7 @@ export function Register({ navigation }: HomeScreenProps) {
                 }
             </ScrollView>
             <View paddingHorizontal={20} height={60} justifyContent="center" gap={15} flexDirection="row">
-                <Button f={1} borderColor='lightgray' display={step > 0 ? 'flex' : 'none'} borderWidth={0.5} backgroundColor='white' onPress={() => {
+                <Button f={1} borderColor='lightgray' display={'flex'} borderWidth={0.5} backgroundColor='white' onPress={() => {
                     handleBackBtn()
                 }}><Text>Voltar</Text></Button>
                 <Button disabled={

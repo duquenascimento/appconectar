@@ -432,11 +432,12 @@ export function Cart({ navigation }: HomeScreenProps) {
         }
     };
 
-    useEffect(() => {
+    //esse useEffect faz uma alerta quanto a itens em caixa ou saca
+    /*useEffect(() => {
         if (alertItems.length > 0) {
             checkAlertItems(alertItems);
         }
-    }, [alertItems]);
+    }, [alertItems]);*/
 
     const handleTrashItemState = (cart: TCart) => {
         console.log('aqui handleTrashItemState')
