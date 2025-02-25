@@ -259,7 +259,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         const currentHour = Number(
             `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
         );
-        return (130000 >= currentHour)
+        return (130000 <= currentHour)
     }
 
     const isOpen = () => {
