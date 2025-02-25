@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, type NativeScrollEvent, type NativeSyntheticEvent, Platform, ScrollView } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BlurView } from 'expo-blur';
+import JWT from 'expo-jwt';
 
 type RootStackParamList = {
     Home: undefined;
@@ -37,7 +39,7 @@ const passwordIsValid = (password: string, confirmPassword: string, setPasswordV
     return false
 }
 
-export default function Sign({ navigation }: HomeScreenProps) {
+export function Sign({ navigation }: HomeScreenProps) {
     const [currentPage, setCurrentPage] = useState('SignIn');
     const [visiblePage, setVisiblePage] = useState(true)
     const scrollRef = useRef<ScrollView>(null);
@@ -128,7 +130,7 @@ export function SignInMobile(props: { page: string, onButtonPress: (page: string
     return (
 
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
-            <Image src={require('../../assets/logo-conectar-positivo.png')} width='80%' height='10%' mb='$9'></Image>
+            <Image src={require('../assets/logo-conectar-positivo.png')} width='80%' height='10%' mb='$9'></Image>
 
             <Text alignSelf='flex-start' fontSize='$8'>Bem vindo de volta</Text>
             <Text alignSelf='flex-start' color='$gray10Dark'>Insira suas credenciais abaixo para acessar a sua conta.</Text>
@@ -217,7 +219,7 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
     return (
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
             <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />
-            <Image src={require('../../assets/logo-conectar-positivo.png')} width='80%' height='10%' mb='$9'></Image>
+            <Image src={require('../assets/logo-conectar-positivo.png')} width='80%' height='10%' mb='$9'></Image>
 
             <YStack padding="$3" display={loading ? 'flex' : 'none'} position='absolute' backgroundColor='$white9' opacity={0.8} width={width} height='100%' f={1} alignItems="center" zIndex={9999999999}>
                 <Spinner size="large" top='50%' color="$green10" />
@@ -316,7 +318,7 @@ export function SignInWeb(props: { page: string, onButtonPress: (page: string) =
     return (
 
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
-            <Image src={require('../../assets/logo-conectar-positivo.svg')} width='$18' height='$7' mb='$9'></Image>
+            <Image src={require('../assets/logo-conectar-positivo.svg')} width='$18' height='$7' mb='$9'></Image>
 
             <Stack width='$20'>
                 <Text fontSize='$8'>Bem vindo de volta</Text>
@@ -354,7 +356,7 @@ export function SignUpWeb(props: { page: string, onButtonPress: (page: string) =
     return (
 
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
-            <Image src={require('../../assets/logo-conectar-positivo.svg')} width='$18' height='$7' mb='$9'></Image>
+            <Image src={require('../assets/logo-conectar-positivo.svg')} width='$18' height='$7' mb='$9'></Image>
 
             <Stack width='$20'>
                 <Text fontSize='$8'>Criar conta</Text>

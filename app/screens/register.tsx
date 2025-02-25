@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
 import { DialogInstance } from "../index";
 import { TextInputMask } from 'react-native-masked-text';
-import { deleteStorage, getStorage, getToken, setStorage } from "../../src/utils/utils";
+import { deleteStorage, getStorage, getToken, setStorage } from "../utils/utils";
 import DropDownPicker from 'react-native-dropdown-picker';
-import { formatCNPJ } from '../../src/utils/formatCNPJ'
-import { formatCep } from '../../src/utils/formatCep'
-import { encontrarInscricaoRJ } from '../../src/utils/encontrarInscricaoEstadual'
-import { dividirLogradouro } from '../../src/utils/DividirLogradouro'
+import { formatCNPJ } from '../utils/formatCNPJ'
+import { formatCep } from '../utils/formatCep'
+import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
+import { dividirLogradouro } from '../utils/DividirLogradouro'
 
 type RootStackParamList = {
     Home: undefined;
@@ -91,7 +91,7 @@ interface Socio {
 }
 
 
-export default function Register({ navigation }: HomeScreenProps) {
+export function Register({ navigation }: HomeScreenProps) {
     const [cnpj, setCnpj] = useState<string>('')
     const [stateNumberId, setStateNumberId] = useState<string>('')
     const [cityNumberId, setCityNumberId] = useState<string>('')

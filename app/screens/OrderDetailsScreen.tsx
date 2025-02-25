@@ -9,10 +9,14 @@ import Icons from "@expo/vector-icons/Ionicons";
 import LabelAndBoxContent from "../../src/components/box/LabelAndBoxContent";
 import { openURL } from "expo-linking";
 import CustomAlert from "../../src/components/modais/CustomAlert";
+import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
 
-export default function OrderDetailsScreen() {
+export function OrderDetailsScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();
   const navigation = useNavigation();
+  /*type OrderDetailsScreenProps = {
+      navigation: NativeStackNavigationProp<RootStackParamList, 'OrderDetails'>;
+  }*/
 
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +36,6 @@ export default function OrderDetailsScreen() {
 
       try {
         const orderData: OrderData = await getOrder(orderId);
-        console.log("Order Data:", orderData);
         setOrder(orderData);
       } catch (error) {
         console.error("Erro ao carregar pedidos:", error);
@@ -66,13 +69,19 @@ export default function OrderDetailsScreen() {
   }
 
   const supplier = order.calcOrderAgain?.data?.find(
-    (item) => item.supplier.externalId === order.supplierId
+    (item: any) => item.supplier.externalId === order.supplierId
   )?.supplier;
 
   const supplierName = supplier ? supplier.name : "Fornecedor não encontrado";
 
   return (
     <View flex={1} backgroundColor="#F0F2F6">
+       <Text
+           style={{
+            marginTop: 35,
+            marginHorizontal: 15
+          }}
+          >Detalhamento</Text>
       <CustomAlert
         message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
         title="Ops!"
@@ -117,9 +126,9 @@ export default function OrderDetailsScreen() {
         borderBottomColor="lightgray"
       >
         <Icons
-          onPress={() => {
-            navigation.goBack();
-          }}
+          onPress={() => 
+            navigation.replace('Orders')
+          }
           size={25}
           name="chevron-back"
         ></Icons>
@@ -147,11 +156,20 @@ export default function OrderDetailsScreen() {
             }
           }}
         />
+         <Text fontSize={10} color="gray">
+        </Text>
         <LabelAndBoxContent
           iconName="download"
           icon={true}
           title="Nota Fiscal"
           subtitle={`Por ${supplierName}`}
+          iconAction={() => {
+            if (order.orderInvoices) {
+              openURL (order.orderInvoices?.filePath[0]);
+            } else {
+              console.warn("Documento não disponível");
+            }
+          }}
         />
         <Button
           borderColor="red"
