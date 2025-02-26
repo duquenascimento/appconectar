@@ -1177,7 +1177,8 @@ export function Products({ navigation }: HomeScreenProps) {
                     {currentClass.toLowerCase() === 'favoritos' && favorites.length < 1 && !searchQuery ?
                         <View flex={1} paddingTop={50} alignItems="center">
                             <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
-                                Para adicionar produtos à sua lista de favoritos, pesquise ou navegue pelas abas para encontrar o produto desejado e clique no ícone de favoritar
+                            Busque os produtos da sua culinária e clique no coração para favoritar.
+
                                 <Text> </Text>
                             </Text>
                             <Icons name="heart-outline" size={25} color="gray" />
