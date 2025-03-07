@@ -299,7 +299,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         justifyContent="center"
         alignItems="center"
         flexDirection="row"
-        gap={70}
+        gap={30}
         height={55}
         borderTopWidth={0.2}
         borderTopColor="lightgray"
@@ -332,7 +332,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={80}
+          width={120}
           height={70}
         >
           <Icons name="journal" size={20} color="gray" />
