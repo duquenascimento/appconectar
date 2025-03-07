@@ -1,27 +1,7 @@
-import {
-    View,
-    Select,
-    Image,
-    YStack,
-    XStack,
-    Text,
-    Adapt,
-    Sheet,
-    Input,
-    Button,
-    Stack,
-    ScrollView,
-    Dialog
-} from 'tamagui';
+import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui';
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Icons from '@expo/vector-icons/Ionicons';
-import {
-    ActivityIndicator,
-    FlatList,
-    Modal,
-    Platform,
-    TouchableOpacity,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageViewer from 'react-native-image-zoom-viewer';
@@ -86,7 +66,9 @@ type ProductBoxProps = Product &
     firstUnit: number,
     secondUnit: number,
     thirdUnit: number,
-    currentClass: string
+    currentClass: string,
+    obs: string; // Adicione esta linha
+    onObsChange: (text: string) => void; // Adicione esta linha
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -130,7 +112,8 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
                         cursor: 'pointer',
                         pointerEvents: 'auto'
                     }}
-                    onClick={onPress}
+                    onClick={cartSize > 0 ? onPress : undefined} 
+                    disabled={cartSize <= 0} 
                 >
                     <div
                         style={{
@@ -184,7 +167,11 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
             justifyContent: 'center',
             zIndex: 9999,
         }, animatedStyle]}>
-            <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+            <TouchableOpacity 
+            activeOpacity={0.9} 
+            onPress={cartSize > 0 ? onPress : undefined} // Bloqueia a ação
+            disabled={cartSize <= 0} // Desabilita o componente
+            >
                 <View
                     backgroundColor='#FFA500'
                     width={160}
@@ -371,19 +358,21 @@ Consegue me ajudar?`).replace('!', '%21').replace('\'', '%27').replace('(', '%28
 const ProductBox = React.memo(({
     id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit,
     orderUnit, toggleFavorite, favorites, saveCart,
-    cart, setImage, setModalVisible, currentClass
+    cart, setImage, setModalVisible, currentClass,
+    obs: parentObs,
+    onObsChange
 }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1);
     const [valueQuant, setValueQuant] = useState(0);
-    const [obs, setObs] = useState('');
+    const [obs, setObs] = useState(parentObs);
     const [open, setOpen] = useState<boolean>(false);
 
     const obsRef = useRef('');
     const quantRef = useRef<number>(firstUnit);
 
     useEffect(() => {
-        obsRef.current = obs;
-    }, [obs]);
+        setObs(parentObs);
+    }, [parentObs]);
 
     const isFavorite = useMemo(() => favorites.some(favorite => favorite.id === id), [favorites, id]);
     const isCart = useMemo(() => cart.has(id), [cart, id]);
@@ -394,10 +383,22 @@ const ProductBox = React.memo(({
         const cartProduct = cart.get(id);
         if (cartProduct) {
             obsRef.current = cartProduct.obs;
+
+
             setObs(cartProduct.obs);
+            onObsChange(cartProduct.obs);
             setValueQuant(Number(cartProduct.amount));
+            if (cartProduct.obs) { // Verifica se há observação
+                setOpen(true);
+            }
         }
     }, [cart, id]);
+
+    useEffect(() => {
+        if (obs) { // Mantém o expand aberto se houver observação
+            setOpen(true);
+        }
+    }, [obs]);
 
     useEffect(() => {
         saveCart({ amount: valueQuant, productId: id, obs }, isCart);
@@ -408,7 +409,10 @@ const ProductBox = React.memo(({
         quantRef.current = newQuant;
     };
 
-    const handleObsChange = (text: string) => setObs(text);
+    const handleObsChange = (text: string) => {
+        setObs(text);
+        onObsChange(text);
+    }
 
     const handleValueQuantChange = (delta: number) => {
         setValueQuant(prevValue => Math.max(0, Number((prevValue + delta).toFixed(3))));
@@ -682,6 +686,8 @@ export function Products({ navigation }: HomeScreenProps) {
     const [showComercialBlock, setShowComercialBlock] = useState(false)
     const [showFinanceBlock, setShowFinanceBlock] = useState(false)
     const [restaurantes, setRestaurantes] = useState()
+    const [productObservations, setProductObservations] = useState(new Map());
+
 
 
     const flatListRef = useRef<FlatList<Product>>(null);
@@ -893,6 +899,8 @@ export function Products({ navigation }: HomeScreenProps) {
                     ]
                 }
 
+
+
                 setRestaurantes(restaurants)
 
                 const restFilteredComercial = restaurants.filter((item: any) => item.comercialBlock)
@@ -913,6 +921,11 @@ export function Products({ navigation }: HomeScreenProps) {
                 if (cartMap.size > 0) {
                     setCart(cartMap); // Atualiza o estado do carrinho
                 }
+                const newObservations = new Map();
+                cart.forEach((item) => {
+                    if (item.obs) newObservations.set(item.productId, item.obs);
+                });
+                setProductObservations(newObservations);
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
             } finally {
@@ -1084,11 +1097,17 @@ export function Products({ navigation }: HomeScreenProps) {
     }
 
     const renderProduct = useCallback(
-        ({ item }: { item: Product }) => <ProductBox currentClass={currentClass} setModalVisible={handleSetModalVisible} setImage={handleSetImage} key={item.id} toggleFavorite={toggleFavorite} {...item} favorites={favorites} saveCart={saveCart} cart={cart} />,
-        [cart, currentClass, favorites, saveCart, toggleFavorite]
+        ({ item }: { item: Product }) => <ProductBox currentClass={currentClass} setModalVisible={handleSetModalVisible} setImage={handleSetImage} key={item.id} toggleFavorite={toggleFavorite} {...item} favorites={favorites} saveCart={saveCart} cart={cart}
+        obs = {productObservations.get(item.id) || ''}
+        onObsChange={(newObs: any) => {
+            setProductObservations(prev => {
+                const newMap = new Map(prev);
+                newMap.set(item.id, newObs);
+                return newMap;
+            });
+        }} />,
+        [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations]
     );
-
-    //const MemoizedProductBox = React.memo(ProductBox);
 
     if (loading) {
         return (
@@ -1177,7 +1196,7 @@ export function Products({ navigation }: HomeScreenProps) {
                     {currentClass.toLowerCase() === 'favoritos' && favorites.length < 1 && !searchQuery ?
                         <View flex={1} paddingTop={50} alignItems="center">
                             <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
-                            Busque os produtos da sua culinária e clique no coração para favoritar.
+                                Busque os produtos da sua culinária e clique no coração para favoritar.
 
                                 <Text> </Text>
                             </Text>
@@ -1215,24 +1234,16 @@ export function Products({ navigation }: HomeScreenProps) {
                             </ScrollView>
                     }
                 </View>
-                <View justifyContent="center" alignItems="center" flexDirection="row" gap={70} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
+                <View justifyContent="center" alignItems="center" flexDirection="row" gap={30} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
                     <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
                         <Icons name="home" size={20} color="#04BF7B" />
                         <Text fontSize={12} color="#04BF7B">Home</Text>
                     </View>
-                    {/* <View onPress={() => navigation.replace('Orders')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
-                        <Icons name="journal" size={20} color="gray" />
-                        <Text fontSize={12} color="gray">Pedidos</Text>
-                    </View>
-                    {/*<View padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
-                        <Icons name="document" size={20} color="gray" />
-                        <Text fontSize={12} color="gray">Relatórios</Text>
-                    </View> */}
                     <View onPress={async () => {
                         //setLoading(true);
                         await saveCartArray(cart, cartToExclude);
                         navigation.replace('Orders');
-                    }} padding={10} marginVertical={10} borderRadius={8} flexWrap="nowrap" flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+                    }} padding={10} marginVertical={10} borderRadius={8} flexWrap="nowrap" flexDirection="column" justifyContent="center" alignItems="center" width={120} height={70}>
                         <Icons name="journal" size={20} color="gray" />
                         <Text fontSize={12} color="gray">Meus Pedidos</Text>
                     </View>
