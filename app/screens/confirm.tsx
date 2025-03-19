@@ -570,7 +570,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                 },
                                 'message': 'Olá, você já pode fazer seu pedido! horário liberado',
                                 'sendDate':formattedDate,
-                                'sendTime': '15:05'
+                                'sendTime': '13:01'
                               }
                             let erros = []
 
