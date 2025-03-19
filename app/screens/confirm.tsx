@@ -199,7 +199,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
         const supplierText = await getStorage('supplierSelected')
         if (!supplierText) return
         const supplier = JSON.parse(supplierText)
-        console.log('AQUI2: ', supplier)
         setSupplier(supplier)
     }, [])
 
@@ -285,7 +284,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
         return differenceInSeconds;
     }
 
-    console.log(getSecondsUntil13h());
 
 
     const getPaymentDate = (paymentWay: string): string => {
@@ -324,6 +322,10 @@ export function Confirm({ navigation }: HomeScreenProps) {
             }
             return nextDate;
         };
+
+        
+        
+          
 
         const paymentDescriptions: PaymentDescriptions = {
             "DI00": deliveryDay.toLocaleDateString('pt-BR'),
@@ -513,11 +515,9 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             if (status !== 'granted') {
                                 const result = await Notifications.requestPermissionsAsync();
                                 if (result.status !== 'granted') {
-                                    console.log('No notification permissions granted!');
                                     return;
                                 }
                             }
-                            console.log('Permission granted');
                             const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
                             const isAlreadyScheduled = scheduledNotifications.some(
                                 (notification) =>
@@ -550,14 +550,47 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                 restaurant: selectedRestaurant
                             }
 
-                            // console.log(JSON.stringify(body))
+                            const formatDate = (date:any) => {
+                                const year = date.getFullYear();
+                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                const day = String(date.getDate()).padStart(2, '0');
+                                return `${year}-${month}-${day}`;
+                              };
 
-                            console.log('final: ', JSON.stringify(body))
+                            const formattedDate = formatDate(new Date());
 
+                            const agendamentoBody = {
+                                'token': body.token,
+                                'selectedRestaurant': {
+                                  'addressInfos': [
+                                    {
+                                      'phoneNumber': selectedRestaurant.restaurant.phone
+                                    }
+                                  ]
+                                },
+                                'message': 'Olá, você já pode fazer seu pedido! horário liberado',
+                                'sendDate':formattedDate,
+                                'sendTime': '15:05'
+                              }
                             let erros = []
 
                             if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
-                            if (isBefore13Hours() && Platform.OS === 'web') erros.push('O pedido só pode ser confirmado após as 13h')
+                            
+                            if (isBefore13Hours() && Platform.OS === 'web') {
+                                const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/agendamento`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify(agendamentoBody)
+                                });
+
+                                if (result.status === 201) {
+                                    const response = await result.json()
+                                } 
+                                erros.push('O pedido só pode ser confirmado após as 13h, Enviaremos um lembrete.')
+                            }
+
                             if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
                                 !selectedRestaurant.restaurant.allowMinimumOrder)
                                 erros.push('O valor do pedido não atingiu o mínimo do fornecedor')

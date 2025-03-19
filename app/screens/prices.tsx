@@ -579,7 +579,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                                 <Button backgroundColor="#04BF7B" onPress={async () => {
                                     if (!validateFields()) return;
-
+                                    console.log('premium>>>>>>>>>', selectedRestaurant)
                                     setLoading(true);
                                     const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
                                         method: 'POST',
