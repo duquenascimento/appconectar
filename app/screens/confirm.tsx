@@ -1,6 +1,6 @@
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { type SupplierData } from "./prices";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react'
 import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Adapt } from "tamagui";
 import { ActivityIndicator } from "react-native";
 import Icons from '@expo/vector-icons/Ionicons';
@@ -199,6 +199,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         const supplierText = await getStorage('supplierSelected')
         if (!supplierText) return
         const supplier = JSON.parse(supplierText)
+        console.log('AQUI2: ', supplier)
         setSupplier(supplier)
     }, [])
 
@@ -258,7 +259,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         const currentHour = Number(
             `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
         );
-        return (130000 >= currentHour)
+        return (130000 <= currentHour)
     }
 
     const isOpen = () => {
@@ -284,6 +285,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         return differenceInSeconds;
     }
 
+    console.log(getSecondsUntil13h());
 
 
     const getPaymentDate = (paymentWay: string): string => {
@@ -322,10 +324,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
             }
             return nextDate;
         };
-
-        
-        
-          
 
         const paymentDescriptions: PaymentDescriptions = {
             "DI00": deliveryDay.toLocaleDateString('pt-BR'),
@@ -375,8 +373,15 @@ export function Confirm({ navigation }: HomeScreenProps) {
             <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
             <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification}/>
             <View backgroundColor='white' flexDirection="row" height={80}>
+                <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
+                    <Icons size={25} name="chevron-back" onPress={() => {
+                        setLoading(true)
+                        deleteStorage('supplierSelected')
+                        navigation.replace('Prices')
+                    }}></Icons>
+                </View>
                 <View flexDirection="row" f={1}>
-                    <View pl={10} justifyContent="center">
+                    <View pl={5} justifyContent="center">
                         <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg` }}
                             width={50} height={50} borderRadius={50} />
                     </View>
@@ -387,13 +392,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             <Text color='gray' pl={4}>{supplier?.supplier.star}</Text>
                         </View>
                     </View>
-                </View>
-                <View pr={30} flexDirection="row" justifyContent="center" alignItems="center">
-                    <Icons size={25} name="close" onPress={() => {
-                        setLoading(true)
-                        deleteStorage('supplierSelected')
-                        navigation.replace('Prices')
-                    }}></Icons>
                 </View>
             </View>
 
@@ -515,9 +513,11 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             if (status !== 'granted') {
                                 const result = await Notifications.requestPermissionsAsync();
                                 if (result.status !== 'granted') {
+                                    console.log('No notification permissions granted!');
                                     return;
                                 }
                             }
+                            console.log('Permission granted');
                             const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
                             const isAlreadyScheduled = scheduledNotifications.some(
                                 (notification) =>
@@ -550,47 +550,14 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                 restaurant: selectedRestaurant
                             }
 
-                            const formatDate = (date:any) => {
-                                const year = date.getFullYear();
-                                const month = String(date.getMonth() + 1).padStart(2, '0');
-                                const day = String(date.getDate()).padStart(2, '0');
-                                return `${year}-${month}-${day}`;
-                              };
+                            // console.log(JSON.stringify(body))
 
-                            const formattedDate = formatDate(new Date());
+                            console.log('final: ', JSON.stringify(body))
 
-                            const agendamentoBody = {
-                                'token': body.token,
-                                'selectedRestaurant': {
-                                  'addressInfos': [
-                                    {
-                                      'phoneNumber': selectedRestaurant.restaurant.phone
-                                    }
-                                  ]
-                                },
-                                'message': 'Olá, você já pode fazer seu pedido! horário liberado',
-                                'sendDate':formattedDate,
-                                'sendTime': '13:01'
-                              }
                             let erros = []
 
                             if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
-                            
-                            if (isBefore13Hours() && Platform.OS === 'web') {
-                                const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/agendamento`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(agendamentoBody)
-                                });
-
-                                if (result.status === 201) {
-                                    const response = await result.json()
-                                } 
-                                erros.push('O pedido só pode ser confirmado após as 13h, Enviaremos um lembrete.')
-                            }
-
+                            if (isBefore13Hours() && Platform.OS === 'web') erros.push('O pedido só pode ser confirmado após as 13h')
                             if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
                                 !selectedRestaurant.restaurant.allowMinimumOrder)
                                 erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
