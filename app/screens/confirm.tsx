@@ -1,6 +1,6 @@
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { type SupplierData } from "./prices";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from 'react'
 import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Adapt } from "tamagui";
 import { ActivityIndicator } from "react-native";
 import Icons from '@expo/vector-icons/Ionicons';
@@ -373,8 +373,15 @@ export function Confirm({ navigation }: HomeScreenProps) {
             <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
             <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification}/>
             <View backgroundColor='white' flexDirection="row" height={80}>
+                <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
+                    <Icons size={25} name="chevron-back" onPress={() => {
+                        setLoading(true)
+                        deleteStorage('supplierSelected')
+                        navigation.replace('Prices')
+                    }}></Icons>
+                </View>
                 <View flexDirection="row" f={1}>
-                    <View pl={10} justifyContent="center">
+                    <View pl={5} justifyContent="center">
                         <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg` }}
                             width={50} height={50} borderRadius={50} />
                     </View>
@@ -385,13 +392,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             <Text color='gray' pl={4}>{supplier?.supplier.star}</Text>
                         </View>
                     </View>
-                </View>
-                <View pr={30} flexDirection="row" justifyContent="center" alignItems="center">
-                    <Icons size={25} name="close" onPress={() => {
-                        setLoading(true)
-                        deleteStorage('supplierSelected')
-                        navigation.replace('Prices')
-                    }}></Icons>
                 </View>
             </View>
 
