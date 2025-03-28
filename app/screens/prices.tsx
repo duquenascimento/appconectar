@@ -869,8 +869,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                         </View>
                                         <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                                             <View flex={1}>
-                                                <Text pl={5} fontSize={12} color='gray' >
-                                                    Resp. recebimento <Text color="red" fontSize={10} marginLeft={5}>Obrigatório</Text>
+                                                <Text pl={5} fontSize={12} color='gray'>
+                                                    Resp. recebimento <Text color="red">*</Text>
                                                 </Text>
                                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                                     <Input
@@ -892,7 +892,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                             </View>
                                             <View flex={1}>
                                                 <Text pl={5} fontSize={12} color='gray'>
-                                                    Cel Resp. recebimento <Text color="red" fontSize={10} marginLeft={5}>Obrigatório</Text>
+                                                    Cel Resp. recebimento <Text color="red">*</Text>
                                                 </Text>
                                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                                     <Input
