@@ -130,6 +130,8 @@ export function Register({ navigation }: HomeScreenProps) {
     const [maxHourOpen, setMaxHourOpen] = useState(false)
     const [paymentWayOpen, setPaymentWayOpen] = useState(false)
     const [daysOpen, setDaysOpen] = useState(false);
+    const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>('');
+    const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>('');
 
     useEffect(() => {
         const hours = [];
@@ -231,6 +233,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 maxHourAsync,
                 closeDoorAsync,
                 deliveryObsAsync,
+                responsibleReceivingNameAsync,
+                responsibleReceivingPhoneNumberAsync,
                 weeklyOrderAmountAsync,
                 paymentWayAsync,
                 orderValueAsync,
@@ -258,12 +262,14 @@ export function Register({ navigation }: HomeScreenProps) {
                 getStorage('maxHour'),
                 getStorage('closeDoor'),
                 getStorage('deliveryObs'),
+                getStorage('responsibleReceivingName'),
+                getStorage('responsibleReceivingPhoneNumber'),
                 getStorage('weeklyOrderAmount'),
                 getStorage('paymentWay'),
                 getStorage('orderValue'),
                 getStorage('localType'),
                 getStorage('city'),
-                getStorage('inviteCode')
+                getStorage('inviteCode'),
             ]);
 
             await Promise.all([
@@ -288,11 +294,13 @@ export function Register({ navigation }: HomeScreenProps) {
                 setCloseDoor(closeDoorAsync === 'true'),
                 setOrderValue(orderValueAsync ?? ''),
                 setDeliveryObs(deliveryObsAsync ?? ''),
+                setResponsibleReceivingName(responsibleReceivingNameAsync ?? ''),
+                setResponsibleReceivingPhoneNumber(responsibleReceivingPhoneNumberAsync ?? ''),
                 setWeeklyOrderAmount(weeklyOrderAmountAsync ?? ''),
                 setpaymentWay(paymentWayAsync || ''),
                 setLocalType(localtype ?? ''),
                 setCity(city ?? ''),
-                setInviteCode(inviteCode ?? '')
+                setInviteCode(inviteCode ?? ''),
             ])
         } finally {
             setLoading(false)
@@ -328,6 +336,8 @@ export function Register({ navigation }: HomeScreenProps) {
                     orderValue: Number(orderValue.replace(/[^\d,]/g, '').replace(',', '.')),
                     weeklyOrderAmount,
                     deliveryObs,
+                    responsibleReceivingName,
+                    responsibleReceivingPhoneNumber,
                     closeDoor,
                     maxHour,
                     minHour,
@@ -356,6 +366,8 @@ export function Register({ navigation }: HomeScreenProps) {
                     orderValue: Number(orderValue.replace(/[^\d,]/g, '').replace(',', '.')),
                     weeklyOrderAmount,
                     deliveryObs,
+                    responsibleReceivingName,
+                    responsibleReceivingPhoneNumber,
                     closeDoor,
                     maxHour,
                     minHour,
@@ -385,6 +397,8 @@ export function Register({ navigation }: HomeScreenProps) {
                         orderValue: Number(orderValue.replace(/[^\d,]/g, '').replace(',', '.')),
                         weeklyOrderAmount,
                         deliveryObs,
+                        responsibleReceivingName,
+                        responsibleReceivingPhoneNumber,
                         closeDoor,
                         maxHour,
                         minHour,
@@ -418,6 +432,8 @@ export function Register({ navigation }: HomeScreenProps) {
                         deleteStorage('maxHour'),
                         deleteStorage('closeDoor'),
                         deleteStorage('deliveryObs'),
+                        deleteStorage('responsibleReceivingName'),
+                        deleteStorage('responsibleReceivingPhoneNumber'),
                         deleteStorage('weeklyOrderAmount'),
                         deleteStorage('orderValue'),
                         deleteStorage('paymentWay'),
@@ -490,6 +506,8 @@ export function Register({ navigation }: HomeScreenProps) {
                 setStorage('maxHour', maxHour),
                 setStorage('closeDoor', `${closeDoor}`),
                 setStorage('deliveryObs', deliveryObs),
+                setStorage('responsibleReceivingName', responsibleReceivingName),
+                setStorage('responsibleReceivingPhoneNumber', responsibleReceivingPhoneNumber),
                 setStorage('weeklyOrderAmount', weeklyOrderAmount),
                 setStorage('orderValue', orderValue),
                 setStorage('paymentWay', paymentWay),
@@ -522,7 +540,7 @@ export function Register({ navigation }: HomeScreenProps) {
             await clearToken();
             navigation.navigate('Sign');
         }
-        
+
         const tempStep = step - 1 < 0 ? 0 : step - 1 > 3 ? 3 : step - 1
         await Promise.all([
             setStep(tempStep),
@@ -546,6 +564,8 @@ export function Register({ navigation }: HomeScreenProps) {
             setStorage('maxHour', maxHour),
             setStorage('closeDoor', `${closeDoor}`),
             setStorage('deliveryObs', deliveryObs),
+            setStorage('responsibleReceivingName', responsibleReceivingName),
+            setStorage('responsibleReceivingPhoneNumber', responsibleReceivingPhoneNumber),
             setStorage('weeklyOrderAmount', weeklyOrderAmount),
             setStorage('orderValue', orderValue),
             setStorage('paymentWay', paymentWay),
@@ -652,7 +672,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                 <Input onChangeText={handleCnpjChange} value={cnpj} keyboardType="number-pad" backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                             </View>
-                            
+
                         </View>
                         :
                         step === 1
@@ -859,7 +879,74 @@ export function Register({ navigation }: HomeScreenProps) {
                                             </View>
                                             <Text mt={15}>Obs de entrega</Text>
                                             <Input onChangeText={setDeliveryObs} value={deliveryObs} backgroundColor='white' borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}>
+                                            </Input>
+
+                                            <View flex={1}>
+                                                <Text marginTop={15}>
+                                                    Responsável pelo recebimento
+                                                    <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                                                </Text>
+                                                <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={101}>
+                                                    <Input
+                                                        fontSize={14}
+                                                        f={1} // Substitui flex={1} para manter o padrão
+                                                        backgroundColor="$colorTransparent"
+                                                        borderWidth="$0"
+                                                        borderRadius={2}
+                                                        borderColor="$colorTransparent"
+                                                        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                        value={responsibleReceivingName}
+                                                        onChangeText={(value) => {
+                                                            // Remove todos os caracteres que não sejam letras ou espaços
+                                                            const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                                                            setResponsibleReceivingName(formattedValue);
+                                                        }}
+                                                    />
+                                                </View>
+                                            </View>
+                                            <View flex={1}>
+                                                <Text marginTop={15}>
+                                                    Número de contato do responsável
+                                                    <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                                                </Text>
+                                                <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={101}>
+                                                    <Input
+                                                        maxLength={15}
+                                                        fontSize={14}
+                                                        f={1} // Substituindo flex={1} por f={1} para manter o padrão
+                                                        backgroundColor="$colorTransparent"
+                                                        borderWidth="$0"
+                                                        borderRadius={2}
+                                                        borderColor="$colorTransparent"
+                                                        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                        keyboardType="phone-pad"
+                                                        value={responsibleReceivingPhoneNumber}
+                                                        onChangeText={(value) => {
+                                                            // Remove todos os caracteres que não sejam dígitos
+                                                            let onlyNums = value.replace(/\D/g, '');
+
+                                                            if (onlyNums.length > 10) {
+                                                                // Formato moderno (celular): (XX) XXXXX-XXXX
+                                                                onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                                                            } else if (onlyNums.length > 6) {
+                                                                // Formato convencional (fixo): (XX) XXXX-XXXX
+                                                                onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                                                            } else if (onlyNums.length > 2) {
+                                                                // Formato parcial: (XX) XXXX
+                                                                onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+                                                            } else if (onlyNums.length > 0) {
+                                                                // Formato parcial: (XX
+                                                                onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
+                                                            }
+
+                                                            setResponsibleReceivingPhoneNumber(onlyNums);
+                                                        }}
+                                                    />
+                                                </View>
+                                            </View>
                                         </View>
                                         <Text mt={10} fontSize={12} mb={5} color='gray'>Perfil de compra</Text>
                                         <View backgroundColor='white' borderColor='lightgray' borderWidth={1} borderRadius={5} p={10}>
@@ -868,7 +955,7 @@ export function Register({ navigation }: HomeScreenProps) {
                                             <Text>Quantos dias na semana você costuma pedir?</Text>
                                             <View flex={1} borderWidth={0.5} borderColor='lightgray' zIndex={101} marginTop={10}>
                                                 <DropDownPicker
-                                                /// onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad"
+                                                    /// onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad"
                                                     value={weeklyOrderAmount}
                                                     setValue={setWeeklyOrderAmount}
                                                     items={daysOptions}
