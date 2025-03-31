@@ -1394,8 +1394,9 @@ export function Products({ navigation }: HomeScreenProps) {
     async (productId: string) => {
       try {
         const token = await getToken();
+        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
         setFavorites(favorites.filter((favorite) => favorite.id !== productId));
-        if (token == null) return;
+        if (token == null || !restaurant) return;
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/del`,
           {
