@@ -1354,7 +1354,8 @@ export function Products({ navigation }: HomeScreenProps) {
     async (productId: string) => {
       try {
         const token = await getToken();
-        if (token == null) return;
+        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
+        if (token == null || !restaurant) return;
         // Atualizar o estado localmente
         const productToAdd = productsList?.find(
           (product) => product.id === productId
