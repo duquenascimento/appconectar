@@ -154,6 +154,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const [localTypeOpen, setLocalTypeOpen] = useState(false)
     const [showNotification, setShowNotification] = useState(false)
     const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
+    const [missingFields, setMissingFields] = useState<string[]>([]);
 
     const handleConfirm = () => {
         setFinalCotacao(true);
@@ -494,7 +495,18 @@ export function Prices({ navigation }: HomeScreenProps) {
         }
 
     const validateFields = () => {
-        const requiredFields = [
+        const fieldLabels: { [key: string]: string } = {
+            zipCode: "CEP",
+            localNumber: "Número",
+            street: "Rua",
+            responsibleReceivingName: "Nome do responsável",
+            responsibleReceivingPhoneNumber: "Telefone do responsável",
+            localType: "Tipo do local",
+            city: "Cidade",
+            neighborhood: "Bairro",
+        };
+
+        const fields: Record<string, string | undefined> = {
             zipCode,
             localNumber,
             street,
@@ -503,12 +515,17 @@ export function Prices({ navigation }: HomeScreenProps) {
             localType,
             city,
             neighborhood,
-        ];
+        };
 
+        const requiredFields = Object.values(fields);
         const isValid = requiredFields.every(field => field?.trim());
+
         if (!isValid) {
-            setIsAlertVisible(true); // Exibe o modal de validação
+            const emptyFields = Object.keys(fields).filter((key) => !fields[key]?.trim());
+            setMissingFields(emptyFields.map((key) => fieldLabels[key]));
+            setIsAlertVisible(true);
         }
+
         return isValid;
     };
 
@@ -628,7 +645,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='#04BF7B' name="storefront"></Icons>
                             <View ml={20}></View>
-                            <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail"  fontSize={12}  style={{ flexShrink: 1, width: '100%'}}>{selectedRestaurant?.name || ''}</Text>
+                            <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail" fontSize={12} style={{ flexShrink: 1, width: '100%' }}>{selectedRestaurant?.name || ''}</Text>
                         </View>
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='#04BF7B' name="time"></Icons>
@@ -1018,8 +1035,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                             <CustomAlert
                                 visible={isAlertVisible}
                                 title="Campos obrigatórios"
-                                message="Por favor, preencha todos os campos obrigatórios."
-                                onConfirm={() => setIsAlertVisible(false)} // Fecha o alerta ao confirmar
+                                message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join("\n- ")}`}
+                                onConfirm={() => setIsAlertVisible(false)}
                             />
                         </Modal>
                     </View>
@@ -1028,8 +1045,8 @@ export function Prices({ navigation }: HomeScreenProps) {
             <CustomAlert
                 visible={isAlertVisible}
                 title="Campos obrigatórios"
-                message="Por favor, preencha todos os campos obrigatórios."
-                onConfirm={() => setIsAlertVisible(false)} // Fecha o alerta ao confirmar
+                message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join("\n- ")}`}
+                onConfirm={() => setIsAlertVisible(false)}
             />
         </Stack>
     );
