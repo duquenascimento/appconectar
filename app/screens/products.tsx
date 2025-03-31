@@ -883,8 +883,29 @@ export function Products({ navigation }: HomeScreenProps) {
                 // Extraindo categorias
                 const categories = restaurants.flatMap((rest: any) => rest.categories || []);
 
-                if (verduraKg.length) {
-                    classItems = [{ name: 'Favoritos' }, categories.map((category: any) => ({ name: category }))];
+                if (verduraKg.length && categories.length === 0) {
+                    classItems = [
+                        { name: 'Favoritos' },
+                        { name: 'Fruta' },
+                        { name: 'Legumes' },
+                        { name: 'Verduras - KG' },
+                        { name: 'Especiarias' },
+                        { name: 'Granja' },
+                        { name: 'Cogumelos e trufas' },
+                        { name: 'Higienizados' }
+                    ];
+                }
+                else if (categories.length === 0) {
+                    classItems = [
+                        { name: 'Favoritos' },
+                        { name: 'Fruta' },
+                        { name: 'Legumes' },
+                        { name: 'Verduras' },
+                        { name: 'Especiarias' },
+                        { name: 'Granja' },
+                        { name: 'Cogumelos e trufas' },
+                        { name: 'Higienizados' }
+                    ];
                 } else {
                     classItems = [
                         { name: 'Favoritos' },
@@ -1061,7 +1082,7 @@ export function Products({ navigation }: HomeScreenProps) {
             <TouchableOpacity
                 style={{
                     padding: 8,
-                    ...(currentClass === item.name
+                    ...(currentClass.toLowerCase() === item.name.toLowerCase()
                         ? { borderBottomWidth: 1.5, borderBottomColor: '#04BF7B' }
                         : {}),
                     justifyContent: 'center',
@@ -1069,7 +1090,7 @@ export function Products({ navigation }: HomeScreenProps) {
                 onPress={() => handlePress(item.name)}
             >
                 <Text
-                    color={currentClass !== item.name
+                    color={currentClass.toLowerCase() !== item.name.toLowerCase()
                         ? '#aaa'
                         : '#04BF7B'}
                     fontSize={14}
