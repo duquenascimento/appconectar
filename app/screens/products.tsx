@@ -112,8 +112,8 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
                         cursor: 'pointer',
                         pointerEvents: 'auto'
                     }}
-                    onClick={cartSize > 0 ? onPress : undefined} 
-                    disabled={cartSize <= 0} 
+                    onClick={cartSize > 0 ? onPress : undefined}
+                    disabled={cartSize <= 0}
                 >
                     <div
                         style={{
@@ -167,10 +167,10 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
             justifyContent: 'center',
             zIndex: 9999,
         }, animatedStyle]}>
-            <TouchableOpacity 
-            activeOpacity={0.9} 
-            onPress={cartSize > 0 ? onPress : undefined} // Bloqueia a ação
-            disabled={cartSize <= 0} // Desabilita o componente
+            <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={cartSize > 0 ? onPress : undefined} // Bloqueia a ação
+                disabled={cartSize <= 0} // Desabilita o componente
             >
                 <View
                     backgroundColor='#FFA500'
@@ -625,7 +625,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
                                     <Select.Item
                                         index={i}
                                         key={typeof item.name != 'undefined' ? item.name : ''}
-                                        value={typeof item.name != 'undefined' ? item.name.toLowerCase() : ''}
+                                        value={typeof item.name != 'undefined' ? item.name : ''}
                                     >
                                         <Select.ItemText>{typeof item.name != 'undefined' ? item.name : ''}</Select.ItemText>
                                         <Select.ItemIndicator marginLeft='auto'>
@@ -687,7 +687,6 @@ export function Products({ navigation }: HomeScreenProps) {
     const [showFinanceBlock, setShowFinanceBlock] = useState(false)
     const [restaurantes, setRestaurantes] = useState()
     const [productObservations, setProductObservations] = useState(new Map());
-
 
 
     const flatListRef = useRef<FlatList<Product>>(null);
@@ -805,6 +804,7 @@ export function Products({ navigation }: HomeScreenProps) {
             if (!result.ok) return []
             const restaurants = await result.json();
             if (restaurants.data.length < 1) return []
+
             return restaurants.data
         } catch (error) {
             console.error('Erro ao carregar restaurantes:', error);
@@ -870,12 +870,20 @@ export function Products({ navigation }: HomeScreenProps) {
         const loadInitialData = async () => {
             setLoading(true);
             try {
-                const [favs, cartMap, restaurants] = await Promise.all([loadFavorites(), loadCart(), loadRestaurants(), loadProducts()])
-                console.log(restaurants)
-                const verduraKg = restaurants.filter((rest: any) => {
-                    return rest.verduraKg === true
-                })
-                if (verduraKg.length) {
+                const [favs, cartMap, restaurants] = await Promise.all([
+                    loadFavorites(),
+                    loadCart(),
+                    loadRestaurants(),
+                ]);
+
+                console.log(restaurants);
+
+                const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true);
+
+                // Extraindo categorias
+                const categories = restaurants.flatMap((rest: any) => rest.categories || []);
+
+                if (verduraKg.length && categories.length === 0) {
                     classItems = [
                         { name: 'Favoritos' },
                         { name: 'Fruta' },
@@ -885,8 +893,9 @@ export function Products({ navigation }: HomeScreenProps) {
                         { name: 'Granja' },
                         { name: 'Cogumelos e trufas' },
                         { name: 'Higienizados' }
-                    ]
-                } else {
+                    ];
+                }
+                else if (categories.length === 0) {
                     classItems = [
                         { name: 'Favoritos' },
                         { name: 'Fruta' },
@@ -896,36 +905,43 @@ export function Products({ navigation }: HomeScreenProps) {
                         { name: 'Granja' },
                         { name: 'Cogumelos e trufas' },
                         { name: 'Higienizados' }
-                    ]
+                    ];
+                } else {
+                    classItems = [
+                        { name: 'Favoritos' },
+                        ...categories.map((category: any) => ({ name: category }))
+                    ];
                 }
 
+                setRestaurantes(restaurants);
 
-
-                setRestaurantes(restaurants)
-
-                const restFilteredComercial = restaurants.filter((item: any) => item.comercialBlock)
-                const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock)
+                const restFilteredComercial = restaurants.filter((item: any) => item.comercialBlock);
+                const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
 
                 if (restFilteredComercial.length) {
-                    setShowComercialBlock(true)
+                    setShowComercialBlock(true);
                 }
 
                 if (restFilteredFinance.length) {
-                    setShowFinanceBlock(true)
+                    setShowFinanceBlock(true);
                 }
 
-                setStorage('selectedRestaurant', JSON.stringify({ restaurant: restaurants[0] }))
+                setStorage('selectedRestaurant', JSON.stringify({ restaurant: restaurants[0] }));
+
                 if (favs.length > 0) {
-                    setFavorites(favs); // Atualiza o estado dos favoritos
+                    setFavorites(favs);
                 }
+
                 if (cartMap.size > 0) {
-                    setCart(cartMap); // Atualiza o estado do carrinho
+                    setCart(cartMap);
                 }
+
                 const newObservations = new Map();
                 cart.forEach((item) => {
                     if (item.obs) newObservations.set(item.productId, item.obs);
                 });
                 setProductObservations(newObservations);
+
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
             } finally {
@@ -933,7 +949,7 @@ export function Products({ navigation }: HomeScreenProps) {
             }
         };
         loadInitialData();
-    }, [loadFavorites, loadProducts, loadRestaurants]);
+    }, []);
 
     const addToFavorites = useCallback(async (productId: string) => {
         try {
@@ -1098,14 +1114,14 @@ export function Products({ navigation }: HomeScreenProps) {
 
     const renderProduct = useCallback(
         ({ item }: { item: Product }) => <ProductBox currentClass={currentClass} setModalVisible={handleSetModalVisible} setImage={handleSetImage} key={item.id} toggleFavorite={toggleFavorite} {...item} favorites={favorites} saveCart={saveCart} cart={cart}
-        obs = {productObservations.get(item.id) || ''}
-        onObsChange={(newObs: any) => {
-            setProductObservations(prev => {
-                const newMap = new Map(prev);
-                newMap.set(item.id, newObs);
-                return newMap;
-            });
-        }} />,
+            obs={productObservations.get(item.id) || ''}
+            onObsChange={(newObs: any) => {
+                setProductObservations(prev => {
+                    const newMap = new Map(prev);
+                    newMap.set(item.id, newObs);
+                    return newMap;
+                });
+            }} />,
         [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations]
     );
 
@@ -1193,7 +1209,7 @@ export function Products({ navigation }: HomeScreenProps) {
                 />
 
                 <View backgroundColor="#F0F2F6" flex={1} padding={16} borderTopColor="#aaa" borderTopWidth={0.5}>
-                    {currentClass.toLowerCase() === 'favoritos' && favorites.length < 1 && !searchQuery ?
+                    {currentClass === 'favoritos' && favorites.length < 1 && !searchQuery ?
                         <View flex={1} paddingTop={50} alignItems="center">
                             <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
                                 Busque os produtos da sua culinária e clique no coração para favoritar.
