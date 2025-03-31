@@ -209,7 +209,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
       <Input
         width={Platform.OS === 'web' ? '98%' :'92%'}
-        placeholder="Buscar produtos..."
+        placeholder="Buscar pedidos..."
         value={searchQuery}
         onChangeText={(text) => {
           setSearchQuery(text);
