@@ -8,10 +8,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import * as SecureStore from "expo-secure-store";
 import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
-import {
-  RestaurantContext,
-  RestaurantProvider,
-} from "@/app/contexts/restaurantsContext";
 
 const Navigation = createNativeStackNavigator();
 
@@ -26,18 +22,16 @@ export default function App() {
   }
 
   return (
-    <RestaurantProvider>
-      <NavigationContainer>
-        <TamaguiProvider config={config}>
-          <Navigation.Navigator
-            initialRouteName="Sign"
-            screenOptions={{ headerShown: false }}
-          >
-            <Navigation.Screen name="Sign" component={Sign} />
-            <Navigation.Screen name="Products" component={Products} />
-          </Navigation.Navigator>
-        </TamaguiProvider>
-      </NavigationContainer>
-    </RestaurantProvider>
+    <NavigationContainer>
+      <TamaguiProvider config={config}>
+        <Navigation.Navigator
+          initialRouteName="Sign"
+          screenOptions={{ headerShown: false }}
+        >
+          <Navigation.Screen name="Sign" component={Sign} />
+          <Navigation.Screen name="Products" component={Products} />
+        </Navigation.Navigator>
+      </TamaguiProvider>
+    </NavigationContainer>
   );
 }
