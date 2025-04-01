@@ -501,7 +501,7 @@ export function Prices({ navigation }: HomeScreenProps) {
             street: "Rua",
             responsibleReceivingName: "Nome do responsável",
             responsibleReceivingPhoneNumber: "Telefone do responsável",
-            localType: "Tipo do local",
+            localType: "Logradouro",
             city: "Cidade",
             neighborhood: "Bairro",
         };
