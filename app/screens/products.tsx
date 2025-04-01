@@ -1200,11 +1200,19 @@ export function Products({ navigation }: HomeScreenProps) {
           loadRestaurants(),
           loadProducts(),
         ]);
+
         console.log(restaurants);
-        const verduraKg = restaurants.filter((rest: any) => {
-          return rest.verduraKg === true;
-        });
-        if (verduraKg.length) {
+
+        const verduraKg = restaurants.filter(
+          (rest: any) => rest.verduraKg === true
+        );
+
+        // Extraindo categorias
+        const categories = restaurants.flatMap(
+          (rest: any) => rest.categories || []
+        );
+
+        if (verduraKg.length && categories.length === 0) {
           classItems = [
             { name: "Favoritos" },
             { name: "Fruta" },
@@ -1215,7 +1223,7 @@ export function Products({ navigation }: HomeScreenProps) {
             { name: "Cogumelos e trufas" },
             { name: "Higienizados" },
           ];
-        } else {
+        } else if (categories.length === 0) {
           classItems = [
             { name: "Favoritos" },
             { name: "Fruta" },
@@ -1225,6 +1233,11 @@ export function Products({ navigation }: HomeScreenProps) {
             { name: "Granja" },
             { name: "Cogumelos e trufas" },
             { name: "Higienizados" },
+          ];
+        } else {
+          classItems = [
+            { name: "Favoritos" },
+            ...categories.map((category: any) => ({ name: category })),
           ];
         }
 
@@ -1249,12 +1262,15 @@ export function Products({ navigation }: HomeScreenProps) {
           "selectedRestaurant",
           JSON.stringify({ restaurant: restaurants[0] })
         );
+
         if (favs.length > 0) {
-          setFavorites(favs); // Atualiza o estado dos favoritos
+          setFavorites(favs);
         }
+
         if (cartMap.size > 0) {
-          setCart(cartMap); // Atualiza o estado do carrinho
+          setCart(cartMap);
         }
+
         const newObservations = new Map();
         cart.forEach((item) => {
           if (item.obs) newObservations.set(item.productId, item.obs);
@@ -1267,7 +1283,7 @@ export function Products({ navigation }: HomeScreenProps) {
       }
     };
     loadInitialData();
-  }, [loadFavorites, loadProducts, loadRestaurants]);
+  }, []);
 
   const addToFavorites = useCallback(
     async (productId: string) => {
