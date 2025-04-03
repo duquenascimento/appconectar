@@ -870,9 +870,10 @@ export function Products({ navigation }: HomeScreenProps) {
         const loadInitialData = async () => {
             setLoading(true);
             try {
-                const [favs, cartMap, restaurants] = await Promise.all([
+                const [favs, cartMap, products, restaurants] = await Promise.all([
                     loadFavorites(),
                     loadCart(),
+                    loadProducts(),
                     loadRestaurants(),
                 ]);
 
@@ -1039,25 +1040,25 @@ export function Products({ navigation }: HomeScreenProps) {
             ) || [];
         }
 
-        // Normalizar a pesquisa (remover acentos e caracteres especiais)
+        // Normalizar a pesquisa
         const normalizeText = (text: string) =>
             text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-        // Aplicar pesquisa
         if (searchQuery) {
             const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
-            const normalizedQuery = normalizeText(searchQuery); // Normaliza o termo de busca
+            const normalizedQuery = normalizeText(searchQuery);
+            const queryWords = normalizedQuery.split(' ').filter(word => word !== '');
 
             products = productsList?.filter(product => {
-                const normalizedProductName = normalizeText(product.name); // Normaliza o nome do produto
-                const isMatchingName = normalizedProductName.includes(normalizedQuery);
+                const normalizedProductName = normalizeText(product.name);
+                const productNameWords = normalizedProductName.split(' ');
+                const isMatchingName = queryWords.every(queryWord =>
+                    productNameWords.some(productWord => productWord.includes(queryWord))
+                );
                 const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
-
                 return isMatchingName && isNotExcludedClass;
             }) ?? [];
         }
-
-        // Ordenar por nome
         return products.sort((a, b) =>
             a.name.toLowerCase().localeCompare(b.name.toLowerCase())
         );
