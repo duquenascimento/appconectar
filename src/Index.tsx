@@ -1,14 +1,17 @@
-import { useFonts } from 'expo-font';
-import { TamaguiProvider, YStack, Stack } from 'tamagui';
-import config from '../tamagui.config';
-import { Sign } from './components/Sign';
-import { Products } from './components/products';
-import { Slot } from 'expo-router';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import * as SecureStore from 'expo-secure-store';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-
+import { useFonts } from "expo-font";
+import { TamaguiProvider, YStack, Stack } from "tamagui";
+import config from "../tamagui.config";
+import { Sign } from "./components/Sign";
+import { Products } from "./components/products";
+import { Slot } from "expo-router";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import * as SecureStore from "expo-secure-store";
+import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
+import {
+  RestaurantContext,
+  RestaurantProvider,
+} from "@/app/contexts/restaurantsContext";
 
 const Navigation = createNativeStackNavigator();
 
@@ -23,13 +26,18 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <TamaguiProvider config={config}>
-        <Navigation.Navigator initialRouteName='Sign' screenOptions={{ headerShown: false }}>
+    <RestaurantProvider>
+      <NavigationContainer>
+        <TamaguiProvider config={config}>
+          <Navigation.Navigator
+            initialRouteName="Sign"
+            screenOptions={{ headerShown: false }}
+          >
             <Navigation.Screen name="Sign" component={Sign} />
             <Navigation.Screen name="Products" component={Products} />
-        </Navigation.Navigator>
-      </TamaguiProvider>
-    </ NavigationContainer>
-  )
+          </Navigation.Navigator>
+        </TamaguiProvider>
+      </NavigationContainer>
+    </RestaurantProvider>
+  );
 }
