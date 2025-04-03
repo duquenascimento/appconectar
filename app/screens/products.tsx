@@ -1000,11 +1000,9 @@ export function Products({ navigation }: HomeScreenProps) {
   const [productObservations, setProductObservations] = useState(new Map());
 
   //seguindo o padrão das orders
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant>({
-    id: "",
-    name: "",
-    externalId: "",
-  });
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
+    null
+  );
   const [restaurantOpen, setRestaurantOpen] = useState(false);
 
   const flatListRef = useRef<FlatList<Product>>(null);
@@ -1291,7 +1289,7 @@ export function Products({ navigation }: HomeScreenProps) {
 
         console.log("Primeiro", initialRestaurant);
 
-        setSelectedRestaurant(initialRestaurant);
+        setSelectedRestaurant(initialRestaurant.externalId);
         await AsyncStorage.setItem(
           "selectedRestaurant",
           JSON.stringify({ restaurant: initialRestaurant })
@@ -1363,10 +1361,11 @@ export function Products({ navigation }: HomeScreenProps) {
         if (productToAdd) {
           setFavorites([...favorites, productToAdd]);
         }
-        console.log(selectedRestaurant.id);
+        console.log(selectedRestaurant);
         const storedRestaurant = await getSavedRestaurant();
 
-        console.log(storedRestaurant?.id);
+        console.log(storedRestaurant?.externalId);
+
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/save`,
           {
@@ -1387,7 +1386,7 @@ export function Products({ navigation }: HomeScreenProps) {
         console.error("Erro ao adicionar aos favoritos:", error);
       }
     },
-    [favorites, productsList, selectedRestaurant.id]
+    [favorites, productsList, selectedRestaurant]
   );
 
   const removeFromFavorites = useCallback(
@@ -1397,6 +1396,8 @@ export function Products({ navigation }: HomeScreenProps) {
         const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
         setFavorites(favorites.filter((favorite) => favorite.id !== productId));
         if (token == null || !restaurant) return;
+        const storedRestaurant = await getSavedRestaurant();
+
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/del`,
           {
@@ -1407,7 +1408,7 @@ export function Products({ navigation }: HomeScreenProps) {
             },
             body: JSON.stringify({
               productId,
-              restaurantId: selectedRestaurant.id,
+              restaurantId: storedRestaurant?.id,
               token,
             }),
           }
@@ -1580,19 +1581,21 @@ export function Products({ navigation }: HomeScreenProps) {
     ]
   );
 
-  async function handleRestaurantChoice() {
+  async function handleRestaurantChoice(value: string | null) {
     try {
+      if (!value) return;
+
       const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant?.externalId === selectedRestaurant) {
-        setSelectedRestaurant(storedRestaurant?.externalId);
-        return;
+      if (storedRestaurant?.externalId === value) {
+        return; // Já está selecionado
       }
-      const restaurant = restaurantes.find(
-        (r) => r.externalId === selectedRestaurant
-      );
+
+      const restaurant = restaurantes.find((r) => r.externalId === value);
       if (restaurant) {
-        setStorage("selectedRestaurant", JSON.stringify({ restaurant }));
-        setSelectedRestaurant(restaurant.externalId);
+        await AsyncStorage.setItem(
+          "selectedRestaurant",
+          JSON.stringify({ restaurant })
+        );
       }
     } catch (error) {
       console.error("Falha na escolha de restaurante:", error);
@@ -1717,7 +1720,9 @@ export function Products({ navigation }: HomeScreenProps) {
           }))}
           setValue={setSelectedRestaurant}
           onChangeValue={handleRestaurantChoice}
-          placeholder="Selecione um restaurante"
+          placeholder={
+            selectedRestaurant ? undefined : "Selecione um restaurante"
+          }
           listMode="SCROLLVIEW"
           dropDownDirection="BOTTOM"
           style={{
