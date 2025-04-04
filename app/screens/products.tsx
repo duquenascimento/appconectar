@@ -1227,17 +1227,18 @@ export function Products({ navigation }: HomeScreenProps) {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const [favs, cartMap, restaurants, savedRestaurant] = await Promise.all(
+        const [restaurants, savedRestaurant, cartMap] = await Promise.all(
           [
-            loadFavorites(),
-            loadCart(),
             loadRestaurants(),
             getSavedRestaurant(), //busca o restaurante no storage
+            loadCart(),
+            //loadFavorites(),
             loadProducts(),
           ]
         );
 
         console.log(restaurants);
+        //console.log("Favoritos", favs);
 
         const verduraKg = restaurants.filter(
           (rest: any) => rest.verduraKg === true
@@ -1314,7 +1315,7 @@ export function Products({ navigation }: HomeScreenProps) {
           "selectedRestaurant",
           JSON.stringify({ restaurant: restaurants[0] })
         );
- */
+ */     const favs = await loadFavorites()
         if (favs.length > 0) {
           setFavorites(favs); // Atualiza o estado dos favoritos
         }
@@ -1472,29 +1473,26 @@ export function Products({ navigation }: HomeScreenProps) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
 
-    // Aplicar pesquisa
-    if (searchQuery) {
-      const excludeClass =
-        classItems[3].name === "Verduras - KG" ? "Verduras" : "Verduras - KG";
-      const normalizedQuery = normalizeText(searchQuery); // Normaliza o termo de busca
+        if (searchQuery) {
+            const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+            const normalizedQuery = normalizeText(searchQuery);
+            const queryWords = normalizedQuery.split(' ').filter(word => word !== '');
 
-      products =
-        productsList?.filter((product) => {
-          const normalizedProductName = normalizeText(product.name); // Normaliza o nome do produto
-          const isMatchingName =
-            normalizedProductName.includes(normalizedQuery);
-          const isNotExcludedClass =
-            normalizeText(product.class) !== normalizeText(excludeClass);
+            products = productsList?.filter(product => {
+                const normalizedProductName = normalizeText(product.name);
+                const productNameWords = normalizedProductName.split(' ');
+                const isMatchingName = queryWords.every(queryWord =>
+                    productNameWords.some(productWord => productWord.includes(queryWord))
+                );
+                const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
+                return isMatchingName && isNotExcludedClass;
+            }) ?? [];
+        }
+        return products.sort((a, b) =>
+            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+        );
+    }, [currentClass, productsList, favorites, searchQuery]);
 
-          return isMatchingName && isNotExcludedClass;
-        }) ?? [];
-    }
-
-    // Ordenar por nome
-    return products.sort((a, b) =>
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    );
-  }, [currentClass, productsList, favorites, searchQuery]);
 
   useEffect(() => {
     setDisplayedProducts(filteredProducts);
