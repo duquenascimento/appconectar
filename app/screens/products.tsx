@@ -1227,17 +1227,18 @@ export function Products({ navigation }: HomeScreenProps) {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const [favs, cartMap, restaurants, savedRestaurant] = await Promise.all(
+        const [restaurants, savedRestaurant, cartMap] = await Promise.all(
           [
-            loadFavorites(),
-            loadCart(),
             loadRestaurants(),
             getSavedRestaurant(), //busca o restaurante no storage
+            loadCart(),
+            //loadFavorites(),
             loadProducts(),
           ]
         );
 
         console.log(restaurants);
+        //console.log("Favoritos", favs);
 
         const verduraKg = restaurants.filter(
           (rest: any) => rest.verduraKg === true
@@ -1314,7 +1315,7 @@ export function Products({ navigation }: HomeScreenProps) {
           "selectedRestaurant",
           JSON.stringify({ restaurant: restaurants[0] })
         );
- */
+ */     const favs = await loadFavorites()
         if (favs.length > 0) {
           setFavorites(favs); // Atualiza o estado dos favoritos
         }
