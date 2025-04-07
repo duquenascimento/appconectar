@@ -1233,15 +1233,13 @@ export function Products({ navigation }: HomeScreenProps) {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const [favs, cartMap, restaurants, savedRestaurant] = await Promise.all(
-          [
-            loadFavorites(),
-            loadCart(),
-            loadRestaurants(),
-            getSavedRestaurant(), //busca o restaurante no storage
-            loadProducts(),
-          ]
-        );
+        const [restaurants, savedRestaurant, cartMap] = await Promise.all([
+          loadRestaurants(),
+          getSavedRestaurant(), //busca o restaurante no storage
+          loadCart(),
+          //loadFavorites(),
+          loadProducts(),
+        ]);
 
         console.log(restaurants);
 
@@ -1320,6 +1318,11 @@ export function Products({ navigation }: HomeScreenProps) {
           setShowFinanceBlock(true);
         }
 
+        /* setStorage(
+          "selectedRestaurant",
+          JSON.stringify({ restaurant: restaurants[0] })
+        );
+ */ const favs = await loadFavorites();
         if (favs.length > 0) {
           setFavorites(favs); // Atualiza o estado dos favoritos
         }
@@ -1478,19 +1481,26 @@ export function Products({ navigation }: HomeScreenProps) {
         .toLowerCase();
 
     if (searchQuery) {
-      const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+      const excludeClass =
+        classItems[3].name === "Verduras - KG" ? "Verduras" : "Verduras - KG";
       const normalizedQuery = normalizeText(searchQuery);
-      const queryWords = normalizedQuery.split(' ').filter(word => word !== '');
+      const queryWords = normalizedQuery
+        .split(" ")
+        .filter((word) => word !== "");
 
-      products = productsList?.filter(product => {
-        const normalizedProductName = normalizeText(product.name);
-        const productNameWords = normalizedProductName.split(' ');
-        const isMatchingName = queryWords.every(queryWord =>
-          productNameWords.some(productWord => productWord.includes(queryWord))
-        );
-        const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
-        return isMatchingName && isNotExcludedClass;
-      }) ?? [];
+      products =
+        productsList?.filter((product) => {
+          const normalizedProductName = normalizeText(product.name);
+          const productNameWords = normalizedProductName.split(" ");
+          const isMatchingName = queryWords.every((queryWord) =>
+            productNameWords.some((productWord) =>
+              productWord.includes(queryWord)
+            )
+          );
+          const isNotExcludedClass =
+            normalizeText(product.class) !== normalizeText(excludeClass);
+          return isMatchingName && isNotExcludedClass;
+        }) ?? [];
     }
     return products.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase())
@@ -1757,9 +1767,9 @@ export function Products({ navigation }: HomeScreenProps) {
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
-          {currentClass === "favoritos" &&
-            favorites.length < 1 &&
-            !searchQuery ? (
+          {currentClass === "Favoritos" &&
+          favorites.length < 1 &&
+          !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text
                 pl={15}
