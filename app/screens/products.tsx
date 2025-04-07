@@ -107,14 +107,41 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(50);
 
+  const hideTimeout = useRef<NodeJS.Timeout | null>(null)
+
   useEffect(() => {
-    if (cartSize > 0 && !isScrolling) {
-      opacity.value = withTiming(1, { duration: 600 });
-      translateY.value = withTiming(0, { duration: 600 });
-    } else {
+    // Se o carrinho estiver vazio, sempre esconde imediatamente
+    if (cartSize <= 0) {
       opacity.value = withTiming(0, { duration: 250 });
       translateY.value = withTiming(50, { duration: 250 });
+      return;
     }
+
+    if (isScrolling) {
+      // Mostra o botão imediatamente ao voltar a rolar
+      if (hideTimeout.current) {
+        clearTimeout(hideTimeout.current);
+        hideTimeout.current = null;
+      }
+      // Mostra o botão imediatamente ao voltar a rolar
+      opacity.value = withTiming(1, { duration: 200 });
+      translateY.value = withTiming(0, { duration: 200 });
+    } else {
+      
+      // Inicia o timer para esconder depois de 2s sem scroll
+      hideTimeout.current = setTimeout(() => {
+        opacity.value = withTiming(0, { duration: 250 });
+        translateY.value = withTiming(50, { duration: 250 });
+      }, 2000);
+    }
+
+    // Cancela qualquer timer pendente quando `isScrolling` muda
+    return () => {
+      if (hideTimeout.current) {
+        clearTimeout(hideTimeout.current);
+        hideTimeout.current = null;
+      }
+    };
   }, [cartSize, isScrolling, opacity, translateY]);
 
   const animatedStyle = useAnimatedStyle(() => ({
