@@ -332,9 +332,9 @@ export function DialogComercialInstance(props: {
                   const text =
                     encodeURIComponent(`Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
 ${props.rest.map(
-  (item: any) => `
+                      (item: any) => `
 - ${item.name}`
-)}
+                    )}
 
 Consegue me ajudar?`)
                       .replace("!", "%21")
@@ -434,9 +434,9 @@ export function DialogFinanceInstance(props: {
                   const text =
                     encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
 ${props.rest.map(
-  (item: any) => `
+                      (item: any) => `
 - ${item.name}`
-)}
+                    )}
 
 Consegue me ajudar?`)
                       .replace("!", "%21")
@@ -552,6 +552,7 @@ const ProductBox = React.memo(
       >
         {/**item da lista */}
         <View
+          marginHorizontal={Platform.OS === "web" ? 100 : ''}
           flex={1}
           justifyContent="space-between"
           alignItems="center"
@@ -645,6 +646,8 @@ const ProductBox = React.memo(
             backgroundColor="white"
             justifyContent="center"
             transform={[{ translateY: 0 }]}
+            marginHorizontal={Platform.OS === "web" ? 100 : ''}
+            marginBottom={15}
           >
             <View
               paddingHorizontal={Platform.OS === "web" ? 10 : 0}
@@ -1473,25 +1476,25 @@ export function Products({ navigation }: HomeScreenProps) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
 
-        if (searchQuery) {
-            const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
-            const normalizedQuery = normalizeText(searchQuery);
-            const queryWords = normalizedQuery.split(' ').filter(word => word !== '');
+    if (searchQuery) {
+      const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+      const normalizedQuery = normalizeText(searchQuery);
+      const queryWords = normalizedQuery.split(' ').filter(word => word !== '');
 
-            products = productsList?.filter(product => {
-                const normalizedProductName = normalizeText(product.name);
-                const productNameWords = normalizedProductName.split(' ');
-                const isMatchingName = queryWords.every(queryWord =>
-                    productNameWords.some(productWord => productWord.includes(queryWord))
-                );
-                const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
-                return isMatchingName && isNotExcludedClass;
-            }) ?? [];
-        }
-        return products.sort((a, b) =>
-            a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      products = productsList?.filter(product => {
+        const normalizedProductName = normalizeText(product.name);
+        const productNameWords = normalizedProductName.split(' ');
+        const isMatchingName = queryWords.every(queryWord =>
+          productNameWords.some(productWord => productWord.includes(queryWord))
         );
-    }, [currentClass, productsList, favorites, searchQuery]);
+        const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
+        return isMatchingName && isNotExcludedClass;
+      }) ?? [];
+    }
+    return products.sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    );
+  }, [currentClass, productsList, favorites, searchQuery]);
 
 
   useEffect(() => {
@@ -1670,6 +1673,43 @@ export function Products({ navigation }: HomeScreenProps) {
         </TouchableOpacity>
       </Modal>
 
+      {/*Lista de restaurantes do usuário*/}
+      <Text
+        style={{
+          marginTop: 15,
+          marginLeft: Platform.OS === "web" ? 20 : 15,
+        }}
+      >
+        Meus Restaurantes
+      </Text>
+
+      <DropDownPicker
+        open={restaurantOpen}
+        setOpen={setRestaurantOpen}
+        value={selectedRestaurant}
+        items={restaurantes?.map((restaurant) => ({
+          label: restaurant.name,
+          value: restaurant.externalId,
+        }))}
+        setValue={setSelectedRestaurant}
+        onChangeValue={handleRestaurantChoice}
+        placeholder={
+          selectedRestaurant ? undefined : "Selecione um restaurante"
+        }
+        listMode="SCROLLVIEW"
+        dropDownDirection="BOTTOM"
+        style={{
+          width: Platform.OS === "web" ? "50%" : "92%",
+          marginTop: 10,
+          marginHorizontal: 15,
+          marginRight: 20,
+          borderColor: "#ccc",
+          borderWidth: 1,
+          borderRadius: 5,
+          height: 40,
+        }}
+      />
+
       <View height={40} flex={1} paddingTop={8}>
         <XStack
           backgroundColor="#F0F2F6"
@@ -1681,6 +1721,7 @@ export function Products({ navigation }: HomeScreenProps) {
           alignItems="center"
           flexDirection="row"
           margin={10}
+          style={{ width: Platform.OS === "web" ? "50%" : "92%" }}
         >
           <Input
             placeholder="Buscar produtos..."
@@ -1698,42 +1739,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        {/*Lista de restaurantes do usuário*/}
-        <Text
-          style={{
-            marginTop: 15,
-            marginLeft: Platform.OS === "web" ? 20 : 15,
-          }}
-        >
-          Meus Restaurantes
-        </Text>
 
-        <DropDownPicker
-          open={restaurantOpen}
-          setOpen={setRestaurantOpen}
-          value={selectedRestaurant}
-          items={restaurantes?.map((restaurant) => ({
-            label: restaurant.name,
-            value: restaurant.externalId,
-          }))}
-          setValue={setSelectedRestaurant}
-          onChangeValue={handleRestaurantChoice}
-          placeholder={
-            selectedRestaurant ? undefined : "Selecione um restaurante"
-          }
-          listMode="SCROLLVIEW"
-          dropDownDirection="BOTTOM"
-          style={{
-            width: Platform.OS === "web" ? "50%" : "92%",
-            marginTop: 10,
-            marginHorizontal: 15,
-            marginRight: 20,
-            borderColor: "#ccc",
-            borderWidth: 1,
-            borderRadius: 5,
-            height: 40,
-          }}
-        />
 
         <FlatList
           style={{ maxHeight: 50, marginTop: 5, minHeight: 50 }}
@@ -1752,8 +1758,8 @@ export function Products({ navigation }: HomeScreenProps) {
           borderTopWidth={0.5}
         >
           {currentClass === "favoritos" &&
-          favorites.length < 1 &&
-          !searchQuery ? (
+            favorites.length < 1 &&
+            !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text
                 pl={15}
