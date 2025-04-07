@@ -1766,7 +1766,7 @@ export function Products({ navigation }: HomeScreenProps) {
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
-          {currentClass === "favoritos" &&
+          {currentClass === "Favoritos" &&
           favorites.length < 1 &&
           !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
