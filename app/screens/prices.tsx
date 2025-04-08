@@ -106,7 +106,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                 goToConfirm(supplier, selectedRestaurant)
             }
         }} flexDirection="row" borderBottomWidth={0.1} borderBottomColor='lightgray'>
-            <View flexDirection="row" f={1}>
+            <View style={{paddingLeft: Platform.OS === "web" ? 200 : ""}} marginVertical={10} flexDirection="row" f={1}>
                 <View p={5}>
                     <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg` }}
                         width={50}
@@ -121,7 +121,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                     </View>
                 </View>
             </View>
-            <View justifyContent="center">
+            <View style={{paddingRight: Platform.OS === "web" ? 200 : ""}} justifyContent="center">
                 <View>
                     <Text textAlign="right" fontSize={16} fontWeight="800">R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     {available ? (
@@ -512,10 +512,10 @@ export function Prices({ navigation }: HomeScreenProps) {
     const renderItem =
         ({ item }: { item: any }) => {
             if (item.separator) {
-                return <Text pb={10} pt={10} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
+                return <Text style={{paddingLeft: Platform.OS === "web" ? 210 : ''}} pb={10} pt={30} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
             }
             if (item.initialSeparator) {
-                return <Text pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
+                return <Text style={{paddingLeft: Platform.OS === "web" ? 210 : ''}} pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
             }
             return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />;
         }
@@ -666,7 +666,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                     setComplement(selectedRestaurant.addressInfos[0].complement);
                     setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
                     setEditInfos(true);
-                }} backgroundColor='white' paddingBottom={10} paddingTop={10} paddingHorizontal={20} borderTopColor='lightgray' borderTopWidth={1}>
+                }} backgroundColor='white' paddingBottom={10} paddingTop={10} paddingHorizontal={Platform.OS === "web" ? 200 : 20} borderTopColor='lightgray' borderTopWidth={1}>
                     <View flexDirection="row" alignItems="center">
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='#04BF7B' name="storefront"></Icons>
@@ -687,7 +687,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 <View ml={20}></View>
                                 <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>{selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}</Text>
                             </View>
-                            <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
+                            <View p={10} mr={10} flexDirection="row" f={2} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                                 <Icons size={20} color='#04BF7B' name="chatbox"></Icons>
                                 <View ml={20}></View>
                                 <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
