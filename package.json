@@ -14,6 +14,7 @@
     "prod": "npx serve ./dist",
     "build-web": "npx expo export --platform web"
   },
+  
   "jest": {
     "preset": "jest-expo"
   },
