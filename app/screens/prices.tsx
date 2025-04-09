@@ -18,6 +18,7 @@ import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from "../../src/components/modais/DialogInstanceNotification";
 import CustomAlert from "../../src/components/modais/CustomAlert"; // Importe o CustomAlert
 import { loadRestaurants } from "../../src/services/restaurantService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type RootStackParamList = {
   Home: undefined;
@@ -42,6 +43,13 @@ export interface Product {
   priceUniqueWithTaxAndDiscount: number;
   image: string[];
   orderUnit: string;
+}
+
+interface Restaurant {
+  externalId: any;
+  id: string;
+  name: string;
+  premium: boolean;
 }
 
 export interface Discount {
@@ -135,51 +143,91 @@ const SupplierBox = ({
     );
   };
 
-    return (
-        <View opacity={!isOpen() ? 1 : 0.4} onPress={() => {
-            if (supplier.supplier.missingItens > 0) {
-                goToConfirm(supplier, selectedRestaurant)
-            }
-        }} flexDirection="row" borderBottomWidth={0.1} borderBottomColor='lightgray'>
-            <View style={{paddingLeft: Platform.OS === "web" ? 200 : ""}} marginVertical={10} flexDirection="row" f={1}>
-                <View p={5}>
-                    <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg` }}
-                        width={50}
-                        height={50}
-                        borderRadius={50} />
-                </View>
-                <View ml={10} maxWidth="75%" justifyContent="center">
-                    <Text fs={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
-                    <View flexDirection="row" alignItems="center">
-                        <Icons color='orange' name="star"></Icons>
-                        <Text pl={4}>{supplier.supplier.star}</Text>
-                    </View>
-                </View>
-            </View>
-            <View style={{paddingRight: Platform.OS === "web" ? 200 : ""}} justifyContent="center">
-                <View>
-                    <Text textAlign="right" fontSize={16} fontWeight="800">R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
-                    {available ? (
-                        <Text color={(supplier.supplier.discount.product.length - supplier.supplier.missingItens) > 0 ? 'red' : 'black'} fontSize={12}>{supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)</Text>
-                    ) : (
-                        isOpen() ? (
-                            <Text color='red' fontSize={12}>Fechado às {supplier.supplier.hour.substring(0, 5)}</Text>
-                        ) : (
-                            <Text color='red' fontSize={12}>Mínimo R${supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}</Text>
-                        )
-                    )}
-                </View>
-            </View>
-            <View pl={10} justifyContent="center">
-                {!available && supplier.supplier.missingItens < 1 ?
-                    <View></View>
-                    :
-                    <Icons name="chevron-forward" size={24}></Icons>
-                }
-
-            </View>
+  return (
+    <View
+      opacity={!isOpen() ? 1 : 0.4}
+      onPress={() => {
+        if (supplier.supplier.missingItens > 0) {
+          goToConfirm(supplier, selectedRestaurant);
+        }
+      }}
+      flexDirection="row"
+      borderBottomWidth={0.1}
+      borderBottomColor="lightgray"
+    >
+      <View
+        style={{ paddingLeft: Platform.OS === "web" ? 200 : "" }}
+        marginVertical={10}
+        flexDirection="row"
+        f={1}
+      >
+        <View p={5}>
+          <Image
+            source={{
+              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`,
+            }}
+            width={50}
+            height={50}
+            borderRadius={50}
+          />
         </View>
-    );
+        <View ml={10} maxWidth="75%" justifyContent="center">
+          <Text fs={16}>
+            {supplier.supplier.name.replace("Distribuidora", "")}
+          </Text>
+          <View flexDirection="row" alignItems="center">
+            <Icons color="orange" name="star"></Icons>
+            <Text pl={4}>{supplier.supplier.star}</Text>
+          </View>
+        </View>
+      </View>
+      <View
+        style={{ paddingRight: Platform.OS === "web" ? 200 : "" }}
+        justifyContent="center"
+      >
+        <View>
+          <Text textAlign="right" fontSize={16} fontWeight="800">
+            R${" "}
+            {supplier.supplier.discount.orderValueFinish
+              .toFixed(2)
+              .replace(".", ",")}
+          </Text>
+          {available ? (
+            <Text
+              color={
+                supplier.supplier.discount.product.length -
+                  supplier.supplier.missingItens >
+                0
+                  ? "red"
+                  : "black"
+              }
+              fontSize={12}
+            >
+              {supplier.supplier.discount.product.length -
+                supplier.supplier.missingItens}{" "}
+              iten(s) faltante(s)
+            </Text>
+          ) : isOpen() ? (
+            <Text color="red" fontSize={12}>
+              Fechado às {supplier.supplier.hour.substring(0, 5)}
+            </Text>
+          ) : (
+            <Text color="red" fontSize={12}>
+              Mínimo R$
+              {supplier.supplier.minimumOrder.toFixed(2).replace(".", ",")}
+            </Text>
+          )}
+        </View>
+      </View>
+      <View pl={10} justifyContent="center">
+        {!available && supplier.supplier.missingItens < 1 ? (
+          <View></View>
+        ) : (
+          <Icons name="chevron-forward" size={24}></Icons>
+        )}
+      </View>
+    </View>
+  );
 };
 
 export function Prices({ navigation }: HomeScreenProps) {
@@ -322,10 +370,45 @@ export function Prices({ navigation }: HomeScreenProps) {
     }
   };
 
+  const getSavedRestaurant = async () => {
+    try {
+      const data = await AsyncStorage.getItem("selectedRestaurant");
+      if (!data) return null;
+
+      const parsedData = JSON.parse(data);
+
+      if (!parsedData?.restaurant) {
+        console.error("Formato inválido:", parsedData);
+        return null;
+      }
+
+      return parsedData.restaurant;
+    } catch (error) {
+      console.error("Erro ao parsear dados:", error);
+      return null;
+    }
+  };
+
   const loadPrices = useCallback(async (selectedRestaurant?: any) => {
     try {
       const token = await getToken();
       if (!token) return new Map();
+
+      const restaurantSelected = await getSavedRestaurant();
+      const restaurants = await loadRestaurants();
+
+      console.log(restaurantSelected);
+
+      setAllRestaurants(restaurants);
+
+      // Verifica se o restaurante salvo ainda existe na lista
+      const validRestaurant = restaurants.find(
+        (r: any) => r.externalId === restaurantSelected?.externalId
+      );
+
+      const currentRestaurant = validRestaurant;
+
+      if (!currentRestaurant) return;
 
       const result = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/price/list`,
@@ -336,7 +419,7 @@ export function Prices({ navigation }: HomeScreenProps) {
           },
           body: JSON.stringify({
             token,
-            selectedRestaurant: selectedRestaurant ?? items[0],
+            selectedRestaurant: selectedRestaurant ?? currentRestaurant,
           }),
         }
       );
@@ -534,14 +617,34 @@ export function Prices({ navigation }: HomeScreenProps) {
     const loadPricesAsync = async () => {
       try {
         const restaurants = await loadRestaurants();
+        const restaurantSelected = await getSavedRestaurant();
+
         items = restaurants;
-        console.log(items[0]);
-        setMinHour(
-          items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 15)
+        console.log(restaurantSelected);
+
+        setAllRestaurants(restaurants);
+
+        // Verifica se o restaurante salvo ainda existe na lista
+        const validRestaurant = restaurants.find(
+          (r: any) => r.externalId === restaurantSelected?.externalId
         );
-        setSelectedRestaurant(items[0]);
-        setTab(items[0].premium ? "plus" : "onlySupplier");
-        setAllRestaurants(items);
+
+        const currentRestaurant = validRestaurant;
+
+        if (!currentRestaurant) return;
+
+        setSelectedRestaurant(currentRestaurant);
+        setTab(currentRestaurant.premium ? "plus" : "onlySupplier");
+        setMinHour(
+          currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(
+            11,
+            16
+          )
+        );
+        setMaxHour(
+          currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16)
+        );
+
         await loadPrices();
         const hours = [];
         for (let hour = 0; hour < 22; hour++) {
@@ -550,18 +653,13 @@ export function Prices({ navigation }: HomeScreenProps) {
         }
         hours.push("22:00");
         setMinhours(hours);
-        setMinHour(
-          items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 16)
-        );
-        setMaxHour(
-          items[0]?.addressInfos[0]?.finalDeliveryTime.substring(11, 16)
-        );
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     };
+
     loadPricesAsync();
   }, [loadPrices]);
 
@@ -639,18 +737,45 @@ export function Prices({ navigation }: HomeScreenProps) {
     }
   }, [selectedRestaurant]);
 
-    const getItem = (data: SupplierData[], index: number) => data[index];
-    const getItemCount = (data: SupplierData[]) => data.length;
-    const renderItem =
-        ({ item }: { item: any }) => {
-            if (item.separator) {
-                return <Text style={{paddingLeft: Platform.OS === "web" ? 210 : ''}} pb={10} pt={30} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
-            }
-            if (item.initialSeparator) {
-                return <Text style={{paddingLeft: Platform.OS === "web" ? 210 : ''}} pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
-            }
-            return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />;
-        }
+  const getItem = (data: SupplierData[], index: number) => data[index];
+  const getItemCount = (data: SupplierData[]) => data.length;
+  const renderItem = ({ item }: { item: any }) => {
+    if (item.separator) {
+      return (
+        <Text
+          style={{ paddingLeft: Platform.OS === "web" ? 210 : "" }}
+          pb={10}
+          pt={30}
+          opacity={60}
+          fontSize={16}
+        >
+          Fornecedores indisponíveis
+        </Text>
+      );
+    }
+    if (item.initialSeparator) {
+      return (
+        <Text
+          style={{ paddingLeft: Platform.OS === "web" ? 210 : "" }}
+          pb={5}
+          opacity={60}
+          mt={10}
+          fontSize={16}
+        >
+          Fornecedores disponíveis
+        </Text>
+      );
+    }
+    return (
+      <SupplierBox
+        supplier={item}
+        star={item.star}
+        available={item.available}
+        selectedRestaurant={selectedRestaurant}
+        goToConfirm={goToConfirm}
+      />
+    );
+  };
 
   const validateFields = () => {
     const fieldLabels: { [key: string]: string } = {
@@ -830,176 +955,364 @@ export function Prices({ navigation }: HomeScreenProps) {
                       })
                     );
 
-                                    if (result.ok) {
-                                        const teste = await result.json();
-                                        console.log(teste);
-                                        setLoading(false);
-                                        setShowNotification(true);
-                                    } else {
-                                        const teste = await result.json();
-                                        console.log(teste);
-                                        setLoading(false);
-                                    }
-
-                                }}>
-                                    <Text fontWeight="500" fontSize={16} color="white">Solicitar cotação</Text>
-                                </Button>
-                                <Text mt={5} textAlign="center" fontSize={12} color='gray'>Você receberá a cotação no Whatsapp</Text>
-                            </View>
-                        )}
-
+                    if (result.ok) {
+                      const teste = await result.json();
+                      console.log(teste);
+                      setLoading(false);
+                      setShowNotification(true);
+                    } else {
+                      const teste = await result.json();
+                      console.log(teste);
+                      setLoading(false);
+                    }
+                  }}
+                >
+                  <Text fontWeight="500" fontSize={16} color="white">
+                    Solicitar cotação
+                  </Text>
+                </Button>
+                <Text mt={5} textAlign="center" fontSize={12} color="gray">
+                  Você receberá a cotação no Whatsapp
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+        <View
+          onPress={() => {
+            setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
+            setCity(selectedRestaurant.addressInfos[0].city);
+            setLocalType(selectedRestaurant.addressInfos[0].localType);
+            setLocalNumber(selectedRestaurant.addressInfos[0].localNumber);
+            setResponsibleReceivingName(
+              selectedRestaurant.addressInfos[0].responsibleReceivingName
+            );
+            setResponsibleReceivingPhoneNumber(
+              selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber
+            );
+            setZipCode(
+              selectedRestaurant.addressInfos[0].zipCode
+                .replace(/\D/g, "")
+                .replace(/(\d{5})(\d{3})/, "$1-$2")
+            );
+            setStreet(selectedRestaurant.addressInfos[0].address);
+            setComplement(selectedRestaurant.addressInfos[0].complement);
+            setDeliveryInformation(
+              selectedRestaurant.addressInfos[0].deliveryInformation
+            );
+            setEditInfos(true);
+          }}
+          backgroundColor="white"
+          paddingBottom={10}
+          paddingTop={10}
+          paddingHorizontal={Platform.OS === "web" ? 200 : 20}
+          borderTopColor="lightgray"
+          borderTopWidth={1}
+        >
+          <View flexDirection="row" alignItems="center">
+            <View
+              p={10}
+              mr={10}
+              flexDirection="row"
+              f={1}
+              borderColor="lightgray"
+              borderRadius={5}
+              borderWidth={1}
+              paddingHorizontal={10}
+              backgroundColor="white"
+              alignItems="center"
+            >
+              <Icons size={20} color="#04BF7B" name="storefront"></Icons>
+              <View ml={20}></View>
+              <Text
+                numberOfLines={showRestInfo ? 1 : 1}
+                ellipsizeMode="tail"
+                fontSize={12}
+                style={{ flexShrink: 1, width: "100%" }}
+              >
+                {selectedRestaurant?.name || ""}
+              </Text>
+            </View>
+            <View
+              p={10}
+              mr={10}
+              flexDirection="row"
+              f={1}
+              borderColor="lightgray"
+              borderRadius={5}
+              borderWidth={1}
+              paddingHorizontal={10}
+              backgroundColor="white"
+              alignItems="center"
+            >
+              <Icons size={20} color="#04BF7B" name="time"></Icons>
+              <View ml={20}></View>
+              <Text fontSize={12}>
+                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(
+                  11,
+                  16
+                )}{" "}
+                -{" "}
+                {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(
+                  11,
+                  16
+                )}
+              </Text>
+            </View>
+            <Icons
+              size={20}
+              onPress={() => {
+                setShowRestInfo(!showRestInfo);
+              }}
+              name={showRestInfo ? "chevron-up" : "chevron-down"}
+            ></Icons>
+          </View>
+          <View display={showRestInfo ? "flex" : "none"}>
+            <View pt={5} flexDirection="row" alignItems="center">
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
+                <Icons size={20} color="#04BF7B" name="location"></Icons>
+                <View ml={20}></View>
+                <Text
+                  numberOfLines={1}
+                  overflow="scroll"
+                  ellipsizeMode="tail"
+                  fontSize={12}
+                >
+                  {selectedRestaurant.addressInfos[0].localType}{" "}
+                  {selectedRestaurant.addressInfos[0].address},{" "}
+                  {selectedRestaurant.addressInfos[0].localNumber}.{" "}
+                  {selectedRestaurant.addressInfos[0].complement} -{" "}
+                  {selectedRestaurant.addressInfos[0].neighborhood},{" "}
+                  {selectedRestaurant.addressInfos[0].city}
+                </Text>
+              </View>
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={2}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
+                <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
+                <View ml={20}></View>
+                <Text fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].deliveryInformation}
+                </Text>
+              </View>
+            </View>
+            <View pt={5} flexDirection="row" alignItems="center">
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
+                <Icons size={20} color="#04BF7B" name="person"></Icons>
+                <View ml={20}></View>
+                <Text fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].responsibleReceivingName}
+                </Text>
+              </View>
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
+                <Icons size={20} color="#04BF7B" name="call"></Icons>
+                <View ml={20}></View>
+                <Text fontSize={12}>
+                  {
+                    selectedRestaurant.addressInfos[0]
+                      .responsibleReceivingPhoneNumber
+                  }
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+        {editInfos && (
+          <View
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor="white"
+          >
+            <Modal transparent={true}>
+              <ScrollView
+                contentContainerStyle={{
+                  flex: 1,
+                  justifyContent: "center",
+                  padding: 20,
+                }}
+                keyboardShouldPersistTaps="handled"
+              >
+                <View
+                  flex={1}
+                  justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="rgba(0, 0, 0, 0.9)"
+                >
+                  <View
+                    pb={15}
+                    paddingHorizontal={15}
+                    pt={15}
+                    $xl={{ minWidth: "40%" }}
+                    $sm={{ minWidth: "90%" }}
+                    backgroundColor="white"
+                    borderRadius={10}
+                    justifyContent="center"
+                    zIndex={101}
+                  >
+                    <Text pl={5} fontSize={12} color="gray">
+                      Restaurante
+                    </Text>
+                    {allRestaurants.length > 0 ? (
+                      <DropDownPicker
+                        listMode="SCROLLVIEW"
+                        value={selectedRestaurant?.name}
+                        style={{
+                          borderWidth: 1,
+                          borderColor: "lightgray",
+                          borderRadius: 5,
+                          flex: 1,
+                          marginBottom: Platform.OS === "web" ? 0 : 35,
+                        }}
+                        setValue={() => {}}
+                        items={allRestaurants.map((item) => ({
+                          label: item?.name,
+                          value: item?.name,
+                        }))}
+                        multiple={false}
+                        open={restOpen}
+                        setOpen={setRestOpen}
+                        placeholder=""
+                        onSelectItem={(value) => {
+                          setLoading(true); // Ativa o loading assim que o usuário escolhe um item
+                          const rest = allRestaurants.find(
+                            (item) => item?.name === value.value
+                          );
+                          setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
+                        }}
+                      ></DropDownPicker>
+                    ) : (
+                      <Text>Loading...</Text> // Ou algum placeholder
+                    )}
+                    <View
+                      pt={15}
+                      gap={10}
+                      mb={Platform.OS === "web" ? 0 : 35}
+                      justifyContent="space-between"
+                      flexDirection="row"
+                      zIndex={100}
+                    >
+                      <View flex={1}>
+                        <Text pl={5} fontSize={12} color="gray">
+                          A partir de
+                        </Text>
+                        <DropDownPicker
+                          value={minHour}
+                          style={{
+                            borderWidth: 1,
+                            borderColor: "lightgray",
+                            borderRadius: 5,
+                            flex: 1,
+                          }}
+                          setValue={setMinHour}
+                          items={minhours.map((item) => {
+                            return { label: item, value: item };
+                          })}
+                          multiple={false}
+                          open={minHourOpen}
+                          setOpen={setMinHourOpen}
+                          placeholder=""
+                          listMode="SCROLLVIEW"
+                        ></DropDownPicker>
+                      </View>
+                      <View flex={1} zIndex={100}>
+                        <Text pl={5} fontSize={12} color="gray">
+                          Até
+                        </Text>
+                        <DropDownPicker
+                          value={maxHour}
+                          listMode="SCROLLVIEW"
+                          style={{
+                            borderWidth: 1,
+                            borderColor: "lightgray",
+                            borderRadius: 5,
+                            flex: 1,
+                          }}
+                          setValue={setMaxHour}
+                          items={maxhours.map((item) => {
+                            return { label: item, value: item };
+                          })}
+                          multiple={false}
+                          open={maxHourOpen}
+                          setOpen={setMaxHourOpen}
+                          placeholder=""
+                        ></DropDownPicker>
+                      </View>
                     </View>
-                </View>
-                <View onPress={() => {
-                    setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
-                    setCity(selectedRestaurant.addressInfos[0].city);
-                    setLocalType(selectedRestaurant.addressInfos[0].localType);
-                    setLocalNumber(selectedRestaurant.addressInfos[0].localNumber);
-                    setResponsibleReceivingName(selectedRestaurant.addressInfos[0].responsibleReceivingName);
-                    setResponsibleReceivingPhoneNumber(selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber);
-                    setZipCode(selectedRestaurant.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'));
-                    setStreet(selectedRestaurant.addressInfos[0].address);
-                    setComplement(selectedRestaurant.addressInfos[0].complement);
-                    setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
-                    setEditInfos(true);
-                }} backgroundColor='white' paddingBottom={10} paddingTop={10} paddingHorizontal={Platform.OS === "web" ? 200 : 20} borderTopColor='lightgray' borderTopWidth={1}>
-                    <View flexDirection="row" alignItems="center">
-                        <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                            <Icons size={20} color='#04BF7B' name="storefront"></Icons>
-                            <View ml={20}></View>
-                            <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail" fontSize={12} style={{ flexShrink: 1, width: '100%' }}>{selectedRestaurant?.name || ''}</Text>
-                        </View>
-                        <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                            <Icons size={20} color='#04BF7B' name="time"></Icons>
-                            <View ml={20}></View>
-                            <Text fontSize={12}>{selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}</Text>
-                        </View>
-                        <Icons size={20} onPress={() => { setShowRestInfo(!showRestInfo) }} name={showRestInfo ? "chevron-up" : "chevron-down"}></Icons>
-                    </View>
-                    <View display={showRestInfo ? "flex" : "none"}>
-                        <View pt={5} flexDirection="row" alignItems="center">
-                            <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='#04BF7B' name="location"></Icons>
-                                <View ml={20}></View>
-                                <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>{selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}</Text>
-                            </View>
-                            <View p={10} mr={10} flexDirection="row" f={2} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='#04BF7B' name="chatbox"></Icons>
-                                <View ml={20}></View>
-                                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
-                            </View>
-                        </View>
-                        <View pt={5} flexDirection="row" alignItems="center">
-                            <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='#04BF7B' name="person"></Icons>
-                                <View ml={20}></View>
-                                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingName}</Text>
-                            </View>
-                            <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
-                                <Icons size={20} color='#04BF7B' name="call"></Icons>
-                                <View ml={20}></View>
-                                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}</Text>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-                {editInfos && (
-                    <View flex={1} justifyContent="center" alignItems="center" backgroundColor='white'>
-
-                        <Modal
-                            transparent={true}
-                        >
-                            <ScrollView
-                                contentContainerStyle={{ flex: 1, justifyContent: 'center', padding: 20 }}
-                                keyboardShouldPersistTaps="handled"
-                            >
-                                <View flex={1} justifyContent="center" alignItems="center" backgroundColor='rgba(0, 0, 0, 0.9)'>
-                                    <View pb={15} paddingHorizontal={15} pt={15} $xl={{ minWidth: '40%' }} $sm={{ minWidth: '90%' }} backgroundColor='white' borderRadius={10} justifyContent="center" zIndex={101}>
-                                        <Text pl={5} fontSize={12} color='gray'>Restaurante</Text>
-                                        {allRestaurants.length > 0 ? (
-                                            <DropDownPicker
-                                                listMode="SCROLLVIEW"
-                                                value={selectedRestaurant?.name}
-                                                style={{
-                                                    borderWidth: 1,
-                                                    borderColor: 'lightgray',
-                                                    borderRadius: 5,
-                                                    flex: 1,
-                                                    marginBottom: Platform.OS === 'web' ? 0 : 35
-                                                }}
-                                                setValue={() => { }}
-                                                items={allRestaurants.map((item) => ({ label: item?.name, value: item?.name }))}
-                                                multiple={false}
-                                                open={restOpen}
-                                                setOpen={setRestOpen}
-                                                placeholder=""
-                                                onSelectItem={(value) => {
-                                                    setLoading(true); // Ativa o loading assim que o usuário escolhe um item
-                                                    const rest = allRestaurants.find((item) => item?.name === value.value);
-                                                    setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
-                                                }}
-                                            >
-                                            </DropDownPicker>
-
-                                        ) : (
-                                            <Text>Loading...</Text> // Ou algum placeholder
-                                        )}
-                                        <View pt={15} gap={10} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row" zIndex={100}>
-                                            <View flex={1}>
-                                                <Text pl={5} fontSize={12} color='gray'>A partir de</Text>
-                                                <DropDownPicker
-                                                    value={minHour}
-                                                    style={{
-                                                        borderWidth: 1,
-                                                        borderColor: 'lightgray',
-                                                        borderRadius: 5,
-                                                        flex: 1,
-                                                    }}
-                                                    setValue={setMinHour}
-                                                    items={minhours.map((item) => { return { label: item, value: item } })}
-                                                    multiple={false}
-                                                    open={minHourOpen}
-                                                    setOpen={setMinHourOpen}
-                                                    placeholder=""
-                                                    listMode="SCROLLVIEW"
-                                                >
-                                                </DropDownPicker>
-                                            </View>
-                                            <View flex={1} zIndex={100}>
-                                                <Text pl={5} fontSize={12} color='gray'>Até</Text>
-                                                <DropDownPicker
-                                                    value={maxHour}
-                                                    listMode="SCROLLVIEW"
-                                                    style={{
-                                                        borderWidth: 1,
-                                                        borderColor: 'lightgray',
-                                                        borderRadius: 5,
-                                                        flex: 1,
-                                                    }}
-                                                    setValue={setMaxHour}
-                                                    items={maxhours.map((item) => { return { label: item, value: item } })}
-                                                    multiple={false}
-                                                    open={maxHourOpen}
-                                                    setOpen={setMaxHourOpen}
-                                                    placeholder=""
-                                                >
-                                                </DropDownPicker>
-                                            </View>
-                                        </View>
-                                        <KeyboardAvoidingView>
-                                            <View style={{ flexDirection: "row", gap: 10, marginBottom: 15 }}>
-                                                {/* Campo CEP */}
-                                                <View style={{ flex: 1, width: 110 }}>
-                                                    <Text style={{ paddingTop: 15, paddingLeft: 5, fontSize: 12, color: "gray" }}>Cep</Text>
-                                                    <Input
-                                                        height={50}
-                                                        maxLength={9}
-                                                        backgroundColor="white"
-                                                        borderColor="lightgray"
-                                                        borderRadius={5}
-                                                        onChangeText={async (value) => {
-                                                            const cleaned = value.replace(/\D/g, '');
-                                                            const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
+                    <KeyboardAvoidingView>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          gap: 10,
+                          marginBottom: 15,
+                        }}
+                      >
+                        {/* Campo CEP */}
+                        <View style={{ flex: 1, width: 110 }}>
+                          <Text
+                            style={{
+                              paddingTop: 15,
+                              paddingLeft: 5,
+                              fontSize: 12,
+                              color: "gray",
+                            }}
+                          >
+                            Cep
+                          </Text>
+                          <Input
+                            height={50}
+                            maxLength={9}
+                            backgroundColor="white"
+                            borderColor="lightgray"
+                            borderRadius={5}
+                            onChangeText={async (value) => {
+                              const cleaned = value.replace(/\D/g, "");
+                              const formatted = cleaned.replace(
+                                /(\d{5})(\d{3})/,
+                                "$1-$2"
+                              );
 
                               if (formatted.length === 9) {
                                 setLoading(true);
