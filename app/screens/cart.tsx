@@ -14,6 +14,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native';
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
+import { widths } from '@tamagui/config/types/media';
 
 type RootStackParamList = {
     Home: undefined;
@@ -54,7 +55,7 @@ type TCart = {
     obs: string
 }
 
-type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void};
+type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>, cart: Map<string, TCart>, cartInside: Map<string, TCart>, setConfirmDeleteItem: (cart: TCart) => void };
 
 const ProductBox = React.memo((produto: ProductBoxProps) => {
     const [open, setOpen] = useState(false);
@@ -64,7 +65,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
     const obsRef = useRef('');
     const quantRef = useRef(produto.firstUnit ? produto.firstUnit : 1);
-    const handleObsChange = (text: string) => {setObs(text); setObs(text)};
+    const handleObsChange = (text: string) => { setObs(text); setObs(text) };
 
     const isCart = useMemo(() => {
         return produto.cart.has(produto.id);
@@ -107,7 +108,23 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
     return (
         <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-            <View onPress={toggleOpen} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" marginHorizontal={Platform.OS === "web" ? 330 : ''} marginVertical={5} borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
+            <View
+                onPress={toggleOpen}
+                flex={1}
+                justifyContent="space-between"
+                alignItems="center"
+                paddingHorizontal={8}
+                flexDirection="row"
+                minHeight={40}
+                backgroundColor="white"
+                marginVertical={5}
+                borderRadius={12}
+                borderBottomLeftRadius={open ? 0 : 12}
+                borderBottomRightRadius={open ? 0 : 12}
+                style={{
+                    width: Platform.OS === "web" ? '70%' : '92%',
+                    alignSelf: 'center'
+                }}>
                 <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 5}>
                         <View>
@@ -147,7 +164,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                 </View>
             </View>
             {open && (
-                <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} paddingHorizontal={8} $xl={{marginHorizontal: 330}} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
+                <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} width={Platform.OS === 'web' ? '70%' : '92%'} alignSelf='center' gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
                     <View paddingHorizontal={Platform.OS === 'web' ? 10 : 5} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
                         <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} flex={1} alignItems='center' mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
                             {Platform.OS === 'web' && (
@@ -292,14 +309,14 @@ export function Cart({ navigation }: HomeScreenProps) {
                 },
                 body: JSON.stringify({ token, productId: cartToDelete.productId })
             }).then(res => res).then((result => {
-                if(result.ok) {
+                if (result.ok) {
                     if (newCart.size < 1) {
                         deleteStorage('cart').then()
                         navigation.replace('Products');
                     }
 
                 }
-            })).finally(() => {setLoading(false);setConfirmDeleteItem(false)})
+            })).finally(() => { setLoading(false); setConfirmDeleteItem(false) })
             return newCart;
         });
     }, 300);
@@ -321,7 +338,7 @@ export function Cart({ navigation }: HomeScreenProps) {
             if (!result.ok) return new Map();
 
             const cart = await result.json();
-            console.log('cartloaded: ', cart )
+            console.log('cartloaded: ', cart)
             if (!cart.data || cart.data.length < 1) return new Map();
 
             // Converte o array de cart para um Map
@@ -398,7 +415,7 @@ export function Cart({ navigation }: HomeScreenProps) {
 
             setAlertItems(alertItems);
 
-            return cart.data; 
+            return cart.data;
         } catch (error) {
             console.error('Erro ao carregar favoritos:', error);
             return [];
@@ -522,16 +539,16 @@ export function Cart({ navigation }: HomeScreenProps) {
                         getItem={(data, index) => displayedProducts[index]}
                         keyExtractor={(item) => item.id}
                         renderItem={renderProduct}
-                        ItemSeparatorComponent={() => <View height={8}/>}
+                        ItemSeparatorComponent={() => <View height={8} />}
                         initialNumToRender={10}
                         windowSize={4}
-                        
+
                     />
                 </View>
 
                 <View backgroundColor='#F0F2F6' display={confirmDelte ? 'none' : 'flex'} px={20}
                     justifyContent='center' alignItems='center' flexDirection='row' gap={20} height={70}>
-                    <View backgroundColor='#F0F2F6' {...Platform.OS === 'web' ? { minWidth: '50%' } : {}} flexDirection='row' justifyContent='center' gap={5}>
+                    <View backgroundColor='#F0F2F6' {...Platform.OS === 'web' ? { minWidth: '50%', width: Platform.OS === "web" ? '70%' : '92%' } : {}} flexDirection='row' justifyContent='center' gap={5}>
                         <View justifyContent='center' alignItems='center'>
                             <Button backgroundColor='black' onPress={async () => {
                                 setConfirmDelete(true)
