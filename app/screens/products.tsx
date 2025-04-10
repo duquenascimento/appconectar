@@ -1706,6 +1706,10 @@ export function Products({ navigation }: HomeScreenProps) {
         }
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
+        dropDownContainerStyle={{ 
+          width: Platform.OS === "web" ? "68%" : "92%",
+          alignSelf: "center"
+         }}
         style={{
           width: Platform.OS === "web" ? "68%" : "92%",
           alignSelf: 'center',
