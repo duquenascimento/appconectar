@@ -10,6 +10,7 @@ import { clearStorage, getToken, setStorage } from "../utils/utils";
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification';
 import CustomAlert from '../../src/components/modais/CustomAlert'; // Importe o CustomAlert
 import { loadRestaurants } from '../../src/services/restaurantService'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type RootStackParamList = {
     Home: undefined;
@@ -34,6 +35,13 @@ export interface Product {
     priceUniqueWithTaxAndDiscount: number;
     image: string[];
     orderUnit: string;
+}
+
+interface Restaurant {
+    externalId: any;
+    id: string;
+    name: string;
+    premium: boolean
 }
 
 export interface Discount {
@@ -149,6 +157,8 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
         </View>
     );
 };
+
+
 
 
 export function Prices({ navigation }: HomeScreenProps) {
@@ -269,17 +279,52 @@ export function Prices({ navigation }: HomeScreenProps) {
         }
     }
 
+    const getSavedRestaurant = async () => {
+        try {
+            const data = await AsyncStorage.getItem("selectedRestaurant");
+            if (!data) return null;
+
+            const parsedData = JSON.parse(data);
+
+            if (!parsedData?.restaurant) {
+                console.error("Formato inválido:", parsedData);
+                return null;
+            }
+
+            return parsedData.restaurant;
+        } catch (error) {
+            console.error("Erro ao parsear dados:", error);
+            return null;
+        }
+    };
+
     const loadPrices = useCallback(async (selectedRestaurant?: any) => {
         try {
             const token = await getToken();
             if (!token) return new Map();
+
+            const restaurantSelected = await getSavedRestaurant()
+            const restaurants = await loadRestaurants();
+
+            console.log(restaurantSelected);
+
+            setAllRestaurants(restaurants);
+
+            // Verifica se o restaurante salvo ainda existe na lista
+            const validRestaurant = restaurants.find(
+                (r: any) => r.externalId === restaurantSelected?.externalId
+            );
+
+            const currentRestaurant = validRestaurant ;
+
+            if (!currentRestaurant) return;
 
             const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? items[0] })
+                body: JSON.stringify({ token, selectedRestaurant: selectedRestaurant ?? currentRestaurant })
             });
 
             const response = await result.json();
@@ -417,31 +462,47 @@ export function Prices({ navigation }: HomeScreenProps) {
     }, []);
 
     useEffect(() => {
+
+
         const loadPricesAsync = async () => {
             try {
                 const restaurants = await loadRestaurants();
+                const restaurantSelected = await getSavedRestaurant();
+
                 items = restaurants;
-                console.log(items[0]);
-                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 15));
-                setSelectedRestaurant(items[0]);
-                setTab(items[0].premium ? 'plus' : 'onlySupplier');
-                setAllRestaurants(items);
+                console.log(restaurantSelected);
+
+                setAllRestaurants(restaurants);
+
+                // Verifica se o restaurante salvo ainda existe na lista
+                const validRestaurant = restaurants.find(
+                    (r: any) => r.externalId === restaurantSelected?.externalId
+                );
+
+                const currentRestaurant = validRestaurant;
+
+                if (!currentRestaurant) return;
+
+                setSelectedRestaurant(currentRestaurant);
+                setTab(currentRestaurant.premium ? "plus" : "onlySupplier");
+                setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
+                setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
+
                 await loadPrices();
                 const hours = [];
                 for (let hour = 0; hour < 22; hour++) {
-                    hours.push(`${String(hour).padStart(2, '0')}:00`);
-                    hours.push(`${String(hour).padStart(2, '0')}:30`);
+                    hours.push(`${String(hour).padStart(2, "0")}:00`);
+                    hours.push(`${String(hour).padStart(2, "0")}:30`);
                 }
-                hours.push('22:00');
+                hours.push("22:00");
                 setMinhours(hours);
-                setMinHour(items[0]?.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
-                setMaxHour(items[0]?.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
             } catch (err) {
                 console.error(err);
             } finally {
                 setLoading(false);
             }
         };
+
         loadPricesAsync();
     }, [loadPrices]);
 
@@ -1021,33 +1082,33 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                     <View flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
-                                                            <Input 
-                                                            color='gray' 
-                                                            fontSize={9} 
-                                                            disabled 
-                                                            flex={1} 
-                                                            backgroundColor='white' 
-                                                            borderColor='lightgray' 
-                                                            borderRadius={5} 
-                                                            value={neighborhood} 
-                                                            focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                            hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+                                                            <Input
+                                                                color='gray'
+                                                                fontSize={9}
+                                                                disabled
+                                                                flex={1}
+                                                                backgroundColor='white'
+                                                                borderColor='lightgray'
+                                                                borderRadius={5}
+                                                                value={neighborhood}
+                                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                                         </KeyboardAvoidingView>
                                                     </View>
                                                     <View flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
-                                                            <Input 
-                                                            color='gray' 
-                                                            fontSize={9} 
-                                                            disabled 
-                                                            flex={1} 
-                                                            backgroundColor='white' 
-                                                            borderColor='lightgray' 
-                                                            borderRadius={5} 
-                                                            value={city} 
-                                                            focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                                                            hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+                                                            <Input
+                                                                color='gray'
+                                                                fontSize={9}
+                                                                disabled
+                                                                flex={1}
+                                                                backgroundColor='white'
+                                                                borderColor='lightgray'
+                                                                borderRadius={5}
+                                                                value={city}
+                                                                focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                                                                hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                                         </KeyboardAvoidingView>
                                                     </View>
                                                 </View>
