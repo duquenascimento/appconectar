@@ -165,95 +165,106 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
   return (
     <>
-    <Text
-     style={{
-      marginTop: 35,
-      marginLeft: Platform.OS === 'web' ? 20 : 15
-    }}
-    >Meus Pedidos</Text>
-    {/* Dropdown de Restaurantes */}
-    <DropDownPicker
-      value={selectedRestaurant}
-      setValue={(value) => setSelectedRestaurant(value)}
-      items={restaurants.map((restaurant) => ({
-        label: restaurant.name,
-        value: restaurant.externalId,
-      }))}
-      open={restaurantOpen}
-      setOpen={setRestaurantOpen}
-      placeholder="Selecione um restaurante"
-      listMode="SCROLLVIEW"
-      style={{
-        width: Platform.OS === 'web' ? '50%' :'92%',
-        marginTop: 10,
-        marginHorizontal: 15,
-        marginRight: 20,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 5,
-        height: 40,
-      }}
-    />
-
-    {/* Campo de Pesquisa */}
-    <XStack
-      backgroundColor="#FFF"
-      borderRadius={20}
-      //marginHorizontal={ Platform.OS === 'web' ? 20 : 15 }
-      marginRight={ Platform.OS === 'web' ? '49%' : 15 }
-      marginLeft={ Platform.OS === 'web' ? 15 : 15 }
-      marginTop={20}
-      paddingRight={14}
-      alignItems="center"
-    >
-      <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
-      <Input
-        width={Platform.OS === 'web' ? '98%' :'92%'}
-        placeholder="Buscar pedidos..."
-        value={searchQuery}
-        onChangeText={(text) => {
-          setSearchQuery(text);
-          handleSearch(text);
+      <Text
+        style={{
+          marginTop: 35,
+          marginLeft: Platform.OS === 'web' ? '' : 15,
+          width: Platform.OS === 'web' ? '70%' : '',
+          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
         }}
-        backgroundColor="transparent"
-        borderWidth={0}
-        borderColor="transparent"
-        paddingHorizontal={10}
-        fontSize={14}
-        color="#000"
-        flex={1}
-        placeholderTextColor="#888"
+      >Meus Pedidos</Text>
+      {/* Dropdown de Restaurantes */}
+      <DropDownPicker
+        value={selectedRestaurant}
+        setValue={(value) => setSelectedRestaurant(value)}
+        items={restaurants.map((restaurant) => ({
+          label: restaurant.name,
+          value: restaurant.externalId,
+        }))}
+        open={restaurantOpen}
+        setOpen={setRestaurantOpen}
+        placeholder="Selecione um restaurante"
+        listMode="SCROLLVIEW"
+        dropDownContainerStyle={{
+          width: Platform.OS === "web" ? "70%" : "92%",
+          alignSelf: "center"
+        }}
+        style={{
+          width: Platform.OS === "web" ? "70%" : "92%",
+          alignSelf: 'center',
+          marginTop: 10,
+          marginHorizontal: 15,
+          marginRight: 20,
+          borderColor: '#ccc',
+          borderWidth: 1,
+          borderRadius: 5,
+          height: 40,
+        }}
       />
-    </XStack>
 
-    {/* Botão para Baixar Documentos */}
-    <TouchableOpacity
-      onPress={handleDownloadSelectedOrders}
-      disabled={selectedOrders.length === 0 || isDownloading}
-      style={{
-        width: Platform.OS === 'web' ? '50%' :'92%',
-        backgroundColor: selectedOrders.length > 0 ? '#04BF7B' : '#ccc',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 5,
-        alignItems: 'center',
-        alignSelf: 'flex-start',
-        marginBottom: 16,
-        marginTop:  Platform.OS === 'web' ? 20 : 15,
-        marginHorizontal: 15
-      }}
-    >
-      {isDownloading ? (
-        <ActivityIndicator color="#fff" />
-      ) : (
-        <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Baixar Documentos Selecionados</Text>
-      )}
-    </TouchableOpacity>
+      {/* Campo de Pesquisa */}
+      <XStack
+        backgroundColor="#FFF"
+        borderRadius={20}
+        //marginHorizontal={ Platform.OS === 'web' ? 20 : 15 }
+        //marginRight={Platform.OS === 'web' ? '49%' : 15}
+        //marginLeft={Platform.OS === 'web' ? 15 : 15}
+        width={Platform.OS === 'web' ? '70%' : '92%'}
+        marginTop={20}
+        alignSelf="center"
+        alignItems="center"
+      >
+        <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
+        <Input
+          width={Platform.OS === 'web' ? '67%' : '92%'}
+          placeholder="Buscar pedidos..."
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            handleSearch(text);
+          }}
+          backgroundColor="transparent"
+          borderWidth={0}
+          borderColor="transparent"
+          fontSize={14}
+          color="#000"
+          flex={1}
+          placeholderTextColor="#888"
+        />
+      </XStack>
+
+      {/* Botão para Baixar Documentos */}
+      <TouchableOpacity
+        onPress={handleDownloadSelectedOrders}
+        disabled={selectedOrders.length === 0 || isDownloading}
+        style={{
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          backgroundColor: selectedOrders.length > 0 ? '#04BF7B' : '#ccc',
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          borderRadius: 5,
+          alignItems: 'center',
+          alignSelf: 'center',
+          marginBottom: 16,
+          marginTop: Platform.OS === 'web' ? 20 : 15,
+          marginHorizontal: 15
+        }}
+      >
+        {isDownloading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Baixar Documentos Selecionados</Text>
+        )}
+      </TouchableOpacity>
 
 
 
       {/* Lista de Pedidos */}
       <FlatList
+        style={{
+          width: Platform.OS === "web" ? "70%" : undefined,
+          alignSelf: "center"
+        }}
         data={filteredOrders}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={() => (
@@ -277,18 +288,21 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
               {/* Coluna Esquerda (ID e Data) */}
               <View style={styles.leftColumn}>
-              <Text style={styles.orderId}>{item.id}</Text>
+                <Text mb={10} style={styles.orderId}>{item.id}</Text>
                 <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
               </View>
 
               {/* Coluna Direita (Valor Total e Fornecedor) */}
               <View style={styles.rightColumn}>
-              <Text style={styles.total}>R$ {item.totalConectar.toFixed(2)}</Text>
+                <Text mb={10} style={styles.total}>R$ {item.totalConectar.toFixed(2)}</Text>
                 <Text>{truncatedSupplierName}</Text>
               </View>
 
               {/* Ícone de Setas */}
-              <Icons name="chevron-forward" size={20} color="#000" />
+              <Icons name="chevron-forward" size={20} color="#000"
+                style={{
+                  marginLeft: "auto"
+                }} />
             </TouchableOpacity>
           );
         }}
