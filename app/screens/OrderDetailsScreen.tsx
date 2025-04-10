@@ -4,7 +4,7 @@ import { RootStackParamList } from "../../src/types/navigationTypes";
 import { useEffect, useState } from "react";
 import { cancelOrder, getOrder } from "../../src/services/orderService";
 import { OrderData } from "../../src/types/IOrder";
-import { ActivityIndicator } from "react-native";
+import { ActivityIndicator, Platform } from "react-native";
 import Icons from "@expo/vector-icons/Ionicons";
 import LabelAndBoxContent from "../../src/components/box/LabelAndBoxContent";
 import { openURL } from "expo-linking";
@@ -76,12 +76,14 @@ export function OrderDetailsScreen() {
 
   return (
     <View flex={1} backgroundColor="#F0F2F6">
-       <Text
-           style={{
-            marginTop: 35,
-            marginHorizontal: 15
-          }}
-          >Detalhamento</Text>
+      <Text
+        style={{
+          marginTop: 35,
+          marginLeft: Platform.OS === 'web' ? 30 : 15,
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
+        }}
+      >Detalhamento</Text>
       <CustomAlert
         message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
         title="Ops!"
@@ -126,20 +128,31 @@ export function OrderDetailsScreen() {
         borderBottomColor="lightgray"
       >
         <Icons
-          onPress={() => 
+          onPress={() =>
             navigation.replace('Orders')
           }
           size={25}
           name="chevron-back"
         ></Icons>
-        <View flex={1} alignItems="center">
+        <View 
+        flex={1} 
+        alignItems="center" 
+        mb={5}>
           <Text>Pedido {order.id}</Text>
           <Text fontSize={10} color="gray">
             Entregue {formatDate(order.deliveryDate)}
           </Text>
         </View>
       </View>
-      <View padding={16} flex={1} gap={6}>
+      <View
+        padding={16}
+        flex={1}
+        gap={6}
+        style={{ 
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          alignSelf: "center"
+         }}
+      >
         <Text fontSize={10} color="gray">
           Documentos
         </Text>
@@ -156,7 +169,7 @@ export function OrderDetailsScreen() {
             }
           }}
         />
-         <Text fontSize={10} color="gray">
+        <Text fontSize={10} color="gray">
         </Text>
         <LabelAndBoxContent
           iconName="download"
@@ -165,7 +178,7 @@ export function OrderDetailsScreen() {
           subtitle={`Por ${supplierName}`}
           iconAction={() => {
             if (order.orderInvoices) {
-              openURL (order.orderInvoices?.filePath[0]);
+              openURL(order.orderInvoices?.filePath[0]);
             } else {
               console.warn("Documento não disponível");
             }

@@ -579,7 +579,7 @@ const ProductBox = React.memo(
       >
         {/**item da lista */}
         <View
-          marginHorizontal={Platform.OS === "web" ? 100 : ''}
+          style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }}
           flex={1}
           justifyContent="space-between"
           alignItems="center"
@@ -673,7 +673,9 @@ const ProductBox = React.memo(
             backgroundColor="white"
             justifyContent="center"
             transform={[{ translateY: 0 }]}
-            marginHorizontal={Platform.OS === "web" ? 100 : ''}
+            style={{ 
+              width: Platform.OS === 'web' ? '70%' : '100%', 
+              alignSelf: 'center' }}
             marginBottom={15}
           >
             <View
@@ -1707,8 +1709,10 @@ export function Products({ navigation }: HomeScreenProps) {
       {/*Lista de restaurantes do usuário*/}
       <Text
         style={{
-          marginTop: 15,
-          marginLeft: Platform.OS === "web" ? 20 : 15,
+          marginTop: Platform.OS === 'web' ? 15 : 35,
+          marginLeft: Platform.OS === 'web' ? 23 : 15,
+          width: Platform.OS === 'web' ? '70%' : '',
+          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
         }}
       >
         Meus Restaurantes
@@ -1729,8 +1733,13 @@ export function Products({ navigation }: HomeScreenProps) {
         }
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
+        dropDownContainerStyle={{ 
+          width: Platform.OS === "web" ? "68%" : "92%",
+          alignSelf: "center"
+         }}
         style={{
-          width: Platform.OS === "web" ? "50%" : "92%",
+          width: Platform.OS === "web" ? "68%" : "92%",
+          alignSelf: 'center',
           marginTop: 10,
           marginHorizontal: 15,
           marginRight: 20,
@@ -1744,7 +1753,6 @@ export function Products({ navigation }: HomeScreenProps) {
       <View height={40} flex={1} paddingTop={8}>
         <XStack
           backgroundColor="#F0F2F6"
-          marginHorizontal={20}
           marginTop={30}
           paddingRight={14}
           borderWidth={0}
@@ -1752,7 +1760,7 @@ export function Products({ navigation }: HomeScreenProps) {
           alignItems="center"
           flexDirection="row"
           margin={10}
-          style={{ width: Platform.OS === "web" ? "50%" : "92%" }}
+          style={{ width: Platform.OS === 'web' ? '68.4%' : '', alignSelf: 'center' }}
         >
           <Input
             placeholder="Buscar produtos..."
@@ -1762,7 +1770,6 @@ export function Products({ navigation }: HomeScreenProps) {
             focusVisibleStyle={{ outlineWidth: 0 }}
             outlineStyle="none"
             flex={1}
-            marginRight={14}
             maxLength={50}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -1773,7 +1780,13 @@ export function Products({ navigation }: HomeScreenProps) {
 
 
         <FlatList
-          style={{ maxHeight: 50, marginTop: 5, minHeight: 50 }}
+          style={{
+            maxHeight: Platform.OS === 'web' ? 50 : 60,
+            paddingVertical: 10,
+            minHeight: 50,
+            width: Platform.OS === 'web' ? '68%' : undefined,
+            alignSelf: Platform.OS === 'web' ? 'center' : undefined
+          }}
           data={classItems}
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -1784,13 +1797,14 @@ export function Products({ navigation }: HomeScreenProps) {
         <View
           backgroundColor="#F0F2F6"
           flex={1}
-          padding={16}
+          paddingHorizontal={16}
+          paddingTop={5}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
           {currentClass === "Favoritos" &&
-          favorites.length < 1 &&
-          !searchQuery ? (
+            favorites.length < 1 &&
+            !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text
                 pl={15}

@@ -380,7 +380,10 @@ export function Confirm({ navigation }: HomeScreenProps) {
                         navigation.replace('Prices')
                     }}></Icons>
                 </View>
-                <View flexDirection="row" f={1}>
+                <View
+                    flexDirection="row"
+                    marginLeft={Platform.OS === "web" ? "10.5vw" : ""}
+                    alignSelf="center">
                     <View pl={5} justifyContent="center">
                         <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg` }}
                             width={50} height={50} borderRadius={50} />
@@ -397,16 +400,16 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
             <ScrollView backgroundColor='white'>
                 <View backgroundColor='white' p={15}>
-                    <View alignItems="center" paddingHorizontal={5} borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
-                        <Icons color='gray' size={24} name="warning"></Icons>
+                    <View alignItems="center" marginLeft={Platform.OS === "web" ? 10 : ""} width={Platform.OS === "web" ? "70.5vw" : ""} alignSelf="center" borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
+                        <Icons color='gray' size={24} name="warning" style={{paddingLeft: 5}}></Icons>
                         {/*// modified add*/}
                         <Text color='gray' ml={5} mr={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
                     </View>
-                    <View pt={25} ml={Platform.OS === "web" ? 250 : ''}>
+                    <View pt={25} width={Platform.OS === "web" ? "70vw" : ""} alignSelf={Platform.OS === "web" ? "center" : "flex-start"}>
                         <Text>Produtos selecionados</Text>
                     </View>
                 </View>
-                <View paddingHorizontal={Platform.OS === "web" ? 250 : 16} gap={20} flex={1} backgroundColor='white'>
+                <View width={Platform.OS === "web" ? "70vw" : '92%'} alignSelf="center" gap={20} flex={1} backgroundColor='white'>
                     {supplier.supplier.discount.product.sort((a, b) => {
                         if (a.price === 0 && b.price !== 0) {
                             return -1
@@ -446,19 +449,19 @@ export function Confirm({ navigation }: HomeScreenProps) {
                         )
                     })}
                 </View>
-                <View backgroundColor='white' gap={15} marginTop={20} paddingVertical={16} paddingHorizontal={Platform.OS === "web" ? 250 : 20}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Text style={{fontSize: 14, color: "gray", flexGrow: 0}}>Subtotal:</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
+                <View backgroundColor='white' gap={15} marginTop={20} paddingVertical={16} width={Platform.OS === "web" ? "70vw" : "92%"} alignSelf="center">
+                    <View style={{ flexDirection: "row", alignItems: "center" }}>
+                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Subtotal:</Text>
+                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     </View>
-                    <View style={{flexDirection: "row", alignItems: "center", paddingTop: 10}}>
-                        <Text style={{fontSize: 14, color: "gray", flexGrow: 0}}>Descontos:</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>R$ 0,00</Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
+                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Descontos:</Text>
+                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>R$ 0,00</Text>
                     </View>
                     <View style={{ flexDirection: "column", paddingTop: 10 }}>
-                        <View style={{ flexDirection: "row"}}>
+                        <View style={{ flexDirection: "row" }}>
                             <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Total:</Text>
-                            <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
+                            <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                         </View>
                         <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>{supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)</Text>
 
@@ -466,22 +469,22 @@ export function Confirm({ navigation }: HomeScreenProps) {
                     <View marginVertical={20} borderWidth={0.5} borderColor='lightgray'></View>
                     <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
                         <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Formato pagamento:</Text>
-                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}</Text>
+                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>{getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}</Text>
                     </View>
                     <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
                         <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Vencimento:</Text>
-                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}} >{getPaymentDate(selectedRestaurant.restaurant.paymentWay)}</Text>
+                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }} >{getPaymentDate(selectedRestaurant.restaurant.paymentWay)}</Text>
                     </View>
                     <View marginVertical={20} borderWidth={0.5} borderColor='lightgray'></View>
                     <View style={{ flexDirection: "row", alignItems: "center" }}>
                         <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Restaurante:</Text>
-                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>
+                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>
                             <Text>{selectedRestaurant.restaurant.name}</Text>
                         </View>
                     </View>
                     <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
                         <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Endereço:</Text>
-                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>
+                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>
                             <Text numberOfLines={3} ellipsizeMode="tail">
                                 {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()} {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()}, {selectedRestaurant.restaurant.addressInfos[0].localNumber}, {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} - {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()}, {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
                             </Text>
@@ -490,24 +493,24 @@ export function Confirm({ navigation }: HomeScreenProps) {
 
                     <View style={{ flexDirection: "row", paddingTop: 10, alignItems: "center" }}>
                         <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Horário:</Text>
-                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>
+                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>
                             <Text>
                                 {selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
                             </Text>
                         </View>
                     </View>
 
-                    <View style={{flexDirection: "row", paddingTop: 10, alignItems: "center"}}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0}}>Obs entrega:</Text>
-                        <Text style={{ maxWidth: 200, flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}</Text>
+                    <View style={{ flexDirection: "row", paddingTop: 10, alignItems: "center" }}>
+                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Obs entrega:</Text>
+                        <Text style={{ maxWidth: 200, flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>{selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}</Text>
                     </View>
-                    <View style={{flexDirection: "row", paddingTop: 10, alignItems: "center"}}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0}}>Entregar para</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}</Text>
+                    <View style={{ flexDirection: "row", paddingTop: 10, alignItems: "center" }}>
+                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Entregar para</Text>
+                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}</Text>
                     </View>
-                    <View style={{flexDirection: "row", paddingTop: 10, alignItems: "center"}}>
-                        <Text style={{fontSize: 14, color: "gray", flexGrow: 0}}>Telefone</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber || '--'}</Text>
+                    <View style={{ flexDirection: "row", paddingTop: 10, alignItems: "center" }}>
+                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Telefone</Text>
+                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : '' }}>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber || '--'}</Text>
                     </View>
                 </View>
             </ScrollView>
