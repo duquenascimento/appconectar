@@ -106,7 +106,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                 goToConfirm(supplier, selectedRestaurant)
             }
         }} flexDirection="row" borderBottomWidth={0.1} borderBottomColor='lightgray'>
-            <View style={{paddingLeft: Platform.OS === "web" ? 200 : ""}} marginVertical={10} flexDirection="row" f={1}>
+            <View style={{paddingLeft: Platform.OS === "web" ? '20vw' : ""}} marginVertical={10} flexDirection="row" f={1}>
                 <View p={5}>
                     <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg` }}
                         width={50}
@@ -121,7 +121,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                     </View>
                 </View>
             </View>
-            <View style={{paddingRight: Platform.OS === "web" ? 200 : ""}} justifyContent="center">
+            <View style={{paddingRight: Platform.OS === "web" ? '10vw' : ""}} justifyContent="center">
                 <View>
                     <Text textAlign="right" fontSize={16} fontWeight="800">R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     {available ? (
@@ -135,11 +135,14 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                     )}
                 </View>
             </View>
-            <View pl={10} justifyContent="center">
+            <View pl={10} justifyContent="center" style={{paddingRight: Platform.OS === "web" ? "10vw" : undefined}}>
                 {!available && supplier.supplier.missingItens < 1 ?
                     <View></View>
                     :
-                    <Icons name="chevron-forward" size={24}></Icons>
+                    <Icons 
+                    name="chevron-forward" 
+                    size={24}
+                    ></Icons>
                 }
 
             </View>
@@ -512,10 +515,10 @@ export function Prices({ navigation }: HomeScreenProps) {
     const renderItem =
         ({ item }: { item: any }) => {
             if (item.separator) {
-                return <Text style={{paddingLeft: Platform.OS === "web" ? 210 : ''}} pb={10} pt={30} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
+                return <Text style={{paddingLeft: Platform.OS === "web" ? '20.7vw' : ''}} pb={10} pt={30} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
             }
             if (item.initialSeparator) {
-                return <Text style={{paddingLeft: Platform.OS === "web" ? 210 : ''}} pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
+                return <Text style={{paddingLeft: Platform.OS === "web" ? '20.7vw' : ''}} pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
             }
             return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />;
         }
@@ -579,7 +582,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                     <Icons onPress={() => { navigation.replace('Cart') }} size={25} name='chevron-back'></Icons>
                     <Text f={1} textAlign='center' fontSize={20}>Cotações</Text>
                 </View>
-                <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50}>
+                <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50} width={Platform.OS === "web" ? "70vw" : ""} alignSelf="center">
                     <View disabled={!selectedRestaurant.premium} opacity={selectedRestaurant.premium ? 1 : 0.4} onPress={() => { setTab('plus') }} cursor="pointer" hoverStyle={{ opacity: 0.75 }}
                         flex={1} alignItems="center" justifyContent="center">
                         <Text color={tab === 'plus' ? "#04BF7B" : "gray"}>Conéctar+</Text>
@@ -666,8 +669,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                     setComplement(selectedRestaurant.addressInfos[0].complement);
                     setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
                     setEditInfos(true);
-                }} backgroundColor='white' paddingBottom={10} paddingTop={10} paddingHorizontal={Platform.OS === "web" ? 200 : 20} borderTopColor='lightgray' borderTopWidth={1}>
-                    <View flexDirection="row" alignItems="center">
+                }} backgroundColor='white' paddingBottom={10} paddingTop={10} width={Platform.OS === "web" ? "70%" : "92%"} alignSelf="center" borderTopColor='lightgray' borderTopWidth={1} >
+                    <View flexDirection="row" alignItems="center" >
                         <View p={10} mr={10} flexDirection="row" f={1} borderColor='lightgray' borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor='white' alignItems="center">
                             <Icons size={20} color='#04BF7B' name="storefront"></Icons>
                             <View ml={20}></View>
