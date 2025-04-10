@@ -105,7 +105,7 @@ const useScreenSize = () => {
 
 const getScreenSize = () => {
   const width = Dimensions.get("window").width;
-  return width >= 1280 ? "xl" : "sm";
+  return width >= 1024 ? "lg/xl" : "sm/md";
 };
 
 const SupplierBox = ({
@@ -1449,7 +1449,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                         />
                       </KeyboardAvoidingView>
                     </View>
-                    {screemSize === "xl" ? (
+                    {screemSize === "lg/xl" ? (
                       <>
                         <View
                           zIndex={-1}
@@ -1585,6 +1585,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                     ) : (
                       <>
                         <View
+                          zIndex={-1}
                           height={70}
                           pt={15}
                           gap={10}
@@ -1623,7 +1624,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                             </KeyboardAvoidingView>
                           </View>
 
-                          <View flex={1}>
+                          <View zIndex={-1} flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
                               <Text pl={5} fontSize={12} color="gray">
                                 Complemento
@@ -1657,7 +1658,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                           justifyContent="space-between"
                           flexDirection="row"
                         >
-                          <View flex={1}>
+                          <View zIndex={-1} flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
                               <Text pl={5} fontSize={12} color="gray">
                                 Bairro
@@ -1682,7 +1683,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               />
                             </KeyboardAvoidingView>
                           </View>
-                          <View flex={1}>
+                          <View zIndex={-1} flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
                               <Text pl={5} fontSize={12} color="gray">
                                 Cidade
