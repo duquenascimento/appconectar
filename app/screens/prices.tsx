@@ -94,7 +94,7 @@ const useScreenSize = () => {
 
 const getScreenSize = () => {
     const width = Dimensions.get('window').width;
-    return width >= 1280 ? 'xl' : 'sm';
+    return width >= 1024 ? 'lg/xl' : 'sm/md';
 };
 
 
@@ -963,7 +963,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                             </KeyboardAvoidingView>
                                         </View>
-                                        {screemSize === 'xl' ? (
+                                        {screemSize === 'lg/xl' ? (
                                             <>
                                                 <View zIndex={-1} height={70} mb={5} pt={10} gap={5} justifyContent="space-between" $sm={{ flexDirection: "column" }} $xl={{ flexDirection: "row" }}>
                                                     <View flex={1}>
@@ -1036,7 +1036,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                             </>
                                         ) : (
                                             <>
-                                                <View height={70} pt={15} gap={10} justifyContent="space-between" flexDirection="row">
+                                                <View zIndex={-1} height={70} pt={15} gap={10} justifyContent="space-between" flexDirection="row">
                                                     <View flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Nº</Text>
@@ -1059,7 +1059,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                         </KeyboardAvoidingView>
                                                     </View>
 
-                                                    <View flex={1}>
+                                                    <View zIndex={-1} flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Complemento</Text>
                                                             <Input
@@ -1078,8 +1078,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                         </KeyboardAvoidingView>
                                                     </View>
                                                 </View>
-                                                <View height={70} pt={15} gap={10} justifyContent="space-between" flexDirection="row">
-                                                    <View flex={1}>
+                                                <View  height={70} pt={15} gap={10} justifyContent="space-between" flexDirection="row">
+                                                    <View zIndex={-1} flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
                                                             <Input
@@ -1095,7 +1095,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
                                                         </KeyboardAvoidingView>
                                                     </View>
-                                                    <View flex={1}>
+                                                    <View zIndex={-1} flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Cidade</Text>
                                                             <Input
