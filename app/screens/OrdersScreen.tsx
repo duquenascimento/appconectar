@@ -185,6 +185,10 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
         listMode="SCROLLVIEW"
+        dropDownContainerStyle={{
+          width: Platform.OS === "web" ? "70%" : "92%",
+          alignSelf: "center"
+        }}
         style={{
           width: Platform.OS === "web" ? "70%" : "92%",
           alignSelf: 'center',
@@ -295,10 +299,10 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
               </View>
 
               {/* Ícone de Setas */}
-              <Icons name="chevron-forward" size={20} color="#000" 
-              style={{
-                marginLeft: "auto"
-              }} />
+              <Icons name="chevron-forward" size={20} color="#000"
+                style={{
+                  marginLeft: "auto"
+                }} />
             </TouchableOpacity>
           );
         }}
