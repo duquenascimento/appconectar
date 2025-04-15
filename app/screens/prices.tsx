@@ -269,6 +269,9 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [showNotification, setShowNotification] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [draftSelectedRestaurant, setDraftSelectedRestaurant] =
+    useState<any>(null); //Escolha temporária do restaurante no dropdown.
+  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false); //carregamento dos fornecedores
   const screemSize = useScreenSize();
 
   const handleConfirm = () => {
@@ -792,6 +795,7 @@ export function Prices({ navigation }: HomeScreenProps) {
       city: "Cidade",
       neighborhood: "Bairro",
     };
+
     const fields: Record<string, string | undefined> = {
       zipCode,
       localNumber,
@@ -802,8 +806,10 @@ export function Prices({ navigation }: HomeScreenProps) {
       city,
       neighborhood,
     };
+
     const requiredFields = Object.values(fields);
     const isValid = requiredFields.every((field) => field?.trim());
+
     if (!isValid) {
       const emptyFields = Object.keys(fields).filter(
         (key) => !fields[key]?.trim()
@@ -811,6 +817,7 @@ export function Prices({ navigation }: HomeScreenProps) {
       setMissingFields(emptyFields.map((key) => fieldLabels[key]));
       setIsAlertVisible(true);
     }
+
     return isValid;
   };
 
@@ -825,7 +832,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     );
   }
 
-  if (loading) {
+  if (loading || loadingSuppliers) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -938,7 +945,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                   backgroundColor="#04BF7B"
                   onPress={async () => {
                     if (!validateFields()) return;
-
+                    console.log("premium>>>>>>>>>", selectedRestaurant);
                     setLoading(true);
                     const result = await fetch(
                       `${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`,
@@ -1205,7 +1212,11 @@ export function Prices({ navigation }: HomeScreenProps) {
                     {allRestaurants.length > 0 ? (
                       <DropDownPicker
                         listMode="SCROLLVIEW"
-                        value={selectedRestaurant?.name}
+                        value={
+                          draftSelectedRestaurant
+                            ? draftSelectedRestaurant.name
+                            : selectedRestaurant.name
+                        }
                         style={{
                           borderWidth: 1,
                           borderColor: "lightgray",
@@ -1223,11 +1234,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                         setOpen={setRestOpen}
                         placeholder=""
                         onSelectItem={(value) => {
-                          setLoading(true); // Ativa o loading assim que o usuário escolhe um item
+                          //setLoading(true); // Ativa o loading assim que o usuário escolhe um item
                           const rest = allRestaurants.find(
                             (item) => item?.name === value.value
                           );
-                          setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
+                          //setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
+                          setDraftSelectedRestaurant(rest);
+                          //setLoading(false);
                         }}
                       ></DropDownPicker>
                     ) : (
@@ -1847,7 +1860,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                       flexDirection="row"
                     >
                       <Button
-                        onPress={() => setEditInfos(false)}
+                        onPress={() => {
+                          setEditInfos(false);
+                          setDraftSelectedRestaurant(null);
+                        }}
                         backgroundColor="black"
                         flex={1}
                       >
@@ -1868,8 +1884,9 @@ export function Prices({ navigation }: HomeScreenProps) {
                         onPress={async () => {
                           if (!validateFields()) return; // Valida os campos antes de prosseguir
 
-                          setLoading(true);
-                          const rest: SelectItem = selectedRestaurant;
+                          //setLoading(true);
+                          const rest: SelectItem =
+                            draftSelectedRestaurant ?? selectedRestaurant;
                           const addressInfo = rest.addressInfos[0];
 
                           addressInfo.neighborhood = neighborhood;
@@ -1889,13 +1906,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                           addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
                           addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 
+                          setEditInfos(false);
+
                           setSelectedRestaurant(rest);
 
                           setStorage(
                             "selectedRestaurant",
                             JSON.stringify({ restaurant: rest })
                           );
-
+                          setLoadingSuppliers(true);
                           await Promise.all([
                             loadPrices(rest),
                             fetch(
@@ -1911,9 +1930,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                               }
                             ),
                           ]);
-
-                          setEditInfos(false);
-                          setLoading(false);
+                          setLoadingSuppliers(false);
+                          //setLoading(false);
                         }}
                         backgroundColor="#04BF7B"
                         flex={1}
