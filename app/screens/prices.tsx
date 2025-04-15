@@ -114,7 +114,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                 goToConfirm(supplier, selectedRestaurant)
             }
         }} flexDirection="row" borderBottomWidth={0.1} borderBottomColor='lightgray'>
-            <View style={{paddingLeft: Platform.OS === "web" ? '20vw' : ""}} marginVertical={10} flexDirection="row" f={1}>
+            <View style={{ paddingLeft: Platform.OS === "web" ? '20vw' : "" }} marginVertical={10} flexDirection="row" f={1}>
                 <View p={5}>
                     <Image source={{ uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg` }}
                         width={50}
@@ -129,7 +129,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                     </View>
                 </View>
             </View>
-            <View style={{paddingRight: Platform.OS === "web" ? '10vw' : ""}} justifyContent="center">
+            <View style={{ paddingRight: Platform.OS === "web" ? '10vw' : "" }} justifyContent="center">
                 <View>
                     <Text textAlign="right" fontSize={16} fontWeight="800">R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     {available ? (
@@ -143,13 +143,13 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
                     )}
                 </View>
             </View>
-            <View pl={10} justifyContent="center" style={{paddingRight: Platform.OS === "web" ? "10vw" : undefined}}>
+            <View pl={10} justifyContent="center" style={{ paddingRight: Platform.OS === "web" ? "10vw" : undefined }}>
                 {!available && supplier.supplier.missingItens < 1 ?
                     <View></View>
                     :
-                    <Icons 
-                    name="chevron-forward" 
-                    size={24}
+                    <Icons
+                        name="chevron-forward"
+                        size={24}
                     ></Icons>
                 }
 
@@ -192,6 +192,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const [showNotification, setShowNotification] = useState(false)
     const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
     const [missingFields, setMissingFields] = useState<string[]>([]);
+    const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
     const screemSize = useScreenSize();
 
 
@@ -315,7 +316,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                 (r: any) => r.externalId === restaurantSelected?.externalId
             );
 
-            const currentRestaurant = validRestaurant ;
+            const currentRestaurant = validRestaurant;
 
             if (!currentRestaurant) return;
 
@@ -576,13 +577,34 @@ export function Prices({ navigation }: HomeScreenProps) {
     const renderItem =
         ({ item }: { item: any }) => {
             if (item.separator) {
-                return <Text style={{paddingLeft: Platform.OS === "web" ? '20.7vw' : ''}} pb={10} pt={30} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
+                return <Text style={{ paddingLeft: Platform.OS === "web" ? '20.7vw' : '' }} pb={10} pt={30} opacity={60} fontSize={16}>Fornecedores indisponíveis</Text>;
             }
             if (item.initialSeparator) {
-                return <Text style={{paddingLeft: Platform.OS === "web" ? '20.7vw' : ''}} pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
+                return <Text style={{ paddingLeft: Platform.OS === "web" ? '20.7vw' : '' }} pb={5} opacity={60} mt={10} fontSize={16}>Fornecedores disponíveis</Text>;
             }
             return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />;
         }
+
+    const fields = [
+        zipCode,
+        localNumber,
+        street,
+        responsibleReceivingName,
+        responsibleReceivingPhoneNumber,
+        localType,
+        city,
+        neighborhood,
+    ];
+
+    useEffect(() => {
+        const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null);
+
+        if (allFieldsLoaded && !hasCheckedFields) {
+            const anyFieldEmpty = fields.some((field) => !field); // verifica se há campo vazio
+            setEditInfos(anyFieldEmpty);
+            setHasCheckedFields(true);
+        }
+    }, [hasCheckedFields, ...fields]);
 
     const validateFields = () => {
         const fieldLabels: { [key: string]: string } = {
@@ -1078,7 +1100,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                                         </KeyboardAvoidingView>
                                                     </View>
                                                 </View>
-                                                <View  height={70} pt={15} gap={10} justifyContent="space-between" flexDirection="row">
+                                                <View height={70} pt={15} gap={10} justifyContent="space-between" flexDirection="row">
                                                     <View zIndex={-1} flex={1}>
                                                         <KeyboardAvoidingView style={{ flex: 1 }}>
                                                             <Text pl={5} fontSize={12} color='gray'>Bairro</Text>
