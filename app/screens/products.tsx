@@ -1373,6 +1373,7 @@ export function Products({ navigation }: HomeScreenProps) {
       if (selectedRestaurant) {
         loadFavorites().then((favs) => {
           if (favs.length > 0) setFavorites(favs);
+          if (favs.length === 0) setFavorites(favs); 
         });
       }
     };
