@@ -269,6 +269,7 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [showNotification, setShowNotification] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] =
     useState<any>(null); //Escolha temporária do restaurante no dropdown.
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false); //carregamento dos fornecedores
@@ -783,6 +784,29 @@ export function Prices({ navigation }: HomeScreenProps) {
       />
     );
   };
+
+  const fields = [
+    zipCode,
+    localNumber,
+    street,
+    responsibleReceivingName,
+    responsibleReceivingPhoneNumber,
+    localType,
+    city,
+    neighborhood,
+  ];
+
+  useEffect(() => {
+    const allFieldsLoaded = fields.every(
+      (field) => field !== undefined && field !== null
+    );
+
+    if (allFieldsLoaded && !hasCheckedFields) {
+      const anyFieldEmpty = fields.some((field) => !field); // verifica se há campo vazio
+      setEditInfos(anyFieldEmpty);
+      setHasCheckedFields(true);
+    }
+  }, [hasCheckedFields, ...fields]);
 
   const validateFields = () => {
     const fieldLabels: { [key: string]: string } = {
