@@ -1223,110 +1223,110 @@ export function Prices({ navigation }: HomeScreenProps) {
                     pb={15}
                     paddingHorizontal={15}
                     pt={15}
-                    $xl={{ minWidth: "40%" }}
-                    $sm={{ minWidth: "90%" }}
+                    minWidth={Platform.OS === "web" ? "40%" : "90%"}
                     backgroundColor="white"
                     borderRadius={10}
                     justifyContent="center"
                     zIndex={101}
                   >
-                    <Text pl={5} fontSize={12} color="gray">
-                      Restaurante
-                    </Text>
-                    {allRestaurants.length > 0 ? (
-                      <DropDownPicker
-                        listMode="SCROLLVIEW"
-                        value={
-                          draftSelectedRestaurant
-                            ? draftSelectedRestaurant.name
-                            : selectedRestaurant.name
-                        }
-                        style={{
-                          borderWidth: 1,
-                          borderColor: "lightgray",
-                          borderRadius: 5,
-                          flex: 1,
-                          marginBottom: Platform.OS === "web" ? 0 : 35,
-                        }}
-                        setValue={() => {}}
-                        items={allRestaurants.map((item) => ({
-                          label: item?.name,
-                          value: item?.name,
-                        }))}
-                        multiple={false}
-                        open={restOpen}
-                        setOpen={setRestOpen}
-                        placeholder=""
-                        onSelectItem={(value) => {
-                          //setLoading(true); // Ativa o loading assim que o usuário escolhe um item
-                          const rest = allRestaurants.find(
-                            (item) => item?.name === value.value
-                          );
-                          //setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
-                          setDraftSelectedRestaurant(rest);
-                          //setLoading(false);
-                        }}
-                      ></DropDownPicker>
-                    ) : (
-                      <Text>Loading...</Text> // Ou algum placeholder
-                    )}
-                    <View
-                      pt={10}
-                      gap={10}
-                      mb={Platform.OS === "web" ? 0 : 35}
-                      justifyContent="space-between"
-                      flexDirection="row"
-                      zIndex={100}
-                    >
-                      <View flex={1}>
-                        <Text pl={5} fontSize={12} color="gray">
-                          A partir de
-                        </Text>
-                        <DropDownPicker
-                          value={minHour}
-                          style={{
-                            borderWidth: 1,
-                            borderColor: "lightgray",
-                            borderRadius: 5,
-                            flex: 1,
-                          }}
-                          setValue={setMinHour}
-                          items={minhours.map((item) => {
-                            return { label: item, value: item };
-                          })}
-                          multiple={false}
-                          open={minHourOpen}
-                          setOpen={setMinHourOpen}
-                          placeholder=""
-                          listMode="SCROLLVIEW"
-                        ></DropDownPicker>
-                      </View>
-                      <View flex={1} zIndex={100}>
-                        <Text pl={5} fontSize={12} color="gray">
-                          Até
-                        </Text>
-                        <DropDownPicker
-                          value={maxHour}
-                          listMode="SCROLLVIEW"
-                          style={{
-                            borderWidth: 1,
-                            borderColor: "lightgray",
-                            borderRadius: 5,
-                            flex: 1,
-                          }}
-                          setValue={setMaxHour}
-                          items={maxhours.map((item) => {
-                            return { label: item, value: item };
-                          })}
-                          multiple={false}
-                          open={maxHourOpen}
-                          setOpen={setMaxHourOpen}
-                          placeholder=""
-                        ></DropDownPicker>
-                      </View>
-                    </View>
                     {screemSize === "lg/xl" ? (
                       <>
+                        <Text pl={5} fontSize={12} color="gray">
+                          Restaurante
+                        </Text>
+                        {allRestaurants.length > 0 ? (
+                          <DropDownPicker
+                            listMode="SCROLLVIEW"
+                            value={
+                              draftSelectedRestaurant
+                                ? draftSelectedRestaurant.name
+                                : selectedRestaurant.name
+                            }
+                            style={{
+                              borderWidth: 1,
+                              borderColor: "lightgray",
+                              borderRadius: 5,
+                              flex: 1,
+                              marginBottom: Platform.OS === "web" ? 0 : 35,
+                            }}
+                            setValue={() => {}}
+                            items={allRestaurants.map((item) => ({
+                              label: item?.name,
+                              value: item?.name,
+                            }))}
+                            multiple={false}
+                            open={restOpen}
+                            setOpen={setRestOpen}
+                            placeholder=""
+                            onSelectItem={(value) => {
+                              //setLoading(true); // Ativa o loading assim que o usuário escolhe um item
+                              const rest = allRestaurants.find(
+                                (item) => item?.name === value.value
+                              );
+                              //setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
+                              setDraftSelectedRestaurant(rest);
+                              //setLoading(false);
+                            }}
+                          ></DropDownPicker>
+                        ) : (
+                          <Text>Loading...</Text> // Ou algum placeholder
+                        )}
+                        <View
+                          pt={10}
+                          gap={10}
+                          mb={Platform.OS === "web" ? 0 : 35}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                          zIndex={100}
+                        >
+                          <View flex={1}>
+                            <Text pl={5} fontSize={12} color="gray">
+                              A partir de
+                            </Text>
+                            <DropDownPicker
+                              value={minHour}
+                              style={{
+                                borderWidth: 1,
+                                borderColor: "lightgray",
+                                borderRadius: 5,
+                                flex: 1,
+                              }}
+                              setValue={setMinHour}
+                              items={minhours.map((item) => {
+                                return { label: item, value: item };
+                              })}
+                              multiple={false}
+                              open={minHourOpen}
+                              setOpen={setMinHourOpen}
+                              placeholder=""
+                              listMode="SCROLLVIEW"
+                            ></DropDownPicker>
+                          </View>
+                          <View flex={1} zIndex={100}>
+                            <Text pl={5} fontSize={12} color="gray">
+                              Até
+                            </Text>
+                            <DropDownPicker
+                              value={maxHour}
+                              listMode="SCROLLVIEW"
+                              style={{
+                                borderWidth: 1,
+                                borderColor: "lightgray",
+                                borderRadius: 5,
+                                flex: 1,
+                              }}
+                              setValue={setMaxHour}
+                              items={maxhours.map((item) => {
+                                return { label: item, value: item };
+                              })}
+                              multiple={false}
+                              open={maxHourOpen}
+                              setOpen={setMaxHourOpen}
+                              placeholder=""
+                            ></DropDownPicker>
+                          </View>
+                        </View>
+
                         <KeyboardAvoidingView>
                           <View
                             style={{
@@ -1549,8 +1549,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                           pt={10}
                           gap={10}
                           justifyContent="space-between"
-                          $sm={{ flexDirection: "column" }}
-                          $xl={{ flexDirection: "row" }}
+                          style={{
+                            flexDirection:
+                              Platform.OS === "web" ? "row" : "column",
+                          }}
                         >
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -1612,183 +1614,114 @@ export function Prices({ navigation }: HomeScreenProps) {
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                      </>
-                    ) : (
-                      <>
-                        <KeyboardAvoidingView>
-                          <View
-                            style={{
-                              flexDirection: "row",
-                              gap: 10,
-                              marginBottom: 15,
-                            }}
-                          >
-                            {/* Campo CEP */}
-                            <View style={{ flex: 1, width: 110 }}>
-                              <Text
-                                style={{
-                                  paddingTop: 15,
-                                  paddingLeft: 5,
-                                  fontSize: 12,
-                                  color: "gray",
-                                }}
-                              >
-                                Cep
-                              </Text>
-                              <Input
-                                height={50}
-                                maxLength={9}
-                                backgroundColor="white"
-                                borderColor="lightgray"
-                                borderRadius={5}
-                                onChangeText={async (value) => {
-                                  const cleaned = value.replace(/\D/g, "");
-                                  const formatted = cleaned.replace(
-                                    /(\d{5})(\d{3})/,
-                                    "$1-$2"
-                                  );
-
-                                  if (formatted.length === 9) {
-                                    setLoading(true);
-                                    const response = await fetch(
-                                      `https://viacep.com.br/ws/${cleaned}/json/`
-                                    );
-                                    const result = await response.json();
-                                    if (response.ok && !result.erro) {
-                                      setCity(result.localidade.toUpperCase());
-                                      setNeighborhood(
-                                        result.bairro.toUpperCase()
-                                      );
-                                      setLocalType(
-                                        result.logradouro
-                                          .split(" ")[0]
-                                          .toUpperCase()
-                                      );
-                                      setLocalNumber("");
-                                      setStreet(
-                                        result.logradouro
-                                          .split(" ")
-                                          .slice(1)
-                                          .join(" ")
-                                          .toUpperCase()
-                                      );
-                                    }
-                                    setLoading(false);
-                                  }
-
-                                  setZipCode(formatted);
-                                }}
-                                value={zipCode}
-                              />
-                            </View>
-
-                            {/* Campo Logradouro */}
-                            <View style={{ flex: 1, zIndex: 10 }}>
-                              <Text
-                                style={{
-                                  paddingTop: 15,
-                                  paddingLeft: 5,
-                                  fontSize: 12,
-                                  color: "gray",
-                                }}
-                              >
-                                Logradouro
-                              </Text>
-                              <DropDownPicker
-                                value={localType ?? "RUA"}
-                                style={{
-                                  borderWidth: 1,
-                                  borderColor: "lightgray",
-                                  borderRadius: 5,
-                                }}
-                                dropDownContainerStyle={{
-                                  position: "absolute",
-                                  top: 50, // Ajuste para evitar sobreposição
-                                }}
-                                listMode="SCROLLVIEW"
-                                setValue={setLocalType}
-                                items={[
-                                  { label: "ALAMEDA", value: "ALAMEDA" },
-                                  { label: "AVENIDA", value: "AVENIDA" },
-                                  { label: "BECO", value: "BECO" },
-                                  { label: "BOULEVARD", value: "BOULEVARD" },
-                                  { label: "CAMINHO", value: "CAMINHO" },
-                                  { label: "CHÁCARA", value: "CHÁCARA" },
-                                  { label: "CIRCUITO", value: "CIRCUITO" },
-                                  { label: "CONJUNTO", value: "CONJUNTO" },
-                                  { label: "EIXO", value: "EIXO" },
-                                  { label: "ESTAÇÃO", value: "ESTAÇÃO" },
-                                  { label: "ESTRADA", value: "ESTRADA" },
-                                  { label: "FAVELA", value: "FAVELA" },
-                                  { label: "JARDIM", value: "JARDIM" },
-                                  { label: "LADEIRA", value: "LADEIRA" },
-                                  { label: "LARGO", value: "LARGO" },
-                                  { label: "PARQUE", value: "PARQUE" },
-                                  { label: "PASSARELA", value: "PASSARELA" },
-                                  { label: "PASSEIO", value: "PASSEIO" },
-                                  { label: "PRAÇA", value: "PRAÇA" },
-                                  { label: "QUADRA", value: "QUADRA" },
-                                  { label: "RAMPA", value: "RAMPA" },
-                                  { label: "RODOVIA", value: "RODOVIA" },
-                                  { label: "RUA", value: "RUA" },
-                                  { label: "TRAVESSA", value: "TRAVESSA" },
-                                  { label: "VIA", value: "VIA" },
-                                  { label: "VIADUTO", value: "VIADUTO" },
-                                  { label: "VIELA", value: "VIELA" },
-                                  { label: "VILA", value: "VILA" },
-                                ]}
-                                multiple={false}
-                                open={localTypeOpen}
-                                setOpen={setLocalTypeOpen}
-                                placeholder=""
-                              />
-                            </View>
-                          </View>
-                        </KeyboardAvoidingView>
-                        <View
-                          zIndex={-1}
-                          flexDirection="column"
-                          gap={Platform.OS === "web" ? 10 : 50}
-                        >
-                          <KeyboardAvoidingView>
-                            <Input
-                              onChangeText={(value) => {
-                                const formattedValue = value.replace(
-                                  /[^A-Za-z\s]/g,
-                                  ""
-                                );
-                                setStreet(formattedValue);
-                              }}
-                              $sm={{ marginTop: 10 }}
-                              backgroundColor="white"
-                              borderColor="lightgray"
-                              borderRadius={5}
-                              borderTopLeftRadius={0}
-                              borderBottomLeftRadius={0}
-                              value={street}
-                              focusStyle={{
-                                borderColor: "#049A63",
-                                borderWidth: 1,
-                              }}
-                              hoverStyle={{
-                                borderColor: "#049A63",
-                                borderWidth: 1,
-                              }}
-                            />
-                          </KeyboardAvoidingView>
-                        </View>
                         <View
                           zIndex={-1}
                           height={70}
-                          pt={15}
+                          pt={10}
                           gap={10}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                        >
+                          <View flex={1}>
+                            <Text pl={5} fontSize={12} color="gray">
+                              Resp. recebimento <Text color="red">*</Text>
+                            </Text>
+                            <KeyboardAvoidingView style={{ flex: 1 }}>
+                              <Input
+                                fontSize={14}
+                                flex={1}
+                                backgroundColor="white"
+                                borderColor="lightgray"
+                                borderRadius={5}
+                                value={responsibleReceivingName}
+                                onChangeText={(value) => {
+                                  // Remove todos os caracteres que não sejam letras ou espaços
+                                  const formattedValue = value.replace(
+                                    /[^A-Za-z\s]/g,
+                                    ""
+                                  );
+                                  setResponsibleReceivingName(formattedValue);
+                                }}
+                                focusStyle={{
+                                  borderColor: "#049A63",
+                                  borderWidth: 1,
+                                }}
+                                hoverStyle={{
+                                  borderColor: "#049A63",
+                                  borderWidth: 1,
+                                }}
+                              />
+                            </KeyboardAvoidingView>
+                          </View>
+                          <View flex={1}>
+                            <Text pl={5} fontSize={12} color="gray">
+                              Cel Resp. recebimento <Text color="red">*</Text>
+                            </Text>
+                            <KeyboardAvoidingView style={{ flex: 1 }}>
+                              <Input
+                                maxLength={15}
+                                fontSize={14}
+                                flex={1}
+                                backgroundColor="white"
+                                borderColor="lightgray"
+                                borderRadius={5}
+                                value={responsibleReceivingPhoneNumber}
+                                keyboardType="phone-pad"
+                                focusStyle={{
+                                  borderColor: "#049A63",
+                                  borderWidth: 1,
+                                }}
+                                hoverStyle={{
+                                  borderColor: "#049A63",
+                                  borderWidth: 1,
+                                }}
+                                onChangeText={(value) => {
+                                  // Remove todos os caracteres que não sejam dígitos
+                                  let onlyNums = value.replace(/\D/g, "");
+
+                                  if (onlyNums.length > 10) {
+                                    // Formato moderno (celular): (XX) XXXXX-XXXX
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{5})(\d{0,4})/,
+                                      "($1) $2-$3"
+                                    );
+                                  } else if (onlyNums.length > 6) {
+                                    // Formato convencional (fixo): (XX) XXXX-XXXX
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{4})(\d{0,4})/,
+                                      "($1) $2-$3"
+                                    );
+                                  } else if (onlyNums.length > 2) {
+                                    // Formato parcial: (XX) XXXX
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{0,4})/,
+                                      "($1) $2"
+                                    );
+                                  } else if (onlyNums.length > 0) {
+                                    // Formato parcial: (XX
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{0,2})/,
+                                      "($1"
+                                    );
+                                  }
+
+                                  setResponsibleReceivingPhoneNumber(onlyNums);
+                                }}
+                              />
+                            </KeyboardAvoidingView>
+                          </View>
+                        </View>
+                        <View
+                          height={70}
+                          pt={10}
+                          gap={5}
                           justifyContent="space-between"
                           flexDirection="row"
                         >
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
                               <Text pl={5} fontSize={12} color="gray">
-                                Nº
+                                Info de entrega
                               </Text>
                               <Input
                                 fontSize={14}
@@ -1796,100 +1729,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 backgroundColor="white"
                                 borderColor="lightgray"
                                 borderRadius={5}
-                                value={localNumber}
-                                keyboardType="numeric"
+                                value={deliveryInformation}
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(
-                                    /[^0-9]/g,
-                                    ""
-                                  );
-                                  setLocalNumber(formattedValue);
+                                  setDeliveryInformation(value);
                                 }}
-                                focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
-                                }}
-                                hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
-                                }}
-                              />
-                            </KeyboardAvoidingView>
-                          </View>
-
-                          <View zIndex={-1} flex={1}>
-                            <KeyboardAvoidingView style={{ flex: 1 }}>
-                              <Text pl={5} fontSize={12} color="gray">
-                                Complemento
-                              </Text>
-                              <Input
-                                fontSize={14}
-                                flex={1}
-                                backgroundColor="white"
-                                borderColor="lightgray"
-                                borderRadius={5}
-                                value={complement}
-                                onChangeText={(value) => {
-                                  setComplement(value);
-                                }}
-                                focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
-                                }}
-                                hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
-                                }}
-                              />
-                            </KeyboardAvoidingView>
-                          </View>
-                        </View>
-                        <View
-                          height={70}
-                          pt={15}
-                          gap={10}
-                          justifyContent="space-between"
-                          flexDirection="row"
-                        >
-                          <View zIndex={-1} flex={1}>
-                            <KeyboardAvoidingView style={{ flex: 1 }}>
-                              <Text pl={5} fontSize={12} color="gray">
-                                Bairro
-                              </Text>
-                              <Input
-                                color="gray"
-                                fontSize={9}
-                                disabled
-                                flex={1}
-                                backgroundColor="white"
-                                borderColor="lightgray"
-                                borderRadius={5}
-                                value={neighborhood}
-                                focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
-                                }}
-                                hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
-                                }}
-                              />
-                            </KeyboardAvoidingView>
-                          </View>
-                          <View zIndex={-1} flex={1}>
-                            <KeyboardAvoidingView style={{ flex: 1 }}>
-                              <Text pl={5} fontSize={12} color="gray">
-                                Cidade
-                              </Text>
-                              <Input
-                                color="gray"
-                                fontSize={9}
-                                disabled
-                                flex={1}
-                                backgroundColor="white"
-                                borderColor="lightgray"
-                                borderRadius={5}
-                                value={city}
                                 focusStyle={{
                                   borderColor: "#049A63",
                                   borderWidth: 1,
@@ -1903,135 +1746,538 @@ export function Prices({ navigation }: HomeScreenProps) {
                           </View>
                         </View>
                       </>
+                    ) : (
+                      <>
+                        <KeyboardAvoidingView style={{ flex: 1 }}>
+                          <ScrollView keyboardShouldPersistTaps="handled">
+                            <Text pl={5} fontSize={12} color="gray">
+                              Restaurante
+                            </Text>
+                            {allRestaurants.length > 0 ? (
+                              <DropDownPicker
+                                listMode="SCROLLVIEW"
+                                value={selectedRestaurant?.name}
+                                style={{
+                                  borderWidth: 1,
+                                  borderColor: "lightgray",
+                                  borderRadius: 5,
+                                  flex: 1,
+                                  marginBottom: Platform.OS === "web" ? 0 : 5,
+                                }}
+                                setValue={() => {}}
+                                items={allRestaurants.map((item) => ({
+                                  label: item?.name,
+                                  value: item?.name,
+                                }))}
+                                multiple={false}
+                                open={restOpen}
+                                setOpen={setRestOpen}
+                                placeholder=""
+                                onSelectItem={(value) => {
+                                  setLoading(true); // Ativa o loading assim que o usuário escolhe um item
+                                  const rest = allRestaurants.find(
+                                    (item) => item?.name === value.value
+                                  );
+                                  setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
+                                }}
+                              ></DropDownPicker>
+                            ) : (
+                              <Text>Loading...</Text> // Ou algum placeholder
+                            )}
+                            <View
+                              pt={5}
+                              gap={10}
+                              mb={Platform.OS === "web" ? 0 : 0}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                              zIndex={100}
+                            >
+                              <View flex={1}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  A partir de
+                                </Text>
+                                <DropDownPicker
+                                  value={minHour}
+                                  style={{
+                                    borderWidth: 1,
+                                    borderColor: "lightgray",
+                                    borderRadius: 5,
+                                    flex: 1,
+                                  }}
+                                  setValue={setMinHour}
+                                  items={minhours.map((item) => {
+                                    return { label: item, value: item };
+                                  })}
+                                  multiple={false}
+                                  open={minHourOpen}
+                                  setOpen={setMinHourOpen}
+                                  placeholder=""
+                                  listMode="SCROLLVIEW"
+                                ></DropDownPicker>
+                              </View>
+                              <View flex={1} zIndex={100}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Até
+                                </Text>
+                                <DropDownPicker
+                                  value={maxHour}
+                                  listMode="SCROLLVIEW"
+                                  style={{
+                                    borderWidth: 1,
+                                    borderColor: "lightgray",
+                                    borderRadius: 5,
+                                    flex: 1,
+                                  }}
+                                  setValue={setMaxHour}
+                                  items={maxhours.map((item) => {
+                                    return { label: item, value: item };
+                                  })}
+                                  multiple={false}
+                                  open={maxHourOpen}
+                                  setOpen={setMaxHourOpen}
+                                  placeholder=""
+                                ></DropDownPicker>
+                              </View>
+                            </View>
+
+                            <View
+                              style={{
+                                flexDirection: "row",
+                                flexWrap: "wrap", // permite quebra de linha
+                              }}
+                            >
+                              {/* Campo CEP */}
+                              <View
+                                style={{
+                                  flexBasis: "45%",
+                                  minWidth: 150,
+                                  flexGrow: 1,
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    paddingTop: 10,
+                                    paddingLeft: 5,
+                                    fontSize: 12,
+                                    color: "gray",
+                                  }}
+                                >
+                                  Cep
+                                </Text>
+                                <Input
+                                  marginBottom={10}
+                                  maxLength={9}
+                                  backgroundColor="white"
+                                  borderColor="lightgray"
+                                  borderRadius={5}
+                                  onChangeText={async (value) => {
+                                    const cleaned = value.replace(/\D/g, "");
+                                    const formatted = cleaned.replace(
+                                      /(\d{5})(\d{3})/,
+                                      "$1-$2"
+                                    );
+
+                                    if (formatted.length === 9) {
+                                      setLoading(true);
+                                      const response = await fetch(
+                                        `https://viacep.com.br/ws/${cleaned}/json/`
+                                      );
+                                      const result = await response.json();
+                                      if (response.ok && !result.erro) {
+                                        setCity(
+                                          result.localidade.toUpperCase()
+                                        );
+                                        setNeighborhood(
+                                          result.bairro.toUpperCase()
+                                        );
+                                        setLocalType(
+                                          result.logradouro
+                                            .split(" ")[0]
+                                            .toUpperCase()
+                                        );
+                                        setLocalNumber("");
+                                        setStreet(
+                                          result.logradouro
+                                            .split(" ")
+                                            .slice(1)
+                                            .join(" ")
+                                            .toUpperCase()
+                                        );
+                                      }
+                                      setLoading(false);
+                                    }
+
+                                    setZipCode(formatted);
+                                  }}
+                                  value={zipCode}
+                                />
+                              </View>
+
+                              <View style={{ flex: 1 }}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Cidade
+                                </Text>
+                                <Input
+                                  marginBottom={10}
+                                  color="gray"
+                                  fontSize={9}
+                                  disabled
+                                  flex={1}
+                                  backgroundColor="white"
+                                  borderColor="lightgray"
+                                  borderRadius={5}
+                                  value={city}
+                                  focusStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                  hoverStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                />
+                              </View>
+                              <View>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Bairro
+                                </Text>
+                                <Input
+                                  marginBottom={10}
+                                  color="gray"
+                                  fontSize={12}
+                                  disabled
+                                  backgroundColor="white"
+                                  borderColor="lightgray"
+                                  borderRadius={5}
+                                  value={neighborhood}
+                                  focusStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                  hoverStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                  flexWrap: "wrap",
+                                  gap: 10,
+                                  marginBottom: 5,
+                                }}
+                              >
+                                {/* Campo Logradouro */}
+                                <View
+                                  style={{
+                                    flexBasis: "45%",
+                                    minWidth: 150,
+                                    flexGrow: 1,
+                                  }}
+                                >
+                                  <Text
+                                    style={{
+                                      paddingLeft: 5,
+                                      fontSize: 12,
+                                      color: "gray",
+                                    }}
+                                  >
+                                    Logradouro
+                                  </Text>
+                                  <DropDownPicker
+                                    value={localType ?? "RUA"}
+                                    style={{
+                                      borderWidth: 1,
+                                      borderColor: "lightgray",
+                                      borderRadius: 5,
+                                      marginBottom: 10,
+                                    }}
+                                    listMode="SCROLLVIEW"
+                                    setValue={setLocalType}
+                                    items={[
+                                      { label: "ALAMEDA", value: "ALAMEDA" },
+                                      { label: "AVENIDA", value: "AVENIDA" },
+                                      { label: "BECO", value: "BECO" },
+                                      {
+                                        label: "BOULEVARD",
+                                        value: "BOULEVARD",
+                                      },
+                                      { label: "CAMINHO", value: "CAMINHO" },
+                                      { label: "CHÁCARA", value: "CHÁCARA" },
+                                      { label: "CIRCUITO", value: "CIRCUITO" },
+                                      { label: "CONJUNTO", value: "CONJUNTO" },
+                                      { label: "EIXO", value: "EIXO" },
+                                      { label: "ESTAÇÃO", value: "ESTAÇÃO" },
+                                      { label: "ESTRADA", value: "ESTRADA" },
+                                      { label: "FAVELA", value: "FAVELA" },
+                                      { label: "JARDIM", value: "JARDIM" },
+                                      { label: "LADEIRA", value: "LADEIRA" },
+                                      { label: "LARGO", value: "LARGO" },
+                                      { label: "PARQUE", value: "PARQUE" },
+                                      {
+                                        label: "PASSARELA",
+                                        value: "PASSARELA",
+                                      },
+                                      { label: "PASSEIO", value: "PASSEIO" },
+                                      { label: "PRAÇA", value: "PRAÇA" },
+                                      { label: "QUADRA", value: "QUADRA" },
+                                      { label: "RAMPA", value: "RAMPA" },
+                                      { label: "RODOVIA", value: "RODOVIA" },
+                                      { label: "RUA", value: "RUA" },
+                                      { label: "TRAVESSA", value: "TRAVESSA" },
+                                      { label: "VIA", value: "VIA" },
+                                      { label: "VIADUTO", value: "VIADUTO" },
+                                      { label: "VIELA", value: "VIELA" },
+                                      { label: "VILA", value: "VILA" },
+                                    ]}
+                                    multiple={false}
+                                    open={localTypeOpen}
+                                    setOpen={setLocalTypeOpen}
+                                    placeholder=""
+                                  />
+                                </View>
+                                <View flex={1}>
+                                  <Text
+                                    style={{
+                                      paddingLeft: 5,
+                                      fontSize: 12,
+                                      color: "gray",
+                                    }}
+                                  >
+                                    Rua
+                                  </Text>
+                                  <KeyboardAvoidingView>
+                                    <Input
+                                      onChangeText={(value) => {
+                                        const formattedValue = value.replace(
+                                          /[^A-Za-z\s]/g,
+                                          ""
+                                        );
+                                        setStreet(formattedValue);
+                                      }}
+                                      marginBottom={10}
+                                      backgroundColor="white"
+                                      borderColor="lightgray"
+                                      borderRadius={5}
+                                      borderTopLeftRadius={0}
+                                      borderBottomLeftRadius={0}
+                                      value={street}
+                                      focusStyle={{
+                                        borderColor: "#049A63",
+                                        borderWidth: 1,
+                                      }}
+                                      hoverStyle={{
+                                        borderColor: "#049A63",
+                                        borderWidth: 1,
+                                      }}
+                                    />
+                                  </KeyboardAvoidingView>
+                                </View>
+                              </View>
+                            </View>
+
+                            <View
+                              gap={10}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
+                              <View flex={1}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Nº
+                                </Text>
+                                <Input
+                                  fontSize={14}
+                                  flex={1}
+                                  backgroundColor="white"
+                                  borderColor="lightgray"
+                                  borderRadius={5}
+                                  value={localNumber}
+                                  keyboardType="numeric"
+                                  onChangeText={(value) => {
+                                    const formattedValue = value.replace(
+                                      /[^0-9]/g,
+                                      ""
+                                    );
+                                    setLocalNumber(formattedValue);
+                                  }}
+                                  focusStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                  hoverStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                />
+                              </View>
+
+                              <View flex={1}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Complemento
+                                </Text>
+                                <Input
+                                  fontSize={14}
+                                  flex={1}
+                                  backgroundColor="white"
+                                  borderColor="lightgray"
+                                  borderRadius={5}
+                                  value={complement}
+                                  onChangeText={(value) => {
+                                    setComplement(value);
+                                  }}
+                                  focusStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                  hoverStyle={{
+                                    borderColor: "#049A63",
+                                    borderWidth: 1,
+                                  }}
+                                />
+                              </View>
+                            </View>
+                            <View
+                              zIndex={-1}
+                              height={70}
+                              pt={10}
+                              gap={10}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
+                              <View flex={1}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Resp. recebimento <Text color="red">*</Text>
+                                </Text>
+                                <KeyboardAvoidingView style={{ flex: 1 }}>
+                                  <Input
+                                    fontSize={14}
+                                    flex={1}
+                                    backgroundColor="white"
+                                    borderColor="lightgray"
+                                    borderRadius={5}
+                                    value={responsibleReceivingName}
+                                    onChangeText={(value) => {
+                                      // Remove todos os caracteres que não sejam letras ou espaços
+                                      const formattedValue = value.replace(
+                                        /[^A-Za-z\s]/g,
+                                        ""
+                                      );
+                                      setResponsibleReceivingName(
+                                        formattedValue
+                                      );
+                                    }}
+                                    focusStyle={{
+                                      borderColor: "#049A63",
+                                      borderWidth: 1,
+                                    }}
+                                    hoverStyle={{
+                                      borderColor: "#049A63",
+                                      borderWidth: 1,
+                                    }}
+                                  />
+                                </KeyboardAvoidingView>
+                              </View>
+                              <View flex={1}>
+                                <Text pl={5} fontSize={12} color="gray">
+                                  Cel Resp. recebimento{" "}
+                                  <Text color="red">*</Text>
+                                </Text>
+                                <KeyboardAvoidingView style={{ flex: 1 }}>
+                                  <Input
+                                    maxLength={15}
+                                    fontSize={14}
+                                    flex={1}
+                                    backgroundColor="white"
+                                    borderColor="lightgray"
+                                    borderRadius={5}
+                                    value={responsibleReceivingPhoneNumber}
+                                    keyboardType="phone-pad"
+                                    focusStyle={{
+                                      borderColor: "#049A63",
+                                      borderWidth: 1,
+                                    }}
+                                    hoverStyle={{
+                                      borderColor: "#049A63",
+                                      borderWidth: 1,
+                                    }}
+                                    onChangeText={(value) => {
+                                      // Remove todos os caracteres que não sejam dígitos
+                                      let onlyNums = value.replace(/\D/g, "");
+
+                                      if (onlyNums.length > 10) {
+                                        // Formato moderno (celular): (XX) XXXXX-XXXX
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{5})(\d{0,4})/,
+                                          "($1) $2-$3"
+                                        );
+                                      } else if (onlyNums.length > 6) {
+                                        // Formato convencional (fixo): (XX) XXXX-XXXX
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{4})(\d{0,4})/,
+                                          "($1) $2-$3"
+                                        );
+                                      } else if (onlyNums.length > 2) {
+                                        // Formato parcial: (XX) XXXX
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{0,4})/,
+                                          "($1) $2"
+                                        );
+                                      } else if (onlyNums.length > 0) {
+                                        // Formato parcial: (XX
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{0,2})/,
+                                          "($1"
+                                        );
+                                      }
+
+                                      setResponsibleReceivingPhoneNumber(
+                                        onlyNums
+                                      );
+                                    }}
+                                  />
+                                </KeyboardAvoidingView>
+                              </View>
+                            </View>
+                            <View
+                              height={70}
+                              pt={10}
+                              gap={5}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
+                              <View flex={1}>
+                                <KeyboardAvoidingView style={{ flex: 1 }}>
+                                  <Text pl={5} fontSize={12} color="gray">
+                                    Info de entrega
+                                  </Text>
+                                  <Input
+                                    fontSize={14}
+                                    flex={1}
+                                    backgroundColor="white"
+                                    borderColor="lightgray"
+                                    borderRadius={5}
+                                    value={deliveryInformation}
+                                    onChangeText={(value) => {
+                                      setDeliveryInformation(value);
+                                    }}
+                                    focusStyle={{
+                                      borderColor: "#049A63",
+                                      borderWidth: 1,
+                                    }}
+                                    hoverStyle={{
+                                      borderColor: "#049A63",
+                                      borderWidth: 1,
+                                    }}
+                                  />
+                                </KeyboardAvoidingView>
+                              </View>
+                            </View>
+                          </ScrollView>
+                        </KeyboardAvoidingView>
+                      </>
                     )}
-                    <View
-                      zIndex={-1}
-                      height={70}
-                      pt={10}
-                      gap={10}
-                      justifyContent="space-between"
-                      flexDirection="row"
-                    >
-                      <View flex={1}>
-                        <Text pl={5} fontSize={12} color="gray">
-                          Resp. recebimento <Text color="red">*</Text>
-                        </Text>
-                        <KeyboardAvoidingView style={{ flex: 1 }}>
-                          <Input
-                            fontSize={14}
-                            flex={1}
-                            backgroundColor="white"
-                            borderColor="lightgray"
-                            borderRadius={5}
-                            value={responsibleReceivingName}
-                            onChangeText={(value) => {
-                              // Remove todos os caracteres que não sejam letras ou espaços
-                              const formattedValue = value.replace(
-                                /[^A-Za-z\s]/g,
-                                ""
-                              );
-                              setResponsibleReceivingName(formattedValue);
-                            }}
-                            focusStyle={{
-                              borderColor: "#049A63",
-                              borderWidth: 1,
-                            }}
-                            hoverStyle={{
-                              borderColor: "#049A63",
-                              borderWidth: 1,
-                            }}
-                          />
-                        </KeyboardAvoidingView>
-                      </View>
-                      <View flex={1}>
-                        <Text pl={5} fontSize={12} color="gray">
-                          Cel Resp. recebimento <Text color="red">*</Text>
-                        </Text>
-                        <KeyboardAvoidingView style={{ flex: 1 }}>
-                          <Input
-                            maxLength={15}
-                            fontSize={14}
-                            flex={1}
-                            backgroundColor="white"
-                            borderColor="lightgray"
-                            borderRadius={5}
-                            value={responsibleReceivingPhoneNumber}
-                            keyboardType="phone-pad"
-                            focusStyle={{
-                              borderColor: "#049A63",
-                              borderWidth: 1,
-                            }}
-                            hoverStyle={{
-                              borderColor: "#049A63",
-                              borderWidth: 1,
-                            }}
-                            onChangeText={(value) => {
-                              // Remove todos os caracteres que não sejam dígitos
-                              let onlyNums = value.replace(/\D/g, "");
 
-                              if (onlyNums.length > 10) {
-                                // Formato moderno (celular): (XX) XXXXX-XXXX
-                                onlyNums = onlyNums.replace(
-                                  /(\d{2})(\d{5})(\d{0,4})/,
-                                  "($1) $2-$3"
-                                );
-                              } else if (onlyNums.length > 6) {
-                                // Formato convencional (fixo): (XX) XXXX-XXXX
-                                onlyNums = onlyNums.replace(
-                                  /(\d{2})(\d{4})(\d{0,4})/,
-                                  "($1) $2-$3"
-                                );
-                              } else if (onlyNums.length > 2) {
-                                // Formato parcial: (XX) XXXX
-                                onlyNums = onlyNums.replace(
-                                  /(\d{2})(\d{0,4})/,
-                                  "($1) $2"
-                                );
-                              } else if (onlyNums.length > 0) {
-                                // Formato parcial: (XX
-                                onlyNums = onlyNums.replace(/(\d{0,2})/, "($1");
-                              }
-
-                              setResponsibleReceivingPhoneNumber(onlyNums);
-                            }}
-                          />
-                        </KeyboardAvoidingView>
-                      </View>
-                    </View>
-                    <View
-                      height={70}
-                      pt={10}
-                      gap={5}
-                      justifyContent="space-between"
-                      flexDirection="row"
-                    >
-                      <View flex={1}>
-                        <KeyboardAvoidingView style={{ flex: 1 }}>
-                          <Text pl={5} fontSize={12} color="gray">
-                            Info de entrega
-                          </Text>
-                          <Input
-                            fontSize={14}
-                            flex={1}
-                            backgroundColor="white"
-                            borderColor="lightgray"
-                            borderRadius={5}
-                            value={deliveryInformation}
-                            onChangeText={(value) => {
-                              setDeliveryInformation(value);
-                            }}
-                            focusStyle={{
-                              borderColor: "#049A63",
-                              borderWidth: 1,
-                            }}
-                            hoverStyle={{
-                              borderColor: "#049A63",
-                              borderWidth: 1,
-                            }}
-                          />
-                        </KeyboardAvoidingView>
-                      </View>
-                    </View>
                     <View
                       height={70}
                       pt={15}
