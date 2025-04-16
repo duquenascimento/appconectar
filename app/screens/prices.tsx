@@ -399,6 +399,8 @@ export function Prices({ navigation }: HomeScreenProps) {
 
   const loadPrices = useCallback(async (selectedRestaurant?: any) => {
     try {
+      setLoadingSuppliers(true);
+
       const token = await getToken();
       if (!token) return new Map();
 
@@ -517,6 +519,8 @@ export function Prices({ navigation }: HomeScreenProps) {
       setUnavailableSupplier(sortedUnavailableSuppliers);
     } catch (error) {
       console.error("Error loading product:", error);
+    } finally {
+      setLoadingSuppliers(false);
     }
   }, []);
 
@@ -860,6 +864,15 @@ export function Prices({ navigation }: HomeScreenProps) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
+        {loadingSuppliers ? (
+          <>
+            <Text fontSize={16} mt={5} color="gray" textAlign="center">
+              Carregando lista de fornecedores. Por favor Aguarde...
+            </Text>
+          </>
+        ) : (
+          ""
+        )}
       </View>
     );
   }
