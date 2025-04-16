@@ -865,11 +865,9 @@ export function Prices({ navigation }: HomeScreenProps) {
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
         {loadingSuppliers ? (
-          <>
-            <Text fontSize={16} mt={5} color="gray" textAlign="center">
-              Carregando lista de fornecedores. Por favor Aguarde...
-            </Text>
-          </>
+          <Text fontSize={16} mt={5} color="gray" textAlign="center">
+            Carregando lista de fornecedores. Por favor Aguarde...
+          </Text>
         ) : (
           ""
         )}
