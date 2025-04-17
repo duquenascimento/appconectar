@@ -145,9 +145,13 @@ const SupplierBox = ({
 
   return (
     <View
-      opacity={!isOpen() ? 1 : 0.4}
+      opacity={
+        /* !isOpen() */ available && supplier.supplier.missingItens > 0
+          ? 1
+          : 0.4
+      }
       onPress={() => {
-        if (supplier.supplier.missingItens > 0) {
+        if (available && supplier.supplier.missingItens > 0) {
           goToConfirm(supplier, selectedRestaurant);
         }
       }}
@@ -224,11 +228,12 @@ const SupplierBox = ({
         justifyContent="center"
         style={{ paddingRight: Platform.OS === "web" ? "10vw" : undefined }}
       >
-        {!available && supplier.supplier.missingItens < 1 ? (
+        {/* {!available && supplier.supplier.missingItens < 1 ? (
           <View></View>
         ) : (
           <Icons name="chevron-forward" size={24}></Icons>
-        )}
+        )} */}
+        {available && <Icons name="chevron-forward" size={24}></Icons>}
       </View>
     </View>
   );
@@ -453,11 +458,11 @@ export function Prices({ navigation }: HomeScreenProps) {
 
       const supplierUnavailable = (response.data as SupplierData[]).filter(
         (item) =>
-          (Number(item.supplier.hour.replaceAll(":", "")) < currentHour ||
-            item.supplier.minimumOrder >
-              item.supplier.discount.orderValueFinish) &&
-          item.supplier.missingItens > 0
+          Number(item.supplier.hour.replaceAll(":", "")) < currentHour ||
+          item.supplier.minimumOrder > item.supplier.discount.orderValueFinish
+        //item.supplier.missingItens > 0
       );
+
       const sortedSuppliers = supplier.sort((a, b) => {
         const diffA =
           a.supplier.discount.product.length - a.supplier.missingItens;
@@ -524,107 +529,6 @@ export function Prices({ navigation }: HomeScreenProps) {
     }
   }, []);
 
-  const loadPricesAux = useCallback(async (rest: any) => {
-    try {
-      const token = await getToken();
-      if (!token) return new Map();
-
-      const result = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/price/list`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token, selectedRestaurant: rest }),
-        }
-      );
-      const response = await result.json();
-      const currentDate = DateTime.now().setZone("America/Sao_Paulo");
-      const currentHour = Number(
-        `${currentDate.hour.toString().padStart(2, "0")}${currentDate.minute
-          .toString()
-          .padStart(2, "0")}${currentDate.second.toString().padStart(2, "0")}`
-      );
-      const supplier = (response.data as SupplierData[]).filter((item) => {
-        return (
-          Number(item.supplier.hour.replaceAll(":", "")) >= currentHour &&
-          item.supplier.minimumOrder <=
-            item.supplier.discount.orderValueFinish &&
-          item.supplier.missingItens > 0
-        );
-      });
-      const supplierUnavailable = (response.data as SupplierData[]).filter(
-        (item) =>
-          (Number(item.supplier.hour.replaceAll(":", "")) < currentHour ||
-            item.supplier.minimumOrder >
-              item.supplier.discount.orderValueFinish) &&
-          item.supplier.missingItens > 0
-      );
-      const sortedSuppliers = supplier.sort((a, b) => {
-        const diffA =
-          a.supplier.discount.product.length - a.supplier.missingItens;
-        const diffB =
-          b.supplier.discount.product.length - b.supplier.missingItens;
-
-        if (diffA !== diffB) {
-          return diffA - diffB;
-        }
-
-        const notaA =
-          a.supplier.star === "(NOVO)" ? 0 : Number(a.supplier.star);
-        const notaB =
-          b.supplier.star === "(NOVO)" ? 0 : Number(b.supplier.star);
-
-        if (notaA !== notaB) {
-          return notaB - notaA;
-        }
-
-        return (
-          a.supplier.discount.orderValueFinish -
-          b.supplier.discount.orderValueFinish
-        );
-      });
-
-      const sortedUnavailableSuppliers = supplierUnavailable.sort((a, b) => {
-        const hourA = Number(a.supplier.hour.replaceAll(":", ""));
-        const hourB = Number(b.supplier.hour.replaceAll(":", ""));
-
-        if (hourA !== hourB) {
-          return hourB - hourA;
-        }
-
-        const diffA =
-          a.supplier.discount.product.length - a.supplier.missingItens;
-        const diffB =
-          b.supplier.discount.product.length - b.supplier.missingItens;
-
-        if (diffA !== diffB) {
-          return diffA - diffB;
-        }
-
-        const notaA =
-          a.supplier.star === "(NOVO)" ? 0 : Number(a.supplier.star);
-        const notaB =
-          b.supplier.star === "(NOVO)" ? 0 : Number(b.supplier.star);
-
-        if (notaA !== notaB) {
-          return notaB - notaA;
-        }
-
-        return (
-          a.supplier.discount.orderValueFinish -
-          b.supplier.discount.orderValueFinish
-        );
-      });
-
-      setSuppliers(sortedSuppliers);
-      setUnavailableSupplier(sortedUnavailableSuppliers);
-    } catch (error) {
-      console.error("Error loading product:", error);
-    }
-  }, []);
-
   useEffect(() => {
     const loadPricesAsync = async () => {
       try {
@@ -680,7 +584,7 @@ export function Prices({ navigation }: HomeScreenProps) {
       setLoading(true);
       setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15));
       setSelectedRestaurant(rest);
-      await loadPricesAux(rest);
+      await loadPrices(rest);
     } catch (err) {
       console.error(err);
     } finally {
@@ -695,9 +599,9 @@ export function Prices({ navigation }: HomeScreenProps) {
       (item) => item.supplier.hour.substring(0, 5) !== "06:00"
     );
 
-    const filteredUnavailableSuppliers = unavailableSupplier.filter(
+    const filteredUnavailableSuppliers = unavailableSupplier; /* .filter(
       (item) => item.supplier.hour.substring(0, 5) !== "06:00"
-    );
+    ); */
 
     if (filteredSuppliers.length) itens.push({ initialSeparator: true });
     itens.push(
