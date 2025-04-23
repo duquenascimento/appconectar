@@ -41,6 +41,8 @@ import {
   setStorage,
 } from "../utils/utils";
 import * as Linking from "expo-linking";
+import DropDownPicker from "react-native-dropdown-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Product = {
   name: string;
@@ -975,6 +977,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 
 let classItems: { name: string }[] = [];
 
+interface Restaurant {
+  externalId: any;
+  id: string;
+  name: string;
+}
+
 export function Products({ navigation }: HomeScreenProps) {
   const [currentClass, setCurrentClass] = useState("Favoritos");
   const [productsList, setProductsList] = useState<Product[] | null>(null);
@@ -992,8 +1000,14 @@ export function Products({ navigation }: HomeScreenProps) {
   const [isScrolling, setIsScrolling] = useState(false);
   const [showComercialBlock, setShowComercialBlock] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
-  const [restaurantes, setRestaurantes] = useState();
+  const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [productObservations, setProductObservations] = useState(new Map());
+
+  //seguindo o padrão das orders
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
+    null
+  );
+  const [restaurantOpen, setRestaurantOpen] = useState(false);
 
   const flatListRef = useRef<FlatList<Product>>(null);
 
@@ -1030,7 +1044,9 @@ export function Products({ navigation }: HomeScreenProps) {
   const loadFavorites = useCallback(async () => {
     try {
       const token = await getToken();
-      if (token == null) return [];
+      const restaurant = await getSavedRestaurant();
+
+      if (token == null || !restaurant) return [];
       const result = await fetch(
         `${process.env.EXPO_PUBLIC_API_URL}/favorite/list`,
         {
@@ -1040,6 +1056,7 @@ export function Products({ navigation }: HomeScreenProps) {
           },
           body: JSON.stringify({
             token,
+            restaurantId: restaurant.id,
           }),
         }
       );
@@ -1190,28 +1207,48 @@ export function Products({ navigation }: HomeScreenProps) {
     []
   );
 
+  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
+    try {
+      const data = await AsyncStorage.getItem("selectedRestaurant");
+      if (!data) return null;
+
+      const parsedData = JSON.parse(data);
+
+      if (!parsedData?.restaurant) {
+        console.error("Formato inválido:", parsedData);
+        return null;
+      }
+
+      return parsedData.restaurant;
+    } catch (error) {
+      console.error("Erro ao parsear dados:", error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const [favs, cartMap, restaurants] = await Promise.all([
-          loadFavorites(),
-          loadCart(),
-          loadRestaurants(),
-          loadProducts(),
-        ]);
+        const [favs, cartMap, restaurants, savedRestaurant] = await Promise.all(
+          [
+            loadFavorites(),
+            loadCart(),
+            loadRestaurants(),
+            getSavedRestaurant(), //busca o restaurante no storage
+            loadProducts(),
+          ]
+        );
 
         console.log(restaurants);
 
         const verduraKg = restaurants.filter(
           (rest: any) => rest.verduraKg === true
         );
-
         // Extraindo categorias
         const categories = restaurants.flatMap(
           (rest: any) => rest.categories || []
         );
-
         if (verduraKg.length && categories.length === 0) {
           classItems = [
             { name: "Favoritos" },
@@ -1241,7 +1278,25 @@ export function Products({ navigation }: HomeScreenProps) {
           ];
         }
 
-        setRestaurantes(restaurants);
+        const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
+
+        setRestaurantes(validRestaurants);
+
+        let initialRestaurant = validRestaurants[0];
+        if (savedRestaurant) {
+          const found = validRestaurants.find(
+            (r) => r.id === savedRestaurant.id
+          );
+          if (found) initialRestaurant = found;
+        }
+
+        console.log("Primeiro", initialRestaurant);
+
+        setSelectedRestaurant(initialRestaurant.externalId);
+        await AsyncStorage.setItem(
+          "selectedRestaurant",
+          JSON.stringify({ restaurant: initialRestaurant })
+        );
 
         const restFilteredComercial = restaurants.filter(
           (item: any) => item.comercialBlock
@@ -1258,19 +1313,17 @@ export function Products({ navigation }: HomeScreenProps) {
           setShowFinanceBlock(true);
         }
 
-        setStorage(
+        /* setStorage(
           "selectedRestaurant",
           JSON.stringify({ restaurant: restaurants[0] })
         );
-
+ */
         if (favs.length > 0) {
-          setFavorites(favs);
+          setFavorites(favs); // Atualiza o estado dos favoritos
         }
-
         if (cartMap.size > 0) {
-          setCart(cartMap);
+          setCart(cartMap); // Atualiza o estado do carrinho
         }
-
         const newObservations = new Map();
         cart.forEach((item) => {
           if (item.obs) newObservations.set(item.productId, item.obs);
@@ -1283,13 +1336,27 @@ export function Products({ navigation }: HomeScreenProps) {
       }
     };
     loadInitialData();
-  }, []);
+  }, [loadFavorites, loadProducts, loadRestaurants]);
+
+  useEffect(() => {
+    const realoadFavs = async () => {
+      const storedRestaurant = await getSavedRestaurant();
+      if (storedRestaurant?.externalId === selectedRestaurant) return;
+      if (selectedRestaurant) {
+        loadFavorites().then((favs) => {
+          if (favs.length > 0) setFavorites(favs);
+        });
+      }
+    };
+    realoadFavs();
+  }, [selectedRestaurant]);
 
   const addToFavorites = useCallback(
     async (productId: string) => {
       try {
         const token = await getToken();
-        if (token == null) return;
+        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
+        if (token == null || !restaurant) return;
         // Atualizar o estado localmente
         const productToAdd = productsList?.find(
           (product) => product.id === productId
@@ -1297,6 +1364,11 @@ export function Products({ navigation }: HomeScreenProps) {
         if (productToAdd) {
           setFavorites([...favorites, productToAdd]);
         }
+        console.log(selectedRestaurant);
+        const storedRestaurant = await getSavedRestaurant();
+
+        console.log(storedRestaurant?.externalId);
+
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/save`,
           {
@@ -1307,6 +1379,7 @@ export function Products({ navigation }: HomeScreenProps) {
             },
             body: JSON.stringify({
               productId,
+              restaurantId: storedRestaurant?.id,
               token,
             }),
           }
@@ -1316,15 +1389,18 @@ export function Products({ navigation }: HomeScreenProps) {
         console.error("Erro ao adicionar aos favoritos:", error);
       }
     },
-    [favorites, productsList]
+    [favorites, productsList, selectedRestaurant]
   );
 
   const removeFromFavorites = useCallback(
     async (productId: string) => {
       try {
         const token = await getToken();
+        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
         setFavorites(favorites.filter((favorite) => favorite.id !== productId));
-        if (token == null) return;
+        if (token == null || !restaurant) return;
+        const storedRestaurant = await getSavedRestaurant();
+
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/del`,
           {
@@ -1335,6 +1411,7 @@ export function Products({ navigation }: HomeScreenProps) {
             },
             body: JSON.stringify({
               productId,
+              restaurantId: storedRestaurant?.id,
               token,
             }),
           }
@@ -1398,25 +1475,28 @@ export function Products({ navigation }: HomeScreenProps) {
         .replace(/[\u0300-\u036f]/g, "")
         .toLowerCase();
 
-    // Aplicar pesquisa
     if (searchQuery) {
       const excludeClass =
         classItems[3].name === "Verduras - KG" ? "Verduras" : "Verduras - KG";
-      const normalizedQuery = normalizeText(searchQuery); // Normaliza o termo de busca
+      const normalizedQuery = normalizeText(searchQuery);
+      const queryWords = normalizedQuery
+        .split(" ")
+        .filter((word) => word !== "");
 
       products =
         productsList?.filter((product) => {
-          const normalizedProductName = normalizeText(product.name); // Normaliza o nome do produto
-          const isMatchingName =
-            normalizedProductName.includes(normalizedQuery);
+          const normalizedProductName = normalizeText(product.name);
+          const productNameWords = normalizedProductName.split(" ");
+          const isMatchingName = queryWords.every((queryWord) =>
+            productNameWords.some((productWord) =>
+              productWord.includes(queryWord)
+            )
+          );
           const isNotExcludedClass =
             normalizeText(product.class) !== normalizeText(excludeClass);
-
           return isMatchingName && isNotExcludedClass;
         }) ?? [];
     }
-
-    // Ordenar por nome
     return products.sort((a, b) =>
       a.name.toLowerCase().localeCompare(b.name.toLowerCase())
     );
@@ -1506,6 +1586,27 @@ export function Products({ navigation }: HomeScreenProps) {
       productObservations,
     ]
   );
+
+  async function handleRestaurantChoice(value: string | null) {
+    try {
+      if (!value) return;
+
+      const storedRestaurant = await getSavedRestaurant();
+      if (storedRestaurant?.externalId === value) {
+        return; // Já está selecionado
+      }
+
+      const restaurant = restaurantes.find((r) => r.externalId === value);
+      if (restaurant) {
+        await AsyncStorage.setItem(
+          "selectedRestaurant",
+          JSON.stringify({ restaurant })
+        );
+      }
+    } catch (error) {
+      console.error("Falha na escolha de restaurante:", error);
+    }
+  }
 
   if (loading) {
     return (
@@ -1605,6 +1706,43 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
+        {/*Lista de restaurantes do usuário*/}
+        <Text
+          style={{
+            marginTop: 15,
+            marginLeft: Platform.OS === "web" ? 20 : 15,
+          }}
+        >
+          Meus Restaurantes
+        </Text>
+
+        <DropDownPicker
+          open={restaurantOpen}
+          setOpen={setRestaurantOpen}
+          value={selectedRestaurant}
+          items={restaurantes?.map((restaurant) => ({
+            label: restaurant.name,
+            value: restaurant.externalId,
+          }))}
+          setValue={setSelectedRestaurant}
+          onChangeValue={handleRestaurantChoice}
+          placeholder={
+            selectedRestaurant ? undefined : "Selecione um restaurante"
+          }
+          listMode="SCROLLVIEW"
+          dropDownDirection="BOTTOM"
+          style={{
+            width: Platform.OS === "web" ? "50%" : "92%",
+            marginTop: 10,
+            marginHorizontal: 15,
+            marginRight: 20,
+            borderColor: "#ccc",
+            borderWidth: 1,
+            borderRadius: 5,
+            height: 40,
+          }}
+        />
+
         <FlatList
           style={{ maxHeight: 50, marginTop: 5, minHeight: 50 }}
           data={classItems}
@@ -1621,7 +1759,7 @@ export function Products({ navigation }: HomeScreenProps) {
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
-          {currentClass.toLowerCase() === "favoritos" &&
+          {currentClass === "favoritos" &&
           favorites.length < 1 &&
           !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
