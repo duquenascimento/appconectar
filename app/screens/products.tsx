@@ -1293,7 +1293,11 @@ export function Products({ navigation }: HomeScreenProps) {
         console.log("Primeiro", initialRestaurant);
 
         setSelectedRestaurant(initialRestaurant.externalId);
-        await AsyncStorage.setItem(
+        /* await AsyncStorage.setItem(
+          "selectedRestaurant",
+          JSON.stringify({ restaurant: initialRestaurant })
+        ); */
+        setStorage(
           "selectedRestaurant",
           JSON.stringify({ restaurant: initialRestaurant })
         );
@@ -1313,11 +1317,6 @@ export function Products({ navigation }: HomeScreenProps) {
           setShowFinanceBlock(true);
         }
 
-        /* setStorage(
-          "selectedRestaurant",
-          JSON.stringify({ restaurant: restaurants[0] })
-        );
- */
         if (favs.length > 0) {
           setFavorites(favs); // Atualiza o estado dos favoritos
         }
