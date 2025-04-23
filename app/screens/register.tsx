@@ -1123,111 +1123,105 @@ export function Register({ navigation }: HomeScreenProps) {
                   </View>
                 </View>
               </View>
-              <View zIndex={100} mt={45} position="relative">
-                <View mt={15} alignItems="center" flexDirection="row">
-                  <Checkbox onPress={handleCheckBoxCloseDoor}>
-                    {closeDoor ? <Icons name="checkmark"></Icons> : <></>}
-                  </Checkbox>
-                  <Text paddingLeft={5} fontSize={12}>
-                    Aceito receber de portas fechadas
-                  </Text>
+              <View mt={15} alignItems="center" flexDirection="row">
+                <Checkbox onPress={handleCheckBoxCloseDoor}>
+                  {closeDoor ? <Icons name="checkmark"></Icons> : <></>}
+                </Checkbox>
+                <Text paddingLeft={5} fontSize={12}>
+                  Aceito receber de portas fechadas
+                </Text>
+              </View>
+              <Text mt={15}>Obs de entrega</Text>
+              <Input
+                onChangeText={setDeliveryObs}
+                value={deliveryObs}
+                backgroundColor="white"
+                borderRadius={2}
+                focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
+                hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
+              ></Input>
+              <View flex={1}>
+                <Text marginTop={15}>
+                  Responsável pelo recebimento
+                  <Text style={{ color: "red", marginLeft: 3 }}>*</Text>
+                </Text>
+                <View
+                  flex={1}
+                  borderWidth={0.5}
+                  borderColor="lightgray"
+                  zIndex={101}
+                >
+                  <Input
+                    fontSize={14}
+                    f={1} // Substitui flex={1} para manter o padrão
+                    backgroundColor="$colorTransparent"
+                    borderWidth="$0"
+                    borderRadius={2}
+                    borderColor="$colorTransparent"
+                    focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
+                    hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
+                    value={responsibleReceivingName}
+                    onChangeText={(value) => {
+                      // Remove todos os caracteres que não sejam letras ou espaços
+                      const formattedValue = value.replace(/[^A-Za-z\s]/g, "");
+                      setResponsibleReceivingName(formattedValue);
+                    }}
+                  />
                 </View>
-                <Text mt={15}>Obs de entrega</Text>
-                <Input
-                  onChangeText={setDeliveryObs}
-                  value={deliveryObs}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                  hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                ></Input>
+              </View>
+              <View flex={1}>
+                <Text marginTop={15}>
+                  Número de contato do responsável
+                  <Text style={{ color: "red", marginLeft: 3 }}>*</Text>
+                </Text>
+                <View
+                  flex={1}
+                  borderWidth={0.5}
+                  borderColor="lightgray"
+                  zIndex={101}
+                >
+                  <Input
+                    maxLength={15}
+                    fontSize={14}
+                    f={1} // Substituindo flex={1} por f={1} para manter o padrão
+                    backgroundColor="$colorTransparent"
+                    borderWidth="$0"
+                    borderRadius={2}
+                    borderColor="$colorTransparent"
+                    focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
+                    hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
+                    keyboardType="phone-pad"
+                    value={responsibleReceivingPhoneNumber}
+                    onChangeText={(value) => {
+                      // Remove todos os caracteres que não sejam dígitos
+                      let onlyNums = value.replace(/\D/g, "");
 
-                <View flex={1}>
-                  <Text marginTop={15}>
-                    Responsável pelo recebimento
-                    <Text style={{ color: "red", marginLeft: 3 }}>*</Text>
-                  </Text>
-                  <View
-                    flex={1}
-                    borderWidth={0.5}
-                    borderColor="lightgray"
-                    zIndex={101}
-                  >
-                    <Input
-                      fontSize={14}
-                      f={1} // Substitui flex={1} para manter o padrão
-                      backgroundColor="$colorTransparent"
-                      borderWidth="$0"
-                      borderRadius={2}
-                      borderColor="$colorTransparent"
-                      focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                      hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                      value={responsibleReceivingName}
-                      onChangeText={(value) => {
-                        // Remove todos os caracteres que não sejam letras ou espaços
-                        const formattedValue = value.replace(
-                          /[^A-Za-z\s]/g,
-                          ""
+                      if (onlyNums.length > 10) {
+                        // Formato moderno (celular): (XX) XXXXX-XXXX
+                        onlyNums = onlyNums.replace(
+                          /(\d{2})(\d{5})(\d{0,4})/,
+                          "($1) $2-$3"
                         );
-                        setResponsibleReceivingName(formattedValue);
-                      }}
-                    />
-                  </View>
-                </View>
-                <View flex={1}>
-                  <Text marginTop={15}>
-                    Número de contato do responsável
-                    <Text style={{ color: "red", marginLeft: 3 }}>*</Text>
-                  </Text>
-                  <View
-                    flex={1}
-                    borderWidth={0.5}
-                    borderColor="lightgray"
-                    zIndex={101}
-                  >
-                    <Input
-                      maxLength={15}
-                      fontSize={14}
-                      f={1} // Substituindo flex={1} por f={1} para manter o padrão
-                      backgroundColor="$colorTransparent"
-                      borderWidth="$0"
-                      borderRadius={2}
-                      borderColor="$colorTransparent"
-                      focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                      hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                      keyboardType="phone-pad"
-                      value={responsibleReceivingPhoneNumber}
-                      onChangeText={(value) => {
-                        // Remove todos os caracteres que não sejam dígitos
-                        let onlyNums = value.replace(/\D/g, "");
+                      } else if (onlyNums.length > 6) {
+                        // Formato convencional (fixo): (XX) XXXX-XXXX
+                        onlyNums = onlyNums.replace(
+                          /(\d{2})(\d{4})(\d{0,4})/,
+                          "($1) $2-$3"
+                        );
+                      } else if (onlyNums.length > 2) {
+                        // Formato parcial: (XX) XXXX
+                        onlyNums = onlyNums.replace(
+                          /(\d{2})(\d{0,4})/,
+                          "($1) $2"
+                        );
+                      } else if (onlyNums.length > 0) {
+                        // Formato parcial: (XX
+                        onlyNums = onlyNums.replace(/(\d{0,2})/, "($1");
+                      }
 
-                        if (onlyNums.length > 10) {
-                          // Formato moderno (celular): (XX) XXXXX-XXXX
-                          onlyNums = onlyNums.replace(
-                            /(\d{2})(\d{5})(\d{0,4})/,
-                            "($1) $2-$3"
-                          );
-                        } else if (onlyNums.length > 6) {
-                          // Formato convencional (fixo): (XX) XXXX-XXXX
-                          onlyNums = onlyNums.replace(
-                            /(\d{2})(\d{4})(\d{0,4})/,
-                            "($1) $2-$3"
-                          );
-                        } else if (onlyNums.length > 2) {
-                          // Formato parcial: (XX) XXXX
-                          onlyNums = onlyNums.replace(
-                            /(\d{2})(\d{0,4})/,
-                            "($1) $2"
-                          );
-                        } else if (onlyNums.length > 0) {
-                          // Formato parcial: (XX
-                          onlyNums = onlyNums.replace(/(\d{0,2})/, "($1");
-                        }
-
-                        setResponsibleReceivingPhoneNumber(onlyNums);
-                      }}
-                    />
-                  </View>
+                      setResponsibleReceivingPhoneNumber(onlyNums);
+                    }}
+                  />
                 </View>
               </View>
             </View>
