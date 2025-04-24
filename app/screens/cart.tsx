@@ -107,7 +107,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
     return (
         <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-            <View onPress={toggleOpen} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" marginHorizontal={Platform.OS === "web" ? 330 : ''} marginVertical={5} borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
+            <View onPress={toggleOpen} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open ? 0 : 12} borderBottomRightRadius={open ? 0 : 12}>
                 <View flexDirection="row" alignItems="center">
                     <View p={Platform.OS === 'web' ? 10 : 5}>
                         <View>
@@ -147,7 +147,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
                 </View>
             </View>
             {open && (
-                <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} paddingHorizontal={8} $xl={{marginHorizontal: 330}} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
+                <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} paddingHorizontal={8} gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
                     <View paddingHorizontal={Platform.OS === 'web' ? 10 : 5} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
                         <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} flex={1} alignItems='center' mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
                             {Platform.OS === 'web' && (
@@ -525,7 +525,6 @@ export function Cart({ navigation }: HomeScreenProps) {
                         ItemSeparatorComponent={() => <View height={8}/>}
                         initialNumToRender={10}
                         windowSize={4}
-                        
                     />
                 </View>
 

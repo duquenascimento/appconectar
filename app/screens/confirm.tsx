@@ -371,7 +371,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
     return (
         <Stack backgroundColor='white' pt={20} height='100%' position="relative">
             <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
-            <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
+            <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification}/>
             <View backgroundColor='white' flexDirection="row" height={80}>
                 <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
                     <Icons size={25} name="chevron-back" onPress={() => {
@@ -399,14 +399,14 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 <View backgroundColor='white' p={15}>
                     <View alignItems="center" paddingHorizontal={5} borderColor='gray' minHeight={40} flexDirection="row" borderWidth={0.5}>
                         <Icons color='gray' size={24} name="warning"></Icons>
-                        {/*// modified add*/}
+                        {/*// modified add*/ }
                         <Text color='gray' ml={5} mr={10} textBreakStrategy="simple" fontSize={12}>Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.</Text>
                     </View>
-                    <View pt={25} ml={Platform.OS === "web" ? 250 : ''}>
+                    <View pt={25}>
                         <Text>Produtos selecionados</Text>
                     </View>
                 </View>
-                <View paddingHorizontal={Platform.OS === "web" ? 250 : 16} gap={20} flex={1} backgroundColor='white'>
+                <View paddingHorizontal={16} flex={1} backgroundColor='white'>
                     {supplier.supplier.discount.product.sort((a, b) => {
                         if (a.price === 0 && b.price !== 0) {
                             return -1
@@ -446,68 +446,58 @@ export function Confirm({ navigation }: HomeScreenProps) {
                         )
                     })}
                 </View>
-                <View backgroundColor='white' gap={15} marginTop={20} paddingVertical={16} paddingHorizontal={Platform.OS === "web" ? 250 : 20}>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                        <Text style={{fontSize: 14, color: "gray", flexGrow: 0}}>Subtotal:</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
+                <View backgroundColor='white' marginTop={20} paddingVertical={16} paddingHorizontal={16}>
+                    <View flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Subtotal</Text>
+                        <Text>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     </View>
-                    <View style={{flexDirection: "row", alignItems: "center", paddingTop: 10}}>
-                        <Text style={{fontSize: 14, color: "gray", flexGrow: 0}}>Descontos:</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>R$ 0,00</Text>
+                    <View pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Descontos</Text>
+                        <Text>R$ 0,00</Text>
                     </View>
-                    <View style={{ flexDirection: "column", paddingTop: 10 }}>
-                        <View style={{ flexDirection: "row"}}>
-                            <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Total:</Text>
-                            <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
+                    <View pt={10} flexDirection="row">
+                        <View f={1}>
+                            <Text fontSize={18} >Total</Text>
+                            <Text fontSize={14} color='gray'>{supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)</Text>
                         </View>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>{supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)</Text>
 
+                        <Text fontSize={18}>R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}</Text>
                     </View>
                     <View marginVertical={20} borderWidth={0.5} borderColor='lightgray'></View>
-                    <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Formato pagamento:</Text>
-                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}</Text>
+                    <View flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Formato pagamento</Text>
+                        <Text>{getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Vencimento:</Text>
-                        <Text style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}} >{getPaymentDate(selectedRestaurant.restaurant.paymentWay)}</Text>
+                    <View pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Vencimento</Text>
+                        <Text>{getPaymentDate(selectedRestaurant.restaurant.paymentWay)}</Text>
                     </View>
                     <View marginVertical={20} borderWidth={0.5} borderColor='lightgray'></View>
-                    <View style={{ flexDirection: "row", alignItems: "center" }}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Restaurante:</Text>
-                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>
-                            <Text>{selectedRestaurant.restaurant.name}</Text>
-                        </View>
+                    <View flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Restaurante</Text>
+                        <Text>{selectedRestaurant.restaurant.name}</Text>
                     </View>
-                    <View style={{ flexDirection: "row", alignItems: "center", paddingTop: 10 }}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Endereço:</Text>
-                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>
-                            <Text numberOfLines={3} ellipsizeMode="tail">
-                                {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()} {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()}, {selectedRestaurant.restaurant.addressInfos[0].localNumber}, {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} - {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()}, {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
-                            </Text>
-                        </View>
+                    <View alignItems="center" pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Endereço</Text>
+                        <Text maxWidth={200}>
+                            {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()} {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()}, {selectedRestaurant.restaurant.addressInfos[0].localNumber}, {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} - {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()}, {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
+                        </Text>
                     </View>
-
-                    <View style={{ flexDirection: "row", paddingTop: 10, alignItems: "center" }}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0 }}>Horário:</Text>
-                        <View style={{ flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>
-                            <Text>
-                                {selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
-                            </Text>
-                        </View>
+                    <View pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Horário</Text>
+                        <Text>{selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}</Text>
                     </View>
-
-                    <View style={{flexDirection: "row", paddingTop: 10, alignItems: "center"}}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0}}>Obs entrega:</Text>
-                        <Text style={{ maxWidth: 200, flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}</Text>
+                    <View alignItems="center" pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Obs entrega:</Text>
+                        <Text maxWidth={200}>{selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}</Text>
                     </View>
-                    <View style={{flexDirection: "row", paddingTop: 10, alignItems: "center"}}>
-                        <Text style={{ fontSize: 14, color: "gray", flexGrow: 0}}>Entregar para</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}</Text>
+                    <View pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Entregar para</Text>
+                        <Text>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}</Text>
                     </View>
-                    <View style={{flexDirection: "row", paddingTop: 10, alignItems: "center"}}>
-                        <Text style={{fontSize: 14, color: "gray", flexGrow: 0}}>Telefone</Text>
-                        <Text style={{flexGrow: 1, marginLeft: Platform.OS === "web" ? 8 : ''}}>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber || '--'}</Text>
+                    <View pt={10} flexDirection="row">
+                        <Text fontSize={14} color='gray' f={1}>Telefone</Text>
+                        <Text>{selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber || '--'}</Text>
                     </View>
                 </View>
             </ScrollView>
@@ -534,7 +524,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                                     notification.content.title === "Confirme o seu pedido" &&
                                     notification.content.body === 'O seu pedido já pode ser confirmado!'
                             );
-
+                    
                             if (isAlreadyScheduled) {
                                 console.log('Notification already scheduled!');
                             } else {
@@ -571,7 +561,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                             if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
                                 !selectedRestaurant.restaurant.allowMinimumOrder)
                                 erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
-
+                            
                             setShowErros(erros)
 
                             if (!erros.length) {

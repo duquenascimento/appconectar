@@ -147,12 +147,7 @@ const SupplierBox = ({
       borderBottomWidth={0.1}
       borderBottomColor="lightgray"
     >
-      <View
-        style={{ paddingLeft: Platform.OS === "web" ? 200 : "" }}
-        marginVertical={10}
-        flexDirection="row"
-        f={1}
-      >
+      <View flexDirection="row" f={1}>
         <View p={5}>
           <Image
             source={{
@@ -173,10 +168,7 @@ const SupplierBox = ({
           </View>
         </View>
       </View>
-      <View
-        style={{ paddingRight: Platform.OS === "web" ? 200 : "" }}
-        justifyContent="center"
-      >
+      <View justifyContent="center">
         <View>
           <Text textAlign="right" fontSize={16} fontWeight="800">
             R${" "}
@@ -684,26 +676,14 @@ export function Prices({ navigation }: HomeScreenProps) {
   const renderItem = ({ item }: { item: any }) => {
     if (item.separator) {
       return (
-        <Text
-          style={{ paddingLeft: Platform.OS === "web" ? 210 : "" }}
-          pb={10}
-          pt={30}
-          opacity={60}
-          fontSize={16}
-        >
+        <Text pb={10} pt={10} opacity={60} fontSize={16}>
           Fornecedores indisponíveis
         </Text>
       );
     }
     if (item.initialSeparator) {
       return (
-        <Text
-          style={{ paddingLeft: Platform.OS === "web" ? 210 : "" }}
-          pb={5}
-          opacity={60}
-          mt={10}
-          fontSize={16}
-        >
+        <Text pb={5} opacity={60} mt={10} fontSize={16}>
           Fornecedores disponíveis
         </Text>
       );
@@ -947,7 +927,7 @@ export function Prices({ navigation }: HomeScreenProps) {
           backgroundColor="white"
           paddingBottom={10}
           paddingTop={10}
-          paddingHorizontal={Platform.OS === "web" ? 200 : 20}
+          paddingHorizontal={20}
           borderTopColor="lightgray"
           borderTopWidth={1}
         >
@@ -1043,7 +1023,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                 p={10}
                 mr={10}
                 flexDirection="row"
-                f={2}
+                f={1}
                 borderColor="lightgray"
                 borderRadius={5}
                 borderWidth={1}
