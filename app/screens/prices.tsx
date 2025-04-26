@@ -1673,7 +1673,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                             {allRestaurants.length > 0 ? (
                               <DropDownPicker
                                 listMode="SCROLLVIEW"
-                                value={selectedRestaurant?.name}
+                                value={
+                                  draftSelectedRestaurant?.name ??
+                                  selectedRestaurant?.name
+                                }
                                 style={{
                                   borderWidth: 1,
                                   borderColor: "lightgray",
@@ -1691,11 +1694,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 setOpen={setRestOpen}
                                 placeholder=""
                                 onSelectItem={(value) => {
-                                  setLoading(true); // Ativa o loading assim que o usuário escolhe um item
                                   const rest = allRestaurants.find(
                                     (item) => item?.name === value.value
                                   );
-                                  setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
+                                  setDraftSelectedRestaurant(rest); // Mudança para atualizar apenas o draftRestaurant ao clicar em telas menores
                                 }}
                               ></DropDownPicker>
                             ) : (
