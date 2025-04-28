@@ -123,18 +123,15 @@ const SupplierBox = ({
   const isOpen = () => {
     const currentDate = DateTime.now().setZone("America/Sao_Paulo");
     const currentHour = Number(
-      `${
-        currentDate.hour.toString().length < 2
-          ? `0${currentDate.hour}`
-          : currentDate.hour
-      }${
-        currentDate.minute.toString().length < 2
-          ? `0${currentDate.minute}`
-          : currentDate.minute
-      }${
-        currentDate.second.toString().length < 2
-          ? `0${currentDate.second}`
-          : currentDate.second
+      `${currentDate.hour.toString().length < 2
+        ? `0${currentDate.hour}`
+        : currentDate.hour
+      }${currentDate.minute.toString().length < 2
+        ? `0${currentDate.minute}`
+        : currentDate.minute
+      }${currentDate.second.toString().length < 2
+        ? `0${currentDate.second}`
+        : currentDate.second
       }`
     );
     return (
@@ -201,7 +198,7 @@ const SupplierBox = ({
               color={
                 supplier.supplier.discount.product.length -
                   supplier.supplier.missingItens >
-                0
+                  0
                   ? "red"
                   : "black"
               }
@@ -451,7 +448,7 @@ export function Prices({ navigation }: HomeScreenProps) {
         return (
           Number(item.supplier.hour.replaceAll(":", "")) >= currentHour &&
           item.supplier.minimumOrder <=
-            item.supplier.discount.orderValueFinish &&
+          item.supplier.discount.orderValueFinish &&
           item.supplier.missingItens > 0
         );
       });
@@ -1166,7 +1163,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               flex: 1,
                               marginBottom: Platform.OS === "web" ? 0 : 35,
                             }}
-                            setValue={() => {}}
+                            setValue={() => { }}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name,
@@ -1202,6 +1199,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                             </Text>
                             <DropDownPicker
                               value={minHour}
+                              zIndex={2}
                               style={{
                                 borderWidth: 1,
                                 borderColor: "lightgray",
@@ -1367,7 +1365,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                           gap={Platform.OS === "web" ? 10 : 50}
                         >
                           {/* Campo Logradouro */}
-                          <View style={{ width: 150 }}>
+                          <View zIndex={1} style={{ width: 150 }}>
                             <Text
                               style={{
                                 paddingLeft: 5,
@@ -1684,7 +1682,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   flex: 1,
                                   marginBottom: Platform.OS === "web" ? 0 : 5,
                                 }}
-                                setValue={() => {}}
+                                setValue={() => { }}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name,
@@ -1907,6 +1905,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   <DropDownPicker
                                     value={localType ?? "RUA"}
                                     style={{
+                                      zIndex: 10,
                                       borderWidth: 1,
                                       borderColor: "lightgray",
                                       borderRadius: 5,
@@ -2218,12 +2217,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                       </Button>
                       <Button
                         {...(zipCode?.length === 9 &&
-                        localNumber?.length &&
-                        street?.length &&
-                        responsibleReceivingName?.length &&
-                        responsibleReceivingPhoneNumber?.length &&
-                        localType?.length &&
-                        city?.length
+                          localNumber?.length &&
+                          street?.length &&
+                          responsibleReceivingName?.length &&
+                          responsibleReceivingPhoneNumber?.length &&
+                          localType?.length &&
+                          city?.length
                           ? {}
                           : { opacity: 0.4, disabled: true })}
                         onPress={async () => {
