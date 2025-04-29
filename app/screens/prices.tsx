@@ -1956,7 +1956,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     placeholder=""
                                   />
                                 </View>
-                                <View flex={1}>
+                                <View flex={1} style={{zIndex: -1, position: 'relative'}}>
                                   <Text
                                     style={{
                                       paddingLeft: 5,
@@ -2003,7 +2003,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                             >
                               <View
                                 flex={1}
-                                style={{ zIndex: 1, position: 'relative' }}
+                                style={{ zIndex: -1, position: 'relative' }}
                               >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Nº
@@ -2036,7 +2036,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                               <View
                                 flex={1}
-                                style={{ zIndex: 1, position: 'relative' }}
+                                style={{ zIndex: -1, position: 'relative' }}
                               >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Complemento
