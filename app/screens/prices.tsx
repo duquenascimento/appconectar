@@ -1887,12 +1887,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                               >
                                 {/* Campo Logradouro */}
                                 <View
+                                  zIndex={Platform.OS === 'ios' ? 3000 : 3}
+                                  position="relative"
                                   style={{
                                     flexBasis: "45%",
                                     minWidth: 150,
                                     flexGrow: 1,
-                                    zIndex: 3,
-                                    position: 'relative'
                                   }}
                                 >
                                   <Text
@@ -1905,8 +1905,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     Logradouro
                                   </Text>
                                   <DropDownPicker
+                                    zIndex={Platform.OS === 'ios' ? 2000 : 2}
                                     value={localType ?? "RUA"}
                                     style={{
+                                      position: "relative",
                                       borderWidth: 1,
                                       borderColor: "lightgray",
                                       borderRadius: 5,
@@ -1956,7 +1958,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     placeholder=""
                                   />
                                 </View>
-                                <View flex={1} style={{zIndex: -1, position: 'relative'}}>
+                                <View
+                                  flex={1}
+                                  zIndex={Platform.OS === 'ios' ? 100 : 1}
+                                  position="relative">
                                   <Text
                                     style={{
                                       paddingLeft: 5,
@@ -2003,7 +2008,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                             >
                               <View
                                 flex={1}
-                                style={{ zIndex: -1, position: 'relative' }}
+                                zIndex={Platform.OS === 'ios' ? 100 : 1}
+                                position="relative"
                               >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Nº
@@ -2036,7 +2042,8 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                               <View
                                 flex={1}
-                                style={{ zIndex: -1, position: 'relative' }}
+                                zIndex={Platform.OS === 'ios' ? 100 : 1}
+                                position="relative"
                               >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Complemento
