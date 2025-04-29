@@ -26,6 +26,7 @@ import {
   step2Validation,
   step3Validation,
 } from "@/src/validators/register.form.validator";
+import { red } from "react-native-reanimated/lib/typescript/reanimated2/Colors";
 
 type RootStackParamList = {
   Home: undefined;
@@ -187,7 +188,7 @@ export function Register({ navigation }: HomeScreenProps) {
           navigation.replace("RegisterFinished");
         } */
 
-        console.log("BODY: ", JSON.stringify(payload));
+        console.log("BODY:", JSON.stringify(payload));
       } finally {
         setLoading(false);
       }
@@ -1063,7 +1064,11 @@ export function Register({ navigation }: HomeScreenProps) {
                   <View
                     flex={1}
                     borderWidth={0.5}
-                    borderColor="lightgray"
+                    borderColor={
+                      formik.touched.minHour && formik.errors.minHour
+                        ? "red"
+                        : "lightgray"
+                    }
                     zIndex={101}
                   >
                     <DropDownPicker
@@ -1098,13 +1103,22 @@ export function Register({ navigation }: HomeScreenProps) {
                       placeholder="Escolha um horário"
                     ></DropDownPicker>
                   </View>
+                  {formik.touched.minHour && formik.errors.minHour && (
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.minHour}
+                    </Text>
+                  )}
                 </View>
                 <View flex={1}>
                   <Text marginTop={15}>Até</Text>
                   <View
                     flex={1}
                     borderWidth={0.5}
-                    borderColor="lightgray"
+                    borderColor={
+                      formik.touched.maxHour && formik.errors.maxHour
+                        ? "red"
+                        : "lightgray"
+                    }
                     zIndex={100}
                   >
                     <DropDownPicker
@@ -1139,6 +1153,11 @@ export function Register({ navigation }: HomeScreenProps) {
                       placeholder=""
                     ></DropDownPicker>
                   </View>
+                  {formik.touched.maxHour && formik.errors.maxHour && (
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.maxHour}
+                    </Text>
+                  )}
                 </View>
               </View>
               <View mt={15} alignItems="center" flexDirection="row">
@@ -1175,7 +1194,12 @@ export function Register({ navigation }: HomeScreenProps) {
                 <View
                   flex={1}
                   borderWidth={0.5}
-                  borderColor="lightgray"
+                  borderColor={
+                    formik.touched.responsibleReceivingName &&
+                    formik.errors.responsibleReceivingName
+                      ? "red"
+                      : "lightgray"
+                  }
                   zIndex={101}
                 >
                   <Input
@@ -1198,6 +1222,12 @@ export function Register({ navigation }: HomeScreenProps) {
                     }}
                   />
                 </View>
+                {formik.touched.responsibleReceivingName &&
+                  formik.errors.responsibleReceivingName && (
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.responsibleReceivingName}
+                    </Text>
+                  )}
               </View>
               <View flex={1}>
                 <Text marginTop={15}>
@@ -1207,7 +1237,12 @@ export function Register({ navigation }: HomeScreenProps) {
                 <View
                   flex={1}
                   borderWidth={0.5}
-                  borderColor="lightgray"
+                  borderColor={
+                    formik.touched.responsibleReceivingPhoneNumber &&
+                    formik.errors.responsibleReceivingPhoneNumber
+                      ? "red"
+                      : "lightgray"
+                  }
                   zIndex={101}
                 >
                   <Input
@@ -1256,6 +1291,12 @@ export function Register({ navigation }: HomeScreenProps) {
                     }}
                   />
                 </View>
+                {formik.touched.responsibleReceivingPhoneNumber &&
+                  formik.errors.responsibleReceivingPhoneNumber && (
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.responsibleReceivingPhoneNumber}
+                    </Text>
+                  )}
               </View>
             </View>
             <Text mt={10} fontSize={12} mb={5} color="gray">
@@ -1272,12 +1313,16 @@ export function Register({ navigation }: HomeScreenProps) {
               <View
                 flex={1}
                 borderWidth={0.5}
-                borderColor="lightgray"
+                borderColor={
+                  formik.touched.weeklyOrderAmount &&
+                  formik.errors.weeklyOrderAmount
+                    ? "red"
+                    : "lightgray"
+                }
                 zIndex={101}
                 marginTop={10}
               >
                 <DropDownPicker
-                  /// onChangeText={(value) => { setWeeklyOrderAmount(value) }} value={weeklyOrderAmount} keyboardType="number-pad"
                   value={formik.values.weeklyOrderAmount}
                   setValue={(callback) => {
                     const value =
@@ -1303,9 +1348,15 @@ export function Register({ navigation }: HomeScreenProps) {
                   }}
                 />
               </View>
+              {formik.touched.weeklyOrderAmount &&
+                formik.errors.weeklyOrderAmount && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.weeklyOrderAmount}
+                  </Text>
+                )}
               <Text mt={60}>Qual o valor médio de um pedido?</Text>
               <TextInputMask
-                placeholder="R$ 000"
+                placeholder="R$ 0"
                 type="only-numbers"
                 onChangeText={(value) =>
                   formik.setFieldValue("orderValue", value)
@@ -1316,10 +1367,18 @@ export function Register({ navigation }: HomeScreenProps) {
                   backgroundColor: "white",
                   borderRadius: 2,
                   borderWidth: 1,
-                  borderColor: "lightgray",
+                  borderColor:
+                    formik.touched.orderValue && formik.errors.orderValue
+                      ? "red"
+                      : "lightgray",
                 }}
                 keyboardType="number-pad"
               ></TextInputMask>
+              {formik.touched.orderValue && formik.errors.orderValue && (
+                <Text color="red" fontSize={12}>
+                  {formik.errors.orderValue}
+                </Text>
+              )}
             </View>
             <Text mt={10} fontSize={12} mb={5} color="gray">
               Formato de pagamento
@@ -1336,7 +1395,11 @@ export function Register({ navigation }: HomeScreenProps) {
                 marginTop={10}
                 justifyContent="flex-start"
                 borderWidth={0.5}
-                borderColor="lightgray"
+                borderColor={
+                  formik.touched.paymentWay && formik.errors.paymentWay
+                    ? "red"
+                    : "lightgray"
+                }
                 zIndex={99}
               >
                 <DropDownPicker
@@ -1372,6 +1435,11 @@ export function Register({ navigation }: HomeScreenProps) {
                   placeholder=""
                 ></DropDownPicker>
               </View>
+              {formik.touched.paymentWay && formik.errors.paymentWay && (
+                <Text color="red" fontSize={12}>
+                  {formik.errors.paymentWay}
+                </Text>
+              )}
               <View
                 mt={60}
                 borderColor="lightgray"
@@ -1437,8 +1505,8 @@ export function Register({ navigation }: HomeScreenProps) {
         <Button
           //disabled={formik.isSubmitting}
           //opacity={formik.isSubmitting ? 0.5 : 1}
-          disabled={!isStepValid() || formik.isSubmitting}
-          opacity={!isStepValid() || formik.isSubmitting ? 0.4 : 1}
+          //disabled={!isStepValid() || formik.isSubmitting}
+          //opacity={!isStepValid() || formik.isSubmitting ? 0.4 : 1}
           f={1}
           backgroundColor="#04BF7B"
           onPress={() => {

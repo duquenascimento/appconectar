@@ -33,6 +33,13 @@ export const step1Validation = Yup.object().shape({
   legalRestaurantName: Yup.string().required("Razão social é obrigatória"),
 
   zipcode: Yup.string().required("CEP é obrigatório").min(9, "CEP inválido"),
+
+  localNumber: Yup.string(),
+  complement: Yup.string().when("localNumber", {
+    is: "",
+    then: (schema) =>
+      schema.required("Pelo menos número ou complemento deve ser preenchido"),
+  }),
 });
 
 export const step2Validation = Yup.object().shape({
@@ -80,6 +87,8 @@ export const step3Validation = Yup.object().shape({
   weeklyOrderAmount: Yup.string().required(
     "Frequência de pedidos é obrigatória"
   ),
-  orderValue: Yup.string().required("Valor médio é obrigatório"),
+  orderValue: Yup.number()
+    .min(0, "Entre com um número não negativo")
+    .required("Valor médio é obrigatório"),
   paymentWay: Yup.string().required("Forma de pagamento é obrigatória"),
 });
