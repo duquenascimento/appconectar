@@ -110,6 +110,8 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   const hideTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
+
+    
     // Se o carrinho estiver vazio, sempre esconde imediatamente
     if (cartSize <= 0) {
       opacity.value = withTiming(0, { duration: 250 });
@@ -124,14 +126,14 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
         hideTimeout.current = null;
       }
       // Mostra o botão imediatamente ao voltar a rolar
-      opacity.value = withTiming(1, { duration: 200 });
-      translateY.value = withTiming(0, { duration: 200 });
+      opacity.value = withTiming(1, { duration: 100 });
+      translateY.value = withTiming(0, { duration: 100 });
     } else {
       
       // Inicia o timer para esconder depois de 2s sem scroll
       hideTimeout.current = setTimeout(() => {
-        opacity.value = withTiming(0, { duration: 250 });
-        translateY.value = withTiming(50, { duration: 250 });
+        opacity.value = withTiming(0, { duration: 200 });
+        translateY.value = withTiming(50, { duration: 200 });
       }, 2000);
     }
 
@@ -139,7 +141,7 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
     return () => {
       if (hideTimeout.current) {
         clearTimeout(hideTimeout.current);
-        hideTimeout.current = null;
+        
       }
     };
   }, [cartSize, isScrolling, opacity, translateY]);
@@ -147,6 +149,7 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
+    pointerEvents: opacity.value === 1 ? 'auto' : 'none', // Só interativo quando totalmente visível
   }));
 
   if (Platform.OS === "web") {
@@ -160,7 +163,7 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
           display: cartSize <= 0 ? "none" : "flex",
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 9999,
+          zIndex: 100,
           pointerEvents: "none",
         }}
       >
@@ -232,10 +235,11 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
           right: 0,
           alignItems: "center",
           justifyContent: "center",
-          zIndex: 9999,
+          zIndex: 100,
         },
         animatedStyle,
       ]}
+      pointerEvents="box-none" // Permite interação com elementos abaixo
     >
       <TouchableOpacity
         activeOpacity={0.9}
@@ -1907,8 +1911,9 @@ export function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              //setLoading(true);
-              await saveCartArray(cart, cartToExclude);
+              setLoading(true);
+              saveCartArray(cart, cartToExclude).catch(console.error); // Executa sem bloquear
+              setLoading(false);
               navigation.replace("Orders");
             }}
             padding={10}
@@ -1920,6 +1925,7 @@ export function Products({ navigation }: HomeScreenProps) {
             alignItems="center"
             width={120}
             height={70}
+            
           >
             <Icons name="journal" size={20} color="gray" />
             <Text fontSize={12} color="gray">
@@ -1931,6 +1937,7 @@ export function Products({ navigation }: HomeScreenProps) {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
               await Promise.all([clearStorage(), deleteToken()]);
+              setLoading(false);
               navigation.replace("Sign");
             }}
             padding={10}

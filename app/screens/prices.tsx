@@ -2005,10 +2005,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                               gap={10}
                               justifyContent="space-between"
                               flexDirection="row"
+                              zIndex={Platform.OS === 'ios' ? 100 : 1}
                             >
                               <View
                                 flex={1}
-                                zIndex={Platform.OS === 'ios' ? 100 : 1}
                                 position="relative"
                               >
                                 <Text pl={5} fontSize={12} color="gray">
@@ -2042,7 +2042,6 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                               <View
                                 flex={1}
-                                zIndex={Platform.OS === 'ios' ? 100 : 1}
                                 position="relative"
                               >
                                 <Text pl={5} fontSize={12} color="gray">
