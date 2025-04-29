@@ -1891,6 +1891,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     flexBasis: "45%",
                                     minWidth: 150,
                                     flexGrow: 1,
+                                    zIndex: 3,
+                                    position: 'relative'
                                   }}
                                 >
                                   <Text
@@ -1905,7 +1907,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   <DropDownPicker
                                     value={localType ?? "RUA"}
                                     style={{
-                                      zIndex: 10,
                                       borderWidth: 1,
                                       borderColor: "lightgray",
                                       borderRadius: 5,
@@ -2000,7 +2001,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                               justifyContent="space-between"
                               flexDirection="row"
                             >
-                              <View flex={1}>
+                              <View
+                                flex={1}
+                                style={{ zIndex: 1, position: 'relative' }}
+                              >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Nº
                                 </Text>
@@ -2030,7 +2034,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 />
                               </View>
 
-                              <View flex={1}>
+                              <View
+                                flex={1}
+                                style={{ zIndex: 1, position: 'relative' }}
+                              >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Complemento
                                 </Text>
