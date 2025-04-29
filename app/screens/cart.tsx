@@ -437,7 +437,7 @@ export function Cart({ navigation }: HomeScreenProps) {
             item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca')
         );
 
-        if (alertItems.length > 0) {
+        /*if (alertItems.length > 0) {
             const alertMessage = alertItems.map(item => item.name).join('\n');
             showModal(
                 'Atenção!',
@@ -446,7 +446,7 @@ export function Cart({ navigation }: HomeScreenProps) {
                 'Entendi',
                 () => setShowNotification(false)
             );
-        }
+        }*/
     };
 
     useEffect(() => {
