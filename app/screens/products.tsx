@@ -580,6 +580,7 @@ const ProductBox = React.memo(
         borderWidth={1}
         borderRadius={12}
         borderColor="#F0F2F6"
+        paddingBottom={Platform.OS === 'web' ? '' : 5}
       >
         {/**item da lista */}
         <View
@@ -680,7 +681,6 @@ const ProductBox = React.memo(
             style={{ 
               width: Platform.OS === 'web' ? '70%' : '100%', 
               alignSelf: 'center' }}
-            marginBottom={15}
           >
             <View
               paddingHorizontal={Platform.OS === "web" ? 10 : 0}
@@ -1810,6 +1810,7 @@ export function Products({ navigation }: HomeScreenProps) {
           flex={1}
           paddingHorizontal={16}
           paddingTop={5}
+          paddingBottom={Platform.OS === 'web' ? '' : 55}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
