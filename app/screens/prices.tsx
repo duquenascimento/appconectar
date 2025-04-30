@@ -1887,7 +1887,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               >
                                 {/* Campo Logradouro */}
                                 <View
-                                  zIndex={Platform.OS === 'ios' ? 3000 : 3}
+                                  zIndex={Platform.OS === 'ios' ? 3 : 3}
                                   position="relative"
                                   style={{
                                     flexBasis: "45%",
@@ -1905,7 +1905,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     Logradouro
                                   </Text>
                                   <DropDownPicker
-                                    zIndex={Platform.OS === 'ios' ? 2000 : 2}
+                                    zIndex={Platform.OS === 'ios' ? 2 : 2}
                                     value={localType ?? "RUA"}
                                     style={{
                                       position: "relative",
@@ -1960,7 +1960,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 </View>
                                 <View
                                   flex={1}
-                                  zIndex={Platform.OS === 'ios' ? 100 : 1}
+                                  zIndex={Platform.OS === 'ios' ? 1 : 1}
                                   position="relative">
                                   <Text
                                     style={{
@@ -2002,10 +2002,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                             </View>
 
                             <View
+                              zIndex={-1}
+                              height={70}
+                              pt={10}
                               gap={10}
                               justifyContent="space-between"
                               flexDirection="row"
-                              zIndex={Platform.OS === 'ios' ? 100 : 1}
                             >
                               <View
                                 flex={1}
