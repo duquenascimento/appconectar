@@ -17,8 +17,6 @@
   "jest": {
     "preset": "jest-expo"
   },
-
-  
   "dependencies": {
     "@babel/core": "^7.20.0",
     "@expo/vector-icons": "^14.0.2",
