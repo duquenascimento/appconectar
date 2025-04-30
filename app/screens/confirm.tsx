@@ -306,7 +306,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         .toString()
         .padStart(2, "0")}${currentDate.second.toString().padStart(2, "0")}`
     );
-    return 155000 >= currentHour;
+    return 130000 >= currentHour;
   };
 
   const isOpen = () => {
@@ -954,86 +954,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
         </Button>
         <Button
           onPress={async () => {
-            /*                     try {
-                        if (isBefore13Hours() && Platform.OS !== 'web') {
-                            const { status } = await Notifications.getPermissionsAsync();
-                            if (status !== 'granted') {
-                                const result = await Notifications.requestPermissionsAsync();
-                                if (result.status !== 'granted') {
-                                    console.log('No notification permissions granted!');
-                                    return;
-                                }
-                            }
-                            console.log('Permission granted');
-                            const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
-                            const isAlreadyScheduled = scheduledNotifications.some(
-                                (notification) =>
-                                    notification.content.title === "Confirme o seu pedido" &&
-                                    notification.content.body === 'O seu pedido já pode ser confirmado!'
-                            );
-
-                            if (isAlreadyScheduled) {
-                                console.log('Notification already scheduled!');
-                            } else {
-                                await Notifications.scheduleNotificationAsync({
-                                    content: {
-                                        title: "Confirme o seu pedido",
-                                        body: 'O seu pedido já pode ser confirmado!',
-                                    },
-                                    trigger: { seconds: getSecondsUntil13h() },
-                                });
-                                console.log('Notification scheduled');
-                            }
-
-                            setShowNotification(true)
-                        } else {
-                            setLoadingToConfirm(true)
-                            const token = await getToken();
-                            if (!token) return new Map();
-
-                            const body = {
-                                token,
-                                supplier: supplier.supplier,
-                                restaurant: selectedRestaurant
-                            }
-
-                            // console.log(JSON.stringify(body))
-
-                            console.log('final: ', JSON.stringify(body))
-
-                            let erros = []
-
-                            if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
-                            if (isBefore13Hours() && Platform.OS === 'web') erros.push('O pedido só pode ser confirmado após as 13h')
-                            if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-                                !selectedRestaurant.restaurant.allowMinimumOrder)
-                                erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
-
-                            setShowErros(erros)
-
-                            if (!erros.length) {
-                                const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(body)
-                                });
-                                if (result.ok) {
-                                    const response = await result.json()
-                                    await setStorage('finalConfirmData', JSON.stringify(response.data))
-                                    navigation.replace('FinalConfirm')
-                                } else {
-                                    setLoadingToConfirm(false)
-                                }
-                            } else {
-                                setBooleanErros(true)
-                                setLoadingToConfirm(false)
-                            }
-                        }
-                    } catch (err) {
-                        console.log(err)
-                    } */
             try {
               let erros = [];
 
@@ -1076,11 +996,11 @@ export function Confirm({ navigation }: HomeScreenProps) {
                   erros.push("O pedido só pode ser confirmado após as 13h");
                 }
 
-                // Agendamento ChatGuru
+                // Agendamento ChatGurur
                 try {
                   const sendDateTime = DateTime.now()
                     .setZone("America/Sao_Paulo")
-                    .set({ hour: 15, minute: 50, second: 0 });
+                    .set({ hour: 13, minute: 0, second: 0 });
                   const sendDate = sendDateTime.toFormat("yyyy-MM-dd");
                   const sendTime = sendDateTime.toFormat("HH:mm");
 
@@ -1183,10 +1103,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
           backgroundColor="#04BF7B"
         >
           <Text fontSize={13} color="white">
-            {
-              //isBefore13Hours() && Platform.OS !== "web"
-              isBefore13Hours() ? "Agendar notificação" : "Confirmar pedido"
-            }
+            {isBefore13Hours() ? "Agendar notificação" : "Confirmar pedido"}
           </Text>
         </Button>
       </View>
