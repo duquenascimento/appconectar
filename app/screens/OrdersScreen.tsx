@@ -329,8 +329,8 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           width={80}
           height={70}
         >
-          <Icons name="home" size={20} color="#04BF7B" />
-          <Text fontSize={12} color="#04BF7B">
+          <Icons name="home" size={20} color="gray" />
+          <Text fontSize={12} color="gray">
             Home
           </Text>
         </View>
@@ -349,8 +349,8 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           width={120}
           height={70}
         >
-          <Icons name="journal" size={20} color="gray" />
-          <Text fontSize={12} color="gray">
+          <Icons name="journal" size={20} color="#04BF7B" />
+          <Text fontSize={12} color="#04BF7B">
             Meus Pedidos
           </Text>
         </View>

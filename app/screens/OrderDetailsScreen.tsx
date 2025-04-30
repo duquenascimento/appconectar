@@ -11,6 +11,8 @@ import { openURL } from "expo-linking";
 import CustomAlert from "../../src/components/modais/CustomAlert";
 import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
 
+import { TouchableOpacity } from 'react-native';
+
 export function OrderDetailsScreen() {
   const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();
   const navigation = useNavigation();
@@ -134,10 +136,10 @@ export function OrderDetailsScreen() {
           size={25}
           name="chevron-back"
         ></Icons>
-        <View 
-        flex={1} 
-        alignItems="center" 
-        mb={5}>
+        <View
+          flex={1}
+          alignItems="center"
+          mb={5}>
           <Text>Pedido {order.id}</Text>
           <Text fontSize={10} color="gray">
             Entregue {formatDate(order.deliveryDate)}
@@ -148,50 +150,56 @@ export function OrderDetailsScreen() {
         padding={16}
         flex={1}
         gap={6}
-        style={{ 
+        style={{
           width: Platform.OS === 'web' ? '70%' : '92%',
           alignSelf: "center"
-         }}
+        }}
       >
         <Text fontSize={10} color="gray">
           Documentos
         </Text>
-        <LabelAndBoxContent
-          iconName="download"
-          title="Recibo"
-          subtitle="Por Conéctar"
-          icon={true}
-          iconAction={() => {
+        <TouchableOpacity
+          onPress={() => {
             if (order.orderDocument) {
               openURL(order.orderDocument);
             } else {
               console.warn("Documento não disponível");
             }
           }}
-        />
+        >
+          <LabelAndBoxContent
+            iconName="download"
+            title="Recibo"
+            subtitle="Por Conéctar"
+            icon={true}
+          />
+        </TouchableOpacity>
         <Text fontSize={10} color="gray">
         </Text>
-        <LabelAndBoxContent
-          iconName="download"
-          icon={true}
-          title="Nota Fiscal"
-          subtitle={`Por ${supplierName}`}
-          iconAction={() => {
+        <TouchableOpacity
+          onPress={() => {
             if (order.orderInvoices) {
               openURL(order.orderInvoices?.filePath[0]);
             } else {
               console.warn("Documento não disponível");
             }
           }}
-        />
-        <Button
+        >
+          <LabelAndBoxContent
+            iconName="download"
+            icon={true}
+            title="Nota Fiscal"
+            subtitle={`Por ${supplierName}`}
+          />
+        </TouchableOpacity>
+        {/*<Button
           borderColor="red"
           borderWidth={1}
           borderRadius={6}
           onPress={async () => setModalCancelOrderVisibility(true)}
         >
           <Text color="red">Cancelar pedido</Text>
-        </Button>
+        </Button>*/}
       </View>
     </View>
   );

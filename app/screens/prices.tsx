@@ -1887,6 +1887,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                               >
                                 {/* Campo Logradouro */}
                                 <View
+                                  zIndex={Platform.OS === 'ios' ? 3 : 3}
+                                  position="relative"
                                   style={{
                                     flexBasis: "45%",
                                     minWidth: 150,
@@ -1903,9 +1905,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     Logradouro
                                   </Text>
                                   <DropDownPicker
+                                    zIndex={Platform.OS === 'ios' ? 2 : 2}
                                     value={localType ?? "RUA"}
                                     style={{
-                                      zIndex: 10,
+                                      position: "relative",
                                       borderWidth: 1,
                                       borderColor: "lightgray",
                                       borderRadius: 5,
@@ -1955,7 +1958,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     placeholder=""
                                   />
                                 </View>
-                                <View flex={1}>
+                                <View
+                                  flex={1}
+                                  zIndex={Platform.OS === 'ios' ? 1 : 1}
+                                  position="relative">
                                   <Text
                                     style={{
                                       paddingLeft: 5,
@@ -1996,11 +2002,17 @@ export function Prices({ navigation }: HomeScreenProps) {
                             </View>
 
                             <View
+                              zIndex={-1}
+                              height={70}
+                              pt={10}
                               gap={10}
                               justifyContent="space-between"
                               flexDirection="row"
                             >
-                              <View flex={1}>
+                              <View
+                                flex={1}
+                                position="relative"
+                              >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Nº
                                 </Text>
@@ -2030,7 +2042,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 />
                               </View>
 
-                              <View flex={1}>
+                              <View
+                                flex={1}
+                                position="relative"
+                              >
                                 <Text pl={5} fontSize={12} color="gray">
                                   Complemento
                                 </Text>
