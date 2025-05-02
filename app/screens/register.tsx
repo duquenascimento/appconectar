@@ -909,16 +909,20 @@ export function Register({ navigation }: HomeScreenProps) {
                   borderRadius={2}
                   onBlur={() => {
                     formik.setFieldTouched("localNumber", true);
-                    formik.validateField("complement");
                   }}
                   borderColor={
-                    formik.touched.complement && formik.errors.complement
+                    formik.touched.localNumber && formik.errors.localNumber
                       ? "red"
                       : "lightgray"
                   }
                   focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                   hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                 ></Input>
+                {formik.touched.localNumber && formik.errors.localNumber && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.localNumber}
+                  </Text>
+                )}
                 <Text mt={15}>Complemento</Text>
                 <Input
                   onChangeText={(text) =>
@@ -937,7 +941,7 @@ export function Register({ navigation }: HomeScreenProps) {
                 ></Input>
                 {formik.touched.complement && formik.errors.complement && (
                   <Text color="red" fontSize={12}>
-                    {formik.errors.localNumber || formik.errors.complement}
+                    {formik.errors.complement}
                   </Text>
                 )}
               </View>
@@ -1147,7 +1151,10 @@ export function Register({ navigation }: HomeScreenProps) {
                       open={minHourOpen}
                       setOpen={setMinHourOpen}
                       onOpen={() => setScrollEnabled(false)}
-                      onClose={() => setScrollEnabled(true)}
+                      onClose={() => {
+                        setScrollEnabled(true);
+                        formik.setFieldTouched("minHour", true);
+                      }}
                       placeholder="Escolha um horário"
                     ></DropDownPicker>
                   </View>
@@ -1264,7 +1271,13 @@ export function Register({ navigation }: HomeScreenProps) {
                     backgroundColor="$colorTransparent"
                     borderWidth="$0"
                     borderRadius={2}
-                    borderColor="$colorTransparent"
+                    onBlur={formik.handleBlur("responsibleReceivingName")}
+                    borderColor={
+                      formik.touched.responsibleReceivingName &&
+                      formik.errors.responsibleReceivingName
+                        ? "red"
+                        : "lightgray"
+                    }
                     focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                     hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                     value={formik.values.responsibleReceivingName}
@@ -1307,7 +1320,15 @@ export function Register({ navigation }: HomeScreenProps) {
                     backgroundColor="$colorTransparent"
                     borderWidth="$0"
                     borderRadius={2}
-                    borderColor="$colorTransparent"
+                    borderColor={
+                      formik.touched.responsibleReceivingPhoneNumber &&
+                      formik.errors.responsibleReceivingPhoneNumber
+                        ? "red"
+                        : "lightgray"
+                    }
+                    onBlur={formik.handleBlur(
+                      "responsibleReceivingPhoneNumber"
+                    )}
                     focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                     hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                     keyboardType="phone-pad"
@@ -1385,6 +1406,12 @@ export function Register({ navigation }: HomeScreenProps) {
                         ? callback(formik.values.weeklyOrderAmount)
                         : callback;
                     formik.setFieldValue("weeklyOrderAmount", value);
+                    formik.setFieldTouched("weeklyOrderAmount", true, false);
+                    if (value) {
+                      formik.setFieldError("weeklyOrderAmount", undefined);
+                    } else {
+                      formik.validateField("weeklyOrderAmount");
+                    }
                   }}
                   items={daysOptions}
                   open={daysOpen}
@@ -1392,7 +1419,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   onOpen={() => setScrollEnabled(false)}
                   onClose={() => {
                     setScrollEnabled(true);
-                    formik.setFieldTouched("weeklyOrderAmount", true);
+                    formik.validateField("weeklyOrderAmount");
                   }}
                   placeholder="Escolha uma opção"
                   listMode="SCROLLVIEW"

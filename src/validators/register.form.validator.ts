@@ -47,12 +47,10 @@ export const step1Validation = Yup.object().shape({
         return false;
       }
     }),
-  localNumber: Yup.string(),
-  complement: Yup.string().when("localNumber", {
-    is: "",
-    then: (schema) =>
-      schema.required("Pelo menos número ou complemento deve ser preenchido"),
-  }),
+  localNumber: Yup.string().required(
+    "Número é obrigatório. Se não houver, digitar S/N"
+  ),
+  complement: Yup.string(),
 });
 
 export const step2Validation = Yup.object().shape({
