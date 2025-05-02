@@ -1,14 +1,22 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { View, Text, Stack, XStack, Input } from 'tamagui';
-import { FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking, ScrollView } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import Icons from '@expo/vector-icons/Ionicons';
-import { getOrders } from '../../src/services/orderService';
-import { loadRestaurants } from '../../src/services/restaurantService';
-import { RootStackParamList } from '../../src/types/navigationTypes';
-import { ordersScreenStyles as styles } from '../../src/styles/styles';
-import { clearStorage, deleteToken } from '../utils/utils';
+import React, { ReactNode, useEffect, useState } from "react";
+import { View, Text, Stack, XStack, Input } from "tamagui";
+import {
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  TextInput,
+  Linking,
+  ScrollView,
+} from "react-native";
+import DropDownPicker from "react-native-dropdown-picker";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import Icons from "@expo/vector-icons/Ionicons";
+import { getOrders } from "../../src/services/orderService";
+import { loadRestaurants } from "../../src/services/restaurantService";
+import { RootStackParamList } from "../../src/types/navigationTypes";
+import { ordersScreenStyles as styles } from "../../src/styles/styles";
+import { clearStorage, deleteToken } from "../utils/utils";
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -35,18 +43,22 @@ interface Restaurant {
 // Função para formatar a data
 const formatDate = (isoDate: string) => {
   const date = new Date(isoDate);
-  return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+  return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
 };
 
-export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
+export function OrdersScreen({
+  navigation,
+}: {
+  navigation: OrdersScreenNavigationProp;
+}) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState('');
+  const [selectedRestaurant, setSelectedRestaurant] = useState("");
   const [restaurantOpen, setRestaurantOpen] = useState(false);
 
   useEffect(() => {
@@ -57,8 +69,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         if (restaurantsData.length > 0) {
           setSelectedRestaurant(restaurantsData[0].externalId);
         }
-      } catch (error) {
-      }
+      } catch (error) {}
     };
     LoadRestaurants();
   }, []);
@@ -70,11 +81,28 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       }
       setLoading(true);
       try {
-        const ordersData = await getOrders(1, 10, selectedRestaurant);
+        //cotação com todos os fornecedores
+        const result = await getOrders(1, 10, selectedRestaurant);
+
+        //filtrar para obter o fornecedor onde foi feito o pedido
+        const ordersData = result.map((order: any) => {
+          const filteredSupplier =
+            order.calcOrderAgain?.data?.filter(
+              (item: any) => item.supplier?.externalId === order.supplierId
+            ) || [];
+
+          return {
+            ...order,
+            calcOrderAgain: {
+              ...order.calcOrderAgain,
+              data: filteredSupplier,
+            },
+          };
+        });
         setOrders(ordersData);
         setFilteredOrders(ordersData);
       } catch (error) {
-        console.error('Erro ao carregar pedidos:', error);
+        console.error("Erro ao carregar pedidos:", error);
       } finally {
         setLoading(false);
       }
@@ -90,9 +118,9 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     const filtered = orders.filter((order: any) => {
       // Filtragem por data parcial (se aplicável)
       if (isDatePartial) {
-        const [day, month, year] = query.split('/');
-        const deliveryDate = order.deliveryDate.split('T')[0]; // Formato: YYYY-MM-DD
-        const [orderYear, orderMonth, orderDay] = deliveryDate.split('-');
+        const [day, month, year] = query.split("/");
+        const deliveryDate = order.deliveryDate.split("T")[0]; // Formato: YYYY-MM-DD
+        const [orderYear, orderMonth, orderDay] = deliveryDate.split("-");
         // Comparar dia
         if (day && !orderDay.startsWith(day)) return false;
         // Comparar mês (se fornecido)
@@ -104,7 +132,15 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       // Filtragem por ID, valor total ou nome do fornecedor
       const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
       const matchesTotal = order.totalConectar.toString().includes(query);
-      const matchesSupplier = order.calcOrderAgain.data[0].supplier.name.toLowerCase().includes(query.toLowerCase());
+      const matchExternalId = order.calcOrderAgain.data.find(
+        (item: any) =>
+          item.supplier && item.supplier.externalId === order.supplierId
+      );
+
+      const matchesSupplier = //order.calcOrderAgain.data[0].supplier.name
+        matchExternalId.supplier.name
+          .toLowerCase()
+          .includes(query.toLowerCase());
 
       return matchesId || matchesTotal || matchesSupplier;
     });
@@ -112,7 +148,6 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     setFilteredOrders(filtered);
     // Exibir mensagem se nenhum pedido for encontrado
     if (filtered.length === 0 && query.length > 0) {
-
     }
   };
 
@@ -131,9 +166,9 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     for (const orderId of selectedOrders) {
       const order: any = orders.find((order) => order.id === orderId);
       if (order && order.orderDocument) {
-        if (Platform.OS === 'web') {
-          window.open(order.orderDocument, '_blank');
-          window.open(order.orderInvoices?.filePath[0], '_blank');
+        if (Platform.OS === "web") {
+          window.open(order.orderDocument, "_blank");
+          window.open(order.orderInvoices?.filePath[0], "_blank");
         } else {
           try {
             await Linking.openURL(order.orderDocument);
@@ -150,7 +185,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
-      return text.substring(0, maxLength) + '...';
+      return text.substring(0, maxLength) + "...";
     }
     return text;
   };
@@ -168,11 +203,13 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       <Text
         style={{
           marginTop: 35,
-          marginLeft: Platform.OS === 'web' ? '' : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
+          marginLeft: Platform.OS === "web" ? "" : 15,
+          width: Platform.OS === "web" ? "70%" : "",
+          alignSelf: Platform.OS === "web" ? "center" : "flex-start",
         }}
-      >Meus Pedidos</Text>
+      >
+        Meus Pedidos
+      </Text>
       {/* Dropdown de Restaurantes */}
       <DropDownPicker
         value={selectedRestaurant}
@@ -187,15 +224,15 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         listMode="SCROLLVIEW"
         dropDownContainerStyle={{
           width: Platform.OS === "web" ? "70%" : "92%",
-          alignSelf: "center"
+          alignSelf: "center",
         }}
         style={{
           width: Platform.OS === "web" ? "70%" : "92%",
-          alignSelf: 'center',
+          alignSelf: "center",
           marginTop: 10,
           marginHorizontal: 15,
           marginRight: 20,
-          borderColor: '#ccc',
+          borderColor: "#ccc",
           borderWidth: 1,
           borderRadius: 5,
           height: 40,
@@ -209,14 +246,19 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         //marginHorizontal={ Platform.OS === 'web' ? 20 : 15 }
         //marginRight={Platform.OS === 'web' ? '49%' : 15}
         //marginLeft={Platform.OS === 'web' ? 15 : 15}
-        width={Platform.OS === 'web' ? '70%' : '92%'}
+        width={Platform.OS === "web" ? "70%" : "92%"}
         marginTop={20}
         alignSelf="center"
         alignItems="center"
       >
-        <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
+        <Icons
+          name="search"
+          size={24}
+          color="#04BF7B"
+          style={{ marginLeft: 15 }}
+        />
         <Input
-          width={Platform.OS === 'web' ? '67%' : '92%'}
+          width={Platform.OS === "web" ? "67%" : "92%"}
           placeholder="Buscar pedidos..."
           value={searchQuery}
           onChangeText={(text) => {
@@ -238,32 +280,32 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         onPress={handleDownloadSelectedOrders}
         disabled={selectedOrders.length === 0 || isDownloading}
         style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          backgroundColor: selectedOrders.length > 0 ? '#04BF7B' : '#ccc',
+          width: Platform.OS === "web" ? "70%" : "92%",
+          backgroundColor: selectedOrders.length > 0 ? "#04BF7B" : "#ccc",
           paddingVertical: 10,
           paddingHorizontal: 20,
           borderRadius: 5,
-          alignItems: 'center',
-          alignSelf: 'center',
+          alignItems: "center",
+          alignSelf: "center",
           marginBottom: 16,
-          marginTop: Platform.OS === 'web' ? 20 : 15,
-          marginHorizontal: 15
+          marginTop: Platform.OS === "web" ? 20 : 15,
+          marginHorizontal: 15,
         }}
       >
         {isDownloading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Baixar Documentos Selecionados</Text>
+          <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
+            Baixar Documentos Selecionados
+          </Text>
         )}
       </TouchableOpacity>
-
-
 
       {/* Lista de Pedidos */}
       <FlatList
         style={{
           width: Platform.OS === "web" ? "70%" : undefined,
-          alignSelf: "center"
+          alignSelf: "center",
         }}
         data={filteredOrders}
         keyExtractor={(item) => item.id}
@@ -271,11 +313,15 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>
         )}
         renderItem={({ item }) => {
-          const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
+          const supplierName =
+            item.calcOrderAgain?.data[0]?.supplier?.name ||
+            "Fornecedor não disponível";
           const truncatedSupplierName = truncateText(supplierName, 20);
           return (
             <TouchableOpacity
-              onPress={() => navigation.navigate('OrderDetails', { orderId: item.id })}
+              onPress={() =>
+                navigation.navigate("OrderDetails", { orderId: item.id })
+              }
               style={styles.itemContainer}
             >
               {/* Checkbox */}
@@ -283,26 +329,36 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                 onPress={() => toggleOrderSelection(item.id)}
                 style={styles.checkboxContainer}
               >
-                <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
+                <Text>{selectedOrders.includes(item.id) ? "✓" : ""}</Text>
               </TouchableOpacity>
 
               {/* Coluna Esquerda (ID e Data) */}
               <View style={styles.leftColumn}>
-                <Text mb={10} style={styles.orderId}>{item.id}</Text>
-                <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
+                <Text mb={10} style={styles.orderId}>
+                  {item.id}
+                </Text>
+                <Text style={styles.deliveryDate}>
+                  {formatDate(item.deliveryDate)}
+                </Text>
               </View>
 
               {/* Coluna Direita (Valor Total e Fornecedor) */}
               <View style={styles.rightColumn}>
-                <Text mb={10} style={styles.total}>R$ {item.totalConectar.toFixed(2)}</Text>
+                <Text mb={10} style={styles.total}>
+                  R$ {item.totalConectar.toFixed(2)}
+                </Text>
                 <Text>{truncatedSupplierName}</Text>
               </View>
 
               {/* Ícone de Setas */}
-              <Icons name="chevron-forward" size={20} color="#000"
+              <Icons
+                name="chevron-forward"
+                size={20}
+                color="#000"
                 style={{
-                  marginLeft: "auto"
-                }} />
+                  marginLeft: "auto",
+                }}
+              />
             </TouchableOpacity>
           );
         }}
@@ -319,7 +375,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         borderTopColor="lightgray"
       >
         <View
-          onPress={() => navigation.replace('Products')}
+          onPress={() => navigation.replace("Products")}
           padding={10}
           marginVertical={10}
           borderRadius={8}
@@ -337,7 +393,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         <View
           onPress={async () => {
             setLoading(true);
-            navigation.replace('Orders');
+            navigation.replace("Orders");
           }}
           padding={10}
           marginVertical={10}
@@ -358,7 +414,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           onPress={async () => {
             setLoading(true);
             await Promise.all([clearStorage(), deleteToken()]);
-            navigation.replace('Sign');
+            navigation.replace("Sign");
           }}
           padding={10}
           marginVertical={10}
