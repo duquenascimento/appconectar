@@ -1034,7 +1034,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [image, setImage] = useState<string>("");
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [showComercialBlock, setShowComercialBlock] = useState(false);
+  const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [productObservations, setProductObservations] = useState(new Map());
@@ -1337,14 +1337,14 @@ export function Products({ navigation }: HomeScreenProps) {
         );
 
         const restFilteredComercial = restaurants.filter(
-          (item: any) => item.comercialBlock
+          (item: any) => item.registrationReleasedNewApp
         );
         const restFilteredFinance = restaurants.filter(
           (item: any) => item.financeBlock
         );
 
         if (restFilteredComercial.length) {
-          setShowComercialBlock(true);
+          setShowRegistrationReleasedNewApp(true);
         }
 
         if (restFilteredFinance.length) {
@@ -1658,8 +1658,8 @@ export function Products({ navigation }: HomeScreenProps) {
   return (
     <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
       <DialogComercialInstance
-        openModal={showComercialBlock}
-        setRegisterInvalid={setShowComercialBlock}
+        openModal={showRegistrationReleasedNewApp}
+        setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
       />
       <DialogFinanceInstance
