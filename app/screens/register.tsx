@@ -282,6 +282,7 @@ export function Register({ navigation }: HomeScreenProps) {
 
       // Atualiza o valor formatado no Formik
       formik.setFieldValue("zipcode", formatted);
+      formik.setFieldError("zipcode", undefined);
 
       if (format.length === 8) {
         setLoading(true);
@@ -289,6 +290,12 @@ export function Register({ navigation }: HomeScreenProps) {
           `https://viacep.com.br/ws/${format}/json/`
         );
         const result = await response.json();
+
+        if (result.erro) {
+          formik.setFieldError("zipcode", "CEP não encontrado");
+          setIsCepValid(false);
+          return;
+        }
 
         if (response.ok && !result.erro) {
           const endereco: any = dividirLogradouro(result.logradouro);
@@ -310,6 +317,8 @@ export function Register({ navigation }: HomeScreenProps) {
       }
     } catch (error) {
       console.error("Erro ao buscar CEP:", error);
+      formik.setFieldError("zipcode", "Erro ao validar CEP");
+      setIsCepValid(false);
     } finally {
       setLoading(false);
     }
@@ -726,7 +735,6 @@ export function Register({ navigation }: HomeScreenProps) {
               borderRadius={5}
               p={10}
             >
-              {/* Campos repetidos do step 0 (disabled) */}
               <Text>Nome na fachada da rua</Text>
               <Input
                 value={formik.values.restaurantName}
@@ -745,7 +753,6 @@ export function Register({ navigation }: HomeScreenProps) {
                 borderRadius={2}
               />
 
-              {/* Inscrição Estadual */}
               <View
                 opacity={formik.values.noStateNumberId ? 0.5 : 1}
                 marginTop={15}
@@ -774,7 +781,6 @@ export function Register({ navigation }: HomeScreenProps) {
                 </Text>
               )}
 
-              {/* Checkbox Isento */}
               <View mt={15} alignItems="center" flexDirection="row">
                 <Checkbox onPress={handleCheckBox}>
                   {formik.values.noStateNumberId ? (
@@ -786,7 +792,6 @@ export function Register({ navigation }: HomeScreenProps) {
                 </Text>
               </View>
 
-              {/* Inscrição Municipal (condicional) */}
               {formik.values.noStateNumberId && (
                 <>
                   <View mt={15} alignItems="center" flexDirection="row" gap={8}>
@@ -811,7 +816,6 @@ export function Register({ navigation }: HomeScreenProps) {
                 </>
               )}
 
-              {/* Razão Social */}
               <Text mt={15}>Razão Social</Text>
               <Input
                 value={formik.values.legalRestaurantName}
@@ -819,7 +823,6 @@ export function Register({ navigation }: HomeScreenProps) {
                 opacity={0.5}
               />
 
-              {/* ... Seção Endereço (mesmo padrão de adaptação) ... */}
               <Text fontSize={12} mt={10} mb={5} color="gray">
                 Endereço
               </Text>
@@ -846,9 +849,20 @@ export function Register({ navigation }: HomeScreenProps) {
                   value={formik.values.zipcode}
                   backgroundColor="white"
                   borderRadius={2}
+                  borderColor={
+                    formik.touched.zipcode && formik.errors.zipcode
+                      ? "red"
+                      : "lightgray"
+                  }
                   focusStyle={getCepBorderStyle()}
                   hoverStyle={getCepBorderStyle()}
+                  onBlur={() => formik.setFieldTouched("zipcode", true)}
                 />
+                {formik.touched.zipcode && formik.errors.zipcode && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.zipcode}
+                  </Text>
+                )}
                 <Text mt={15}>Bairro</Text>
                 <Input
                   disabled
@@ -867,9 +881,19 @@ export function Register({ navigation }: HomeScreenProps) {
                   value={formik.values.street}
                   backgroundColor="white"
                   borderRadius={2}
+                  borderColor={
+                    formik.touched.street && formik.errors.street
+                      ? "red"
+                      : "lightgray"
+                  }
                   focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                   hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                 ></Input>
+                {formik.touched.street && formik.errors.street && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.street}
+                  </Text>
+                )}
                 <Text mt={15}>Número</Text>
                 <Input
                   onChangeText={(text) =>
@@ -878,6 +902,15 @@ export function Register({ navigation }: HomeScreenProps) {
                   value={formik.values.localNumber}
                   backgroundColor="white"
                   borderRadius={2}
+                  onBlur={() => {
+                    formik.setFieldTouched("localNumber", true);
+                    formik.validateField("complement");
+                  }}
+                  borderColor={
+                    formik.touched.complement && formik.errors.complement
+                      ? "red"
+                      : "lightgray"
+                  }
                   focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                   hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                 ></Input>
@@ -889,9 +922,19 @@ export function Register({ navigation }: HomeScreenProps) {
                   value={formik.values.complement}
                   backgroundColor="white"
                   borderRadius={2}
+                  borderColor={
+                    formik.touched.complement && formik.errors.complement
+                      ? "red"
+                      : "lightgray"
+                  }
                   focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                   hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                 ></Input>
+                {formik.touched.complement && formik.errors.complement && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.localNumber || formik.errors.complement}
+                  </Text>
+                )}
               </View>
             </View>
           </View>
@@ -1104,9 +1147,11 @@ export function Register({ navigation }: HomeScreenProps) {
                     ></DropDownPicker>
                   </View>
                   {formik.touched.minHour && formik.errors.minHour && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.minHour}
-                    </Text>
+                    <View height={65} flex={1} justifyContent="flex-end">
+                      <Text color="red" fontSize={12}>
+                        {formik.errors.minHour}
+                      </Text>
+                    </View>
                   )}
                 </View>
                 <View flex={1}>
@@ -1154,13 +1199,19 @@ export function Register({ navigation }: HomeScreenProps) {
                     ></DropDownPicker>
                   </View>
                   {formik.touched.maxHour && formik.errors.maxHour && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.maxHour}
-                    </Text>
+                    <View height={65} flex={1} justifyContent="flex-end">
+                      <Text color="red" fontSize={12}>
+                        {formik.errors.maxHour}
+                      </Text>
+                    </View>
                   )}
                 </View>
               </View>
-              <View mt={15} alignItems="center" flexDirection="row">
+              <View
+                mt={formik.errors.maxHour || formik.errors.minHour ? 10 : 65}
+                alignItems="center"
+                flexDirection="row"
+              >
                 <Checkbox
                   onPress={handleCheckBoxCloseDoor}
                   checked={formik.values.closeDoor}
@@ -1204,7 +1255,7 @@ export function Register({ navigation }: HomeScreenProps) {
                 >
                   <Input
                     fontSize={14}
-                    f={1} // Substitui flex={1} para manter o padrão
+                    f={1}
                     backgroundColor="$colorTransparent"
                     borderWidth="$0"
                     borderRadius={2}
@@ -1213,7 +1264,6 @@ export function Register({ navigation }: HomeScreenProps) {
                     hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
                     value={formik.values.responsibleReceivingName}
                     onChangeText={(value) => {
-                      // Remove todos os caracteres que não sejam letras ou espaços
                       const formattedValue = value.replace(/[^A-Za-z\s]/g, "");
                       formik.setFieldValue(
                         "responsibleReceivingName",
@@ -1248,7 +1298,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   <Input
                     maxLength={15}
                     fontSize={14}
-                    f={1} // Substituindo flex={1} por f={1} para manter o padrão
+                    f={1}
                     backgroundColor="$colorTransparent"
                     borderWidth="$0"
                     borderRadius={2}
@@ -1335,7 +1385,10 @@ export function Register({ navigation }: HomeScreenProps) {
                   open={daysOpen}
                   setOpen={setDaysOpen}
                   onOpen={() => setScrollEnabled(false)}
-                  onClose={() => setScrollEnabled(true)}
+                  onClose={() => {
+                    setScrollEnabled(true);
+                    formik.setFieldTouched("weeklyOrderAmount", true);
+                  }}
                   placeholder="Escolha uma opção"
                   listMode="SCROLLVIEW"
                   dropDownDirection="BOTTOM"
@@ -1350,20 +1403,26 @@ export function Register({ navigation }: HomeScreenProps) {
               </View>
               {formik.touched.weeklyOrderAmount &&
                 formik.errors.weeklyOrderAmount && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.weeklyOrderAmount}
-                  </Text>
+                  <View height={65} flex={1} justifyContent={"flex-end"}>
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.weeklyOrderAmount}
+                    </Text>
+                  </View>
                 )}
-              <Text mt={60}>Qual o valor médio de um pedido?</Text>
+              <Text mt={formik.errors.weeklyOrderAmount ? 10 : 60}>
+                Qual o valor médio de um pedido?
+              </Text>
               <TextInputMask
                 placeholder="R$ 0"
                 type="only-numbers"
                 onChangeText={(value) =>
-                  formik.setFieldValue("orderValue", value)
+                  formik.setFieldValue("orderValue", Number(value))
                 }
                 value={formik.values.orderValue}
                 style={{
                   padding: 8,
+                  fontSize: 14,
+                  height: 50,
                   backgroundColor: "white",
                   borderRadius: 2,
                   borderWidth: 1,
@@ -1436,12 +1495,14 @@ export function Register({ navigation }: HomeScreenProps) {
                 ></DropDownPicker>
               </View>
               {formik.touched.paymentWay && formik.errors.paymentWay && (
-                <Text color="red" fontSize={12}>
-                  {formik.errors.paymentWay}
-                </Text>
+                <View height={65} flex={1} justifyContent="flex-end">
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.paymentWay}
+                  </Text>
+                </View>
               )}
               <View
-                mt={60}
+                mt={formik.errors.paymentWay ? 10 : 60}
                 borderColor="lightgray"
                 borderWidth={0.5}
                 p={5}

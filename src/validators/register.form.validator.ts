@@ -32,8 +32,21 @@ export const step1Validation = Yup.object().shape({
 
   legalRestaurantName: Yup.string().required("Razão social é obrigatória"),
 
-  zipcode: Yup.string().required("CEP é obrigatório").min(9, "CEP inválido"),
-
+  zipcode: Yup.string()
+    .required("CEP é obrigatório")
+    .min(9, "CEP inválido")
+    .test("cep-valid", "CEP inválido", async (value) => {
+      if (!value || value.replace(/\D/g, "").length !== 8) return false;
+      try {
+        const response = await fetch(
+          `https://viacep.com.br/ws/${value.replace(/\D/g, "")}/json/`
+        );
+        const result = await response.json();
+        return !result.erro;
+      } catch {
+        return false;
+      }
+    }),
   localNumber: Yup.string(),
   complement: Yup.string().when("localNumber", {
     is: "",
@@ -87,8 +100,6 @@ export const step3Validation = Yup.object().shape({
   weeklyOrderAmount: Yup.string().required(
     "Frequência de pedidos é obrigatória"
   ),
-  orderValue: Yup.number()
-    .min(0, "Entre com um número não negativo")
-    .required("Valor médio é obrigatório"),
+  orderValue: Yup.string().required("Valor médio é obrigatório"),
   paymentWay: Yup.string().required("Forma de pagamento é obrigatória"),
 });
