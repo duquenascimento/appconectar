@@ -165,10 +165,15 @@ export function Register({ navigation }: HomeScreenProps) {
     onSubmit: async (values) => {
       try {
         setLoading(true);
+
+        const { noStateNumberId, ...data } = values;
+
         const payload = {
-          ...values,
+          token: await getToken(),
+          ...data,
+          zipcode: values.zipcode.replace(/\D/g, ""),
+          orderValue: Number(values.orderValue),
           cnpj: values.cnpj.replace(/\D/g, ""),
-          // ... outros campos que precisam de formatação ...
         };
 
         /* const response = await fetch(
@@ -1416,7 +1421,7 @@ export function Register({ navigation }: HomeScreenProps) {
                 placeholder="R$ 0"
                 type="only-numbers"
                 onChangeText={(value) =>
-                  formik.setFieldValue("orderValue", Number(value))
+                  formik.setFieldValue("orderValue", value)
                 }
                 value={formik.values.orderValue}
                 style={{
