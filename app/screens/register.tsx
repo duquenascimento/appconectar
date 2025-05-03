@@ -176,7 +176,7 @@ export function Register({ navigation }: HomeScreenProps) {
           cnpj: values.cnpj.replace(/\D/g, ""),
         };
 
-        /* const response = await fetch(
+        const response = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/register/full-register`,
           {
             method: "POST",
@@ -191,7 +191,7 @@ export function Register({ navigation }: HomeScreenProps) {
         if (response.ok) {
           await clearStorage();
           navigation.replace("RegisterFinished");
-        } */
+        }
 
         console.log("BODY:", JSON.stringify(payload));
       } finally {
@@ -1144,16 +1144,23 @@ export function Register({ navigation }: HomeScreenProps) {
                             : callback;
                         formik.setFieldValue("minHour", value);
                       }}
+                      onSelectItem={(item) => {
+                        if (item.value) {
+                          formik.setFieldError("minHour", undefined);
+                        }
+                      }}
                       items={minhours.map((item) => {
                         return { label: item, value: item };
                       })}
                       multiple={false}
                       open={minHourOpen}
                       setOpen={setMinHourOpen}
-                      onOpen={() => setScrollEnabled(false)}
+                      onOpen={() => {
+                        setScrollEnabled(false);
+                        formik.setFieldError("minHour", undefined);
+                      }}
                       onClose={() => {
                         setScrollEnabled(true);
-                        formik.setFieldTouched("minHour", true);
                       }}
                       placeholder="Escolha um horário"
                     ></DropDownPicker>
@@ -1199,13 +1206,21 @@ export function Register({ navigation }: HomeScreenProps) {
                             : callback;
                         formik.setFieldValue("maxHour", value);
                       }}
+                      onSelectItem={(item) => {
+                        if (item.value) {
+                          formik.setFieldError("maxHour", undefined);
+                        }
+                      }}
                       items={maxhours.map((item) => {
                         return { label: item, value: item };
                       })}
                       multiple={false}
                       open={maxHourOpen}
                       setOpen={setMaxHourOpen}
-                      onOpen={() => setScrollEnabled(false)}
+                      onOpen={() => {
+                        setScrollEnabled(false);
+                        formik.setFieldError("maxHour", undefined);
+                      }}
                       onClose={() => setScrollEnabled(true)}
                       placeholder=""
                     ></DropDownPicker>
@@ -1406,20 +1421,21 @@ export function Register({ navigation }: HomeScreenProps) {
                         ? callback(formik.values.weeklyOrderAmount)
                         : callback;
                     formik.setFieldValue("weeklyOrderAmount", value);
-                    formik.setFieldTouched("weeklyOrderAmount", true, false);
-                    if (value) {
-                      formik.setFieldError("weeklyOrderAmount", undefined);
-                    } else {
-                      formik.validateField("weeklyOrderAmount");
-                    }
                   }}
                   items={daysOptions}
                   open={daysOpen}
                   setOpen={setDaysOpen}
-                  onOpen={() => setScrollEnabled(false)}
+                  onOpen={() => {
+                    setScrollEnabled(false);
+                    formik.setFieldError("weeklyOrderAmount", undefined);
+                  }}
                   onClose={() => {
                     setScrollEnabled(true);
-                    formik.validateField("weeklyOrderAmount");
+                  }}
+                  onSelectItem={(item) => {
+                    if (item.value) {
+                      formik.setFieldError("weeklyOrderAmount", undefined);
+                    }
                   }}
                   placeholder="Escolha uma opção"
                   listMode="SCROLLVIEW"
@@ -1451,6 +1467,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   formik.setFieldValue("orderValue", value)
                 }
                 value={formik.values.orderValue}
+                onBlur={formik.handleBlur("orderValue")}
                 style={{
                   padding: 8,
                   fontSize: 14,
@@ -1509,6 +1526,11 @@ export function Register({ navigation }: HomeScreenProps) {
                         : callback;
                     formik.setFieldValue("paymentWay", value);
                   }}
+                  onSelectItem={(item) => {
+                    if (item.value) {
+                      formik.setFieldError("paymentWay", undefined);
+                    }
+                  }}
                   listMode="SCROLLVIEW"
                   dropDownDirection="BOTTOM"
                   dropDownContainerStyle={{
@@ -1521,7 +1543,10 @@ export function Register({ navigation }: HomeScreenProps) {
                   multiple={false}
                   open={paymentWayOpen}
                   setOpen={setPaymentWayOpen}
-                  onOpen={() => setScrollEnabled(false)}
+                  onOpen={() => {
+                    setScrollEnabled(false);
+                    formik.setFieldError("paymentWay", undefined);
+                  }}
                   onClose={() => setScrollEnabled(true)}
                   placeholder=""
                 ></DropDownPicker>
@@ -1610,75 +1635,6 @@ export function Register({ navigation }: HomeScreenProps) {
             {step === 3 ? "Finalizar Cadastro" : "Avançar"}
           </Text>
         </Button>
-        {/* <Button
-          disabled={
-            step === 0 && cnpj.length === 18 && restaurantName
-              ? false
-              : step === 1 &&
-                cnpj.length === 18 &&
-                restaurantName &&
-                legalRestaurantName &&
-                zipcode.length === 9 &&
-                neigh &&
-                street &&
-                localNumber &&
-                (stateNumberId.length >= 8 || cityNumberId.length >= 8)
-              ? false
-              : step === 2 &&
-                phone.length >= 14 &&
-                emailValid &&
-                (alternativePhone.length
-                  ? alternativePhone.length >= 14
-                  : true) &&
-                (alternativeEmail.length ? emailAlternativeValid : true)
-              ? false
-              : step === 3 &&
-                minHour &&
-                maxHour &&
-                orderValue &&
-                weeklyOrderAmount &&
-                paymentWay
-              ? false
-              : true
-          }
-          opacity={
-            step === 0 && cnpj.length === 18 && restaurantName
-              ? 1
-              : step === 1 &&
-                cnpj.length === 18 &&
-                restaurantName &&
-                legalRestaurantName &&
-                zipcode.length === 9 &&
-                neigh &&
-                street &&
-                localNumber &&
-                (stateNumberId.length >= 8 || cityNumberId.length >= 8)
-              ? 1
-              : step === 2 &&
-                phone.length >= 14 &&
-                emailValid &&
-                (alternativePhone.length
-                  ? alternativePhone.length >= 14
-                  : true) &&
-                (alternativeEmail.length ? emailAlternativeValid : true)
-              ? 1
-              : step === 3 &&
-                minHour &&
-                maxHour &&
-                orderValue &&
-                weeklyOrderAmount &&
-                paymentWay
-              ? 1
-              : 0.3
-          }
-          f={1}
-          backgroundColor="#04BF7B"
-          onPress={() => {
-            handleNextBtn();
-          }}
-        >
-          <Text color="white">Avançar</Text>
-        </Button> */}
       </View>
     </View>
   );
