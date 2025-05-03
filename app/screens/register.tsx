@@ -453,8 +453,19 @@ export function Register({ navigation }: HomeScreenProps) {
           }
         );
         const result: CheckCnpj = await response.json();
+
         if (response.ok) {
-          const endereco: any = dividirLogradouro(result.data.logradouro);
+          const buscaCep = await fetch(
+            `https://viacep.com.br/ws/${result.data.cep}/json/`
+          );
+          const enderecoCNPJ = await buscaCep.json();
+          if (enderecoCNPJ.erro) {
+            formik.setFieldError("zipcode", "CEP não encontrado");
+            setIsCepValid(false);
+            return;
+          }
+
+          const endereco: any = dividirLogradouro(enderecoCNPJ.logradouro);
           const IE = encontrarInscricaoRJ(result.data.inscricoes_estaduais);
           formik.setValues({
             ...formik.values,

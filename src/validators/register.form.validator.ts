@@ -19,7 +19,10 @@ export const step0Validation = Yup.object().shape({
 export const step1Validation = Yup.object().shape({
   stateNumberId: Yup.string().when("noStateNumberId", {
     is: false,
-    then: (schema) => schema.required("Inscrição estadual é obrigatória"),
+    then: (schema) =>
+      schema
+        .required("Inscrição estadual é obrigatória")
+        .min(8, "Inscrição inválida! Mínimo de 8 dígitos"),
   }),
 
   cityNumberId: Yup.string().when("noStateNumberId", {
@@ -47,6 +50,9 @@ export const step1Validation = Yup.object().shape({
         return false;
       }
     }),
+
+  street: Yup.string().required("Logradouro é obrigatório."),
+
   localNumber: Yup.string().required(
     "Número é obrigatório. Se não houver, digitar S/N"
   ),
