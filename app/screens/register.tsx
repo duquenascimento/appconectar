@@ -466,8 +466,8 @@ export function Register({ navigation }: HomeScreenProps) {
             complement: result.data.complemento ?? "",
             localType: endereco.tipoLogradouro,
             city: result.data.municipio,
-            stateNumberId: IE ?? "",
-            noStateNumberId: !IE,
+            //stateNumberId: IE ?? "",
+            //noStateNumberId: !IE,
           });
           setStep(1);
         } else {
