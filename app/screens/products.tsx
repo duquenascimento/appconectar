@@ -100,6 +100,7 @@ type ProductBoxProps = Product & {
   thirdUnit: number;
   currentClass: string;
   obs: string; // Adicione esta linha
+  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
   onObsChange: (text: string) => void; // Adicione esta linha
 };
 
@@ -508,6 +509,7 @@ const ProductBox = React.memo(
     setModalVisible,
     currentClass,
     obs: parentObs,
+    addObservation,
     onObsChange,
   }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1);
@@ -571,6 +573,17 @@ const ProductBox = React.memo(
         Math.max(0, Number((prevValue + delta).toFixed(3)))
       );
     };
+
+    const handleBlur = useCallback(async () => {
+      if (obsRef.current !== obs) { // Só salva se a observação mudou
+        try {
+          await addObservation(id, obs);
+          obsRef.current = obs; // Atualiza a referência
+        } catch (error) {
+          console.error("Failed to save observation:", error);
+        }
+      }
+    }, [addObservation, id, obs]);
 
     return (
       <Stack
@@ -721,6 +734,7 @@ const ProductBox = React.memo(
                         maxLength={999}
                         onPress={(e) => e.stopPropagation()}
                         onChangeText={handleObsChange}
+                        onBlur={handleBlur}
                         value={obs}
                       />
                     </XStack>
@@ -851,6 +865,7 @@ const ProductBox = React.memo(
                     maxLength={999}
                     onPress={(e) => e.stopPropagation()}
                     onChangeText={handleObsChange}
+                    onBlur={handleBlur}
                     value={obs}
                   />
                 </XStack>
@@ -1400,6 +1415,7 @@ export function Products({ navigation }: HomeScreenProps) {
         const productToAdd = productsList?.find(
           (product) => product.id === productId
         );
+        console.log(productToAdd)
         if (productToAdd) {
           setFavorites([...favorites, productToAdd]);
         }
@@ -1420,6 +1436,46 @@ export function Products({ navigation }: HomeScreenProps) {
               productId,
               restaurantId: storedRestaurant?.id,
               token,
+            }),
+          }
+        );
+        if (!result.ok) return null;
+      } catch (error) {
+        console.error("Erro ao adicionar aos favoritos:", error);
+      }
+    },
+    [favorites, productsList, selectedRestaurant]
+  );
+
+  const addObservation = useCallback(
+    async (productId: string, observation: string): Promise<void | null | undefined> => {
+      try {
+        const token = await getToken();
+        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
+        if (token == null || !restaurant) return;
+        // Atualizar o estado localmente
+        const productToAdd = productsList?.find(
+          (product) => product.id === productId
+        );
+        console.log(productToAdd)
+        console.log(selectedRestaurant);
+        const storedRestaurant = await getSavedRestaurant();
+
+        console.log(storedRestaurant?.externalId);
+
+        const result = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              productId,
+              restaurantId: storedRestaurant?.id,
+              token,
+              obs: observation
             }),
           }
         );
@@ -1614,6 +1670,7 @@ export function Products({ navigation }: HomeScreenProps) {
             return newMap;
           });
         }}
+        addObservation = {addObservation}
       />
     ),
     [
@@ -1623,6 +1680,7 @@ export function Products({ navigation }: HomeScreenProps) {
       saveCart,
       toggleFavorite,
       productObservations,
+      addObservation
     ]
   );
 
