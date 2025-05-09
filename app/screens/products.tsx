@@ -91,6 +91,9 @@ type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
   favorites: Product[];
   saveCart: (cart: Cart, isCart: boolean) => Promise<void>;
+  saveCartArray: (cart: Map<string, Cart>, exclude: Map<string, Cart>) => Promise<void>;
+  cartToExclude: Map<string, Cart>;
+  setLoading: (status: boolean) => void;
   cart: Map<string, Cart>;
   setImage: (imageString: string) => void;
   setModalVisible: (status: boolean) => void;
@@ -503,6 +506,9 @@ const ProductBox = React.memo(
     toggleFavorite,
     favorites,
     saveCart,
+    saveCartArray,
+    cartToExclude,
+    setLoading,
     cart,
     setImage,
     setModalVisible,
@@ -810,9 +816,10 @@ const ProductBox = React.memo(
                   name="remove"
                   color="#04BF7B"
                   size={24}
-                  onPress={(e) => {
+                  onPress={async(e) => {
                     e.stopPropagation();
                     handleValueQuantChange(-quant);
+                    await saveCartArray(cart, cartToExclude).catch(console.error);
                   }}
                 />
                 <Text>
@@ -822,9 +829,10 @@ const ProductBox = React.memo(
                   name="add"
                   color="#04BF7B"
                   size={24}
-                  onPress={(e) => {
+                  onPress={async(e) => {
                     e.stopPropagation();
                     handleValueQuantChange(quant);
+                    await saveCartArray(cart, cartToExclude).catch(console.error);
                   }}
                 />
               </View>
@@ -1217,16 +1225,10 @@ export function Products({ navigation }: HomeScreenProps) {
   }, []);
 
   const saveCartArray = useCallback(
-    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>) => {
+    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
       const token = await getToken();
-      if (token == null) return [];
-      console.log(
-        JSON.stringify({
-          token,
-          carts: Array.from(carts.values()),
-          cartToExclude: Array.from(cartsToExclude.values()),
-        })
-      );
+      if (token == null) return;
+  
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
         method: "POST",
         headers: {
@@ -1238,10 +1240,12 @@ export function Products({ navigation }: HomeScreenProps) {
           cartToExclude: Array.from(cartsToExclude.values()),
         }),
       });
+  
       setCartToExclude(new Map());
     },
     []
   );
+  
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
@@ -1605,6 +1609,9 @@ export function Products({ navigation }: HomeScreenProps) {
         {...item}
         favorites={favorites}
         saveCart={saveCart}
+        setLoading={setLoading}
+        saveCartArray={saveCartArray}
+        cartToExclude={cartToExclude}
         cart={cart}
         obs={productObservations.get(item.id) || ""}
         onObsChange={(newObs: any) => {
