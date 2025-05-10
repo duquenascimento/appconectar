@@ -44,6 +44,7 @@ import * as Linking from "expo-linking";
 import DropDownPicker from "react-native-dropdown-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 type Product = {
   name: string;
   orderUnit: string;
@@ -507,9 +508,8 @@ const ProductBox = React.memo(
     favorites,
     saveCart,
     saveCartArray,
-    cartToExclude,
-    setLoading,
     cart,
+    cartToExclude,
     setImage,
     setModalVisible,
     currentClass,
@@ -520,7 +520,6 @@ const ProductBox = React.memo(
     const [valueQuant, setValueQuant] = useState(0);
     const [obs, setObs] = useState(parentObs);
     const [open, setOpen] = useState<boolean>(false);
-
     const obsRef = useRef("");
     const quantRef = useRef<number>(firstUnit);
 
@@ -572,11 +571,17 @@ const ProductBox = React.memo(
       onObsChange(text);
     };
 
-    const handleValueQuantChange = (delta: number) => {
-      setValueQuant((prevValue) =>
-        Math.max(0, Number((prevValue + delta).toFixed(3)))
-      );
-    };
+    const handleValueQuantChange = async (delta: number) => {
+  const newValue = Number((valueQuant + delta).toFixed(3));
+
+  if (newValue <= 0) {
+    await saveCart({ productId: id, amount: 0, obs }, true);
+    await saveCartArray(cart, cartToExclude); // salva no servidor imediatamente
+  }
+
+  setValueQuant(Math.max(0, newValue));
+};
+
 
     return (
       <Stack
@@ -819,7 +824,6 @@ const ProductBox = React.memo(
                   onPress={async(e) => {
                     e.stopPropagation();
                     handleValueQuantChange(-quant);
-                    await saveCartArray(cart, cartToExclude).catch(console.error);
                   }}
                 />
                 <Text>
@@ -831,8 +835,7 @@ const ProductBox = React.memo(
                   size={24}
                   onPress={async(e) => {
                     e.stopPropagation();
-                    handleValueQuantChange(quant);
-                    await saveCartArray(cart, cartToExclude).catch(console.error);
+                    handleValueQuantChange(quant);  
                   }}
                 />
               </View>
@@ -1046,6 +1049,15 @@ export function Products({ navigation }: HomeScreenProps) {
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [productObservations, setProductObservations] = useState(new Map());
+  const [displayedCartSize, setDisplayedCartSize] = useState(cart.size);
+
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setDisplayedCartSize(cart.size);
+  }, 100); // pequeno atraso para garantir consistência
+
+  return () => clearTimeout(timeout);
+}, [cart.size]);
 
   //seguindo o padrão das orders
   const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
@@ -1150,8 +1162,13 @@ export function Products({ navigation }: HomeScreenProps) {
 
       // Merge local cart with server cart
       localCart.forEach((value, key) => {
-        cartMap.set(key, value);
+        if (value.amount > 0) {
+          cartMap.set(key, value);
+        } else {
+          cartMap.delete(key); // remove se estiver com amount 0
+        }
       });
+
 
       // localCartInside.forEach((value, key) => {
       //     cartMap.set(key, value);
@@ -1222,6 +1239,12 @@ export function Products({ navigation }: HomeScreenProps) {
     };
     await attCart();
     await setStorage("cart", JSON.stringify(Array.from(newCart.entries())));
+
+    // salva no servidor sempre que houver alteração
+    if (cart.amount === 0 && isCart) {
+      await saveCartArray(newCart, new Map([[cart.productId, cart]]));
+    }
+
   }, []);
 
   const saveCartArray = useCallback(
@@ -1240,11 +1263,19 @@ export function Products({ navigation }: HomeScreenProps) {
           cartToExclude: Array.from(cartsToExclude.values()),
         }),
       });
+
+
   
       setCartToExclude(new Map());
     },
     []
   );
+
+  useEffect(() => {
+  if (cartToExclude.size > 0) {
+    saveCartArray(cart, cartToExclude);
+  }
+}, [cartToExclude, cart, saveCartArray]);
   
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
@@ -1967,7 +1998,7 @@ export function Products({ navigation }: HomeScreenProps) {
       </View>
 
       <CartButton
-        cartSize={cart.size}
+        cartSize={displayedCartSize}
         isScrolling={isScrolling}
         onPress={async () => {
           setLoading(true);

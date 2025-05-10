@@ -322,7 +322,6 @@ export function Cart({ navigation }: HomeScreenProps) {
     }, 300);
 
     const loadCart = useCallback(async (): Promise<Map<string, TCart>> => {
-        console.log('aqui LoadCart')
         try {
             const token = await getToken();
             if (!token) return new Map();
@@ -338,7 +337,6 @@ export function Cart({ navigation }: HomeScreenProps) {
             if (!result.ok) return new Map();
 
             const cart = await result.json();
-            console.log('cartloaded: ', cart)
             if (!cart.data || cart.data.length < 1) return new Map();
 
             // Converte o array de cart para um Map
@@ -359,7 +357,6 @@ export function Cart({ navigation }: HomeScreenProps) {
     }, []);
 
     const saveCart = useCallback(async (cart: TCart, isCart: boolean) => {
-        console.log('aqui saveCart')
         let newCart = new Map()
         const attCart = async (): Promise<void> => {
             setCart((prevCart) => {
@@ -480,7 +477,6 @@ export function Cart({ navigation }: HomeScreenProps) {
     }, []);
 
     useEffect(() => {
-        console.log('aqui useEffect1')
         const loadInitialData = async () => {
             setLoading(true);
             try {
