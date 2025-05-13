@@ -9,6 +9,7 @@ import { loadRestaurants } from '../../src/services/restaurantService'
 import { RootStackParamList } from '../../src/types/navigationTypes'
 import { ordersScreenStyles as styles } from '../../src/styles/styles'
 import { clearStorage, deleteToken } from '../utils/utils'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 
@@ -55,7 +56,12 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         const restaurantsData = await loadRestaurants()
         setRestaurants(restaurantsData)
         if (restaurantsData.length > 0) {
-          setSelectedRestaurant(restaurantsData[0].externalId)
+          const restaurant = await getSavedRestaurant()
+          if (restaurant) {
+            setSelectedRestaurant(restaurant.externalId)
+          } else {
+            setSelectedRestaurant(restaurantsData[0].externalId)
+          }
         }
       } catch (error) {}
     }
@@ -94,6 +100,45 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     }
     loadOrders()
   }, [selectedRestaurant])
+
+  //Busca o restaurante salvo no storage
+  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
+    try {
+      const data = await AsyncStorage.getItem('selectedRestaurant')
+      if (!data) return null
+
+      const parsedData = JSON.parse(data)
+
+      if (!parsedData?.restaurant) {
+        console.error('Formato inválido:', parsedData)
+        return null
+      }
+
+      return parsedData.restaurant
+    } catch (error) {
+      console.error('Erro ao parsear dados:', error)
+      return null
+    }
+  }
+
+  //Função para lidar com a mudança no dropdown de restaurantes
+  async function handleRestaurantChoice(value: string | null) {
+    try {
+      if (!value) return
+
+      const storedRestaurant = await getSavedRestaurant()
+      if (storedRestaurant?.externalId === value) {
+        return // Já está selecionado
+      }
+
+      const restaurant = restaurants.find((r) => r.externalId === value)
+      if (restaurant) {
+        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      }
+    } catch (error) {
+      console.error('Falha na escolha de restaurante:', error)
+    }
+  }
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
@@ -197,6 +242,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       <DropDownPicker
         value={selectedRestaurant}
         setValue={(value) => setSelectedRestaurant(value)}
+        onChangeValue={handleRestaurantChoice}
         items={restaurants.map((restaurant) => ({
           label: restaurant.name,
           value: restaurant.externalId
