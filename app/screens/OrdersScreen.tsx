@@ -1,201 +1,184 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import { View, Text, Stack, XStack, Input } from "tamagui";
-import {
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  TextInput,
-  Linking,
-  ScrollView,
-} from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import Icons from "@expo/vector-icons/Ionicons";
-import { getOrders } from "../../src/services/orderService";
-import { loadRestaurants } from "../../src/services/restaurantService";
-import { RootStackParamList } from "../../src/types/navigationTypes";
-import { ordersScreenStyles as styles } from "../../src/styles/styles";
-import { clearStorage, deleteToken } from "../utils/utils";
+import React, { ReactNode, useEffect, useState } from 'react'
+import { View, Text, Stack, XStack, Input } from 'tamagui'
+import { FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking, ScrollView } from 'react-native'
+import DropDownPicker from 'react-native-dropdown-picker'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import Icons from '@expo/vector-icons/Ionicons'
+import { getOrders } from '../../src/services/orderService'
+import { loadRestaurants } from '../../src/services/restaurantService'
+import { RootStackParamList } from '../../src/types/navigationTypes'
+import { ordersScreenStyles as styles } from '../../src/styles/styles'
+import { clearStorage, deleteToken } from '../utils/utils'
 
-type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 
 interface Order {
-  orderDocument: ReactNode;
-  id: string;
-  deliveryDate: string;
-  totalConectar: number;
+  orderDocument: ReactNode
+  id: string
+  deliveryDate: string
+  totalConectar: number
   calcOrderAgain: {
     data: {
       supplier: {
-        name: string;
-      };
-    }[];
-  };
+        name: string
+      }
+    }[]
+  }
 }
 
 interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
+  externalId: any
+  id: string
+  name: string
 }
 
 // Função para formatar a data
 const formatDate = (isoDate: string) => {
-  const date = new Date(isoDate);
-  return date.toLocaleDateString("pt-BR", { timeZone: "UTC" });
-};
+  const date = new Date(isoDate)
+  return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+}
 
-export function OrdersScreen({
-  navigation,
-}: {
-  navigation: OrdersScreenNavigationProp;
-}) {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState("");
-  const [restaurantOpen, setRestaurantOpen] = useState(false);
+export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
+  const [orders, setOrders] = useState<Order[]>([])
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
+  const [isDownloading, setIsDownloading] = useState(false)
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
+  const [selectedRestaurant, setSelectedRestaurant] = useState('')
+  const [restaurantOpen, setRestaurantOpen] = useState(false)
 
   useEffect(() => {
     const LoadRestaurants = async () => {
       try {
-        const restaurantsData = await loadRestaurants();
-        setRestaurants(restaurantsData);
+        const restaurantsData = await loadRestaurants()
+        setRestaurants(restaurantsData)
         if (restaurantsData.length > 0) {
-          setSelectedRestaurant(restaurantsData[0].externalId);
+          setSelectedRestaurant(restaurantsData[0].externalId)
         }
       } catch (error) {}
-    };
-    LoadRestaurants();
-  }, []);
+    }
+    LoadRestaurants()
+  }, [])
 
   useEffect(() => {
     const loadOrders = async () => {
       if (!selectedRestaurant) {
-        return;
+        return
       }
-      setLoading(true);
+      setLoading(true)
       try {
         //cotação com todos os fornecedores
-        const result = await getOrders(1, 10, selectedRestaurant);
+        const result = await getOrders(1, 10, selectedRestaurant)
 
         //filtrar para obter o fornecedor onde foi feito o pedido
         const ordersData = result.map((order: any) => {
-          const filteredSupplier =
-            order.calcOrderAgain?.data?.filter(
-              (item: any) => item.supplier?.externalId === order.supplierId
-            ) || [];
+          const filteredSupplier = order.calcOrderAgain?.data?.filter((item: any) => item.supplier?.externalId === order.supplierId) || []
 
           return {
             ...order,
             calcOrderAgain: {
               ...order.calcOrderAgain,
-              data: filteredSupplier,
-            },
-          };
-        });
-        setOrders(ordersData);
-        setFilteredOrders(ordersData);
+              data: filteredSupplier
+            }
+          }
+        })
+        setOrders(ordersData)
+        setFilteredOrders(ordersData)
       } catch (error) {
-        console.error("Erro ao carregar pedidos:", error);
+        console.error('Erro ao carregar pedidos:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    loadOrders();
-  }, [selectedRestaurant]);
+    }
+    loadOrders()
+  }, [selectedRestaurant])
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
+    setSearchQuery(query)
     // Verificar se a query pode ser uma data parcial (D, DD, DD/MM ou DD/MM/YYYY)
-    const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
-    const isDatePartial = datePartialRegex.test(query);
+    const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/
+    const isDatePartial = datePartialRegex.test(query)
     const filtered = orders.filter((order: any) => {
       // Filtragem por data parcial (se aplicável)
       if (isDatePartial) {
-        const [day, month, year] = query.split("/");
-        const deliveryDate = order.deliveryDate.split("T")[0]; // Formato: YYYY-MM-DD
-        const [orderYear, orderMonth, orderDay] = deliveryDate.split("-");
+        const [day, month, year] = query.split('/')
+        const deliveryDate = order.deliveryDate.split('T')[0] // Formato: YYYY-MM-DD
+        const [orderYear, orderMonth, orderDay] = deliveryDate.split('-')
         // Comparar dia
-        if (day && !orderDay.startsWith(day)) return false;
+        if (day && !orderDay.startsWith(day)) return false
         // Comparar mês (se fornecido)
-        if (month && !orderMonth.startsWith(month)) return false;
+        if (month && !orderMonth.startsWith(month)) return false
         // Comparar ano (se fornecido)
-        if (year && !orderYear.startsWith(year)) return false;
-        return true;
+        if (year && !orderYear.startsWith(year)) return false
+        return true
       }
       // Filtragem por ID, valor total ou nome do fornecedor
-      const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
-      const matchesTotal = order.totalConectar.toString().includes(query);
-      const matchExternalId = order.calcOrderAgain.data.find(
-        (item: any) =>
-          item.supplier && item.supplier.externalId === order.supplierId
-      );
+      const matchesId = order.id.toLowerCase().includes(query.toLowerCase())
+      const matchesTotal = order.totalConectar.toString().includes(query)
+      const matchExternalId = order.calcOrderAgain.data.find((item: any) => item.supplier && item.supplier.externalId === order.supplierId)
 
       const matchesSupplier = //order.calcOrderAgain.data[0].supplier.name
-        matchExternalId.supplier.name
-          .toLowerCase()
-          .includes(query.toLowerCase());
+        matchExternalId.supplier.name.toLowerCase().includes(query.toLowerCase())
 
-      return matchesId || matchesTotal || matchesSupplier;
-    });
+      return matchesId || matchesTotal || matchesSupplier
+    })
 
-    setFilteredOrders(filtered);
+    setFilteredOrders(filtered)
     // Exibir mensagem se nenhum pedido for encontrado
     if (filtered.length === 0 && query.length > 0) {
     }
-  };
+  }
 
   const toggleOrderSelection = (orderId: string) => {
     setSelectedOrders((prevSelected: any) => {
       if (prevSelected.includes(orderId)) {
-        return prevSelected.filter((id: string) => id !== orderId);
+        return prevSelected.filter((id: string) => id !== orderId)
       } else {
-        return [...prevSelected, orderId];
+        return [...prevSelected, orderId]
       }
-    });
-  };
+    })
+  }
 
   const handleDownloadSelectedOrders = async () => {
-    setIsDownloading(true);
+    setIsDownloading(true)
     for (const orderId of selectedOrders) {
-      const order: any = orders.find((order) => order.id === orderId);
+      const order: any = orders.find((order) => order.id === orderId)
       if (order && order.orderDocument) {
-        if (Platform.OS === "web") {
-          window.open(order.orderDocument, "_blank");
-          window.open(order.orderInvoices?.filePath[0], "_blank");
+        if (Platform.OS === 'web') {
+          window.open(order.orderDocument, '_blank')
+          window.open(order.orderInvoices?.filePath[0], '_blank')
         } else {
           try {
-            await Linking.openURL(order.orderDocument);
-            await Linking.openURL(order.orderInvoices?.filePath[0]);
+            await Linking.openURL(order.orderDocument)
+            await Linking.openURL(order.orderInvoices?.filePath[0])
           } catch (error) {
-            console.error(`Erro ao abrir o link:`, error);
+            console.error(`Erro ao abrir o link:`, error)
           }
         }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000))
       }
     }
-    setIsDownloading(false);
-  };
+    setIsDownloading(false)
+  }
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
-      return text.substring(0, maxLength) + "...";
+      return text.substring(0, maxLength) + '...'
     }
-    return text;
-  };
+    return text
+  }
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View flex={1} justifyContent="center" alignItems="center">
+        <ActivityIndicator size="large" color="#04BF7B" />
+        <Text fontSize={16} mt={5} color="gray" textAlign="center">
+          Carregando histórico de pedidos. Por favor Aguarde...
+        </Text>
       </View>
-    );
+    )
   }
 
   return (
@@ -203,9 +186,9 @@ export function OrdersScreen({
       <Text
         style={{
           marginTop: 35,
-          marginLeft: Platform.OS === "web" ? "" : 15,
-          width: Platform.OS === "web" ? "70%" : "",
-          alignSelf: Platform.OS === "web" ? "center" : "flex-start",
+          marginLeft: Platform.OS === 'web' ? '' : 15,
+          width: Platform.OS === 'web' ? '70%' : '',
+          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
         }}
       >
         Meus Pedidos
@@ -216,26 +199,26 @@ export function OrdersScreen({
         setValue={(value) => setSelectedRestaurant(value)}
         items={restaurants.map((restaurant) => ({
           label: restaurant.name,
-          value: restaurant.externalId,
+          value: restaurant.externalId
         }))}
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
         listMode="SCROLLVIEW"
         dropDownContainerStyle={{
-          width: Platform.OS === "web" ? "70%" : "92%",
-          alignSelf: "center",
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          alignSelf: 'center'
         }}
         style={{
-          width: Platform.OS === "web" ? "70%" : "92%",
-          alignSelf: "center",
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          alignSelf: 'center',
           marginTop: 10,
           marginHorizontal: 15,
           marginRight: 20,
-          borderColor: "#ccc",
+          borderColor: '#ccc',
           borderWidth: 1,
           borderRadius: 5,
-          height: 40,
+          height: 40
         }}
       />
 
@@ -246,24 +229,19 @@ export function OrdersScreen({
         //marginHorizontal={ Platform.OS === 'web' ? 20 : 15 }
         //marginRight={Platform.OS === 'web' ? '49%' : 15}
         //marginLeft={Platform.OS === 'web' ? 15 : 15}
-        width={Platform.OS === "web" ? "70%" : "92%"}
+        width={Platform.OS === 'web' ? '70%' : '92%'}
         marginTop={20}
         alignSelf="center"
         alignItems="center"
       >
-        <Icons
-          name="search"
-          size={24}
-          color="#04BF7B"
-          style={{ marginLeft: 15 }}
-        />
+        <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
         <Input
-          width={Platform.OS === "web" ? "67%" : "92%"}
+          width={Platform.OS === 'web' ? '67%' : '92%'}
           placeholder="Buscar pedidos..."
           value={searchQuery}
           onChangeText={(text) => {
-            setSearchQuery(text);
-            handleSearch(text);
+            setSearchQuery(text)
+            handleSearch(text)
           }}
           backgroundColor="transparent"
           borderWidth={0}
@@ -280,56 +258,38 @@ export function OrdersScreen({
         onPress={handleDownloadSelectedOrders}
         disabled={selectedOrders.length === 0 || isDownloading}
         style={{
-          width: Platform.OS === "web" ? "70%" : "92%",
-          backgroundColor: selectedOrders.length > 0 ? "#04BF7B" : "#ccc",
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          backgroundColor: selectedOrders.length > 0 ? '#04BF7B' : '#ccc',
           paddingVertical: 10,
           paddingHorizontal: 20,
           borderRadius: 5,
-          alignItems: "center",
-          alignSelf: "center",
+          alignItems: 'center',
+          alignSelf: 'center',
           marginBottom: 16,
-          marginTop: Platform.OS === "web" ? 20 : 15,
-          marginHorizontal: 15,
+          marginTop: Platform.OS === 'web' ? 20 : 15,
+          marginHorizontal: 15
         }}
       >
-        {isDownloading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={{ color: "#fff", fontSize: 16, fontWeight: "bold" }}>
-            Baixar Documentos Selecionados
-          </Text>
-        )}
+        {isDownloading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Baixar Documentos Selecionados</Text>}
       </TouchableOpacity>
 
       {/* Lista de Pedidos */}
       <FlatList
         style={{
-          width: Platform.OS === "web" ? "70%" : undefined,
-          alignSelf: "center",
+          width: Platform.OS === 'web' ? '70%' : undefined,
+          alignSelf: 'center'
         }}
         data={filteredOrders}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>
-        )}
+        ListEmptyComponent={() => <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>}
         renderItem={({ item }) => {
-          const supplierName =
-            item.calcOrderAgain?.data[0]?.supplier?.name ||
-            "Fornecedor não disponível";
-          const truncatedSupplierName = truncateText(supplierName, 20);
+          const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível'
+          const truncatedSupplierName = truncateText(supplierName, 20)
           return (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("OrderDetails", { orderId: item.id })
-              }
-              style={styles.itemContainer}
-            >
+            <TouchableOpacity onPress={() => navigation.navigate('OrderDetails', { orderId: item.id })} style={styles.itemContainer}>
               {/* Checkbox */}
-              <TouchableOpacity
-                onPress={() => toggleOrderSelection(item.id)}
-                style={styles.checkboxContainer}
-              >
-                <Text>{selectedOrders.includes(item.id) ? "✓" : ""}</Text>
+              <TouchableOpacity onPress={() => toggleOrderSelection(item.id)} style={styles.checkboxContainer}>
+                <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
               </TouchableOpacity>
 
               {/* Coluna Esquerda (ID e Data) */}
@@ -337,9 +297,7 @@ export function OrdersScreen({
                 <Text mb={10} style={styles.orderId}>
                   {item.id}
                 </Text>
-                <Text style={styles.deliveryDate}>
-                  {formatDate(item.deliveryDate)}
-                </Text>
+                <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
               </View>
 
               {/* Coluna Direita (Valor Total e Fornecedor) */}
@@ -356,35 +314,17 @@ export function OrdersScreen({
                 size={20}
                 color="#000"
                 style={{
-                  marginLeft: "auto",
+                  marginLeft: 'auto'
                 }}
               />
             </TouchableOpacity>
-          );
+          )
         }}
       />
 
       {/* Rodapé Original em View */}
-      <View
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="row"
-        gap={30}
-        height={55}
-        borderTopWidth={0.2}
-        borderTopColor="lightgray"
-      >
-        <View
-          onPress={() => navigation.replace("Products")}
-          padding={10}
-          marginVertical={10}
-          borderRadius={8}
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-          width={80}
-          height={70}
-        >
+      <View justifyContent="center" alignItems="center" flexDirection="row" gap={30} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
+        <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
           <Icons name="home" size={20} color="gray" />
           <Text fontSize={12} color="gray">
             Home
@@ -392,8 +332,8 @@ export function OrdersScreen({
         </View>
         <View
           onPress={async () => {
-            setLoading(true);
-            navigation.replace("Orders");
+            setLoading(true)
+            navigation.replace('Orders')
           }}
           padding={10}
           marginVertical={10}
@@ -412,9 +352,9 @@ export function OrdersScreen({
         </View>
         <View
           onPress={async () => {
-            setLoading(true);
-            await Promise.all([clearStorage(), deleteToken()]);
-            navigation.replace("Sign");
+            setLoading(true)
+            await Promise.all([clearStorage(), deleteToken()])
+            navigation.replace('Sign')
           }}
           padding={10}
           marginVertical={10}
@@ -433,5 +373,5 @@ export function OrdersScreen({
         </View>
       </View>
     </>
-  );
+  )
 }
