@@ -44,6 +44,7 @@ import * as Linking from "expo-linking";
 import DropDownPicker from "react-native-dropdown-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
 type Product = {
   name: string;
   orderUnit: string;
@@ -91,6 +92,9 @@ type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
   favorites: Product[];
   saveCart: (cart: Cart, isCart: boolean) => Promise<void>;
+  saveCartArray: (cart: Map<string, Cart>, exclude: Map<string, Cart>) => Promise<void>;
+  cartToExclude: Map<string, Cart>;
+  setLoading: (status: boolean) => void;
   cart: Map<string, Cart>;
   setImage: (imageString: string) => void;
   setModalVisible: (status: boolean) => void;
@@ -503,7 +507,9 @@ const ProductBox = React.memo(
     toggleFavorite,
     favorites,
     saveCart,
+    saveCartArray,
     cart,
+    cartToExclude,
     setImage,
     setModalVisible,
     currentClass,
@@ -514,7 +520,6 @@ const ProductBox = React.memo(
     const [valueQuant, setValueQuant] = useState(0);
     const [obs, setObs] = useState(parentObs);
     const [open, setOpen] = useState<boolean>(false);
-
     const obsRef = useRef("");
     const quantRef = useRef<number>(firstUnit);
 
@@ -566,11 +571,17 @@ const ProductBox = React.memo(
       onObsChange(text);
     };
 
-    const handleValueQuantChange = (delta: number) => {
-      setValueQuant((prevValue) =>
-        Math.max(0, Number((prevValue + delta).toFixed(3)))
-      );
-    };
+    const handleValueQuantChange = async (delta: number) => {
+  const newValue = Number((valueQuant + delta).toFixed(3));
+
+  if (newValue <= 0) {
+    await saveCart({ productId: id, amount: 0, obs }, true);
+    await saveCartArray(cart, cartToExclude); // salva no servidor imediatamente
+  }
+
+  setValueQuant(Math.max(0, newValue));
+};
+
 
     return (
       <Stack
@@ -810,7 +821,7 @@ const ProductBox = React.memo(
                   name="remove"
                   color="#04BF7B"
                   size={24}
-                  onPress={(e) => {
+                  onPress={async(e) => {
                     e.stopPropagation();
                     handleValueQuantChange(-quant);
                   }}
@@ -822,9 +833,9 @@ const ProductBox = React.memo(
                   name="add"
                   color="#04BF7B"
                   size={24}
-                  onPress={(e) => {
+                  onPress={async(e) => {
                     e.stopPropagation();
-                    handleValueQuantChange(quant);
+                    handleValueQuantChange(quant);  
                   }}
                 />
               </View>
@@ -1038,6 +1049,15 @@ export function Products({ navigation }: HomeScreenProps) {
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [productObservations, setProductObservations] = useState(new Map());
+  const [displayedCartSize, setDisplayedCartSize] = useState(cart.size);
+
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setDisplayedCartSize(cart.size);
+  }, 100); // pequeno atraso para garantir consistência
+
+  return () => clearTimeout(timeout);
+}, [cart.size]);
 
   //seguindo o padrão das orders
   const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
@@ -1142,8 +1162,13 @@ export function Products({ navigation }: HomeScreenProps) {
 
       // Merge local cart with server cart
       localCart.forEach((value, key) => {
-        cartMap.set(key, value);
+        if (value.amount > 0) {
+          cartMap.set(key, value);
+        } else {
+          cartMap.delete(key); // remove se estiver com amount 0
+        }
       });
+
 
       // localCartInside.forEach((value, key) => {
       //     cartMap.set(key, value);
@@ -1214,19 +1239,19 @@ export function Products({ navigation }: HomeScreenProps) {
     };
     await attCart();
     await setStorage("cart", JSON.stringify(Array.from(newCart.entries())));
+
+    // salva no servidor sempre que houver alteração
+    if (cart.amount === 0 && isCart) {
+      await saveCartArray(newCart, new Map([[cart.productId, cart]]));
+    }
+
   }, []);
 
   const saveCartArray = useCallback(
-    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>) => {
+    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
       const token = await getToken();
-      if (token == null) return [];
-      console.log(
-        JSON.stringify({
-          token,
-          carts: Array.from(carts.values()),
-          cartToExclude: Array.from(cartsToExclude.values()),
-        })
-      );
+      if (token == null) return;
+  
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
         method: "POST",
         headers: {
@@ -1238,10 +1263,20 @@ export function Products({ navigation }: HomeScreenProps) {
           cartToExclude: Array.from(cartsToExclude.values()),
         }),
       });
+
+
+  
       setCartToExclude(new Map());
     },
     []
   );
+
+  useEffect(() => {
+  if (cartToExclude.size > 0) {
+    saveCartArray(cart, cartToExclude);
+  }
+}, [cartToExclude, cart, saveCartArray]);
+  
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
@@ -1605,6 +1640,9 @@ export function Products({ navigation }: HomeScreenProps) {
         {...item}
         favorites={favorites}
         saveCart={saveCart}
+        setLoading={setLoading}
+        saveCartArray={saveCartArray}
+        cartToExclude={cartToExclude}
         cart={cart}
         obs={productObservations.get(item.id) || ""}
         onObsChange={(newObs: any) => {
@@ -1960,7 +1998,7 @@ export function Products({ navigation }: HomeScreenProps) {
       </View>
 
       <CartButton
-        cartSize={cart.size}
+        cartSize={displayedCartSize}
         isScrolling={isScrolling}
         onPress={async () => {
           setLoading(true);
