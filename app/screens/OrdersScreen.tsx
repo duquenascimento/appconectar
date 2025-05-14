@@ -217,8 +217,11 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#0000ff" />
+      <View flex={1} justifyContent="center" alignItems="center">
+        <ActivityIndicator size="large" color="#04BF7B" />
+        <Text fontSize={16} mt={5} color="gray" textAlign="center">
+          Carregando histórico de pedidos. Por favor Aguarde...
+        </Text>
       </View>
     )
   }
