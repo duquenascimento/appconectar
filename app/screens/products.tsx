@@ -295,100 +295,121 @@ export function DialogComercialInstance(props: {
   openModal: boolean;
   setRegisterInvalid: Function;
   rest: any;
-}) {
+  navigation: any
+}& HomeScreenProps) {
+  
+    const handleLogout = async () => {
+      try {
+        await Promise.all([clearStorage(), deleteToken()]);
+        props.navigation.replace("Sign");
+      } catch (error) {
+        console.error("Erro ao deslogar:", error);
+      }
+    };
+
   return (
-    <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: "spring",
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
+    <Dialog
+  modal
+  open={props.openModal}
+>
+  {/* Modal adaptado para ocupar tela cheia no celular */}
+  <Adapt when="sm" platform="touch">
+    <Sheet
+      animationConfig={{
+        type: "spring",
+        damping: 20,
+        mass: 0.5,
+        stiffness: 200,
+      }}
+      animation="medium"
+      zIndex={200000}
+      modal
+      dismissOnSnapToBottom
+      snapPoints={[100]} // Ocupa 100% da tela
+      snapPointsMode="percent"
+    >
+      <Sheet.Frame padding="$4" gap="$4" flex={1}>
+        <Adapt.Contents />
+      </Sheet.Frame>
+      <Sheet.Overlay
+        animation="quickest"
+        enterStyle={{ opacity: 0 }}
+        exitStyle={{ opacity: 0 }}
+      />
+    </Sheet>
+  </Adapt>
 
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
+  <Dialog.Portal>
+    <Dialog.Overlay
+      key="overlay"
+      animation="quick"
+      opacity={0.5}
+      enterStyle={{ opacity: 0 }}
+      exitStyle={{ opacity: 0 }}
+    />
 
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={["transform", "opacity"]}
-          animation={[
-            "quicker",
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title mx="auto">Bem vindo à Conéctar!</Dialog.Title>
-          <Dialog.Description>
-            Entre em contato conosco para agendar um contato rápido e começar a
-            utilizar o aplicativo!
-          </Dialog.Description>
+    <Dialog.Content
+      bordered
+      elevate
+      key="content"
+      animateOnly={["transform", "opacity"]}
+      animation={[
+        "quicker",
+        {
+          opacity: {
+            overshootClamping: true,
+          },
+        },
+      ]}
+      enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+      exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+      gap="$4"
+    >
+      <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
+        <Dialog.Title textAlign="center" mx="auto">Bem vindo à Conéctar!</Dialog.Title>
+      <Dialog.Description textAlign="center">
+        Entre em contato conosco para agendar um contato rápido e começar a
+        utilizar o aplicativo!
+      </Dialog.Description>
 
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="#04BF7B"
-                color="$white1"
-                onPress={async () => {
-                  const text =
-                    encodeURIComponent(`Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
-${props.rest.map(
-                      (item: any) => `
-- ${item.name}`
-                    )}
+      <XStack justifyContent="center" alignSelf="center" gap="$4">
+        <Dialog.Close displayWhenAdapted asChild>
+          <Button
+            width="$20"
+            theme="active"
+            aria-label="Close"
+            backgroundColor="#04BF7B"
+            color="$white1"
+            onPress={async () => {
+              const text = encodeURIComponent(
+                `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
+${props.rest.map((item: any) => `\n- ${item.name}`)}
 
-Consegue me ajudar?`)
-                      .replace("!", "%21")
-                      .replace("'", "%27")
-                      .replace("(", "%28")
-                      .replace(")", "%29")
-                      .replace("*", "%2A");
-                  await Linking.openURL(
-                    `https://wa.me/5521999954372?text=${text}`
-                  );
-                }}
-              >
-                Entre em contato
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
+Consegue me ajudar?`
+              )
+                .replace("!", "%21")
+                .replace("'", "%27")
+                .replace("(", "%28")
+                .replace(")", "%29")
+                .replace("*", "%2A")
+
+              await Linking.openURL(
+                `https://wa.me/5521999954372?text=${text}`
+              )
+              // Espera 2 segundos para o WhatsApp abrir antes de deslogar
+              setTimeout(() => {
+                handleLogout();
+              }, 2000);
+            }}
+          >
+            Entre em contato
+          </Button>
+        </Dialog.Close>
+      </XStack>
+      </YStack>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog>
   );
 }
 
@@ -1380,6 +1401,7 @@ useEffect(() => {
 
         if (restFilteredComercial.length) {
           setShowRegistrationReleasedNewApp(true);
+          console.log("Modal abrindo de novo")
         }
 
         if (restFilteredFinance.length) {
@@ -1699,6 +1721,7 @@ useEffect(() => {
         openModal={showRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
+        navigation={navigation}
       />
       <DialogFinanceInstance
         openModal={showFinanceBlock}
