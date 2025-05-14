@@ -249,31 +249,36 @@ export function DialogComercialInstance(props: {
     };
 
   return (
-    <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: "spring",
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
+    <Dialog
+  modal
+  open={props.openModal}
+>
+  {/* Modal adaptado para ocupar tela cheia no celular */}
+  <Adapt when="sm" platform="touch">
+    <Sheet
+      animationConfig={{
+        type: "spring",
+        damping: 20,
+        mass: 0.5,
+        stiffness: 200,
+      }}
+      animation="medium"
+      zIndex={200000}
+      modal
+      dismissOnSnapToBottom
+      snapPoints={[100]} // Ocupa 100% da tela
+      snapPointsMode="percent"
+    >
+      <Sheet.Frame padding="$4" gap="$4" flex={1}>
+        <Adapt.Contents />
+      </Sheet.Frame>
+      <Sheet.Overlay
+        animation="quickest"
+        enterStyle={{ opacity: 0 }}
+        exitStyle={{ opacity: 0 }}
+      />
+    </Sheet>
+  </Adapt>
 
   <Dialog.Portal>
     <Dialog.Overlay
