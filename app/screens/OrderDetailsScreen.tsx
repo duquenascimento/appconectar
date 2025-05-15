@@ -272,32 +272,29 @@ export function OrderDetailsScreen() {
             const url = order.orderDocument;
 
             if (!url) {
-              console.warn("URL não encontrada");
               setShowDocumentsModal(true);
               return;
             }
 
             try {
-              const response = await fetch(url, { method: "GET" });
+              const res = await fetch(
+                `http://localhost:3333/verify-link?url=${encodeURIComponent(
+                  url
+                )}`
+              );
+              const data = await res.json();
 
-              if (response.status === 200) {
-                // Link existe, pode abrir
+              if (data.ok && data.status === 200) {
                 if (Platform.OS === "web") {
                   window.open(url, "_blank");
                 } else {
                   openURL(url);
                 }
               } else {
-                // Status diferente de 200
-                console.warn(
-                  "Documento não disponível (status:",
-                  response.status,
-                  ")"
-                );
                 setShowDocumentsModal(true);
               }
-            } catch (error) {
-              console.error("Erro ao verificar o link:", error);
+            } catch (err) {
+              console.error("Erro na verificação:", err);
               setShowDocumentsModal(true);
             }
           }}
@@ -315,32 +312,29 @@ export function OrderDetailsScreen() {
             const url = order.orderInvoices?.filePath[0];
 
             if (!url) {
-              console.warn("URL não encontrada");
               setShowDocumentsModal(true);
               return;
             }
 
             try {
-              const response = await fetch(url, { method: "GET" });
+              const res = await fetch(
+                `http://localhost:3333/verify-link?url=${encodeURIComponent(
+                  url
+                )}`
+              );
+              const data = await res.json();
 
-              if (response.status === 200) {
-                // Link existe, pode abrir
+              if (data.ok && data.status === 200) {
                 if (Platform.OS === "web") {
                   window.open(url, "_blank");
                 } else {
                   openURL(url);
                 }
               } else {
-                // Status diferente de 200
-                console.warn(
-                  "Documento não disponível (status:",
-                  response.status,
-                  ")"
-                );
                 setShowDocumentsModal(true);
               }
-            } catch (error) {
-              console.error("Erro ao verificar o link:", error);
+            } catch (err) {
+              console.error("Erro na verificação:", err);
               setShowDocumentsModal(true);
             }
           }}
