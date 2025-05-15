@@ -479,6 +479,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     return itens
   }, [suppliers, unavailableSupplier])
 
+  // Ao setar o restaurante escolhido para o localStorage
   useEffect(() => {
     if (selectedRestaurant) {
       const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0]
@@ -505,6 +506,26 @@ export function Prices({ navigation }: HomeScreenProps) {
       setLoading(false)
     }
   }, [selectedRestaurant])
+
+  // Para quando alterar o restaurante do dropDown
+  useEffect(() => {
+    if (!draftSelectedRestaurant) return
+    const addressInfo = draftSelectedRestaurant.addressInfos[0]
+    if (!addressInfo) return
+
+    setNeighborhood(addressInfo.neighborhood)
+    setCity(addressInfo.city)
+    setLocalType(addressInfo.localType)
+    setLocalNumber(addressInfo.localNumber)
+    setResponsibleReceivingName(addressInfo.responsibleReceivingName)
+    setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
+    setZipCode(addressInfo.zipCode?.replace(/\D/g, '')?.replace(/(\d{5})(\d{3})/, '$1-$2'))
+    setStreet(addressInfo.address)
+    setComplement(addressInfo.complement)
+    setDeliveryInformation(addressInfo.deliveryInformation)
+    setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16))
+    setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16))
+  }, [draftSelectedRestaurant])
 
   const getItem = (data: SupplierData[], index: number) => data[index]
   const getItemCount = (data: SupplierData[]) => data.length
@@ -807,7 +828,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                               //setLoading(true); // Ativa o loading assim que o usuário escolhe um item
                               const rest = allRestaurants.find((item) => item?.name === value.value)
                               //setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
-                              setDraftSelectedRestaurant(rest)
+                              if (rest) {
+                                setDraftSelectedRestaurant(rest)
+                              }
+
                               //setLoading(false);
                             }}
                           ></DropDownPicker>
@@ -1742,7 +1766,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                           if (!validateFields()) return // Valida os campos antes de prosseguir
 
                           //setLoading(true);
-                          const rest: SelectItem = draftSelectedRestaurant ?? selectedRestaurant
+                          const rest: SelectItem = JSON.parse(JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant))
                           const addressInfo = rest.addressInfos[0]
 
                           addressInfo.neighborhood = neighborhood

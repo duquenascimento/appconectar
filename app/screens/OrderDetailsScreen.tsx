@@ -90,10 +90,10 @@ export function ModalDocumentsAndInvoices(props: {
             gap="$4"
           >
             <Dialog.Title textAlign="center" mx="auto" color="red">
-              Documento não disponível
+              Documento ainda não disponível
             </Dialog.Title>
             <Dialog.Description textAlign="center">
-              O documento não existe ou não está indisponível
+             O documento ainda não foi disponibilizado.
             </Dialog.Description>
 
             <XStack justifyContent="center" alignSelf="center" gap="$4">
