@@ -278,13 +278,13 @@ export function OrderDetailsScreen() {
 
             try {
               const res = await fetch(
-                `http://localhost:3333/verify-link?url=${encodeURIComponent(
+                `${process.env.EXPO_PUBLIC_API_URL}/verify-link?url=${encodeURIComponent(
                   url
                 )}`
               );
               const data = await res.json();
 
-              if (data.ok && data.status === 200) {
+              if (data && data.status === 200) {
                 if (Platform.OS === "web") {
                   window.open(url, "_blank");
                 } else {
@@ -310,7 +310,6 @@ export function OrderDetailsScreen() {
         <TouchableOpacity
           onPress={async () => {
             const url = order.orderInvoices?.filePath[0];
-
             if (!url) {
               setShowDocumentsModal(true);
               return;
@@ -318,13 +317,12 @@ export function OrderDetailsScreen() {
 
             try {
               const res = await fetch(
-                `http://localhost:3333/verify-link?url=${encodeURIComponent(
+                `${process.env.EXPO_PUBLIC_API_URL}/verify-link?url=${encodeURIComponent(
                   url
                 )}`
               );
               const data = await res.json();
-
-              if (data.ok && data.status === 200) {
+              if (data && data.status === 200) {
                 if (Platform.OS === "web") {
                   window.open(url, "_blank");
                 } else {
