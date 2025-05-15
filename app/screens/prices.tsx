@@ -1286,52 +1286,84 @@ export function Prices({ navigation }: HomeScreenProps) {
                             ) : (
                               <Text>Loading...</Text> // Ou algum placeholder
                             )}
-                            <View pt={5} gap={10} mb={Platform.OS === 'web' ? 0 : 0} justifyContent="space-between" flexDirection="row" zIndex={100}>
-                              <View flex={1}>
-                                <Text pl={5} fontSize={12} color="gray">
+                            <View
+                              style={{
+                                paddingTop: 5,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                zIndex: 10
+                              }}
+                            >
+                              <View
+                                style={{
+                                  flex: 1,
+                                  zIndex: 10,
+                                  marginRight: 5
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    paddingLeft: 5,
+                                    fontSize: 12,
+                                    color: 'gray'
+                                  }}
+                                >
                                   A partir de
                                 </Text>
                                 <DropDownPicker
                                   value={minHour}
-                                  style={{
-                                    borderWidth: 1,
-                                    borderColor: 'lightgray',
-                                    borderRadius: 5,
-                                    flex: 1
-                                  }}
                                   setValue={setMinHour}
-                                  items={minhours.map((item) => {
-                                    return { label: item, value: item }
-                                  })}
+                                  items={minhours.map((item) => ({
+                                    label: item,
+                                    value: item
+                                  }))}
                                   multiple={false}
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
+                                  onOpen={() => setMaxHourOpen(false)} // <- fecha o outro
                                   placeholder=""
                                   listMode="SCROLLVIEW"
-                                ></DropDownPicker>
+                                  style={{
+                                    borderWidth: 1,
+                                    borderColor: 'lightgray',
+                                    borderRadius: 5
+                                  }}
+                                  zIndex={10}
+                                  zIndexInverse={5}
+                                />
                               </View>
-                              <View flex={1} zIndex={100}>
-                                <Text pl={5} fontSize={12} color="gray">
+
+                              <View style={{ flex: 1, zIndex: 9, marginLeft: 5 }}>
+                                <Text
+                                  style={{
+                                    paddingLeft: 5,
+                                    fontSize: 12,
+                                    color: 'gray'
+                                  }}
+                                >
                                   Até
                                 </Text>
                                 <DropDownPicker
                                   value={maxHour}
+                                  setValue={setMaxHour}
+                                  items={maxhours.map((item) => ({
+                                    label: item,
+                                    value: item
+                                  }))}
+                                  multiple={false}
+                                  open={maxHourOpen}
+                                  setOpen={setMaxHourOpen}
+                                  onOpen={() => setMinHourOpen(false)} // <- fecha o outro
+                                  placeholder=""
                                   listMode="SCROLLVIEW"
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
-                                    borderRadius: 5,
-                                    flex: 1
+                                    borderRadius: 5
                                   }}
-                                  setValue={setMaxHour}
-                                  items={maxhours.map((item) => {
-                                    return { label: item, value: item }
-                                  })}
-                                  multiple={false}
-                                  open={maxHourOpen}
-                                  setOpen={setMaxHourOpen}
-                                  placeholder=""
-                                ></DropDownPicker>
+                                  zIndex={9}
+                                  zIndexInverse={4}
+                                />
                               </View>
                             </View>
 
