@@ -72,6 +72,7 @@ type ProductBoxProps = Product & {
   thirdUnit: number
   currentClass: string
   obs: string // Adicione esta linha
+  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
   onObsChange: (text: string) => void // Adicione esta linha
 }
 
@@ -436,13 +437,33 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cart, cartToExclude, setImage, setModalVisible, currentClass, obs: parentObs, onObsChange }: ProductBoxProps) => {
-    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
-    const [valueQuant, setValueQuant] = useState(0)
-    const [obs, setObs] = useState(parentObs)
-    const [open, setOpen] = useState<boolean>(false)
-    const obsRef = useRef('')
-    const quantRef = useRef<number>(firstUnit)
+  ({
+    id,
+    name,
+    image,
+    mediumWeight,
+    firstUnit,
+    secondUnit,
+    thirdUnit,
+    orderUnit,
+    toggleFavorite,
+    favorites,
+    saveCart,
+    cart,
+    setImage,
+    setModalVisible,
+    currentClass,
+    obs: parentObs,
+    addObservation,
+    onObsChange,
+  }: ProductBoxProps) => {
+    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1);
+    const [valueQuant, setValueQuant] = useState(0);
+    const [obs, setObs] = useState(parentObs);
+    const [open, setOpen] = useState<boolean>(false);
+
+    const obsRef = useRef("");
+    const quantRef = useRef<number>(firstUnit);
 
     useEffect(() => {
       setObs(parentObs)
@@ -489,16 +510,22 @@ const ProductBox = React.memo(
       onObsChange(text)
     }
 
-    const handleValueQuantChange = async (delta: number) => {
-      const newValue = Number((valueQuant + delta).toFixed(3))
+    const handleValueQuantChange = (delta: number) => {
+      setValueQuant((prevValue) =>
+        Math.max(0, Number((prevValue + delta).toFixed(3)))
+      );
+    };
 
-      if (newValue <= 0) {
-        await saveCart({ productId: id, amount: 0, obs }, true)
-        await saveCartArray(cart, cartToExclude) // salva no servidor imediatamente
+    const handleBlur = useCallback(async () => {
+      if (obsRef.current !== obs) { // Só salva se a observação mudou
+        try {
+          await addObservation(id, obs);
+          obsRef.current = obs; // Atualiza a referência
+        } catch (error) {
+          console.error("Failed to save observation:", error);
+        }
       }
-
-      setValueQuant(Math.max(0, newValue))
-    }
+    }, [addObservation, id, obs]);
 
     return (
       <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" paddingBottom={Platform.OS === 'web' ? '' : 5}>
@@ -561,8 +588,30 @@ const ProductBox = React.memo(
               <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems="center" flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
                 {Platform.OS === 'web' && (
                   <View alignSelf="flex-start" flex={1}>
-                    <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
-                      <Input focusVisibleStyle={{ outlineWidth: 0 }} placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onPress={(e) => e.stopPropagation()} onChangeText={handleObsChange} value={obs} />
+                    <XStack
+                      backgroundColor="#F0F2F6"
+                      flex={1}
+                      paddingRight={14}
+                      borderWidth={0}
+                      borderRadius={20}
+                      alignItems="center"
+                      flexDirection="row"
+                      height={36}
+                    >
+                      <Input
+                        focusVisibleStyle={{ outlineWidth: 0 }}
+                        placeholder="Observação para entrega..."
+                        backgroundColor="transparent"
+                        borderWidth={0}
+                        borderColor="transparent"
+                        flex={1}
+                        fontSize={10}
+                        maxLength={999}
+                        onPress={(e) => e.stopPropagation()}
+                        onChangeText={handleObsChange}
+                        onBlur={handleBlur}
+                        value={obs}
+                      />
                     </XStack>
                   </View>
                 )}
@@ -633,8 +682,29 @@ const ProductBox = React.memo(
             </View>
             {Platform.OS !== 'web' && (
               <View>
-                <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" marginBottom={10} height={36}>
-                  <Input placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onPress={(e) => e.stopPropagation()} onChangeText={handleObsChange} value={obs} />
+                <XStack
+                  backgroundColor="#F0F2F6"
+                  paddingRight={14}
+                  borderWidth={0}
+                  borderRadius={20}
+                  alignItems="center"
+                  flexDirection="row"
+                  marginBottom={10}
+                  height={36}
+                >
+                  <Input
+                    placeholder="Observação para entrega..."
+                    backgroundColor="transparent"
+                    borderWidth={0}
+                    borderColor="transparent"
+                    flex={1}
+                    fontSize={10}
+                    maxLength={999}
+                    onPress={(e) => e.stopPropagation()}
+                    onChangeText={handleObsChange}
+                    onBlur={handleBlur}
+                    value={obs}
+                  />
                 </XStack>
               </View>
             )}
@@ -1100,7 +1170,47 @@ export function Products({ navigation }: HomeScreenProps) {
       }
     },
     [favorites, productsList, selectedRestaurant]
-  )
+  );
+
+  const addObservation = useCallback(
+    async (productId: string, observation: string): Promise<void | null | undefined> => {
+      try {
+        const token = await getToken();
+        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
+        if (token == null || !restaurant) return;
+        // Atualizar o estado localmente
+        const productToAdd = productsList?.find(
+          (product) => product.id === productId
+        );
+        console.log(productToAdd)
+        console.log(selectedRestaurant);
+        const storedRestaurant = await getSavedRestaurant();
+
+        console.log(storedRestaurant?.externalId);
+
+        const result = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              productId,
+              restaurantId: storedRestaurant?.id,
+              token,
+              obs: observation
+            }),
+          }
+        );
+        if (!result.ok) return null;
+      } catch (error) {
+        console.error("Erro ao adicionar aos favoritos:", error);
+      }
+    },
+    [favorites, productsList, selectedRestaurant]
+  );
 
   const removeFromFavorites = useCallback(
     async (productId: string) => {
@@ -1256,10 +1366,19 @@ export function Products({ navigation }: HomeScreenProps) {
             return newMap
           })
         }}
+        addObservation = {addObservation}
       />
     ),
-    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations]
-  )
+    [
+      cart,
+      currentClass,
+      favorites,
+      saveCart,
+      toggleFavorite,
+      productObservations,
+      addObservation
+    ]
+  );
 
   async function handleRestaurantChoice(value: string | null) {
     try {
