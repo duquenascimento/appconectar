@@ -23,12 +23,13 @@
         "buildType": "app-bundle"
       },
       "ios": {
-        "image": "latest"
+        "image": "macos-sonoma-14.6-xcode-16.0" 
       },
       "autoIncrement": true
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+    }
   }
 }

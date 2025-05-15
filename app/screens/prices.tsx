@@ -1,171 +1,126 @@
-import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Stack, Text, View, Image, Button, Input } from "tamagui";
-import Icons from "@expo/vector-icons/Ionicons";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
-  ScrollView,
-  VirtualizedList,
-  Dimensions,
-} from "react-native";
-import React from "react";
-import { DateTime } from "luxon";
-import DropDownPicker from "react-native-dropdown-picker";
-import { clearStorage, getToken, setStorage } from "../utils/utils";
-import DialogInstanceNotification from "../../src/components/modais/DialogInstanceNotification";
-import CustomAlert from "../../src/components/modais/CustomAlert"; // Importe o CustomAlert
-import { loadRestaurants } from "../../src/services/restaurantService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { Stack, Text, View, Image, Button, Input } from 'tamagui'
+import Icons from '@expo/vector-icons/Ionicons'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, VirtualizedList, Dimensions } from 'react-native'
+import React from 'react'
+import { DateTime } from 'luxon'
+import DropDownPicker from 'react-native-dropdown-picker'
+import { clearStorage, getToken, setStorage } from '../utils/utils'
+import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
+import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o CustomAlert
+import { loadRestaurants } from '../../src/services/restaurantService'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type RootStackParamList = {
-  Home: undefined;
-  Products: undefined;
-  Cart: undefined;
-  Confirm: undefined;
-};
+  Home: undefined
+  Products: undefined
+  Cart: undefined
+  Confirm: undefined
+}
 
 type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
-};
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
+}
 
 export interface Product {
-  price: number;
-  priceWithoutTax: number;
-  name: string;
-  sku: string;
-  quant: number;
-  orderQuant: number;
-  obs: string;
-  priceUnique: number;
-  priceUniqueWithTaxAndDiscount: number;
-  image: string[];
-  orderUnit: string;
+  price: number
+  priceWithoutTax: number
+  name: string
+  sku: string
+  quant: number
+  orderQuant: number
+  obs: string
+  priceUnique: number
+  priceUniqueWithTaxAndDiscount: number
+  image: string[]
+  orderUnit: string
 }
 
 interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
-  premium: boolean;
+  externalId: any
+  id: string
+  name: string
+  premium: boolean
 }
 
 export interface Discount {
-  orderValue: number;
-  discount: number;
-  orderWithoutTax: number;
-  orderWithTax: number;
-  tax: number;
-  missingItens: number;
-  orderValueFinish: number;
-  product: Product[];
-  sku: string;
+  orderValue: number
+  discount: number
+  orderWithoutTax: number
+  orderWithTax: number
+  tax: number
+  missingItens: number
+  orderValueFinish: number
+  product: Product[]
+  sku: string
 }
 
 export interface Supplier {
-  name: string;
-  externalId: string;
-  missingItens: number;
-  minimumOrder: number;
-  hour: string;
-  discount: Discount;
-  star: string;
+  name: string
+  externalId: string
+  missingItens: number
+  minimumOrder: number
+  hour: string
+  discount: Discount
+  star: string
 }
 
 export interface SupplierData {
-  supplier: Supplier;
+  supplier: Supplier
 }
 
 type SelectItem = {
-  name: string;
-  addressInfos: any[];
-  premium: boolean;
-};
+  name: string
+  addressInfos: any[]
+  premium: boolean
+}
 
 const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState(getScreenSize());
+  const [screenSize, setScreenSize] = useState(getScreenSize())
 
   useEffect(() => {
     const updateScreenSize = () => {
-      setScreenSize(getScreenSize());
-    };
+      setScreenSize(getScreenSize())
+    }
 
-    const subscription = Dimensions.addEventListener(
-      "change",
-      updateScreenSize
-    );
+    const subscription = Dimensions.addEventListener('change', updateScreenSize)
 
-    return () => subscription.remove();
-  }, []);
+    return () => subscription.remove()
+  }, [])
 
-  return screenSize;
-};
+  return screenSize
+}
 
 const getScreenSize = () => {
-  const width = Dimensions.get("window").width;
-  return width >= 1024 ? "lg/xl" : "sm/md";
-};
+  const width = Dimensions.get('window').width
+  return width >= 1024 ? 'lg/xl' : 'sm/md'
+}
 
-const SupplierBox = ({
-  supplier,
-  available,
-  goToConfirm,
-  selectedRestaurant,
-}: {
-  supplier: SupplierData;
-  star: string;
-  available: boolean;
-  selectedRestaurant: any;
-  goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void;
-}) => {
+const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: { supplier: SupplierData; star: string; available: boolean; selectedRestaurant: any; goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void }) => {
   const isOpen = () => {
-    const currentDate = DateTime.now().setZone("America/Sao_Paulo");
-    const currentHour = Number(
-      `${currentDate.hour.toString().length < 2
-        ? `0${currentDate.hour}`
-        : currentDate.hour
-      }${currentDate.minute.toString().length < 2
-        ? `0${currentDate.minute}`
-        : currentDate.minute
-      }${currentDate.second.toString().length < 2
-        ? `0${currentDate.second}`
-        : currentDate.second
-      }`
-    );
-    return (
-      Number(supplier.supplier.hour.replaceAll(":", "")) < currentHour &&
-      supplier.supplier.missingItens > 0
-    );
-  };
+    const currentDate = DateTime.now().setZone('America/Sao_Paulo')
+    const currentHour = Number(`${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`)
+    return Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour && supplier.supplier.missingItens > 0
+  }
 
   return (
     <View
-      opacity={
-        /* !isOpen() */ available && supplier.supplier.missingItens > 0
-          ? 1
-          : 0.4
-      }
+      opacity={/* !isOpen() */ available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
       onPress={() => {
         if (available && supplier.supplier.missingItens > 0) {
-          goToConfirm(supplier, selectedRestaurant);
+          goToConfirm(supplier, selectedRestaurant)
         }
       }}
       flexDirection="row"
       borderBottomWidth={0.1}
       borderBottomColor="lightgray"
     >
-      <View
-        style={{ paddingLeft: Platform.OS === "web" ? "20vw" : "" }}
-        marginVertical={10}
-        flexDirection="row"
-        f={1}
-      >
+      <View style={{ paddingLeft: Platform.OS === 'web' ? '20vw' : '' }} marginVertical={10} flexDirection="row" f={1}>
         <View p={5}>
           <Image
             source={{
-              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`,
+              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`
             }}
             width={50}
             height={50}
@@ -173,40 +128,21 @@ const SupplierBox = ({
           />
         </View>
         <View ml={10} maxWidth="75%" justifyContent="center">
-          <Text fs={16}>
-            {supplier.supplier.name.replace("Distribuidora", "")}
-          </Text>
+          <Text fs={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star"></Icons>
             <Text pl={4}>{supplier.supplier.star}</Text>
           </View>
         </View>
       </View>
-      <View
-        style={{ paddingRight: Platform.OS === "web" ? "10vw" : "" }}
-        justifyContent="center"
-      >
+      <View style={{ paddingRight: Platform.OS === 'web' ? '10vw' : '' }} justifyContent="center">
         <View>
           <Text textAlign="right" fontSize={16} fontWeight="800">
-            R${" "}
-            {supplier.supplier.discount.orderValueFinish
-              .toFixed(2)
-              .replace(".", ",")}
+            R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
           </Text>
           {available ? (
-            <Text
-              color={
-                supplier.supplier.discount.product.length -
-                  supplier.supplier.missingItens >
-                  0
-                  ? "red"
-                  : "black"
-              }
-              fontSize={12}
-            >
-              {supplier.supplier.discount.product.length -
-                supplier.supplier.missingItens}{" "}
-              iten(s) faltante(s)
+            <Text color={supplier.supplier.discount.product.length - supplier.supplier.missingItens > 0 ? 'red' : 'black'} fontSize={12}>
+              {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)
             </Text>
           ) : isOpen() ? (
             <Text color="red" fontSize={12}>
@@ -215,16 +151,12 @@ const SupplierBox = ({
           ) : (
             <Text color="red" fontSize={12}>
               Mínimo R$
-              {supplier.supplier.minimumOrder.toFixed(2).replace(".", ",")}
+              {supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}
             </Text>
           )}
         </View>
       </View>
-      <View
-        pl={10}
-        justifyContent="center"
-        style={{ paddingRight: Platform.OS === "web" ? "10vw" : undefined }}
-      >
+      <View pl={10} justifyContent="center" style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}>
         {/* {!available && supplier.supplier.missingItens < 1 ? (
           <View></View>
         ) : (
@@ -233,497 +165,390 @@ const SupplierBox = ({
         {available && <Icons name="chevron-forward" size={24}></Icons>}
       </View>
     </View>
-  );
-};
+  )
+}
 
 export function Prices({ navigation }: HomeScreenProps) {
-  const [loading, setLoading] = useState<boolean>(true);
-  const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
-  const [unavailableSupplier, setUnavailableSupplier] = useState<
-    SupplierData[]
-  >([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
-  const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
-  const [minhours, setMinhours] = useState<string[]>([]);
-  const [maxhours, setMaxhours] = useState<string[]>([]);
-  const [minHour, setMinHour] = useState<string>("");
-  const [maxHour, setMaxHour] = useState<string>("");
-  const [editInfos, setEditInfos] = useState<boolean>(false);
-  const [allRestaurants, setAllRestaurants] = useState<SelectItem[]>([]);
-  const [city, setCity] = useState<string>();
-  const [zipCode, setZipCode] = useState<string>();
-  const [localType, setLocalType] = useState<string>();
-  const [street, setStreet] = useState<string>();
-  const [localNumber, setLocalNumber] = useState<string>();
-  const [neighborhood, setNeighborhood] = useState<string>();
-  const [responsibleReceivingName, setResponsibleReceivingName] =
-    useState<string>();
-  const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] =
-    useState<string>();
-  const [deliveryInformation, setDeliveryInformation] = useState<string>();
-  const [complement, setComplement] = useState<string>();
-  const [tab, setTab] = useState<string>("onlySupplier");
-  const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
-  const [minHourOpen, setMinHourOpen] = useState(false);
-  const [maxHourOpen, setMaxHourOpen] = useState(false);
-  const [restOpen, setRestOpen] = useState(false);
-  const [localTypeOpen, setLocalTypeOpen] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
-  const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
-  const [draftSelectedRestaurant, setDraftSelectedRestaurant] =
-    useState<any>(null); //Escolha temporária do restaurante no dropdown.
-  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false); //carregamento dos fornecedores
-  const screemSize = useScreenSize();
+  const [loading, setLoading] = useState<boolean>(true)
+  const [suppliers, setSuppliers] = useState<SupplierData[]>([])
+  const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([])
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
+  const [showRestInfo, setShowRestInfo] = useState<boolean>(false)
+  const [minhours, setMinhours] = useState<string[]>([])
+  const [maxhours, setMaxhours] = useState<string[]>([])
+  const [minHour, setMinHour] = useState<string>('')
+  const [maxHour, setMaxHour] = useState<string>('')
+  const [editInfos, setEditInfos] = useState<boolean>(false)
+  const [allRestaurants, setAllRestaurants] = useState<SelectItem[]>([])
+  const [city, setCity] = useState<string>()
+  const [zipCode, setZipCode] = useState<string>()
+  const [localType, setLocalType] = useState<string>()
+  const [street, setStreet] = useState<string>()
+  const [localNumber, setLocalNumber] = useState<string>()
+  const [neighborhood, setNeighborhood] = useState<string>()
+  const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>()
+  const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>()
+  const [deliveryInformation, setDeliveryInformation] = useState<string>()
+  const [complement, setComplement] = useState<string>()
+  const [tab, setTab] = useState<string>('onlySupplier')
+  const [finalCotacao, setFinalCotacao] = useState<boolean>(false)
+  const [minHourOpen, setMinHourOpen] = useState(false)
+  const [maxHourOpen, setMaxHourOpen] = useState(false)
+  const [restOpen, setRestOpen] = useState(false)
+  const [localTypeOpen, setLocalTypeOpen] = useState(false)
+  const [showNotification, setShowNotification] = useState(false)
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
+  const [missingFields, setMissingFields] = useState<string[]>([])
+  const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
+  const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
+  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false) //carregamento dos fornecedores
+  const screemSize = useScreenSize()
 
   const handleConfirm = () => {
-    setFinalCotacao(true);
-    clearStorage();
+    setFinalCotacao(true)
+    clearStorage()
     setTimeout(() => {
-      navigation.replace("Products");
-    }, 1000);
-  };
+      navigation.replace('Products')
+    }, 1000)
+  }
 
   const handleSelectedRest = async (rest: any) => {
-    console.log("restaurante<><><>", rest);
-    setSelectedRestaurant(rest);
-    updateAddress(rest);
-  };
+    setSelectedRestaurant(rest)
+    updateAddress(rest)
+  }
 
   useEffect(() => {
     if (minHour) {
-      let [minHourValue, minMinuteValue] = minHour.split(":").map(Number);
-      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour
-        ? maxHour.split(":").map(Number)
-        : [0, 0];
+      let [minHourValue, minMinuteValue] = minHour.split(':').map(Number)
+      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour ? maxHour.split(':').map(Number) : [0, 0]
 
       // Adiciona 1h30m à minHour
-      let hour = minHourValue + 1;
-      let minute = minMinuteValue + 30;
+      let hour = minHourValue + 1
+      let minute = minMinuteValue + 30
       if (minute >= 60) {
-        minute -= 60;
-        hour += 1;
+        minute -= 60
+        hour += 1
       }
 
       // Verifica se o maxHour existente é menor que o novo tempo
-      const newMaxInMinutes = hour * 60 + minute;
-      const currentMaxInMinutes =
-        currentMaxHourValue * 60 + currentMaxMinuteValue;
+      const newMaxInMinutes = hour * 60 + minute
+      const currentMaxInMinutes = currentMaxHourValue * 60 + currentMaxMinuteValue
 
       if (currentMaxInMinutes < newMaxInMinutes) {
         // Atualiza maxHour se o valor atual for menor que o novo calculado
-        const updatedMaxHour = `${String(hour).padStart(2, "0")}:${String(
-          minute
-        ).padStart(2, "0")}`;
-        setMaxHour(updatedMaxHour);
+        const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+        setMaxHour(updatedMaxHour)
       }
 
       // Gera as opções para maxHour
-      const maxOptions = [];
-      hour = minHourValue + 1; // Reinicializa o valor de hour para começar a partir do minHour + 1h30m
-      minute = minMinuteValue + 30;
+      const maxOptions = []
+      hour = minHourValue + 1 // Reinicializa o valor de hour para começar a partir do minHour + 1h30m
+      minute = minMinuteValue + 30
       if (minute >= 60) {
-        minute -= 60;
-        hour += 1;
+        minute -= 60
+        hour += 1
       }
 
       while (hour < 24) {
-        maxOptions.push(
-          `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
-        );
-        minute += 30;
+        maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
+        minute += 30
         if (minute >= 60) {
-          minute -= 60;
-          hour += 1;
+          minute -= 60
+          hour += 1
         }
       }
 
-      setMaxhours(maxOptions);
+      setMaxhours(maxOptions)
     } else {
-      setMaxhours([]);
+      setMaxhours([])
     }
-  }, [minHour, maxHour]); // Remove maxHour da lista de dependências para evitar loop infinito
+  }, [minHour, maxHour]) // Remove maxHour da lista de dependências para evitar loop infinito
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleChangeAddress = (
-    minHour: string,
-    maxHour: string,
-    neigh: string
-  ) => {
-    let newValue;
+  const handleChangeAddress = (minHour: string, maxHour: string, neigh: string) => {
+    let newValue
     setSelectedRestaurant((prevValue: any) => {
-      newValue = prevValue;
-      newValue.addressInfos[0].initialDeliveryTime = `2024-01-01T${minHour}:00.000Z`;
-      newValue.addressInfos[0].finalDeliveryTime = `2024-01-01T${maxHour}:00.000Z`;
-      return newValue;
-    });
-    updateAddress(newValue);
-  };
+      newValue = prevValue
+      newValue.addressInfos[0].initialDeliveryTime = `2024-01-01T${minHour}:00.000Z`
+      newValue.addressInfos[0].finalDeliveryTime = `2024-01-01T${maxHour}:00.000Z`
+      return newValue
+    })
+    updateAddress(newValue)
+  }
 
-  const goToConfirm = async (
-    supplier: SupplierData,
-    selectedRestaurant: any
-  ) => {
+  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
     try {
-      setLoading(true);
-      await setStorage("supplierSelected", JSON.stringify(supplier));
-      await setStorage(
-        "selectedRestaurant",
-        JSON.stringify({ restaurant: selectedRestaurant })
-      );
-      navigation.replace("Confirm");
+      setLoading(true)
+      await setStorage('supplierSelected', JSON.stringify(supplier))
+      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }))
+      navigation.replace('Confirm')
     } catch (err) {
-      console.error(err);
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getSavedRestaurant = async () => {
     try {
-      const data = await AsyncStorage.getItem("selectedRestaurant");
-      if (!data) return null;
+      const data = await AsyncStorage.getItem('selectedRestaurant')
+      if (!data) return null
 
-      const parsedData = JSON.parse(data);
+      const parsedData = JSON.parse(data)
 
       if (!parsedData?.restaurant) {
-        console.error("Formato inválido:", parsedData);
-        return null;
+        console.error('Formato inválido:', parsedData)
+        return null
       }
 
-      return parsedData.restaurant;
+      return parsedData.restaurant
     } catch (error) {
-      console.error("Erro ao parsear dados:", error);
-      return null;
+      console.error('Erro ao parsear dados:', error)
+      return null
     }
-  };
+  }
 
   const loadPrices = useCallback(async (selectedRestaurant?: any) => {
     try {
-      setLoadingSuppliers(true);
+      setLoadingSuppliers(true)
 
-      const token = await getToken();
-      if (!token) return new Map();
+      const token = await getToken()
+      if (!token) return new Map()
 
-      const restaurantSelected = await getSavedRestaurant();
-      const restaurants = await loadRestaurants();
+      const restaurantSelected = await getSavedRestaurant()
+      const restaurants = await loadRestaurants()
 
-      console.log(restaurantSelected);
-
-      setAllRestaurants(restaurants);
+      setAllRestaurants(restaurants)
 
       // Verifica se o restaurante salvo ainda existe na lista
-      const validRestaurant = restaurants.find(
-        (r: any) => r.externalId === restaurantSelected?.externalId
-      );
+      const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
 
-      const currentRestaurant = validRestaurant;
+      const currentRestaurant = validRestaurant
 
-      if (!currentRestaurant) return;
+      if (!currentRestaurant) return
 
-      const result = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/price/list`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            token,
-            selectedRestaurant: selectedRestaurant ?? currentRestaurant,
-          }),
-        }
-      );
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token,
+          selectedRestaurant: selectedRestaurant ?? currentRestaurant
+        })
+      })
 
-      const response = await result.json();
+      const response = await result.json()
 
-      const currentDate = DateTime.now().setZone("America/Sao_Paulo");
-      const currentHour = Number(
-        `${currentDate.hour.toString().padStart(2, "0")}${currentDate.minute
-          .toString()
-          .padStart(2, "0")}${currentDate.second.toString().padStart(2, "0")}`
-      );
+      const currentDate = DateTime.now().setZone('America/Sao_Paulo')
+      const currentHour = Number(`${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`)
       const supplier = (response.data as SupplierData[]).filter((item) => {
-        return (
-          Number(item.supplier.hour.replaceAll(":", "")) >= currentHour &&
-          item.supplier.minimumOrder <=
-          item.supplier.discount.orderValueFinish &&
-          item.supplier.missingItens > 0
-        );
-      });
+        return Number(item.supplier.hour.replaceAll(':', '')) >= currentHour && item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish && item.supplier.missingItens > 0
+      })
 
       const supplierUnavailable = (response.data as SupplierData[]).filter(
-        (item) =>
-          Number(item.supplier.hour.replaceAll(":", "")) < currentHour ||
-          item.supplier.minimumOrder > item.supplier.discount.orderValueFinish
+        (item) => Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish
         //item.supplier.missingItens > 0
-      );
+      )
 
       const sortedSuppliers = supplier.sort((a, b) => {
-        const diffA =
-          a.supplier.discount.product.length - a.supplier.missingItens;
-        const diffB =
-          b.supplier.discount.product.length - b.supplier.missingItens;
+        const diffA = a.supplier.discount.product.length - a.supplier.missingItens
+        const diffB = b.supplier.discount.product.length - b.supplier.missingItens
 
         if (diffA !== diffB) {
-          return diffA - diffB;
+          return diffA - diffB
         }
 
-        const notaA =
-          a.supplier.star === "(NOVO)" ? 0 : Number(a.supplier.star);
-        const notaB =
-          b.supplier.star === "(NOVO)" ? 0 : Number(b.supplier.star);
+        const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
+        const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
 
         if (notaA !== notaB) {
-          return notaB - notaA;
+          return notaB - notaA
         }
 
-        return (
-          a.supplier.discount.orderValueFinish -
-          b.supplier.discount.orderValueFinish
-        );
-      });
+        return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish
+      })
 
       const sortedUnavailableSuppliers = supplierUnavailable.sort((a, b) => {
-        const hourA = Number(a.supplier.hour.replaceAll(":", ""));
-        const hourB = Number(b.supplier.hour.replaceAll(":", ""));
+        const hourA = Number(a.supplier.hour.replaceAll(':', ''))
+        const hourB = Number(b.supplier.hour.replaceAll(':', ''))
 
         if (hourA !== hourB) {
-          return hourB - hourA;
+          return hourB - hourA
         }
 
-        const diffA =
-          a.supplier.discount.product.length - a.supplier.missingItens;
-        const diffB =
-          b.supplier.discount.product.length - b.supplier.missingItens;
+        const diffA = a.supplier.discount.product.length - a.supplier.missingItens
+        const diffB = b.supplier.discount.product.length - b.supplier.missingItens
 
         if (diffA !== diffB) {
-          return diffA - diffB;
+          return diffA - diffB
         }
 
-        const notaA =
-          a.supplier.star === "(NOVO)" ? 0 : Number(a.supplier.star);
-        const notaB =
-          b.supplier.star === "(NOVO)" ? 0 : Number(b.supplier.star);
+        const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
+        const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
 
         if (notaA !== notaB) {
-          return notaB - notaA;
+          return notaB - notaA
         }
 
-        return (
-          a.supplier.discount.orderValueFinish -
-          b.supplier.discount.orderValueFinish
-        );
-      });
+        return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish
+      })
 
-      setSuppliers(sortedSuppliers);
-      setUnavailableSupplier(sortedUnavailableSuppliers);
+      setSuppliers(sortedSuppliers)
+      setUnavailableSupplier(sortedUnavailableSuppliers)
     } catch (error) {
-      console.error("Error loading product:", error);
+      console.error('Error loading product:', error)
     } finally {
-      setLoadingSuppliers(false);
+      setLoadingSuppliers(false)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     const loadPricesAsync = async () => {
       try {
-        const restaurants = await loadRestaurants();
-        const restaurantSelected = await getSavedRestaurant();
+        const restaurants = await loadRestaurants()
+        const restaurantSelected = await getSavedRestaurant()
 
-        items = restaurants;
-        console.log(restaurantSelected);
+        items = restaurants
 
-        setAllRestaurants(restaurants);
+        setAllRestaurants(restaurants)
 
         // Verifica se o restaurante salvo ainda existe na lista
-        const validRestaurant = restaurants.find(
-          (r: any) => r.externalId === restaurantSelected?.externalId
-        );
+        const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
 
-        const currentRestaurant = validRestaurant;
+        const currentRestaurant = validRestaurant
 
-        if (!currentRestaurant) return;
+        if (!currentRestaurant) return
 
-        setSelectedRestaurant(currentRestaurant);
-        setTab(currentRestaurant.premium ? "plus" : "onlySupplier");
-        setMinHour(
-          currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(
-            11,
-            16
-          )
-        );
-        setMaxHour(
-          currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16)
-        );
+        setSelectedRestaurant(currentRestaurant)
+        setTab(currentRestaurant.premium ? 'plus' : 'onlySupplier')
+        setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16))
+        setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16))
 
-        await loadPrices();
-        const hours = [];
+        await loadPrices()
+        const hours = []
         for (let hour = 0; hour < 22; hour++) {
-          hours.push(`${String(hour).padStart(2, "0")}:00`);
-          hours.push(`${String(hour).padStart(2, "0")}:30`);
+          hours.push(`${String(hour).padStart(2, '0')}:00`)
+          hours.push(`${String(hour).padStart(2, '0')}:30`)
         }
-        hours.push("22:00");
-        setMinhours(hours);
+        hours.push('22:00')
+        setMinhours(hours)
       } catch (err) {
-        console.error(err);
+        console.error(err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    loadPricesAsync();
-  }, [loadPrices]);
+    loadPricesAsync()
+  }, [loadPrices])
 
   const updateAddress = async (rest: any) => {
     try {
-      setLoading(true);
-      setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15));
-      setSelectedRestaurant(rest);
-      await loadPrices(rest);
+      setLoading(true)
+      setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
+      setSelectedRestaurant(rest)
+      await loadPrices(rest)
     } catch (err) {
-      console.error(err);
+      console.error(err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const combinedSuppliers = useMemo(() => {
-    const itens: any[] = [];
+    const itens: any[] = []
 
-    const filteredSuppliers = suppliers.filter(
-      (item) => item.supplier.hour.substring(0, 5) !== "06:00"
-    );
+    const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
 
-    const filteredUnavailableSuppliers = unavailableSupplier; /* .filter(
+    const filteredUnavailableSuppliers = unavailableSupplier /* .filter(
       (item) => item.supplier.hour.substring(0, 5) !== "06:00"
     ); */
 
-    if (filteredSuppliers.length) itens.push({ initialSeparator: true });
-    itens.push(
-      ...filteredSuppliers.map((item) => ({ ...item, available: true }))
-    );
+    if (filteredSuppliers.length) itens.push({ initialSeparator: true })
+    itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
 
-    if (filteredUnavailableSuppliers.length) itens.push({ separator: true });
+    if (filteredUnavailableSuppliers.length) itens.push({ separator: true })
     itens.push(
       ...filteredUnavailableSuppliers.map((item) => ({
         ...item,
-        available: false,
+        available: false
       }))
-    );
+    )
 
-    return itens;
-  }, [suppliers, unavailableSupplier]);
+    return itens
+  }, [suppliers, unavailableSupplier])
 
   useEffect(() => {
     if (selectedRestaurant) {
-      const addressInfo =
-        selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0];
+      const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0]
 
-      setTab(selectedRestaurant.premium ? "plus" : "onlySupplier");
+      setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier')
 
       if (addressInfo) {
-        setNeighborhood(addressInfo.neighborhood);
-        setCity(addressInfo.city);
-        setLocalType(addressInfo.localType);
-        setLocalNumber(addressInfo.localNumber);
-        setResponsibleReceivingName(addressInfo.responsibleReceivingName);
-        setResponsibleReceivingPhoneNumber(
-          addressInfo.responsibleReceivingPhoneNumber
-        );
-        setZipCode(
-          addressInfo.zipCode
-            .replace(/\D/g, "")
-            .replace(/(\d{5})(\d{3})/, "$1-$2")
-        );
-        setStreet(addressInfo.address);
-        setComplement(addressInfo.complement);
-        setDeliveryInformation(addressInfo.deliveryInformation);
-        setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16));
-        setMinHour(addressInfo.initialDeliveryTime.substring(11, 16));
+        setNeighborhood(addressInfo.neighborhood)
+        setCity(addressInfo.city)
+        setLocalType(addressInfo.localType)
+        setLocalNumber(addressInfo.localNumber)
+        setResponsibleReceivingName(addressInfo.responsibleReceivingName)
+        setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
+        setZipCode(addressInfo.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
+        setStreet(addressInfo.address)
+        setComplement(addressInfo.complement)
+        setDeliveryInformation(addressInfo.deliveryInformation)
+        setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16))
+        setMinHour(addressInfo.initialDeliveryTime.substring(11, 16))
       } else {
-        console.log("Address info not found for the selected restaurant");
+        console.log('Address info not found for the selected restaurant')
       }
 
-      setLoading(false);
+      setLoading(false)
     }
-  }, [selectedRestaurant]);
+  }, [selectedRestaurant])
 
-  const getItem = (data: SupplierData[], index: number) => data[index];
-  const getItemCount = (data: SupplierData[]) => data.length;
+  const getItem = (data: SupplierData[], index: number) => data[index]
+  const getItemCount = (data: SupplierData[]) => data.length
   const renderItem = ({ item }: { item: any }) => {
     if (item.separator) {
       return (
-        <Text
-          style={{ paddingLeft: Platform.OS === "web" ? "20.7vw" : "" }}
-          pb={10}
-          pt={30}
-          opacity={60}
-          fontSize={16}
-        >
+        <Text style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }} pb={10} pt={30} opacity={60} fontSize={16}>
           Fornecedores indisponíveis
         </Text>
-      );
+      )
     }
     if (item.initialSeparator) {
       return (
-        <Text
-          style={{ paddingLeft: Platform.OS === "web" ? "20.7vw" : "" }}
-          pb={5}
-          opacity={60}
-          mt={10}
-          fontSize={16}
-        >
+        <Text style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }} pb={5} opacity={60} mt={10} fontSize={16}>
           Fornecedores disponíveis
         </Text>
-      );
+      )
     }
-    return (
-      <SupplierBox
-        supplier={item}
-        star={item.star}
-        available={item.available}
-        selectedRestaurant={selectedRestaurant}
-        goToConfirm={goToConfirm}
-      />
-    );
-  };
+    return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />
+  }
 
-  const fields = [
-    zipCode,
-    localNumber,
-    street,
-    responsibleReceivingName,
-    responsibleReceivingPhoneNumber,
-    localType,
-    city,
-    neighborhood,
-  ];
+  const fields = [zipCode, localNumber, street, responsibleReceivingName, responsibleReceivingPhoneNumber, localType, city, neighborhood]
 
   useEffect(() => {
-    const allFieldsLoaded = fields.every(
-      (field) => field !== undefined && field !== null
-    );
+    const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
 
     if (allFieldsLoaded && !hasCheckedFields) {
-      const anyFieldEmpty = fields.some((field) => !field); // verifica se há campo vazio
-      setEditInfos(anyFieldEmpty);
-      setHasCheckedFields(true);
+      const anyFieldEmpty = fields.some((field) => !field) // verifica se há campo vazio
+      setEditInfos(anyFieldEmpty)
+      setHasCheckedFields(true)
     }
-  }, [hasCheckedFields, ...fields]);
+  }, [hasCheckedFields, ...fields])
 
   const validateFields = () => {
     const fieldLabels: { [key: string]: string } = {
-      zipCode: "CEP",
-      localNumber: "Número",
-      street: "Rua",
-      responsibleReceivingName: "Nome do responsável",
-      responsibleReceivingPhoneNumber: "Telefone do responsável",
-      localType: "Logradouro",
-      city: "Cidade",
-      neighborhood: "Bairro",
-    };
+      zipCode: 'CEP',
+      localNumber: 'Número',
+      street: 'Rua',
+      responsibleReceivingName: 'Nome do responsável',
+      responsibleReceivingPhoneNumber: 'Telefone do responsável',
+      localType: 'Logradouro',
+      city: 'Cidade',
+      neighborhood: 'Bairro'
+    }
 
     const fields: Record<string, string | undefined> = {
       zipCode,
@@ -733,22 +558,20 @@ export function Prices({ navigation }: HomeScreenProps) {
       responsibleReceivingPhoneNumber,
       localType,
       city,
-      neighborhood,
-    };
-
-    const requiredFields = Object.values(fields);
-    const isValid = requiredFields.every((field) => field?.trim());
-
-    if (!isValid) {
-      const emptyFields = Object.keys(fields).filter(
-        (key) => !fields[key]?.trim()
-      );
-      setMissingFields(emptyFields.map((key) => fieldLabels[key]));
-      setIsAlertVisible(true);
+      neighborhood
     }
 
-    return isValid;
-  };
+    const requiredFields = Object.values(fields)
+    const isValid = requiredFields.every((field) => field?.trim())
+
+    if (!isValid) {
+      const emptyFields = Object.keys(fields).filter((key) => !fields[key]?.trim())
+      setMissingFields(emptyFields.map((key) => fieldLabels[key]))
+      setIsAlertVisible(true)
+    }
+
+    return isValid
+  }
 
   if (finalCotacao) {
     return (
@@ -758,7 +581,7 @@ export function Prices({ navigation }: HomeScreenProps) {
           Cotação solicitada, fique de olho no Whatsapp
         </Text>
       </View>
-    );
+    )
   }
 
   if (loading || loadingSuppliers) {
@@ -772,25 +595,19 @@ export function Prices({ navigation }: HomeScreenProps) {
             </Text>
           </>
         ) : (
-          ""
+          ''
         )}
       </View>
-    );
+    )
   }
 
   return (
     <Stack pt={20} backgroundColor="white" height="100%" position="relative">
       <View height={50} flex={1} paddingTop={20}>
-        <View
-          pb={20}
-          alignItems="center"
-          paddingLeft={20}
-          paddingRight={20}
-          flexDirection="row"
-        >
+        <View pb={20} alignItems="center" paddingLeft={20} paddingRight={20} flexDirection="row">
           <Icons
             onPress={() => {
-              navigation.replace("Cart");
+              navigation.replace('Cart')
             }}
             size={25}
             name="chevron-back"
@@ -799,19 +616,12 @@ export function Prices({ navigation }: HomeScreenProps) {
             Cotações
           </Text>
         </View>
-        <View
-          borderRadius={50}
-          flexDirection="row"
-          justifyContent="space-between"
-          height={50}
-          width={Platform.OS === "web" ? "70vw" : ""}
-          alignSelf="center"
-        >
+        <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50} width={Platform.OS === 'web' ? '70vw' : ''} alignSelf="center">
           <View
             disabled={!selectedRestaurant.premium}
             opacity={selectedRestaurant.premium ? 1 : 0.4}
             onPress={() => {
-              setTab("plus");
+              setTab('plus')
             }}
             cursor="pointer"
             hoverStyle={{ opacity: 0.75 }}
@@ -819,17 +629,12 @@ export function Prices({ navigation }: HomeScreenProps) {
             alignItems="center"
             justifyContent="center"
           >
-            <Text color={tab === "plus" ? "#04BF7B" : "gray"}>Conéctar+</Text>
-            <View
-              mt={10}
-              h={1}
-              width="100%"
-              backgroundColor={tab === "plus" ? "#04BF7B" : "white"}
-            ></View>
+            <Text color={tab === 'plus' ? '#04BF7B' : 'gray'}>Conéctar+</Text>
+            <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? '#04BF7B' : 'white'}></View>
           </View>
           <View
             onPress={() => {
-              setTab("onlySupplier");
+              setTab('onlySupplier')
             }}
             cursor="pointer"
             hoverStyle={{ opacity: 0.75 }}
@@ -837,84 +642,41 @@ export function Prices({ navigation }: HomeScreenProps) {
             alignItems="center"
             justifyContent="center"
           >
-            <Text color={tab === "plus" ? "gray" : "#04BF7B"}>
-              Por fornecedor
-            </Text>
-            <View
-              mt={10}
-              h={1}
-              width="100%"
-              backgroundColor={tab === "plus" ? "white" : "#04BF7B"}
-            ></View>
+            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>Por fornecedor</Text>
+            <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}></View>
           </View>
         </View>
 
         <View backgroundColor="white" flex={1} paddingHorizontal={5}>
           <View p={10} paddingTop={0} height="100%">
-            {tab === "onlySupplier" && (
-              <VirtualizedList
-                style={{ marginBottom: 5, flexGrow: 1 }}
-                data={combinedSuppliers}
-                getItemCount={getItemCount}
-                getItem={getItem}
-                keyExtractor={(item, index) =>
-                  item.supplier ? item.supplier.name : `separator-${index}`
-                }
-                renderItem={renderItem}
-                ItemSeparatorComponent={() => <View height={2} />}
-                initialNumToRender={10}
-                windowSize={4}
-                scrollEnabled={true}
-              />
-            )}
-            {tab !== "onlySupplier" && (
+            {tab === 'onlySupplier' && <VirtualizedList style={{ marginBottom: 5, flexGrow: 1 }} data={combinedSuppliers} getItemCount={getItemCount} getItem={getItem} keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)} renderItem={renderItem} ItemSeparatorComponent={() => <View height={2} />} initialNumToRender={10} windowSize={4} scrollEnabled={true} />}
+            {tab !== 'onlySupplier' && (
               <View p={20} mt={10}>
-                <DialogInstanceNotification
-                  openModal={showNotification}
-                  setOpenModal={setShowNotification}
-                  title="Pronto!"
-                  subtitle="Cotação solicitada."
-                  description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação."
-                  buttonText="Ok"
-                  onConfirm={handleConfirm}
-                />
+                <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
 
                 <Button
                   backgroundColor="#04BF7B"
                   onPress={async () => {
-                    if (!validateFields()) return;
-                    console.log("premium>>>>>>>>>", selectedRestaurant);
-                    setLoading(true);
-                    const result = await fetch(
-                      `${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`,
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                          token: await getToken(),
-                          selectedRestaurant: selectedRestaurant,
-                        }),
-                      }
-                    );
-
-                    console.log(
-                      JSON.stringify({
+                    if (!validateFields()) return
+                    setLoading(true)
+                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
                         token: await getToken(),
-                        selectedRestaurant: selectedRestaurant,
+                        selectedRestaurant: selectedRestaurant
                       })
-                    );
+                    })
 
                     if (result.ok) {
-                      const teste = await result.json();
-                      console.log(teste);
-                      setLoading(false);
-                      setShowNotification(true);
+                      const teste = await result.json()
+                      setLoading(false)
+                      setShowNotification(true)
                     } else {
-                      const teste = await result.json();
-                      console.log(teste);
-                      setLoading(false);
+                      const teste = await result.json()
+                      setLoading(false)
                     }
                   }}
                 >
@@ -931,219 +693,92 @@ export function Prices({ navigation }: HomeScreenProps) {
         </View>
         <View
           onPress={() => {
-            setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
-            setCity(selectedRestaurant.addressInfos[0].city);
-            setLocalType(selectedRestaurant.addressInfos[0].localType);
-            setLocalNumber(selectedRestaurant.addressInfos[0].localNumber);
-            setResponsibleReceivingName(
-              selectedRestaurant.addressInfos[0].responsibleReceivingName
-            );
-            setResponsibleReceivingPhoneNumber(
-              selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber
-            );
-            setZipCode(
-              selectedRestaurant.addressInfos[0].zipCode
-                .replace(/\D/g, "")
-                .replace(/(\d{5})(\d{3})/, "$1-$2")
-            );
-            setStreet(selectedRestaurant.addressInfos[0].address);
-            setComplement(selectedRestaurant.addressInfos[0].complement);
-            setDeliveryInformation(
-              selectedRestaurant.addressInfos[0].deliveryInformation
-            );
-            setEditInfos(true);
+            setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)
+            setCity(selectedRestaurant.addressInfos[0].city)
+            setLocalType(selectedRestaurant.addressInfos[0].localType)
+            setLocalNumber(selectedRestaurant.addressInfos[0].localNumber)
+            setResponsibleReceivingName(selectedRestaurant.addressInfos[0].responsibleReceivingName)
+            setResponsibleReceivingPhoneNumber(selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber)
+            setZipCode(selectedRestaurant.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
+            setStreet(selectedRestaurant.addressInfos[0].address)
+            setComplement(selectedRestaurant.addressInfos[0].complement)
+            setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation)
+            setEditInfos(true)
           }}
           backgroundColor="white"
           paddingBottom={10}
           paddingTop={10}
-          width={Platform.OS === "web" ? "70%" : "92%"}
+          width={Platform.OS === 'web' ? '70%' : '92%'}
           alignSelf="center"
           borderTopColor="lightgray"
           borderTopWidth={1}
         >
           <View flexDirection="row" alignItems="center">
-            <View
-              p={10}
-              mr={10}
-              flexDirection="row"
-              f={1}
-              borderColor="lightgray"
-              borderRadius={5}
-              borderWidth={1}
-              paddingHorizontal={10}
-              backgroundColor="white"
-              alignItems="center"
-            >
+            <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
               <Icons size={20} color="#04BF7B" name="storefront"></Icons>
               <View ml={20}></View>
-              <Text
-                numberOfLines={showRestInfo ? 1 : 1}
-                ellipsizeMode="tail"
-                fontSize={12}
-                style={{ flexShrink: 1, width: "100%" }}
-              >
-                {selectedRestaurant?.name || ""}
+              <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail" fontSize={12} style={{ flexShrink: 1, width: '100%' }}>
+                {selectedRestaurant?.name || ''}
               </Text>
             </View>
-            <View
-              p={10}
-              mr={10}
-              flexDirection="row"
-              f={1}
-              borderColor="lightgray"
-              borderRadius={5}
-              borderWidth={1}
-              paddingHorizontal={10}
-              backgroundColor="white"
-              alignItems="center"
-            >
+            <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
               <Icons size={20} color="#04BF7B" name="time"></Icons>
               <View ml={20}></View>
               <Text fontSize={12}>
-                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(
-                  11,
-                  16
-                )}{" "}
-                -{" "}
-                {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(
-                  11,
-                  16
-                )}
+                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
               </Text>
             </View>
             <Icons
               size={20}
               onPress={() => {
-                setShowRestInfo(!showRestInfo);
+                setShowRestInfo(!showRestInfo)
               }}
-              name={showRestInfo ? "chevron-up" : "chevron-down"}
+              name={showRestInfo ? 'chevron-up' : 'chevron-down'}
             ></Icons>
           </View>
-          <View display={showRestInfo ? "flex" : "none"}>
+          <View display={showRestInfo ? 'flex' : 'none'}>
             <View pt={5} flexDirection="row" alignItems="center">
-              <View
-                p={10}
-                mr={10}
-                flexDirection="row"
-                f={1}
-                borderColor="lightgray"
-                borderRadius={5}
-                borderWidth={1}
-                paddingHorizontal={10}
-                backgroundColor="white"
-                alignItems="center"
-              >
+              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
                 <Icons size={20} color="#04BF7B" name="location"></Icons>
                 <View ml={20}></View>
-                <Text
-                  numberOfLines={1}
-                  overflow="scroll"
-                  ellipsizeMode="tail"
-                  fontSize={12}
-                >
-                  {selectedRestaurant.addressInfos[0].localType}{" "}
-                  {selectedRestaurant.addressInfos[0].address},{" "}
-                  {selectedRestaurant.addressInfos[0].localNumber}.{" "}
-                  {selectedRestaurant.addressInfos[0].complement} -{" "}
-                  {selectedRestaurant.addressInfos[0].neighborhood},{" "}
-                  {selectedRestaurant.addressInfos[0].city}
+                <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}
                 </Text>
               </View>
-              <View
-                p={10}
-                mr={10}
-                flexDirection="row"
-                f={2}
-                borderColor="lightgray"
-                borderRadius={5}
-                borderWidth={1}
-                paddingHorizontal={10}
-                backgroundColor="white"
-                alignItems="center"
-              >
+              <View p={10} mr={10} flexDirection="row" f={2} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
                 <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                 <View ml={20}></View>
-                <Text fontSize={12}>
-                  {selectedRestaurant.addressInfos[0].deliveryInformation}
-                </Text>
+                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
               </View>
             </View>
             <View pt={5} flexDirection="row" alignItems="center">
-              <View
-                p={10}
-                mr={10}
-                flexDirection="row"
-                f={1}
-                borderColor="lightgray"
-                borderRadius={5}
-                borderWidth={1}
-                paddingHorizontal={10}
-                backgroundColor="white"
-                alignItems="center"
-              >
+              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
                 <Icons size={20} color="#04BF7B" name="person"></Icons>
                 <View ml={20}></View>
-                <Text fontSize={12}>
-                  {selectedRestaurant.addressInfos[0].responsibleReceivingName}
-                </Text>
+                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingName}</Text>
               </View>
-              <View
-                p={10}
-                mr={10}
-                flexDirection="row"
-                f={1}
-                borderColor="lightgray"
-                borderRadius={5}
-                borderWidth={1}
-                paddingHorizontal={10}
-                backgroundColor="white"
-                alignItems="center"
-              >
+              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
                 <Icons size={20} color="#04BF7B" name="call"></Icons>
                 <View ml={20}></View>
-                <Text fontSize={12}>
-                  {
-                    selectedRestaurant.addressInfos[0]
-                      .responsibleReceivingPhoneNumber
-                  }
-                </Text>
+                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}</Text>
               </View>
             </View>
           </View>
         </View>
         {editInfos && (
-          <View
-            flex={1}
-            justifyContent="center"
-            alignItems="center"
-            backgroundColor="white"
-          >
+          <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
             <Modal transparent={true}>
               <ScrollView
                 contentContainerStyle={{
                   flex: 1,
-                  justifyContent: "center",
-                  padding: 20,
+                  justifyContent: 'center',
+                  padding: 20
                 }}
                 keyboardShouldPersistTaps="handled"
               >
-                <View
-                  flex={1}
-                  justifyContent="center"
-                  alignItems="center"
-                  backgroundColor="rgba(0, 0, 0, 0.9)"
-                >
-                  <View
-                    pb={15}
-                    paddingHorizontal={15}
-                    pt={15}
-                    minWidth={Platform.OS === "web" ? "40%" : "90%"}
-                    backgroundColor="white"
-                    borderRadius={10}
-                    justifyContent="center"
-                    zIndex={101}
-                  >
-                    {screemSize === "lg/xl" ? (
+                <View flex={1} justifyContent="center" alignItems="center" backgroundColor="rgba(0, 0, 0, 0.9)">
+                  <View pb={15} paddingHorizontal={15} pt={15} minWidth={Platform.OS === 'web' ? '40%' : '90%'} backgroundColor="white" borderRadius={10} justifyContent="center" zIndex={101}>
+                    {screemSize === 'lg/xl' ? (
                       <>
                         <Text pl={5} fontSize={12} color="gray">
                           Restaurante
@@ -1151,22 +786,18 @@ export function Prices({ navigation }: HomeScreenProps) {
                         {allRestaurants.length > 0 ? (
                           <DropDownPicker
                             listMode="SCROLLVIEW"
-                            value={
-                              draftSelectedRestaurant
-                                ? draftSelectedRestaurant.name
-                                : selectedRestaurant.name
-                            }
+                            value={draftSelectedRestaurant ? draftSelectedRestaurant.name : selectedRestaurant.name}
                             style={{
                               borderWidth: 1,
-                              borderColor: "lightgray",
+                              borderColor: 'lightgray',
                               borderRadius: 5,
                               flex: 1,
-                              marginBottom: Platform.OS === "web" ? 0 : 35,
+                              marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
-                            setValue={() => { }}
+                            setValue={() => {}}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
-                              value: item?.name,
+                              value: item?.name
                             }))}
                             multiple={false}
                             open={restOpen}
@@ -1174,25 +805,16 @@ export function Prices({ navigation }: HomeScreenProps) {
                             placeholder=""
                             onSelectItem={(value) => {
                               //setLoading(true); // Ativa o loading assim que o usuário escolhe um item
-                              const rest = allRestaurants.find(
-                                (item) => item?.name === value.value
-                              );
+                              const rest = allRestaurants.find((item) => item?.name === value.value)
                               //setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
-                              setDraftSelectedRestaurant(rest);
+                              setDraftSelectedRestaurant(rest)
                               //setLoading(false);
                             }}
                           ></DropDownPicker>
                         ) : (
                           <Text>Loading...</Text> // Ou algum placeholder
                         )}
-                        <View
-                          pt={10}
-                          gap={10}
-                          mb={Platform.OS === "web" ? 0 : 35}
-                          justifyContent="space-between"
-                          flexDirection="row"
-                          zIndex={100}
-                        >
+                        <View pt={10} gap={10} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row" zIndex={100}>
                           <View flex={1}>
                             <Text pl={5} fontSize={12} color="gray">
                               A partir de
@@ -1202,13 +824,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                               zIndex={2}
                               style={{
                                 borderWidth: 1,
-                                borderColor: "lightgray",
+                                borderColor: 'lightgray',
                                 borderRadius: 5,
-                                flex: 1,
+                                flex: 1
                               }}
                               setValue={setMinHour}
                               items={minhours.map((item) => {
-                                return { label: item, value: item };
+                                return { label: item, value: item }
                               })}
                               multiple={false}
                               open={minHourOpen}
@@ -1226,13 +848,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                               listMode="SCROLLVIEW"
                               style={{
                                 borderWidth: 1,
-                                borderColor: "lightgray",
+                                borderColor: 'lightgray',
                                 borderRadius: 5,
-                                flex: 1,
+                                flex: 1
                               }}
                               setValue={setMaxHour}
                               items={maxhours.map((item) => {
-                                return { label: item, value: item };
+                                return { label: item, value: item }
                               })}
                               multiple={false}
                               open={maxHourOpen}
@@ -1245,9 +867,9 @@ export function Prices({ navigation }: HomeScreenProps) {
                         <KeyboardAvoidingView>
                           <View
                             style={{
-                              flexDirection: "row",
+                              flexDirection: 'row',
                               gap: 10,
-                              marginBottom: 5,
+                              marginBottom: 5
                             }}
                           >
                             {/* Campo CEP */}
@@ -1257,7 +879,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   paddingTop: 10,
                                   paddingLeft: 5,
                                   fontSize: 12,
-                                  color: "gray",
+                                  color: 'gray'
                                 }}
                               >
                                 Cep
@@ -1268,41 +890,24 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 borderColor="lightgray"
                                 borderRadius={5}
                                 onChangeText={async (value) => {
-                                  const cleaned = value.replace(/\D/g, "");
-                                  const formatted = cleaned.replace(
-                                    /(\d{5})(\d{3})/,
-                                    "$1-$2"
-                                  );
+                                  const cleaned = value.replace(/\D/g, '')
+                                  const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2')
 
                                   if (formatted.length === 9) {
-                                    setLoading(true);
-                                    const response = await fetch(
-                                      `https://viacep.com.br/ws/${cleaned}/json/`
-                                    );
-                                    const result = await response.json();
+                                    setLoading(true)
+                                    const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
+                                    const result = await response.json()
                                     if (response.ok && !result.erro) {
-                                      setCity(result.localidade.toUpperCase());
-                                      setNeighborhood(
-                                        result.bairro.toUpperCase()
-                                      );
-                                      setLocalType(
-                                        result.logradouro
-                                          .split(" ")[0]
-                                          .toUpperCase()
-                                      );
-                                      setLocalNumber("");
-                                      setStreet(
-                                        result.logradouro
-                                          .split(" ")
-                                          .slice(1)
-                                          .join(" ")
-                                          .toUpperCase()
-                                      );
+                                      setCity(result.localidade.toUpperCase())
+                                      setNeighborhood(result.bairro.toUpperCase())
+                                      setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                      setLocalNumber('')
+                                      setStreet(result.logradouro.split(' ').slice(1).join(' ').toUpperCase())
                                     }
-                                    setLoading(false);
+                                    setLoading(false)
                                   }
 
-                                  setZipCode(formatted);
+                                  setZipCode(formatted)
                                 }}
                                 value={zipCode}
                               />
@@ -1322,12 +927,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   borderRadius={5}
                                   value={city}
                                   focusStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                   hoverStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                 />
                               </KeyboardAvoidingView>
@@ -1349,70 +954,66 @@ export function Prices({ navigation }: HomeScreenProps) {
                               borderRadius={5}
                               value={neighborhood}
                               focusStyle={{
-                                borderColor: "#049A63",
-                                borderWidth: 1,
+                                borderColor: '#049A63',
+                                borderWidth: 1
                               }}
                               hoverStyle={{
-                                borderColor: "#049A63",
-                                borderWidth: 1,
+                                borderColor: '#049A63',
+                                borderWidth: 1
                               }}
                             />
                           </KeyboardAvoidingView>
                         </View>
-                        <View
-                          flexDirection="row"
-                          mt={10}
-                          gap={Platform.OS === "web" ? 10 : 50}
-                        >
+                        <View flexDirection="row" mt={10} gap={Platform.OS === 'web' ? 10 : 50}>
                           {/* Campo Logradouro */}
                           <View zIndex={1} style={{ width: 150 }}>
                             <Text
                               style={{
                                 paddingLeft: 5,
                                 fontSize: 12,
-                                color: "gray",
+                                color: 'gray'
                               }}
                             >
                               Logradouro
                             </Text>
                             <DropDownPicker
-                              value={localType ?? "RUA"}
+                              value={localType ?? 'RUA'}
                               style={{
                                 borderWidth: 1,
-                                borderColor: "lightgray",
-                                borderRadius: 5,
+                                borderColor: 'lightgray',
+                                borderRadius: 5
                               }}
                               listMode="SCROLLVIEW"
                               setValue={setLocalType}
                               items={[
-                                { label: "ALAMEDA", value: "ALAMEDA" },
-                                { label: "AVENIDA", value: "AVENIDA" },
-                                { label: "BECO", value: "BECO" },
-                                { label: "BOULEVARD", value: "BOULEVARD" },
-                                { label: "CAMINHO", value: "CAMINHO" },
-                                { label: "CHÁCARA", value: "CHÁCARA" },
-                                { label: "CIRCUITO", value: "CIRCUITO" },
-                                { label: "CONJUNTO", value: "CONJUNTO" },
-                                { label: "EIXO", value: "EIXO" },
-                                { label: "ESTAÇÃO", value: "ESTAÇÃO" },
-                                { label: "ESTRADA", value: "ESTRADA" },
-                                { label: "FAVELA", value: "FAVELA" },
-                                { label: "JARDIM", value: "JARDIM" },
-                                { label: "LADEIRA", value: "LADEIRA" },
-                                { label: "LARGO", value: "LARGO" },
-                                { label: "PARQUE", value: "PARQUE" },
-                                { label: "PASSARELA", value: "PASSARELA" },
-                                { label: "PASSEIO", value: "PASSEIO" },
-                                { label: "PRAÇA", value: "PRAÇA" },
-                                { label: "QUADRA", value: "QUADRA" },
-                                { label: "RAMPA", value: "RAMPA" },
-                                { label: "RODOVIA", value: "RODOVIA" },
-                                { label: "RUA", value: "RUA" },
-                                { label: "TRAVESSA", value: "TRAVESSA" },
-                                { label: "VIA", value: "VIA" },
-                                { label: "VIADUTO", value: "VIADUTO" },
-                                { label: "VIELA", value: "VIELA" },
-                                { label: "VILA", value: "VILA" },
+                                { label: 'ALAMEDA', value: 'ALAMEDA' },
+                                { label: 'AVENIDA', value: 'AVENIDA' },
+                                { label: 'BECO', value: 'BECO' },
+                                { label: 'BOULEVARD', value: 'BOULEVARD' },
+                                { label: 'CAMINHO', value: 'CAMINHO' },
+                                { label: 'CHÁCARA', value: 'CHÁCARA' },
+                                { label: 'CIRCUITO', value: 'CIRCUITO' },
+                                { label: 'CONJUNTO', value: 'CONJUNTO' },
+                                { label: 'EIXO', value: 'EIXO' },
+                                { label: 'ESTAÇÃO', value: 'ESTAÇÃO' },
+                                { label: 'ESTRADA', value: 'ESTRADA' },
+                                { label: 'FAVELA', value: 'FAVELA' },
+                                { label: 'JARDIM', value: 'JARDIM' },
+                                { label: 'LADEIRA', value: 'LADEIRA' },
+                                { label: 'LARGO', value: 'LARGO' },
+                                { label: 'PARQUE', value: 'PARQUE' },
+                                { label: 'PASSARELA', value: 'PASSARELA' },
+                                { label: 'PASSEIO', value: 'PASSEIO' },
+                                { label: 'PRAÇA', value: 'PRAÇA' },
+                                { label: 'QUADRA', value: 'QUADRA' },
+                                { label: 'RAMPA', value: 'RAMPA' },
+                                { label: 'RODOVIA', value: 'RODOVIA' },
+                                { label: 'RUA', value: 'RUA' },
+                                { label: 'TRAVESSA', value: 'TRAVESSA' },
+                                { label: 'VIA', value: 'VIA' },
+                                { label: 'VIADUTO', value: 'VIADUTO' },
+                                { label: 'VIELA', value: 'VIELA' },
+                                { label: 'VILA', value: 'VILA' }
                               ]}
                               multiple={false}
                               open={localTypeOpen}
@@ -1425,7 +1026,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               style={{
                                 paddingLeft: 5,
                                 fontSize: 12,
-                                color: "gray",
+                                color: 'gray'
                               }}
                             >
                               Rua
@@ -1433,11 +1034,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                             <KeyboardAvoidingView>
                               <Input
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(
-                                    /[^A-Za-z\s]/g,
-                                    ""
-                                  );
-                                  setStreet(formattedValue);
+                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                                  setStreet(formattedValue)
                                 }}
                                 backgroundColor="white"
                                 borderColor="lightgray"
@@ -1446,12 +1044,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 borderBottomLeftRadius={0}
                                 value={street}
                                 focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1465,8 +1063,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                           gap={10}
                           justifyContent="space-between"
                           style={{
-                            flexDirection:
-                              Platform.OS === "web" ? "row" : "column",
+                            flexDirection: Platform.OS === 'web' ? 'row' : 'column'
                           }}
                         >
                           <View flex={1}>
@@ -1484,19 +1081,16 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 value={localNumber}
                                 keyboardType="numeric"
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(
-                                    /[^0-9]/g,
-                                    ""
-                                  );
-                                  setLocalNumber(formattedValue);
+                                  const formattedValue = value.replace(/[^0-9]/g, '')
+                                  setLocalNumber(formattedValue)
                                 }}
                                 focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1515,28 +1109,21 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 borderRadius={5}
                                 value={complement}
                                 onChangeText={(value) => {
-                                  setComplement(value);
+                                  setComplement(value)
                                 }}
                                 focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                               />
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                        <View
-                          zIndex={-1}
-                          height={70}
-                          pt={10}
-                          gap={10}
-                          justifyContent="space-between"
-                          flexDirection="row"
-                        >
+                        <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
                           <View flex={1}>
                             <Text pl={5} fontSize={12} color="gray">
                               Resp. recebimento <Text color="red">*</Text>
@@ -1551,19 +1138,16 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 value={responsibleReceivingName}
                                 onChangeText={(value) => {
                                   // Remove todos os caracteres que não sejam letras ou espaços
-                                  const formattedValue = value.replace(
-                                    /[^A-Za-z\s]/g,
-                                    ""
-                                  );
-                                  setResponsibleReceivingName(formattedValue);
+                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                                  setResponsibleReceivingName(formattedValue)
                                 }}
                                 focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1583,56 +1167,38 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 value={responsibleReceivingPhoneNumber}
                                 keyboardType="phone-pad"
                                 focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 onChangeText={(value) => {
                                   // Remove todos os caracteres que não sejam dígitos
-                                  let onlyNums = value.replace(/\D/g, "");
+                                  let onlyNums = value.replace(/\D/g, '')
 
                                   if (onlyNums.length > 10) {
                                     // Formato moderno (celular): (XX) XXXXX-XXXX
-                                    onlyNums = onlyNums.replace(
-                                      /(\d{2})(\d{5})(\d{0,4})/,
-                                      "($1) $2-$3"
-                                    );
+                                    onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
                                   } else if (onlyNums.length > 6) {
                                     // Formato convencional (fixo): (XX) XXXX-XXXX
-                                    onlyNums = onlyNums.replace(
-                                      /(\d{2})(\d{4})(\d{0,4})/,
-                                      "($1) $2-$3"
-                                    );
+                                    onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
                                   } else if (onlyNums.length > 2) {
                                     // Formato parcial: (XX) XXXX
-                                    onlyNums = onlyNums.replace(
-                                      /(\d{2})(\d{0,4})/,
-                                      "($1) $2"
-                                    );
+                                    onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
                                   } else if (onlyNums.length > 0) {
                                     // Formato parcial: (XX
-                                    onlyNums = onlyNums.replace(
-                                      /(\d{0,2})/,
-                                      "($1"
-                                    );
+                                    onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
                                   }
 
-                                  setResponsibleReceivingPhoneNumber(onlyNums);
+                                  setResponsibleReceivingPhoneNumber(onlyNums)
                                 }}
                               />
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                        <View
-                          height={70}
-                          pt={10}
-                          gap={5}
-                          justifyContent="space-between"
-                          flexDirection="row"
-                        >
+                        <View height={70} pt={10} gap={5} justifyContent="space-between" flexDirection="row">
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
                               <Text pl={5} fontSize={12} color="gray">
@@ -1646,15 +1212,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 borderRadius={5}
                                 value={deliveryInformation}
                                 onChangeText={(value) => {
-                                  setDeliveryInformation(value);
+                                  setDeliveryInformation(value)
                                 }}
                                 focusStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                                 hoverStyle={{
-                                  borderColor: "#049A63",
-                                  borderWidth: 1,
+                                  borderColor: '#049A63',
+                                  borderWidth: 1
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1671,44 +1237,32 @@ export function Prices({ navigation }: HomeScreenProps) {
                             {allRestaurants.length > 0 ? (
                               <DropDownPicker
                                 listMode="SCROLLVIEW"
-                                value={
-                                  draftSelectedRestaurant?.name ??
-                                  selectedRestaurant?.name
-                                }
+                                value={draftSelectedRestaurant?.name ?? selectedRestaurant?.name}
                                 style={{
                                   borderWidth: 1,
-                                  borderColor: "lightgray",
+                                  borderColor: 'lightgray',
                                   borderRadius: 5,
                                   flex: 1,
-                                  marginBottom: Platform.OS === "web" ? 0 : 5,
+                                  marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
-                                setValue={() => { }}
+                                setValue={() => {}}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
-                                  value: item?.name,
+                                  value: item?.name
                                 }))}
                                 multiple={false}
                                 open={restOpen}
                                 setOpen={setRestOpen}
                                 placeholder=""
                                 onSelectItem={(value) => {
-                                  const rest = allRestaurants.find(
-                                    (item) => item?.name === value.value
-                                  );
-                                  setDraftSelectedRestaurant(rest); // Mudança para atualizar apenas o draftRestaurant ao clicar em telas menores
+                                  const rest = allRestaurants.find((item) => item?.name === value.value)
+                                  setDraftSelectedRestaurant(rest) // Mudança para atualizar apenas o draftRestaurant ao clicar em telas menores
                                 }}
                               ></DropDownPicker>
                             ) : (
                               <Text>Loading...</Text> // Ou algum placeholder
                             )}
-                            <View
-                              pt={5}
-                              gap={10}
-                              mb={Platform.OS === "web" ? 0 : 0}
-                              justifyContent="space-between"
-                              flexDirection="row"
-                              zIndex={100}
-                            >
+                            <View pt={5} gap={10} mb={Platform.OS === 'web' ? 0 : 0} justifyContent="space-between" flexDirection="row" zIndex={100}>
                               <View flex={1}>
                                 <Text pl={5} fontSize={12} color="gray">
                                   A partir de
@@ -1717,13 +1271,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   value={minHour}
                                   style={{
                                     borderWidth: 1,
-                                    borderColor: "lightgray",
+                                    borderColor: 'lightgray',
                                     borderRadius: 5,
-                                    flex: 1,
+                                    flex: 1
                                   }}
                                   setValue={setMinHour}
                                   items={minhours.map((item) => {
-                                    return { label: item, value: item };
+                                    return { label: item, value: item }
                                   })}
                                   multiple={false}
                                   open={minHourOpen}
@@ -1741,13 +1295,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   listMode="SCROLLVIEW"
                                   style={{
                                     borderWidth: 1,
-                                    borderColor: "lightgray",
+                                    borderColor: 'lightgray',
                                     borderRadius: 5,
-                                    flex: 1,
+                                    flex: 1
                                   }}
                                   setValue={setMaxHour}
                                   items={maxhours.map((item) => {
-                                    return { label: item, value: item };
+                                    return { label: item, value: item }
                                   })}
                                   multiple={false}
                                   open={maxHourOpen}
@@ -1759,16 +1313,16 @@ export function Prices({ navigation }: HomeScreenProps) {
 
                             <View
                               style={{
-                                flexDirection: "row",
-                                flexWrap: "wrap", // permite quebra de linha
+                                flexDirection: 'row',
+                                flexWrap: 'wrap' // permite quebra de linha
                               }}
                             >
                               {/* Campo CEP */}
                               <View
                                 style={{
-                                  flexBasis: "45%",
+                                  flexBasis: '45%',
                                   minWidth: 150,
-                                  flexGrow: 1,
+                                  flexGrow: 1
                                 }}
                               >
                                 <Text
@@ -1776,7 +1330,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     paddingTop: 10,
                                     paddingLeft: 5,
                                     fontSize: 12,
-                                    color: "gray",
+                                    color: 'gray'
                                   }}
                                 >
                                   Cep
@@ -1788,43 +1342,24 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   borderColor="lightgray"
                                   borderRadius={5}
                                   onChangeText={async (value) => {
-                                    const cleaned = value.replace(/\D/g, "");
-                                    const formatted = cleaned.replace(
-                                      /(\d{5})(\d{3})/,
-                                      "$1-$2"
-                                    );
+                                    const cleaned = value.replace(/\D/g, '')
+                                    const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2')
 
                                     if (formatted.length === 9) {
-                                      setLoading(true);
-                                      const response = await fetch(
-                                        `https://viacep.com.br/ws/${cleaned}/json/`
-                                      );
-                                      const result = await response.json();
+                                      setLoading(true)
+                                      const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
+                                      const result = await response.json()
                                       if (response.ok && !result.erro) {
-                                        setCity(
-                                          result.localidade.toUpperCase()
-                                        );
-                                        setNeighborhood(
-                                          result.bairro.toUpperCase()
-                                        );
-                                        setLocalType(
-                                          result.logradouro
-                                            .split(" ")[0]
-                                            .toUpperCase()
-                                        );
-                                        setLocalNumber("");
-                                        setStreet(
-                                          result.logradouro
-                                            .split(" ")
-                                            .slice(1)
-                                            .join(" ")
-                                            .toUpperCase()
-                                        );
+                                        setCity(result.localidade.toUpperCase())
+                                        setNeighborhood(result.bairro.toUpperCase())
+                                        setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                        setLocalNumber('')
+                                        setStreet(result.logradouro.split(' ').slice(1).join(' ').toUpperCase())
                                       }
-                                      setLoading(false);
+                                      setLoading(false)
                                     }
 
-                                    setZipCode(formatted);
+                                    setZipCode(formatted)
                                   }}
                                   value={zipCode}
                                 />
@@ -1845,12 +1380,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   borderRadius={5}
                                   value={city}
                                   focusStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                   hoverStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                 />
                               </View>
@@ -1868,21 +1403,21 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   borderRadius={5}
                                   value={neighborhood}
                                   focusStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                   hoverStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                 />
                               </View>
                               <View
                                 style={{
-                                  flexDirection: "row",
-                                  flexWrap: "wrap",
+                                  flexDirection: 'row',
+                                  flexWrap: 'wrap',
                                   gap: 10,
-                                  marginBottom: 5,
+                                  marginBottom: 5
                                 }}
                               >
                                 {/* Campo Logradouro */}
@@ -1890,67 +1425,67 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   zIndex={Platform.OS === 'ios' ? 3 : 3}
                                   position="relative"
                                   style={{
-                                    flexBasis: "45%",
+                                    flexBasis: '45%',
                                     minWidth: 150,
-                                    flexGrow: 1,
+                                    flexGrow: 1
                                   }}
                                 >
                                   <Text
                                     style={{
                                       paddingLeft: 5,
                                       fontSize: 12,
-                                      color: "gray",
+                                      color: 'gray'
                                     }}
                                   >
                                     Logradouro
                                   </Text>
                                   <DropDownPicker
                                     zIndex={Platform.OS === 'ios' ? 2 : 2}
-                                    value={localType ?? "RUA"}
+                                    value={localType ?? 'RUA'}
                                     style={{
-                                      position: "relative",
+                                      position: 'relative',
                                       borderWidth: 1,
-                                      borderColor: "lightgray",
+                                      borderColor: 'lightgray',
                                       borderRadius: 5,
-                                      marginBottom: 10,
+                                      marginBottom: 10
                                     }}
                                     listMode="SCROLLVIEW"
                                     setValue={setLocalType}
                                     items={[
-                                      { label: "ALAMEDA", value: "ALAMEDA" },
-                                      { label: "AVENIDA", value: "AVENIDA" },
-                                      { label: "BECO", value: "BECO" },
+                                      { label: 'ALAMEDA', value: 'ALAMEDA' },
+                                      { label: 'AVENIDA', value: 'AVENIDA' },
+                                      { label: 'BECO', value: 'BECO' },
                                       {
-                                        label: "BOULEVARD",
-                                        value: "BOULEVARD",
+                                        label: 'BOULEVARD',
+                                        value: 'BOULEVARD'
                                       },
-                                      { label: "CAMINHO", value: "CAMINHO" },
-                                      { label: "CHÁCARA", value: "CHÁCARA" },
-                                      { label: "CIRCUITO", value: "CIRCUITO" },
-                                      { label: "CONJUNTO", value: "CONJUNTO" },
-                                      { label: "EIXO", value: "EIXO" },
-                                      { label: "ESTAÇÃO", value: "ESTAÇÃO" },
-                                      { label: "ESTRADA", value: "ESTRADA" },
-                                      { label: "FAVELA", value: "FAVELA" },
-                                      { label: "JARDIM", value: "JARDIM" },
-                                      { label: "LADEIRA", value: "LADEIRA" },
-                                      { label: "LARGO", value: "LARGO" },
-                                      { label: "PARQUE", value: "PARQUE" },
+                                      { label: 'CAMINHO', value: 'CAMINHO' },
+                                      { label: 'CHÁCARA', value: 'CHÁCARA' },
+                                      { label: 'CIRCUITO', value: 'CIRCUITO' },
+                                      { label: 'CONJUNTO', value: 'CONJUNTO' },
+                                      { label: 'EIXO', value: 'EIXO' },
+                                      { label: 'ESTAÇÃO', value: 'ESTAÇÃO' },
+                                      { label: 'ESTRADA', value: 'ESTRADA' },
+                                      { label: 'FAVELA', value: 'FAVELA' },
+                                      { label: 'JARDIM', value: 'JARDIM' },
+                                      { label: 'LADEIRA', value: 'LADEIRA' },
+                                      { label: 'LARGO', value: 'LARGO' },
+                                      { label: 'PARQUE', value: 'PARQUE' },
                                       {
-                                        label: "PASSARELA",
-                                        value: "PASSARELA",
+                                        label: 'PASSARELA',
+                                        value: 'PASSARELA'
                                       },
-                                      { label: "PASSEIO", value: "PASSEIO" },
-                                      { label: "PRAÇA", value: "PRAÇA" },
-                                      { label: "QUADRA", value: "QUADRA" },
-                                      { label: "RAMPA", value: "RAMPA" },
-                                      { label: "RODOVIA", value: "RODOVIA" },
-                                      { label: "RUA", value: "RUA" },
-                                      { label: "TRAVESSA", value: "TRAVESSA" },
-                                      { label: "VIA", value: "VIA" },
-                                      { label: "VIADUTO", value: "VIADUTO" },
-                                      { label: "VIELA", value: "VIELA" },
-                                      { label: "VILA", value: "VILA" },
+                                      { label: 'PASSEIO', value: 'PASSEIO' },
+                                      { label: 'PRAÇA', value: 'PRAÇA' },
+                                      { label: 'QUADRA', value: 'QUADRA' },
+                                      { label: 'RAMPA', value: 'RAMPA' },
+                                      { label: 'RODOVIA', value: 'RODOVIA' },
+                                      { label: 'RUA', value: 'RUA' },
+                                      { label: 'TRAVESSA', value: 'TRAVESSA' },
+                                      { label: 'VIA', value: 'VIA' },
+                                      { label: 'VIADUTO', value: 'VIADUTO' },
+                                      { label: 'VIELA', value: 'VIELA' },
+                                      { label: 'VILA', value: 'VILA' }
                                     ]}
                                     multiple={false}
                                     open={localTypeOpen}
@@ -1958,15 +1493,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     placeholder=""
                                   />
                                 </View>
-                                <View
-                                  flex={1}
-                                  zIndex={Platform.OS === 'ios' ? 1 : 1}
-                                  position="relative">
+                                <View flex={1} zIndex={Platform.OS === 'ios' ? 1 : 1} position="relative">
                                   <Text
                                     style={{
                                       paddingLeft: 5,
                                       fontSize: 12,
-                                      color: "gray",
+                                      color: 'gray'
                                     }}
                                   >
                                     Rua
@@ -1974,11 +1506,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   <KeyboardAvoidingView>
                                     <Input
                                       onChangeText={(value) => {
-                                        const formattedValue = value.replace(
-                                          /[^A-Za-z\s]/g,
-                                          ""
-                                        );
-                                        setStreet(formattedValue);
+                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                                        setStreet(formattedValue)
                                       }}
                                       marginBottom={10}
                                       backgroundColor="white"
@@ -1988,12 +1517,12 @@ export function Prices({ navigation }: HomeScreenProps) {
                                       borderBottomLeftRadius={0}
                                       value={street}
                                       focusStyle={{
-                                        borderColor: "#049A63",
-                                        borderWidth: 1,
+                                        borderColor: '#049A63',
+                                        borderWidth: 1
                                       }}
                                       hoverStyle={{
-                                        borderColor: "#049A63",
-                                        borderWidth: 1,
+                                        borderColor: '#049A63',
+                                        borderWidth: 1
                                       }}
                                     />
                                   </KeyboardAvoidingView>
@@ -2001,18 +1530,8 @@ export function Prices({ navigation }: HomeScreenProps) {
                               </View>
                             </View>
 
-                            <View
-                              zIndex={-1}
-                              height={70}
-                              pt={10}
-                              gap={10}
-                              justifyContent="space-between"
-                              flexDirection="row"
-                            >
-                              <View
-                                flex={1}
-                                position="relative"
-                              >
+                            <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                              <View flex={1} position="relative">
                                 <Text pl={5} fontSize={12} color="gray">
                                   Nº
                                 </Text>
@@ -2025,27 +1544,21 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   value={localNumber}
                                   keyboardType="numeric"
                                   onChangeText={(value) => {
-                                    const formattedValue = value.replace(
-                                      /[^0-9]/g,
-                                      ""
-                                    );
-                                    setLocalNumber(formattedValue);
+                                    const formattedValue = value.replace(/[^0-9]/g, '')
+                                    setLocalNumber(formattedValue)
                                   }}
                                   focusStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                   hoverStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                 />
                               </View>
 
-                              <View
-                                flex={1}
-                                position="relative"
-                              >
+                              <View flex={1} position="relative">
                                 <Text pl={5} fontSize={12} color="gray">
                                   Complemento
                                 </Text>
@@ -2057,27 +1570,20 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   borderRadius={5}
                                   value={complement}
                                   onChangeText={(value) => {
-                                    setComplement(value);
+                                    setComplement(value)
                                   }}
                                   focusStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                   hoverStyle={{
-                                    borderColor: "#049A63",
-                                    borderWidth: 1,
+                                    borderColor: '#049A63',
+                                    borderWidth: 1
                                   }}
                                 />
                               </View>
                             </View>
-                            <View
-                              zIndex={-1}
-                              height={70}
-                              pt={10}
-                              gap={10}
-                              justifyContent="space-between"
-                              flexDirection="row"
-                            >
+                            <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
                               <View flex={1}>
                                 <Text pl={5} fontSize={12} color="gray">
                                   Resp. recebimento <Text color="red">*</Text>
@@ -2092,29 +1598,23 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     value={responsibleReceivingName}
                                     onChangeText={(value) => {
                                       // Remove todos os caracteres que não sejam letras ou espaços
-                                      const formattedValue = value.replace(
-                                        /[^A-Za-z\s]/g,
-                                        ""
-                                      );
-                                      setResponsibleReceivingName(
-                                        formattedValue
-                                      );
+                                      const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                                      setResponsibleReceivingName(formattedValue)
                                     }}
                                     focusStyle={{
-                                      borderColor: "#049A63",
-                                      borderWidth: 1,
+                                      borderColor: '#049A63',
+                                      borderWidth: 1
                                     }}
                                     hoverStyle={{
-                                      borderColor: "#049A63",
-                                      borderWidth: 1,
+                                      borderColor: '#049A63',
+                                      borderWidth: 1
                                     }}
                                   />
                                 </KeyboardAvoidingView>
                               </View>
                               <View flex={1}>
                                 <Text pl={5} fontSize={12} color="gray">
-                                  Cel Resp. recebimento{" "}
-                                  <Text color="red">*</Text>
+                                  Cel Resp. recebimento <Text color="red">*</Text>
                                 </Text>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                   <Input
@@ -2127,58 +1627,38 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     value={responsibleReceivingPhoneNumber}
                                     keyboardType="phone-pad"
                                     focusStyle={{
-                                      borderColor: "#049A63",
-                                      borderWidth: 1,
+                                      borderColor: '#049A63',
+                                      borderWidth: 1
                                     }}
                                     hoverStyle={{
-                                      borderColor: "#049A63",
-                                      borderWidth: 1,
+                                      borderColor: '#049A63',
+                                      borderWidth: 1
                                     }}
                                     onChangeText={(value) => {
                                       // Remove todos os caracteres que não sejam dígitos
-                                      let onlyNums = value.replace(/\D/g, "");
+                                      let onlyNums = value.replace(/\D/g, '')
 
                                       if (onlyNums.length > 10) {
                                         // Formato moderno (celular): (XX) XXXXX-XXXX
-                                        onlyNums = onlyNums.replace(
-                                          /(\d{2})(\d{5})(\d{0,4})/,
-                                          "($1) $2-$3"
-                                        );
+                                        onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
                                       } else if (onlyNums.length > 6) {
                                         // Formato convencional (fixo): (XX) XXXX-XXXX
-                                        onlyNums = onlyNums.replace(
-                                          /(\d{2})(\d{4})(\d{0,4})/,
-                                          "($1) $2-$3"
-                                        );
+                                        onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
                                       } else if (onlyNums.length > 2) {
                                         // Formato parcial: (XX) XXXX
-                                        onlyNums = onlyNums.replace(
-                                          /(\d{2})(\d{0,4})/,
-                                          "($1) $2"
-                                        );
+                                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
                                       } else if (onlyNums.length > 0) {
                                         // Formato parcial: (XX
-                                        onlyNums = onlyNums.replace(
-                                          /(\d{0,2})/,
-                                          "($1"
-                                        );
+                                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
                                       }
 
-                                      setResponsibleReceivingPhoneNumber(
-                                        onlyNums
-                                      );
+                                      setResponsibleReceivingPhoneNumber(onlyNums)
                                     }}
                                   />
                                 </KeyboardAvoidingView>
                               </View>
                             </View>
-                            <View
-                              height={70}
-                              pt={10}
-                              gap={5}
-                              justifyContent="space-between"
-                              flexDirection="row"
-                            >
+                            <View height={70} pt={10} gap={5} justifyContent="space-between" flexDirection="row">
                               <View flex={1}>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                   <Text pl={5} fontSize={12} color="gray">
@@ -2192,15 +1672,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     borderRadius={5}
                                     value={deliveryInformation}
                                     onChangeText={(value) => {
-                                      setDeliveryInformation(value);
+                                      setDeliveryInformation(value)
                                     }}
                                     focusStyle={{
-                                      borderColor: "#049A63",
-                                      borderWidth: 1,
+                                      borderColor: '#049A63',
+                                      borderWidth: 1
                                     }}
                                     hoverStyle={{
-                                      borderColor: "#049A63",
-                                      borderWidth: 1,
+                                      borderColor: '#049A63',
+                                      borderWidth: 1
                                     }}
                                   />
                                 </KeyboardAvoidingView>
@@ -2211,17 +1691,11 @@ export function Prices({ navigation }: HomeScreenProps) {
                       </>
                     )}
 
-                    <View
-                      height={70}
-                      pt={15}
-                      gap={5}
-                      justifyContent="space-between"
-                      flexDirection="row"
-                    >
+                    <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                       <Button
                         onPress={() => {
-                          setEditInfos(false);
-                          setDraftSelectedRestaurant(null);
+                          setEditInfos(false)
+                          setDraftSelectedRestaurant(null)
                         }}
                         backgroundColor="black"
                         flex={1}
@@ -2231,65 +1705,46 @@ export function Prices({ navigation }: HomeScreenProps) {
                         </Text>
                       </Button>
                       <Button
-                        {...(zipCode?.length === 9 &&
-                          localNumber?.length &&
-                          street?.length &&
-                          responsibleReceivingName?.length &&
-                          responsibleReceivingPhoneNumber?.length &&
-                          localType?.length &&
-                          city?.length
-                          ? {}
-                          : { opacity: 0.4, disabled: true })}
+                        {...(zipCode?.length === 9 && localNumber?.length && street?.length && responsibleReceivingName?.length && responsibleReceivingPhoneNumber?.length && localType?.length && city?.length ? {} : { opacity: 0.4, disabled: true })}
                         onPress={async () => {
-                          if (!validateFields()) return; // Valida os campos antes de prosseguir
+                          if (!validateFields()) return // Valida os campos antes de prosseguir
 
                           //setLoading(true);
-                          const rest: SelectItem =
-                            draftSelectedRestaurant ?? selectedRestaurant;
-                          const addressInfo = rest.addressInfos[0];
+                          const rest: SelectItem = draftSelectedRestaurant ?? selectedRestaurant
+                          const addressInfo = rest.addressInfos[0]
 
-                          addressInfo.neighborhood = neighborhood;
-                          addressInfo.city = city;
-                          addressInfo.localType = localType;
-                          addressInfo.localNumber = localNumber;
-                          addressInfo.responsibleReceivingName =
-                            responsibleReceivingName;
-                          addressInfo.responsibleReceivingPhoneNumber =
-                            responsibleReceivingPhoneNumber;
-                          addressInfo.zipCode = zipCode
-                            ?.replaceAll(" ", "")
-                            .replace("-", "");
-                          addressInfo.address = street;
-                          addressInfo.complement = complement;
-                          addressInfo.deliveryInformation = deliveryInformation;
-                          addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
-                          addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
+                          addressInfo.neighborhood = neighborhood
+                          addressInfo.city = city
+                          addressInfo.localType = localType
+                          addressInfo.localNumber = localNumber
+                          addressInfo.responsibleReceivingName = responsibleReceivingName
+                          addressInfo.responsibleReceivingPhoneNumber = responsibleReceivingPhoneNumber
+                          addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '')
+                          addressInfo.address = street
+                          addressInfo.complement = complement
+                          addressInfo.deliveryInformation = deliveryInformation
+                          addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`
+                          addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`
 
-                          setEditInfos(false);
+                          setEditInfos(false)
 
-                          setSelectedRestaurant(rest);
+                          setSelectedRestaurant(rest)
 
-                          setStorage(
-                            "selectedRestaurant",
-                            JSON.stringify({ restaurant: rest })
-                          );
-                          setLoadingSuppliers(true);
+                          setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }))
+                          setLoadingSuppliers(true)
                           await Promise.all([
                             loadPrices(rest),
-                            fetch(
-                              `${process.env.EXPO_PUBLIC_API_URL}/address/update`,
-                              {
-                                body: JSON.stringify({
-                                  ...rest,
-                                }),
-                                headers: {
-                                  "Content-Type": "application/json",
-                                },
-                                method: "POST",
-                              }
-                            ),
-                          ]);
-                          setLoadingSuppliers(false);
+                            fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
+                              body: JSON.stringify({
+                                ...rest
+                              }),
+                              headers: {
+                                'Content-Type': 'application/json'
+                              },
+                              method: 'POST'
+                            })
+                          ])
+                          setLoadingSuppliers(false)
                           //setLoading(false);
                         }}
                         backgroundColor="#04BF7B"
@@ -2303,28 +1758,14 @@ export function Prices({ navigation }: HomeScreenProps) {
                   </View>
                 </View>
               </ScrollView>
-              <CustomAlert
-                visible={isAlertVisible}
-                title="Campos obrigatórios"
-                message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join(
-                  "\n- "
-                )}`}
-                onConfirm={() => setIsAlertVisible(false)}
-              />
+              <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
             </Modal>
           </View>
         )}
       </View>
-      <CustomAlert
-        visible={isAlertVisible}
-        title="Campos obrigatórios"
-        message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join(
-          "\n- "
-        )}`}
-        onConfirm={() => setIsAlertVisible(false)}
-      />
+      <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
     </Stack>
-  );
+  )
 }
 
-let items: SelectItem[] = [];
+let items: SelectItem[] = []

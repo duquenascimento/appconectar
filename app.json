@@ -2,7 +2,7 @@
   "expo": {
     "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "2.2",
+    "version": "2.2.3",
     "scheme": "conectarapp",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -24,8 +24,7 @@
           "fetch",
           "remote-notification"
         ],
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications.",
-        "NSUserTrackingUsageDescription": "This app tracks your activity to improve your experience and provide personalized notifications."
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications."
       }
     },
     "android": {
