@@ -266,7 +266,7 @@ export function DialogComercialInstance(props: {
       animation="medium"
       zIndex={200000}
       modal
-      dismissOnSnapToBottom
+      disableDrag
       snapPoints={[100]} // Ocupa 100% da tela
       snapPointsMode="percent"
     >
@@ -915,6 +915,7 @@ export function Products({ navigation }: HomeScreenProps) {
 
       const cart = await result.json()
       const cartMap = new Map<string, Cart>(cart.data.map((item: Cart) => [item.productId, item]))
+      console.log("cartMap >>>>>>>", cart)
 
       // Load local cart from AsyncStorage
       // const localCartInsideString = await getStorage('cart-inside');
@@ -922,6 +923,7 @@ export function Products({ navigation }: HomeScreenProps) {
 
       const localCartString = await getStorage('cart')
       const localCart = localCartString ? new Map<string, Cart>(JSON.parse(localCartString)) : new Map()
+      console.log("localCart >>>>>>>>", localCart)
 
       // Merge local cart with server cart
       localCart.forEach((value, key) => {
