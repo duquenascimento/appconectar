@@ -13,6 +13,7 @@ import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+
 type Product = {
   name: string
   orderUnit: string
@@ -1001,32 +1002,91 @@ export function Products({ navigation }: HomeScreenProps) {
 
     // salva no servidor sempre que houver alteração
     if (cart.amount === 0 && isCart) {
-      await saveCartArray(newCart, new Map([[cart.productId, cart]]))
+      await saveCartArray(new Map([[cart.productId, cart]]))
     }
   }, [])
 
-  const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
-    const token = await getToken()
-    if (token == null) return
+const saveCartArray = useCallback(
+  async (cartsToExclude: Map<string, Cart>): Promise<void> => {
+    console.log('🚀 Iniciando saveCartArray...');
 
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+    const token = await getToken();
+    if (!token) {
+      console.warn('🚫 Token não encontrado!');
+      return;
+    }
+
+    let cartJson: string | null = null;
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        cartJson = localStorage.getItem('cart');
+        console.log('💾 [Web] Dados brutos do localStorage:', cartJson);
+      } else {
+        cartJson = await AsyncStorage.getItem('cart');
+        console.log('💾 [Native] Dados brutos do AsyncStorage:', cartJson);
+      }
+
+      if (!cartJson) {
+        console.warn('🟡 Nenhum dado encontrado no armazenamento para "cart"');
+        return;
+      }
+
+      let storedEntries: [string, Cart][];
+      try {
+        storedEntries = JSON.parse(cartJson);
+        console.log('📄 Dados parseados (entries):', storedEntries);
+      } catch (error) {
+        console.error('❌ Erro ao parsear dados do armazenamento:', error);
+        return;
+      }
+
+      const cartsArray = storedEntries.map((entry) => {
+        console.log('🔄 Mapeando entrada:', entry);
+        return entry[1]; // Retorna apenas o objeto Cart
+      });
+
+      console.log('✅ Carrinho convertido para array:', cartsArray);
+
+      if (cartsArray.length === 0) {
+        console.warn('🚫 Carrinho vazio. Nada a salvar.');
+        return;
+      }
+
+      const payload = {
         token,
-        carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values())
-      })
-    })
+        carts: cartsArray,
+        cartsToExclude: Array.from(cartsToExclude.values()),
+      };
 
-    setCartToExclude(new Map())
-  }, [])
+      console.log('📦 Dados enviados ao backend:', payload);
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Erro na resposta do servidor:', errorText);
+      } else {
+        console.log('✅ Carrinho salvo com sucesso!');
+      }
+
+      setCartToExclude(new Map());
+    } catch (error) {
+      console.error('❌ Erro ao ler do armazenamento:', error);
+    }
+  },
+  []
+);
 
   useEffect(() => {
     if (cartToExclude.size > 0) {
-      saveCartArray(cart, cartToExclude)
+      saveCartArray(cartToExclude)
     }
   }, [cartToExclude, cart, saveCartArray])
 
@@ -1564,7 +1624,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <View
             onPress={async () => {
               setLoading(true)
-              saveCartArray(cart, cartToExclude).catch(console.error) // Executa sem bloquear
+              saveCartArray(cartToExclude).catch(console.error) // Executa sem bloquear
               setLoading(false)
               navigation.replace('Orders')
             }}
@@ -1586,7 +1646,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <View
             onPress={async () => {
               setLoading(true)
-              await saveCartArray(cart, cartToExclude)
+              await saveCartArray(cartToExclude)
               await Promise.all([clearStorage(), deleteToken()])
               setLoading(false)
               navigation.replace('Sign')
@@ -1614,7 +1674,7 @@ export function Products({ navigation }: HomeScreenProps) {
         isScrolling={isScrolling}
         onPress={async () => {
           setLoading(true)
-          await saveCartArray(cart, cartToExclude)
+          await saveCartArray(cartToExclude)
           navigation.replace('Cart')
         }}
       />
