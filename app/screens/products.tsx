@@ -1000,13 +1000,11 @@ export function Products({ navigation }: HomeScreenProps) {
     await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
     console.log('📦 ->>>####save_Cart:', newCart)
 
-    // salva no servidor sempre que houver alteração somente quando for web e android
-    if(Platform.OS === 'web' || Platform.OS === 'android' ){
-      if (cart.amount === 0 && isCart) {
+
+     /* if (cart.amount === 0 && isCart) {
       console.log('📦 ->>>@@@@save_Cart:', isCart, newCart)
       await saveCartArray(newCart, new Map([[cart.productId, cart]]))
-    }
-    }
+    }*/
   }, [])
 
   const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
@@ -1029,14 +1027,11 @@ export function Products({ navigation }: HomeScreenProps) {
     //modificado aqui, adicionando dois ganchos
   }, [saveCart, loadCart, loadProducts])
 
-  useEffect(() => {
-    //Somente quando for web e android
-  if(Platform.OS === 'web' || Platform.OS === 'android' ){
+  /*useEffect(() => {
     if (cartToExclude.size > 0) {
       saveCartArray(cart, cartToExclude)
     }
-  }
-  }, [cart])
+  }, [cart])*/
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
