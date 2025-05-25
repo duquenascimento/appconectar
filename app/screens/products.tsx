@@ -72,9 +72,9 @@ type ProductBoxProps = Product & {
   secondUnit: number
   thirdUnit: number
   currentClass: string
-  obs: string // Adicione esta linha
+  obs: string 
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
-  onObsChange: (text: string) => void // Adicione esta linha
+  onObsChange: (text: string) => void
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -84,7 +84,6 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   const hideTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    // Se o carrinho estiver vazio, sempre esconde imediatamente
     if (cartSize <= 0) {
       opacity.value = withTiming(0, { duration: 250 })
       translateY.value = withTiming(50, { duration: 250 })
@@ -92,23 +91,19 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
     }
 
     if (isScrolling) {
-      // Mostra o botão imediatamente ao voltar a rolar
       if (hideTimeout.current) {
         clearTimeout(hideTimeout.current)
         hideTimeout.current = null
       }
-      // Mostra o botão imediatamente ao voltar a rolar
       opacity.value = withTiming(1, { duration: 100 })
       translateY.value = withTiming(0, { duration: 100 })
     } else {
-      // Inicia o timer para esconder depois de 2s sem scroll
       hideTimeout.current = setTimeout(() => {
         opacity.value = withTiming(0, { duration: 200 })
         translateY.value = withTiming(50, { duration: 200 })
       }, 2000)
     }
 
-    // Cancela qualquer timer pendente quando `isScrolling` muda
     return () => {
       if (hideTimeout.current) {
         clearTimeout(hideTimeout.current)
@@ -119,7 +114,7 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
-    pointerEvents: opacity.value === 1 ? 'auto' : 'none' // Só interativo quando totalmente visível
+    pointerEvents: opacity.value === 1 ? 'auto' : 'none' 
   }))
 
   if (Platform.OS === 'web') {
@@ -209,12 +204,12 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
         },
         animatedStyle
       ]}
-      pointerEvents="box-none" // Permite interação com elementos abaixo
+      pointerEvents="box-none" 
     >
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={cartSize > 0 ? onPress : undefined} // Bloqueia a ação
-        disabled={cartSize <= 0} // Desabilita o componente
+        onPress={cartSize > 0 ? onPress : undefined} 
+        disabled={cartSize <= 0}
       >
         <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
           <View>
@@ -239,120 +234,118 @@ export function DialogComercialInstance(props: {
   setRegisterInvalid: Function;
   rest: any;
   navigation: any
-}& HomeScreenProps) {
-  
-    const handleLogout = async () => {
-      try {
-        await Promise.all([clearStorage(), deleteToken()]);
-        props.navigation.replace("Sign");
-      } catch (error) {
-        console.error("Erro ao deslogar:", error);
-      }
-    };
+} & HomeScreenProps) {
+
+  const handleLogout = async () => {
+    try {
+      await Promise.all([clearStorage(), deleteToken()]);
+      props.navigation.replace("Sign");
+    } catch (error) {
+      console.error("Erro ao deslogar:", error);
+    }
+  };
 
   return (
     <Dialog
-  modal
-  open={props.openModal}
->
-  {/* Modal adaptado para ocupar tela cheia no celular */}
-  <Adapt when="sm" platform="touch">
-    <Sheet
-      animationConfig={{
-        type: "spring",
-        damping: 20,
-        mass: 0.5,
-        stiffness: 200,
-      }}
-      animation="medium"
-      zIndex={200000}
       modal
-      dismissOnSnapToBottom
-      snapPoints={[100]} // Ocupa 100% da tela
-      snapPointsMode="percent"
+      open={props.openModal}
     >
-      <Sheet.Frame padding="$4" gap="$4" flex={1}>
-        <Adapt.Contents />
-      </Sheet.Frame>
-      <Sheet.Overlay
-        animation="quickest"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-      />
-    </Sheet>
-  </Adapt>
+      <Adapt when="sm" platform="touch">
+        <Sheet
+          animationConfig={{
+            type: "spring",
+            damping: 20,
+            mass: 0.5,
+            stiffness: 200,
+          }}
+          animation="medium"
+          zIndex={200000}
+          modal
+          dismissOnSnapToBottom
+          snapPoints={[100]}
+          snapPointsMode="percent"
+        >
+          <Sheet.Frame padding="$4" gap="$4" flex={1}>
+            <Adapt.Contents />
+          </Sheet.Frame>
+          <Sheet.Overlay
+            animation="quickest"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
+        </Sheet>
+      </Adapt>
 
-  <Dialog.Portal>
-    <Dialog.Overlay
-      key="overlay"
-      animation="quick"
-      opacity={0.5}
-      enterStyle={{ opacity: 0 }}
-      exitStyle={{ opacity: 0 }}
-    />
+      <Dialog.Portal>
+        <Dialog.Overlay
+          key="overlay"
+          animation="quick"
+          opacity={0.5}
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
 
-    <Dialog.Content
-      bordered
-      elevate
-      key="content"
-      animateOnly={["transform", "opacity"]}
-      animation={[
-        "quicker",
-        {
-          opacity: {
-            overshootClamping: true,
-          },
-        },
-      ]}
-      enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-      exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-      gap="$4"
-    >
-      <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
-        <Dialog.Title textAlign="center" mx="auto">Bem vindo à Conéctar!</Dialog.Title>
-      <Dialog.Description textAlign="center">
-        Entre em contato conosco para agendar um contato rápido e começar a
-        utilizar o aplicativo!
-      </Dialog.Description>
+        <Dialog.Content
+          bordered
+          elevate
+          key="content"
+          animateOnly={["transform", "opacity"]}
+          animation={[
+            "quicker",
+            {
+              opacity: {
+                overshootClamping: true,
+              },
+            },
+          ]}
+          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
+          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+          gap="$4"
+        >
+          <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
+            <Dialog.Title textAlign="center" mx="auto">Bem vindo à Conéctar!</Dialog.Title>
+            <Dialog.Description textAlign="center">
+              Entre em contato conosco para agendar um contato rápido e começar a
+              utilizar o aplicativo!
+            </Dialog.Description>
 
-      <XStack justifyContent="center" alignSelf="center" gap="$4">
-        <Dialog.Close displayWhenAdapted asChild>
-          <Button
-            width="$20"
-            theme="active"
-            aria-label="Close"
-            backgroundColor="#04BF7B"
-            color="$white1"
-            onPress={async () => {
-              const text = encodeURIComponent(
-                `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
+            <XStack justifyContent="center" alignSelf="center" gap="$4">
+              <Dialog.Close displayWhenAdapted asChild>
+                <Button
+                  width="$20"
+                  theme="active"
+                  aria-label="Close"
+                  backgroundColor="#04BF7B"
+                  color="$white1"
+                  onPress={async () => {
+                    const text = encodeURIComponent(
+                      `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
 ${props.rest.map((item: any) => `\n- ${item.name}`)}
 
 Consegue me ajudar?`
-              )
-                .replace("!", "%21")
-                .replace("'", "%27")
-                .replace("(", "%28")
-                .replace(")", "%29")
-                .replace("*", "%2A")
+                    )
+                      .replace("!", "%21")
+                      .replace("'", "%27")
+                      .replace("(", "%28")
+                      .replace(")", "%29")
+                      .replace("*", "%2A")
 
-              await Linking.openURL(
-                `https://wa.me/5521999954372?text=${text}`
-              )
-              // Espera 2 segundos para o WhatsApp abrir antes de deslogar
-              setTimeout(() => {
-                handleLogout();
-              }, 2000);
-            }}
-          >
-            Entre em contato
-          </Button>
-        </Dialog.Close>
-      </XStack>
-      </YStack>
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog>
+                    await Linking.openURL(
+                      `https://wa.me/5521999954372?text=${text}`
+                    )
+                    setTimeout(() => {
+                      handleLogout();
+                    }, 2000);
+                  }}
+                >
+                  Entre em contato
+                </Button>
+              </Dialog.Close>
+            </XStack>
+          </YStack>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>
   );
 }
 
@@ -414,9 +407,9 @@ export function DialogFinanceInstance(props: { openModal: boolean; setRegisterIn
                 onPress={async () => {
                   const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
 ${props.rest.map(
-  (item: any) => `
+                    (item: any) => `
 - ${item.name}`
-)}
+                  )}
 
 Consegue me ajudar?`)
                     .replace('!', '%21')
@@ -484,19 +477,16 @@ const ProductBox = React.memo(
         onObsChange(cartProduct.obs)
         setValueQuant(Number(cartProduct.amount))
         if (cartProduct.obs) {
-          // Verifica se há observação
           setOpen(true)
         }
       }
     }, [cart, id])
 
     useEffect(() => {
-       if (obs) {
-        // Mantém o expand aberto se houver observação
+      if (obs) {
         setOpen(true)
       }
       saveCart({ amount: valueQuant, productId: id, obs }, isCart)
-      console.log('📦 ->>>useffect:', isCart)
     }, [obs, valueQuant, isCart, id])
 
     const handleQuantityChange = (newQuant: number) => {
@@ -517,10 +507,10 @@ const ProductBox = React.memo(
     };
 
     const handleBlur = useCallback(async () => {
-      if (obsRef.current !== obs) { // Só salva se a observação mudou
+      if (obsRef.current !== obs) {
         try {
           await addObservation(id, obs);
-          obsRef.current = obs; // Atualiza a referência
+          obsRef.current = obs;
         } catch (error) {
           console.error("Failed to save observation:", error);
         }
@@ -529,7 +519,6 @@ const ProductBox = React.memo(
 
     return (
       <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" paddingBottom={Platform.OS === 'web' ? '' : 5}>
-        {/**item da lista */}
         <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
@@ -667,7 +656,7 @@ const ProductBox = React.memo(
                   }}
                 />
                 <Text>
-                 {valueQuant} {orderUnit.replace('Unid', 'Un')}
+                  {valueQuant} {orderUnit.replace('Unid', 'Un')}
                 </Text>
                 <Icons
                   name="add"
@@ -714,7 +703,6 @@ const ProductBox = React.memo(
     )
   },
   (prevProps, nextProps) => {
-    // Função de comparação personalizada
     return prevProps.id === nextProps.id && prevProps.currentClass === nextProps.currentClass && prevProps.favorites.length === nextProps.favorites.length && prevProps.cart.size === nextProps.cart.size
   }
 )
@@ -834,7 +822,7 @@ export function Products({ navigation }: HomeScreenProps) {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDisplayedCartSize(cart.size)
-    }, 100) // pequeno atraso para garantir consistência
+    }, 100)
 
     return () => clearTimeout(timeout)
   }, [cart.size])
@@ -891,7 +879,7 @@ export function Products({ navigation }: HomeScreenProps) {
       if (!result.ok) return []
       const favorites = await result.json()
       if (favorites.data.length < 1) return []
-      return favorites.data // Ajuste conforme a estrutura de resposta da sua API
+      return favorites.data
     } catch (error) {
       console.error('Erro ao carregar favoritos:', error)
       return []
@@ -916,10 +904,6 @@ export function Products({ navigation }: HomeScreenProps) {
       const cart = await result.json()
       const cartMap = new Map<string, Cart>(cart.data.map((item: Cart) => [item.productId, item]))
 
-      // Load local cart from AsyncStorage
-      // const localCartInsideString = await getStorage('cart-inside');
-      // const localCartInside = localCartInsideString ? new Map<string, Cart>(JSON.parse(localCartInsideString)) : new Map();
-
       const localCartString = await getStorage('cart')
       const localCart = localCartString ? new Map<string, Cart>(JSON.parse(localCartString)) : new Map()
 
@@ -932,10 +916,6 @@ export function Products({ navigation }: HomeScreenProps) {
         }
       })
 
-      // localCartInside.forEach((value, key) => {
-      //     cartMap.set(key, value);
-      // });
-
       await deleteStorage('cart-inside')
       await setStorage('cart', JSON.stringify(Array.from(cartMap.entries())))
 
@@ -945,7 +925,6 @@ export function Products({ navigation }: HomeScreenProps) {
       return new Map()
     }
   }
-
   const loadRestaurants = useCallback(async () => {
     try {
       const token = await getToken()
@@ -998,13 +977,6 @@ export function Products({ navigation }: HomeScreenProps) {
     }
     await attCart()
     await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
-    console.log('📦 ->>>####save_Cart:', newCart)
-
-
-     /* if (cart.amount === 0 && isCart) {
-      console.log('📦 ->>>@@@@save_Cart:', isCart, newCart)
-      await saveCartArray(newCart, new Map([[cart.productId, cart]]))
-    }*/
   }, [])
 
   const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
@@ -1024,14 +996,8 @@ export function Products({ navigation }: HomeScreenProps) {
     })
 
     setCartToExclude(new Map())
-    //modificado aqui, adicionando dois ganchos
+    //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
   }, [saveCart, loadCart, loadProducts])
-
-  /*useEffect(() => {
-    if (cartToExclude.size > 0) {
-      saveCartArray(cart, cartToExclude)
-    }
-  }, [cart])*/
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
@@ -1058,9 +1024,8 @@ export function Products({ navigation }: HomeScreenProps) {
       try {
         const [restaurants, savedRestaurant, cartMap] = await Promise.all([
           loadRestaurants(),
-          getSavedRestaurant(), //busca o restaurante no storage
+          getSavedRestaurant(), 
           loadCart(),
-          //loadFavorites(),
           loadProducts()
         ])
 
@@ -1086,10 +1051,6 @@ export function Products({ navigation }: HomeScreenProps) {
         }
 
         setSelectedRestaurant(initialRestaurant.externalId)
-        /* await AsyncStorage.setItem(
-          "selectedRestaurant",
-          JSON.stringify({ restaurant: initialRestaurant })
-        ); */
         setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
 
         const restFilteredComercial = restaurants.filter((item: any) => item.registrationReleasedNewApp)
@@ -1103,16 +1064,12 @@ export function Products({ navigation }: HomeScreenProps) {
           setShowFinanceBlock(true)
         }
 
-        /* setStorage(
-          "selectedRestaurant",
-          JSON.stringify({ restaurant: restaurants[0] })
-        );
- */ const favs = await loadFavorites()
+ const favs = await loadFavorites()
         if (favs.length > 0) {
-          setFavorites(favs) // Atualiza o estado dos favoritos
+          setFavorites(favs) 
         }
         if (cartMap.size > 0) {
-          setCart(cartMap) // Atualiza o estado do carrinho
+          setCart(cartMap)
         }
         const newObservations = new Map()
         cart.forEach((item) => {
@@ -1146,9 +1103,8 @@ export function Products({ navigation }: HomeScreenProps) {
     async (productId: string) => {
       try {
         const token = await getToken()
-        const restaurant = await getSavedRestaurant() //pega o restaurante no storage.
+        const restaurant = await getSavedRestaurant()
         if (token == null || !restaurant) return
-        // Atualizar o estado localmente
         const productToAdd = productsList?.find((product) => product.id === productId)
         if (productToAdd) {
           setFavorites([...favorites, productToAdd])
@@ -1179,17 +1135,12 @@ export function Products({ navigation }: HomeScreenProps) {
     async (productId: string, observation: string): Promise<void | null | undefined> => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant(); //pega o restaurante no storage.
+        const restaurant = await getSavedRestaurant();
         if (token == null || !restaurant) return;
-        // Atualizar o estado localmente
         const productToAdd = productsList?.find(
           (product) => product.id === productId
         );
-        //console.log(productToAdd)
-       // console.log(selectedRestaurant);
         const storedRestaurant = await getSavedRestaurant();
-
-        //console.log(storedRestaurant?.externalId);
 
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
@@ -1219,7 +1170,7 @@ export function Products({ navigation }: HomeScreenProps) {
     async (productId: string) => {
       try {
         const token = await getToken()
-        const restaurant = await getSavedRestaurant() //pega o restaurante no storage.
+        const restaurant = await getSavedRestaurant() 
         setFavorites(favorites.filter((favorite) => favorite.id !== productId))
         if (token == null || !restaurant) return
         const storedRestaurant = await getSavedRestaurant()
@@ -1237,8 +1188,6 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         })
         if (!result.ok) return null
-
-        // Atualizar o estado localmente
       } catch (error) {
         console.error('Erro ao remover dos favoritos:', error)
       }
@@ -1369,7 +1318,7 @@ export function Products({ navigation }: HomeScreenProps) {
             return newMap
           })
         }}
-        addObservation = {addObservation}
+        addObservation={addObservation}
       />
     ),
     [
@@ -1389,7 +1338,7 @@ export function Products({ navigation }: HomeScreenProps) {
 
       const storedRestaurant = await getSavedRestaurant()
       if (storedRestaurant?.externalId === value) {
-        return // Já está selecionado
+        return 
       }
 
       const restaurant = restaurantes.find((r) => r.externalId === value)
@@ -1567,7 +1516,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <View
             onPress={async () => {
               setLoading(true)
-              saveCartArray(cart, cartToExclude).catch(console.error) // Executa sem bloquear
+              saveCartArray(cart, cartToExclude).catch(console.error) 
               setLoading(false)
               navigation.replace('Orders')
             }}
