@@ -1308,7 +1308,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     color: 'gray'
                                   }}
                                 >
-                                  A partir de
+                                  A partir de 
                                 </Text>
                                 <DropDownPicker
                                   value={minHour}
@@ -1321,8 +1321,18 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
                                   onOpen={() => setMaxHourOpen(false)} // <- fecha o outro
-                                  placeholder=""
-                                  listMode="SCROLLVIEW"
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'} // MODAL só no iOS
+   modalProps={{
+    animationType: 'slide',
+    transparent: false,
+    presentationStyle: 'formSheet' // ou 'pageSheet'
+  }}
+  modalContentContainerStyle={{
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    margin: 40
+  }}
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
@@ -1355,7 +1365,18 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   setOpen={setMaxHourOpen}
                                   onOpen={() => setMinHourOpen(false)} // <- fecha o outro
                                   placeholder=""
-                                  listMode="SCROLLVIEW"
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'} // MODAL só no iOS
+  modalProps={{
+    animationType: 'slide',
+    transparent: false,
+    presentationStyle: 'formSheet' // ou 'pageSheet'
+  }}
+  modalContentContainerStyle={{
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    margin: 40
+  }}
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
