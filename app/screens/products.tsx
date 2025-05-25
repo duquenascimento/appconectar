@@ -491,19 +491,18 @@ const ProductBox = React.memo(
     }, [cart, id])
 
     useEffect(() => {
-      if (obs) {
+       if (obs) {
         // Mantém o expand aberto se houver observação
         setOpen(true)
       }
-    }, [obs])
-
-    useEffect(() => {
       saveCart({ amount: valueQuant, productId: id, obs }, isCart)
-    }, [obs, valueQuant, isCart, id, saveCart])
+      console.log('📦 ->>>useffect:', isCart)
+    }, [obs, valueQuant, isCart, id])
 
     const handleQuantityChange = (newQuant: number) => {
       setQuant(newQuant)
       quantRef.current = newQuant
+
     }
 
     const handleObsChange = (text: string) => {
@@ -668,7 +667,7 @@ const ProductBox = React.memo(
                   }}
                 />
                 <Text>
-                  {valueQuant} {orderUnit.replace('Unid', 'Un')}
+                 {valueQuant} {orderUnit.replace('Unid', 'Un')}
                 </Text>
                 <Icons
                   name="add"
@@ -999,96 +998,40 @@ export function Products({ navigation }: HomeScreenProps) {
     }
     await attCart()
     await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
+    console.log('📦 ->>>####save_Cart:', newCart)
 
     // salva no servidor sempre que houver alteração
-    if (cart.amount === 0 && isCart) {
-      await saveCartArray(new Map([[cart.productId, cart]]))
-    }
+    /*if (cart.amount === 0 && isCart) {
+      console.log('📦 ->>>@@@@save_Cart:', isCart, newCart)
+      await saveCartArray(newCart, new Map([[cart.productId, cart]]))
+    }*/
   }, [])
 
-const saveCartArray = useCallback(
-  async (cartsToExclude: Map<string, Cart>): Promise<void> => {
-    console.log('🚀 Iniciando saveCartArray...');
+  const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
+    const token = await getToken()
+    if (token == null) return
 
-    const token = await getToken();
-    if (!token) {
-      console.warn('🚫 Token não encontrado!');
-      return;
-    }
-
-    let cartJson: string | null = null;
-
-    try {
-      if (typeof localStorage !== 'undefined') {
-        cartJson = localStorage.getItem('cart');
-        console.log('💾 [Web] Dados brutos do localStorage:', cartJson);
-      } else {
-        cartJson = await AsyncStorage.getItem('cart');
-        console.log('💾 [Native] Dados brutos do AsyncStorage:', cartJson);
-      }
-
-      if (!cartJson) {
-        console.warn('🟡 Nenhum dado encontrado no armazenamento para "cart"');
-        return;
-      }
-
-      let storedEntries: [string, Cart][];
-      try {
-        storedEntries = JSON.parse(cartJson);
-        console.log('📄 Dados parseados (entries):', storedEntries);
-      } catch (error) {
-        console.error('❌ Erro ao parsear dados do armazenamento:', error);
-        return;
-      }
-
-      const cartsArray = storedEntries.map((entry) => {
-        console.log('🔄 Mapeando entrada:', entry);
-        return entry[1]; // Retorna apenas o objeto Cart
-      });
-
-      console.log('✅ Carrinho convertido para array:', cartsArray);
-
-      if (cartsArray.length === 0) {
-        console.warn('🚫 Carrinho vazio. Nada a salvar.');
-        return;
-      }
-
-      const payload = {
+    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         token,
-        carts: cartsArray,
-        cartsToExclude: Array.from(cartsToExclude.values()),
-      };
+        carts: Array.from(carts.values()),
+        cartToExclude: Array.from(cartsToExclude.values())
+      })
+    })
 
-      console.log('📦 Dados enviados ao backend:', payload);
+    setCartToExclude(new Map())
+    //modificado aqui, adicionando dois ganchos
+  }, [saveCart, loadCart])
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Erro na resposta do servidor:', errorText);
-      } else {
-        console.log('✅ Carrinho salvo com sucesso!');
-      }
-
-      setCartToExclude(new Map());
-    } catch (error) {
-      console.error('❌ Erro ao ler do armazenamento:', error);
-    }
-  },
-  []
-);
-
-  useEffect(() => {
+  /*useEffect(() => {
     if (cartToExclude.size > 0) {
-      saveCartArray(cartToExclude)
+      saveCartArray(cart, cartToExclude)
     }
-  }, [cartToExclude, cart, saveCartArray])
+  }, [cart])*/
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
@@ -1242,11 +1185,11 @@ const saveCartArray = useCallback(
         const productToAdd = productsList?.find(
           (product) => product.id === productId
         );
-        console.log(productToAdd)
-        console.log(selectedRestaurant);
+        //console.log(productToAdd)
+       // console.log(selectedRestaurant);
         const storedRestaurant = await getSavedRestaurant();
 
-        console.log(storedRestaurant?.externalId);
+        //console.log(storedRestaurant?.externalId);
 
         const result = await fetch(
           `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
@@ -1624,7 +1567,7 @@ const saveCartArray = useCallback(
           <View
             onPress={async () => {
               setLoading(true)
-              saveCartArray(cartToExclude).catch(console.error) // Executa sem bloquear
+              saveCartArray(cart, cartToExclude).catch(console.error) // Executa sem bloquear
               setLoading(false)
               navigation.replace('Orders')
             }}
@@ -1646,7 +1589,7 @@ const saveCartArray = useCallback(
           <View
             onPress={async () => {
               setLoading(true)
-              await saveCartArray(cartToExclude)
+              await saveCartArray(cart, cartToExclude)
               await Promise.all([clearStorage(), deleteToken()])
               setLoading(false)
               navigation.replace('Sign')
@@ -1674,10 +1617,11 @@ const saveCartArray = useCallback(
         isScrolling={isScrolling}
         onPress={async () => {
           setLoading(true)
-          await saveCartArray(cartToExclude)
+          await saveCartArray(cart, cartToExclude)
           navigation.replace('Cart')
         }}
       />
     </Stack>
   )
 }
+
