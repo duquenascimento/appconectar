@@ -470,7 +470,7 @@ export function Prices({ navigation }: HomeScreenProps) {
         setNeighborhood(addressInfo.neighborhood)
         setCity(addressInfo.city)
         setLocalType(addressInfo.localType)
-        setLocalNumber(addressInfo.localNumber || '')
+        setLocalNumber(addressInfo.localNumber)
         setResponsibleReceivingName(addressInfo.responsibleReceivingName)
         setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
         setZipCode(addressInfo.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
