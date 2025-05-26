@@ -20,20 +20,10 @@ export const deleteToken = async (): Promise<void> => {
     else await deleteItemAsync('token')
 }
 
-/*export const setStorage = async (key: string, value: string): Promise<void> => {
+export const setStorage = async (key: string, value: string): Promise<void> => {
     if (platform === 'web') localStorage.setItem(key, value)
     else await AsyncStorage.setItem(key, value)
-}*/
-
-export const setStorage = async (key: string, value: string): Promise<void> => {
-  if (typeof localStorage !== 'undefined') {
-    localStorage.setItem(key, value);
-    console.log('✅ Salvo no localStorage:', key);
-  } else {
-    await AsyncStorage.setItem(key, value);
-    console.log('✅ Salvo no AsyncStorage:', key);
-  }
-};
+}
 
 export const clearStorage = async (): Promise<void> => {
     if (platform === 'web') localStorage.clear()
