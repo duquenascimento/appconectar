@@ -106,7 +106,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
 
   return (
     <View
-      opacity={/* !isOpen() */ available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
+      opacity={available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
       onPress={() => {
         if (available && supplier.supplier.missingItens > 0) {
           goToConfirm(supplier, selectedRestaurant)
@@ -157,11 +157,6 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
         </View>
       </View>
       <View pl={10} justifyContent="center" style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}>
-        {/* {!available && supplier.supplier.missingItens < 1 ? (
-          <View></View>
-        ) : (
-          <Icons name="chevron-forward" size={24}></Icons>
-        )} */}
         {available && <Icons name="chevron-forward" size={24}></Icons>}
       </View>
     </View>
@@ -201,7 +196,7 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [missingFields, setMissingFields] = useState<string[]>([])
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
-  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false) //carregamento dos fornecedores
+  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
   const screemSize = useScreenSize()
 
   const handleConfirm = () => {
@@ -262,19 +257,8 @@ export function Prices({ navigation }: HomeScreenProps) {
     } else {
       setMaxhours([])
     }
-  }, [minHour, maxHour]) // Remove maxHour da lista de dependências para evitar loop infinito
+  }, [minHour, maxHour])
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleChangeAddress = (minHour: string, maxHour: string, neigh: string) => {
-    let newValue
-    setSelectedRestaurant((prevValue: any) => {
-      newValue = prevValue
-      newValue.addressInfos[0].initialDeliveryTime = `2024-01-01T${minHour}:00.000Z`
-      newValue.addressInfos[0].finalDeliveryTime = `2024-01-01T${maxHour}:00.000Z`
-      return newValue
-    })
-    updateAddress(newValue)
-  }
 
   const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
     try {
@@ -348,7 +332,6 @@ export function Prices({ navigation }: HomeScreenProps) {
 
       const supplierUnavailable = (response.data as SupplierData[]).filter(
         (item) => Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish
-        //item.supplier.missingItens > 0
       )
 
       const sortedSuppliers = supplier.sort((a, b) => {
@@ -461,9 +444,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
     const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
 
-    const filteredUnavailableSuppliers = unavailableSupplier /* .filter(
-      (item) => item.supplier.hour.substring(0, 5) !== "06:00"
-    ); */
+    const filteredUnavailableSuppliers = unavailableSupplier 
 
     if (filteredSuppliers.length) itens.push({ initialSeparator: true })
     itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
@@ -479,7 +460,6 @@ export function Prices({ navigation }: HomeScreenProps) {
     return itens
   }, [suppliers, unavailableSupplier])
 
-  // Ao setar o restaurante escolhido para o localStorage
   useEffect(() => {
     if (selectedRestaurant) {
       const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0]
@@ -507,7 +487,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     }
   }, [selectedRestaurant])
 
-  // Para quando alterar o restaurante do dropDown
+
   useEffect(() => {
     if (!draftSelectedRestaurant) return
     const addressInfo = draftSelectedRestaurant.addressInfos[0]
@@ -553,7 +533,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
 
     if (allFieldsLoaded && !hasCheckedFields) {
-      const anyFieldEmpty = fields.some((field) => !field) // verifica se há campo vazio
+      const anyFieldEmpty = fields.some((field) => !field) 
       setEditInfos(anyFieldEmpty)
       setHasCheckedFields(true)
     }
@@ -815,7 +795,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               flex: 1,
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
-                            setValue={() => {}}
+                            setValue={() => { }}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name
@@ -825,18 +805,14 @@ export function Prices({ navigation }: HomeScreenProps) {
                             setOpen={setRestOpen}
                             placeholder=""
                             onSelectItem={(value) => {
-                              //setLoading(true); // Ativa o loading assim que o usuário escolhe um item
                               const rest = allRestaurants.find((item) => item?.name === value.value)
-                              //setSelectedRestaurant(rest); // Atualiza o restaurante selecionado
                               if (rest) {
                                 setDraftSelectedRestaurant(rest)
                               }
-
-                              //setLoading(false);
                             }}
                           ></DropDownPicker>
                         ) : (
-                          <Text>Loading...</Text> // Ou algum placeholder
+                          <Text>Loading...</Text>
                         )}
                         <View pt={10} gap={10} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row" zIndex={100}>
                           <View flex={1}>
@@ -1161,7 +1137,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 borderRadius={5}
                                 value={responsibleReceivingName}
                                 onChangeText={(value) => {
-                                  // Remove todos os caracteres que não sejam letras ou espaços
                                   const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
                                   setResponsibleReceivingName(formattedValue)
                                 }}
@@ -1199,20 +1174,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   borderWidth: 1
                                 }}
                                 onChangeText={(value) => {
-                                  // Remove todos os caracteres que não sejam dígitos
                                   let onlyNums = value.replace(/\D/g, '')
 
                                   if (onlyNums.length > 10) {
-                                    // Formato moderno (celular): (XX) XXXXX-XXXX
                                     onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
                                   } else if (onlyNums.length > 6) {
-                                    // Formato convencional (fixo): (XX) XXXX-XXXX
                                     onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
                                   } else if (onlyNums.length > 2) {
-                                    // Formato parcial: (XX) XXXX
                                     onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
                                   } else if (onlyNums.length > 0) {
-                                    // Formato parcial: (XX
                                     onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
                                   }
 
@@ -1269,7 +1239,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   flex: 1,
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
-                                setValue={() => {}}
+                                setValue={() => { }}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name
@@ -1280,11 +1250,11 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 placeholder=""
                                 onSelectItem={(value) => {
                                   const rest = allRestaurants.find((item) => item?.name === value.value)
-                                  setDraftSelectedRestaurant(rest) // Mudança para atualizar apenas o draftRestaurant ao clicar em telas menores
+                                  setDraftSelectedRestaurant(rest)
                                 }}
                               ></DropDownPicker>
                             ) : (
-                              <Text>Loading...</Text> // Ou algum placeholder
+                              <Text>Loading...</Text>
                             )}
                             <View
                               style={{
@@ -1320,9 +1290,19 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   multiple={false}
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
-                                  onOpen={() => setMaxHourOpen(false)} // <- fecha o outro
-                                  placeholder=""
-                                  listMode="SCROLLVIEW"
+                                  onOpen={() => setMaxHourOpen(false)}
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'} 
+                                  modalProps={{
+                                    animationType: 'slide',
+                                    transparent: false,
+                                    presentationStyle: 'formSheet'
+                                  }}
+                                  modalContentContainerStyle={{
+                                    backgroundColor: '#fff',
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    margin: 40
+                                  }}
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
@@ -1353,9 +1333,20 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   multiple={false}
                                   open={maxHourOpen}
                                   setOpen={setMaxHourOpen}
-                                  onOpen={() => setMinHourOpen(false)} // <- fecha o outro
+                                  onOpen={() => setMinHourOpen(false)}
                                   placeholder=""
-                                  listMode="SCROLLVIEW"
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
+                                  modalProps={{
+                                    animationType: 'slide',
+                                    transparent: false,
+                                    presentationStyle: 'formSheet' 
+                                  }}
+                                  modalContentContainerStyle={{
+                                    backgroundColor: '#fff',
+                                    padding: 20,
+                                    borderRadius: 10,
+                                    margin: 40
+                                  }}
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
@@ -1370,7 +1361,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                             <View
                               style={{
                                 flexDirection: 'row',
-                                flexWrap: 'wrap' // permite quebra de linha
+                                flexWrap: 'wrap'
                               }}
                             >
                               {/* Campo CEP */}
@@ -1653,7 +1644,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     borderRadius={5}
                                     value={responsibleReceivingName}
                                     onChangeText={(value) => {
-                                      // Remove todos os caracteres que não sejam letras ou espaços
                                       const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
                                       setResponsibleReceivingName(formattedValue)
                                     }}
@@ -1691,7 +1681,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                       borderWidth: 1
                                     }}
                                     onChangeText={(value) => {
-                                      // Remove todos os caracteres que não sejam dígitos
                                       let onlyNums = value.replace(/\D/g, '')
 
                                       if (onlyNums.length > 10) {
@@ -1824,4 +1813,3 @@ export function Prices({ navigation }: HomeScreenProps) {
   )
 }
 
-let items: SelectItem[] = []
