@@ -736,6 +736,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 setShowErros(erros)
 
                 if (!erros.length) {
+                  console.log('............carrinho', body);
                   const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
                     method: 'POST',
                     headers: {
@@ -745,6 +746,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
                   })
 
                   if (result.ok) {
+                    
                     const response = await result.json()
                     await setStorage('finalConfirmData', JSON.stringify(response.data))
                     navigation.replace('FinalConfirm')
