@@ -158,7 +158,7 @@ export function Register({ navigation }: HomeScreenProps) {
           cnpj: values.cnpj.replace(/\D/g, '')
         }
 
-        /*const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -170,8 +170,7 @@ export function Register({ navigation }: HomeScreenProps) {
         if (response.ok) {
           await clearStorage()
           navigation.replace('RegisterFinished')
-        }*/
-       console.log("payload >>>>>>", payload)
+        }
       } finally {
         setLoading(false)
       }
