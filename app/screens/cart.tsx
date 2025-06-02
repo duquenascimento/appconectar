@@ -87,11 +87,32 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
   const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
 
-  useEffect(() => {
+  const prevAmountRef = useRef<number>(valueQuant)
+  const prevObsRef = useRef<string | undefined>(obsC)
+
+  const debouncedSaveCart = useMemo(() => debounce(produto.saveCart, 300), [produto.saveCart])
+  
+
+/*   useEffect(() => {
     if (isCart) {
       produto.saveCart({ amount: valueQuant, productId: produto.id, obs: obsC ?? '' }, isCart)
     }
   }, [valueQuant, isCart, produto.id, produto.saveCart, obsC])
+ */
+  useEffect(() => {
+  if (isCart && (prevAmountRef.current !== valueQuant || prevObsRef.current !== obsC)) {
+    prevAmountRef.current = valueQuant
+    prevObsRef.current = obsC
+
+    debouncedSaveCart(
+      { amount: valueQuant, productId: produto.id, obs: obsC ?? '' },
+      isCart
+    )
+  }
+  return () => {
+    debouncedSaveCart.cancel?.()
+  }
+}, [valueQuant, obsC, isCart])
 
   const handleQuantityChange = (newQuant: number) => {
     setQuant(newQuant)
@@ -219,6 +240,7 @@ export function Cart({ navigation }: HomeScreenProps) {
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {})
 
   useEffect(() => {
+    console.log("Enter/Update Cart >>>>>>>>>>> ", cart)
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
   }, [cart])
 
@@ -366,14 +388,6 @@ export function Cart({ navigation }: HomeScreenProps) {
     }
   }, [])
 
-  const showModal = (title: string, subtitle: string, description: string, buttonText: string, onConfirm: () => void) => {
-    setModalTitle(title)
-    setModalSubtitle(subtitle)
-    setModalDescription(description)
-    setModalButtonText(buttonText)
-    setModalOnConfirm(() => onConfirm)
-    setShowNotification(true)
-  }
 
   const checkAlertItems = (products: Product[]) => {
     const alertItems = products.filter((item: Product) => item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'))
@@ -391,6 +405,7 @@ export function Cart({ navigation }: HomeScreenProps) {
   }
 
   useEffect(() => {
+    console.log("Alert Items >>>>>>>>>>> ", alertItems)
     if (alertItems.length > 0) {
       checkAlertItems(alertItems)
     }
@@ -419,6 +434,8 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [])
 
   useEffect(() => {
+        console.log("Load Cart and Products >>>>>>>>>>> ", cart, products)
+
     const loadInitialData = async () => {
       setLoading(true)
       try {
@@ -436,6 +453,8 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [loadCart, loadProducts])
 
   useEffect(() => {
+    console.log("Display Cart Products >>>>>>>>>>> ", cart, products, cartInside)
+
     setDisplayedProducts(products.sort((a, b) => a.name.localeCompare(b.name)))
   }, [products, cart, cartInside])
 
