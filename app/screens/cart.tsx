@@ -240,7 +240,6 @@ export function Cart({ navigation }: HomeScreenProps) {
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {})
 
   useEffect(() => {
-    console.log("Enter/Update Cart >>>>>>>>>>> ", cart)
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
   }, [cart])
 
@@ -252,20 +251,16 @@ export function Cart({ navigation }: HomeScreenProps) {
     setCart((prevCart) => {
       const newCart = new Map(prevCart)
 
-      // Remove o item do carrinho
       newCart.delete(cartToDelete.productId)
 
-      // Atualiza o estado de exclusão
       setCartToExclude((prevCartToExclude) => {
         const newCartToExclude = new Map(prevCartToExclude)
         newCartToExclude.set(cartToDelete.productId, cartToDelete)
         return newCartToExclude
       })
 
-      // Salva o carrinho atualizado no AsyncStorage
       setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
 
-      // Atualiza os produtos
       setProducts((prevProducts) => {
         return prevProducts.filter((item) => item.id !== cartToDelete.productId)
       })
@@ -312,7 +307,6 @@ export function Cart({ navigation }: HomeScreenProps) {
       const cart = await result.json()
       if (!cart.data || cart.data.length < 1) return new Map()
 
-      // Converte o array de cart para um Map
       const cartMap = new Map<string, TCart>(cart.data.map((item: TCart) => [item.productId, item]))
 
       const localCartString = await getStorage('cart')
@@ -405,7 +399,6 @@ export function Cart({ navigation }: HomeScreenProps) {
   }
 
   useEffect(() => {
-    console.log("Alert Items >>>>>>>>>>> ", alertItems)
     if (alertItems.length > 0) {
       checkAlertItems(alertItems)
     }
@@ -434,7 +427,6 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [])
 
   useEffect(() => {
-        console.log("Load Cart and Products >>>>>>>>>>> ", cart, products)
 
     const loadInitialData = async () => {
       setLoading(true)
@@ -453,7 +445,6 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [loadCart, loadProducts])
 
   useEffect(() => {
-    console.log("Display Cart Products >>>>>>>>>>> ", cart, products, cartInside)
 
     setDisplayedProducts(products.sort((a, b) => a.name.localeCompare(b.name)))
   }, [products, cart, cartInside])
