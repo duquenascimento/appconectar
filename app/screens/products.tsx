@@ -12,6 +12,7 @@ import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStor
 import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { VersionInfo } from '../utils/VersionApp'
 
 
 type Product = {
@@ -75,6 +76,40 @@ type ProductBoxProps = Product & {
   obs: string 
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
   onObsChange: (text: string) => void
+}
+
+export const SaveUserAppInfo = async () => {
+  try {
+    //const appVersion = DeviceInfo.getVersion()
+    const appVersionExpo = process.env.EXPO_PUBLIC_VERSION
+    const appOS = Platform.OS
+
+    //Pegar o externalId do restaurante
+    const data = await AsyncStorage.getItem('selectedRestaurant')
+    const restaurant = data ? JSON.parse(data) : null
+    const externalId = restaurant?.restaurant?.externalId ?? null
+    const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
+
+    const userAppData = {
+      externalId,
+      appVersionExpo,
+      appOS,
+      statusId
+    }
+    console.log('userAppData >>>>', userAppData)
+    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/app`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        externalId: userAppData.externalId,
+        version: userAppData.appVersionExpo,
+        OperationalSystem: userAppData.appOS,
+        statusId: userAppData.statusId
+      })
+    })
+  } catch (error) {
+    console.error('Erro ao salvar dados do app:', error)
+  }
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -821,6 +856,10 @@ export function Products({ navigation }: HomeScreenProps) {
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size)
 
   useEffect(() => {
+    SaveUserAppInfo()
+  }, [])
+
+  useEffect(() => {
     const timeout = setTimeout(() => {
       setDisplayedCartSize(cart.size)
     }, 100)
@@ -1560,6 +1599,7 @@ export function Products({ navigation }: HomeScreenProps) {
             </Text>
           </View>
         </View>
+        <VersionInfo />
       </View>
 
       <CartButton
