@@ -47,6 +47,9 @@
     },
     "plugins": [
       "expo-router"
-    ]
-  }
+    ],
+    "sdkVersion": "51.0.0",
+    "entryPoint": ".vscode/exponentIndex.js"
+  },
+  "name": "conectarapp"
 }
