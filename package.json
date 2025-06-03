@@ -1,7 +1,7 @@
 {
   "name": "conectarapp",
   "main": "expo-router/entry",
-  "version": "2.2.4",
+  "version": "2.2.6",
   "license": "MIT",
   "scripts": {
     "start": "expo start",
