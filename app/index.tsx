@@ -211,6 +211,7 @@ const PwRecovery = ({
                     } else {
                       setErro("");
                       if (!step2) {
+                        console.log(emailModal);
                         const response = await fetch(
                           `${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`,
                           {
@@ -474,6 +475,7 @@ export function SignInMobile(props: {
           }
         );
 
+        console.log("login", response);
         const res: {
           data: { token: string; role: string[] };
           status: number;
@@ -1280,6 +1282,7 @@ export function SignUpWeb(props: {
         );
 
         if (response.ok) {
+          console.log("cheguei aqui");
           const res: {
             data: { token: string; role: string[] };
             status: number;
