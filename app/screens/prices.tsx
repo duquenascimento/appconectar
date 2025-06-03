@@ -466,7 +466,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
     const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
 
-    const filteredUnavailableSuppliers = unavailableSupplier
+    const filteredUnavailableSuppliers = unavailableSupplier 
 
     if (filteredSuppliers.length) itens.push({ initialSeparator: true })
     itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
@@ -509,6 +509,7 @@ export function Prices({ navigation }: HomeScreenProps) {
       setLoading(false)
     }
   }, [selectedRestaurant])
+
 
   useEffect(() => {
     if (!draftSelectedRestaurant) return
@@ -555,7 +556,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
 
     if (allFieldsLoaded && !hasCheckedFields) {
-      const anyFieldEmpty = fields.some((field) => !field)
+      const anyFieldEmpty = fields.some((field) => !field) 
       setEditInfos(anyFieldEmpty)
       setHasCheckedFields(true)
     }
@@ -817,7 +818,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               flex: 1,
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
-                            setValue={() => {}}
+                            setValue={() => { }}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name
@@ -1271,7 +1272,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   flex: 1,
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
-                                setValue={() => {}}
+                                setValue={() => { }}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name
@@ -1323,7 +1324,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
                                   onOpen={() => setMaxHourOpen(false)}
-                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'} 
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
@@ -1371,7 +1372,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
-                                    presentationStyle: 'formSheet'
+                                    presentationStyle: 'formSheet' 
                                   }}
                                   modalContentContainerStyle={{
                                     backgroundColor: '#fff',
@@ -1846,3 +1847,4 @@ export function Prices({ navigation }: HomeScreenProps) {
     </Stack>
   )
 }
+
