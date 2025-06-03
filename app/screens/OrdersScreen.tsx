@@ -10,6 +10,7 @@ import { RootStackParamList } from '../../src/types/navigationTypes'
 import { ordersScreenStyles as styles } from '../../src/styles/styles'
 import { clearStorage, deleteToken } from '../utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { VersionInfo } from '../utils/VersionApp'
 
 type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 
@@ -417,6 +418,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
             Sair
           </Text>
         </View>
+        <VersionInfo />
       </View>
     </>
   )

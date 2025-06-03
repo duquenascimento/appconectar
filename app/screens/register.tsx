@@ -12,6 +12,7 @@ import { formatCep } from '../utils/formatCep'
 import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
 import { dividirLogradouro } from '../utils/DividirLogradouro'
 import { campoString } from '../utils/formatCampos'
+import { VersionInfo } from '../utils/VersionApp'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
@@ -1168,6 +1169,7 @@ export function Register({ navigation }: HomeScreenProps) {
           <Text color="white">{step === 3 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
         </Button>
       </View>
+      <VersionInfo />
     </View>
   )
 }
