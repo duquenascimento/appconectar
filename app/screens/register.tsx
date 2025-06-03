@@ -11,7 +11,6 @@ import { formatCNPJ } from '../utils/formatCNPJ'
 import { formatCep } from '../utils/formatCep'
 import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
 import { dividirLogradouro } from '../utils/DividirLogradouro'
-import { campoString } from '../utils/formatCampos'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
@@ -381,12 +380,12 @@ export function Register({ navigation }: HomeScreenProps) {
             ...formik.values,
             legalRestaurantName: result.data.razao_social,
             zipcode: formatCep(result.data.cep),
-            neigh: campoString(enderecoCNPJ.bairro),
-            street: campoString(endereco.logradouro),
+            neigh: result.data.bairro,
+            street: endereco.logradouro,
             localNumber: result.data.numero,
             complement: result.data.complemento ?? '',
             localType: endereco.tipoLogradouro,
-            city: campoString(enderecoCNPJ.localidade)
+            city: result.data.municipio
             //stateNumberId: IE ?? "",
             //noStateNumberId: !IE,
           })
