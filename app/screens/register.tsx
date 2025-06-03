@@ -11,6 +11,7 @@ import { formatCNPJ } from '../utils/formatCNPJ'
 import { formatCep } from '../utils/formatCep'
 import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
 import { dividirLogradouro } from '../utils/DividirLogradouro'
+import { campoString } from '../utils/formatCampos'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
@@ -157,7 +158,7 @@ export function Register({ navigation }: HomeScreenProps) {
           cnpj: values.cnpj.replace(/\D/g, '')
         }
 
-        /*const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -169,8 +170,7 @@ export function Register({ navigation }: HomeScreenProps) {
         if (response.ok) {
           await clearStorage()
           navigation.replace('RegisterFinished')
-        }*/
-       console.log("payload >>>>>>", payload)
+        }
       } finally {
         setLoading(false)
       }
@@ -381,12 +381,12 @@ export function Register({ navigation }: HomeScreenProps) {
             ...formik.values,
             legalRestaurantName: result.data.razao_social,
             zipcode: formatCep(result.data.cep),
-            neigh: result.data.bairro,
-            street: endereco.logradouro,
+            neigh: campoString(enderecoCNPJ.bairro),
+            street: campoString(endereco.logradouro),
             localNumber: result.data.numero,
             complement: result.data.complemento ?? '',
             localType: endereco.tipoLogradouro,
-            city: result.data.municipio
+            city: campoString(enderecoCNPJ.localidade)
             //stateNumberId: IE ?? "",
             //noStateNumberId: !IE,
           })
