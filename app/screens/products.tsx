@@ -96,7 +96,6 @@ export const SaveUserAppInfo = async () => {
       appOS,
       statusId
     }
-    console.log('userAppData >>>>', userAppData)
     await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/app`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -494,36 +493,65 @@ const ProductBox = React.memo(
 
     const obsRef = useRef("");
     const quantRef = useRef<number>(firstUnit);
+    const previousCartRef = useRef<Map<string, Cart>>(new Map());
 
-    useEffect(() => {
-      setObs(parentObs)
-    }, [parentObs])
-
+    
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
-
+    
     const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
+    
+  useEffect(() => {
+    const currentCartItem = cart.get(id);
+    const previousCartItem = previousCartRef.current.get(id);
 
-    useEffect(() => {
-      const cartProduct = cart.get(id)
-      if (cartProduct) {
-        obsRef.current = cartProduct.obs
+    
+    if (
+      !currentCartItem && !previousCartItem || 
+      (currentCartItem && previousCartItem && 
+       currentCartItem.amount === previousCartItem.amount &&
+       currentCartItem.obs === previousCartItem.obs)
+    ) {
+      return;
+    }
 
-        setObs(cartProduct.obs)
-        onObsChange(cartProduct.obs)
-        setValueQuant(Number(cartProduct.amount))
-        if (cartProduct.obs) {
-          setOpen(true)
-        }
-      }
-    }, [cart, id])
+    if (currentCartItem) {
+      setValueQuant(Number(currentCartItem.amount));
+      setObs(currentCartItem.obs || '');
+      onObsChange(currentCartItem.obs || '');
+    } else {
+      setValueQuant(0);
+      setObs('');
+      onObsChange('');
+    }
 
-    useEffect(() => {
-      if (obs) {
-        setOpen(true)
-      }
-      saveCart({ amount: valueQuant, productId: id, obs }, isCart)
-    }, [obs, valueQuant, isCart, id])
+    
+    previousCartRef.current = new Map(cart);
+  }, [cart]); 
+
+  
+  const handlePersistCart = useCallback(() => {
+    const currentItem = { amount: valueQuant, productId: id, obs };
+    const previousItem = previousCartRef.current.get(id);
+
+    
+    const shouldPersist = (
+      valueQuant > 0 || 
+      (previousItem && valueQuant !== previousItem.amount) || 
+      (previousItem && obs !== previousItem.obs) 
+    );
+
+    if (shouldPersist) {
+      saveCart(currentItem, !!previousItem);
+      previousCartRef.current.set(id, currentItem);
+    }
+  }, [valueQuant, obs, id, saveCart]);
+
+  
+  useEffect(() => {
+    const timer = setTimeout(handlePersistCart, 300);
+    return () => clearTimeout(timer);
+  }, [valueQuant, obs, handlePersistCart]);
 
     const handleQuantityChange = (newQuant: number) => {
       setQuant(newQuant)
