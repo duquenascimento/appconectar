@@ -2,7 +2,7 @@
   "expo": {
     "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "2.2.5",
+    "version": "2.2.6",
     "scheme": "conectarapp",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -47,6 +47,9 @@
     },
     "plugins": [
       "expo-router"
-    ]
-  }
+    ],
+    "sdkVersion": "51.0.0",
+    "entryPoint": ".vscode/exponentIndex.js"
+  },
+  "name": "conectarapp"
 }

@@ -259,6 +259,17 @@ export function Prices({ navigation }: HomeScreenProps) {
     }
   }, [minHour, maxHour])
 
+    const handleChangeAddress = (minHour: string, maxHour: string, neigh: string) => {
+    let newValue
+    setSelectedRestaurant((prevValue: any) => {
+      newValue = prevValue
+      newValue.addressInfos[0].initialDeliveryTime = `2024-01-01T${minHour}:00.000Z`
+      newValue.addressInfos[0].finalDeliveryTime = `2024-01-01T${maxHour}:00.000Z`
+      return newValue
+    })
+    updateAddress(newValue)
+  }
+
   const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
     try {
       setLoading(true)
@@ -329,7 +340,6 @@ export function Prices({ navigation }: HomeScreenProps) {
       let supplierUnavailable: SupplierData[] = []
 
       const allSuppliers = response.data as SupplierData[]
-
       if (currentRestaurant?.allowClosedSupplier && currentRestaurant?.allowMinimumOrder) {
         supplier = allSuppliers.filter((item) => item.supplier.missingItens > 0)
         supplierUnavailable = []
@@ -338,7 +348,6 @@ export function Prices({ navigation }: HomeScreenProps) {
 
         supplierUnavailable = allSuppliers.filter((item) => Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish)
       }
-
       const sortedSuppliers = supplier.sort((a, b) => {
         const diffA = a.supplier.discount.product.length - a.supplier.missingItens
         const diffB = b.supplier.discount.product.length - b.supplier.missingItens
@@ -449,7 +458,7 @@ export function Prices({ navigation }: HomeScreenProps) {
 
     const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
 
-    const filteredUnavailableSuppliers = unavailableSupplier
+    const filteredUnavailableSuppliers = unavailableSupplier 
 
     if (filteredSuppliers.length) itens.push({ initialSeparator: true })
     itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
@@ -475,7 +484,7 @@ export function Prices({ navigation }: HomeScreenProps) {
         setNeighborhood(addressInfo.neighborhood)
         setCity(addressInfo.city)
         setLocalType(addressInfo.localType)
-        setLocalNumber(addressInfo.localNumber)
+        setLocalNumber(addressInfo.localNumber || '')
         setResponsibleReceivingName(addressInfo.responsibleReceivingName)
         setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
         setZipCode(addressInfo.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
@@ -491,6 +500,7 @@ export function Prices({ navigation }: HomeScreenProps) {
       setLoading(false)
     }
   }, [selectedRestaurant])
+
 
   useEffect(() => {
     if (!draftSelectedRestaurant) return
@@ -537,7 +547,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
 
     if (allFieldsLoaded && !hasCheckedFields) {
-      const anyFieldEmpty = fields.some((field) => !field)
+      const anyFieldEmpty = fields.some((field) => !field) 
       setEditInfos(anyFieldEmpty)
       setHasCheckedFields(true)
     }
@@ -799,7 +809,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               flex: 1,
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
-                            setValue={() => {}}
+                            setValue={() => { }}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name
@@ -1243,7 +1253,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   flex: 1,
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
-                                setValue={() => {}}
+                                setValue={() => { }}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name
@@ -1295,7 +1305,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
                                   onOpen={() => setMaxHourOpen(false)}
-                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'} 
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
@@ -1343,7 +1353,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
-                                    presentationStyle: 'formSheet'
+                                    presentationStyle: 'formSheet' 
                                   }}
                                   modalContentContainerStyle={{
                                     backgroundColor: '#fff',
@@ -1816,3 +1826,4 @@ export function Prices({ navigation }: HomeScreenProps) {
     </Stack>
   )
 }
+
