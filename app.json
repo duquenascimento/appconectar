@@ -2,7 +2,7 @@
   "expo": {
     "name": "Conéctar",
     "slug": "conectarapp",
-    "version": "2.2.6",
+    "version": "2.2.7",
     "scheme": "conectarapp",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
