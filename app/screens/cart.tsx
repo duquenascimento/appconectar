@@ -38,6 +38,7 @@ type Product = {
   firstUnit: number
   secondUnit: number
   thirdUnit: number
+  addOrder: number
 }
 
 type TCart = {
@@ -436,8 +437,13 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [loadCart, loadProducts])
 
   useEffect(() => {
-    setDisplayedProducts(products.sort((a, b) => a.name.localeCompare(b.name)))
-  }, [products, cart, cartInside])
+  if (!products || products.length === 0) return
+
+  console.log('Produtos recebidos:', products.sort((a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0)))
+
+  const orderedProducts = [...products].sort((a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0))
+  setDisplayedProducts(orderedProducts)
+}, [products, cart, cartInside])
 
   const renderProduct = useCallback(({ item }: { item: Product }) => <ProductBox key={item.id} {...item} saveCart={saveCart} cart={cart} cartInside={cartInside} setConfirmDeleteItem={handleTrashItemState} />, [saveCart, cart, cartInside])
 
