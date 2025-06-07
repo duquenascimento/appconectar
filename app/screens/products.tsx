@@ -1,7 +1,7 @@
 import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
-import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, FlatList, Keyboard, Modal, Platform, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ImageViewer from 'react-native-image-zoom-viewer'
@@ -456,6 +456,7 @@ const ProductBox = React.memo(
     const obsRef = useRef('')
     const quantRef = useRef<number>(firstUnit)
     const previousCartRef = useRef<Map<string, Cart>>(new Map())
+    const obsInputRef = useRef<TextInput | null>(null)
 
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
@@ -601,7 +602,22 @@ const ProductBox = React.memo(
                 {Platform.OS === 'web' && (
                   <View alignSelf="flex-start" flex={1}>
                     <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
-                      <Input focusVisibleStyle={{ outlineWidth: 0 }} placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onPress={(e) => e.stopPropagation()} onChangeText={handleObsChange} onBlur={handleBlur} value={obs} />
+                      <Input
+                        focusVisibleStyle={{ outlineWidth: 0 }}
+                        placeholder="Observação para entrega..."
+                        backgroundColor="transparent"
+                        borderWidth={0}
+                        borderColor="transparent"
+                        flex={1}
+                        fontSize={10}
+                        maxLength={999}
+                        onPressIn={(e) => {
+                          e.stopPropagation()
+                        }}
+                        onChangeText={handleObsChange}
+                        onBlur={handleBlur}
+                        value={obs}
+                      />
                     </XStack>
                   </View>
                 )}
@@ -673,7 +689,22 @@ const ProductBox = React.memo(
             {Platform.OS !== 'web' && (
               <View>
                 <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" marginBottom={10} height={36}>
-                  <Input placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onPress={(e) => e.stopPropagation()} onChangeText={handleObsChange} onBlur={handleBlur} value={obs} />
+                  <Input
+                    ref={obsInputRef}
+                    placeholder="Observação para entrega..."
+                    backgroundColor="transparent"
+                    borderWidth={0}
+                    borderColor="transparent"
+                    flex={1}
+                    fontSize={10}
+                    maxLength={999}
+                    onPressIn={(e) => {
+                      e.stopPropagation()
+                    }}
+                    onChangeText={handleObsChange}
+                    onBlur={handleBlur}
+                    value={obs}
+                  />
                 </XStack>
               </View>
             )}
@@ -1466,7 +1497,7 @@ export function Products({ navigation }: HomeScreenProps) {
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
-            <FlatList ref={flatListRef} data={displayedProducts} renderItem={renderProduct} keyExtractor={(item: any) => item.id} onEndReachedThreshold={0.5} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} ItemSeparatorComponent={() => <View height={8}></View>} />
+            <FlatList ref={flatListRef} data={displayedProducts} renderItem={renderProduct} keyExtractor={(item: any) => item.id} onEndReachedThreshold={0.5} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} keyboardShouldPersistTaps="always" keyboardDismissMode="none" contentInsetAdjustmentBehavior="never" ItemSeparatorComponent={() => <View height={8}></View>} />
           ) : (
             <ScrollView>
               <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
