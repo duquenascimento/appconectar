@@ -14,9 +14,11 @@
     "prod": "npx serve ./dist",
     "build-web": "npx expo export --platform web"
   },
+
   "jest": {
     "preset": "jest-expo"
   },
+  
   "dependencies": {
     "@babel/core": "^7.20.0",
     "@expo/vector-icons": "^14.0.2",
@@ -71,8 +73,5 @@
     "typescript": "~5.3.3",
     "yup": "^1.6.1"
   },
-  "private": true,
-  "devDependencies": {
-    "@types/react-native": "^0.72.8"
-  }
+  "private": true
 }
