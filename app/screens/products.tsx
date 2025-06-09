@@ -241,7 +241,17 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
       pointerEvents="box-none"
     >
       <TouchableOpacity activeOpacity={0.9} onPress={cartSize > 0 ? onPress : undefined} disabled={cartSize <= 0}>
-        <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
+        <View 
+        backgroundColor="#FFA500" 
+        width={160} 
+        height={45} 
+        borderRadius={24} 
+        paddingHorizontal={16} 
+        paddingVertical={8} 
+        flexDirection="row" 
+        alignItems="center" 
+        justifyContent="center" 
+        pointerEvents="auto">
           <View>
             <Icons size={25} color="white" name="cart" />
             <View position="absolute" bottom={-1} right={-5} backgroundColor="white" borderRadius={10} width={15} height={15} alignItems="center" justifyContent="center" borderColor="#FFA500" borderWidth={1}>
@@ -598,10 +608,23 @@ const ProductBox = React.memo(
             }}
           >
             <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
-              <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems="center" flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
+              <View 
+              justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} 
+              alignItems="center" 
+              flex={1} mr={Platform.OS === 'web' ? 5 : 5} 
+              flexDirection="row" 
+              gap={8}>
                 {Platform.OS === 'web' && (
                   <View alignSelf="flex-start" flex={1}>
-                    <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
+                    <XStack 
+                    backgroundColor="#F0F2F6" 
+                    flex={1} 
+                    paddingRight={14} 
+                    borderWidth={0} 
+                    borderRadius={20} 
+                    alignItems="center" 
+                    flexDirection="row" 
+                    height={36}>
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
                         placeholder="Observação para entrega..."
@@ -1474,9 +1497,7 @@ export function Products({ navigation }: HomeScreenProps) {
 
         <FlatList
           style={{
-            maxHeight: Platform.OS === 'web' ? 50 : 60,
-            paddingVertical: 10,
-            minHeight: 50,
+            maxHeight: Platform.OS === 'web' ? 50 : 40,
             width: Platform.OS === 'web' ? '68%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined
           }}
@@ -1487,7 +1508,14 @@ export function Products({ navigation }: HomeScreenProps) {
           renderItem={renderClassItem}
         />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 55} borderTopColor="#aaa" borderTopWidth={0.5}>
+        <View 
+        backgroundColor="#F0F2F6" 
+        flex={1} 
+        paddingHorizontal={16} 
+        paddingTop={5} 
+        paddingBottom={Platform.OS === 'web' ? '' : 40} 
+        borderTopColor="#aaa" 
+        borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
@@ -1497,7 +1525,20 @@ export function Products({ navigation }: HomeScreenProps) {
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
-            <FlatList ref={flatListRef} data={displayedProducts} renderItem={renderProduct} keyExtractor={(item: any) => item.id} onEndReachedThreshold={0.5} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} keyboardShouldPersistTaps="always" keyboardDismissMode="none" contentInsetAdjustmentBehavior="never" ItemSeparatorComponent={() => <View height={8}></View>} />
+            <FlatList 
+            ref={flatListRef} 
+            data={displayedProducts} 
+            renderItem={renderProduct} 
+            keyExtractor={(item: any) => item.id} 
+            onEndReachedThreshold={0.5} 
+            onEndReached={loadProducts} 
+            onScroll={handleScroll} 
+            onMomentumScrollBegin={handleScroll} 
+            onMomentumScrollEnd={handleScrollEnd} 
+            keyboardShouldPersistTaps="always" 
+            keyboardDismissMode="none" 
+            contentInsetAdjustmentBehavior="never" 
+            ItemSeparatorComponent={() => <View height={8}></View>} />
           ) : (
             <ScrollView>
               <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
