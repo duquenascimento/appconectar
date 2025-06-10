@@ -4,6 +4,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { SupplierData } from "./prices";
 import { useCallback, useEffect, useState } from "react";
 import { clearStorage, getStorage } from "../utils/utils";
+import { SaveUserAppInfo } from "./products";
 
 type RootStackParamList = {
     Home: undefined;
@@ -195,6 +196,7 @@ export function FinalConfirm({ navigation }: HomeScreenProps) {
                 <View paddingTop={40}>
                     <Button onPress={async () => {
                         navigation.replace('Products')
+                        SaveUserAppInfo()
                     }} backgroundColor='#04BF7B'><Icons size={20} color='white' name="checkmark"></Icons></Button>
                 </View>
                 {/* <View alignItems="center" mt={15} flexDirection="row">

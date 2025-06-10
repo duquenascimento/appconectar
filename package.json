@@ -1,7 +1,7 @@
 {
   "name": "conectarapp",
   "main": "expo-router/entry",
-  "version": "2.2.5",
+  "version": "2.2.7",
   "license": "MIT",
   "scripts": {
     "start": "expo start",
@@ -14,11 +14,9 @@
     "prod": "npx serve ./dist",
     "build-web": "npx expo export --platform web"
   },
-  
   "jest": {
     "preset": "jest-expo"
   },
-  
   "dependencies": {
     "@babel/core": "^7.20.0",
     "@expo/vector-icons": "^14.0.2",

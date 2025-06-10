@@ -27,6 +27,7 @@ import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { deleteToken, getToken, setToken } from "./utils/utils";
 import { openURL } from "expo-linking";
+import { VersionInfo } from "./utils/VersionApp";
 
 type RootStackParamList = {
   Home: undefined;
@@ -673,6 +674,7 @@ export function SignInMobile(props: {
           Criar conta
         </Button>
       </XStack>
+      <VersionInfo />
     </YStack>
   );
 }
@@ -972,6 +974,7 @@ export function SignUpMobile(props: {
           Criar conta
         </Button>
       </XStack>
+      <VersionInfo />
     </YStack>
   );
 }
@@ -1226,6 +1229,7 @@ export function SignInWeb(props: {
           Criar conta
         </Button>
       </XStack>
+      <VersionInfo />
     </YStack>
   );
 }
@@ -1526,6 +1530,7 @@ export function SignUpWeb(props: {
           Criar conta
         </Button>
       </XStack>
+      <VersionInfo />
     </YStack>
   );
 }

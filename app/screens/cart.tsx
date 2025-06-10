@@ -38,6 +38,7 @@ type Product = {
   firstUnit: number
   secondUnit: number
   thirdUnit: number
+  addOrder: number
 }
 
 type TCart = {
@@ -87,11 +88,28 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
   const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
 
-  useEffect(() => {
+  const prevAmountRef = useRef<number>(valueQuant)
+  const prevObsRef = useRef<string | undefined>(obsC)
+
+  const debouncedSaveCart = useMemo(() => debounce(produto.saveCart, 300), [produto.saveCart])
+
+  /*   useEffect(() => {
     if (isCart) {
       produto.saveCart({ amount: valueQuant, productId: produto.id, obs: obsC ?? '' }, isCart)
     }
   }, [valueQuant, isCart, produto.id, produto.saveCart, obsC])
+ */
+  useEffect(() => {
+    if (isCart && (prevAmountRef.current !== valueQuant || prevObsRef.current !== obsC)) {
+      prevAmountRef.current = valueQuant
+      prevObsRef.current = obsC
+
+      debouncedSaveCart({ amount: valueQuant, productId: produto.id, obs: obsC ?? '' }, isCart)
+    }
+    return () => {
+      debouncedSaveCart.cancel?.()
+    }
+  }, [valueQuant, obsC, isCart])
 
   const handleQuantityChange = (newQuant: number) => {
     setQuant(newQuant)
@@ -230,20 +248,16 @@ export function Cart({ navigation }: HomeScreenProps) {
     setCart((prevCart) => {
       const newCart = new Map(prevCart)
 
-      // Remove o item do carrinho
       newCart.delete(cartToDelete.productId)
 
-      // Atualiza o estado de exclusão
       setCartToExclude((prevCartToExclude) => {
         const newCartToExclude = new Map(prevCartToExclude)
         newCartToExclude.set(cartToDelete.productId, cartToDelete)
         return newCartToExclude
       })
 
-      // Salva o carrinho atualizado no AsyncStorage
       setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
 
-      // Atualiza os produtos
       setProducts((prevProducts) => {
         return prevProducts.filter((item) => item.id !== cartToDelete.productId)
       })
@@ -290,7 +304,6 @@ export function Cart({ navigation }: HomeScreenProps) {
       const cart = await result.json()
       if (!cart.data || cart.data.length < 1) return new Map()
 
-      // Converte o array de cart para um Map
       const cartMap = new Map<string, TCart>(cart.data.map((item: TCart) => [item.productId, item]))
 
       const localCartString = await getStorage('cart')
@@ -366,15 +379,6 @@ export function Cart({ navigation }: HomeScreenProps) {
     }
   }, [])
 
-  const showModal = (title: string, subtitle: string, description: string, buttonText: string, onConfirm: () => void) => {
-    setModalTitle(title)
-    setModalSubtitle(subtitle)
-    setModalDescription(description)
-    setModalButtonText(buttonText)
-    setModalOnConfirm(() => onConfirm)
-    setShowNotification(true)
-  }
-
   const checkAlertItems = (products: Product[]) => {
     const alertItems = products.filter((item: Product) => item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'))
 
@@ -436,7 +440,9 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [loadCart, loadProducts])
 
   useEffect(() => {
-    setDisplayedProducts(products.sort((a, b) => a.name.localeCompare(b.name)))
+    if (!products || products.length === 0) return
+    const orderedProducts = [...products].sort((a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0))
+    setDisplayedProducts(orderedProducts)
   }, [products, cart, cartInside])
 
   const renderProduct = useCallback(({ item }: { item: Product }) => <ProductBox key={item.id} {...item} saveCart={saveCart} cart={cart} cartInside={cartInside} setConfirmDeleteItem={handleTrashItemState} />, [saveCart, cart, cartInside])

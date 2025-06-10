@@ -12,6 +12,7 @@ import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStor
 import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { VersionInfo } from '../utils/VersionApp'
 
 
 type Product = {
@@ -75,6 +76,39 @@ type ProductBoxProps = Product & {
   obs: string 
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
   onObsChange: (text: string) => void
+}
+
+export const SaveUserAppInfo = async () => {
+  try {
+    //const appVersion = DeviceInfo.getVersion()
+    const appVersionExpo = process.env.EXPO_PUBLIC_VERSION
+    const appOS = Platform.OS
+
+    //Pegar o externalId do restaurante
+    const data = await AsyncStorage.getItem('selectedRestaurant')
+    const restaurant = data ? JSON.parse(data) : null
+    const externalId = restaurant?.restaurant?.externalId ?? null
+    const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
+
+    const userAppData = {
+      externalId,
+      appVersionExpo,
+      appOS,
+      statusId
+    }
+    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/app`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        externalId: userAppData.externalId,
+        version: userAppData.appVersionExpo,
+        OperationalSystem: userAppData.appOS,
+        statusId: userAppData.statusId
+      })
+    })
+  } catch (error) {
+    console.error('Erro ao salvar dados do app:', error)
+  }
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -459,36 +493,65 @@ const ProductBox = React.memo(
 
     const obsRef = useRef("");
     const quantRef = useRef<number>(firstUnit);
+    const previousCartRef = useRef<Map<string, Cart>>(new Map());
 
-    useEffect(() => {
-      setObs(parentObs)
-    }, [parentObs])
-
+    
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
-
+    
     const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
+    
+  useEffect(() => {
+    const currentCartItem = cart.get(id);
+    const previousCartItem = previousCartRef.current.get(id);
 
-    useEffect(() => {
-      const cartProduct = cart.get(id)
-      if (cartProduct) {
-        obsRef.current = cartProduct.obs
+    
+    if (
+      !currentCartItem && !previousCartItem || 
+      (currentCartItem && previousCartItem && 
+       currentCartItem.amount === previousCartItem.amount &&
+       currentCartItem.obs === previousCartItem.obs)
+    ) {
+      return;
+    }
 
-        setObs(cartProduct.obs)
-        onObsChange(cartProduct.obs)
-        setValueQuant(Number(cartProduct.amount))
-        if (cartProduct.obs) {
-          setOpen(true)
-        }
-      }
-    }, [cart, id])
+    if (currentCartItem) {
+      setValueQuant(Number(currentCartItem.amount));
+      setObs(currentCartItem.obs || '');
+      onObsChange(currentCartItem.obs || '');
+    } else {
+      setValueQuant(0);
+      setObs('');
+      onObsChange('');
+    }
 
-    useEffect(() => {
-      if (obs) {
-        setOpen(true)
-      }
-      saveCart({ amount: valueQuant, productId: id, obs }, isCart)
-    }, [obs, valueQuant, isCart, id])
+    
+    previousCartRef.current = new Map(cart);
+  }, [cart]); 
+
+  
+  const handlePersistCart = useCallback(() => {
+    const currentItem = { amount: valueQuant, productId: id, obs };
+    const previousItem = previousCartRef.current.get(id);
+
+    
+    const shouldPersist = (
+      valueQuant > 0 || 
+      (previousItem && valueQuant !== previousItem.amount) || 
+      (previousItem && obs !== previousItem.obs) 
+    );
+
+    if (shouldPersist) {
+      saveCart(currentItem, !!previousItem);
+      previousCartRef.current.set(id, currentItem);
+    }
+  }, [valueQuant, obs, id, saveCart]);
+
+  
+  useEffect(() => {
+    const timer = setTimeout(handlePersistCart, 300);
+    return () => clearTimeout(timer);
+  }, [valueQuant, obs, handlePersistCart]);
 
     const handleQuantityChange = (newQuant: number) => {
       setQuant(newQuant)
@@ -819,6 +882,10 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
   const [productObservations, setProductObservations] = useState(new Map())
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size)
+
+  useEffect(() => {
+    SaveUserAppInfo()
+  }, [])
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -1560,6 +1627,7 @@ export function Products({ navigation }: HomeScreenProps) {
             </Text>
           </View>
         </View>
+        <VersionInfo />
       </View>
 
       <CartButton
