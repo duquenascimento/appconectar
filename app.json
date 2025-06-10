@@ -24,7 +24,8 @@
           "fetch",
           "remote-notification"
         ],
-        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications."
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to provide personalized notifications.",
+        "NSUserTrackingUsageDescription": "This app tracks your activity to improve your experience and provide personalized notifications."
       }
     },
     "android": {
@@ -47,9 +48,6 @@
     },
     "plugins": [
       "expo-router"
-    ],
-    "sdkVersion": "51.0.0",
-    "entryPoint": ".vscode/exponentIndex.js"
-  },
-  "name": "conectarapp"
+    ]
+  }
 }
