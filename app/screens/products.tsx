@@ -1,7 +1,7 @@
 import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
-import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, FlatList, Modal, Platform, TextInput, TouchableOpacity, VirtualizedList } from 'react-native'
 import React from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ImageViewer from 'react-native-image-zoom-viewer'
@@ -13,7 +13,6 @@ import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo } from '../utils/VersionApp'
-
 
 type Product = {
   name: string
@@ -34,6 +33,7 @@ type Product = {
   firstUnit: number
   secondUnit: number
   thirdUnit: number
+  obs: string
 }
 
 type HomeScreenProps = {
@@ -73,8 +73,8 @@ type ProductBoxProps = Product & {
   secondUnit: number
   thirdUnit: number
   currentClass: string
-  obs: string 
-  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
+  obs: string
+  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
 }
 
@@ -148,7 +148,7 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
     transform: [{ translateY: translateY.value }],
-    pointerEvents: opacity.value === 1 ? 'auto' : 'none' 
+    pointerEvents: opacity.value === 1 ? 'auto' : 'none'
   }))
 
   if (Platform.OS === 'web') {
@@ -238,13 +238,9 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
         },
         animatedStyle
       ]}
-      pointerEvents="box-none" 
+      pointerEvents="box-none"
     >
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={cartSize > 0 ? onPress : undefined} 
-        disabled={cartSize <= 0}
-      >
+      <TouchableOpacity activeOpacity={0.9} onPress={cartSize > 0 ? onPress : undefined} disabled={cartSize <= 0}>
         <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
           <View>
             <Icons size={25} color="white" name="cart" />
@@ -263,86 +259,73 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
   )
 }
 
-export function DialogComercialInstance(props: {
-  openModal: boolean;
-  setRegisterInvalid: Function;
-  rest: any;
-  navigation: any
-} & HomeScreenProps) {
-
+export function DialogComercialInstance(
+  props: {
+    openModal: boolean
+    setRegisterInvalid: Function
+    rest: any
+    navigation: any
+  } & HomeScreenProps
+) {
   const handleLogout = async () => {
     try {
-      await Promise.all([clearStorage(), deleteToken()]);
-      props.navigation.replace("Sign");
+      await Promise.all([clearStorage(), deleteToken()])
+      props.navigation.replace('Sign')
     } catch (error) {
-      console.error("Erro ao deslogar:", error);
+      console.error('Erro ao deslogar:', error)
     }
-  };
+  }
 
   return (
-    <Dialog
-  modal
-  open={props.openModal}
->
-  {/* Modal adaptado para ocupar tela cheia no celular */}
-  <Adapt when="sm" platform="touch">
-    <Sheet
-      animationConfig={{
-        type: "spring",
-        damping: 20,
-        mass: 0.5,
-        stiffness: 200,
-      }}
-      animation="medium"
-      zIndex={200000}
-      modal
-      disableDrag
-      snapPoints={[100]} // Ocupa 100% da tela
-      snapPointsMode="percent"
-    >
-      <Sheet.Frame padding="$4" gap="$4" flex={1}>
-        <Adapt.Contents />
-      </Sheet.Frame>
-      <Sheet.Overlay
-        animation="quickest"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-      />
-    </Sheet>
-  </Adapt>
+    <Dialog modal open={props.openModal}>
+      {/* Modal adaptado para ocupar tela cheia no celular */}
+      <Adapt when="sm" platform="touch">
+        <Sheet
+          animationConfig={{
+            type: 'spring',
+            damping: 20,
+            mass: 0.5,
+            stiffness: 200
+          }}
+          animation="medium"
+          zIndex={200000}
+          modal
+          disableDrag
+          snapPoints={[100]} // Ocupa 100% da tela
+          snapPointsMode="percent"
+        >
+          <Sheet.Frame padding="$4" gap="$4" flex={1}>
+            <Adapt.Contents />
+          </Sheet.Frame>
+          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+        </Sheet>
+      </Adapt>
 
       <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
+        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
 
         <Dialog.Content
           bordered
           elevate
           key="content"
-          animateOnly={["transform", "opacity"]}
+          animateOnly={['transform', 'opacity']}
           animation={[
-            "quicker",
+            'quicker',
             {
               opacity: {
-                overshootClamping: true,
-              },
-            },
+                overshootClamping: true
+              }
+            }
           ]}
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
           <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
-            <Dialog.Title textAlign="center" mx="auto">Bem vindo à Conéctar!</Dialog.Title>
-            <Dialog.Description textAlign="center">
-              Entre em contato conosco para agendar um contato rápido e começar a
-              utilizar o aplicativo!
-            </Dialog.Description>
+            <Dialog.Title textAlign="center" mx="auto">
+              Bem vindo à Conéctar!
+            </Dialog.Title>
+            <Dialog.Description textAlign="center">Entre em contato conosco para agendar um contato rápido e começar a utilizar o aplicativo!</Dialog.Description>
 
             <XStack justifyContent="center" alignSelf="center" gap="$4">
               <Dialog.Close displayWhenAdapted asChild>
@@ -359,18 +342,16 @@ ${props.rest.map((item: any) => `\n- ${item.name}`)}
 
 Consegue me ajudar?`
                     )
-                      .replace("!", "%21")
-                      .replace("'", "%27")
-                      .replace("(", "%28")
-                      .replace(")", "%29")
-                      .replace("*", "%2A")
+                      .replace('!', '%21')
+                      .replace("'", '%27')
+                      .replace('(', '%28')
+                      .replace(')', '%29')
+                      .replace('*', '%2A')
 
-                    await Linking.openURL(
-                      `https://wa.me/5521999954372?text=${text}`
-                    )
+                    await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
                     setTimeout(() => {
-                      handleLogout();
-                    }, 2000);
+                      handleLogout()
+                    }, 2000)
                   }}
                 >
                   Entre em contato
@@ -381,7 +362,7 @@ Consegue me ajudar?`
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
-  );
+  )
 }
 
 export function DialogFinanceInstance(props: { openModal: boolean; setRegisterInvalid: Function; rest: any }) {
@@ -442,9 +423,9 @@ export function DialogFinanceInstance(props: { openModal: boolean; setRegisterIn
                 onPress={async () => {
                   const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
 ${props.rest.map(
-                    (item: any) => `
+  (item: any) => `
 - ${item.name}`
-                  )}
+)}
 
 Consegue me ajudar?`)
                     .replace('!', '%21')
@@ -466,120 +447,98 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({
-    id,
-    name,
-    image,
-    mediumWeight,
-    firstUnit,
-    secondUnit,
-    thirdUnit,
-    orderUnit,
-    toggleFavorite,
-    favorites,
-    saveCart,
-    cart,
-    setImage,
-    setModalVisible,
-    currentClass,
-    obs: parentObs,
-    addObservation,
-    onObsChange,
-  }: ProductBoxProps) => {
-    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1);
-    const [valueQuant, setValueQuant] = useState(0);
-    const [obs, setObs] = useState(parentObs);
-    const [open, setOpen] = useState<boolean>(false);
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
+    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
+    const [valueQuant, setValueQuant] = useState(0)
+    const [obs, setObs] = useState(parentObs)
+    const [open, setOpen] = useState<boolean>(false)
 
-    const obsRef = useRef("");
-    const quantRef = useRef<number>(firstUnit);
-    const previousCartRef = useRef<Map<string, Cart>>(new Map());
+    const obsRef = useRef('')
+    const quantRef = useRef<number>(firstUnit)
+    const previousCartRef = useRef<Map<string, Cart>>(new Map())
 
-    
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
-    
+
     const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
-    
-  useEffect(() => {
-    const currentCartItem = cart.get(id);
-    const previousCartItem = previousCartRef.current.get(id);
 
-    
-    if (
-      !currentCartItem && !previousCartItem || 
-      (currentCartItem && previousCartItem && 
-       currentCartItem.amount === previousCartItem.amount &&
-       currentCartItem.obs === previousCartItem.obs)
-    ) {
-      return;
-    }
+    useEffect(() => {
+      const cartProduct = cart.get(id)
+      const favoriteProduct = favorites.find((f) => f.id === id)
+      if (favoriteProduct?.obs) {
+        setObs(favoriteProduct.obs)
+        onObsChange(favoriteProduct.obs)
+      } else if (cartProduct?.obs) {
+        setObs(cartProduct.obs)
+        onObsChange(cartProduct.obs)
+      }
+    }, [favorites, cart.get(id)?.obs])
 
-    if (currentCartItem) {
-      setValueQuant(Number(currentCartItem.amount));
-      setObs(currentCartItem.obs || '');
-      onObsChange(currentCartItem.obs || '');
-    } else {
-      setValueQuant(0);
-      setObs('');
-      onObsChange('');
-    }
+    useEffect(() => {
+      const currentCartItem = cart.get(id)
+      const previousCartItem = previousCartRef.current.get(id)
 
-    
-    previousCartRef.current = new Map(cart);
-  }, [cart]); 
+      if ((!currentCartItem && !previousCartItem) || (currentCartItem && previousCartItem && currentCartItem.amount === previousCartItem.amount && currentCartItem.obs === previousCartItem.obs)) {
+        return
+      }
 
-  
-  const handlePersistCart = useCallback(() => {
-    const currentItem = { amount: valueQuant, productId: id, obs };
-    const previousItem = previousCartRef.current.get(id);
+      if (currentCartItem) {
+        setValueQuant(Number(currentCartItem.amount))
+        setObs(currentCartItem.obs || '')
+        onObsChange(currentCartItem.obs || '')
+      } else {
+        setValueQuant(0)
+        setObs('')
+        onObsChange('')
+      }
 
-    
-    const shouldPersist = (
-      valueQuant > 0 || 
-      (previousItem && valueQuant !== previousItem.amount) || 
-      (previousItem && obs !== previousItem.obs) 
-    );
+      previousCartRef.current = new Map(cart)
+    }, [cart])
 
-    if (shouldPersist) {
-      saveCart(currentItem, !!previousItem);
-      previousCartRef.current.set(id, currentItem);
-    }
-  }, [valueQuant, obs, id, saveCart]);
+    const handlePersistCart = useCallback(() => {
+      const currentItem = { amount: valueQuant, productId: id, obs }
+      const previousItem = previousCartRef.current.get(id)
 
-  
-  useEffect(() => {
-    const timer = setTimeout(handlePersistCart, 300);
-    return () => clearTimeout(timer);
-  }, [valueQuant, obs, handlePersistCart]);
+      const shouldPersist = valueQuant > 0 || (previousItem && valueQuant !== previousItem.amount) || (previousItem && obs !== previousItem.obs)
+
+      if (shouldPersist) {
+        saveCart(currentItem, !!previousItem)
+        previousCartRef.current.set(id, currentItem)
+      }
+    }, [valueQuant, obs, id, saveCart])
+
+    useEffect(() => {
+      const timer = setTimeout(handlePersistCart, 1000)
+      return () => clearTimeout(timer)
+    }, [valueQuant, obs, handlePersistCart])
 
     const handleQuantityChange = (newQuant: number) => {
       setQuant(newQuant)
       quantRef.current = newQuant
-
     }
 
     const handleObsChange = (text: string) => {
       setObs(text)
       onObsChange(text)
+      if (isFavorite) {
+        addObservation(id, text)
+      }
     }
 
     const handleValueQuantChange = (delta: number) => {
-      setValueQuant((prevValue) =>
-        Math.max(0, Number((prevValue + delta).toFixed(3)))
-      );
-    };
+      setValueQuant((prevValue) => Math.max(0, Number((prevValue + delta).toFixed(3))))
+    }
 
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
-          await addObservation(id, obs);
-          obsRef.current = obs;
+          await addObservation(id, obs)
+          obsRef.current = obs
         } catch (error) {
-          console.error("Failed to save observation:", error);
+          console.error('Failed to save observation:', error)
         }
       }
-    }, [addObservation, id, obs]);
+    }, [addObservation, id, obs])
 
     return (
       <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" paddingBottom={Platform.OS === 'web' ? '' : 5}>
@@ -641,16 +600,7 @@ const ProductBox = React.memo(
               <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems="center" flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
                 {Platform.OS === 'web' && (
                   <View alignSelf="flex-start" flex={1}>
-                    <XStack
-                      backgroundColor="#F0F2F6"
-                      flex={1}
-                      paddingRight={14}
-                      borderWidth={0}
-                      borderRadius={20}
-                      alignItems="center"
-                      flexDirection="row"
-                      height={36}
-                    >
+                    <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
                         placeholder="Observação para entrega..."
@@ -660,7 +610,9 @@ const ProductBox = React.memo(
                         flex={1}
                         fontSize={10}
                         maxLength={999}
-                        onPress={(e) => e.stopPropagation()}
+                        onPressIn={(e) => {
+                          e.stopPropagation()
+                        }}
                         onChangeText={handleObsChange}
                         onBlur={handleBlur}
                         value={obs}
@@ -735,17 +687,9 @@ const ProductBox = React.memo(
             </View>
             {Platform.OS !== 'web' && (
               <View>
-                <XStack
-                  backgroundColor="#F0F2F6"
-                  paddingRight={14}
-                  borderWidth={0}
-                  borderRadius={20}
-                  alignItems="center"
-                  flexDirection="row"
-                  marginBottom={10}
-                  height={36}
-                >
+                <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" marginBottom={10} height={36}>
                   <Input
+                    focusVisibleStyle={{ outlineWidth: 0 }}
                     placeholder="Observação para entrega..."
                     backgroundColor="transparent"
                     borderWidth={0}
@@ -753,7 +697,9 @@ const ProductBox = React.memo(
                     flex={1}
                     fontSize={10}
                     maxLength={999}
-                    onPress={(e) => e.stopPropagation()}
+                    onPressIn={(e) => {
+                      e.stopPropagation()
+                    }}
                     onChangeText={handleObsChange}
                     onBlur={handleBlur}
                     value={obs}
@@ -899,7 +845,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null)
   const [restaurantOpen, setRestaurantOpen] = useState(false)
 
-  const flatListRef = useRef<FlatList<Product>>(null)
+  const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
 
   const handleScroll = () => {
     if (!isScrolling) {
@@ -1047,25 +993,28 @@ export function Products({ navigation }: HomeScreenProps) {
     await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
   }, [])
 
-  const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
-    const token = await getToken()
-    if (token == null) return
+  const saveCartArray = useCallback(
+    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
+      const token = await getToken()
+      if (token == null) return
 
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token,
-        carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values())
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token,
+          carts: Array.from(carts.values()),
+          cartToExclude: Array.from(cartsToExclude.values())
+        })
       })
-    })
 
-    setCartToExclude(new Map())
-    //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
-  }, [saveCart, loadCart, loadProducts])
+      setCartToExclude(new Map())
+      //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
+    },
+    [saveCart, loadCart, loadProducts]
+  )
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
@@ -1090,12 +1039,7 @@ export function Products({ navigation }: HomeScreenProps) {
     const loadInitialData = async () => {
       setLoading(true)
       try {
-        const [restaurants, savedRestaurant, cartMap] = await Promise.all([
-          loadRestaurants(),
-          getSavedRestaurant(), 
-          loadCart(),
-          loadProducts()
-        ])
+        const [restaurants, savedRestaurant, cartMap] = await Promise.all([loadRestaurants(), getSavedRestaurant(), loadCart(), loadProducts()])
 
         const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true)
         // Extraindo categorias
@@ -1132,9 +1076,9 @@ export function Products({ navigation }: HomeScreenProps) {
           setShowFinanceBlock(true)
         }
 
- const favs = await loadFavorites()
+        const favs = await loadFavorites()
         if (favs.length > 0) {
-          setFavorites(favs) 
+          setFavorites(favs)
         }
         if (cartMap.size > 0) {
           setCart(cartMap)
@@ -1168,14 +1112,14 @@ export function Products({ navigation }: HomeScreenProps) {
   }, [selectedRestaurant])
 
   const addToFavorites = useCallback(
-    async (productId: string) => {
+    async (productId: string, obs: string) => {
       try {
         const token = await getToken()
         const restaurant = await getSavedRestaurant()
         if (token == null || !restaurant) return
         const productToAdd = productsList?.find((product) => product.id === productId)
         if (productToAdd) {
-          setFavorites([...favorites, productToAdd])
+          setFavorites([...favorites, { ...productToAdd, obs }])
         }
         const storedRestaurant = await getSavedRestaurant()
 
@@ -1188,7 +1132,8 @@ export function Products({ navigation }: HomeScreenProps) {
           body: JSON.stringify({
             productId,
             restaurantId: storedRestaurant?.id,
-            token
+            token,
+            obs
           })
         })
         if (!result.ok) return null
@@ -1197,48 +1142,48 @@ export function Products({ navigation }: HomeScreenProps) {
       }
     },
     [favorites, productsList, selectedRestaurant]
-  );
+  )
 
   const addObservation = useCallback(
     async (productId: string, observation: string): Promise<void | null | undefined> => {
       try {
-        const token = await getToken();
-        const restaurant = await getSavedRestaurant();
-        if (token == null || !restaurant) return;
-        const productToAdd = productsList?.find(
-          (product) => product.id === productId
-        );
-        const storedRestaurant = await getSavedRestaurant();
+        const token = await getToken()
+        const restaurant = await getSavedRestaurant()
+        if (token == null || !restaurant) return
+        const productToAdd = productsList?.find((product) => product.id === productId)
+        const storedRestaurant = await getSavedRestaurant()
 
-        const result = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              productId,
-              restaurantId: storedRestaurant?.id,
-              token,
-              obs: observation
-            }),
-          }
-        );
-        if (!result.ok) return null;
+        const isFavorite = favorites.some((fav) => fav.id === productId)
+        if (!isFavorite) {
+          return
+        }
+
+        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            productId,
+            restaurantId: storedRestaurant?.id,
+            token,
+            obs: observation
+          })
+        })
+        if (!result.ok) return null
       } catch (error) {
-        console.error("Erro ao adicionar aos favoritos:", error);
+        console.error('Erro ao adicionar aos favoritos:', error)
       }
     },
     [favorites, productsList, selectedRestaurant]
-  );
+  )
 
   const removeFromFavorites = useCallback(
     async (productId: string) => {
       try {
         const token = await getToken()
-        const restaurant = await getSavedRestaurant() 
+        const restaurant = await getSavedRestaurant()
         setFavorites(favorites.filter((favorite) => favorite.id !== productId))
         if (token == null || !restaurant) return
         const storedRestaurant = await getSavedRestaurant()
@@ -1263,7 +1208,7 @@ export function Products({ navigation }: HomeScreenProps) {
     [favorites]
   )
 
-  const toggleFavorite = useCallback(
+  /*const toggleFavorite = useCallback(
     async (productId: string) => {
       const isCurrentlyFavorite = favorites.some((favorite) => favorite.id === productId)
       if (isCurrentlyFavorite) {
@@ -1273,11 +1218,34 @@ export function Products({ navigation }: HomeScreenProps) {
       }
     },
     [favorites, addToFavorites, removeFromFavorites]
+  )*/
+
+  const toggleFavorite = useCallback(
+    async (productId: string) => {
+      const product = productsList?.find((p) => p.id === productId)
+      const isCurrentlyFavorite = favorites.some((f) => f.id === productId)
+
+      if (isCurrentlyFavorite) {
+        await removeFromFavorites(productId)
+      } else {
+        // Adiciona a observação atual ao favoritar
+        const currentObs = productObservations.get(productId) || ''
+        await addToFavorites(productId, currentObs)
+
+        // Se houver uma observação no carrinho, sincroniza com os favoritos
+        const cartItem = cart.get(productId)
+        if (cartItem?.obs && cartItem.obs !== currentObs) {
+          await addObservation(productId, cartItem.obs)
+          setProductObservations((prev) => new Map(prev).set(productId, cartItem.obs))
+        }
+      }
+    },
+    [favorites, productObservations, cart]
   )
 
   useEffect(() => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
+    if (virtualizedListRef.current) {
+      virtualizedListRef.current.scrollToOffset({ animated: true, offset: 0 })
     }
   }, [currentClass, searchQuery])
 
@@ -1389,16 +1357,8 @@ export function Products({ navigation }: HomeScreenProps) {
         addObservation={addObservation}
       />
     ),
-    [
-      cart,
-      currentClass,
-      favorites,
-      saveCart,
-      toggleFavorite,
-      productObservations,
-      addObservation
-    ]
-  );
+    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation]
+  )
 
   async function handleRestaurantChoice(value: string | null) {
     try {
@@ -1406,7 +1366,7 @@ export function Products({ navigation }: HomeScreenProps) {
 
       const storedRestaurant = await getSavedRestaurant()
       if (storedRestaurant?.externalId === value) {
-        return 
+        return
       }
 
       const restaurant = restaurantes.find((r) => r.externalId === value)
@@ -1428,22 +1388,9 @@ export function Products({ navigation }: HomeScreenProps) {
 
   return (
     <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
-      <DialogComercialInstance
-        openModal={showRegistrationReleasedNewApp}
-        setRegisterInvalid={setShowRegistrationReleasedNewApp}
-        rest={restaurantes}
-        navigation={navigation}
-      />
-      <DialogFinanceInstance
-        openModal={showFinanceBlock}
-        setRegisterInvalid={setShowFinanceBlock}
-        rest={restaurantes}
-      />
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <DialogComercialInstance openModal={showRegistrationReleasedNewApp} setRegisterInvalid={setShowRegistrationReleasedNewApp} rest={restaurantes} navigation={navigation} />
+      <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
+      <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
           style={{
             flex: 1,
@@ -1526,9 +1473,8 @@ export function Products({ navigation }: HomeScreenProps) {
 
         <FlatList
           style={{
-            maxHeight: Platform.OS === 'web' ? 50 : 60,
-            paddingVertical: 10,
-            minHeight: 50,
+            maxHeight: Platform.OS === 'web' ? 50 : 40,
+            minHeight: Platform.OS === 'web' ? 50 : undefined,
             width: Platform.OS === 'web' ? '68%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined
           }}
@@ -1539,7 +1485,7 @@ export function Products({ navigation }: HomeScreenProps) {
           renderItem={renderClassItem}
         />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 55} borderTopColor="#aaa" borderTopWidth={0.5}>
+        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 40} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
@@ -1549,7 +1495,7 @@ export function Products({ navigation }: HomeScreenProps) {
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
-            <FlatList ref={flatListRef} data={displayedProducts} renderItem={renderProduct} keyExtractor={(item: any) => item.id} onEndReachedThreshold={0.5} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} ItemSeparatorComponent={() => <View height={8}></View>} />
+            <VirtualizedList ref={virtualizedListRef} data={displayedProducts} getItem={(data, index) => data[index]} getItemCount={(data) => data.length} keyExtractor={(item) => item.id} renderItem={renderProduct} initialNumToRender={10} windowSize={5} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" style={{ flex: 1 }} ItemSeparatorComponent={() => <View height={8} />} />
           ) : (
             <ScrollView>
               <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
@@ -1584,7 +1530,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <View
             onPress={async () => {
               setLoading(true)
-              saveCartArray(cart, cartToExclude).catch(console.error) 
+              saveCartArray(cart, cartToExclude).catch(console.error)
               setLoading(false)
               navigation.replace('Orders')
             }}
@@ -1642,4 +1588,3 @@ export function Products({ navigation }: HomeScreenProps) {
     </Stack>
   )
 }
-
