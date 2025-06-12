@@ -12,7 +12,9 @@ import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStor
 import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo } from '../utils/VersionApp'
+import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
+import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
+import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
 
 type Product = {
   name: string
@@ -76,39 +78,6 @@ type ProductBoxProps = Product & {
   obs: string
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
-}
-
-export const SaveUserAppInfo = async () => {
-  try {
-    //const appVersion = DeviceInfo.getVersion()
-    const appVersionExpo = process.env.EXPO_PUBLIC_VERSION
-    const appOS = Platform.OS
-
-    //Pegar o externalId do restaurante
-    const data = await AsyncStorage.getItem('selectedRestaurant')
-    const restaurant = data ? JSON.parse(data) : null
-    const externalId = restaurant?.restaurant?.externalId ?? null
-    const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
-
-    const userAppData = {
-      externalId,
-      appVersionExpo,
-      appOS,
-      statusId
-    }
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/app`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        externalId: userAppData.externalId,
-        version: userAppData.appVersionExpo,
-        OperationalSystem: userAppData.appOS,
-        statusId: userAppData.statusId
-      })
-    })
-  } catch (error) {
-    console.error('Erro ao salvar dados do app:', error)
-  }
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -846,6 +815,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantOpen, setRestaurantOpen] = useState(false)
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
+  const flatListRef = useRef<FlatList<Product>>(null)
 
   const handleScroll = () => {
     if (!isScrolling) {
@@ -1246,6 +1216,8 @@ export function Products({ navigation }: HomeScreenProps) {
   useEffect(() => {
     if (virtualizedListRef.current) {
       virtualizedListRef.current.scrollToOffset({ animated: true, offset: 0 })
+    } else if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
     }
   }, [currentClass, searchQuery])
 
@@ -1471,19 +1443,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList
-          style={{
-            maxHeight: Platform.OS === 'web' ? 50 : 40,
-            minHeight: Platform.OS === 'web' ? 50 : undefined,
-            width: Platform.OS === 'web' ? '68%' : undefined,
-            alignSelf: Platform.OS === 'web' ? 'center' : undefined
-          }}
-          data={classItems}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item: any) => item.name}
-          renderItem={renderClassItem}
-        />
+        <FlatList style={{maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined}} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem}/>
 
         <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 40} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
@@ -1495,7 +1455,11 @@ export function Products({ navigation }: HomeScreenProps) {
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
-            <VirtualizedList ref={virtualizedListRef} data={displayedProducts} getItem={(data, index) => data[index]} getItemCount={(data) => data.length} keyExtractor={(item) => item.id} renderItem={renderProduct} initialNumToRender={10} windowSize={5} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" style={{ flex: 1 }} ItemSeparatorComponent={() => <View height={8} />} />
+            Platform.OS === 'android' ? (
+              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} />
+            ) : (
+              <CustomFlatList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} listRef={flatListRef} />
+            )
           ) : (
             <ScrollView>
               <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
