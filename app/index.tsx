@@ -127,6 +127,8 @@ const PwRecovery = ({
                   Informe o e-mail abaixo e insira o código enviado
                 </Text>
                 <Input
+                  autoCapitalize="none"
+                  keyboardType="email-address"
                   mt={15}
                   mb={15}
                   onChangeText={setEmailModal}
@@ -137,6 +139,7 @@ const PwRecovery = ({
                 ></Input>
                 {step2 && (
                   <Input
+                    autoCapitalize="none"
                     onChangeText={setCodeModal}
                     maxLength={5}
                     placeholder="Código"
@@ -150,6 +153,7 @@ const PwRecovery = ({
             )}
             {step3 && !step4 && (
               <Input
+                autoCapitalize="none"
                 mt={15}
                 mb={15}
                 onChangeText={setPasswordModal}
@@ -565,6 +569,7 @@ export function SignInMobile(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           placeholder="Email"
           onChangeText={setEmail}
           backgroundColor="$colorTransparent"
@@ -588,6 +593,7 @@ export function SignInMobile(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           placeholder="Senha"
           onChangeText={setPassword}
           backgroundColor="$colorTransparent"
@@ -823,6 +829,7 @@ export function SignUpMobile(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           placeholder="Email"
           onChangeText={(email) => {
             setEmail(email);
@@ -851,6 +858,7 @@ export function SignUpMobile(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           placeholder="Senha"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
@@ -887,6 +895,7 @@ export function SignUpMobile(props: {
           : { borderColor: "$red10" })}
       >
         <Input
+          autoCapitalize="none"
           placeholder="Confirmar senha"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
@@ -1115,6 +1124,7 @@ export function SignInWeb(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           onChangeText={setEmail}
           focusStyle={{ outlineStyle: "none" }}
           placeholder="Email"
@@ -1141,6 +1151,7 @@ export function SignInWeb(props: {
         hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
       >
         <Input
+          autoCapitalize="none"
           onChangeText={setPassword}
           focusStyle={{ outlineStyle: "none" }}
           placeholder="Senha"
@@ -1381,6 +1392,7 @@ export function SignUpWeb(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           placeholder="Email"
           onChangeText={(email) => {
             setEmail(email);
@@ -1407,6 +1419,7 @@ export function SignUpWeb(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           onChangeText={(e) => {
             setPassword(e);
             passwordIsValid(e, confirmPassword, setPasswordValid);
@@ -1442,6 +1455,7 @@ export function SignUpWeb(props: {
         zIndex={20}
       >
         <Input
+          autoCapitalize="none"
           onChangeText={(e) => {
             setConfirmPassword(e);
             passwordIsValid(e, password, setPasswordValid);
