@@ -1017,7 +1017,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
 
   return (
     <YStack px={24} f={1} justifyContent="center" alignItems="center">
-      <Image src={require('../assets/images/logo-conectar-positivo.svg')} width={240} height={80} objectFit="fill" mb="$8" />
+      <Image src={require('../assets/images/logo-conectar-positivo.svg')} width={240} height={80} objectFit="fill" mb="$6" />
       {registerInvalid && <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} />}
 
       <Stack width="$20">
