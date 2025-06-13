@@ -32,6 +32,7 @@ interface Restaurant {
   externalId: any
   id: string
   name: string
+  registrationReleasedNewApp: boolean
 }
 
 // Função para formatar a data
@@ -244,10 +245,12 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         value={selectedRestaurant}
         setValue={(value) => setSelectedRestaurant(value)}
         onChangeValue={handleRestaurantChoice}
-        items={restaurants.map((restaurant) => ({
-          label: restaurant.name,
-          value: restaurant.externalId
-        }))}
+        items={restaurants
+          .filter((restaurant) => !restaurant.registrationReleasedNewApp)
+          .map((restaurant) => ({
+            label: restaurant.name,
+            value: restaurant.externalId
+          }))}
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
