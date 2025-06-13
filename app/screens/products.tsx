@@ -777,6 +777,7 @@ interface Restaurant {
   externalId: any
   id: string
   name: string
+  registrationReleasedNewApp: boolean
 }
 
 export function Products({ navigation }: HomeScreenProps) {
@@ -1026,19 +1027,26 @@ export function Products({ navigation }: HomeScreenProps) {
 
         setRestaurantes(validRestaurants)
 
-        let initialRestaurant = validRestaurants[0]
-        if (savedRestaurant) {
-          const found = validRestaurants.find((r) => r.id === savedRestaurant.id)
-          if (found) initialRestaurant = found
+        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp)
+        const allRestaurantBlocked = availableRestaurants.length === 0
+
+        let initialRestaurant = null
+        if (!allRestaurantBlocked) {
+          initialRestaurant = availableRestaurants[0]
+
+          if (savedRestaurant) {
+            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id)
+            if (found) {
+              initialRestaurant = found
+            }
+          }
+          setSelectedRestaurant(initialRestaurant.externalId)
+          setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
         }
 
-        setSelectedRestaurant(initialRestaurant.externalId)
-        setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
-
-        const restFilteredComercial = restaurants.filter((item: any) => item.registrationReleasedNewApp)
+        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true
         const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock)
-
-        if (restFilteredComercial.length) {
+        if (restFilteredComercial || allRestaurantBlocked) {
           setShowRegistrationReleasedNewApp(true)
         }
 
@@ -1341,7 +1349,7 @@ export function Products({ navigation }: HomeScreenProps) {
         return
       }
 
-      const restaurant = restaurantes.find((r) => r.externalId === value)
+      const restaurant = restaurantes.find((r) => r.externalId === value && r.registrationReleasedNewApp === false)
       if (restaurant) {
         await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
       }
@@ -1411,10 +1419,12 @@ export function Products({ navigation }: HomeScreenProps) {
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         value={selectedRestaurant}
-        items={restaurantes?.map((restaurant) => ({
-          label: restaurant.name,
-          value: restaurant.externalId
-        }))}
+        items={restaurantes
+          ?.filter((restaurant) => !restaurant.registrationReleasedNewApp)
+          .map((restaurant) => ({
+            label: restaurant.name,
+            value: restaurant.externalId
+          }))}
         setValue={setSelectedRestaurant}
         onChangeValue={handleRestaurantChoice}
         placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
@@ -1443,7 +1453,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList style={{maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined}} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem}/>
+        <FlatList style={{ maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
 
         <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 40} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
