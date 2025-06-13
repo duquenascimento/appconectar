@@ -562,7 +562,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
 
   const register = async (name: string, nameValid: boolean, position: string, phone: string, phoneValid: boolean, email: string, emailValid: boolean, password: string, passwordValid: boolean, registerInvalid: Function, setErros: Function) => {
     const erros: string[] = []
-    if (email.length > 1 && emailValid && password.length >= 8 && passwordValid) {
+    if (email.length > 1 && emailValid && name.length > 1 && nameValid && position.length > 1 && phone.length > 1 && phoneValid && password.length >= 8 && passwordValid) {
       dataSignup = {
         email: email.toLowerCase(),
         password,
@@ -655,6 +655,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
             setName(e)
             setNameValid(e.length > 1)
           }}
+          value={name}
           backgroundColor="$colorTransparent"
           borderWidth="$0"
           f={1}
@@ -722,6 +723,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
             setEmail(email)
             emailIsValid(email, setEmailValid)
           }}
+          value={email}
           textContentType="emailAddress"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
@@ -740,6 +742,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
+          value={password}
           f={1}
           mr="$3.5"
           maxLength={35}
@@ -1155,6 +1158,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
             setName(e)
             setNameValid(e.length > 1)
           }}
+          value={name}
           focusStyle={{ outlineStyle: 'none' }}
           backgroundColor="$colorTransparent"
           borderWidth="0"
@@ -1220,6 +1224,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
             setEmail(email)
             emailIsValid(email, setEmailValid)
           }}
+          value={email}
           focusStyle={{ outlineStyle: 'none' }}
           backgroundColor="$colorTransparent"
           borderWidth="0"
@@ -1241,6 +1246,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
+          value={password}
           f={1}
           mr="$3.5"
           maxLength={20}
