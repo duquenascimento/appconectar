@@ -160,7 +160,6 @@ export function Register({ navigation }: HomeScreenProps) {
           orderValue: Number(values.orderValue),
           cnpj: values.cnpj.replace(/\D/g, '')
         }
-        console.log('Payload de envio:', payload)
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
           method: 'POST',
           headers: {
@@ -337,7 +336,6 @@ export function Register({ navigation }: HomeScreenProps) {
     setLoading(true)
     try {
       const errors = await formik.validateForm()
-      console.log('erro de validação', errors)
 
       let currentStepIsValid = true
       const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation // Obtenha o schema correto
@@ -380,7 +378,6 @@ export function Register({ navigation }: HomeScreenProps) {
           }
 
           const endereco: any = dividirLogradouro(enderecoCNPJ.logradouro)
-          //const IE = encontrarInscricaoRJ(result.data.inscricoes_estaduais)
           formik.setValues({
             ...formik.values,
             legalRestaurantName: result.data.razao_social,
@@ -393,8 +390,6 @@ export function Register({ navigation }: HomeScreenProps) {
             city: campoString(enderecoCNPJ.localidade),
             stateNumberId: result.data.inscricao_estadual ?? '',
             cityNumberId: result.data.inscricao_municipal ?? ''
-            //stateNumberId: IE ?? "",
-            //noStateNumberId: !IE,
           })
           setStep(1)
         } else {
@@ -844,20 +839,15 @@ export function Register({ navigation }: HomeScreenProps) {
                     keyboardType="phone-pad"
                     value={formik.values.financeResponsiblePhoneNumber}
                     onChangeText={(value) => {
-                      // Remove todos os caracteres que não sejam dígitos
                       let onlyNums = value.replace(/\D/g, '')
 
                       if (onlyNums.length > 10) {
-                        // Formato moderno (celular): (XX) XXXXX-XXXX
                         onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
                       } else if (onlyNums.length > 6) {
-                        // Formato convencional (fixo): (XX) XXXX-XXXX
                         onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
                       } else if (onlyNums.length > 2) {
-                        // Formato parcial: (XX) XXXX
                         onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
                       } else if (onlyNums.length > 0) {
-                        // Formato parcial: (XX
                         onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
                       }
 
