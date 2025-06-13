@@ -810,7 +810,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
                             setValue={() => {}}
-                            items={allRestaurants.map((item) => ({
+                            items={allRestaurants.filter((r: any) => !r.registrationReleasedNewApp).map((item) => ({
                               label: item?.name,
                               value: item?.name
                             }))}
@@ -1254,7 +1254,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
                                 setValue={() => {}}
-                                items={allRestaurants.map((item) => ({
+                                items={allRestaurants.filter((r: any) => !r.registrationReleasedNewApp).map((item) => ({
                                   label: item?.name,
                                   value: item?.name
                                 }))}
