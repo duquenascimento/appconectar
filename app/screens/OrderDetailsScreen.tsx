@@ -296,11 +296,6 @@ export function OrderDetailsScreen() {
               const data = await res.json();
               console.log(data)
               if (data && data.status === 200) {
-                /* if (Platform.OS === "web") {
-                  window.open(url, "_blank");
-                } else {
-                  openURL(url);
-                } */
                setPdfUrl(url)
                setShowPdfModal(true)
               } else {
@@ -336,11 +331,6 @@ export function OrderDetailsScreen() {
               );
               const data = await res.json();
               if (data && data.status === 200) {
-                /* if (Platform.OS === "web") {
-                  window.open(url, "_blank");
-                } else {
-                  openURL(url);
-                } */
                setPdfUrl(url)
                setShowPdfModal(true)
               } else {
