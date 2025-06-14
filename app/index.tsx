@@ -682,11 +682,11 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
             borderColor: 'lightgray',
             zIndex: 50
           }}
-          listMode="SCROLLVIEW"
+          listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         />
       </XStack>
 
-      <XStack {...(phoneValid ? { borderColor: 'lightgray' } : { borderColor: '$red10' })} backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack {...(phoneValid ? { borderColor: 'lightgray' } : { borderColor: 'lightgray' })} backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
         <TextInputMask
           type="cel-phone"
           options={{
@@ -706,7 +706,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
             backgroundColor: 'white',
             borderRadius: 6,
             borderWidth: 1,
-            borderColor: phoneValid ? 'lightgray' : 'red',
+            borderColor: phoneValid ? 'lightgray' : 'lightgray',
             paddingHorizontal: 12,
             paddingVertical: 10,
             fontSize: 16,
@@ -1187,7 +1187,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
         />
       </XStack>
 
-      <XStack {...(phoneValid ? { borderColor: 'lightgray' } : { borderColor: '$red10' })} width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack {...(phoneValid ? { borderColor: 'lightgray' } : { borderColor: 'lightgray' })} width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
         <TextInputMask
           type="cel-phone"
           options={{
@@ -1207,7 +1207,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
             backgroundColor: 'white',
             borderRadius: 6,
             borderWidth: 1,
-            borderColor: phoneValid ? 'lightgray' : 'red',
+            borderColor: phoneValid ? 'lightgray' : 'lightgray',
             paddingHorizontal: 12,
             paddingVertical: 10,
             fontSize: 16,
@@ -1216,7 +1216,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
         />
       </XStack>
 
-      <XStack {...(emailValid ? { borderColor: 'lightgray' } : { borderColor: '$red10' })} width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack {...(emailValid ? { borderColor: 'lightgray' } : { borderColor: 'lightgray' })} width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
         <Input
           autoCapitalize="none"
           placeholder="Email"
