@@ -1,4 +1,3 @@
-import { openURL } from 'expo-linking'
 import { Platform } from 'react-native'
 import {WebView} from 'react-native-webview'
 import { Button, Dialog, YStack, Text, XStack } from "tamagui"
@@ -22,13 +21,10 @@ export default function PdfViewerModal({pdfUrl, open, onClose}: { pdfUrl: string
       link.setAttribute('download', pdfUrl.split('/').pop() || 'documento.pdf');
       document.body.appendChild(link);
       link.click();
-      
-      // Limpeza
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error('Erro ao baixar o arquivo:', error);
-      // Fallback para a abordagem anterior se houver problemas com CORS
       const link = document.createElement('a');
       link.href = pdfUrl;
       link.setAttribute('download', '');
