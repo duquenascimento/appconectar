@@ -472,7 +472,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
   ])
   const [phone, setPhone] = useState('')
   const [phoneValid, setPhoneValid] = useState(false)
-  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false)
   const [emailValid, setEmailValid] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -575,7 +575,27 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
         Preencha com os seus dados abaixo:
       </Text>
 
-      <XStack backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack
+        width="$100"
+        backgroundColor="white"
+        borderWidth={1}
+        borderRadius={9}
+        borderColor={
+          name.length > 0 && !nameValid ? '$red10' : 'lightgray'
+        }
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+        hoverStyle={{
+          borderColor: name.length > 0 && !nameValid ? '$red10' : '#049A63',
+          borderWidth: 1
+        }}
+        focusStyle={{
+          borderColor: name.length > 0 && !nameValid ? '$red10' : '#049A63',
+          borderWidth: 1
+        }}
+      >
         <Input
           placeholder="Nome"
           onChangeText={(e) => {
@@ -584,11 +604,14 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           }}
           value={name}
           backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          f={1}
-          width="100%"
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1, width: '100%' }}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+          borderWidth={0}
+          flex={1}
+          style={{
+            paddingHorizontal: 12,
+            paddingVertical: Platform.OS === 'android' ? 8 : 10, 
+            includeFontPadding: false,
+            textAlignVertical: 'center'
+          }}
         />
       </XStack>
 
@@ -614,22 +637,24 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
       </XStack>
 
       <XStack
-        {...(phoneValid || !phoneTouched ? { borderColor: 'lightgray' } : { borderColor: 'red' })}
-        hoverStyle={{
-          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
-          borderWidth: 1
-        }}
-        focusStyle={{
-          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
-          borderWidth: 1
-        }}
+        width="$100"
         backgroundColor="white"
-        borderWidth={1.6}
+        borderWidth={1}
         borderRadius={9}
+        overflow="hidden"
+        borderColor={phone.length === 0 ? 'lightgray' : phoneValid ? 'lightgray' : 'red'}
         mt="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
+        hoverStyle={{
+          borderColor: '#049A63',
+          borderWidth: 1
+        }}
+        focusStyle={{
+          borderColor: '#049A63',
+          borderWidth: 1
+        }}
       >
         <TextInputMask
           type="cel-phone"
@@ -646,21 +671,21 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           placeholder="Telefone"
           keyboardType="phone-pad"
           onBlur={() => {
-            setPhoneTouched(true)
             setPhoneValid(validatePhone(phone))
           }}
           style={{
             backgroundColor: 'white',
-            borderRadius: 6,
+            borderRadius: 8,
             paddingHorizontal: 12,
             paddingVertical: 10,
             fontSize: 16,
-            width: '100%'
+            width: '100%',
+            borderWidth: 0
           }}
         />
       </XStack>
 
-      <XStack backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack width="$100" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor={email.length > 0 && !emailValid ? 'red' : 'lightgray'} mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
         <Input
           autoCapitalize="none"
           placeholder="Email"
@@ -678,8 +703,26 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
         />
       </XStack>
-
-      <XStack backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" mb="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack
+        width="$100"
+        backgroundColor="white"
+        pr="$3.5"
+        borderWidth={1}
+        borderRadius={9}
+        borderColor={
+          password.length === 0
+            ? 'lightgray'
+            : passwordValid
+            ? 'lightgray'
+            : 'red'
+        }
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+      >
         <Input
           autoCapitalize="none"
           placeholder="Senha"
@@ -687,16 +730,14 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
-          value={password}
           f={1}
           mr="$3.5"
-          maxLength={35}
-          onChangeText={(e) => {
-            setPassword(e)
-            passwordIsValid(e, confirmPassword, setPasswordValid)
+          maxLength={20}
+          onChangeText={(text) => {
+            setPassword(text)
+            passwordIsValid(text, confirmPassword, setPasswordValid)
           }}
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+          focusStyle={{ outlineStyle: 'none' }}
         />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
@@ -704,9 +745,28 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           onPress={() => {
             setShowPw(!showPw)
           }}
-        ></Icons>
+        />
       </XStack>
-      <XStack backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} alignItems="center" flexDirection="row" zIndex={20} {...(passwordValid ? { borderColor: 'lightgray' } : { borderColor: '$red10' })}>
+      <XStack
+        width="$100"
+        backgroundColor="white"
+        pr="$3.5"
+        borderWidth={1}
+        borderRadius={9}
+        borderColor={
+          confirmPassword.length === 0
+            ? 'lightgray'
+            : passwordValid
+            ? 'lightgray'
+            : 'red'
+        }
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+      >
         <Input
           autoCapitalize="none"
           placeholder="Confirmar senha"
@@ -716,13 +776,12 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           secureTextEntry={showConfirmPw}
           f={1}
           mr="$3.5"
-          maxLength={35}
-          onChangeText={(e) => {
-            setConfirmPassword(e)
-            passwordIsValid(e, password, setPasswordValid)
+          maxLength={20}
+          onChangeText={(text) => {
+            setConfirmPassword(text)
+            setPasswordValid(text === password)
           }}
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+          focusStyle={{ outlineStyle: 'none' }}
         />
         <Icons
           name={showConfirmPw ? 'eye' : 'eye-off'}
@@ -730,7 +789,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           onPress={() => {
             setShowConfirmPw(!showConfirmPw)
           }}
-        ></Icons>
+        />
       </XStack>
 
       <Button
@@ -863,10 +922,10 @@ export function SignInWeb(props: { page: string; onButtonPress: (page: string) =
       </Stack>
 
       <XStack width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
-        <Input autoCapitalize="none" onChangeText={setEmail} focusStyle={{ outlineStyle: 'none' }} placeholder="Email" backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" f={1} maxLength={256} width="100%" />
+        <Input autoCapitalize="none" onChangeText={setEmail} focusStyle={{ outlineStyle: 'none' }} value={email} placeholder="Email" backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" f={1} maxLength={256} width="100%" />
       </XStack>
       <XStack width="$20" backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}>
-        <Input autoCapitalize="none" onChangeText={setPassword} focusStyle={{ outlineStyle: 'none' }} placeholder="Senha" backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" secureTextEntry={showPw} f={1} mr="$3.5" maxLength={20} />
+        <Input autoCapitalize="none" onChangeText={setPassword} focusStyle={{ outlineStyle: 'none' }} value={password} placeholder="Senha" backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" secureTextEntry={showPw} f={1} mr="$3.5" maxLength={20} />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
           size={24}
@@ -950,7 +1009,6 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
   ])
   const [phone, setPhone] = useState('')
   const [phoneValid, setPhoneValid] = useState(true)
-  const [phoneTouched, setPhoneTouched] = useState(false);
   const [emailValid, setEmailValid] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -1051,7 +1109,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
         <Text color="$gray10Dark">Preencha com os seus dados abaixo:</Text>
       </Stack>
 
-      <XStack width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor={name.length > 0 && !nameValid ? 'red' : 'lightgray'} mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
         <Input
           placeholder="Nome"
           onChangeText={(e) => {
@@ -1059,15 +1117,16 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
             setNameValid(e.length > 1)
           }}
           value={name}
-          focusStyle={{ outlineStyle: 'none' }}
           backgroundColor="$colorTransparent"
           borderWidth="0"
           f={1}
           width="100%"
+          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
         />
       </XStack>
 
-      <XStack width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} mt="$3.5" alignItems="center" flexDirection="row" zIndex={30}>
+      <XStack width="$20" borderWidth={1} backgroundColor="white" borderRadius={9} mt="$3.5" alignItems="center" flexDirection="row" zIndex={30}>
         <DropDownPicker
           open={open}
           value={position}
@@ -1088,23 +1147,24 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
       </XStack>
 
       <XStack
-        {...(phoneValid || !phoneTouched ? { borderColor: 'lightgray' } : { borderColor: 'red' })}
-        hoverStyle={{
-          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
-          borderWidth: 1
-        }}
-        focusStyle={{
-          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
-          borderWidth: 1
-        }}
+        width="$20"
         backgroundColor="white"
-        borderWidth={1.6}
+        borderWidth={1}
         borderRadius={9}
+        overflow="hidden"
+        borderColor={phone.length === 0 ? 'lightgray' : phoneValid ? 'lightgray' : 'red'}
         mt="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
-        width="$20"
+        hoverStyle={{
+          borderColor: '#049A63',
+          borderWidth: 1
+        }}
+        focusStyle={{
+          borderColor: '#049A63',
+          borderWidth: 1
+        }}
       >
         <TextInputMask
           type="cel-phone"
@@ -1121,21 +1181,21 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           placeholder="Telefone"
           keyboardType="phone-pad"
           onBlur={() => {
-            setPhoneTouched(true)
             setPhoneValid(validatePhone(phone))
           }}
           style={{
             backgroundColor: 'white',
-            borderRadius: 6,
+            borderRadius: 8,
             paddingHorizontal: 12,
             paddingVertical: 10,
             fontSize: 16,
-            width: '100%'
+            width: '100%',
+            borderWidth: 0
           }}
         />
       </XStack>
 
-      <XStack {...(emailValid ? { borderColor: 'lightgray' } : { borderColor: 'lightgray' })} width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor={email.length > 0 && !emailValid ? 'red' : 'lightgray'} mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
         <Input
           autoCapitalize="none"
           placeholder="Email"
@@ -1144,31 +1204,50 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
             emailIsValid(email, setEmailValid)
           }}
           value={email}
-          focusStyle={{ outlineStyle: 'none' }}
+          textContentType="emailAddress"
           backgroundColor="$colorTransparent"
-          borderWidth="0"
+          borderWidth="$0"
           f={1}
           maxLength={256}
-          width="100%"
+          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
         />
       </XStack>
-      <XStack width="$20" backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack
+        width="$20"
+        backgroundColor="white"
+        pr="$3.5"
+        borderWidth={1}
+        borderRadius={9}
+        borderColor={
+          password.length === 0
+            ? 'lightgray' // Cinza se vazio
+            : passwordValid
+            ? 'lightgray'
+            : 'red' // Vermelho se inválido
+        }
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+      >
         <Input
           autoCapitalize="none"
-          onChangeText={(e) => {
-            setPassword(e)
-            passwordIsValid(e, confirmPassword, setPasswordValid)
-          }}
-          focusStyle={{ outlineStyle: 'none' }}
           placeholder="Senha"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
-          value={password}
           f={1}
           mr="$3.5"
           maxLength={20}
+          onChangeText={(text) => {
+            setPassword(text)
+            passwordIsValid(text, confirmPassword, setPasswordValid)
+          }}
+          focusStyle={{ outlineStyle: 'none' }}
         />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
@@ -1176,16 +1255,30 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           onPress={() => {
             setShowPw(!showPw)
           }}
-        ></Icons>
+        />
       </XStack>
-      <XStack width="$20" backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack
+        width="$20"
+        backgroundColor="white"
+        pr="$3.5"
+        borderWidth={1}
+        borderRadius={9}
+        borderColor={
+          confirmPassword.length === 0
+            ? 'lightgray' // Cinza se vazio
+            : passwordValid
+            ? 'lightgray'
+            : 'red' // Vermelho se inválido
+        }
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+      >
         <Input
           autoCapitalize="none"
-          onChangeText={(e) => {
-            setConfirmPassword(e)
-            passwordIsValid(e, password, setPasswordValid)
-          }}
-          focusStyle={{ outlineStyle: 'none' }}
           placeholder="Confirmar senha"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
@@ -1194,6 +1287,11 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           f={1}
           mr="$3.5"
           maxLength={20}
+          onChangeText={(text) => {
+            setConfirmPassword(text)
+            setPasswordValid(text === password) // Valida se é igual à senha principal
+          }}
+          focusStyle={{ outlineStyle: 'none' }}
         />
         <Icons
           name={showConfirmPw ? 'eye' : 'eye-off'}
@@ -1201,7 +1299,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           onPress={() => {
             setShowConfirmPw(!showConfirmPw)
           }}
-        ></Icons>
+        />
       </XStack>
 
       <Button
