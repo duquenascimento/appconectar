@@ -15,6 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
 import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
 import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
+import { HomeScreenPropsUtils } from '../utils/NavigationTypes' 
 
 type Product = {
   name: string
@@ -234,7 +235,7 @@ export function DialogComercialInstance(
     setRegisterInvalid: Function
     rest: any
     navigation: any
-  } & HomeScreenProps
+  } & HomeScreenPropsUtils
 ) {
   const handleLogout = async () => {
     try {
@@ -1349,10 +1350,13 @@ export function Products({ navigation }: HomeScreenProps) {
         return
       }
 
-      const restaurant = restaurantes.find((r) => r.externalId === value && r.registrationReleasedNewApp === false)
-      if (restaurant) {
+      const restaurant = restaurantes.find((r) => r.externalId === value)
+      if (!restaurant) return
+        if (restaurant.registrationReleasedNewApp === true) {
+          setShowRegistrationReleasedNewApp(true)
+          return
+        }
         await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
-      }
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -1419,12 +1423,10 @@ export function Products({ navigation }: HomeScreenProps) {
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         value={selectedRestaurant}
-        items={restaurantes
-          ?.filter((restaurant) => !restaurant.registrationReleasedNewApp)
-          .map((restaurant) => ({
-            label: restaurant.name,
-            value: restaurant.externalId
-          }))}
+        items={restaurantes.map((restaurant) => ({
+          label: restaurant.name,
+          value: restaurant.externalId
+        }))}
         setValue={setSelectedRestaurant}
         onChangeValue={handleRestaurantChoice}
         placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
