@@ -1845,7 +1845,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
           setRegisterInvalid={setShowBlockedModal}
           rest={allRestaurants}
           navigation={navigation}
-          messageText="Seu restaurante não está liberado para fazer cotações. Entre em contato conosco ou selecione outro restaurante disponível."
+          messageText="Este restaurante não está liberado para fazer cotações. Entre em contato conosco ou selecione outro restaurante disponível."
           onSelectAvailable={async () => {
             try {
               // Encontrar um restaurante disponível

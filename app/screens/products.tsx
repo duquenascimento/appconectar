@@ -1272,7 +1272,7 @@ export function Products({ navigation }: HomeScreenProps) {
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
         navigation={navigation}
-        messageText="Seu restaurante não está liberado. Entre em contato conosco para concluir o processo."
+        messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
           const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp)
           if (availableRestaurant) {

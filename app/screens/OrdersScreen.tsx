@@ -449,7 +449,7 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         setRegisterInvalid={setShowBlockedModal}
         rest={restaurants}
         navigation={navigation}
-        messageText="Seu restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
+        messageText="Este restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
         onSelectAvailable={async () => {
           try {
             const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp)
