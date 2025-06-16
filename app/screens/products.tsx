@@ -15,7 +15,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
 import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
 import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
-import { HomeScreenPropsUtils } from '../utils/NavigationTypes' 
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 
 type Product = {
   name: string
@@ -226,112 +226,6 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
         </View>
       </TouchableOpacity>
     </Animated.View>
-  )
-}
-
-export function DialogComercialInstance(
-  props: {
-    openModal: boolean
-    setRegisterInvalid: Function
-    rest: any
-    navigation: any
-  } & HomeScreenPropsUtils
-) {
-  const handleLogout = async () => {
-    try {
-      await Promise.all([clearStorage(), deleteToken()])
-      props.navigation.replace('Sign')
-    } catch (error) {
-      console.error('Erro ao deslogar:', error)
-    }
-  }
-
-  return (
-    <Dialog modal open={props.openModal}>
-      {/* Modal adaptado para ocupar tela cheia no celular */}
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          disableDrag
-          snapPoints={[100]} // Ocupa 100% da tela
-          snapPointsMode="percent"
-        >
-          <Sheet.Frame padding="$4" gap="$4" flex={1}>
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true
-              }
-            }
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
-            <Dialog.Title textAlign="center" mx="auto">
-              Bem vindo à Conéctar!
-            </Dialog.Title>
-            <Dialog.Description textAlign="center">Entre em contato conosco para agendar um contato rápido e começar a utilizar o aplicativo!</Dialog.Description>
-
-            <XStack justifyContent="center" alignSelf="center" gap="$4">
-              <Dialog.Close displayWhenAdapted asChild>
-                <Button
-                  width="$20"
-                  theme="active"
-                  aria-label="Close"
-                  backgroundColor="#04BF7B"
-                  color="$white1"
-                  onPress={async () => {
-                    const text = encodeURIComponent(
-                      `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
-${props.rest.map((item: any) => `\n- ${item.name}`)}
-
-Consegue me ajudar?`
-                    )
-                      .replace('!', '%21')
-                      .replace("'", '%27')
-                      .replace('(', '%28')
-                      .replace(')', '%29')
-                      .replace('*', '%2A')
-
-                    await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
-                    setTimeout(() => {
-                      handleLogout()
-                    }, 2000)
-                  }}
-                >
-                  Entre em contato
-                </Button>
-              </Dialog.Close>
-            </XStack>
-          </YStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
   )
 }
 
@@ -1352,11 +1246,11 @@ export function Products({ navigation }: HomeScreenProps) {
 
       const restaurant = restaurantes.find((r) => r.externalId === value)
       if (!restaurant) return
-        if (restaurant.registrationReleasedNewApp === true) {
-          setShowRegistrationReleasedNewApp(true)
-          return
-        }
-        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      if (restaurant.registrationReleasedNewApp === true) {
+        setShowRegistrationReleasedNewApp(true)
+        return
+      }
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -1372,7 +1266,26 @@ export function Products({ navigation }: HomeScreenProps) {
 
   return (
     <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
-      <DialogComercialInstance openModal={showRegistrationReleasedNewApp} setRegisterInvalid={setShowRegistrationReleasedNewApp} rest={restaurantes} navigation={navigation} />
+      <DialogComercialInstance
+        openModal={showRegistrationReleasedNewApp}
+        setOpenModal={setShowRegistrationReleasedNewApp}
+        setRegisterInvalid={setShowRegistrationReleasedNewApp}
+        rest={restaurantes}
+        navigation={navigation}
+        messageText="Seu restaurante não está liberado. Entre em contato conosco para concluir o processo."
+        onSelectAvailable={() => {
+          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp)
+          if (availableRestaurant) {
+            AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+            setSelectedRestaurant(availableRestaurant.externalId)
+            setShowRegistrationReleasedNewApp(false)
+            // Recarregar os dados do novo restaurante
+            loadProducts()
+            loadFavorites()
+            loadCart()
+          }
+        }}
+      />
       <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
       <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
