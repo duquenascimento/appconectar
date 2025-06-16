@@ -12,7 +12,7 @@ import { clearStorage, deleteToken } from '../utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo } from '../utils/VersionApp'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
-import { DialogComercialInstance } from './products'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 
 //type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 interface Order {
@@ -42,7 +42,7 @@ const formatDate = (isoDate: string) => {
   return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
 }
 
-export function OrdersScreen({ navigation }: HomeScreenPropsUtils ) {
+export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -137,15 +137,20 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils ) {
     try {
       if (!value) return
 
+      const restaurant = restaurants.find((r) => r.externalId === value)
+      if (!restaurant) return
+
+      if (restaurant.registrationReleasedNewApp) {
+        setShowBlockedModal(true)
+        return
+      }
       const storedRestaurant = await getSavedRestaurant()
       if (storedRestaurant?.externalId === value) {
-        return // Já está selecionado
+        return
       }
-
-      const restaurant = restaurants.find((r) => r.externalId === value)
-      if (restaurant) {
-        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
-      }
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      setSelectedRestaurant(value)
+      setShowBlockedModal(false)
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -263,11 +268,10 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils ) {
         placeholder="Selecione um restaurante"
         onSelectItem={(value) => {
           const rest = restaurants.find((item) => item?.externalId === value.value)
-          if (rest) {
-            if (rest.registrationReleasedNewApp === true) {
-              setShowBlockedModal(true)
-              return
-            }
+          if (rest?.registrationReleasedNewApp) {
+            setShowBlockedModal(true)
+          } else {
+            setShowBlockedModal(false)
           }
         }}
         listMode="SCROLLVIEW"
@@ -439,12 +443,29 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils ) {
         </View>
         <VersionInfo />
       </View>
-        <DialogComercialInstance
-          openModal={showBlockedModal}
-          setRegisterInvalid={setShowBlockedModal}
-          rest={[]} // ou passe os dados conforme necessário
-          navigation={navigation}
-        />
+      <DialogComercialInstance
+        openModal={showBlockedModal}
+        setOpenModal={setShowBlockedModal}
+        setRegisterInvalid={setShowBlockedModal}
+        rest={restaurants}
+        navigation={navigation}
+        messageText="Seu restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
+        onSelectAvailable={async () => {
+          try {
+            const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp)
+
+            if (availableRestaurant) {
+              setShowBlockedModal(false)
+              await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+
+              setSelectedRestaurant(availableRestaurant.externalId)
+              setShowBlockedModal(false) 
+            }
+          } catch (error) {
+            console.error('Erro ao trocar de restaurante:', error)
+          }
+        }}
+      />
     </>
   )
 }
