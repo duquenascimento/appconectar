@@ -11,9 +11,10 @@ import { ordersScreenStyles as styles } from '../../src/styles/styles'
 import { clearStorage, deleteToken } from '../utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo } from '../utils/VersionApp'
+import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
+import { DialogComercialInstance } from './products'
 
-type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
-
+//type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 interface Order {
   orderDocument: ReactNode
   id: string
@@ -41,7 +42,7 @@ const formatDate = (isoDate: string) => {
   return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
 }
 
-export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
+export function OrdersScreen({ navigation }: HomeScreenPropsUtils ) {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -51,6 +52,7 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [selectedRestaurant, setSelectedRestaurant] = useState('')
   const [restaurantOpen, setRestaurantOpen] = useState(false)
+  const [showBlockedModal, setShowBlockedModal] = useState(false)
 
   useEffect(() => {
     const LoadRestaurants = async () => {
@@ -102,6 +104,13 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     }
     loadOrders()
   }, [selectedRestaurant])
+
+  const dialogProps = {
+    openModal: showBlockedModal,
+    setRegisterInvalid: setShowBlockedModal,
+    rest: restaurants.filter((r) => r.registrationReleasedNewApp),
+    navigation: navigation
+  }
 
   //Busca o restaurante salvo no storage
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
@@ -245,15 +254,22 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         value={selectedRestaurant}
         setValue={(value) => setSelectedRestaurant(value)}
         onChangeValue={handleRestaurantChoice}
-        items={restaurants
-          .filter((restaurant) => !restaurant.registrationReleasedNewApp)
-          .map((restaurant) => ({
-            label: restaurant.name,
-            value: restaurant.externalId
-          }))}
+        items={restaurants.map((restaurant) => ({
+          label: restaurant.name,
+          value: restaurant.externalId
+        }))}
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
+        onSelectItem={(value) => {
+          const rest = restaurants.find((item) => item?.externalId === value.value)
+          if (rest) {
+            if (rest.registrationReleasedNewApp === true) {
+              setShowBlockedModal(true)
+              return
+            }
+          }
+        }}
         listMode="SCROLLVIEW"
         dropDownContainerStyle={{
           width: Platform.OS === 'web' ? '70%' : '92%',
@@ -423,6 +439,12 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         </View>
         <VersionInfo />
       </View>
+        <DialogComercialInstance
+          openModal={showBlockedModal}
+          setRegisterInvalid={setShowBlockedModal}
+          rest={[]} // ou passe os dados conforme necessário
+          navigation={navigation}
+        />
     </>
   )
 }
