@@ -12,6 +12,8 @@ import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o C
 import { loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
+import { DialogComercialInstance } from './products'
+import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 
 type RootStackParamList = {
   Home: undefined
@@ -75,6 +77,7 @@ type SelectItem = {
   name: string
   addressInfos: any[]
   premium: boolean
+  registrationReleasedNewApp: boolean
 }
 
 const useScreenSize = () => {
@@ -164,7 +167,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
   )
 }
 
-export function Prices({ navigation }: HomeScreenProps) {
+export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loading, setLoading] = useState<boolean>(true)
   const [suppliers, setSuppliers] = useState<SupplierData[]>([])
   const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([])
@@ -198,6 +201,7 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
+  const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
 
   const handleConfirm = () => {
@@ -810,7 +814,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
                             setValue={() => {}}
-                            items={allRestaurants.filter((r: any) => !r.registrationReleasedNewApp).map((item) => ({
+                            items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name
                             }))}
@@ -821,6 +825,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                             onSelectItem={(value) => {
                               const rest = allRestaurants.find((item) => item?.name === value.value)
                               if (rest) {
+                                if (rest.registrationReleasedNewApp === true) {
+                                  setShowBlockedModal(true)
+                                  return
+                                }
                                 setDraftSelectedRestaurant(rest)
                               }
                             }}
@@ -1254,7 +1262,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
                                 setValue={() => {}}
-                                items={allRestaurants.filter((r: any) => !r.registrationReleasedNewApp).map((item) => ({
+                                items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name
                                 }))}
@@ -1264,7 +1272,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 placeholder=""
                                 onSelectItem={(value) => {
                                   const rest = allRestaurants.find((item) => item?.name === value.value)
-                                  setDraftSelectedRestaurant(rest)
+                                  if (rest) {
+                                    if (rest.registrationReleasedNewApp === true) {
+                                      setShowBlockedModal(true)
+                                      return
+                                    }
+                                    setDraftSelectedRestaurant(rest)
+                                  }
                                 }}
                               ></DropDownPicker>
                             ) : (
@@ -1821,6 +1835,12 @@ export function Prices({ navigation }: HomeScreenProps) {
             </Modal>
           </View>
         )}
+        <DialogComercialInstance
+          openModal={showBlockedModal}
+          setRegisterInvalid={setShowBlockedModal}
+          rest={[]} // ou passe os dados conforme necessário
+          navigation={navigation}
+        />
       </View>
       <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
     </Stack>
