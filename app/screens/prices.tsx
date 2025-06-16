@@ -12,7 +12,7 @@ import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o C
 import { loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
-import { DialogComercialInstance } from './products'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 
 type RootStackParamList = {
@@ -417,6 +417,10 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
 
         // Verifica se o restaurante salvo ainda existe na lista
         const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
+
+        if (restaurantSelected?.registrationReleasedNewApp) {
+          setShowBlockedModal(true)
+        }
 
         const currentRestaurant = validRestaurant
 
@@ -1837,9 +1841,35 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
         )}
         <DialogComercialInstance
           openModal={showBlockedModal}
+          setOpenModal={setShowBlockedModal}
           setRegisterInvalid={setShowBlockedModal}
-          rest={[]} // ou passe os dados conforme necessário
+          rest={allRestaurants}
           navigation={navigation}
+          messageText="Seu restaurante não está liberado para fazer cotações. Entre em contato conosco ou selecione outro restaurante disponível."
+          onSelectAvailable={async () => {
+            try {
+              // Encontrar um restaurante disponível
+              const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp)
+
+              if (availableRestaurant) {
+                // 1. Fechar o modal
+                setShowBlockedModal(false)
+
+                // 2. Salvar o novo restaurante selecionado
+                await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+
+                // 3. Atualizar o estado local
+                setSelectedRestaurant(availableRestaurant)
+
+                // 4. Recarregar os preços para o novo restaurante
+                await loadPrices(availableRestaurant)
+
+                setDraftSelectedRestaurant(null)
+              }
+            } catch (error) {
+              console.error('Erro ao trocar de restaurante:', error)
+            }
+          }}
         />
       </View>
       <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
