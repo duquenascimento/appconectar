@@ -75,43 +75,12 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
                 <Text pt={5} fontSize={10}>
                   Informe o e-mail abaixo e insira o código enviado
                 </Text>
-                <Input
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  mt={15}
-                  mb={15}
-                  onChangeText={setEmailModal}
-                  placeholder="E-mail"
-                  value={emailModal}
-                  focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                  hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                ></Input>
-                {step2 && (
-                  <Input
-                    autoCapitalize="none"
-                    onChangeText={setCodeModal}
-                    maxLength={5}
-                    placeholder="Código"
-                    value={codeModal}
-                    focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                    hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                  ></Input>
-                )}
+                <Input autoCapitalize="none" keyboardType="email-address" mt={15} mb={15} onChangeText={setEmailModal} placeholder="E-mail" value={emailModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                {step2 && <Input autoCapitalize="none" onChangeText={setCodeModal} maxLength={5} placeholder="Código" value={codeModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>}
                 {erro && <Text color="red">{erro}</Text>}
               </>
             )}
-            {step3 && !step4 && (
-              <Input
-                autoCapitalize="none"
-                mt={15}
-                mb={15}
-                onChangeText={setPasswordModal}
-                placeholder="Nova senha"
-                value={passwordModal}
-                focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-                hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-              ></Input>
-            )}
+            {step3 && !step4 && <Input autoCapitalize="none" mt={15} mb={15} onChangeText={setPasswordModal} placeholder="Nova senha" value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>}
             {!step4 && (
               <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                 <Button
@@ -417,54 +386,11 @@ export function SignInMobile(props: { page: string; onButtonPress: (page: string
         Insira suas credenciais abaixo para acessar a sua conta.
       </Text>
 
-      <XStack
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        mt="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Email"
-          onChangeText={setEmail}
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          f={1}
-          maxLength={256}
-          focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-          hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-        />
+      <XStack backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+        <Input autoCapitalize="none" placeholder="Email" onChangeText={setEmail} backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" f={1} maxLength={256} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
       </XStack>
-      <XStack
-        backgroundColor="white"
-        pr="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        mt="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Senha"
-          onChangeText={setPassword}
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showPw}
-          f={1}
-          mr="$3.5"
-          maxLength={35}
-          focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-          hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-        />
+      <XStack backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+        <Input autoCapitalize="none" placeholder="Senha" onChangeText={setPassword} backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" secureTextEntry={showPw} f={1} mr="$3.5" maxLength={35} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
           size={24}
@@ -546,6 +472,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
   ])
   const [phone, setPhone] = useState('')
   const [phoneValid, setPhoneValid] = useState(false)
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const [emailValid, setEmailValid] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -686,7 +613,24 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
         />
       </XStack>
 
-      <XStack {...(phoneValid ? { borderColor: 'lightgray' } : { borderColor: 'lightgray' })} backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack
+        {...(phoneValid || !phoneTouched ? { borderColor: 'lightgray' } : { borderColor: 'red' })}
+        hoverStyle={{
+          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
+          borderWidth: 1
+        }}
+        focusStyle={{
+          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
+          borderWidth: 1
+        }}
+        backgroundColor="white"
+        borderWidth={1.6}
+        borderRadius={9}
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+      >
         <TextInputMask
           type="cel-phone"
           options={{
@@ -701,12 +645,13 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           }}
           placeholder="Telefone"
           keyboardType="phone-pad"
-          onBlur={() => setPhoneValid(validatePhone(phone))}
+          onBlur={() => {
+            setPhoneTouched(true)
+            setPhoneValid(validatePhone(phone))
+          }}
           style={{
             backgroundColor: 'white',
             borderRadius: 6,
-            borderWidth: 1,
-            borderColor: phoneValid ? 'lightgray' : 'lightgray',
             paddingHorizontal: 12,
             paddingVertical: 10,
             fontSize: 16,
@@ -917,57 +862,11 @@ export function SignInWeb(props: { page: string; onButtonPress: (page: string) =
         <Text color="$gray10Dark">Insira suas credenciais abaixo para acessar a sua conta.</Text>
       </Stack>
 
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        mt="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          onChangeText={setEmail}
-          focusStyle={{ outlineStyle: "none" }}
-          placeholder="Email"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          f={1}
-          maxLength={256}
-          width="100%"
-        />
+      <XStack width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+        <Input autoCapitalize="none" onChangeText={setEmail} focusStyle={{ outlineStyle: 'none' }} placeholder="Email" backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" f={1} maxLength={256} width="100%" />
       </XStack>
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        pr="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        mt="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        focusStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-        hoverStyle={{ borderColor: "#049A63", borderWidth: 1 }}
-      >
-        <Input
-          autoCapitalize="none"
-          onChangeText={setPassword}
-          focusStyle={{ outlineStyle: "none" }}
-          placeholder="Senha"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showPw}
-          f={1}
-          mr="$3.5"
-          maxLength={20}
-        />
+      <XStack width="$20" backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}>
+        <Input autoCapitalize="none" onChangeText={setPassword} focusStyle={{ outlineStyle: 'none' }} placeholder="Senha" backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" secureTextEntry={showPw} f={1} mr="$3.5" maxLength={20} />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
           size={24}
@@ -1051,6 +950,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
   ])
   const [phone, setPhone] = useState('')
   const [phoneValid, setPhoneValid] = useState(true)
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const [emailValid, setEmailValid] = useState(true)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -1187,7 +1087,25 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
         />
       </XStack>
 
-      <XStack {...(phoneValid ? { borderColor: 'lightgray' } : { borderColor: 'lightgray' })} width="$20" backgroundColor="white" borderWidth={1} borderRadius={9} mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
+      <XStack
+        {...(phoneValid || !phoneTouched ? { borderColor: 'lightgray' } : { borderColor: 'red' })}
+        hoverStyle={{
+          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
+          borderWidth: 1
+        }}
+        focusStyle={{
+          borderColor: phoneValid || !phoneTouched ? '#049A63' : 'red',
+          borderWidth: 1
+        }}
+        backgroundColor="white"
+        borderWidth={1.6}
+        borderRadius={9}
+        mt="$3.5"
+        alignItems="center"
+        flexDirection="row"
+        zIndex={20}
+        width="$20"
+      >
         <TextInputMask
           type="cel-phone"
           options={{
@@ -1202,12 +1120,13 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           }}
           placeholder="Telefone"
           keyboardType="phone-pad"
-          onBlur={() => setPhoneValid(validatePhone(phone))}
+          onBlur={() => {
+            setPhoneTouched(true)
+            setPhoneValid(validatePhone(phone))
+          }}
           style={{
             backgroundColor: 'white',
             borderRadius: 6,
-            borderWidth: 1,
-            borderColor: phoneValid ? 'lightgray' : 'lightgray',
             paddingHorizontal: 12,
             paddingVertical: 10,
             fontSize: 16,
