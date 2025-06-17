@@ -17,18 +17,26 @@ type DialogComercialInstanceProps = {
 
 const DialogComercialInstance: React.FC<DialogComercialInstanceProps> = ({ openModal, setOpenModal, onSelectAvailable, rest, navigation, messageText }) => {
   const handleSelectAvailable = async () => {
-  if (onSelectAvailable) {
-    onSelectAvailable();
-  } else {
-    const availableRestaurant = rest.find((r) => !r.registrationReleasedNewApp);
-    if (availableRestaurant) {
-      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }));
-      setOpenModal(false);
+    if (onSelectAvailable) {
+      onSelectAvailable()
+    } else {
+      const availableRestaurant = rest.find((r) => !r.registrationReleasedNewApp)
+      if (availableRestaurant) {
+        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+        setOpenModal(false)
+      }
     }
   }
-};
 
   const hasAvailableRestaurant = rest.some((r) => !r.registrationReleasedNewApp)
+
+  const handleBackButton = async () => {
+    if (!hasAvailableRestaurant) {
+      await handleLogout()
+    } else {
+      await handleSelectAvailable()
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -94,13 +102,12 @@ ${rest.map((item: any) => `\n- ${item.name}`)}` + '\n\nConsegue me ajudar?'
 
             {/* Versão Desktop - Botões lado a lado */}
             <XStack display="none" $gtSm={{ display: 'flex' }} justifyContent="center" alignSelf="center" gap="$4">
-              {hasAvailableRestaurant && (
-                <Dialog.Close displayWhenAdapted asChild>
-                  <Button width="$20" theme="active" aria-label="SelectAvailable" backgroundColor="#3A7EC2" color="$white1" onPress={handleSelectAvailable}>
-                    Voltar
-                  </Button>
-                </Dialog.Close>
-              )}
+              <Dialog.Close displayWhenAdapted asChild>
+                <Button width="$20" theme="active" aria-label="SelectAvailable" backgroundColor="#3A7EC2" color="$white1" onPress={handleBackButton}>
+                  Voltar
+                </Button>
+              </Dialog.Close>
+
               <Dialog.Close displayWhenAdapted asChild>
                 <Button width="$20" theme="active" aria-label="Close" backgroundColor="#04BF7B" color="$white1" onPress={handleContactPress}>
                   Entre em contato
@@ -110,13 +117,12 @@ ${rest.map((item: any) => `\n- ${item.name}`)}` + '\n\nConsegue me ajudar?'
 
             {/* Versão Mobile - Botões em coluna */}
             <YStack display="flex" $gtSm={{ display: 'none' }} justifyContent="center" alignSelf="center" gap="$3" width="100%">
-              {hasAvailableRestaurant && (
-                <Dialog.Close displayWhenAdapted asChild>
-                  <Button width="100%" theme="active" aria-label="SelectAvailable" backgroundColor="#3A7EC2" color="$white1" onPress={handleSelectAvailable}>
-                    Voltar
-                  </Button>
-                </Dialog.Close>
-              )}
+              <Dialog.Close displayWhenAdapted asChild>
+                <Button width="100%" theme="active" aria-label="SelectAvailable" backgroundColor="#3A7EC2" color="$white1" onPress={handleBackButton}>
+                  Voltar
+                </Button>
+              </Dialog.Close>
+
               <Dialog.Close displayWhenAdapted asChild>
                 <Button width="100%" theme="active" aria-label="Close" backgroundColor="#04BF7B" color="$white1" onPress={handleContactPress}>
                   Entre em contato
