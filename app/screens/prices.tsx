@@ -12,6 +12,8 @@ import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o C
 import { loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 
 type RootStackParamList = {
   Home: undefined
@@ -75,6 +77,7 @@ type SelectItem = {
   name: string
   addressInfos: any[]
   premium: boolean
+  registrationReleasedNewApp: boolean
 }
 
 const useScreenSize = () => {
@@ -164,7 +167,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
   )
 }
 
-export function Prices({ navigation }: HomeScreenProps) {
+export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loading, setLoading] = useState<boolean>(true)
   const [suppliers, setSuppliers] = useState<SupplierData[]>([])
   const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([])
@@ -198,6 +201,7 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
+  const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
 
   const handleConfirm = () => {
@@ -413,6 +417,10 @@ export function Prices({ navigation }: HomeScreenProps) {
 
         // Verifica se o restaurante salvo ainda existe na lista
         const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
+
+        if (restaurantSelected?.registrationReleasedNewApp) {
+          setShowBlockedModal(true)
+        }
 
         const currentRestaurant = validRestaurant
 
@@ -810,7 +818,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
                             setValue={() => {}}
-                            items={allRestaurants.filter((r: any) => !r.registrationReleasedNewApp).map((item) => ({
+                            items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name
                             }))}
@@ -821,6 +829,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                             onSelectItem={(value) => {
                               const rest = allRestaurants.find((item) => item?.name === value.value)
                               if (rest) {
+                                if (rest.registrationReleasedNewApp === true) {
+                                  setShowBlockedModal(true)
+                                  return
+                                }
                                 setDraftSelectedRestaurant(rest)
                               }
                             }}
@@ -1254,7 +1266,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
                                 setValue={() => {}}
-                                items={allRestaurants.filter((r: any) => !r.registrationReleasedNewApp).map((item) => ({
+                                items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name
                                 }))}
@@ -1264,7 +1276,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 placeholder=""
                                 onSelectItem={(value) => {
                                   const rest = allRestaurants.find((item) => item?.name === value.value)
-                                  setDraftSelectedRestaurant(rest)
+                                  if (rest) {
+                                    if (rest.registrationReleasedNewApp === true) {
+                                      setShowBlockedModal(true)
+                                      return
+                                    }
+                                    setDraftSelectedRestaurant(rest)
+                                  }
                                 }}
                               ></DropDownPicker>
                             ) : (
@@ -1821,6 +1839,38 @@ export function Prices({ navigation }: HomeScreenProps) {
             </Modal>
           </View>
         )}
+        <DialogComercialInstance
+          openModal={showBlockedModal}
+          setOpenModal={setShowBlockedModal}
+          setRegisterInvalid={setShowBlockedModal}
+          rest={allRestaurants}
+          navigation={navigation}
+          messageText="Este restaurante não está liberado para fazer cotações. Entre em contato conosco ou selecione outro restaurante disponível."
+          onSelectAvailable={async () => {
+            try {
+              // Encontrar um restaurante disponível
+              const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp)
+
+              if (availableRestaurant) {
+                // 1. Fechar o modal
+                setShowBlockedModal(false)
+
+                // 2. Salvar o novo restaurante selecionado
+                await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+
+                // 3. Atualizar o estado local
+                setSelectedRestaurant(availableRestaurant)
+
+                // 4. Recarregar os preços para o novo restaurante
+                await loadPrices(availableRestaurant)
+
+                setDraftSelectedRestaurant(null)
+              }
+            } catch (error) {
+              console.error('Erro ao trocar de restaurante:', error)
+            }
+          }}
+        />
       </View>
       <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
     </Stack>
