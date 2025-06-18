@@ -71,11 +71,19 @@ export const step2Validation = Yup.object().shape({
         : schema;
     }),
 
-  phone: Yup.string()
-    .required("Telefone é obrigatório")
-    .test("phone-valid", "Telefone inválido", (value) => {
-      return value?.replace(/\D/g, "").length === 11; // 11 dígitos sem formatação
-    }),
+    paymentWay: Yup.string().required("Forma de pagamento é obrigatória"),
+
+    emailBilling: Yup.string()
+    .email('E-mail de cobrança inválido')
+    .required('E-mail de cobrança é obrigatório'),
+
+  financeResponsibleName: Yup.string()
+    .min(2, 'Nome muito curto')
+    .required('Nome do responsável financeiro é obrigatório'),
+
+  financeResponsiblePhoneNumber: Yup.string()
+    .matches(/\(\d{2}\)\s?\d{4,5}-\d{4}/, 'Telefone inválido')
+    .required('Telefone do responsável é obrigatório'),
 });
 
 export const step3Validation = Yup.object().shape({
@@ -92,18 +100,8 @@ export const step3Validation = Yup.object().shape({
 
       return diff >= 90;
     }),
-  responsibleReceivingName: Yup.string()
-    .required("Responsável é obrigatório")
-    .matches(/^[A-Za-z\s]+$/, "Apenas letras são permitidas")
-    .min(3, "Mínimo 3 caracteres"),
-  responsibleReceivingPhoneNumber: Yup.string()
-    .required("Telefone do responsável é obrigatório")
-    .test("phone-valid", "Telefone inválido", (value) => {
-      return value?.replace(/\D/g, "").length >= 10;
-    }),
   weeklyOrderAmount: Yup.string().required(
     "Frequência de pedidos é obrigatória"
   ),
   orderValue: Yup.string().required("Valor médio é obrigatório"),
-  paymentWay: Yup.string().required("Forma de pagamento é obrigatória"),
 });

@@ -4,7 +4,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { SupplierData } from "./prices";
 import { useCallback, useEffect, useState } from "react";
 import { clearStorage, getStorage } from "../utils/utils";
-import { SaveUserAppInfo } from "./products";
+import { SaveUserAppInfo } from "../utils/VersionApp";
 
 type RootStackParamList = {
     Home: undefined;

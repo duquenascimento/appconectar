@@ -12,7 +12,10 @@ import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStor
 import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo } from '../utils/VersionApp'
+import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
+import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
+import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 
 type Product = {
   name: string
@@ -76,39 +79,6 @@ type ProductBoxProps = Product & {
   obs: string
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
-}
-
-export const SaveUserAppInfo = async () => {
-  try {
-    //const appVersion = DeviceInfo.getVersion()
-    const appVersionExpo = process.env.EXPO_PUBLIC_VERSION
-    const appOS = Platform.OS
-
-    //Pegar o externalId do restaurante
-    const data = await AsyncStorage.getItem('selectedRestaurant')
-    const restaurant = data ? JSON.parse(data) : null
-    const externalId = restaurant?.restaurant?.externalId ?? null
-    const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
-
-    const userAppData = {
-      externalId,
-      appVersionExpo,
-      appOS,
-      statusId
-    }
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/app`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        externalId: userAppData.externalId,
-        version: userAppData.appVersionExpo,
-        OperationalSystem: userAppData.appOS,
-        statusId: userAppData.statusId
-      })
-    })
-  } catch (error) {
-    console.error('Erro ao salvar dados do app:', error)
-  }
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -256,112 +226,6 @@ const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
         </View>
       </TouchableOpacity>
     </Animated.View>
-  )
-}
-
-export function DialogComercialInstance(
-  props: {
-    openModal: boolean
-    setRegisterInvalid: Function
-    rest: any
-    navigation: any
-  } & HomeScreenProps
-) {
-  const handleLogout = async () => {
-    try {
-      await Promise.all([clearStorage(), deleteToken()])
-      props.navigation.replace('Sign')
-    } catch (error) {
-      console.error('Erro ao deslogar:', error)
-    }
-  }
-
-  return (
-    <Dialog modal open={props.openModal}>
-      {/* Modal adaptado para ocupar tela cheia no celular */}
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          disableDrag
-          snapPoints={[100]} // Ocupa 100% da tela
-          snapPointsMode="percent"
-        >
-          <Sheet.Frame padding="$4" gap="$4" flex={1}>
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true
-              }
-            }
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
-            <Dialog.Title textAlign="center" mx="auto">
-              Bem vindo à Conéctar!
-            </Dialog.Title>
-            <Dialog.Description textAlign="center">Entre em contato conosco para agendar um contato rápido e começar a utilizar o aplicativo!</Dialog.Description>
-
-            <XStack justifyContent="center" alignSelf="center" gap="$4">
-              <Dialog.Close displayWhenAdapted asChild>
-                <Button
-                  width="$20"
-                  theme="active"
-                  aria-label="Close"
-                  backgroundColor="#04BF7B"
-                  color="$white1"
-                  onPress={async () => {
-                    const text = encodeURIComponent(
-                      `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
-${props.rest.map((item: any) => `\n- ${item.name}`)}
-
-Consegue me ajudar?`
-                    )
-                      .replace('!', '%21')
-                      .replace("'", '%27')
-                      .replace('(', '%28')
-                      .replace(')', '%29')
-                      .replace('*', '%2A')
-
-                    await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
-                    setTimeout(() => {
-                      handleLogout()
-                    }, 2000)
-                  }}
-                >
-                  Entre em contato
-                </Button>
-              </Dialog.Close>
-            </XStack>
-          </YStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
   )
 }
 
@@ -808,6 +672,7 @@ interface Restaurant {
   externalId: any
   id: string
   name: string
+  registrationReleasedNewApp: boolean
 }
 
 export function Products({ navigation }: HomeScreenProps) {
@@ -846,6 +711,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantOpen, setRestaurantOpen] = useState(false)
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
+  const flatListRef = useRef<FlatList<Product>>(null)
 
   const handleScroll = () => {
     if (!isScrolling) {
@@ -1056,19 +922,26 @@ export function Products({ navigation }: HomeScreenProps) {
 
         setRestaurantes(validRestaurants)
 
-        let initialRestaurant = validRestaurants[0]
-        if (savedRestaurant) {
-          const found = validRestaurants.find((r) => r.id === savedRestaurant.id)
-          if (found) initialRestaurant = found
+        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp)
+        const allRestaurantBlocked = availableRestaurants.length === 0
+
+        let initialRestaurant = null
+        if (!allRestaurantBlocked) {
+          initialRestaurant = availableRestaurants[0]
+
+          if (savedRestaurant) {
+            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id)
+            if (found) {
+              initialRestaurant = found
+            }
+          }
+          setSelectedRestaurant(initialRestaurant.externalId)
+          setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
         }
 
-        setSelectedRestaurant(initialRestaurant.externalId)
-        setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
-
-        const restFilteredComercial = restaurants.filter((item: any) => item.registrationReleasedNewApp)
+        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true
         const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock)
-
-        if (restFilteredComercial.length) {
+        if (restFilteredComercial || allRestaurantBlocked) {
           setShowRegistrationReleasedNewApp(true)
         }
 
@@ -1246,6 +1119,8 @@ export function Products({ navigation }: HomeScreenProps) {
   useEffect(() => {
     if (virtualizedListRef.current) {
       virtualizedListRef.current.scrollToOffset({ animated: true, offset: 0 })
+    } else if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
     }
   }, [currentClass, searchQuery])
 
@@ -1370,9 +1245,12 @@ export function Products({ navigation }: HomeScreenProps) {
       }
 
       const restaurant = restaurantes.find((r) => r.externalId === value)
-      if (restaurant) {
-        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      if (!restaurant) return
+      if (restaurant.registrationReleasedNewApp === true) {
+        setShowRegistrationReleasedNewApp(true)
+        return
       }
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -1388,7 +1266,26 @@ export function Products({ navigation }: HomeScreenProps) {
 
   return (
     <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
-      <DialogComercialInstance openModal={showRegistrationReleasedNewApp} setRegisterInvalid={setShowRegistrationReleasedNewApp} rest={restaurantes} navigation={navigation} />
+      <DialogComercialInstance
+        openModal={showRegistrationReleasedNewApp}
+        setOpenModal={setShowRegistrationReleasedNewApp}
+        setRegisterInvalid={setShowRegistrationReleasedNewApp}
+        rest={restaurantes}
+        navigation={navigation}
+        messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
+        onSelectAvailable={() => {
+          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp)
+          if (availableRestaurant) {
+            AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+            setSelectedRestaurant(availableRestaurant.externalId)
+            setShowRegistrationReleasedNewApp(false)
+            // Recarregar os dados do novo restaurante
+            loadProducts()
+            loadFavorites()
+            loadCart()
+          }
+        }}
+      />
       <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
       <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
@@ -1439,7 +1336,7 @@ export function Products({ navigation }: HomeScreenProps) {
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         value={selectedRestaurant}
-        items={restaurantes?.map((restaurant) => ({
+        items={restaurantes.map((restaurant) => ({
           label: restaurant.name,
           value: restaurant.externalId
         }))}
@@ -1471,19 +1368,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList
-          style={{
-            maxHeight: Platform.OS === 'web' ? 50 : 40,
-            minHeight: Platform.OS === 'web' ? 50 : undefined,
-            width: Platform.OS === 'web' ? '68%' : undefined,
-            alignSelf: Platform.OS === 'web' ? 'center' : undefined
-          }}
-          data={classItems}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item: any) => item.name}
-          renderItem={renderClassItem}
-        />
+        <FlatList style={{ maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
 
         <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 40} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
@@ -1495,7 +1380,11 @@ export function Products({ navigation }: HomeScreenProps) {
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
-            <VirtualizedList ref={virtualizedListRef} data={displayedProducts} getItem={(data, index) => data[index]} getItemCount={(data) => data.length} keyExtractor={(item) => item.id} renderItem={renderProduct} initialNumToRender={10} windowSize={5} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" style={{ flex: 1 }} ItemSeparatorComponent={() => <View height={8} />} />
+            Platform.OS === 'android' ? (
+              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} />
+            ) : (
+              <CustomFlatList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} listRef={flatListRef} />
+            )
           ) : (
             <ScrollView>
               <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
