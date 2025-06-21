@@ -311,7 +311,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -533,6 +533,11 @@ const ProductBox = React.memo(
                   onPress={async (e) => {
                     e.stopPropagation()
                     handleValueQuantChange(-quant)
+                    const newAmount = Math.max(0, valueQuant - quant)
+                    const updatedItem = { productId: id, amount: newAmount, obs }
+
+                    await saveCart(updatedItem, true)
+                    await saveCartArray(new Map([[id, updatedItem]]), newAmount === 0 ? new Map([[id, updatedItem]]) : new Map())
                   }}
                 />
                 <Text>
@@ -544,7 +549,12 @@ const ProductBox = React.memo(
                   size={24}
                   onPress={async (e) => {
                     e.stopPropagation()
-                    handleValueQuantChange(quant)
+                    handleValueQuantChange(+quant)
+                    const newAmount = valueQuant + quant
+                    const updatedItem = { productId: id, amount: newAmount, obs }
+
+                    await saveCart(updatedItem, true)
+                    await saveCartArray(new Map([[id, updatedItem]]), new Map())
                   }}
                 />
               </View>
