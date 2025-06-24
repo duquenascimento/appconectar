@@ -182,7 +182,7 @@ export function Register({ navigation }: HomeScreenProps) {
   const isStepValid = () => {
     const requiredFieldsByStep: { [key: number]: string[] } = {
       0: ['restaurantName', 'cnpj'],
-      1: ['zipcode', 'street', 'localNumber', 'legalRestaurantName', ...(formik.values.noStateNumberId ? ['cityNumberId'] : ['stateNumberId'])],
+      1: ['zipcode', 'neigh', 'street', 'localNumber', 'legalRestaurantName', ...(formik.values.noStateNumberId ? ['cityNumberId'] : ['stateNumberId'])],
       2: ['email', 'paymentWay', 'financeResponsibleName', 'financeResponsiblePhoneNumber', 'emailBilling'],
       3: ['minHour', 'maxHour', 'weeklyOrderAmount', 'orderValue']
     }
@@ -274,6 +274,7 @@ export function Register({ navigation }: HomeScreenProps) {
           })
 
           formik.setFieldTouched('zipcode', true, false)
+          formik.setFieldTouched('neigh', true, false)
         }
       }
     } catch (error) {
@@ -662,7 +663,12 @@ export function Register({ navigation }: HomeScreenProps) {
                   </Text>
                 )}
                 <Text mt={15}>Bairro</Text>
-                <Input disabled opacity={0.5} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                <Input opacity={0.5} onBlur={() => formik.setFieldTouched('neigh', true)} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                {formik.touched.neigh && formik.errors.neigh && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.neigh}
+                  </Text>
+                )}
                 <Text mt={15}>Logradouro</Text>
                 <Input placeholder="exemplo: Dois Amores" onChangeText={(text) => formik.setFieldValue('street', text)} value={formik.values.street} backgroundColor="white" borderRadius={2} borderColor={formik.touched.street && formik.errors.street ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                 {formik.touched.street && formik.errors.street && (
