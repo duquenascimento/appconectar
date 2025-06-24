@@ -52,7 +52,14 @@ export const step1Validation = Yup.object().shape({
 })
 
 export const step2Validation = Yup.object().shape({
-  email: Yup.string().email('E-mail inválido').required('E-mail é obrigatório'),
+  email: Yup
+    .string()
+    .email('E-mail inválido')
+    .matches(
+      /\.(com|net|org|br|co|gov|io|dev)$/i, // Domínios válidos (case-insensitive)
+      'O e-mail deve terminar com um domínio válido (ex: .com, .net, .org, .br)'
+    )
+    .required('E-mail é obrigatório'),
 
   alternativeEmail: Yup.string()
     .nullable()
@@ -63,7 +70,14 @@ export const step2Validation = Yup.object().shape({
 
   paymentWay: Yup.string().required('Forma de pagamento é obrigatória'),
 
-  emailBilling: Yup.string().email('E-mail de cobrança inválido').required('E-mail de cobrança é obrigatório'),
+    emailBilling: Yup
+    .string()
+    .email('E-mail de cobrança inválido')
+    .matches(
+      /\.(com|net|org|br|co|gov|io|dev)$/i,
+      'O e-mail de cobrança deve terminar com um domínio válido (ex: .com, .net, .br)'
+    )
+    .required('E-mail de cobrança é obrigatório'),
 
   financeResponsibleName: Yup.string().min(2, 'Nome muito curto').required('Nome do responsável financeiro é obrigatório'),
 

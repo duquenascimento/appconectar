@@ -311,7 +311,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -320,6 +320,7 @@ const ProductBox = React.memo(
     const obsRef = useRef('')
     const quantRef = useRef<number>(firstUnit)
     const previousCartRef = useRef<Map<string, Cart>>(new Map())
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
@@ -389,8 +390,22 @@ const ProductBox = React.memo(
       }
     }
 
-    const handleValueQuantChange = (delta: number) => {
-      setValueQuant((prevValue) => Math.max(0, Number((prevValue + delta).toFixed(3))))
+    const handleValueQuantChange = async (delta: number) => {
+      const newAmount = Math.max(0, Number((valueQuant + delta).toFixed(3)))
+      setValueQuant(newAmount)
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+
+      debounceTimerRef.current = setTimeout(async () => {
+        const updatedItem = { productId: id, amount: newAmount, obs }
+        const mapItem = new Map([[id, updatedItem]])
+        const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
+
+        await saveCart(updatedItem, true)
+        await saveCartArray(mapItem, mapToRemove)
+      }, 500)
     }
 
     const handleBlur = useCallback(async () => {
@@ -437,7 +452,7 @@ const ProductBox = React.memo(
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
               </View>
             ) : (
-              <Icons name={open ? 'close-circle' : 'add-circle'} size={36} color="#0BC07D" />
+              <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
             )}
           </View>
         </View>
@@ -544,7 +559,7 @@ const ProductBox = React.memo(
                   size={24}
                   onPress={async (e) => {
                     e.stopPropagation()
-                    handleValueQuantChange(quant)
+                    handleValueQuantChange(+quant)
                   }}
                 />
               </View>
@@ -1470,7 +1485,6 @@ export function Products({ navigation }: HomeScreenProps) {
         isScrolling={isScrolling}
         onPress={async () => {
           setLoading(true)
-          await saveCartArray(cart, cartToExclude)
           navigation.replace('Cart')
         }}
       />

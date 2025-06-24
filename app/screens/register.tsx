@@ -718,7 +718,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   Para comunicados
                 </Text>
               </View>
-              <Input value={formik.values.email} onChangeText={(text) => formik.setFieldValue('email', text)} onBlur={() => formik.setFieldTouched('email', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.email && formik.errors.email ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
+              <Input value={formik.values.email} autoCapitalize="none" onChangeText={(text) => formik.setFieldValue('email', text)} onBlur={() => formik.setFieldTouched('email', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.email && formik.errors.email ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
               {formik.touched.email && formik.errors.email && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.email}
@@ -873,7 +873,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   Para cobranças
                 </Text>
               </View>
-              <Input value={formik.values.emailBilling} onChangeText={(text) => formik.setFieldValue('emailBilling', text)} onBlur={() => formik.setFieldTouched('emailBilling', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.emailBilling && formik.errors.emailBilling ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
+              <Input value={formik.values.emailBilling} autoCapitalize="none" onChangeText={(text) => formik.setFieldValue('emailBilling', text)} onBlur={() => formik.setFieldTouched('emailBilling', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.emailBilling && formik.errors.emailBilling ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
               {formik.touched.emailBilling && formik.errors.emailBilling && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.emailBilling}
