@@ -75,7 +75,7 @@ export function DialogInstance(props: { openModal: boolean; setRegisterInvalid: 
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Ops!</Dialog.Title>
+          <Dialog.Title>Agendamento Realizado!</Dialog.Title>
 
           {props.erros.map((erro) => {
             return <Text key={erro}>- {erro}</Text>
