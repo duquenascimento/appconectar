@@ -79,6 +79,7 @@ type ProductBoxProps = Product & {
   obs: string
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
+  setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -311,7 +312,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, setProductObservations }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -411,6 +412,12 @@ const ProductBox = React.memo(
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
+          const updatedItem = { productId: id, amount: valueQuant, obs }
+          const updatedMap = new Map([[id, updatedItem]])
+          const emptyMap = new Map()
+
+          await saveCart(updatedItem, true)
+          await saveCartArray(updatedMap, emptyMap)
           await addObservation(id, obs)
           obsRef.current = obs
         } catch (error) {
@@ -420,7 +427,7 @@ const ProductBox = React.memo(
     }, [addObservation, id, obs])
 
     return (
-      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" paddingBottom={Platform.OS === 'web' ? '' : 5}>
+      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
         <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
@@ -1245,6 +1252,7 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }}
         addObservation={addObservation}
+        setProductObservations={setProductObservations}
       />
     ),
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation]
@@ -1383,9 +1391,9 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList style={{ maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
+        <FlatList style={{ marginTop: -5, maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 40} borderTopColor="#aaa" borderTopWidth={0.5}>
+        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
