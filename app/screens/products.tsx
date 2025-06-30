@@ -16,6 +16,7 @@ import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
 import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
 import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 
 type Product = {
   name: string
@@ -79,7 +80,9 @@ type ProductBoxProps = Product & {
   obs: string
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
+  productObservations: Map<string, string>
   setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
+  saveProductObservations?: (map: Map<string, string>) => Promise<void>
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -312,7 +315,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, setProductObservations }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations ,setProductObservations, saveProductObservations }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -354,8 +357,9 @@ const ProductBox = React.memo(
         onObsChange(currentCartItem.obs || '')
       } else {
         setValueQuant(0)
-        setObs('')
-        onObsChange('')
+        const storedObs = productObservations.get(id) || ''
+        setObs(storedObs)
+        onObsChange(storedObs)
       }
 
       previousCartRef.current = new Map(cart)
@@ -386,6 +390,16 @@ const ProductBox = React.memo(
     const handleObsChange = (text: string) => {
       setObs(text)
       onObsChange(text)
+
+      setProductObservations((prev) => {
+        const updated = new Map(prev)
+        updated.set(id, text)
+        if (saveProductObservations) {
+          saveProductObservations(updated)
+        }
+        return updated
+      })
+
       if (isFavorite) {
         addObservation(id, text)
       }
@@ -874,6 +888,15 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }
 
+        if (cart.obs) {
+          setProductObservations((prev) => {
+            const updated = new Map(prev)
+            updated.set(cart.productId, cart.obs)
+            saveProductObservations(updated)
+            return updated
+          })
+        }
+
         return newCart
       })
     }
@@ -988,6 +1011,9 @@ export function Products({ navigation }: HomeScreenProps) {
       } finally {
         setLoading(false)
       }
+
+      const storedObs = await loadProductObservations()
+      setProductObservations(storedObs)
     }
     loadInitialData()
   }, [loadFavorites, loadProducts, loadRestaurants])
@@ -1102,18 +1128,6 @@ export function Products({ navigation }: HomeScreenProps) {
     },
     [favorites]
   )
-
-  /*const toggleFavorite = useCallback(
-    async (productId: string) => {
-      const isCurrentlyFavorite = favorites.some((favorite) => favorite.id === productId)
-      if (isCurrentlyFavorite) {
-        await removeFromFavorites(productId)
-      } else {
-        await addToFavorites(productId)
-      }
-    },
-    [favorites, addToFavorites, removeFromFavorites]
-  )*/
 
   const toggleFavorite = useCallback(
     async (productId: string) => {
@@ -1252,7 +1266,9 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }}
         addObservation={addObservation}
+        productObservations={productObservations}
         setProductObservations={setProductObservations}
+        saveProductObservations={saveProductObservations}
       />
     ),
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation]
