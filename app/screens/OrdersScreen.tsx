@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo } from '../utils/VersionApp'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import CustomAlert from '@/src/components/modais/CustomAlert'
 
 //type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 interface Order {
@@ -52,6 +53,9 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [selectedRestaurant, setSelectedRestaurant] = useState('')
   const [restaurantOpen, setRestaurantOpen] = useState(false)
   const [showBlockedModal, setShowBlockedModal] = useState(false)
+  const [showAlertVisible, setShowAlertVisible] = useState(false);
+  const [customAlertTitle, setCustomAlertTitle] = useState('');
+  const [customAlertMessage, setCustomAlertMessage] = useState('');
 
   useEffect(() => {
     const LoadRestaurants = async () => {
@@ -193,24 +197,70 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const handleDownloadSelectedOrders = async () => {
     setIsDownloading(true)
     for (const orderId of selectedOrders) {
-      const order: any = orders.find((order) => order.id === orderId)
-      if (order && order.orderDocument) {
-        if (Platform.OS === 'web') {
-          window.open(order.orderDocument, '_blank')
-          window.open(order.orderInvoices?.filePath[0], '_blank')
-        } else {
-          try {
-            await Linking.openURL(order.orderDocument)
-            await Linking.openURL(order.orderInvoices?.filePath[0])
-          } catch (error) {
-            console.error(`Erro ao abrir o link:`, error)
-          }
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+      const order: any = orders.find((o) => o.id === orderId);
+      if (!order) {
+        showAlert('Pedido inválido', 'Não foi possível encontrar o pedido selecionado.');
+        continue;
       }
+
+      const { orderDocument, orderInvoices } = order;
+      const invoiceUrl = orderInvoices?.filePath?.[0];
+      const isValidDocUrl = typeof orderDocument === 'string' && orderDocument.startsWith('http');
+
+      if (!isValidDocUrl && !invoiceUrl) {
+        showAlert(
+          'Ocorreu um erro ao buscar documentos',
+          'Por favor, tente novamente mais tarde'
+        );
+        return;
+      }
+      if (!isValidDocUrl) {
+        showAlert(
+          'Documento indisponível',
+          'O pedido não está disponível para visualização.'
+        );
+      } else {
+        await openUrl(orderDocument);
+      }
+      if (!invoiceUrl) {
+        showAlert(
+          'Nota fiscal indisponível',
+          'A nota fiscal deste pedido não está disponível para download.'
+        );
+      } else {
+        await openUrl(invoiceUrl);
+      }
+      await delay(1000);
     }
-    setIsDownloading(false)
-  }
+
+    setIsDownloading(false);
+  };
+
+  const openUrl = async (url: string) => {
+    if (!url) return;
+
+    try {
+      if (Platform.OS === 'web') {
+        window.open(url, '_blank');
+      } else {
+        await Linking.openURL(url);
+      }
+    } catch (error) {
+      console.error('Erro ao abrir o link:', error);
+      showAlert('Erro ao abrir o link', 'Não foi possível abrir o link do pedido ou da nota fiscal.');
+    }
+  };
+
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  const showAlert = (title: string, message: string) => {
+    setCustomAlertTitle(title);
+    setCustomAlertMessage(message);
+    setShowAlertVisible(true);
+    setIsDownloading(false);
+  };
+
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
@@ -232,6 +282,12 @@ export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
   return (
     <>
+      <CustomAlert
+        visible={showAlertVisible}
+        title={customAlertTitle}
+        message={customAlertMessage}
+        onConfirm={() => setShowAlertVisible(false)}
+      />
       <Text
         style={{
           marginTop: 35,
