@@ -33,7 +33,6 @@ type HomeScreenProps = {
 
 export function DialogInstance(props: { openModal: boolean; setRegisterInvalid: Function; erros: string[] }) {
   return (
-    
     <Dialog modal open={props.openModal}>
       <Adapt when="sm" platform="touch">
         <Sheet
@@ -157,95 +156,6 @@ function DialogInstanceNotification(props: { openModal: boolean; setRegisterInva
   )
 }
 
-// Novo componente de Dialog para itens faltantes
-function MissingItemsDialog(props: {
-  openModal: boolean
-  setOpenModal: Function
-  missingItemsCount: number
-  onConfirmContinue: () => void
-}) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true
-              }
-            }
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title>Itens Faltantes no Pedido</Dialog.Title>
-          <Dialog.Description>
-            Há **{props.missingItemsCount}** item(s) indisponível(eis) no seu pedido.
-            Deseja continuar com o pedido mesmo assim?
-          </Dialog.Description>
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Cancel"
-                backgroundColor="#FF6347" // cor vermelho para "Cancelar"
-                color="$white1"
-                onPress={() => props.setOpenModal(false)} // Fecha o modal
-              >
-                Cancelar
-              </Button>
-            </Dialog.Close>
-            <Button
-              width="$20"
-              theme="active"
-              aria-label="Confirm"
-              backgroundColor="#04BF7B"
-              color="$white1"
-              onPress={() => {
-                props.setOpenModal(false) // Fecha o modal
-                props.onConfirmContinue() // Chama a função para continuar
-              }}
-            >
-              Continuar
-            </Button>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  )
-}
-
 export function Confirm({ navigation }: HomeScreenProps) {
   const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData)
   const [loading, setLoading] = useState<boolean>(true)
@@ -255,53 +165,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [showErros, setShowErros] = useState<string[]>([])
   const [booleanErros, setBooleanErros] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
-  // Novo estado para o modal de itens faltantes
-  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
-  const [missingItemsCount, setMissingItemsCount] = useState(0)
-
-
-  // Nova função para centralizar a lógica de confirmação do pedido
-  const handleConfirmOrder = async () => {
-    setLoadingToConfirm(true)
-    const token = await getToken()
-    if (!token) {
-      setLoadingToConfirm(false)
-      return new Map()
-    }
-
-    const body = {
-      token,
-      supplier: supplier.supplier,
-      restaurant: selectedRestaurant
-    }
-
-    let erros = [] // Declarar 'erros' aqui para ser usado na função
-    if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
-    if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish && !selectedRestaurant.restaurant.allowMinimumOrder) erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
-
-    setShowErros(erros)
-
-    if (!erros.length) {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      })
-
-      if (result.ok) {
-        const response = await result.json()
-        await setStorage('finalConfirmData', JSON.stringify(response.data))
-        navigation.replace('FinalConfirm')
-      } else {
-        setLoadingToConfirm(false)
-      }
-    } else {
-      setBooleanErros(true)
-      setLoadingToConfirm(false)
-    }
-  }
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -384,8 +247,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const isOpen = () => {
     const currentDate = DateTime.now().setZone('America/Sao_Paulo')
     const currentHour = Number(`${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`)
-    // A condição original `supplier.supplier.missingItens > 0` foi removida daqui, pois a verificação será feita antes de confirmar o pedido.
-    return Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour && supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish
+    return Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour && supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish && supplier.supplier.missingItens > 0
   }
 
   function getSecondsUntil13h() {
@@ -489,13 +351,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
       <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
-      {/* Novo modal para itens faltantes */}
-      <MissingItemsDialog
-        openModal={showMissingItemsModal}
-        setOpenModal={setShowMissingItemsModal}
-        missingItemsCount={missingItemsCount}
-        onConfirmContinue={handleConfirmOrder} // Chama a função que e faz a confirmação
-      />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
           <Icons
@@ -864,18 +719,43 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 setShowErros(erros)
                 if (erros.length) setBooleanErros(true)
               } else {
-                // Nova lógica para itens faltantes
-                if (supplier.supplier.missingItens > 0) {
-                  setMissingItemsCount(supplier.supplier.missingItens)
-                  setShowMissingItemsModal(true)
+                setLoadingToConfirm(true)
+                const token = await getToken()
+                if (!token) return new Map()
+
+                const body = {
+                  token,
+                  supplier: supplier.supplier,
+                  restaurant: selectedRestaurant
+                }
+
+                if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
+                if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish && !selectedRestaurant.restaurant.allowMinimumOrder) erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
+
+                setShowErros(erros)
+
+                if (!erros.length) {
+                  const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                  })
+
+                  if (result.ok) {
+                    const response = await result.json()
+                    await setStorage('finalConfirmData', JSON.stringify(response.data))
+                    navigation.replace('FinalConfirm')
+                  } else {
+                    setLoadingToConfirm(false)
+                  }
                 } else {
-                  // Se não houver itens faltantes, prossegue com a confirmação normal
-                  handleConfirmOrder()
+                  setBooleanErros(true)
+                  setLoadingToConfirm(false)
                 }
               }
-            } catch (error) {
-              console.error("Erro ao tentar confirmar ou agendar:", error)
-            }
+            } catch (error) {}
           }}
           width={170}
           backgroundColor="#04BF7B"
