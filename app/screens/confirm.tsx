@@ -10,6 +10,7 @@ import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
 // modified add
 import { defaultLightColors } from 'moti/build/skeleton/shared'
+import CustomAlert from '../../src/components/modais/CustomAlert'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -165,6 +166,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [showErros, setShowErros] = useState<string[]>([])
   const [booleanErros, setBooleanErros] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
+  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
+  const [hasBeenWarnedAboutMissingItems, setHasBeenWarnedAboutMissingItems] = useState(false)
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -351,6 +354,15 @@ export function Confirm({ navigation }: HomeScreenProps) {
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
       <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
+      <CustomAlert
+        visible={showMissingItemsModal}
+        title="Atenção!"
+        message="Há itens faltantes no seu pedido, lembre-se de revisar os itens selecionados antes de confirmar o pedido."
+        onConfirm={() => {
+          setShowMissingItemsModal(false);
+          setHasBeenWarnedAboutMissingItems(true)
+        }}
+      />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
           <Icons
@@ -485,7 +497,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
               </Text>
             </View>
             <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              {supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)
+              {supplier.supplier.discount.product.length} item(s) | {supplier.supplier.missingItens} faltante(s)
             </Text>
           </View>
           <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
@@ -649,7 +661,10 @@ export function Confirm({ navigation }: HomeScreenProps) {
           onPress={async () => {
             try {
               let erros = []
-
+              if (supplier.supplier.missingItens > 0 && !hasBeenWarnedAboutMissingItems) {
+                setShowMissingItemsModal(true)
+                return 
+              }
               if (isBefore13Hours()) {
                 if (Platform.OS !== 'web') {
                   const { status } = await Notifications.getPermissionsAsync()
