@@ -350,6 +350,14 @@ export function Confirm({ navigation }: HomeScreenProps) {
     )
   }
 
+  // --- NOVO CÁLCULO PARA ITENS FALTANTES REAIS ---
+  // Se supplier.supplier.missingItens representa o número de itens *disponíveis*,
+  // então o número de itens faltantes é o total de produtos menos os disponíveis.
+  const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens;
+  // Garante que o número de faltantes não seja negativo
+  const displayMissingItems = Math.max(0, actualMissingItemsCount);
+
+
   return (
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
@@ -497,7 +505,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
               </Text>
             </View>
             <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              {supplier.supplier.discount.product.length} item(s) | {supplier.supplier.missingItens} faltante(s)
+              {supplier.supplier.discount.product.length} item(s) | {displayMissingItems} faltante(s)
             </Text>
           </View>
           <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
@@ -661,9 +669,9 @@ export function Confirm({ navigation }: HomeScreenProps) {
           onPress={async () => {
             try {
               let erros = []
-              if (supplier.supplier.missingItens > 0 && !hasBeenWarnedAboutMissingItems) {
+              if (displayMissingItems > 0 && !hasBeenWarnedAboutMissingItems) {
                 setShowMissingItemsModal(true)
-                return 
+                return
               }
               if (isBefore13Hours()) {
                 if (Platform.OS !== 'web') {
