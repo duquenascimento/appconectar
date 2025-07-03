@@ -1,5 +1,5 @@
 import React from 'react'
-import { GestureResponderEvent } from 'react-native'
+import { GestureResponderEvent, Platform } from 'react-native'
 import { Button, Text } from 'tamagui'
 
 interface ButtonComponentProps {
@@ -26,6 +26,8 @@ const CustomButton: React.FC<ButtonComponentProps> = ({
         background: backgroundColor,
         opacity: 0.90
       }}
+      width={Platform.OS === 'web' ? '70%' : '92%'}
+      alignSelf='center'
     >
       <Text fontWeight="500" fontSize={16} color={textColor}>
         {title}
