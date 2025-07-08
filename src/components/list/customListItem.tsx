@@ -126,4 +126,4 @@ const CustomListItem: React.FC<ListItemProps> = ({
   )
 }
 
-export default CustomListItem
+export default CustomListItem;
