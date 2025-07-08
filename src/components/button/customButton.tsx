@@ -36,4 +36,4 @@ const CustomButton: React.FC<ButtonComponentProps> = ({
   )
 }
 
-export default CustomButton
+export default CustomButton;

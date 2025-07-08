@@ -20,4 +20,4 @@ const CustomSubtitle: React.FC<SubtitleProps> = ({
   )
 }
 
-export default CustomSubtitle
+export default CustomSubtitle;
