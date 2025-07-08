@@ -1,53 +1,52 @@
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import React from 'react'
+import { styled, Text, XStack, YStack } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
-import { Text, View } from 'tamagui';
 
 interface InfoCardProps {
-    title?: string;
-    description?: string;
+  title?: string
+  description?: string
 }
 
+const CardContainer = styled(YStack, {
+  name: 'CardContainer',
+  bg: '#f0f0f0',
+  borderRadius: '$4',
+  padding: '$4',
+  marginTop: '$2',
+  space: '$4',
+})
+
+const CardHeader = styled(XStack, {
+  name: 'CardHeader',
+  alignItems: 'center',
+  space: '$2',
+})
+
+const CardTitle = styled(Text, {
+  name: 'CardTitle',
+  fontSize: '$5',
+  fontWeight: 'bold',
+  color: '#333',
+  flexShrink: 1,
+})
+
+const CardDescription = styled(Text, {
+  name: 'CardDescription',
+  fontSize: '$3',
+  color: '#666',
+})
+
 const CustomInfoCard: React.FC<InfoCardProps> = ({ title = '', description = '' }) => {
-    return (
-        <View style={styles.cardContainer}>
-            <View style={styles.cardHeader}>
-                <Icons name="information-circle-outline" size={20} color="#666" style={styles.infoIcon} />
-                <Text style={styles.cardTitle}>{title}</Text>
-            </View>
-            <Text style={styles.cardDescription}>
-                {description}
-            </Text>
-        </View>
-    );
-};
+  return (
+    <CardContainer>
+      <CardHeader>
+        <Icons name="information-circle-outline" size={20} color="#666" />
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
 
-const styles = StyleSheet.create({
-    cardContainer: {
-        backgroundColor: '#f0f0f0',
-        borderRadius: 8,
-        padding: 15,
-        marginHorizontal: 16,
-        marginTop: 20,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 8,
-    },
-    infoIcon: {
-        marginRight: 8,
-    },
-    cardTitle: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    cardDescription: {
-        fontSize: 13,
-        color: '#666',
-        lineHeight: 18,
-    },
-});
+      <CardDescription>{description}</CardDescription>
+    </CardContainer>
+  )
+}
 
-export default CustomInfoCard;
+export default CustomInfoCard
