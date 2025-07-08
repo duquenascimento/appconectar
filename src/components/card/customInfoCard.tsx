@@ -49,4 +49,4 @@ const CustomInfoCard: React.FC<InfoCardProps> = ({ title = '', description = '' 
   )
 }
 
-export default CustomInfoCard
+export default CustomInfoCard;

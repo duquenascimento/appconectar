@@ -40,4 +40,4 @@ const CustomHeader: React.FC<HeaderProps> = ({ title, onBackPress }) => {
   )
 }
 
-export default CustomHeader
+export default CustomHeader;
