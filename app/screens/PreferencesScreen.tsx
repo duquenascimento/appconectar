@@ -95,15 +95,14 @@ const PreferencesScreen: React.FC = () => {
             )}
             contentContainerStyle={styles.listContentContainer}
           />
-
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title="Criar nova combinação"
-              onPress={handleCreateNewCombination}
-            />
-          </View>
         </View>
       </KeyboardAvoidingView>
+      <View style={styles.buttonContainer}>
+        <CustomButton
+          title="Criar nova combinação"
+          onPress={handleCreateNewCombination}
+        />
+      </View>
     </SafeAreaView>
   );
 };
