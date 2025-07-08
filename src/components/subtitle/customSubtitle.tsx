@@ -10,10 +10,9 @@ const CustomSubtitle: React.FC<SubtitleProps> = ({
 }) => {
   return (
     <Text
-      fontSize={16}
+      fontSize={15}
       marginTop={10}
       marginBottom={10}
-      marginHorizontal={16}
       color={'rgba(0, 0, 0, 0.6)'}
     >
       {children}
@@ -21,4 +20,4 @@ const CustomSubtitle: React.FC<SubtitleProps> = ({
   )
 }
 
-export default CustomSubtitle
+export default CustomSubtitle;

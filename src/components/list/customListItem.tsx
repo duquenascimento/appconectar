@@ -1,7 +1,7 @@
 import React from 'react'
-import { Platform, StyleSheet, TouchableOpacity } from 'react-native'
+import { TouchableOpacity, Platform } from 'react-native'
 import Icons from '@expo/vector-icons/Ionicons'
-import { Text, View } from 'tamagui'
+import { Text, View, styled, XStack, YStack } from 'tamagui'
 import { formatCurrency } from '@/app/utils/formatCurrency'
 
 export interface Combination {
@@ -19,88 +19,95 @@ interface ListItemProps extends Combination {
   onPress: (id: string) => void
 }
 
+const ItemContainer = styled(XStack, {
+  name: 'ItemContainer',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingVertical: '$4',
+  paddingHorizontal: '$4',
+  backgroundColor: '#fff',
+  borderBottomWidth: 1,
+  borderBottomColor: '#eee'
+})
+
+const LeftContent = styled(XStack, {
+  name: 'LeftContent',
+  alignItems: 'center',
+  flex: 1,
+  space: '$3'
+})
+
+const Circle = styled(View, {
+  width: 40,
+  height: 40,
+  borderRadius: 9999,
+  backgroundColor: '#e0e0e0'
+})
+
+const InfoContainer = styled(YStack, {
+  flexShrink: 1,
+  space: '$1'
+})
+
+const ItemTitle = styled(Text, {
+  fontSize: 16,
+  color: '#000'
+})
+
+const ItemSubTitle = styled(Text, {
+  fontSize: 13,
+  color: '#555'
+})
+
+const RightContent = styled(YStack, {
+  alignItems: 'flex-end',
+  space: '$1'
+})
+
+const ItemTotalValue = styled(Text, {
+  fontSize: 15,
+  fontWeight: 'bold',
+  color: '#000',
+  textAlign: 'right'
+})
+
+const ItemMissing = styled(Text, {
+  fontSize: 12,
+  color: '#666',
+  textAlign: 'right'
+})
+
+const IconContent = styled(View, {
+  justifyContent: 'center',
+  paddingRight: Platform.OS === 'web' ? '10%' : 0
+})
+
 const CustomListItem: React.FC<ListItemProps> = ({ id, combination, supplier, createdAt, delivery, totalValue, missingItems, supplierClosed, onPress }) => {
   return (
-    <TouchableOpacity style={styles.itemContainer} onPress={() => onPress(id)}>
-      <View style={styles.leftContent}>
-        <View style={styles.circle} />
-        <View style={styles.infoContainer}>
-          <Text style={styles.itemTitle}>{combination}</Text>
-          {!!supplier && <Text style={styles.itemSubTitle}>{supplier}</Text>}
-          {!!createdAt && <Text style={styles.itemSubTitle}>Criada em {createdAt}</Text>}
-          {!!delivery && <Text style={styles.itemSubTitle}>{delivery}</Text>}
-          {!!supplierClosed && <Text style={styles.itemSubTitle}>{supplierClosed}</Text>}
-        </View>
-      </View>
-      <View style={styles.rightContent}>
-        <View style={{ alignItems: 'flex-end' }}>
-          {totalValue !== undefined && <Text style={styles.itemTotalValue}>{formatCurrency(totalValue)}</Text>}
-          {missingItems !== undefined && <Text style={styles.itemMissing}>{`${missingItems} faltante${missingItems !== 1 ? 's' : ''}`}</Text>}
-        </View>
-      </View>
-      <View pl={10} justifyContent="center" style={styles.iconContent}>
-        <Icons name="chevron-forward" size={20} />
-      </View>
+    <TouchableOpacity onPress={() => onPress(id)}>
+      <ItemContainer>
+        <LeftContent>
+          <Circle />
+          <InfoContainer>
+            <ItemTitle>{combination}</ItemTitle>
+            {!!supplier && <ItemSubTitle>{supplier}</ItemSubTitle>}
+            {!!createdAt && <ItemSubTitle>Criada em {createdAt}</ItemSubTitle>}
+            {!!delivery && <ItemSubTitle>{delivery}</ItemSubTitle>}
+            {!!supplierClosed && <ItemSubTitle>{supplierClosed}</ItemSubTitle>}
+          </InfoContainer>
+        </LeftContent>
+
+        <RightContent>
+          {totalValue !== undefined && <ItemTotalValue>{formatCurrency(totalValue)}</ItemTotalValue>}
+          {missingItems !== undefined && <ItemMissing>{`${missingItems} faltante${missingItems !== 1 ? 's' : ''}`}</ItemMissing>}
+        </RightContent>
+
+        <IconContent>
+          <Icons name="chevron-forward" size={20} color="#000" />
+        </IconContent>
+      </ItemContainer>
     </TouchableOpacity>
   )
 }
-
-const styles = StyleSheet.create({
-  itemContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee'
-  },
-  circle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-    marginRight: 12
-  },
-  infoContainer: {
-    flexShrink: 1,
-    gap: 4
-  },
-  itemTitle: {
-    fontSize: 16,
-    color: '#000'
-  },
-  itemSubTitle: {
-    fontSize: 13,
-    color: '#555',
-    marginTop: 4
-  },
-  rightContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8
-  },
-  iconContent: {
-    paddingRight: Platform.OS === 'web' ? '10%' : undefined,
-  },
-  leftContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1
-  },
-  itemTotalValue: {
-    fontSize: 15,
-    fontWeight: 'bold',
-    color: '#000',
-    textAlign: 'right'
-  },
-  itemMissing: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'right'
-  }
-})
 
 export default CustomListItem
