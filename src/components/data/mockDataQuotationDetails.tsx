@@ -64,7 +64,7 @@
       },
       {
         supplier: {
-          name: 'José Frutas e Verduras',
+          name: 'Gustavo Frutas e Verduras',
           externalId: 'mock-supplier-2',
           missingItens: 1, // Exemplo de item faltante
           minimumOrder: 80.00,

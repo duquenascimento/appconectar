@@ -1,10 +1,10 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Stack, Text, View, Image, ScrollView, XStack } from 'tamagui'; // Removido 'Button'
+import { Stack, Text, View, Image, ScrollView, XStack } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import { getStorage } from '../utils/utils';
-import CustomButton from '../../src/components/button/CustomButton'; 
+import CustomButton from '../../src/components/button/CustomButton';
 
 export interface Product {
   price: number;
@@ -211,12 +211,12 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
         >
           <CustomButton
             title="Alterar itens"
-            onPress={() => navigation.replace('Cart')} // Redireciona para a tela de carrinho
+            onPress={() => navigation.replace('Cart')}
             backgroundColor="black"
-            flex={1}
+            flex={1} // distribuir o espaço
             mr={10}
             borderRadius={10}
-            textColor="white" 
+            textColor="white"
           />
           <CustomButton
             title="Confirmar combinação"
@@ -225,10 +225,10 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
               navigation.replace('Products');
             }}
             backgroundColor="#04BF7B"
-            flex={1}
+            flex={1} // distribuir o espaço
             ml={10}
             borderRadius={10}
-            textColor="white" // Adicionado para garantir a cor do texto
+            textColor="white"
           />
         </XStack>
       </View>
