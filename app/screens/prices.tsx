@@ -185,6 +185,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [street, setStreet] = useState<string>()
   const [localNumber, setLocalNumber] = useState<string>('')
   const [neighborhood, setNeighborhood] = useState<string>()
+  const [streetComplete, setStreetComplete] = useState<string>('') // para exibir
   const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>()
   const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>()
   const [deliveryInformation, setDeliveryInformation] = useState<string>()
@@ -502,6 +503,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
         setDeliveryInformation(addressInfo.deliveryInformation)
         setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16))
         setMinHour(addressInfo.initialDeliveryTime.substring(11, 16))
+        setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
       } else {
         console.log('Address info not found for the selected restaurant')
       }
@@ -527,6 +529,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
     setDeliveryInformation(addressInfo.deliveryInformation)
     setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16))
     setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16))
+    setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
   }, [draftSelectedRestaurant])
 
   const getItem = (data: SupplierData[], index: number) => data[index]
@@ -924,11 +927,15 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                                     const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
                                     const result = await response.json()
                                     if (response.ok && !result.erro) {
+                                      const rawStreet = campoString(result.logradouro)
+                                      const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+
                                       setCity(campoString(result.localidade))
                                       setNeighborhood(campoString(result.bairro))
-                                      setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                      setLocalType(streetType?.toUpperCase() || '')
+                                      setStreet(streetNameParts.join(' '))
+                                      setStreetComplete(rawStreet)
                                       setLocalNumber('')
-                                      setStreet(campoString(result.logradouro.split(' ').slice(1).join(' ')))
                                     }
                                     setLoading(false)
                                   }
@@ -991,62 +998,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                           </KeyboardAvoidingView>
                         </View>
                         <View flexDirection="row" mt={10} gap={Platform.OS === 'web' ? 10 : 50}>
-                          {/* Campo Logradouro */}
-                          <View zIndex={1} style={{ width: 150 }}>
-                            <Text
-                              style={{
-                                paddingLeft: 5,
-                                fontSize: 12,
-                                color: 'gray'
-                              }}
-                            >
-                              Logradouro
-                            </Text>
-                            <DropDownPicker
-                              value={localType ?? 'RUA'}
-                              style={{
-                                borderWidth: 1,
-                                borderColor: 'lightgray',
-                                borderRadius: 5
-                              }}
-                              listMode="SCROLLVIEW"
-                              setValue={setLocalType}
-                              items={[
-                                { label: 'ALAMEDA', value: 'ALAMEDA' },
-                                { label: 'AVENIDA', value: 'AVENIDA' },
-                                { label: 'BECO', value: 'BECO' },
-                                { label: 'BOULEVARD', value: 'BOULEVARD' },
-                                { label: 'CAMINHO', value: 'CAMINHO' },
-                                { label: 'CHÁCARA', value: 'CHÁCARA' },
-                                { label: 'CIRCUITO', value: 'CIRCUITO' },
-                                { label: 'CONJUNTO', value: 'CONJUNTO' },
-                                { label: 'EIXO', value: 'EIXO' },
-                                { label: 'ESTAÇÃO', value: 'ESTAÇÃO' },
-                                { label: 'ESTRADA', value: 'ESTRADA' },
-                                { label: 'FAVELA', value: 'FAVELA' },
-                                { label: 'JARDIM', value: 'JARDIM' },
-                                { label: 'LADEIRA', value: 'LADEIRA' },
-                                { label: 'LARGO', value: 'LARGO' },
-                                { label: 'PARQUE', value: 'PARQUE' },
-                                { label: 'PASSARELA', value: 'PASSARELA' },
-                                { label: 'PASSEIO', value: 'PASSEIO' },
-                                { label: 'PRAÇA', value: 'PRAÇA' },
-                                { label: 'QUADRA', value: 'QUADRA' },
-                                { label: 'RAMPA', value: 'RAMPA' },
-                                { label: 'RODOVIA', value: 'RODOVIA' },
-                                { label: 'RUA', value: 'RUA' },
-                                { label: 'TRAVESSA', value: 'TRAVESSA' },
-                                { label: 'VIA', value: 'VIA' },
-                                { label: 'VIADUTO', value: 'VIADUTO' },
-                                { label: 'VIELA', value: 'VIELA' },
-                                { label: 'VILA', value: 'VILA' }
-                              ]}
-                              multiple={false}
-                              open={localTypeOpen}
-                              setOpen={setLocalTypeOpen}
-                              placeholder=""
-                            />
-                          </View>
                           <View flex={1}>
                             <Text
                               style={{
@@ -1060,15 +1011,20 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                             <KeyboardAvoidingView>
                               <Input
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                  setStreet(formattedValue)
+                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
+                                  const parts = formattedValue.trim().split(' ')
+                                  const localType = parts[0]?.toUpperCase() || ''
+                                  const streetName = parts.slice(1).join(' ')
+                                  setLocalType(localType)
+                                  setStreet(streetName)
+                                  setStreetComplete(formattedValue) // usado para exibir no campo
                                 }}
                                 backgroundColor="white"
                                 borderColor="lightgray"
                                 borderRadius={5}
                                 borderTopLeftRadius={0}
                                 borderBottomLeftRadius={0}
-                                value={street}
+                                value={streetComplete}
                                 focusStyle={{
                                   borderColor: '#049A63',
                                   borderWidth: 1
@@ -1397,13 +1353,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                               }}
                             >
                               {/* Campo CEP */}
-                              <View
-                                style={{
-                                  flexBasis: '45%',
-                                  minWidth: 150,
-                                  flexGrow: 1
-                                }}
-                              >
+                              <View width={150}>
                                 <Text
                                   style={{
                                     paddingTop: 10,
@@ -1415,7 +1365,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                                   Cep
                                 </Text>
                                 <Input
-                                  marginBottom={10}
                                   maxLength={9}
                                   backgroundColor="white"
                                   borderColor="lightgray"
@@ -1429,11 +1378,15 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                                       const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
                                       const result = await response.json()
                                       if (response.ok && !result.erro) {
+                                        const rawStreet = campoString(result.logradouro)
+                                        const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+
                                         setCity(campoString(result.localidade))
                                         setNeighborhood(campoString(result.bairro))
-                                        setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                        setLocalType(streetType?.toUpperCase() || '')
+                                        setStreet(streetNameParts.join(' '))
+                                        setStreetComplete(rawStreet)
                                         setLocalNumber('')
-                                        setStreet(campoString(result.logradouro.split(' ').slice(1).join(' ')))
                                       }
                                       setLoading(false)
                                     }
@@ -1499,80 +1452,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                                   marginBottom: 5
                                 }}
                               >
-                                {/* Campo Logradouro */}
-                                <View
-                                  zIndex={Platform.OS === 'ios' ? 3 : 3}
-                                  position="relative"
-                                  style={{
-                                    flexBasis: '45%',
-                                    minWidth: 150,
-                                    flexGrow: 1
-                                  }}
-                                >
-                                  <Text
-                                    style={{
-                                      paddingLeft: 5,
-                                      fontSize: 12,
-                                      color: 'gray'
-                                    }}
-                                  >
-                                    Logradouro
-                                  </Text>
-                                  <DropDownPicker
-                                    zIndex={Platform.OS === 'ios' ? 2 : 2}
-                                    value={localType ?? 'RUA'}
-                                    style={{
-                                      position: 'relative',
-                                      borderWidth: 1,
-                                      borderColor: 'lightgray',
-                                      borderRadius: 5,
-                                      marginBottom: 10
-                                    }}
-                                    listMode="SCROLLVIEW"
-                                    setValue={setLocalType}
-                                    items={[
-                                      { label: 'ALAMEDA', value: 'ALAMEDA' },
-                                      { label: 'AVENIDA', value: 'AVENIDA' },
-                                      { label: 'BECO', value: 'BECO' },
-                                      {
-                                        label: 'BOULEVARD',
-                                        value: 'BOULEVARD'
-                                      },
-                                      { label: 'CAMINHO', value: 'CAMINHO' },
-                                      { label: 'CHÁCARA', value: 'CHÁCARA' },
-                                      { label: 'CIRCUITO', value: 'CIRCUITO' },
-                                      { label: 'CONJUNTO', value: 'CONJUNTO' },
-                                      { label: 'EIXO', value: 'EIXO' },
-                                      { label: 'ESTAÇÃO', value: 'ESTAÇÃO' },
-                                      { label: 'ESTRADA', value: 'ESTRADA' },
-                                      { label: 'FAVELA', value: 'FAVELA' },
-                                      { label: 'JARDIM', value: 'JARDIM' },
-                                      { label: 'LADEIRA', value: 'LADEIRA' },
-                                      { label: 'LARGO', value: 'LARGO' },
-                                      { label: 'PARQUE', value: 'PARQUE' },
-                                      {
-                                        label: 'PASSARELA',
-                                        value: 'PASSARELA'
-                                      },
-                                      { label: 'PASSEIO', value: 'PASSEIO' },
-                                      { label: 'PRAÇA', value: 'PRAÇA' },
-                                      { label: 'QUADRA', value: 'QUADRA' },
-                                      { label: 'RAMPA', value: 'RAMPA' },
-                                      { label: 'RODOVIA', value: 'RODOVIA' },
-                                      { label: 'RUA', value: 'RUA' },
-                                      { label: 'TRAVESSA', value: 'TRAVESSA' },
-                                      { label: 'VIA', value: 'VIA' },
-                                      { label: 'VIADUTO', value: 'VIADUTO' },
-                                      { label: 'VIELA', value: 'VIELA' },
-                                      { label: 'VILA', value: 'VILA' }
-                                    ]}
-                                    multiple={false}
-                                    open={localTypeOpen}
-                                    setOpen={setLocalTypeOpen}
-                                    placeholder=""
-                                  />
-                                </View>
-                                <View flex={1} zIndex={Platform.OS === 'ios' ? 1 : 1} position="relative">
+                                <View flex={1}>
                                   <Text
                                     style={{
                                       paddingLeft: 5,
@@ -1585,16 +1465,20 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                                   <KeyboardAvoidingView>
                                     <Input
                                       onChangeText={(value) => {
-                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                        setStreet(formattedValue)
+                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
+                                        const parts = formattedValue.trim().split(' ')
+                                        const localType = parts[0]?.toUpperCase() || ''
+                                        const streetName = parts.slice(1).join(' ')
+                                        setLocalType(localType)
+                                        setStreet(streetName)
+                                        setStreetComplete(formattedValue) // usado para exibir no campo
                                       }}
-                                      marginBottom={10}
                                       backgroundColor="white"
                                       borderColor="lightgray"
                                       borderRadius={5}
                                       borderTopLeftRadius={0}
                                       borderBottomLeftRadius={0}
-                                      value={street}
+                                      value={streetComplete}
                                       focusStyle={{
                                         borderColor: '#049A63',
                                         borderWidth: 1

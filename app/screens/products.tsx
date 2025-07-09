@@ -16,6 +16,7 @@ import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
 import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
 import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 
 type Product = {
   name: string
@@ -79,6 +80,9 @@ type ProductBoxProps = Product & {
   obs: string
   addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
+  productObservations: Map<string, string>
+  setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
+  saveProductObservations?: (map: Map<string, string>) => Promise<void>
 }
 
 const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
@@ -311,7 +315,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations ,setProductObservations, saveProductObservations }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -320,6 +324,7 @@ const ProductBox = React.memo(
     const obsRef = useRef('')
     const quantRef = useRef<number>(firstUnit)
     const previousCartRef = useRef<Map<string, Cart>>(new Map())
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
@@ -352,8 +357,9 @@ const ProductBox = React.memo(
         onObsChange(currentCartItem.obs || '')
       } else {
         setValueQuant(0)
-        setObs('')
-        onObsChange('')
+        const storedObs = productObservations.get(id) || ''
+        setObs(storedObs)
+        onObsChange(storedObs)
       }
 
       previousCartRef.current = new Map(cart)
@@ -384,18 +390,48 @@ const ProductBox = React.memo(
     const handleObsChange = (text: string) => {
       setObs(text)
       onObsChange(text)
+
+      setProductObservations((prev) => {
+        const updated = new Map(prev)
+        updated.set(id, text)
+        if (saveProductObservations) {
+          saveProductObservations(updated)
+        }
+        return updated
+      })
+
       if (isFavorite) {
         addObservation(id, text)
       }
     }
 
-    const handleValueQuantChange = (delta: number) => {
-      setValueQuant((prevValue) => Math.max(0, Number((prevValue + delta).toFixed(3))))
+    const handleValueQuantChange = async (delta: number) => {
+      const newAmount = Math.max(0, Number((valueQuant + delta).toFixed(3)))
+      setValueQuant(newAmount)
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+
+      debounceTimerRef.current = setTimeout(async () => {
+        const updatedItem = { productId: id, amount: newAmount, obs }
+        const mapItem = new Map([[id, updatedItem]])
+        const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
+
+        await saveCart(updatedItem, true)
+        await saveCartArray(mapItem, mapToRemove)
+      }, 500)
     }
 
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
+          const updatedItem = { productId: id, amount: valueQuant, obs }
+          const updatedMap = new Map([[id, updatedItem]])
+          const emptyMap = new Map()
+
+          await saveCart(updatedItem, true)
+          await saveCartArray(updatedMap, emptyMap)
           await addObservation(id, obs)
           obsRef.current = obs
         } catch (error) {
@@ -405,7 +441,7 @@ const ProductBox = React.memo(
     }, [addObservation, id, obs])
 
     return (
-      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" paddingBottom={Platform.OS === 'web' ? '' : 5}>
+      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
         <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
@@ -437,7 +473,7 @@ const ProductBox = React.memo(
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
               </View>
             ) : (
-              <Icons name={open ? 'close-circle' : 'add-circle'} size={36} color="#0BC07D" />
+              <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
             )}
           </View>
         </View>
@@ -544,7 +580,7 @@ const ProductBox = React.memo(
                   size={24}
                   onPress={async (e) => {
                     e.stopPropagation()
-                    handleValueQuantChange(quant)
+                    handleValueQuantChange(+quant)
                   }}
                 />
               </View>
@@ -852,6 +888,15 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }
 
+        if (cart.obs) {
+          setProductObservations((prev) => {
+            const updated = new Map(prev)
+            updated.set(cart.productId, cart.obs)
+            saveProductObservations(updated)
+            return updated
+          })
+        }
+
         return newCart
       })
     }
@@ -966,6 +1011,9 @@ export function Products({ navigation }: HomeScreenProps) {
       } finally {
         setLoading(false)
       }
+
+      const storedObs = await loadProductObservations()
+      setProductObservations(storedObs)
     }
     loadInitialData()
   }, [loadFavorites, loadProducts, loadRestaurants])
@@ -1080,18 +1128,6 @@ export function Products({ navigation }: HomeScreenProps) {
     },
     [favorites]
   )
-
-  /*const toggleFavorite = useCallback(
-    async (productId: string) => {
-      const isCurrentlyFavorite = favorites.some((favorite) => favorite.id === productId)
-      if (isCurrentlyFavorite) {
-        await removeFromFavorites(productId)
-      } else {
-        await addToFavorites(productId)
-      }
-    },
-    [favorites, addToFavorites, removeFromFavorites]
-  )*/
 
   const toggleFavorite = useCallback(
     async (productId: string) => {
@@ -1230,6 +1266,9 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }}
         addObservation={addObservation}
+        productObservations={productObservations}
+        setProductObservations={setProductObservations}
+        saveProductObservations={saveProductObservations}
       />
     ),
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation]
@@ -1368,9 +1407,9 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList style={{ maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
+        <FlatList style={{ marginTop: -5, maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 40} borderTopColor="#aaa" borderTopWidth={0.5}>
+        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
@@ -1381,7 +1420,7 @@ export function Products({ navigation }: HomeScreenProps) {
             </View>
           ) : !skeletonLoading ? (
             Platform.OS === 'android' ? (
-              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} />
+              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} />
             ) : (
               <CustomFlatList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} listRef={flatListRef} />
             )
@@ -1470,7 +1509,6 @@ export function Products({ navigation }: HomeScreenProps) {
         isScrolling={isScrolling}
         onPress={async () => {
           setLoading(true)
-          await saveCartArray(cart, cartToExclude)
           navigation.replace('Cart')
         }}
       />

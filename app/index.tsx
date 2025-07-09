@@ -387,10 +387,10 @@ export function SignInMobile(props: { page: string; onButtonPress: (page: string
       </Text>
 
       <XStack backgroundColor="white" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
-        <Input autoCapitalize="none" placeholder="Email" onChangeText={setEmail} backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" f={1} maxLength={256} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+        <Input autoCapitalize="none" placeholder="Email" onChangeText={setEmail} backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" f={1} maxLength={256} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} value={email} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
       </XStack>
       <XStack backgroundColor="white" pr="$3.5" borderWidth={1} borderRadius={9} borderColor="lightgray" mt="$3.5" alignItems="center" flexDirection="row" zIndex={20}>
-        <Input autoCapitalize="none" placeholder="Senha" onChangeText={setPassword} backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" secureTextEntry={showPw} f={1} mr="$3.5" maxLength={35} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+        <Input autoCapitalize="none" placeholder="Senha" onChangeText={setPassword} backgroundColor="$colorTransparent" borderWidth="$0" borderColor="$colorTransparent" secureTextEntry={showPw} f={1} mr="$3.5" maxLength={35} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} value={password} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
           size={24}
@@ -733,6 +733,7 @@ export function SignUpMobile(props: { page: string; onButtonPress: (page: string
           f={1}
           mr="$3.5"
           maxLength={20}
+          value={password}
           onChangeText={(text) => {
             setPassword(text)
             passwordIsValid(text, confirmPassword, setPasswordValid)
@@ -1242,6 +1243,7 @@ export function SignUpWeb(props: { page: string; onButtonPress: (page: string) =
           secureTextEntry={showPw}
           f={1}
           mr="$3.5"
+          value={password}
           maxLength={20}
           onChangeText={(text) => {
             setPassword(text)

@@ -22,6 +22,7 @@ import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/n
 
 import { TouchableOpacity } from "react-native";
 import { clearStorage, deleteToken } from "../utils/utils";
+import PdfViewerModal from "@/src/components/modais/PdfViewerModal"
 
 export function ModalDocumentsAndInvoices(props: {
   openModal: boolean;
@@ -132,6 +133,8 @@ export function OrderDetailsScreen() {
   const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] =
     useState(false);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null)
+  const [showPdfModal, setShowPdfModal] = useState<boolean>(false)
 
   const orderId = route.params?.orderId;
 
@@ -189,6 +192,14 @@ export function OrderDetailsScreen() {
         openModal={showDocumentsModal}
         setRegisterInvalid={setShowDocumentsModal}
       />
+      {pdfUrl && showPdfModal && (
+        <PdfViewerModal
+          key={pdfUrl}
+          pdfUrl={pdfUrl}
+          open={showPdfModal}
+          onClose={()=> setShowPdfModal(false)}
+        />
+      )}
 
       <Text
         style={{
@@ -270,7 +281,7 @@ export function OrderDetailsScreen() {
         <TouchableOpacity
           onPress={async () => {
             const url = order.orderDocument;
-
+            console.log(url)
             if (!url) {
               setShowDocumentsModal(true);
               return;
@@ -283,13 +294,10 @@ export function OrderDetailsScreen() {
                 )}`
               );
               const data = await res.json();
-
+              console.log(data)
               if (data && data.status === 200) {
-                if (Platform.OS === "web") {
-                  window.open(url, "_blank");
-                } else {
-                  openURL(url);
-                }
+               setPdfUrl(url)
+               setShowPdfModal(true)
               } else {
                 setShowDocumentsModal(true);
               }
@@ -323,11 +331,8 @@ export function OrderDetailsScreen() {
               );
               const data = await res.json();
               if (data && data.status === 200) {
-                if (Platform.OS === "web") {
-                  window.open(url, "_blank");
-                } else {
-                  openURL(url);
-                }
+               setPdfUrl(url)
+               setShowPdfModal(true)
               } else {
                 setShowDocumentsModal(true);
               }

@@ -10,6 +10,7 @@ import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
 // modified add
 import { defaultLightColors } from 'moti/build/skeleton/shared'
+import CustomAlert from '../../src/components/modais/CustomAlert'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -75,8 +76,7 @@ export function DialogInstance(props: { openModal: boolean; setRegisterInvalid: 
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Ops!</Dialog.Title>
-          <Dialog.Description>Houve algum(ns) problema(s)</Dialog.Description>
+          <Dialog.Title>Agendamento Realizado!</Dialog.Title>
 
           {props.erros.map((erro) => {
             return <Text key={erro}>- {erro}</Text>
@@ -166,6 +166,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [showErros, setShowErros] = useState<string[]>([])
   const [booleanErros, setBooleanErros] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
+  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
+  const [hasBeenWarnedAboutMissingItems, setHasBeenWarnedAboutMissingItems] = useState(false)
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -348,10 +350,27 @@ export function Confirm({ navigation }: HomeScreenProps) {
     )
   }
 
+  // --- NOVO CÁLCULO PARA ITENS FALTANTES REAIS ---
+  // Se supplier.supplier.missingItens representa o número de itens *disponíveis*,
+  // então o número de itens faltantes é o total de produtos menos os disponíveis.
+  const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens;
+  // Garante que o número de faltantes não seja negativo
+  const displayMissingItems = Math.max(0, actualMissingItemsCount);
+
+
   return (
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
       <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
+      <CustomAlert
+        visible={showMissingItemsModal}
+        title="Atenção!"
+        message="Há itens faltantes no seu pedido, lembre-se de revisar os itens selecionados antes de confirmar o pedido."
+        onConfirm={() => {
+          setShowMissingItemsModal(false);
+          setHasBeenWarnedAboutMissingItems(true)
+        }}
+      />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
           <Icons
@@ -486,7 +505,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
               </Text>
             </View>
             <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              {supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)
+              {supplier.supplier.discount.product.length} item(s) | {displayMissingItems} faltante(s)
             </Text>
           </View>
           <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
@@ -650,7 +669,10 @@ export function Confirm({ navigation }: HomeScreenProps) {
           onPress={async () => {
             try {
               let erros = []
-
+              if (displayMissingItems > 0 && !hasBeenWarnedAboutMissingItems) {
+                setShowMissingItemsModal(true)
+                return
+              }
               if (isBefore13Hours()) {
                 if (Platform.OS !== 'web') {
                   const { status } = await Notifications.getPermissionsAsync()
