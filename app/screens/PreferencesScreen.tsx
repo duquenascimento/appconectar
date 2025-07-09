@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet
+  StyleSheet,
+  Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 import CustomSubtitle from '@/src/components/subtitle/customSubtitle';
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomListItem from '@/src/components/list/customListItem';
@@ -14,6 +16,9 @@ import CustomButton from '@/src/components/button/customButton';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'tamagui';
+
+import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
+import { mapCombination } from '../utils/mapCombination';
 
 export interface Combination {
   id: string;
@@ -28,7 +33,7 @@ export interface Combination {
 export type RootStackParamList = {
   Sign: undefined;
   Products: undefined;
-  Preferences: undefined;
+  Preferences: { restaurantId: string };
   CombinationDetail: { id: string };
   CreateCombination: undefined;
 };
@@ -40,17 +45,33 @@ type PreferencesScreenNavigationProp = NativeStackNavigationProp<
 
 const PreferencesScreen: React.FC = () => {
   const navigation = useNavigation<PreferencesScreenNavigationProp>();
+  const route = useRoute();
+  const restaurantId =
+    (route.params as { restaurantId?: string })?.restaurantId ??
+    '0ef6f918-542e-4ca1-860a-dcf7ae5f40a5';
 
-  const [combinations, setCombinations] = useState<Combination[]>([
-    { id: '1', combination: 'Combinação 1', createdAt: '02/03/2025' },
-    { id: '2', combination: 'Combinação 2', createdAt: '05/03/2025' },
-    { id: '31', combination: 'Combinação 1', createdAt: '02/03/2025' },
-    { id: '22', combination: 'Combinação 2', createdAt: '05/03/2025' },
-    { id: '41', combination: 'Combinação 1', createdAt: '02/03/2025' },
-    { id: '32', combination: 'Combinação 2', createdAt: '05/03/2025' },
-    { id: '51', combination: 'Combinação 1', createdAt: '02/03/2025' },
-    { id: '42', combination: 'Combinação 2', createdAt: '05/03/2025' },
-  ]);
+  const [combinations, setCombinations] = useState<Combination[]>([]);
+
+  const loadCombinations = useCallback(async () => {
+    if (!restaurantId) return;
+
+    try {
+      const combinationsResponse = await getCombinationsByRestaurant(restaurantId);
+
+      if (combinationsResponse.success && Array.isArray(combinationsResponse.data)) {
+        const combinationsFormated: Combination[] = combinationsResponse.data.map(mapCombination);
+        setCombinations(combinationsFormated);
+      } else {
+        throw new Error('Resposta inesperada da API');
+      }
+    } catch (err: any) {
+      Alert.alert('Erro ao carregar preferências', err.message || 'Erro desconhecido');
+    }
+  }, [restaurantId]);
+
+  useEffect(() => {
+    loadCombinations();
+  }, [loadCombinations]);
 
   const handleBackPress = () => navigation.goBack();
   const handleCombinationPress = (id: string) =>
@@ -85,10 +106,6 @@ const PreferencesScreen: React.FC = () => {
               <CustomListItem
                 id={item.id}
                 combination={item.combination}
-                supplier={item.supplier}
-                delivery={item.delivery}
-                totalValue={item.totalValue}
-                missingItems={item.missingItems}
                 createdAt={item.createdAt}
                 onPress={handleCombinationPress}
               />
