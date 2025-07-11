@@ -361,6 +361,7 @@ export function Register({ navigation }: HomeScreenProps) {
       }
 
       if (step === 0) {
+        const errosApi: string[] = []
         const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '')
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`, {
           method: 'POST',
@@ -368,8 +369,16 @@ export function Register({ navigation }: HomeScreenProps) {
           headers: { 'Content-type': 'application/json' }
         })
         const result: CheckCnpj = await response.json()
-
+        const ocorreuErro = result.data.msg ? true : false;       
         if (response.ok) {
+          if (ocorreuErro) {
+            errosApi.push('Erro ao processar os dados do CNPJ.')
+            formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.')
+            setErros(errosApi)
+            setRegisterInvalid(true)
+            setLoading(false)
+          return
+          }
           const buscaCep = await fetch(`https://viacep.com.br/ws/${result.data.cep}/json/`)
           const enderecoCNPJ = await buscaCep.json()
           if (enderecoCNPJ.erro) {
@@ -394,7 +403,6 @@ export function Register({ navigation }: HomeScreenProps) {
           })
           setStep(1)
         } else {
-          const errosApi: string[] = []
           if (result.msg === 'already exists') {
             errosApi.push('Este CNPJ já existe na plataforma')
             formik.setFieldError('cnpj', 'CNPJ já cadastrado')
