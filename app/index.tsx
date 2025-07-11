@@ -51,13 +51,17 @@ const passwordIsValid = (password: string, confirmPassword: string, setPasswordV
 }
 
 const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: boolean) => void }) => {
-  const [emailModal, setEmailModal] = useState<string>('')
-  const [codeModal, setCodeModal] = useState<string>('')
-  const [passwordModal, setPasswordModal] = useState<string>('')
-  const [step2, setStep2] = useState<boolean>(false)
-  const [step3, setStep3] = useState<boolean>(false)
-  const [step4, setStep4] = useState<boolean>(false)
-  const [erro, setErro] = useState<string>('')
+  const [emailModal, setEmailModal] = useState<string>('');
+  const [codeModal, setCodeModal] = useState<string>('');
+  const [passwordModal, setPasswordModal] = useState<string>('');
+  const [confirmPasswordModal, setConfirmPasswordModal] = useState<string>('');
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [showPassword, setShowPassword] = useState(true);
+  
+  const [step2, setStep2] = useState<boolean>(false);
+  const [step3, setStep3] = useState<boolean>(false);
+  const [step4, setStep4] = useState<boolean>(false);
+  const [erro, setErro] = useState<string>('');
 
   return (
     <View flex={1} justifyContent="center" alignItems="center" backgroundColor="$white9">
@@ -75,23 +79,56 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
                 <Text pt={5} fontSize={10}>
                   Informe o e-mail abaixo e insira o código enviado
                 </Text>
-                <Input autoCapitalize="none" keyboardType="email-address" mt={15} mb={15} onChangeText={setEmailModal} placeholder="E-mail" value={emailModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
-                {step2 && <Input autoCapitalize="none" onChangeText={setCodeModal} maxLength={5} placeholder="Código" value={codeModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>}
-                {erro && <Text color="red">{erro}</Text>}
+                <Input autoCapitalize="none" keyboardType="email-address" mt={15} mb={15} onChangeText={setEmailModal} placeholder="E-mail" value={emailModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+                {step2 && <Input autoCapitalize="none" onChangeText={setCodeModal} maxLength={5} placeholder="Código" value={codeModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />}
               </>
             )}
-            {step3 && !step4 && <Input autoCapitalize="none" mt={15} mb={15} onChangeText={setPasswordModal} placeholder="Nova senha" value={passwordModal} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>}
+            {step3 && !step4 && (
+              <>
+                <Text pt={15} fontSize={10}>Sua nova senha deve ter no mínimo 8 caracteres.</Text>
+                {/* Campo "Nova Senha" */}
+                <XStack mt={10} pr="$3.5" borderWidth={1} borderRadius={9} borderColor={isPasswordValid ? 'lightgray' : 'red'}  alignItems="center">
+                   <Input 
+                      placeholder="Nova senha"
+                      secureTextEntry={showPassword}
+                      f={1}
+                      mr="$3.5"
+                      backgroundColor="transparent"
+                      borderWidth={0}
+                      value={passwordModal}
+                      onChangeText={setPasswordModal}
+                    />
+                   <Icons name={showPassword ? 'eye' : 'eye-off'} size={24} onPress={() => setShowPassword(!showPassword)} />
+                </XStack>
+                {/* Campo "Confirmar Nova Senha" */}
+                <XStack mt={10} mb={15} pr="$3.5" borderWidth={1} borderRadius={9} borderColor={isPasswordValid ? 'lightgray' : 'red'}  alignItems="center">
+                  <Input 
+                    placeholder="Confirmar nova senha"
+                    secureTextEntry={showPassword} 
+                    f={1}
+                    mr="$3.5"
+                    backgroundColor="transparent"
+                    borderWidth={0}
+                    value={confirmPasswordModal}
+                    onChangeText={setConfirmPasswordModal}
+                  />
+                  <Icons name={showPassword ? 'eye' : 'eye-off'} size={24} onPress={() => setShowPassword(!showPassword)} />
+                </XStack>
+              </>
+            )}
+            {erro && <Text color="red" mt={5}>{erro}</Text>}
             {!step4 && (
               <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
                 <Button
                   onPress={() => {
-                    setStep2(false)
-                    setStep3(false)
-                    setErro('')
-                    setPasswordModal('')
-                    setEmailModal('')
-                    setCodeModal('')
-                    close()
+                    setStep2(false);
+                    setStep3(false);
+                    setErro('');
+                    setPasswordModal('');
+                    setConfirmPasswordModal('');
+                    setEmailModal('');
+                    setCodeModal('');
+                    close();
                   }}
                   backgroundColor="black"
                   flex={1}
@@ -102,7 +139,20 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
                 </Button>
                 <Button
                   onPress={async () => {
+                    setErro('');
+                     //LÓGICA DE VALIDAÇÃO
                     if (step3) {
+                      if (passwordModal.length < 8) {
+                        setErro('A senha deve ter no mínimo 8 caracteres.');
+                        setIsPasswordValid(false);
+                        return;
+                      }
+                      if (passwordModal !== confirmPasswordModal) {
+                        setErro('As senhas não conferem.');
+                        setIsPasswordValid(false);
+                        return;
+                      }
+                      setIsPasswordValid(true); 
                       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/pwChange`, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -110,53 +160,43 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
                           codeSent: codeModal,
                           newPW: passwordModal
                         }),
-                        headers: {
-                          'Content-Type': 'application/json'
-                        }
-                      })
-                      const result = await response.json()
+                        headers: { 'Content-Type': 'application/json' }
+                      });
+                      const result = await response.json();
                       if (!response.ok) {
-                        if (result.msg === 'invalid code') setErro('Usuário não existe')
+                        if (result.msg === 'invalid code') setErro('Código inválido ou expirado.');
+                        else setErro('Ocorreu um erro ao redefinir a senha.');
                       } else {
-                        setStep3(false)
-                        setStep4(true)
+                        setStep3(false);
+                        setStep4(true);
                       }
+                    } else if (!step2) {
+                       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`, {
+                         method: 'POST',
+                         body: JSON.stringify({ email: emailModal.toLowerCase() }),
+                         headers: { 'Content-Type': 'application/json' }
+                       });
+                       const result = await response.json();
+                       if (!response.ok) {
+                         if (result.msg === 'user not exist') setErro('Usuário não existe');
+                       } else {
+                         setStep2(true);
+                       }
                     } else {
-                      setErro('')
-                      if (!step2) {
-                        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`, {
-                          method: 'POST',
-                          body: JSON.stringify({
-                            email: emailModal.toLowerCase()
-                          }),
-                          headers: {
-                            'Content-Type': 'application/json'
-                          }
-                        })
-                        const result = await response.json()
-                        if (!response.ok) {
-                          if (result.msg === 'user not exist') setErro('Usuário não existe')
-                        } else {
-                          setStep2(true)
-                        }
-                      } else {
-                        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recoveryCheck`, {
-                          method: 'POST',
-                          body: JSON.stringify({
-                            email: emailModal.toLowerCase(),
-                            codeSent: codeModal
-                          }),
-                          headers: {
-                            'Content-Type': 'application/json'
-                          }
-                        })
-                        const result = await response.json()
-                        if (!response.ok) {
-                          if (result.msg === 'invalid code') setErro('Código inválido')
-                        } else {
-                          setStep3(true)
-                        }
-                      }
+                       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/recoveryCheck`, {
+                         method: 'POST',
+                         body: JSON.stringify({
+                           email: emailModal.toLowerCase(),
+                           codeSent: codeModal
+                         }),
+                         headers: { 'Content-Type': 'application/json' }
+                       });
+                       const result = await response.json();
+                       if (!response.ok) {
+                         if (result.msg === 'invalid code') setErro('Código inválido');
+                       } else {
+                         setStep3(true);
+                       }
                     }
                   }}
                   backgroundColor="#04BF7B"
@@ -170,13 +210,7 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
             )}
             {step4 && (
               <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
-                <Button
-                  onPress={() => {
-                    close()
-                  }}
-                  backgroundColor="#04BF7B"
-                  flex={1}
-                >
+                <Button onPress={close} backgroundColor="#04BF7B" flex={1}>
                   <Text pl={5} fontSize={12} color="white">
                     Fechar
                   </Text>
@@ -187,7 +221,7 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
         </View>
       </Modal>
     </View>
-  )
+  );
 }
 
 export function Sign({ navigation }: HomeScreenProps) {
