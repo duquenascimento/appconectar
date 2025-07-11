@@ -89,6 +89,7 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
                 {/* Campo "Nova Senha" */}
                 <XStack mt={10} pr="$3.5" borderWidth={1} borderRadius={9} borderColor={isPasswordValid ? 'lightgray' : 'red'}  alignItems="center">
                    <Input 
+                      autoCapitalize="none" 
                       placeholder="Nova senha"
                       secureTextEntry={showPassword}
                       f={1}
@@ -103,6 +104,7 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
                 {/* Campo "Confirmar Nova Senha" */}
                 <XStack mt={10} mb={15} pr="$3.5" borderWidth={1} borderRadius={9} borderColor={isPasswordValid ? 'lightgray' : 'red'}  alignItems="center">
                   <Input 
+                    autoCapitalize="none" 
                     placeholder="Confirmar nova senha"
                     secureTextEntry={showPassword} 
                     f={1}
