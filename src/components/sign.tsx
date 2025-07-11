@@ -34,10 +34,13 @@ const emailIsValid = (email: string, updateStateFn: Function): boolean | undefin
 }
 
 const passwordIsValid = (password: string, confirmPassword: string, setPasswordValid: Function) => {
-    if (password === confirmPassword && password.length >= 8) { setPasswordValid(true); return true }
-    setPasswordValid(false);
-    return false
-}
+     if (!password || password.length < 8 || password !== confirmPassword) {
+        setPasswordValid(false);
+        return false;
+    }
+    setPasswordValid(true);
+    return true;
+};
 
 export function Sign({ navigation }: HomeScreenProps) {
     const [currentPage, setCurrentPage] = useState('SignIn');
@@ -172,49 +175,49 @@ export function SignUpMobile(props: { page: string, onButtonPress: (page: string
     const [loading, setLoading] = useState(false);
 
     const register = async (email: string, emailValid: boolean, password: string, passwordValid: boolean, registerInvalid: Function, setErros: Function) => {
-        if (email.length > 1 && emailValid && password.length >= 8 && passwordValid) {
-            dataSignup = {
-                email,
-                password
-            }
-
-            try {
-                setLoading(true)
-                const response = await fetch('http://192.168.201.96:9841/auth/signup', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(dataSignup)
-                });
-
-                if (response.ok) {
-                    const res = await response.json()
-                    await SecureStore.setItemAsync('token', res.token)
-                    props.navigation.replace('Products')
-                }
-
-            } catch (err) {
-                console.log(err)
-                setLoading(false)
-            }
-
-
-        } else {
-            const erros = []
-            if (!emailValid && email.length > 0) erros.push('E-mail inválido')
-            if (!email.length) erros.push('O e-mail não pode estar em branco')
-            if (password.length < 8) erros.push('A senha precisa ter 8 digitos ou mais')
-            if (!passwordValid) erros.push('As duas senhas precisam ser iguais')
-
-            if (erros.length > 0) {
-                registerInvalid(true)
-                setErros(erros)
-                return false
-            }
-
-        }
+    const erros = [];
+    if (!emailValid || !email.length) {
+        erros.push('E-mail inválido ou em branco');
     }
+    if (!passwordValid) {
+        erros.push('As senhas não conferem ou são inválidas');
+    }
+    if (password.length < 8) {
+        erros.push('A senha precisa ter no mínimo 8 dígitos');
+    }
+
+    if (erros.length > 0) {
+        setErros(erros);
+        registerInvalid(true);
+        return;
+    }
+
+    try {
+        setLoading(true);
+        const response = await fetch('http://192.168.201.96:9841/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const res = await response.json();
+            await SecureStore.setItemAsync('token', res.token);
+            props.navigation.replace('Products');
+        } else {
+            // Tratar erros da API
+            const errorData = await response.json();
+            setErros([errorData.message || 'Erro ao cadastrar']);
+            registerInvalid(true);
+        }
+    } catch (err) {
+        console.log(err);
+        setErros(['Ocorreu um erro de conexão']);
+        registerInvalid(true);
+    } finally {
+        setLoading(false);
+    }
+};
 
     return (
         <YStack px={24} f={1} justifyContent='center' alignItems='center'>
