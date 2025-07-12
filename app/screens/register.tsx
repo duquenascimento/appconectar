@@ -801,7 +801,9 @@ export function Register({ navigation }: HomeScreenProps) {
                 )}
               </View>
               <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                <Text>E-mail</Text>
+                <Text>E-mail
+                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                </Text>
                 <Text fontSize={10} color="gray">
                   Para cobranças
                 </Text>

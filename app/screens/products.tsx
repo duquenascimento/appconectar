@@ -315,7 +315,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations ,setProductObservations, saveProductObservations }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations, setProductObservations, saveProductObservations }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -332,16 +332,24 @@ const ProductBox = React.memo(
     const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
 
     useEffect(() => {
-      const cartProduct = cart.get(id)
-      const favoriteProduct = favorites.find((f) => f.id === id)
-      if (favoriteProduct?.obs) {
-        setObs(favoriteProduct.obs)
-        onObsChange(favoriteProduct.obs)
-      } else if (cartProduct?.obs) {
-        setObs(cartProduct.obs)
-        onObsChange(cartProduct.obs)
+      const latestObs = productObservations.get(id)
+
+      if (latestObs) {
+        setObs(latestObs)
+        onObsChange(latestObs)
+      } else {
+        const cartProduct = cart.get(id)
+        const favoriteProduct = favorites.find((f) => f.id === id)
+
+        if (favoriteProduct?.obs) {
+          setObs(favoriteProduct.obs)
+          onObsChange(favoriteProduct.obs)
+        } else if (cartProduct?.obs) {
+          setObs(cartProduct.obs)
+          onObsChange(cartProduct.obs)
+        }
       }
-    }, [favorites, cart.get(id)?.obs])
+    }, [favorites, cart.get(id)?.obs, productObservations])
 
     useEffect(() => {
       const currentCartItem = cart.get(id)
@@ -891,7 +899,8 @@ export function Products({ navigation }: HomeScreenProps) {
         if (cart.obs) {
           setProductObservations((prev) => {
             const updated = new Map(prev)
-            updated.set(cart.productId, cart.obs)
+            const latestObs = prev.get(cart.productId) ?? cart.obs
+            updated.set(cart.productId, latestObs)
             saveProductObservations(updated)
             return updated
           })
