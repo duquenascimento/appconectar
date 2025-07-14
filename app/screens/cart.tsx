@@ -5,7 +5,6 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
-import { widths } from '@tamagui/config/types/media'
 
 type RootStackParamList = {
   Home: undefined
@@ -82,7 +81,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
         return newValue
       }
       produto.setConfirmDeleteItem({ amount: valueQuant, productId: produto.id, obs: obsRef.current })
-      return prevValue // Mantém o valor anterior se for zero ou negativo
+      return prevValue
     })
   }
 
@@ -90,15 +89,8 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
   const prevAmountRef = useRef<number>(valueQuant)
   const prevObsRef = useRef<string | undefined>(obsC)
-
   const debouncedSaveCart = useMemo(() => debounce(produto.saveCart, 300), [produto.saveCart])
 
-  /*   useEffect(() => {
-    if (isCart) {
-      produto.saveCart({ amount: valueQuant, productId: produto.id, obs: obsC ?? '' }, isCart)
-    }
-  }, [valueQuant, isCart, produto.id, produto.saveCart, obsC])
- */
   useEffect(() => {
     if (isCart && (prevAmountRef.current !== valueQuant || prevObsRef.current !== obsC)) {
       prevAmountRef.current = valueQuant
@@ -380,19 +372,6 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [])
 
   const checkAlertItems = (products: Product[]) => {
-    const alertItems = products.filter((item: Product) => item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'))
-
-    /*if (alertItems.length > 0) {
-            const alertMessage = alertItems.map(item => item.name).join('\n');
-            showModal(
-                'Atenção!',
-                'Itens em caixa ou saca',
-                `Os seguintes itens são vendidos em caixa ou saca:\n${alertMessage}`,
-                'Entendi',
-                () => setShowNotification(false)
-            );
-        }*/
-  }
 
   useEffect(() => {
     if (alertItems.length > 0) {
@@ -443,6 +422,8 @@ export function Cart({ navigation }: HomeScreenProps) {
     if (!products || products.length === 0) return
     const orderedProducts = [...products].sort((a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0))
     setDisplayedProducts(orderedProducts)
+    const orderCart = orderedProducts.map((item:any) => ({sku: item.sku, addOrder: item.addOrder}))
+    setStorage('cartOrder', JSON.stringify(orderCart))
   }, [products, cart, cartInside])
 
   const renderProduct = useCallback(({ item }: { item: Product }) => <ProductBox key={item.id} {...item} saveCart={saveCart} cart={cart} cartInside={cartInside} setConfirmDeleteItem={handleTrashItemState} />, [saveCart, cart, cartInside])
