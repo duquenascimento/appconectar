@@ -15,6 +15,7 @@ import { VersionInfo } from '../utils/VersionApp'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
+import { KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 
 type RootStackParamList = {
   Home: undefined
@@ -484,6 +485,11 @@ export function Register({ navigation }: HomeScreenProps) {
   }
 
   return (
+       <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+  >
     <View flex={1} backgroundColor="#F0F2F6">
       <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} cnpj={formik.values.cnpj} />
       <View mb={10} pt={50} alignItems="center" justifyContent="center">
@@ -1067,5 +1073,6 @@ export function Register({ navigation }: HomeScreenProps) {
       </View>
       <VersionInfo />
     </View>
+  </KeyboardAvoidingView>
   )
 }
