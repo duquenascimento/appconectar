@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
-  Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +18,7 @@ import { View } from 'tamagui';
 
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { mapCombination } from '../utils/mapCombination';
+import CustomAlert from '@/src/components/modais/CustomAlert';
 
 export interface Combination {
   id: string;
@@ -30,10 +30,15 @@ export interface Combination {
   totalValue?: number;
 }
 
+export interface Restaurant {
+  id: string;
+  name: string;
+}
+
 export type RootStackParamList = {
   Sign: undefined;
   Products: undefined;
-  Preferences: { restaurantId: string };
+  Preferences: { restaurantId: string, restaurant: Restaurant };
   CombinationDetail: { id: string };
   CreateCombination: undefined;
 };
@@ -43,29 +48,36 @@ type PreferencesScreenNavigationProp = NativeStackNavigationProp<
   'Preferences'
 >;
 
-const PreferencesScreen: React.FC = () => {
+interface PreferencesScreenProps {
+  restaurant: Restaurant;
+}
+
+const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ restaurant }) => {
   const navigation = useNavigation<PreferencesScreenNavigationProp>();
   const route = useRoute();
-  const restaurantId =
-    (route.params as { restaurantId?: string })?.restaurantId ??
-    '0ef6f918-542e-4ca1-860a-dcf7ae5f40a5';
+
+  const restaurantId = useMemo(() => {
+    return (route.params as { restaurantId?: string })?.restaurantId ?? restaurant.id;
+  }, [route.params, restaurant.id]);
 
   const [combinations, setCombinations] = useState<Combination[]>([]);
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
 
   const loadCombinations = useCallback(async () => {
     if (!restaurantId) return;
 
     try {
-      const combinationsResponse = await getCombinationsByRestaurant(restaurantId);
+      const res = await getCombinationsByRestaurant(restaurantId);
 
-      if (combinationsResponse.success && Array.isArray(combinationsResponse.data)) {
-        const combinationsFormated: Combination[] = combinationsResponse.data.map(mapCombination);
-        setCombinations(combinationsFormated);
+      if (res.success && Array.isArray(res.data)) {
+        setCombinations(res.data.map(mapCombination));
       } else {
         throw new Error('Resposta inesperada da API');
       }
-    } catch (err: any) {
-      Alert.alert('Erro ao carregar preferências', err.message || 'Erro desconhecido');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro desconhecido';
+      console.error('Erro ao buscar combinações:', message);
+      setIsAlertVisible(true);
     }
   }, [restaurantId]);
 
@@ -79,8 +91,7 @@ const PreferencesScreen: React.FC = () => {
   const handleCreateNewCombination = () =>
     navigation.navigate('CreateCombination');
 
-  const restaurantName = 'Mar Doce';
-  const cardTitle = `Preferências Restaurante ${restaurantName}`;
+  const cardTitle = `Preferências de ${restaurant?.name ?? ''}`;
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -88,6 +99,12 @@ const PreferencesScreen: React.FC = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardAvoidingView}
       >
+        <CustomAlert 
+          visible={isAlertVisible} 
+          title="Ops!" 
+          message={`Ocorreu um erro ao buscar combinações, tente novamente mais tarde.`} 
+          onConfirm={() => setIsAlertVisible(false)} 
+        />
         <View style={styles.container}>
           <FlatList
             data={combinations}
@@ -99,7 +116,9 @@ const PreferencesScreen: React.FC = () => {
                   title={cardTitle}
                   description="As combinações Conéctar+ são salvas por unidade/restaurante cadastrado. Você pode alterar o restaurante na tela anterior."
                 />
-                <CustomSubtitle>Combinações salvas</CustomSubtitle>
+                <CustomSubtitle>
+                  {combinations.length ? 'Combinações salvas' : 'Nenhuma combinação salva'}
+                </CustomSubtitle>
               </>
             }
             renderItem={({ item }) => (
