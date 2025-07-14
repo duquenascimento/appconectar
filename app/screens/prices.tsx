@@ -1,9 +1,7 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Stack, Text, View, Image, Button, Input } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, VirtualizedList, Dimensions } from 'react-native'
-import React from 'react'
 import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { clearStorage, getToken, setStorage } from '../utils/utils'
@@ -14,17 +12,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
-
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Cart: undefined
-  Confirm: undefined
-}
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
 
 export interface Product {
   price: number
@@ -38,13 +25,7 @@ export interface Product {
   priceUniqueWithTaxAndDiscount: number
   image: string[]
   orderUnit: string
-}
-
-interface Restaurant {
-  externalId: any
-  id: string
-  name: string
-  premium: boolean
+  addOrder: number
 }
 
 export interface Discount {
@@ -195,7 +176,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [minHourOpen, setMinHourOpen] = useState(false)
   const [maxHourOpen, setMaxHourOpen] = useState(false)
   const [restOpen, setRestOpen] = useState(false)
-  const [localTypeOpen, setLocalTypeOpen] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [missingFields, setMissingFields] = useState<string[]>([])
@@ -211,11 +191,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
     setTimeout(() => {
       navigation.replace('Products')
     }, 1000)
-  }
-
-  const handleSelectedRest = async (rest: any) => {
-    setSelectedRestaurant(rest)
-    updateAddress(rest)
   }
 
   useEffect(() => {
@@ -264,17 +239,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
       setMaxhours([])
     }
   }, [minHour, maxHour])
-
-  const handleChangeAddress = (minHour: string, maxHour: string, neigh: string) => {
-    let newValue
-    setSelectedRestaurant((prevValue: any) => {
-      newValue = prevValue
-      newValue.addressInfos[0].initialDeliveryTime = `2024-01-01T${minHour}:00.000Z`
-      newValue.addressInfos[0].finalDeliveryTime = `2024-01-01T${maxHour}:00.000Z`
-      return newValue
-    })
-    updateAddress(newValue)
-  }
 
   const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
     try {
@@ -449,19 +413,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
 
     loadPricesAsync()
   }, [loadPrices])
-
-  const updateAddress = async (rest: any) => {
-    try {
-      setLoading(true)
-      setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
-      setSelectedRestaurant(rest)
-      await loadPrices(rest)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const combinedSuppliers = useMemo(() => {
     const itens: any[] = []

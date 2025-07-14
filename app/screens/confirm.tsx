@@ -1,6 +1,6 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { type SupplierData } from './prices'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Adapt } from 'tamagui'
 import { ActivityIndicator } from 'react-native'
 import Icons from '@expo/vector-icons/Ionicons'
@@ -8,8 +8,6 @@ import { DateTime } from 'luxon'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
-// modified add
-import { defaultLightColors } from 'moti/build/skeleton/shared'
 import CustomAlert from '../../src/components/modais/CustomAlert'
 
 Notifications.setNotificationHandler({
@@ -168,6 +166,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [showNotification, setShowNotification] = useState(false)
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
   const [hasBeenWarnedAboutMissingItems, setHasBeenWarnedAboutMissingItems] = useState(false)
+  const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([])
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -209,6 +208,29 @@ export function Confirm({ navigation }: HomeScreenProps) {
     }
     loadSupplierAsync()
   }, [loadSupplier, navigation])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const data = await getStorage('cartOrder')
+        const parsed = JSON.parse(data || '[]')
+        Array.isArray(parsed) && setCartOrder(parsed)
+      } catch (e) {
+        console.error('Erro ao carregar cartOrder:', e)
+      }
+    })()
+  }, [])
+
+  const productsWithAddOrder = useMemo(
+    () =>
+      supplier?.supplier?.discount?.product
+        ?.map((i) => ({
+          ...i,
+          addOrder: cartOrder.find((o) => o.sku === i.sku)?.addOrder ?? Infinity
+        }))
+        .sort((a, b) => a.addOrder - b.addOrder) || [],
+    [supplier, cartOrder]
+  )
 
   interface PaymentDescriptions {
     [key: string]: string
@@ -351,13 +373,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
   }
 
   // --- NOVO CÁLCULO PARA ITENS FALTANTES REAIS ---
-  // Se supplier.supplier.missingItens representa o número de itens *disponíveis*,
-  // então o número de itens faltantes é o total de produtos menos os disponíveis.
-  const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens;
-  // Garante que o número de faltantes não seja negativo
-  const displayMissingItems = Math.max(0, actualMissingItemsCount);
-
-
+  const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens
+  const displayMissingItems = Math.max(0, actualMissingItemsCount)
   return (
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
@@ -367,7 +384,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         title="Atenção!"
         message="Há itens faltantes no seu pedido, lembre-se de revisar os itens selecionados antes de confirmar o pedido."
         onConfirm={() => {
-          setShowMissingItemsModal(false);
+          setShowMissingItemsModal(false)
           setHasBeenWarnedAboutMissingItems(true)
         }}
       />
@@ -420,48 +437,38 @@ export function Confirm({ navigation }: HomeScreenProps) {
           </View>
         </View>
         <View width={Platform.OS === 'web' ? '70vw' : '92%'} alignSelf="center" gap={20} flex={1} backgroundColor="white">
-          {supplier.supplier.discount.product
-            .sort((a, b) => {
-              if (a.price === 0 && b.price !== 0) {
-                return -1
-              }
-              if (a.price !== 0 && b.price === 0) {
-                return 1
-              }
-              return a.name.localeCompare(b.name)
-            })
-            .map((item) => {
-              return (
-                <View key={item.sku} borderBottomColor="lightgray" paddingVertical={1} borderBottomWidth={0.5}>
-                  <View flexDirection="row" alignItems="center">
-                    <View f={1} flexDirection="row" alignItems="center">
-                      <View padding={5}>
-                        <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
-                      </View>
-                      <View maxWidth={150}>
-                        <Text>{item.name}</Text>
-                        <Text fontSize={12} color="gray">
-                          Obs: {item.obs ? item.obs : ''}
-                        </Text>
-                      </View>
+          {productsWithAddOrder.map((item) => {
+            return (
+              <View key={item.sku} borderBottomColor="lightgray" paddingVertical={1} borderBottomWidth={0.5}>
+                <View flexDirection="row" alignItems="center">
+                  <View f={1} flexDirection="row" alignItems="center">
+                    <View padding={5}>
+                      <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
                     </View>
-                    <View>
-                      <Text fontWeight="800" color={item.price ? 'black' : 'red'} alignSelf="flex-end" fontSize={16}>
-                        {item.price ? 'R$ ' + item.price.toFixed(2).replace('.', ',') : 'Indisponível'}
+                    <View maxWidth={150}>
+                      <Text>{item.name}</Text>
+                      <Text fontSize={12} color="gray">
+                        Obs: {item.obs ? item.obs : ''}
                       </Text>
-                      <View alignSelf="flex-end" flexDirection="row" alignItems="center">
-                        <Text pr={5} fontSize={12}>
-                          {item.quant} {item.orderUnit.replace('Unid', 'Un')}
-                        </Text>
-                        <Text color="gray">
-                          | {item.priceUniqueWithTaxAndDiscount ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',') : 'R$ ----'}/{item.orderUnit.replace('Unid', 'Un')}
-                        </Text>
-                      </View>
+                    </View>
+                  </View>
+                  <View>
+                    <Text fontWeight="800" color={item.price ? 'black' : 'red'} alignSelf="flex-end" fontSize={16}>
+                      {item.price ? 'R$ ' + item.price.toFixed(2).replace('.', ',') : 'Indisponível'}
+                    </Text>
+                    <View alignSelf="flex-end" flexDirection="row" alignItems="center">
+                      <Text pr={5} fontSize={12}>
+                        {item.quant} {item.orderUnit.replace('Unid', 'Un')}
+                      </Text>
+                      <Text color="gray">
+                        | {item.priceUniqueWithTaxAndDiscount ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',') : 'R$ ----'}/{item.orderUnit.replace('Unid', 'Un')}
+                      </Text>
                     </View>
                   </View>
                 </View>
-              )
-            })}
+              </View>
+            )
+          })}
         </View>
         <View backgroundColor="white" gap={15} marginTop={20} paddingVertical={16} width={Platform.OS === 'web' ? '70vw' : '92%'} alignSelf="center">
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
