@@ -16,7 +16,7 @@ type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
 }
 
-type Product = {
+export type Product = {
   name: string
   orderUnit: string
   quotationUnit: string
@@ -372,6 +372,8 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [])
 
   const checkAlertItems = (products: Product[]) => {
+    products.filter((item: Product) => item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'))
+  }
 
   useEffect(() => {
     if (alertItems.length > 0) {
@@ -422,7 +424,7 @@ export function Cart({ navigation }: HomeScreenProps) {
     if (!products || products.length === 0) return
     const orderedProducts = [...products].sort((a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0))
     setDisplayedProducts(orderedProducts)
-    const orderCart = orderedProducts.map((item:any) => ({sku: item.sku, addOrder: item.addOrder}))
+    const orderCart = orderedProducts.map((item: any) => ({ sku: item.sku, addOrder: item.addOrder }))
     setStorage('cartOrder', JSON.stringify(orderCart))
   }, [products, cart, cartInside])
 
