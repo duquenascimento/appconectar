@@ -369,9 +369,9 @@ export function Register({ navigation }: HomeScreenProps) {
           headers: { 'Content-type': 'application/json' }
         })
         const result: CheckCnpj = await response.json()
-        const ocorreuErro = result.data.msg ? true : false;       
+   
         if (response.ok) {
-          if (ocorreuErro) {
+          if (result.data.msg) {
             errosApi.push('Erro ao processar os dados do CNPJ.')
             formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.')
             setErros(errosApi)
