@@ -382,7 +382,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
       <CustomAlert
         visible={showMissingItemsModal}
         title="Atenção!"
-        message="Há itens faltantes no seu pedido, lembre-se de revisar os itens selecionados antes de confirmar o pedido."
+        message="Este fornecedor não possui alguns ítens do seu pedido. Por favor revise os ítens ou conclua o pedido"
         onConfirm={() => {
           setShowMissingItemsModal(false)
           setHasBeenWarnedAboutMissingItems(true)
