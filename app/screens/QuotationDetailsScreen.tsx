@@ -71,7 +71,6 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
       if (suppliersData && suppliersData.length > 0) {
         setSuppliers(suppliersData);
       } else {
-        // Lógica de fallback para storage
         const storedSuppliersText = await getStorage('selectedSuppliersForQuotation');
         if (storedSuppliersText) {
           setSuppliers(JSON.parse(storedSuppliersText));
@@ -86,6 +85,19 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
       setLoading(false);
     }
   }, [route.params, navigation]);
+
+  //    Simulação de chamada de API
+  //  setLoading(true); 
+  //   try {
+  //     const response = await fetch('https://api-conectar+.com/endpoint/cotacoes');
+  //     const dataFromApi: SupplierData[] = await response.json();
+  //     setSuppliers(dataFromApi);
+  //   } catch (error) {
+  //     console.error('Falha ao buscar dados da cotação:', error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // }, []);
 
   useEffect(() => {
     loadQuotationData();
