@@ -605,7 +605,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   </Text>
                 )}
                 <Text mt={15}>Bairro</Text>
-                <Input opacity={0.5} onBlur={() => formik.setFieldTouched('neigh', true)} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                <Input opacity={0.5} onBlur={() => formik.setFieldTouched('neigh', true)} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                 {formik.touched.neigh && formik.errors.neigh && (
                   <Text color="red" fontSize={12}>
                     {formik.errors.neigh}
