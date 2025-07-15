@@ -1,8 +1,8 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Stack, Text, View, Image, ScrollView, XStack } from 'tamagui';
+import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator, SafeAreaView } from 'react-native';
 import { getStorage } from '../utils/utils';
 import CustomButton from '../../src/components/button/CustomButton';
 
@@ -35,6 +35,7 @@ export interface Discount {
 export interface Supplier {
   name: string;
   externalId: string;
+  image: string; 
   missingItens: number;
   minimumOrder: number;
   hour: string;
@@ -62,30 +63,20 @@ type QuotationDetailsScreenProps = {
 export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
   const [loading, setLoading] = useState<boolean>(true);
   const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
-  const [totalQuotationValue, setTotalQuotationValue] = useState<number>(0);
 
+  // Carregamento dos dados (API, storage ou mock)
   const loadQuotationData = useCallback(async () => {
     try {
       const { suppliersData } = route.params;
       if (suppliersData && suppliersData.length > 0) {
         setSuppliers(suppliersData);
-        const total = suppliersData.reduce((acc, supplierData) => {
-          return acc + supplierData.supplier.discount.orderValueFinish;
-        }, 0);
-        setTotalQuotationValue(total);
       } else {
-        console.warn('No quotation data received, attempting to load from storage.');
+        // Lógica de fallback para storage
         const storedSuppliersText = await getStorage('selectedSuppliersForQuotation');
         if (storedSuppliersText) {
-          const storedSuppliers: SupplierData[] = JSON.parse(storedSuppliersText);
-          setSuppliers(storedSuppliers);
-          const total = storedSuppliers.reduce((acc, supplierData) => {
-            return acc + supplierData.supplier.discount.orderValueFinish;
-          }, 0);
-          setTotalQuotationValue(total);
+          setSuppliers(JSON.parse(storedSuppliersText));
         } else {
           navigation.replace('Prices');
-          return;
         }
       }
     } catch (error) {
@@ -100,138 +91,136 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     loadQuotationData();
   }, [loadQuotationData]);
 
+  const totals = React.useMemo(() => {
+    return suppliers.reduce(
+      (acc, { supplier }) => {
+        acc.subtotal += supplier.discount.orderValue;
+        acc.discount += supplier.discount.discount;
+        acc.grandTotal += supplier.discount.orderValueFinish;
+        acc.totalItems += supplier.discount.product.length;
+        acc.missingItems += supplier.missingItens;
+        return acc;
+      },
+      { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
+    );
+  }, [suppliers]);
+
   if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
+      <View flex={1} justifyContent="center" alignItems="center" bg="#F0F2F6">
         <ActivityIndicator size="large" color="#04BF7B" />
-        <Text fontSize={16} mt={5} color="gray" textAlign="center">
+        <Text fontSize={16} mt="$3" color="$gray10">
           Carregando detalhes da cotação...
         </Text>
       </View>
     );
   }
 
-  return (
-    <Stack pt={20} backgroundColor="#F0F2F6" height="100%" position="relative">
-      <View height={50} flex={1} paddingTop={20}>
-        <View height={50} alignItems="center" paddingLeft={20} paddingRight={20} flexDirection="row">
-          <Icons
-            onPress={() => {
-              navigation.replace('Prices');
-            }}
-            size={25}
-            name="chevron-back"
-          />
-          <Text f={1} textAlign="center" fontSize={20}>
-            Detalhamento Cotação
-          </Text>
-        </View>
+  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
+  const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          <View p={16} width={Platform.OS === 'web' ? '70%' : '92%'} alignSelf="center">
-            {suppliers.map((supplierData, index) => (
-              <View key={supplierData.supplier.externalId} backgroundColor="white" borderRadius={10} mb={16} p={16}>
-                <XStack alignItems="center" mb={10}>
-                  <Image
-                    source={{
-                      uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplierData.supplier.externalId}.jpg`,
-                    }}
-                    width={40}
-                    height={40}
-                    borderRadius={20}
-                  />
-                  <Text fontSize={18} fontWeight="bold" ml={10}>
-                    {supplierData.supplier.name.replace('Distribuidora', '')}
-                  </Text>
-                  <View flexDirection="row" alignItems="center" ml="auto">
-                    <Icons color="orange" name="star" />
-                    <Text pl={4}>{supplierData.supplier.star}</Text>
-                  </View>
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F2F6' }}>
+      <Stack flex={1} backgroundColor="#F0F2F6">
+        <XStack ai="center" p="$4" pb="$2">
+          <Icons onPress={() => navigation.replace('Prices')} size={28} name="arrow-back" color="$gray12" />
+          <Text flex={1} ta="center" fontSize={18} fontWeight="bold" mr={28}>
+            Combinação 1
+          </Text>
+        </XStack>
+
+        <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
+          <YStack px="$4" gap="$4">
+            <XStack bg="#FEF3C7" p="$3" borderRadius={8} alignItems="center" gap="$3">
+              <Icons name="warning" size={20} color="#F59E0B" />
+              <Text fontSize={12} color="$gray11" flex={1}>
+                Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
+              </Text>
+            </XStack>
+
+            {suppliers.map(({ supplier }) => (
+              <YStack key={supplier.externalId} bg="white" br={8} p="$3" gap="$3">
+                <XStack ai="center">
+                   <Image
+                      source={{ uri: supplier.image }}
+                      width={40}
+                      height={40}
+                      borderRadius={20}
+                    />
+                  <YStack ml="$3" flex={1}>
+                    <Text fontSize={16} fontWeight="bold">
+                      {supplier.name.replace('Distribuidora', '').trim()}
+                    </Text>
+                    <XStack ai="center" gap="$1.5">
+                      <Icons name="star" color="#F59E0B" size={14} />
+                      <Text fontSize={12} color="$gray10">{supplier.star}</Text>
+                    </XStack>
+                  </YStack>
+                  <YStack ai="flex-end">
+                    <Text fontSize={16} fontWeight="bold">
+                      {formatCurrency(supplier.discount.orderValueFinish)}
+                    </Text>
+                    <Text fontSize={12} color="$gray10">
+                      {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
+                    </Text>
+                  </YStack>
                 </XStack>
 
-                {supplierData.supplier.discount.product.map((product, prodIndex) => (
-                  <View key={product.sku} borderBottomColor="#F0F2F6" borderBottomWidth={prodIndex === supplierData.supplier.discount.product.length - 1 ? 0 : 1} py={10}>
-                    <XStack alignItems="center">
-                      <Image source={{ uri: product.image[0], width: 40, height: 40 }} borderRadius={5} />
-                      <View ml={10} flex={1}>
-                        <Text fontSize={14}>{product.name}</Text>
-                        {product.obs ? <Text fontSize={10} color="gray">Obs: {product.obs}</Text> : null}
-                      </View>
-                      <View alignItems="flex-end">
-                        <Text fontWeight="bold" fontSize={14} color={product.price ? 'black' : 'red'}>
-                          {product.price ? `R$ ${product.price.toFixed(2).replace('.', ',')}` : 'Indisponível'}
+                <YStack gap="$3">
+                  {supplier.discount.product.map((product) => (
+                    <XStack key={product.sku} ai="center" gap="$3">
+                      <Image
+                        source={{ uri: product.image[0] }}
+                        width={40}
+                        height={40}
+                        borderRadius={5}
+                      />
+                      <YStack flex={1}>
+                        <Text fontSize={14} color="$gray12">{product.name}</Text>
+                        {product.obs ? (
+                          <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
+                        ) : null}
+                      </YStack>
+                      <YStack ai="flex-end">
+                        <Text fontWeight="bold" fontSize={14} color={product.price ? '$gray12' : '$red10'}>
+                          {product.price ? formatCurrency(product.price) : 'Indisponível'}
                         </Text>
-                        <Text fontSize={12} color="gray">
-                          {product.quant} {product.orderUnit.replace('Unid', 'Un')}
+                        <Text fontSize={12} color="$gray10">
+                          {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
                         </Text>
-                      </View>
+                      </YStack>
                     </XStack>
-                  </View>
-                ))}
-
-                <View mt={15} borderTopColor="#F0F2F6" borderTopWidth={1} pt={10}>
-                  <XStack justifyContent="space-between" alignItems="center">
-                    <Text fontSize={16} fontWeight="bold">
-                      Total por Fornecedor:
-                    </Text>
-                    <Text fontSize={16} fontWeight="bold">
-                      R$ {supplierData.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
-                    </Text>
-                  </XStack>
-                </View>
-              </View>
+                  ))}
+                </YStack>
+              </YStack>
             ))}
 
-            <View backgroundColor="white" borderRadius={10} p={16} mt={16}>
-              <XStack justifyContent="space-between" alignItems="center">
-                <Text fontSize={20} fontWeight="bold">
-                  Total Geral da Cotação:
-                </Text>
-                <Text fontSize={20} fontWeight="bold" color="#04BF7B">
-                  R$ {totalQuotationValue.toFixed(2).replace('.', ',')}
-                </Text>
+            <YStack bg="white" br={8} p="$3.5" gap="$2.5">
+              <XStack jc="space-between" ai="center">
+                <Text fontSize={14} color="$gray11">Subtotal</Text>
+                <Text fontSize={14} color="$gray11">{formatCurrency(totals.subtotal)}</Text>
               </XStack>
-            </View>
-          </View>
+              <XStack jc="space-between" ai="center">
+                <Text fontSize={14} color="$gray11">Descontos</Text>
+                <Text fontSize={14} color="$gray11">- {formatCurrency(totals.discount)}</Text>
+              </XStack>
+              <Separator my="$1" borderColor="$gray4" />
+              <XStack jc="space-between" ai="center">
+                <Text fontSize={18} fontWeight="bold">Total</Text>
+                <Text fontSize={18} fontWeight="bold">{formatCurrency(totals.grandTotal)}</Text>
+              </XStack>
+              <Text fontSize={12} color="$gray10" ta="right">
+                {totals.totalItems} item(s) | {totals.missingItems} faltante(s)
+              </Text>
+            </YStack>
+          </YStack>
         </ScrollView>
 
-        <XStack
-          backgroundColor="white"
-          position="absolute"
-          bottom={0}
-          left={0}
-          right={0}
-          p={16}
-          justifyContent="space-around"
-          alignItems="center"
-          borderTopWidth={1}
-          borderTopColor="#F0F2F6"
-          width={Platform.OS === 'web' ? '70%' : '100%'}
-          alignSelf="center"
-        >
-          <CustomButton
-            title="Alterar itens"
-            onPress={() => navigation.replace('Cart')}
-            backgroundColor="black"
-            flex={1} // distribuir o espaço
-            mr={10}
-            borderRadius={10}
-            textColor="white"
-          />
-          <CustomButton
-            title="Confirmar combinação"
-            onPress={() => {
-              console.log('Combinação confirmada!');
-              navigation.replace('Products');
-            }}
-            backgroundColor="#04BF7B"
-            flex={1} // distribuir o espaço
-            ml={10}
-            borderRadius={10}
-            textColor="white"
-          />
+        <XStack pos="absolute" bottom={0} left={0} right={0} p="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4">
+          <CustomButton title="Alterar itens" onPress={() => navigation.replace('Cart')} backgroundColor="black" flex={1} borderRadius={10} textColor="white"/>
+          <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white"/>
         </XStack>
-      </View>
-    </Stack>
+      </Stack>
+    </SafeAreaView>
   );
 }

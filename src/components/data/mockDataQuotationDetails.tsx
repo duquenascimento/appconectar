@@ -5,6 +5,7 @@
         supplier: {
           name: 'Luizão Hortifruti',
           externalId: 'mock-supplier-1',
+          image: 'https://placehold.co/80x80/22C55E/FFFFFF?text=LH',
           missingItens: 0,
           minimumOrder: 50.00,
           hour: '18:00',
@@ -66,6 +67,7 @@
         supplier: {
           name: 'Gustavo Frutas e Verduras',
           externalId: 'mock-supplier-2',
+          image: 'https://placehold.co/80x80/F59E0B/FFFFFF?text=GF', 
           missingItens: 1, // Exemplo de item faltante
           minimumOrder: 80.00,
           hour: '17:00',
