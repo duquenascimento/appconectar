@@ -19,6 +19,7 @@ import { View } from 'tamagui';
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { mapCombination } from '../utils/mapCombination';
 import CustomAlert from '@/src/components/modais/CustomAlert';
+import { getStorage } from '../utils/utils';
 
 export interface Combination {
   id: string;
@@ -48,20 +49,37 @@ type PreferencesScreenNavigationProp = NativeStackNavigationProp<
   'Preferences'
 >;
 
-interface PreferencesScreenProps {
-  restaurant: Restaurant;
-}
-
-const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ restaurant }) => {
+const PreferencesScreen: React.FC = () => {
   const navigation = useNavigation<PreferencesScreenNavigationProp>();
   const route = useRoute();
-
-  const restaurantId = useMemo(() => {
-    return (route.params as { restaurantId?: string })?.restaurantId ?? restaurant.id;
-  }, [route.params, restaurant.id]);
-
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+
+  useEffect(() => {
+    const fetchStoredRestaurant = async () => {
+      const storedValue = await getStorage('selectedRestaurant');
+      let restaurantFromStorage = null;
+
+      if (storedValue) {
+        try {
+          const parsedValue = JSON.parse(storedValue);
+          restaurantFromStorage = parsedValue?.restaurant ?? parsedValue ?? null;
+        } catch {
+          restaurantFromStorage = null;
+        }
+      }
+
+      setRestaurant(restaurantFromStorage);
+    };
+
+    fetchStoredRestaurant();
+  }, []);
+
+
+  const restaurantId = useMemo(() => {
+    return (route.params as { restaurantId?: string })?.restaurantId ?? restaurant?.id;
+  }, [route.params, restaurant]);
 
   const loadCombinations = useCallback(async () => {
     if (!restaurantId) return;
@@ -99,11 +117,11 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ restaurant }) => 
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.keyboardAvoidingView}
       >
-        <CustomAlert 
-          visible={isAlertVisible} 
-          title="Ops!" 
-          message={`Ocorreu um erro ao buscar combinações, tente novamente mais tarde.`} 
-          onConfirm={() => setIsAlertVisible(false)} 
+        <CustomAlert
+          visible={isAlertVisible}
+          title="Ops!"
+          message={`Ocorreu um erro ao buscar combinações, tente novamente mais tarde.`}
+          onConfirm={() => setIsAlertVisible(false)}
         />
         <View style={styles.container}>
           <FlatList
@@ -113,6 +131,7 @@ const PreferencesScreen: React.FC<PreferencesScreenProps> = ({ restaurant }) => 
               <>
                 <CustomHeader title="Minhas preferências" onBackPress={handleBackPress} />
                 <CustomInfoCard
+                  icon="information-circle"
                   title={cardTitle}
                   description="As combinações Conéctar+ são salvas por unidade/restaurante cadastrado. Você pode alterar o restaurante na tela anterior."
                 />
