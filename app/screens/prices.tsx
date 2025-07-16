@@ -645,45 +645,45 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
             {tab === 'onlySupplier' && <VirtualizedList style={{ marginBottom: 5, flexGrow: 1 }} data={combinedSuppliers} getItemCount={getItemCount} getItem={getItem} keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)} renderItem={renderItem} ItemSeparatorComponent={() => <View height={2} />} initialNumToRender={10} windowSize={4} scrollEnabled={true} />}
             {tab !== 'onlySupplier' && (
 
-              <View p={20} mt={10}>
-                <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
+              // <View p={20} mt={10}>
+              //   <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
 
-                <Button
-                  backgroundColor="#04BF7B"
-                  onPress={async () => {
-                    if (!validateFields()) return
-                    setLoading(true)
-                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({
-                        token: await getToken(),
-                        selectedRestaurant: selectedRestaurant
-                      })
-                    })
+              //   <Button
+              //     backgroundColor="#04BF7B"
+              //     onPress={async () => {
+              //       if (!validateFields()) return
+              //       setLoading(true)
+              //       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
+              //         method: 'POST',
+              //         headers: {
+              //           'Content-Type': 'application/json'
+              //         },
+              //         body: JSON.stringify({
+              //           token: await getToken(),
+              //           selectedRestaurant: selectedRestaurant
+              //         })
+              //       })
 
-                    if (result.ok) {
-                      const teste = await result.json()
-                      setLoading(false)
-                      setShowNotification(true)
-                    } else {
-                      const teste = await result.json()
-                      setLoading(false)
-                    }
-                  }}
-                >
-                  <Text fontWeight="500" fontSize={16} color="white">
-                    Solicitar cotação
-                  </Text>
-                </Button>
-                <Text mt={5} textAlign="center" fontSize={12} color="gray">
-                  Você receberá a cotação no Whatsapp
-                </Text>
-              </View>
-            )}
-   {/* <View p={20} mt={10}>
+              //       if (result.ok) {
+              //         const teste = await result.json()
+              //         setLoading(false)
+              //         setShowNotification(true)
+              //       } else {
+              //         const teste = await result.json()
+              //         setLoading(false)
+              //       }
+              //     }}
+              //   >
+              //     <Text fontWeight="500" fontSize={16} color="white">
+              //       Solicitar cotação
+              //     </Text>
+              //   </Button>
+              //   <Text mt={5} textAlign="center" fontSize={12} color="gray">
+              //     Você receberá a cotação no Whatsapp
+              //   </Text>
+              // </View>
+           
+   <View p={20} mt={10}>
     <CustomButton
       title="Ver Detalhamento da Cotação (Conéctar+)"
       onPress={async () => {
@@ -698,7 +698,8 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
       backgroundColor="#04BF7B"
       textColor="white"
     />
-  </View> */}
+  </View>
+   )}
           </View>
         </View>
         <View
