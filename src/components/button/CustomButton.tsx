@@ -7,13 +7,12 @@ interface ButtonComponentProps {
   onPress: (event: GestureResponderEvent) => void
   backgroundColor?: string
   textColor?: string
-  // Adicione estas props para permitir flexibilidade
   flex?: number;
-  width?: string | number; // Permite que a largura seja passada se necessário
+  width?: string | number; 
   alignSelf?: 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline' | 'auto';
-  mr?: number; // Para margem à direita
-  ml?: number; // Para margem à esquerda
-  borderRadius?: number; // Para borderRadius
+  mr?: number;
+  ml?: number; 
+  borderRadius?: number;
 }
 
 const CustomButton: React.FC<ButtonComponentProps> = ({
@@ -39,8 +38,6 @@ const CustomButton: React.FC<ButtonComponentProps> = ({
         background: backgroundColor,
         opacity: 0.90
       }}
-      // REMOVIDAS AS PROPRIEDADES FIXAS DE LARGURA E ALINHAMENTO
-      // Adicionadas as props passadas para o Button Tamagui
       flex={flex}
       width={width}
       alignSelf={alignSelf}
