@@ -28,6 +28,7 @@ const ItemContainer = styled(XStack, {
   backgroundColor: '#fff',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
+  flexDirection: 'row', // Alteração aqui para posicionar à direita
 })
 
 const LeftContent = styled(XStack, {
@@ -79,7 +80,7 @@ const ItemMissing = styled(Text, {
 
 const IconContent = styled(View, {
   justifyContent: 'center',
-  paddingRight: Platform.OS === 'web' ? '10%' : 0,
+  paddingRight: Platform.OS === 'web' ? '1%' : 0,
 })
 
 const CustomListItem: React.FC<ListItemProps> = ({
