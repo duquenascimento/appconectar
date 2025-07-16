@@ -49,9 +49,6 @@ export default function LabelAndBoxContent({
           <Icons
             size={24}
             name={iconName}
-            onPress={() => {
-              if (typeof iconAction !== "undefined") iconAction();
-            }}
           />
         </View>
       )}
