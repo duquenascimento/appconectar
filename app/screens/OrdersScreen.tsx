@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useState } from 'react'
-import { View, Text, Stack, XStack, Input } from 'tamagui'
-import { FlatList, TouchableOpacity, ActivityIndicator, Platform, TextInput, Linking, ScrollView } from 'react-native'
+import { View, Text, XStack, Input } from 'tamagui'
+import { FlatList, TouchableOpacity, ActivityIndicator, Platform, Linking } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import Icons from '@expo/vector-icons/Ionicons'
@@ -11,9 +11,11 @@ import { ordersScreenStyles as styles } from '../../src/styles/styles'
 import { clearStorage, deleteToken } from '../utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo } from '../utils/VersionApp'
+import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import CustomAlert from '@/src/components/modais/CustomAlert'
 
-type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
-
+//type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 interface Order {
   orderDocument: ReactNode
   id: string
@@ -32,15 +34,15 @@ interface Restaurant {
   externalId: any
   id: string
   name: string
+  registrationReleasedNewApp: boolean
 }
 
-// Função para formatar a data
 const formatDate = (isoDate: string) => {
   const date = new Date(isoDate)
   return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
 }
 
-export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigationProp }) {
+export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,6 +52,10 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [selectedRestaurant, setSelectedRestaurant] = useState('')
   const [restaurantOpen, setRestaurantOpen] = useState(false)
+  const [showBlockedModal, setShowBlockedModal] = useState(false)
+  const [showAlertVisible, setShowAlertVisible] = useState(false);
+  const [customAlertTitle, setCustomAlertTitle] = useState('');
+  const [customAlertMessage, setCustomAlertMessage] = useState('');
 
   useEffect(() => {
     const LoadRestaurants = async () => {
@@ -76,10 +82,8 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       }
       setLoading(true)
       try {
-        //cotação com todos os fornecedores
-        const result = await getOrders(1, 10, selectedRestaurant)
+        const result = await getOrders(1,100, selectedRestaurant)
 
-        //filtrar para obter o fornecedor onde foi feito o pedido
         const ordersData = result.map((order: any) => {
           const filteredSupplier = order.calcOrderAgain?.data?.filter((item: any) => item.supplier?.externalId === order.supplierId) || []
 
@@ -102,7 +106,13 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     loadOrders()
   }, [selectedRestaurant])
 
-  //Busca o restaurante salvo no storage
+  const dialogProps = {
+    openModal: showBlockedModal,
+    setRegisterInvalid: setShowBlockedModal,
+    rest: restaurants.filter((r) => r.registrationReleasedNewApp),
+    navigation: navigation
+  }
+
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
       const data = await AsyncStorage.getItem('selectedRestaurant')
@@ -122,20 +132,24 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
     }
   }
 
-  //Função para lidar com a mudança no dropdown de restaurantes
   async function handleRestaurantChoice(value: string | null) {
     try {
       if (!value) return
 
+      const restaurant = restaurants.find((r) => r.externalId === value)
+      if (!restaurant) return
+
+      if (restaurant.registrationReleasedNewApp) {
+        setShowBlockedModal(true)
+        return
+      }
       const storedRestaurant = await getSavedRestaurant()
       if (storedRestaurant?.externalId === value) {
-        return // Já está selecionado
+        return
       }
-
-      const restaurant = restaurants.find((r) => r.externalId === value)
-      if (restaurant) {
-        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
-      }
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      setSelectedRestaurant(value)
+      setShowBlockedModal(false)
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -143,36 +157,29 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
   const handleSearch = (query: string) => {
     setSearchQuery(query)
-    // Verificar se a query pode ser uma data parcial (D, DD, DD/MM ou DD/MM/YYYY)
     const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/
     const isDatePartial = datePartialRegex.test(query)
     const filtered = orders.filter((order: any) => {
-      // Filtragem por data parcial (se aplicável)
       if (isDatePartial) {
         const [day, month, year] = query.split('/')
-        const deliveryDate = order.deliveryDate.split('T')[0] // Formato: YYYY-MM-DD
+        const deliveryDate = order.deliveryDate.split('T')[0] 
         const [orderYear, orderMonth, orderDay] = deliveryDate.split('-')
-        // Comparar dia
         if (day && !orderDay.startsWith(day)) return false
-        // Comparar mês (se fornecido)
         if (month && !orderMonth.startsWith(month)) return false
-        // Comparar ano (se fornecido)
         if (year && !orderYear.startsWith(year)) return false
         return true
       }
-      // Filtragem por ID, valor total ou nome do fornecedor
       const matchesId = order.id.toLowerCase().includes(query.toLowerCase())
       const matchesTotal = order.totalConectar.toString().includes(query)
       const matchExternalId = order.calcOrderAgain.data.find((item: any) => item.supplier && item.supplier.externalId === order.supplierId)
 
-      const matchesSupplier = //order.calcOrderAgain.data[0].supplier.name
+      const matchesSupplier =
         matchExternalId.supplier.name.toLowerCase().includes(query.toLowerCase())
 
       return matchesId || matchesTotal || matchesSupplier
     })
 
     setFilteredOrders(filtered)
-    // Exibir mensagem se nenhum pedido for encontrado
     if (filtered.length === 0 && query.length > 0) {
     }
   }
@@ -190,24 +197,70 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
   const handleDownloadSelectedOrders = async () => {
     setIsDownloading(true)
     for (const orderId of selectedOrders) {
-      const order: any = orders.find((order) => order.id === orderId)
-      if (order && order.orderDocument) {
-        if (Platform.OS === 'web') {
-          window.open(order.orderDocument, '_blank')
-          window.open(order.orderInvoices?.filePath[0], '_blank')
-        } else {
-          try {
-            await Linking.openURL(order.orderDocument)
-            await Linking.openURL(order.orderInvoices?.filePath[0])
-          } catch (error) {
-            console.error(`Erro ao abrir o link:`, error)
-          }
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000))
+      const order: any = orders.find((o) => o.id === orderId);
+      if (!order) {
+        showAlert('Pedido inválido', 'Não foi possível encontrar o pedido selecionado.');
+        continue;
       }
+
+      const { orderDocument, orderInvoices } = order;
+      const invoiceUrl = orderInvoices?.filePath?.[0];
+      const isValidDocUrl = typeof orderDocument === 'string' && orderDocument.startsWith('http');
+
+      if (!isValidDocUrl && !invoiceUrl) {
+        showAlert(
+          'Ocorreu um erro ao buscar documentos',
+          'Por favor, tente novamente mais tarde'
+        );
+        return;
+      }
+      if (!isValidDocUrl) {
+        showAlert(
+          'Documento indisponível',
+          'O pedido não está disponível para visualização.'
+        );
+      } else {
+        await openUrl(orderDocument);
+      }
+      if (!invoiceUrl) {
+        showAlert(
+          'Nota fiscal indisponível',
+          'A nota fiscal deste pedido não está disponível para download.'
+        );
+      } else {
+        await openUrl(invoiceUrl);
+      }
+      await delay(1000);
     }
-    setIsDownloading(false)
-  }
+
+    setIsDownloading(false);
+  };
+
+  const openUrl = async (url: string) => {
+    if (!url) return;
+
+    try {
+      if (Platform.OS === 'web') {
+        window.open(url, '_blank');
+      } else {
+        await Linking.openURL(url);
+      }
+    } catch (error) {
+      console.error('Erro ao abrir o link:', error);
+      showAlert('Erro ao abrir o link', 'Não foi possível abrir o link do pedido ou da nota fiscal.');
+    }
+  };
+
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  const showAlert = (title: string, message: string) => {
+    setCustomAlertTitle(title);
+    setCustomAlertMessage(message);
+    setShowAlertVisible(true);
+    setIsDownloading(false);
+  };
+
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
@@ -229,6 +282,12 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
 
   return (
     <>
+      <CustomAlert
+        visible={showAlertVisible}
+        title={customAlertTitle}
+        message={customAlertMessage}
+        onConfirm={() => setShowAlertVisible(false)}
+      />
       <Text
         style={{
           marginTop: 35,
@@ -239,7 +298,6 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
       >
         Meus Pedidos
       </Text>
-      {/* Dropdown de Restaurantes */}
       <DropDownPicker
         value={selectedRestaurant}
         setValue={(value) => setSelectedRestaurant(value)}
@@ -251,6 +309,14 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
+        onSelectItem={(value) => {
+          const rest = restaurants.find((item) => item?.externalId === value.value)
+          if (rest?.registrationReleasedNewApp) {
+            setShowBlockedModal(true)
+          } else {
+            setShowBlockedModal(false)
+          }
+        }}
         listMode="SCROLLVIEW"
         dropDownContainerStyle={{
           width: Platform.OS === 'web' ? '70%' : '92%',
@@ -269,13 +335,9 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         }}
       />
 
-      {/* Campo de Pesquisa */}
       <XStack
         backgroundColor="#FFF"
         borderRadius={20}
-        //marginHorizontal={ Platform.OS === 'web' ? 20 : 15 }
-        //marginRight={Platform.OS === 'web' ? '49%' : 15}
-        //marginLeft={Platform.OS === 'web' ? 15 : 15}
         width={Platform.OS === 'web' ? '70%' : '92%'}
         marginTop={20}
         alignSelf="center"
@@ -300,7 +362,6 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         />
       </XStack>
 
-      {/* Botão para Baixar Documentos */}
       <TouchableOpacity
         onPress={handleDownloadSelectedOrders}
         disabled={selectedOrders.length === 0 || isDownloading}
@@ -320,7 +381,6 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         {isDownloading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Baixar Documentos Selecionados</Text>}
       </TouchableOpacity>
 
-      {/* Lista de Pedidos */}
       <FlatList
         style={{
           width: Platform.OS === 'web' ? '70%' : undefined,
@@ -334,12 +394,10 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           const truncatedSupplierName = truncateText(supplierName, 20)
           return (
             <TouchableOpacity onPress={() => navigation.navigate('OrderDetails', { orderId: item.id })} style={styles.itemContainer}>
-              {/* Checkbox */}
               <TouchableOpacity onPress={() => toggleOrderSelection(item.id)} style={styles.checkboxContainer}>
                 <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
               </TouchableOpacity>
 
-              {/* Coluna Esquerda (ID e Data) */}
               <View style={styles.leftColumn}>
                 <Text mb={10} style={styles.orderId}>
                   {item.id}
@@ -347,15 +405,12 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
                 <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
               </View>
 
-              {/* Coluna Direita (Valor Total e Fornecedor) */}
               <View style={styles.rightColumn}>
                 <Text mb={10} style={styles.total}>
                   R$ {item.totalConectar.toFixed(2)}
                 </Text>
                 <Text>{truncatedSupplierName}</Text>
               </View>
-
-              {/* Ícone de Setas */}
               <Icons
                 name="chevron-forward"
                 size={20}
@@ -368,8 +423,6 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
           )
         }}
       />
-
-      {/* Rodapé Original em View */}
       <View justifyContent="center" alignItems="center" flexDirection="row" gap={30} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
         <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
           <Icons name="home" size={20} color="gray" />
@@ -420,6 +473,29 @@ export function OrdersScreen({ navigation }: { navigation: OrdersScreenNavigatio
         </View>
         <VersionInfo />
       </View>
+      <DialogComercialInstance
+        openModal={showBlockedModal}
+        setOpenModal={setShowBlockedModal}
+        setRegisterInvalid={setShowBlockedModal}
+        rest={restaurants}
+        navigation={navigation}
+        messageText="Este restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
+        onSelectAvailable={async () => {
+          try {
+            const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp)
+
+            if (availableRestaurant) {
+              setShowBlockedModal(false)
+              await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+
+              setSelectedRestaurant(availableRestaurant.externalId)
+              setShowBlockedModal(false) 
+            }
+          } catch (error) {
+            console.error('Erro ao trocar de restaurante:', error)
+          }
+        }}
+      />
     </>
   )
 }

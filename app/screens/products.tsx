@@ -1,21 +1,24 @@
 import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
-import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity } from 'react-native'
+import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import React from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { MotiView } from 'moti'
 import { Skeleton } from 'moti/skeleton'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
 import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStorage } from '../utils/utils'
 import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo } from '../utils/VersionApp'
+import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
+import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
+import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
+import { CartButton } from '@/src/components/cartButton'
 
-
-type Product = {
+export type Product = {
   name: string
   orderUnit: string
   quotationUnit: string
@@ -34,6 +37,7 @@ type Product = {
   firstUnit: number
   secondUnit: number
   thirdUnit: number
+  obs: string
 }
 
 type HomeScreenProps = {
@@ -73,315 +77,12 @@ type ProductBoxProps = Product & {
   secondUnit: number
   thirdUnit: number
   currentClass: string
-  obs: string 
-  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
+  obs: string
+  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
-}
-
-export const SaveUserAppInfo = async () => {
-  try {
-    //const appVersion = DeviceInfo.getVersion()
-    const appVersionExpo = process.env.EXPO_PUBLIC_VERSION
-    const appOS = Platform.OS
-
-    //Pegar o externalId do restaurante
-    const data = await AsyncStorage.getItem('selectedRestaurant')
-    const restaurant = data ? JSON.parse(data) : null
-    const externalId = restaurant?.restaurant?.externalId ?? null
-    const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
-
-    const userAppData = {
-      externalId,
-      appVersionExpo,
-      appOS,
-      statusId
-    }
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/app`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        externalId: userAppData.externalId,
-        version: userAppData.appVersionExpo,
-        OperationalSystem: userAppData.appOS,
-        statusId: userAppData.statusId
-      })
-    })
-  } catch (error) {
-    console.error('Erro ao salvar dados do app:', error)
-  }
-}
-
-const CartButton = ({ cartSize, isScrolling, onPress }: any) => {
-  const opacity = useSharedValue(0)
-  const translateY = useSharedValue(50)
-
-  const hideTimeout = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    if (cartSize <= 0) {
-      opacity.value = withTiming(0, { duration: 250 })
-      translateY.value = withTiming(50, { duration: 250 })
-      return
-    }
-
-    if (isScrolling) {
-      if (hideTimeout.current) {
-        clearTimeout(hideTimeout.current)
-        hideTimeout.current = null
-      }
-      opacity.value = withTiming(1, { duration: 100 })
-      translateY.value = withTiming(0, { duration: 100 })
-    } else {
-      hideTimeout.current = setTimeout(() => {
-        opacity.value = withTiming(0, { duration: 200 })
-        translateY.value = withTiming(50, { duration: 200 })
-      }, 2000)
-    }
-
-    return () => {
-      if (hideTimeout.current) {
-        clearTimeout(hideTimeout.current)
-      }
-    }
-  }, [cartSize, isScrolling, opacity, translateY])
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-    pointerEvents: opacity.value === 1 ? 'auto' : 'none' 
-  }))
-
-  if (Platform.OS === 'web') {
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 65,
-          left: 0,
-          right: 0,
-          display: cartSize <= 0 ? 'none' : 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100,
-          pointerEvents: 'none'
-        }}
-      >
-        <button
-          style={{
-            border: 'none',
-            background: 'none',
-            cursor: 'pointer',
-            pointerEvents: 'auto'
-          }}
-          onClick={cartSize > 0 ? onPress : undefined}
-          disabled={cartSize <= 0}
-        >
-          <div
-            style={{
-              backgroundColor: '#FFA500',
-              width: 160,
-              height: 25,
-              borderRadius: 24,
-              padding: '8px 16px',
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <div
-              style={{
-                position: 'relative',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <Icons size={25} color="white" name="cart" />
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: -1,
-                  right: -5,
-                  backgroundColor: 'white',
-                  borderRadius: 10,
-                  width: 15,
-                  height: 15,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  border: '1px solid #FFA500',
-                  fontSize: 9,
-                  color: '#FFA500'
-                }}
-              >
-                {cartSize}
-              </div>
-            </div>
-            <span style={{ color: '#fff', paddingLeft: 8 }}>Carrinho</span>
-          </div>
-        </button>
-      </div>
-    )
-  }
-
-  return (
-    <Animated.View
-      style={[
-        {
-          position: 'absolute',
-          bottom: 65,
-          left: 0,
-          right: 0,
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 100
-        },
-        animatedStyle
-      ]}
-      pointerEvents="box-none" 
-    >
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={cartSize > 0 ? onPress : undefined} 
-        disabled={cartSize <= 0}
-      >
-        <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
-          <View>
-            <Icons size={25} color="white" name="cart" />
-            <View position="absolute" bottom={-1} right={-5} backgroundColor="white" borderRadius={10} width={15} height={15} alignItems="center" justifyContent="center" borderColor="#FFA500" borderWidth={1}>
-              <Text fontSize={9} color="#FFA500">
-                {cartSize}
-              </Text>
-            </View>
-          </View>
-          <Text color="white" paddingLeft={8}>
-            Carrinho
-          </Text>
-        </View>
-      </TouchableOpacity>
-    </Animated.View>
-  )
-}
-
-export function DialogComercialInstance(props: {
-  openModal: boolean;
-  setRegisterInvalid: Function;
-  rest: any;
-  navigation: any
-} & HomeScreenProps) {
-
-  const handleLogout = async () => {
-    try {
-      await Promise.all([clearStorage(), deleteToken()]);
-      props.navigation.replace("Sign");
-    } catch (error) {
-      console.error("Erro ao deslogar:", error);
-    }
-  };
-
-  return (
-    <Dialog
-  modal
-  open={props.openModal}
->
-  {/* Modal adaptado para ocupar tela cheia no celular */}
-  <Adapt when="sm" platform="touch">
-    <Sheet
-      animationConfig={{
-        type: "spring",
-        damping: 20,
-        mass: 0.5,
-        stiffness: 200,
-      }}
-      animation="medium"
-      zIndex={200000}
-      modal
-      disableDrag
-      snapPoints={[100]} // Ocupa 100% da tela
-      snapPointsMode="percent"
-    >
-      <Sheet.Frame padding="$4" gap="$4" flex={1}>
-        <Adapt.Contents />
-      </Sheet.Frame>
-      <Sheet.Overlay
-        animation="quickest"
-        enterStyle={{ opacity: 0 }}
-        exitStyle={{ opacity: 0 }}
-      />
-    </Sheet>
-  </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={["transform", "opacity"]}
-          animation={[
-            "quicker",
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
-            <Dialog.Title textAlign="center" mx="auto">Bem vindo à Conéctar!</Dialog.Title>
-            <Dialog.Description textAlign="center">
-              Entre em contato conosco para agendar um contato rápido e começar a
-              utilizar o aplicativo!
-            </Dialog.Description>
-
-            <XStack justifyContent="center" alignSelf="center" gap="$4">
-              <Dialog.Close displayWhenAdapted asChild>
-                <Button
-                  width="$20"
-                  theme="active"
-                  aria-label="Close"
-                  backgroundColor="#04BF7B"
-                  color="$white1"
-                  onPress={async () => {
-                    const text = encodeURIComponent(
-                      `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
-${props.rest.map((item: any) => `\n- ${item.name}`)}
-
-Consegue me ajudar?`
-                    )
-                      .replace("!", "%21")
-                      .replace("'", "%27")
-                      .replace("(", "%28")
-                      .replace(")", "%29")
-                      .replace("*", "%2A")
-
-                    await Linking.openURL(
-                      `https://wa.me/5521999954372?text=${text}`
-                    )
-                    setTimeout(() => {
-                      handleLogout();
-                    }, 2000);
-                  }}
-                >
-                  Entre em contato
-                </Button>
-              </Dialog.Close>
-            </XStack>
-          </YStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  );
+  productObservations: Map<string, string>
+  setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
+  saveProductObservations?: (map: Map<string, string>) => Promise<void>
 }
 
 export function DialogFinanceInstance(props: { openModal: boolean; setRegisterInvalid: Function; rest: any }) {
@@ -442,9 +143,9 @@ export function DialogFinanceInstance(props: { openModal: boolean; setRegisterIn
                 onPress={async () => {
                   const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
 ${props.rest.map(
-                    (item: any) => `
+  (item: any) => `
 - ${item.name}`
-                  )}
+)}
 
 Consegue me ajudar?`)
                     .replace('!', '%21')
@@ -466,123 +167,141 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({
-    id,
-    name,
-    image,
-    mediumWeight,
-    firstUnit,
-    secondUnit,
-    thirdUnit,
-    orderUnit,
-    toggleFavorite,
-    favorites,
-    saveCart,
-    cart,
-    setImage,
-    setModalVisible,
-    currentClass,
-    obs: parentObs,
-    addObservation,
-    onObsChange,
-  }: ProductBoxProps) => {
-    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1);
-    const [valueQuant, setValueQuant] = useState(0);
-    const [obs, setObs] = useState(parentObs);
-    const [open, setOpen] = useState<boolean>(false);
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations, setProductObservations, saveProductObservations }: ProductBoxProps) => {
+    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
+    const [valueQuant, setValueQuant] = useState(0)
+    const [obs, setObs] = useState(parentObs)
+    const [open, setOpen] = useState<boolean>(false)
 
-    const obsRef = useRef("");
-    const quantRef = useRef<number>(firstUnit);
-    const previousCartRef = useRef<Map<string, Cart>>(new Map());
+    const obsRef = useRef('')
+    const quantRef = useRef<number>(firstUnit)
+    const previousCartRef = useRef<Map<string, Cart>>(new Map())
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    
     const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
     const isCart = useMemo(() => cart.has(id), [cart, id])
-    
+
     const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
-    
-  useEffect(() => {
-    const currentCartItem = cart.get(id);
-    const previousCartItem = previousCartRef.current.get(id);
 
-    
-    if (
-      !currentCartItem && !previousCartItem || 
-      (currentCartItem && previousCartItem && 
-       currentCartItem.amount === previousCartItem.amount &&
-       currentCartItem.obs === previousCartItem.obs)
-    ) {
-      return;
-    }
+    useEffect(() => {
+      const latestObs = productObservations.get(id)
 
-    if (currentCartItem) {
-      setValueQuant(Number(currentCartItem.amount));
-      setObs(currentCartItem.obs || '');
-      onObsChange(currentCartItem.obs || '');
-    } else {
-      setValueQuant(0);
-      setObs('');
-      onObsChange('');
-    }
+      if (latestObs) {
+        setObs(latestObs)
+        onObsChange(latestObs)
+      } else {
+        const cartProduct = cart.get(id)
+        const favoriteProduct = favorites.find((f) => f.id === id)
 
-    
-    previousCartRef.current = new Map(cart);
-  }, [cart]); 
+        if (favoriteProduct?.obs) {
+          setObs(favoriteProduct.obs)
+          onObsChange(favoriteProduct.obs)
+        } else if (cartProduct?.obs) {
+          setObs(cartProduct.obs)
+          onObsChange(cartProduct.obs)
+        }
+      }
+    }, [favorites, cart.get(id)?.obs, productObservations])
 
-  
-  const handlePersistCart = useCallback(() => {
-    const currentItem = { amount: valueQuant, productId: id, obs };
-    const previousItem = previousCartRef.current.get(id);
+    useEffect(() => {
+      const currentCartItem = cart.get(id)
+      const previousCartItem = previousCartRef.current.get(id)
 
-    
-    const shouldPersist = (
-      valueQuant > 0 || 
-      (previousItem && valueQuant !== previousItem.amount) || 
-      (previousItem && obs !== previousItem.obs) 
-    );
+      if ((!currentCartItem && !previousCartItem) || (currentCartItem && previousCartItem && currentCartItem.amount === previousCartItem.amount && currentCartItem.obs === previousCartItem.obs)) {
+        return
+      }
 
-    if (shouldPersist) {
-      saveCart(currentItem, !!previousItem);
-      previousCartRef.current.set(id, currentItem);
-    }
-  }, [valueQuant, obs, id, saveCart]);
+      if (currentCartItem) {
+        setValueQuant(Number(currentCartItem.amount))
+        setObs(currentCartItem.obs || '')
+        onObsChange(currentCartItem.obs || '')
+      } else {
+        setValueQuant(0)
+        const storedObs = productObservations.get(id) || ''
+        setObs(storedObs)
+        onObsChange(storedObs)
+      }
 
-  
-  useEffect(() => {
-    const timer = setTimeout(handlePersistCart, 300);
-    return () => clearTimeout(timer);
-  }, [valueQuant, obs, handlePersistCart]);
+      previousCartRef.current = new Map(cart)
+    }, [cart])
+
+    const handlePersistCart = useCallback(() => {
+      const currentItem = { amount: valueQuant, productId: id, obs }
+      const previousItem = previousCartRef.current.get(id)
+
+      const shouldPersist = valueQuant > 0 || (previousItem && valueQuant !== previousItem.amount) || (previousItem && obs !== previousItem.obs)
+
+      if (shouldPersist) {
+        saveCart(currentItem, !!previousItem)
+        previousCartRef.current.set(id, currentItem)
+      }
+    }, [valueQuant, obs, id, saveCart])
+
+    useEffect(() => {
+      const timer = setTimeout(handlePersistCart, 1000)
+      return () => clearTimeout(timer)
+    }, [valueQuant, obs, handlePersistCart])
 
     const handleQuantityChange = (newQuant: number) => {
       setQuant(newQuant)
       quantRef.current = newQuant
-
     }
 
     const handleObsChange = (text: string) => {
       setObs(text)
       onObsChange(text)
+
+      setProductObservations((prev) => {
+        const updated = new Map(prev)
+        updated.set(id, text)
+        if (saveProductObservations) {
+          saveProductObservations(updated)
+        }
+        return updated
+      })
+
+      if (isFavorite) {
+        addObservation(id, text)
+      }
     }
 
-    const handleValueQuantChange = (delta: number) => {
-      setValueQuant((prevValue) =>
-        Math.max(0, Number((prevValue + delta).toFixed(3)))
-      );
-    };
+    const handleValueQuantChange = async (delta: number) => {
+      const newAmount = Math.max(0, Number((valueQuant + delta).toFixed(3)))
+      setValueQuant(newAmount)
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current)
+      }
+
+      debounceTimerRef.current = setTimeout(async () => {
+        const updatedItem = { productId: id, amount: newAmount, obs }
+        const mapItem = new Map([[id, updatedItem]])
+        const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
+
+        await saveCart(updatedItem, true)
+        await saveCartArray(mapItem, mapToRemove)
+      }, 500)
+    }
 
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
-          await addObservation(id, obs);
-          obsRef.current = obs;
+          const updatedItem = { productId: id, amount: valueQuant, obs }
+          const updatedMap = new Map([[id, updatedItem]])
+          const emptyMap = new Map()
+
+          await saveCart(updatedItem, true)
+          await saveCartArray(updatedMap, emptyMap)
+          await addObservation(id, obs)
+          obsRef.current = obs
         } catch (error) {
-          console.error("Failed to save observation:", error);
+          console.error('Failed to save observation:', error)
         }
       }
-    }, [addObservation, id, obs]);
+    }, [addObservation, id, obs])
 
     return (
-      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" paddingBottom={Platform.OS === 'web' ? '' : 5}>
+      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
         <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
@@ -614,7 +333,7 @@ const ProductBox = React.memo(
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
               </View>
             ) : (
-              <Icons name={open ? 'close-circle' : 'add-circle'} size={36} color="#0BC07D" />
+              <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
             )}
           </View>
         </View>
@@ -641,16 +360,7 @@ const ProductBox = React.memo(
               <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems="center" flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
                 {Platform.OS === 'web' && (
                   <View alignSelf="flex-start" flex={1}>
-                    <XStack
-                      backgroundColor="#F0F2F6"
-                      flex={1}
-                      paddingRight={14}
-                      borderWidth={0}
-                      borderRadius={20}
-                      alignItems="center"
-                      flexDirection="row"
-                      height={36}
-                    >
+                    <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
                         placeholder="Observação para entrega..."
@@ -660,7 +370,9 @@ const ProductBox = React.memo(
                         flex={1}
                         fontSize={10}
                         maxLength={999}
-                        onPress={(e) => e.stopPropagation()}
+                        onPressIn={(e) => {
+                          e.stopPropagation()
+                        }}
                         onChangeText={handleObsChange}
                         onBlur={handleBlur}
                         value={obs}
@@ -728,24 +440,16 @@ const ProductBox = React.memo(
                   size={24}
                   onPress={async (e) => {
                     e.stopPropagation()
-                    handleValueQuantChange(quant)
+                    handleValueQuantChange(+quant)
                   }}
                 />
               </View>
             </View>
             {Platform.OS !== 'web' && (
               <View>
-                <XStack
-                  backgroundColor="#F0F2F6"
-                  paddingRight={14}
-                  borderWidth={0}
-                  borderRadius={20}
-                  alignItems="center"
-                  flexDirection="row"
-                  marginBottom={10}
-                  height={36}
-                >
+                <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" marginBottom={10} height={36}>
                   <Input
+                    focusVisibleStyle={{ outlineWidth: 0 }}
                     placeholder="Observação para entrega..."
                     backgroundColor="transparent"
                     borderWidth={0}
@@ -753,7 +457,9 @@ const ProductBox = React.memo(
                     flex={1}
                     fontSize={10}
                     maxLength={999}
-                    onPress={(e) => e.stopPropagation()}
+                    onPressIn={(e) => {
+                      e.stopPropagation()
+                    }}
                     onChangeText={handleObsChange}
                     onBlur={handleBlur}
                     value={obs}
@@ -862,6 +568,7 @@ interface Restaurant {
   externalId: any
   id: string
   name: string
+  registrationReleasedNewApp: boolean
 }
 
 export function Products({ navigation }: HomeScreenProps) {
@@ -899,6 +606,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null)
   const [restaurantOpen, setRestaurantOpen] = useState(false)
 
+  const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
   const flatListRef = useRef<FlatList<Product>>(null)
 
   const handleScroll = () => {
@@ -1040,6 +748,16 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }
 
+        if (cart.obs) {
+          setProductObservations((prev) => {
+            const updated = new Map(prev)
+            const latestObs = prev.get(cart.productId) ?? cart.obs
+            updated.set(cart.productId, latestObs)
+            saveProductObservations(updated)
+            return updated
+          })
+        }
+
         return newCart
       })
     }
@@ -1047,25 +765,28 @@ export function Products({ navigation }: HomeScreenProps) {
     await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
   }, [])
 
-  const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
-    const token = await getToken()
-    if (token == null) return
+  const saveCartArray = useCallback(
+    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
+      const token = await getToken()
+      if (token == null) return
 
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token,
-        carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values())
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token,
+          carts: Array.from(carts.values()),
+          cartToExclude: Array.from(cartsToExclude.values())
+        })
       })
-    })
 
-    setCartToExclude(new Map())
-    //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
-  }, [saveCart, loadCart, loadProducts])
+      setCartToExclude(new Map())
+      //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
+    },
+    [saveCart, loadCart, loadProducts]
+  )
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
@@ -1090,12 +811,7 @@ export function Products({ navigation }: HomeScreenProps) {
     const loadInitialData = async () => {
       setLoading(true)
       try {
-        const [restaurants, savedRestaurant, cartMap] = await Promise.all([
-          loadRestaurants(),
-          getSavedRestaurant(), 
-          loadCart(),
-          loadProducts()
-        ])
+        const [restaurants, savedRestaurant, cartMap] = await Promise.all([loadRestaurants(), getSavedRestaurant(), loadCart(), loadProducts()])
 
         const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true)
         // Extraindo categorias
@@ -1112,19 +828,26 @@ export function Products({ navigation }: HomeScreenProps) {
 
         setRestaurantes(validRestaurants)
 
-        let initialRestaurant = validRestaurants[0]
-        if (savedRestaurant) {
-          const found = validRestaurants.find((r) => r.id === savedRestaurant.id)
-          if (found) initialRestaurant = found
+        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp)
+        const allRestaurantBlocked = availableRestaurants.length === 0
+
+        let initialRestaurant = null
+        if (!allRestaurantBlocked) {
+          initialRestaurant = availableRestaurants[0]
+
+          if (savedRestaurant) {
+            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id)
+            if (found) {
+              initialRestaurant = found
+            }
+          }
+          setSelectedRestaurant(initialRestaurant.externalId)
+          setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
         }
 
-        setSelectedRestaurant(initialRestaurant.externalId)
-        setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
-
-        const restFilteredComercial = restaurants.filter((item: any) => item.registrationReleasedNewApp)
+        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true
         const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock)
-
-        if (restFilteredComercial.length) {
+        if (restFilteredComercial || allRestaurantBlocked) {
           setShowRegistrationReleasedNewApp(true)
         }
 
@@ -1132,9 +855,9 @@ export function Products({ navigation }: HomeScreenProps) {
           setShowFinanceBlock(true)
         }
 
- const favs = await loadFavorites()
+        const favs = await loadFavorites()
         if (favs.length > 0) {
-          setFavorites(favs) 
+          setFavorites(favs)
         }
         if (cartMap.size > 0) {
           setCart(cartMap)
@@ -1149,6 +872,9 @@ export function Products({ navigation }: HomeScreenProps) {
       } finally {
         setLoading(false)
       }
+
+      const storedObs = await loadProductObservations()
+      setProductObservations(storedObs)
     }
     loadInitialData()
   }, [loadFavorites, loadProducts, loadRestaurants])
@@ -1168,14 +894,14 @@ export function Products({ navigation }: HomeScreenProps) {
   }, [selectedRestaurant])
 
   const addToFavorites = useCallback(
-    async (productId: string) => {
+    async (productId: string, obs: string) => {
       try {
         const token = await getToken()
         const restaurant = await getSavedRestaurant()
         if (token == null || !restaurant) return
         const productToAdd = productsList?.find((product) => product.id === productId)
         if (productToAdd) {
-          setFavorites([...favorites, productToAdd])
+          setFavorites([...favorites, { ...productToAdd, obs }])
         }
         const storedRestaurant = await getSavedRestaurant()
 
@@ -1188,7 +914,8 @@ export function Products({ navigation }: HomeScreenProps) {
           body: JSON.stringify({
             productId,
             restaurantId: storedRestaurant?.id,
-            token
+            token,
+            obs
           })
         })
         if (!result.ok) return null
@@ -1197,48 +924,48 @@ export function Products({ navigation }: HomeScreenProps) {
       }
     },
     [favorites, productsList, selectedRestaurant]
-  );
+  )
 
   const addObservation = useCallback(
     async (productId: string, observation: string): Promise<void | null | undefined> => {
       try {
-        const token = await getToken();
-        const restaurant = await getSavedRestaurant();
-        if (token == null || !restaurant) return;
-        const productToAdd = productsList?.find(
-          (product) => product.id === productId
-        );
-        const storedRestaurant = await getSavedRestaurant();
+        const token = await getToken()
+        const restaurant = await getSavedRestaurant()
+        if (token == null || !restaurant) return
+        const productToAdd = productsList?.find((product) => product.id === productId)
+        const storedRestaurant = await getSavedRestaurant()
 
-        const result = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              productId,
-              restaurantId: storedRestaurant?.id,
-              token,
-              obs: observation
-            }),
-          }
-        );
-        if (!result.ok) return null;
+        const isFavorite = favorites.some((fav) => fav.id === productId)
+        if (!isFavorite) {
+          return
+        }
+
+        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            productId,
+            restaurantId: storedRestaurant?.id,
+            token,
+            obs: observation
+          })
+        })
+        if (!result.ok) return null
       } catch (error) {
-        console.error("Erro ao adicionar aos favoritos:", error);
+        console.error('Erro ao adicionar aos favoritos:', error)
       }
     },
     [favorites, productsList, selectedRestaurant]
-  );
+  )
 
   const removeFromFavorites = useCallback(
     async (productId: string) => {
       try {
         const token = await getToken()
-        const restaurant = await getSavedRestaurant() 
+        const restaurant = await getSavedRestaurant()
         setFavorites(favorites.filter((favorite) => favorite.id !== productId))
         if (token == null || !restaurant) return
         const storedRestaurant = await getSavedRestaurant()
@@ -1265,18 +992,31 @@ export function Products({ navigation }: HomeScreenProps) {
 
   const toggleFavorite = useCallback(
     async (productId: string) => {
-      const isCurrentlyFavorite = favorites.some((favorite) => favorite.id === productId)
+      const product = productsList?.find((p) => p.id === productId)
+      const isCurrentlyFavorite = favorites.some((f) => f.id === productId)
+
       if (isCurrentlyFavorite) {
         await removeFromFavorites(productId)
       } else {
-        await addToFavorites(productId)
+        // Adiciona a observação atual ao favoritar
+        const currentObs = productObservations.get(productId) || ''
+        await addToFavorites(productId, currentObs)
+
+        // Se houver uma observação no carrinho, sincroniza com os favoritos
+        const cartItem = cart.get(productId)
+        if (cartItem?.obs && cartItem.obs !== currentObs) {
+          await addObservation(productId, cartItem.obs)
+          setProductObservations((prev) => new Map(prev).set(productId, cartItem.obs))
+        }
       }
     },
-    [favorites, addToFavorites, removeFromFavorites]
+    [favorites, productObservations, cart]
   )
 
   useEffect(() => {
-    if (flatListRef.current) {
+    if (virtualizedListRef.current) {
+      virtualizedListRef.current.scrollToOffset({ animated: true, offset: 0 })
+    } else if (flatListRef.current) {
       flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
     }
   }, [currentClass, searchQuery])
@@ -1387,18 +1127,13 @@ export function Products({ navigation }: HomeScreenProps) {
           })
         }}
         addObservation={addObservation}
+        productObservations={productObservations}
+        setProductObservations={setProductObservations}
+        saveProductObservations={saveProductObservations}
       />
     ),
-    [
-      cart,
-      currentClass,
-      favorites,
-      saveCart,
-      toggleFavorite,
-      productObservations,
-      addObservation
-    ]
-  );
+    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation]
+  )
 
   async function handleRestaurantChoice(value: string | null) {
     try {
@@ -1406,13 +1141,16 @@ export function Products({ navigation }: HomeScreenProps) {
 
       const storedRestaurant = await getSavedRestaurant()
       if (storedRestaurant?.externalId === value) {
-        return 
+        return
       }
 
       const restaurant = restaurantes.find((r) => r.externalId === value)
-      if (restaurant) {
-        await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      if (!restaurant) return
+      if (restaurant.registrationReleasedNewApp === true) {
+        setShowRegistrationReleasedNewApp(true)
+        return
       }
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -1430,20 +1168,26 @@ export function Products({ navigation }: HomeScreenProps) {
     <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
       <DialogComercialInstance
         openModal={showRegistrationReleasedNewApp}
+        setOpenModal={setShowRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
         navigation={navigation}
+        messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
+        onSelectAvailable={() => {
+          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp)
+          if (availableRestaurant) {
+            AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+            setSelectedRestaurant(availableRestaurant.externalId)
+            setShowRegistrationReleasedNewApp(false)
+            // Recarregar os dados do novo restaurante
+            loadProducts()
+            loadFavorites()
+            loadCart()
+          }
+        }}
       />
-      <DialogFinanceInstance
-        openModal={showFinanceBlock}
-        setRegisterInvalid={setShowFinanceBlock}
-        rest={restaurantes}
-      />
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
+      <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
           style={{
             flex: 1,
@@ -1492,7 +1236,7 @@ export function Products({ navigation }: HomeScreenProps) {
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         value={selectedRestaurant}
-        items={restaurantes?.map((restaurant) => ({
+        items={restaurantes.map((restaurant) => ({
           label: restaurant.name,
           value: restaurant.externalId
         }))}
@@ -1524,22 +1268,9 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList
-          style={{
-            maxHeight: Platform.OS === 'web' ? 50 : 60,
-            paddingVertical: 10,
-            minHeight: 50,
-            width: Platform.OS === 'web' ? '68%' : undefined,
-            alignSelf: Platform.OS === 'web' ? 'center' : undefined
-          }}
-          data={classItems}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item: any) => item.name}
-          renderItem={renderClassItem}
-        />
+        <FlatList style={{ marginTop: -5, maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} paddingBottom={Platform.OS === 'web' ? '' : 55} borderTopColor="#aaa" borderTopWidth={0.5}>
+        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} borderTopColor="#aaa" borderTopWidth={0.5}>
           {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
@@ -1549,7 +1280,11 @@ export function Products({ navigation }: HomeScreenProps) {
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
-            <FlatList ref={flatListRef} data={displayedProducts} renderItem={renderProduct} keyExtractor={(item: any) => item.id} onEndReachedThreshold={0.5} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} ItemSeparatorComponent={() => <View height={8}></View>} />
+            Platform.OS === 'android' ? (
+              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} />
+            ) : (
+              <CustomFlatList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} listRef={flatListRef} />
+            )
           ) : (
             <ScrollView>
               <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
@@ -1584,7 +1319,7 @@ export function Products({ navigation }: HomeScreenProps) {
           <View
             onPress={async () => {
               setLoading(true)
-              saveCartArray(cart, cartToExclude).catch(console.error) 
+              saveCartArray(cart, cartToExclude).catch(console.error)
               setLoading(false)
               navigation.replace('Orders')
             }}
@@ -1633,13 +1368,12 @@ export function Products({ navigation }: HomeScreenProps) {
       <CartButton
         cartSize={displayedCartSize}
         isScrolling={isScrolling}
+        visibleProducts={displayedProducts}
         onPress={async () => {
           setLoading(true)
-          await saveCartArray(cart, cartToExclude)
           navigation.replace('Cart')
         }}
       />
     </Stack>
   )
 }
-

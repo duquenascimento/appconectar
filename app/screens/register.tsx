@@ -5,18 +5,17 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator } from 'react-native'
 import { DialogInstance } from '../index'
 import { TextInputMask } from 'react-native-masked-text'
-import { deleteStorage, getStorage, getToken, setStorage, deleteToken, clearStorage } from '../utils/utils'
+import { getStorage, getToken, setStorage, deleteToken, clearStorage } from '../utils/utils'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { formatCNPJ } from '../utils/formatCNPJ'
 import { formatCep } from '../utils/formatCep'
-import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
 import { dividirLogradouro } from '../utils/DividirLogradouro'
 import { campoString } from '../utils/formatCampos'
 import { VersionInfo } from '../utils/VersionApp'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
-import { red } from 'react-native-reanimated/lib/typescript/reanimated2/Colors'
+import { KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 
 type RootStackParamList = {
   Home: undefined
@@ -31,6 +30,8 @@ type HomeScreenProps = {
 }
 
 interface Empresa {
+  inscricao_estadual?: string | null
+  inscricao_municipal?: string | null
   inscricoes_estaduais: any | null
   msg: string
   cnpj: string
@@ -103,14 +104,19 @@ export function Register({ navigation }: HomeScreenProps) {
   const [maxhours, setMaxhours] = useState<string[]>([])
   const [erros, setErros] = useState<string[]>([])
   const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [emailValid, setEmailValid] = useState(false)
-  const [emailAlternativeValid, setEmailAlternativeValid] = useState(false)
-  const [isCepValid, setIsCepValid] = useState(true) // Nova variável de estado
+  const [isCepValid, setIsCepValid] = useState(true)
   const [minHourOpen, setMinHourOpen] = useState(false)
   const [maxHourOpen, setMaxHourOpen] = useState(false)
   const [paymentWayOpen, setPaymentWayOpen] = useState(false)
   const [daysOpen, setDaysOpen] = useState(false)
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true)
+
+    const allClosedDropdowns = () => {
+    setMinHourOpen(false);
+    setMaxHourOpen(false);
+    setDaysOpen(false);
+    setScrollEnabled(true);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -127,7 +133,6 @@ export function Register({ navigation }: HomeScreenProps) {
       localNumber: '',
       localType: '',
       complement: '',
-      phone: '',
       alternativePhone: '',
       email: '',
       alternativeEmail: '',
@@ -135,8 +140,9 @@ export function Register({ navigation }: HomeScreenProps) {
       maxHour: '',
       closeDoor: false,
       deliveryObs: '',
-      responsibleReceivingName: '',
-      responsibleReceivingPhoneNumber: '',
+      financeResponsibleName: '',
+      financeResponsiblePhoneNumber: '',
+      emailBilling: '',
       weeklyOrderAmount: '',
       orderValue: '',
       paymentWay: '',
@@ -158,7 +164,6 @@ export function Register({ navigation }: HomeScreenProps) {
           orderValue: Number(values.orderValue),
           cnpj: values.cnpj.replace(/\D/g, '')
         }
-
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
           method: 'POST',
           headers: {
@@ -177,25 +182,6 @@ export function Register({ navigation }: HomeScreenProps) {
       }
     }
   })
-
-  const isStepValid = () => {
-    const requiredFieldsByStep: { [key: number]: string[] } = {
-      0: ['restaurantName', 'cnpj'],
-      1: ['zipcode', 'street', 'localNumber', 'legalRestaurantName', ...(formik.values.noStateNumberId ? ['cityNumberId'] : ['stateNumberId'])],
-      2: ['phone', 'email'],
-      3: ['minHour', 'maxHour', 'responsibleReceivingName', 'responsibleReceivingPhoneNumber', 'weeklyOrderAmount', 'orderValue', 'paymentWay']
-    }
-
-    const requiredFields = requiredFieldsByStep[step] || []
-
-    return requiredFields.every((field) => {
-      const value = formik.values[field as keyof typeof formik.values]
-      const error = formik.errors[field as keyof typeof formik.errors]
-
-      // Considera válido se o valor existir (não vazio) e não houver erro
-      return value !== '' && error === undefined
-    })
-  }
 
   useEffect(() => {
     const hours = []
@@ -227,13 +213,12 @@ export function Register({ navigation }: HomeScreenProps) {
         }
       }
       setMaxhours(maxOptions)
-      // Define o primeiro valor como padrão se maxHour estiver vazio ou inválido
       if (!formik.values.maxHour || !maxOptions.includes(formik.values.maxHour)) {
         formik.setFieldValue('maxHour', maxOptions[0] || '')
       }
     } else {
       setMaxhours([])
-      formik.setFieldValue('maxHour', '') // Limpa maxHour se minHour for limpo
+      formik.setFieldValue('maxHour', '')
     }
   }, [formik.values.minHour])
 
@@ -242,7 +227,6 @@ export function Register({ navigation }: HomeScreenProps) {
       const format = value.replace(/\D/g, '')
       const formatted = formatCep(value)
 
-      // Atualiza o valor formatado no Formik
       formik.setFieldValue('zipcode', formatted)
       formik.setFieldError('zipcode', undefined)
 
@@ -260,7 +244,6 @@ export function Register({ navigation }: HomeScreenProps) {
         if (response.ok && !result.erro) {
           const endereco: any = dividirLogradouro(result.logradouro)
 
-          // Atualiza todos os campos de endereço no Formik
           formik.setValues({
             ...formik.values,
             neigh: result.bairro.toUpperCase(),
@@ -273,6 +256,7 @@ export function Register({ navigation }: HomeScreenProps) {
           })
 
           formik.setFieldTouched('zipcode', true, false)
+          formik.setFieldTouched('neigh', true, false)
         }
       }
     } catch (error) {
@@ -284,16 +268,15 @@ export function Register({ navigation }: HomeScreenProps) {
     }
   }
 
-  // Função para aplicar o estilo da borda
   const getCepBorderStyle = () => ({
     borderColor: isCepValid ? '#049A63' : 'red',
     borderWidth: 1
   })
 
   const initData = async () => {
-    setLoading(true) // Mantém o loading
+    setLoading(true)
     try {
-      const fieldsToLoad = ['cnpj', 'stateNumberId', 'cityNumberId', 'restaurantName', 'legalRestaurantName', 'zipcode', 'neigh', 'street', 'localNumber', 'complement', 'phone', 'alternativePhone', 'email', 'alternativeEmail', 'step', 'noStateNumberId', 'minHour', 'maxHour', 'closeDoor', 'deliveryObs', 'responsibleReceivingName', 'responsibleReceivingPhoneNumber', 'weeklyOrderAmount', 'paymentWay', 'orderValue', 'localType', 'city', 'inviteCode']
+      const fieldsToLoad = ['cnpj', 'stateNumberId', 'cityNumberId', 'restaurantName', 'legalRestaurantName', 'zipcode', 'neigh', 'street', 'localNumber', 'complement', 'alternativePhone', 'email', 'alternativeEmail', 'paymentWay', 'financeResponsibleName', 'financeResponsiblePhoneNumber', 'emailBilling', 'step', 'noStateNumberId', 'minHour', 'maxHour', 'closeDoor', 'deliveryObs', 'weeklyOrderAmount', 'orderValue', 'localType', 'city', 'inviteCode']
 
       const storedValuesArray = await Promise.all(fieldsToLoad.map((field) => getStorage(field)))
 
@@ -301,23 +284,21 @@ export function Register({ navigation }: HomeScreenProps) {
       fieldsToLoad.forEach((field, index) => {
         const value = storedValuesArray[index]
         if (value !== null) {
-          // Tratamento especial para booleanos e números vindos do storage como string
           if (field === 'noStateNumberId' || field === 'closeDoor') {
             loadedValues[field] = value === 'true'
           } else if (field === 'step') {
             const stepValue = parseInt(value)
-            setStep(isNaN(stepValue) ? 0 : stepValue) // Atualiza o state 'step' separadamente
+            setStep(isNaN(stepValue) ? 0 : stepValue)
           } else {
             loadedValues[field] = value
           }
         }
       })
 
-      // Define os valores carregados no Formik, mesclando com os default se algo não foi carregado
       formik.resetForm({
         values: {
-          ...formik.initialValues, // Começa com os padrões
-          ...loadedValues // Sobrescreve com os carregados
+          ...formik.initialValues,
+          ...loadedValues
         }
       })
     } catch (error) {
@@ -333,11 +314,12 @@ export function Register({ navigation }: HomeScreenProps) {
 
   const handleNextBtn = async () => {
     setLoading(true)
+    allClosedDropdowns()
     try {
-      const errors = await formik.validateForm()
+       await formik.validateForm()
 
       let currentStepIsValid = true
-      const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation // Obtenha o schema correto
+      const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation
       try {
         await currentSchema.validate(formik.values, { abortEarly: false })
       } catch (validationErrors: any) {
@@ -359,6 +341,7 @@ export function Register({ navigation }: HomeScreenProps) {
       }
 
       if (step === 0) {
+        const errosApi: string[] = []
         const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '')
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`, {
           method: 'POST',
@@ -366,8 +349,16 @@ export function Register({ navigation }: HomeScreenProps) {
           headers: { 'Content-type': 'application/json' }
         })
         const result: CheckCnpj = await response.json()
-
+   
         if (response.ok) {
+          if (result.data.msg) {
+            errosApi.push('Erro ao processar os dados do CNPJ.')
+            formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.')
+            setErros(errosApi)
+            setRegisterInvalid(true)
+            setLoading(false)
+          return
+          }
           const buscaCep = await fetch(`https://viacep.com.br/ws/${result.data.cep}/json/`)
           const enderecoCNPJ = await buscaCep.json()
           if (enderecoCNPJ.erro) {
@@ -377,7 +368,6 @@ export function Register({ navigation }: HomeScreenProps) {
           }
 
           const endereco: any = dividirLogradouro(enderecoCNPJ.logradouro)
-          const IE = encontrarInscricaoRJ(result.data.inscricoes_estaduais)
           formik.setValues({
             ...formik.values,
             legalRestaurantName: result.data.razao_social,
@@ -387,13 +377,12 @@ export function Register({ navigation }: HomeScreenProps) {
             localNumber: result.data.numero,
             complement: result.data.complemento ?? '',
             localType: endereco.tipoLogradouro,
-            city: campoString(enderecoCNPJ.localidade)
-            //stateNumberId: IE ?? "",
-            //noStateNumberId: !IE,
+            city: campoString(enderecoCNPJ.localidade),
+            stateNumberId: result.data.inscricao_estadual ?? '',
+            cityNumberId: result.data.inscricao_municipal ?? ''
           })
           setStep(1)
         } else {
-          const errosApi: string[] = []
           if (result.msg === 'already exists') {
             errosApi.push('Este CNPJ já existe na plataforma')
             formik.setFieldError('cnpj', 'CNPJ já cadastrado')
@@ -428,18 +417,15 @@ export function Register({ navigation }: HomeScreenProps) {
     }
   }
 
-  // Função auxiliar para salvar no storage
   const saveStepDataToStorage = async (values: typeof formik.values, currentStep: number) => {
     try {
       const dataToStore: { [key: string]: string } = {}
-      // Mapeia os valores do formik para o formato string do storage
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          // Evita armazenar null/undefined
-          dataToStore[key] = String(value) // Converte tudo para string
+          dataToStore[key] = String(value)
         }
       })
-      dataToStore['step'] = String(currentStep) // Salva a etapa atual
+      dataToStore['step'] = String(currentStep)
 
       const storagePromises = Object.entries(dataToStore).map(([key, value]) => setStorage(key, value))
       await Promise.all(storagePromises)
@@ -453,76 +439,37 @@ export function Register({ navigation }: HomeScreenProps) {
     const prevStep = step - 1
 
     if (prevStep < 0) {
-      await clearToken() // Sua lógica clearToken [source 99]
-      // Navegar para tela anterior, ex: navigation.goBack() ou navigation.navigate("Sign");
-      navigation.navigate('Sign' as never) // Ajuste o nome da rota se necessário
+      await clearToken()
+      navigation.navigate('Sign' as never)
     } else {
       setStep(prevStep)
-      // Salvar estado atual no storage ao voltar (opcional, mas mantém consistência com o avançar)
       await saveStepDataToStorage(formik.values, prevStep)
     }
     setLoading(false)
   }
 
   const handleCnpjChange = (text: string) => {
-    //setCnpj(formatCNPJ(text));
     const formatted = formatCNPJ(text)
     formik.setFieldValue('cnpj', formatted)
   }
 
   const clearToken = async () => {
     try {
-      await deleteToken() // Exclui o token do armazenamento local
+      await deleteToken()
     } catch (error) {
       console.error('Erro ao excluir o token:', error)
     }
   }
 
-  const handleEmailChange = (text: string) => {
-    // Remover caracteres indesejados e garantir o formato de e-mail
-    const formattedText = text
-      .replace(/[^a-zA-Z0-9@._-]/g, '') // Remove caracteres não permitidos
-      .toLowerCase() // Converte para minúsculas
-
-    setEmailValid(testEmail(formattedText))
-  }
-
-  const testEmail = (text: string) => {
-    const test = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Remove as aspas ao redor da expressão regular
-    return test.test(text)
-  }
-
-  const validateInput = (value: string) => value.length >= 8
-
-  const getBorderStyle = (value: string) => ({
-    borderColor: validateInput(value) ? '#049A63' : 'red',
-    borderWidth: 1
-  })
-
-  // Função para validar e formatar e-mail alternativo
-  const handleAlternativeEmailChange = (text: string) => {
-    const formattedText = text.replace(/[^a-zA-Z0-9@._-]/g, '').toLowerCase()
-
-    setEmailAlternativeValid(testEmail(formattedText))
-  }
-
-  const handlePhoneChange = (text: string) => {
-    formik.setFieldValue('phone', text)
-  }
-
-  const handleAlternativePhoneChange = (text: string) => {
-    formik.setFieldValue('alternativePhone', text)
-  }
 
   const handleCheckBox = () => {
     const newValue = !formik.values.noStateNumberId
     formik.setFieldValue('noStateNumberId', newValue)
     if (newValue) {
-      formik.setFieldValue('stateNumberId', '') // Lógica adicional ok
-      formik.setFieldTouched('stateNumberId', false, false) // Reseta o touched também
+      formik.setFieldValue('stateNumberId', '')
+      formik.setFieldTouched('stateNumberId', false, false)
     }
   }
-  // Handler para closeDoor
   const handleCheckBoxCloseDoor = () => {
     formik.setFieldValue('closeDoor', !formik.values.closeDoor)
   }
@@ -546,6 +493,11 @@ export function Register({ navigation }: HomeScreenProps) {
   }
 
   return (
+       <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+  >
     <View flex={1} backgroundColor="#F0F2F6">
       <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} cnpj={formik.values.cnpj} />
       <View mb={10} pt={50} alignItems="center" justifyContent="center">
@@ -579,7 +531,7 @@ export function Register({ navigation }: HomeScreenProps) {
             </Text>
             <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} p={10}>
               <Text>Nome na fachada da rua</Text>
-              <Input onChangeText={(text) => formik.setFieldValue('restaurantName', text)} onBlur={formik.handleBlur('restaurantName')} value={formik.values.restaurantName} backgroundColor="white" borderRadius={2} borderColor={formik.touched.restaurantName && formik.errors.restaurantName ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
+              <Input placeholder="Nome do restaurante" onChangeText={(text) => formik.setFieldValue('restaurantName', text)} onBlur={formik.handleBlur('restaurantName')} value={formik.values.restaurantName} backgroundColor="white" borderRadius={2} borderColor={formik.touched.restaurantName && formik.errors.restaurantName ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} />
               {formik.touched.restaurantName && formik.errors.restaurantName && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.restaurantName}
@@ -587,7 +539,7 @@ export function Register({ navigation }: HomeScreenProps) {
               )}
 
               <Text mt={15}>CNPJ</Text>
-              <Input onChangeText={handleCnpjChange} value={formik.values.cnpj} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} onBlur={() => formik.setFieldTouched('cnpj', true)} borderColor={formik.touched.cnpj && formik.errors.cnpj ? 'red' : 'lightgray'} />
+              <Input placeholder="00.000.000/0001-00" onChangeText={handleCnpjChange} value={formik.values.cnpj} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }} onBlur={() => formik.setFieldTouched('cnpj', true)} borderColor={formik.touched.cnpj && formik.errors.cnpj ? 'red' : 'lightgray'} />
               {formik.touched.cnpj && formik.errors.cnpj && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.cnpj}
@@ -597,7 +549,6 @@ export function Register({ navigation }: HomeScreenProps) {
           </View>
         ) : step === 1 ? (
           <View f={1} mt={20} p={20}>
-            {/* ... cabeçalho igual ... */}
             <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} p={10}>
               <Text>Nome na fachada da rua</Text>
               <Input value={formik.values.restaurantName} disabled opacity={0.5} backgroundColor="white" borderRadius={2} />
@@ -611,7 +562,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   Min. 8 digitos
                 </Text>
               </View>
-              <Input onChangeText={(text) => formik.setFieldValue('stateNumberId', text)} value={formik.values.stateNumberId} disabled={formik.values.noStateNumberId} opacity={formik.values.noStateNumberId ? 0.5 : 1} placeholder={formik.values.noStateNumberId ? 'Isento' : ''} onBlur={() => formik.setFieldTouched('stateNumberId', true)} />
+              <Input onChangeText={(text) => formik.setFieldValue('stateNumberId', text)} value={formik.values.stateNumberId} disabled={formik.values.noStateNumberId} opacity={formik.values.noStateNumberId ? 0.5 : 1} placeholder={formik.values.noStateNumberId ? 'Isento' : '00000000'} onBlur={() => formik.setFieldTouched('stateNumberId', true)} />
               {formik.touched.stateNumberId && formik.errors.stateNumberId && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.stateNumberId}
@@ -633,7 +584,7 @@ export function Register({ navigation }: HomeScreenProps) {
                       Min. 8 digitos
                     </Text>
                   </View>
-                  <Input onChangeText={(text) => formik.setFieldValue('cityNumberId', text)} value={formik.values.cityNumberId} onBlur={() => formik.setFieldTouched('cityNumberId', true)} />
+                  <Input placeholder="00000000" onChangeText={(text) => formik.setFieldValue('cityNumberId', text)} value={formik.values.cityNumberId} onBlur={() => formik.setFieldTouched('cityNumberId', true)} />
                   {formik.touched.cityNumberId && formik.errors.cityNumberId && (
                     <Text color="red" fontSize={12}>
                       {formik.errors.cityNumberId}
@@ -655,16 +606,21 @@ export function Register({ navigation }: HomeScreenProps) {
                     8 digitos
                   </Text>
                 </View>
-                <Input onChangeText={cepChange} value={formik.values.zipcode} backgroundColor="white" borderRadius={2} borderColor={formik.touched.zipcode && formik.errors.zipcode ? 'red' : 'lightgray'} focusStyle={getCepBorderStyle()} hoverStyle={getCepBorderStyle()} onBlur={() => formik.setFieldTouched('zipcode', true)} />
+                <Input placeholder="00000-000" onChangeText={cepChange} value={formik.values.zipcode} backgroundColor="white" borderRadius={2} borderColor={formik.touched.zipcode && formik.errors.zipcode ? 'red' : 'lightgray'} focusStyle={getCepBorderStyle()} hoverStyle={getCepBorderStyle()} onBlur={() => formik.setFieldTouched('zipcode', true)} />
                 {formik.touched.zipcode && formik.errors.zipcode && (
                   <Text color="red" fontSize={12}>
                     {formik.errors.zipcode}
                   </Text>
                 )}
                 <Text mt={15}>Bairro</Text>
-                <Input disabled opacity={0.5} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                <Input opacity={0.5} onBlur={() => formik.setFieldTouched('neigh', true)} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                {formik.touched.neigh && formik.errors.neigh && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.neigh}
+                  </Text>
+                )}
                 <Text mt={15}>Logradouro</Text>
-                <Input onChangeText={(text) => formik.setFieldValue('street', text)} value={formik.values.street} backgroundColor="white" borderRadius={2} borderColor={formik.touched.street && formik.errors.street ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                <Input placeholder="exemplo: Dois Amores" onChangeText={(text) => formik.setFieldValue('street', text)} value={formik.values.street} backgroundColor="white" borderRadius={2} borderColor={formik.touched.street && formik.errors.street ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                 {formik.touched.street && formik.errors.street && (
                   <Text color="red" fontSize={12}>
                     {formik.errors.street}
@@ -672,6 +628,7 @@ export function Register({ navigation }: HomeScreenProps) {
                 )}
                 <Text mt={15}>Número</Text>
                 <Input
+                  placeholder="Exemplo: 12"
                   onChangeText={(text) => formik.setFieldValue('localNumber', text)}
                   value={formik.values.localNumber}
                   backgroundColor="white"
@@ -689,7 +646,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   </Text>
                 )}
                 <Text mt={15}>Complemento</Text>
-                <Input onChangeText={(text) => formik.setFieldValue('complement', text)} value={formik.values.complement} backgroundColor="white" borderRadius={2} borderColor={formik.touched.complement && formik.errors.complement ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                <Input placeholder="Exemplo: Loja A" onChangeText={(text) => formik.setFieldValue('complement', text)} value={formik.values.complement} backgroundColor="white" borderRadius={2} borderColor={formik.touched.complement && formik.errors.complement ? 'red' : 'lightgray'} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                 {formik.touched.complement && formik.errors.complement && (
                   <Text color="red" fontSize={12}>
                     {formik.errors.complement}
@@ -704,69 +661,18 @@ export function Register({ navigation }: HomeScreenProps) {
               Contato
             </Text>
             <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} padding={10}>
-              {/* Telefone Principal */}
-              <View alignItems="center" flexDirection="row" gap={8}>
-                <Text>Telefone</Text>
-                <Text fontSize={10} color="gray">
-                  Para comunicados sobre os pedidos
-                </Text>
-              </View>
-              <TextInputMask
-                type={'cel-phone'}
-                value={formik.values.phone}
-                onChangeText={handlePhoneChange}
-                onBlur={() => formik.setFieldTouched('phone', true)}
-                style={{
-                  backgroundColor: 'white',
-                  borderRadius: 2,
-                  borderWidth: 1,
-                  borderColor: formik.touched.phone && formik.errors.phone ? 'red' : 'lightgray',
-                  padding: 10
-                }}
-                placeholder="(00) 00000-0000"
-              />
-              {formik.touched.phone && formik.errors.phone && (
-                <Text color="red" fontSize={12}>
-                  {formik.errors.phone}
-                </Text>
-              )}
-
-              {/* Telefone Alternativo */}
-              <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                <Text>Telefone alternativo</Text>
-                <Text fontSize={10} color="gray">
-                  Opcional
-                </Text>
-              </View>
-              <TextInputMask
-                type={'cel-phone'}
-                value={formik.values.alternativePhone}
-                onChangeText={handleAlternativePhoneChange}
-                style={{
-                  backgroundColor: 'white',
-                  borderRadius: 2,
-                  borderWidth: 1,
-                  borderColor: 'lightgray',
-                  padding: 10
-                }}
-                placeholder="(00) 00000-0000"
-              />
-
-              {/* E-mail Principal */}
               <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                 <Text>E-mail</Text>
                 <Text fontSize={10} color="gray">
                   Para comunicados
                 </Text>
               </View>
-              <Input value={formik.values.email} onChangeText={(text) => formik.setFieldValue('email', text)} onBlur={() => formik.setFieldTouched('email', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.email && formik.errors.email ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
+              <Input value={formik.values.email} autoCapitalize="none" onChangeText={(text) => formik.setFieldValue('email', text)} onBlur={() => formik.setFieldTouched('email', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.email && formik.errors.email ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
               {formik.touched.email && formik.errors.email && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.email}
                 </Text>
               )}
-
-              {/* E-mail Alternativo */}
               <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                 <Text>E-mail alternativo</Text>
                 <Text fontSize={10} color="gray">
@@ -777,6 +683,150 @@ export function Register({ navigation }: HomeScreenProps) {
               {formik.touched.alternativeEmail && formik.errors.alternativeEmail && (
                 <Text color="red" fontSize={12}>
                   {formik.errors.alternativeEmail}
+                </Text>
+              )}
+            </View>
+            <Text mt={10} fontSize={12} mb={5} color="gray">
+              Informações financeiras
+            </Text>
+            <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} padding={10}>
+              <View>
+                <Text>Qual o formato de pagamento preferido?</Text>
+                <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor={formik.touched.paymentWay && formik.errors.paymentWay ? 'red' : 'lightgray'} zIndex={99}>
+                  <DropDownPicker
+                    value={formik.values.paymentWay}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'lightgray',
+                      borderRadius: 2,
+                      flex: 1,
+                      position: 'absolute'
+                    }}
+                    setValue={(callback) => {
+                      const value = typeof callback === 'function' ? callback(formik.values.paymentWay) : callback
+                      formik.setFieldValue('paymentWay', value)
+                    }}
+                    onSelectItem={(item) => {
+                      if (item.value) {
+                        formik.setFieldError('paymentWay', undefined)
+                      }
+                    }}
+                    listMode="SCROLLVIEW"
+                    dropDownDirection="BOTTOM"
+                    dropDownContainerStyle={{
+                      position: 'relative'
+                    }}
+                    items={[
+                      { label: 'Diário: 7 dias após a entrega', value: 'DI07' },
+                      { label: 'Semanal: vencimento na quarta', value: 'UQ10' },
+                      { label: 'Semanal: vencimento na sexta', value: 'UX12' }
+                    ]}
+                    multiple={false}
+                    open={paymentWayOpen}
+                    setOpen={setPaymentWayOpen}
+                    onOpen={() => formik.setFieldError('paymentWay', undefined)}
+                    placeholder=""
+                  ></DropDownPicker>
+                </View>
+                {formik.touched.paymentWay && formik.errors.paymentWay && (
+                  <View height={65} flex={1} justifyContent="flex-end">
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.paymentWay}
+                    </Text>
+                  </View>
+                )}
+                <View mt={formik.errors.paymentWay ? 10 : 60} borderColor="lightgray" borderWidth={0.5} p={5} gap={5} flexDirection="row">
+                  <Icons size={25} color="gray" name="information-circle"></Icons>
+                  <View justifyContent="center">
+                    <Text maxWidth="100%" color="gray" fontSize={10}>
+                      Prazos são sujeitos a avaliação de crédito
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <View flex={1}>
+                <Text marginTop={15}>
+                  Nome responsável financeiro
+                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                </Text>
+                <View flex={1} borderWidth={0.5} borderColor={formik.touched.financeResponsibleName && formik.errors.financeResponsibleName ? 'red' : 'lightgray'} zIndex={101}>
+                  <Input
+                    fontSize={14}
+                    f={1}
+                    backgroundColor="$colorTransparent"
+                    borderWidth="$0"
+                    borderRadius={2}
+                    onBlur={formik.handleBlur('financeResponsibleName')}
+                    borderColor={formik.touched.financeResponsibleName && formik.errors.financeResponsibleName ? 'red' : 'lightgray'}
+                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    value={formik.values.financeResponsibleName}
+                    onChangeText={(value) => {
+                      const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                      formik.setFieldValue('financeResponsibleName', formattedValue)
+                    }}
+                  />
+                </View>
+                {formik.touched.financeResponsibleName && formik.errors.financeResponsibleName && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.financeResponsibleName}
+                  </Text>
+                )}
+              </View>
+              <View flex={1}>
+                <Text marginTop={15}>
+                  Telefone responsável financeiro
+                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                </Text>
+                <View flex={1} borderWidth={0.5} borderColor={formik.touched.financeResponsiblePhoneNumber && formik.errors.financeResponsiblePhoneNumber ? 'red' : 'lightgray'} zIndex={101}>
+                  <Input
+                    maxLength={15}
+                    fontSize={14}
+                    f={1}
+                    backgroundColor="$colorTransparent"
+                    borderWidth="$0"
+                    borderRadius={2}
+                    borderColor={formik.touched.financeResponsiblePhoneNumber && formik.errors.financeResponsiblePhoneNumber ? 'red' : 'lightgray'}
+                    onBlur={formik.handleBlur('financeResponsiblePhoneNumber')}
+                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    keyboardType="phone-pad"
+                    value={formik.values.financeResponsiblePhoneNumber}
+                    onChangeText={(value) => {
+                      let onlyNums = value.replace(/\D/g, '')
+
+                      if (onlyNums.length > 10) {
+                        onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
+                      } else if (onlyNums.length > 6) {
+                        onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+                      } else if (onlyNums.length > 2) {
+                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
+                      } else if (onlyNums.length > 0) {
+                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
+                      }
+
+                      formik.setFieldValue('financeResponsiblePhoneNumber', onlyNums)
+                    }}
+                  />
+                </View>
+                {formik.touched.financeResponsiblePhoneNumber && formik.errors.financeResponsiblePhoneNumber && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.financeResponsiblePhoneNumber}
+                  </Text>
+                )}
+              </View>
+              <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
+                <Text>E-mail
+                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                </Text>
+                <Text fontSize={10} color="gray">
+                  Para cobranças
+                </Text>
+              </View>
+              <Input value={formik.values.emailBilling} autoCapitalize="none" onChangeText={(text) => formik.setFieldValue('emailBilling', text)} onBlur={() => formik.setFieldTouched('emailBilling', true)} backgroundColor="white" borderRadius={2} borderColor={formik.touched.emailBilling && formik.errors.emailBilling ? 'red' : 'lightgray'} placeholder="exemplo@exemplo.com" />
+              {formik.touched.emailBilling && formik.errors.emailBilling && (
+                <Text color="red" fontSize={12}>
+                  {formik.errors.emailBilling}
                 </Text>
               )}
             </View>
@@ -903,93 +953,18 @@ export function Register({ navigation }: HomeScreenProps) {
                   Aceito receber de portas fechadas
                 </Text>
               </View>
-              <Text mt={15}>Obs de entrega</Text>
+              <Text mt={15}>Informações adicionais</Text>
               <Input
                 onChangeText={(text) => {
                   formik.setFieldValue('deliveryObs', text)
                 }}
                 value={formik.values.deliveryObs}
+                placeholder="Exemplo: Entrar pela porta lateral"
                 backgroundColor="white"
                 borderRadius={2}
                 focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                 hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
               ></Input>
-              <View flex={1}>
-                <Text marginTop={15}>
-                  Responsável pelo recebimento
-                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                </Text>
-                <View flex={1} borderWidth={0.5} borderColor={formik.touched.responsibleReceivingName && formik.errors.responsibleReceivingName ? 'red' : 'lightgray'} zIndex={101}>
-                  <Input
-                    fontSize={14}
-                    f={1}
-                    backgroundColor="$colorTransparent"
-                    borderWidth="$0"
-                    borderRadius={2}
-                    onBlur={formik.handleBlur('responsibleReceivingName')}
-                    borderColor={formik.touched.responsibleReceivingName && formik.errors.responsibleReceivingName ? 'red' : 'lightgray'}
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    value={formik.values.responsibleReceivingName}
-                    onChangeText={(value) => {
-                      const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                      formik.setFieldValue('responsibleReceivingName', formattedValue)
-                    }}
-                  />
-                </View>
-                {formik.touched.responsibleReceivingName && formik.errors.responsibleReceivingName && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.responsibleReceivingName}
-                  </Text>
-                )}
-              </View>
-              <View flex={1}>
-                <Text marginTop={15}>
-                  Número de contato do responsável
-                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                </Text>
-                <View flex={1} borderWidth={0.5} borderColor={formik.touched.responsibleReceivingPhoneNumber && formik.errors.responsibleReceivingPhoneNumber ? 'red' : 'lightgray'} zIndex={101}>
-                  <Input
-                    maxLength={15}
-                    fontSize={14}
-                    f={1}
-                    backgroundColor="$colorTransparent"
-                    borderWidth="$0"
-                    borderRadius={2}
-                    borderColor={formik.touched.responsibleReceivingPhoneNumber && formik.errors.responsibleReceivingPhoneNumber ? 'red' : 'lightgray'}
-                    onBlur={formik.handleBlur('responsibleReceivingPhoneNumber')}
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    keyboardType="phone-pad"
-                    value={formik.values.responsibleReceivingPhoneNumber}
-                    onChangeText={(value) => {
-                      // Remove todos os caracteres que não sejam dígitos
-                      let onlyNums = value.replace(/\D/g, '')
-
-                      if (onlyNums.length > 10) {
-                        // Formato moderno (celular): (XX) XXXXX-XXXX
-                        onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
-                      } else if (onlyNums.length > 6) {
-                        // Formato convencional (fixo): (XX) XXXX-XXXX
-                        onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
-                      } else if (onlyNums.length > 2) {
-                        // Formato parcial: (XX) XXXX
-                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
-                      } else if (onlyNums.length > 0) {
-                        // Formato parcial: (XX
-                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
-                      }
-
-                      formik.setFieldValue('responsibleReceivingPhoneNumber', onlyNums)
-                    }}
-                  />
-                </View>
-                {formik.touched.responsibleReceivingPhoneNumber && formik.errors.responsibleReceivingPhoneNumber && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.responsibleReceivingPhoneNumber}
-                  </Text>
-                )}
-              </View>
             </View>
             <Text mt={10} fontSize={12} mb={5} color="gray">
               Perfil de compra
@@ -1062,66 +1037,6 @@ export function Register({ navigation }: HomeScreenProps) {
               )}
             </View>
             <Text mt={10} fontSize={12} mb={5} color="gray">
-              Formato de pagamento
-            </Text>
-            <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} p={10}>
-              <Text>Qual o formato de pagamento preferido?</Text>
-              <View marginTop={10} justifyContent="flex-start" borderWidth={0.5} borderColor={formik.touched.paymentWay && formik.errors.paymentWay ? 'red' : 'lightgray'} zIndex={99}>
-                <DropDownPicker
-                  value={formik.values.paymentWay}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'lightgray',
-                    borderRadius: 5,
-                    flex: 1,
-                    position: 'absolute'
-                  }}
-                  setValue={(callback) => {
-                    const value = typeof callback === 'function' ? callback(formik.values.paymentWay) : callback
-                    formik.setFieldValue('paymentWay', value)
-                  }}
-                  onSelectItem={(item) => {
-                    if (item.value) {
-                      formik.setFieldError('paymentWay', undefined)
-                    }
-                  }}
-                  listMode="SCROLLVIEW"
-                  dropDownDirection="BOTTOM"
-                  dropDownContainerStyle={{
-                    position: 'relative'
-                  }}
-                  items={[
-                    { label: 'Diário: 7 dias após a entrega', value: 'DI07' },
-                    { label: 'Semanal: vencimento na quarta', value: 'UQ10' }
-                  ]}
-                  multiple={false}
-                  open={paymentWayOpen}
-                  setOpen={setPaymentWayOpen}
-                  onOpen={() => {
-                    setScrollEnabled(false)
-                    formik.setFieldError('paymentWay', undefined)
-                  }}
-                  onClose={() => setScrollEnabled(true)}
-                  placeholder=""
-                ></DropDownPicker>
-              </View>
-              {formik.touched.paymentWay && formik.errors.paymentWay && (
-                <View height={65} flex={1} justifyContent="flex-end">
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.paymentWay}
-                  </Text>
-                </View>
-              )}
-              <View mt={formik.errors.paymentWay ? 10 : 60} borderColor="lightgray" borderWidth={0.5} p={5} gap={5} flexDirection="row">
-                <Icons size={25} color="gray" name="information-circle"></Icons>
-                <View justifyContent="center">
-                  <Text maxWidth="100%" color="gray" fontSize={10}>
-                    Prazos são sujeitos a avaliação de crédito
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <Text mt={10} fontSize={12} mb={5} color="gray">
               Código do promotor
             </Text>
             <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} p={10}>
@@ -1156,14 +1071,10 @@ export function Register({ navigation }: HomeScreenProps) {
           <Text>Voltar</Text>
         </Button>
         <Button
-          //disabled={formik.isSubmitting}
-          //opacity={formik.isSubmitting ? 0.5 : 1}
-          //disabled={!isStepValid() || formik.isSubmitting}
-          //opacity={!isStepValid() || formik.isSubmitting ? 0.4 : 1}
           f={1}
           backgroundColor="#04BF7B"
           onPress={() => {
-            handleNextBtn() // Chama o handler refatorado
+            handleNextBtn()
           }}
         >
           <Text color="white">{step === 3 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
@@ -1171,5 +1082,6 @@ export function Register({ navigation }: HomeScreenProps) {
       </View>
       <VersionInfo />
     </View>
+  </KeyboardAvoidingView>
   )
 }

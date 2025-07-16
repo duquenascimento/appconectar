@@ -1,6 +1,6 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { type SupplierData } from './prices'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { View, Image, Text, Stack, ScrollView, Button, Dialog, XStack, Sheet, Adapt } from 'tamagui'
 import { ActivityIndicator } from 'react-native'
 import Icons from '@expo/vector-icons/Ionicons'
@@ -8,8 +8,7 @@ import { DateTime } from 'luxon'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
-// modified add
-import { defaultLightColors } from 'moti/build/skeleton/shared'
+import CustomAlert from '../../src/components/modais/CustomAlert'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -75,8 +74,7 @@ export function DialogInstance(props: { openModal: boolean; setRegisterInvalid: 
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Ops!</Dialog.Title>
-          <Dialog.Description>Houve algum(ns) problema(s)</Dialog.Description>
+          <Dialog.Title>Agendamento Realizado!</Dialog.Title>
 
           {props.erros.map((erro) => {
             return <Text key={erro}>- {erro}</Text>
@@ -166,6 +164,9 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [showErros, setShowErros] = useState<string[]>([])
   const [booleanErros, setBooleanErros] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
+  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
+  const [hasBeenWarnedAboutMissingItems, setHasBeenWarnedAboutMissingItems] = useState(false)
+  const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([])
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -207,6 +208,29 @@ export function Confirm({ navigation }: HomeScreenProps) {
     }
     loadSupplierAsync()
   }, [loadSupplier, navigation])
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const data = await getStorage('cartOrder')
+        const parsed = JSON.parse(data || '[]')
+        Array.isArray(parsed) && setCartOrder(parsed)
+      } catch (e) {
+        console.error('Erro ao carregar cartOrder:', e)
+      }
+    })()
+  }, [])
+
+  const productsWithAddOrder = useMemo(
+    () =>
+      supplier?.supplier?.discount?.product
+        ?.map((i) => ({
+          ...i,
+          addOrder: cartOrder.find((o) => o.sku === i.sku)?.addOrder ?? Infinity
+        }))
+        .sort((a, b) => a.addOrder - b.addOrder) || [],
+    [supplier, cartOrder]
+  )
 
   interface PaymentDescriptions {
     [key: string]: string
@@ -348,10 +372,22 @@ export function Confirm({ navigation }: HomeScreenProps) {
     )
   }
 
+  // --- NOVO CÁLCULO PARA ITENS FALTANTES REAIS ---
+  const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens
+  const displayMissingItems = Math.max(0, actualMissingItemsCount)
   return (
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
       <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
+      <CustomAlert
+        visible={showMissingItemsModal}
+        title="Atenção!"
+        message="Este fornecedor não possui alguns ítens do seu pedido. Por favor revise os ítens ou conclua o pedido"
+        onConfirm={() => {
+          setShowMissingItemsModal(false)
+          setHasBeenWarnedAboutMissingItems(true)
+        }}
+      />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
           <Icons
@@ -401,48 +437,38 @@ export function Confirm({ navigation }: HomeScreenProps) {
           </View>
         </View>
         <View width={Platform.OS === 'web' ? '70vw' : '92%'} alignSelf="center" gap={20} flex={1} backgroundColor="white">
-          {supplier.supplier.discount.product
-            .sort((a, b) => {
-              if (a.price === 0 && b.price !== 0) {
-                return -1
-              }
-              if (a.price !== 0 && b.price === 0) {
-                return 1
-              }
-              return a.name.localeCompare(b.name)
-            })
-            .map((item) => {
-              return (
-                <View key={item.sku} borderBottomColor="lightgray" paddingVertical={1} borderBottomWidth={0.5}>
-                  <View flexDirection="row" alignItems="center">
-                    <View f={1} flexDirection="row" alignItems="center">
-                      <View padding={5}>
-                        <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
-                      </View>
-                      <View maxWidth={150}>
-                        <Text>{item.name}</Text>
-                        <Text fontSize={12} color="gray">
-                          Obs: {item.obs ? item.obs : ''}
-                        </Text>
-                      </View>
+          {productsWithAddOrder.map((item) => {
+            return (
+              <View key={item.sku} borderBottomColor="lightgray" paddingVertical={1} borderBottomWidth={0.5}>
+                <View flexDirection="row" alignItems="center">
+                  <View f={1} flexDirection="row" alignItems="center">
+                    <View padding={5}>
+                      <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
                     </View>
-                    <View>
-                      <Text fontWeight="800" color={item.price ? 'black' : 'red'} alignSelf="flex-end" fontSize={16}>
-                        {item.price ? 'R$ ' + item.price.toFixed(2).replace('.', ',') : 'Indisponível'}
+                    <View maxWidth={150}>
+                      <Text>{item.name}</Text>
+                      <Text fontSize={12} color="gray">
+                        Obs: {item.obs ? item.obs : ''}
                       </Text>
-                      <View alignSelf="flex-end" flexDirection="row" alignItems="center">
-                        <Text pr={5} fontSize={12}>
-                          {item.quant} {item.orderUnit.replace('Unid', 'Un')}
-                        </Text>
-                        <Text color="gray">
-                          | {item.priceUniqueWithTaxAndDiscount ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',') : 'R$ ----'}/{item.orderUnit.replace('Unid', 'Un')}
-                        </Text>
-                      </View>
+                    </View>
+                  </View>
+                  <View>
+                    <Text fontWeight="800" color={item.price ? 'black' : 'red'} alignSelf="flex-end" fontSize={16}>
+                      {item.price ? 'R$ ' + item.price.toFixed(2).replace('.', ',') : 'Indisponível'}
+                    </Text>
+                    <View alignSelf="flex-end" flexDirection="row" alignItems="center">
+                      <Text pr={5} fontSize={12}>
+                        {item.quant} {item.orderUnit.replace('Unid', 'Un')}
+                      </Text>
+                      <Text color="gray">
+                        | {item.priceUniqueWithTaxAndDiscount ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',') : 'R$ ----'}/{item.orderUnit.replace('Unid', 'Un')}
+                      </Text>
                     </View>
                   </View>
                 </View>
-              )
-            })}
+              </View>
+            )
+          })}
         </View>
         <View backgroundColor="white" gap={15} marginTop={20} paddingVertical={16} width={Platform.OS === 'web' ? '70vw' : '92%'} alignSelf="center">
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -486,7 +512,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
               </Text>
             </View>
             <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              {supplier.supplier.discount.product.length} item(s) | {supplier.supplier.discount.product.length - supplier.supplier.missingItens} faltante(s)
+              {supplier.supplier.discount.product.length} item(s) | {displayMissingItems} faltante(s)
             </Text>
           </View>
           <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
@@ -650,7 +676,10 @@ export function Confirm({ navigation }: HomeScreenProps) {
           onPress={async () => {
             try {
               let erros = []
-
+              if (displayMissingItems > 0 && !hasBeenWarnedAboutMissingItems) {
+                setShowMissingItemsModal(true)
+                return
+              }
               if (isBefore13Hours()) {
                 if (Platform.OS !== 'web') {
                   const { status } = await Notifications.getPermissionsAsync()

@@ -1,9 +1,7 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Stack, Text, View, Image, Button, Input } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, VirtualizedList, Dimensions } from 'react-native'
-import React from 'react'
 import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { clearStorage, getToken, setStorage } from '../utils/utils'
@@ -11,17 +9,9 @@ import DialogInstanceNotification from '../../src/components/modais/DialogInstan
 import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o CustomAlert
 import { loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Cart: undefined
-  Confirm: undefined
-}
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
+import { campoString } from '../utils/formatCampos'
+import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 
 export interface Product {
   price: number
@@ -35,13 +25,7 @@ export interface Product {
   priceUniqueWithTaxAndDiscount: number
   image: string[]
   orderUnit: string
-}
-
-interface Restaurant {
-  externalId: any
-  id: string
-  name: string
-  premium: boolean
+  addOrder: number
 }
 
 export interface Discount {
@@ -74,6 +58,7 @@ type SelectItem = {
   name: string
   addressInfos: any[]
   premium: boolean
+  registrationReleasedNewApp: boolean
 }
 
 const useScreenSize = () => {
@@ -163,7 +148,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
   )
 }
 
-export function Prices({ navigation }: HomeScreenProps) {
+export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loading, setLoading] = useState<boolean>(true)
   const [suppliers, setSuppliers] = useState<SupplierData[]>([])
   const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([])
@@ -181,6 +166,7 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [street, setStreet] = useState<string>()
   const [localNumber, setLocalNumber] = useState<string>('')
   const [neighborhood, setNeighborhood] = useState<string>()
+  const [streetComplete, setStreetComplete] = useState<string>('') // para exibir
   const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>()
   const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>()
   const [deliveryInformation, setDeliveryInformation] = useState<string>()
@@ -190,13 +176,13 @@ export function Prices({ navigation }: HomeScreenProps) {
   const [minHourOpen, setMinHourOpen] = useState(false)
   const [maxHourOpen, setMaxHourOpen] = useState(false)
   const [restOpen, setRestOpen] = useState(false)
-  const [localTypeOpen, setLocalTypeOpen] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [missingFields, setMissingFields] = useState<string[]>([])
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
+  const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
 
   const handleConfirm = () => {
@@ -205,11 +191,6 @@ export function Prices({ navigation }: HomeScreenProps) {
     setTimeout(() => {
       navigation.replace('Products')
     }, 1000)
-  }
-
-  const handleSelectedRest = async (rest: any) => {
-    setSelectedRestaurant(rest)
-    updateAddress(rest)
   }
 
   useEffect(() => {
@@ -258,17 +239,6 @@ export function Prices({ navigation }: HomeScreenProps) {
       setMaxhours([])
     }
   }, [minHour, maxHour])
-
-    const handleChangeAddress = (minHour: string, maxHour: string, neigh: string) => {
-    let newValue
-    setSelectedRestaurant((prevValue: any) => {
-      newValue = prevValue
-      newValue.addressInfos[0].initialDeliveryTime = `2024-01-01T${minHour}:00.000Z`
-      newValue.addressInfos[0].finalDeliveryTime = `2024-01-01T${maxHour}:00.000Z`
-      return newValue
-    })
-    updateAddress(newValue)
-  }
 
   const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
     try {
@@ -413,6 +383,10 @@ export function Prices({ navigation }: HomeScreenProps) {
         // Verifica se o restaurante salvo ainda existe na lista
         const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
 
+        if (restaurantSelected?.registrationReleasedNewApp) {
+          setShowBlockedModal(true)
+        }
+
         const currentRestaurant = validRestaurant
 
         if (!currentRestaurant) return
@@ -440,25 +414,12 @@ export function Prices({ navigation }: HomeScreenProps) {
     loadPricesAsync()
   }, [loadPrices])
 
-  const updateAddress = async (rest: any) => {
-    try {
-      setLoading(true)
-      setMinHour(rest?.addressInfos[0]?.initialDeliveryTime.substring(11, 15))
-      setSelectedRestaurant(rest)
-      await loadPrices(rest)
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const combinedSuppliers = useMemo(() => {
     const itens: any[] = []
 
     const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
 
-    const filteredUnavailableSuppliers = unavailableSupplier 
+    const filteredUnavailableSuppliers = unavailableSupplier
 
     if (filteredSuppliers.length) itens.push({ initialSeparator: true })
     itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
@@ -493,6 +454,7 @@ export function Prices({ navigation }: HomeScreenProps) {
         setDeliveryInformation(addressInfo.deliveryInformation)
         setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16))
         setMinHour(addressInfo.initialDeliveryTime.substring(11, 16))
+        setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
       } else {
         console.log('Address info not found for the selected restaurant')
       }
@@ -500,7 +462,6 @@ export function Prices({ navigation }: HomeScreenProps) {
       setLoading(false)
     }
   }, [selectedRestaurant])
-
 
   useEffect(() => {
     if (!draftSelectedRestaurant) return
@@ -519,6 +480,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     setDeliveryInformation(addressInfo.deliveryInformation)
     setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16))
     setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16))
+    setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
   }, [draftSelectedRestaurant])
 
   const getItem = (data: SupplierData[], index: number) => data[index]
@@ -547,7 +509,7 @@ export function Prices({ navigation }: HomeScreenProps) {
     const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
 
     if (allFieldsLoaded && !hasCheckedFields) {
-      const anyFieldEmpty = fields.some((field) => !field) 
+      const anyFieldEmpty = fields.some((field) => !field)
       setEditInfos(anyFieldEmpty)
       setHasCheckedFields(true)
     }
@@ -809,7 +771,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               flex: 1,
                               marginBottom: Platform.OS === 'web' ? 0 : 35
                             }}
-                            setValue={() => { }}
+                            setValue={() => {}}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
                               value: item?.name
@@ -821,6 +783,10 @@ export function Prices({ navigation }: HomeScreenProps) {
                             onSelectItem={(value) => {
                               const rest = allRestaurants.find((item) => item?.name === value.value)
                               if (rest) {
+                                if (rest.registrationReleasedNewApp === true) {
+                                  setShowBlockedModal(true)
+                                  return
+                                }
                                 setDraftSelectedRestaurant(rest)
                               }
                             }}
@@ -912,11 +878,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                                     const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
                                     const result = await response.json()
                                     if (response.ok && !result.erro) {
-                                      setCity(result.localidade.toUpperCase())
-                                      setNeighborhood(result.bairro.toUpperCase())
-                                      setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                      const rawStreet = campoString(result.logradouro)
+                                      const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+
+                                      setCity(campoString(result.localidade))
+                                      setNeighborhood(campoString(result.bairro))
+                                      setLocalType(streetType?.toUpperCase() || '')
+                                      setStreet(streetNameParts.join(' '))
+                                      setStreetComplete(rawStreet)
                                       setLocalNumber('')
-                                      setStreet(result.logradouro.split(' ').slice(1).join(' ').toUpperCase())
                                     }
                                     setLoading(false)
                                   }
@@ -979,62 +949,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                           </KeyboardAvoidingView>
                         </View>
                         <View flexDirection="row" mt={10} gap={Platform.OS === 'web' ? 10 : 50}>
-                          {/* Campo Logradouro */}
-                          <View zIndex={1} style={{ width: 150 }}>
-                            <Text
-                              style={{
-                                paddingLeft: 5,
-                                fontSize: 12,
-                                color: 'gray'
-                              }}
-                            >
-                              Logradouro
-                            </Text>
-                            <DropDownPicker
-                              value={localType ?? 'RUA'}
-                              style={{
-                                borderWidth: 1,
-                                borderColor: 'lightgray',
-                                borderRadius: 5
-                              }}
-                              listMode="SCROLLVIEW"
-                              setValue={setLocalType}
-                              items={[
-                                { label: 'ALAMEDA', value: 'ALAMEDA' },
-                                { label: 'AVENIDA', value: 'AVENIDA' },
-                                { label: 'BECO', value: 'BECO' },
-                                { label: 'BOULEVARD', value: 'BOULEVARD' },
-                                { label: 'CAMINHO', value: 'CAMINHO' },
-                                { label: 'CHÁCARA', value: 'CHÁCARA' },
-                                { label: 'CIRCUITO', value: 'CIRCUITO' },
-                                { label: 'CONJUNTO', value: 'CONJUNTO' },
-                                { label: 'EIXO', value: 'EIXO' },
-                                { label: 'ESTAÇÃO', value: 'ESTAÇÃO' },
-                                { label: 'ESTRADA', value: 'ESTRADA' },
-                                { label: 'FAVELA', value: 'FAVELA' },
-                                { label: 'JARDIM', value: 'JARDIM' },
-                                { label: 'LADEIRA', value: 'LADEIRA' },
-                                { label: 'LARGO', value: 'LARGO' },
-                                { label: 'PARQUE', value: 'PARQUE' },
-                                { label: 'PASSARELA', value: 'PASSARELA' },
-                                { label: 'PASSEIO', value: 'PASSEIO' },
-                                { label: 'PRAÇA', value: 'PRAÇA' },
-                                { label: 'QUADRA', value: 'QUADRA' },
-                                { label: 'RAMPA', value: 'RAMPA' },
-                                { label: 'RODOVIA', value: 'RODOVIA' },
-                                { label: 'RUA', value: 'RUA' },
-                                { label: 'TRAVESSA', value: 'TRAVESSA' },
-                                { label: 'VIA', value: 'VIA' },
-                                { label: 'VIADUTO', value: 'VIADUTO' },
-                                { label: 'VIELA', value: 'VIELA' },
-                                { label: 'VILA', value: 'VILA' }
-                              ]}
-                              multiple={false}
-                              open={localTypeOpen}
-                              setOpen={setLocalTypeOpen}
-                              placeholder=""
-                            />
-                          </View>
                           <View flex={1}>
                             <Text
                               style={{
@@ -1048,15 +962,20 @@ export function Prices({ navigation }: HomeScreenProps) {
                             <KeyboardAvoidingView>
                               <Input
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                  setStreet(formattedValue)
+                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
+                                  const parts = formattedValue.trim().split(' ')
+                                  const localType = parts[0]?.toUpperCase() || ''
+                                  const streetName = parts.slice(1).join(' ')
+                                  setLocalType(localType)
+                                  setStreet(streetName)
+                                  setStreetComplete(formattedValue) // usado para exibir no campo
                                 }}
                                 backgroundColor="white"
                                 borderColor="lightgray"
                                 borderRadius={5}
                                 borderTopLeftRadius={0}
                                 borderBottomLeftRadius={0}
-                                value={street}
+                                value={streetComplete}
                                 focusStyle={{
                                   borderColor: '#049A63',
                                   borderWidth: 1
@@ -1253,7 +1172,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   flex: 1,
                                   marginBottom: Platform.OS === 'web' ? 0 : 5
                                 }}
-                                setValue={() => { }}
+                                setValue={() => {}}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
                                   value: item?.name
@@ -1264,7 +1183,13 @@ export function Prices({ navigation }: HomeScreenProps) {
                                 placeholder=""
                                 onSelectItem={(value) => {
                                   const rest = allRestaurants.find((item) => item?.name === value.value)
-                                  setDraftSelectedRestaurant(rest)
+                                  if (rest) {
+                                    if (rest.registrationReleasedNewApp === true) {
+                                      setShowBlockedModal(true)
+                                      return
+                                    }
+                                    setDraftSelectedRestaurant(rest)
+                                  }
                                 }}
                               ></DropDownPicker>
                             ) : (
@@ -1305,7 +1230,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
                                   onOpen={() => setMaxHourOpen(false)}
-                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'} 
+                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
@@ -1353,7 +1278,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
-                                    presentationStyle: 'formSheet' 
+                                    presentationStyle: 'formSheet'
                                   }}
                                   modalContentContainerStyle={{
                                     backgroundColor: '#fff',
@@ -1379,13 +1304,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                               }}
                             >
                               {/* Campo CEP */}
-                              <View
-                                style={{
-                                  flexBasis: '45%',
-                                  minWidth: 150,
-                                  flexGrow: 1
-                                }}
-                              >
+                              <View width={150}>
                                 <Text
                                   style={{
                                     paddingTop: 10,
@@ -1397,7 +1316,6 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   Cep
                                 </Text>
                                 <Input
-                                  marginBottom={10}
                                   maxLength={9}
                                   backgroundColor="white"
                                   borderColor="lightgray"
@@ -1411,11 +1329,15 @@ export function Prices({ navigation }: HomeScreenProps) {
                                       const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
                                       const result = await response.json()
                                       if (response.ok && !result.erro) {
-                                        setCity(result.localidade.toUpperCase())
-                                        setNeighborhood(result.bairro.toUpperCase())
-                                        setLocalType(result.logradouro.split(' ')[0].toUpperCase())
+                                        const rawStreet = campoString(result.logradouro)
+                                        const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+
+                                        setCity(campoString(result.localidade))
+                                        setNeighborhood(campoString(result.bairro))
+                                        setLocalType(streetType?.toUpperCase() || '')
+                                        setStreet(streetNameParts.join(' '))
+                                        setStreetComplete(rawStreet)
                                         setLocalNumber('')
-                                        setStreet(result.logradouro.split(' ').slice(1).join(' ').toUpperCase())
                                       }
                                       setLoading(false)
                                     }
@@ -1481,80 +1403,7 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   marginBottom: 5
                                 }}
                               >
-                                {/* Campo Logradouro */}
-                                <View
-                                  zIndex={Platform.OS === 'ios' ? 3 : 3}
-                                  position="relative"
-                                  style={{
-                                    flexBasis: '45%',
-                                    minWidth: 150,
-                                    flexGrow: 1
-                                  }}
-                                >
-                                  <Text
-                                    style={{
-                                      paddingLeft: 5,
-                                      fontSize: 12,
-                                      color: 'gray'
-                                    }}
-                                  >
-                                    Logradouro
-                                  </Text>
-                                  <DropDownPicker
-                                    zIndex={Platform.OS === 'ios' ? 2 : 2}
-                                    value={localType ?? 'RUA'}
-                                    style={{
-                                      position: 'relative',
-                                      borderWidth: 1,
-                                      borderColor: 'lightgray',
-                                      borderRadius: 5,
-                                      marginBottom: 10
-                                    }}
-                                    listMode="SCROLLVIEW"
-                                    setValue={setLocalType}
-                                    items={[
-                                      { label: 'ALAMEDA', value: 'ALAMEDA' },
-                                      { label: 'AVENIDA', value: 'AVENIDA' },
-                                      { label: 'BECO', value: 'BECO' },
-                                      {
-                                        label: 'BOULEVARD',
-                                        value: 'BOULEVARD'
-                                      },
-                                      { label: 'CAMINHO', value: 'CAMINHO' },
-                                      { label: 'CHÁCARA', value: 'CHÁCARA' },
-                                      { label: 'CIRCUITO', value: 'CIRCUITO' },
-                                      { label: 'CONJUNTO', value: 'CONJUNTO' },
-                                      { label: 'EIXO', value: 'EIXO' },
-                                      { label: 'ESTAÇÃO', value: 'ESTAÇÃO' },
-                                      { label: 'ESTRADA', value: 'ESTRADA' },
-                                      { label: 'FAVELA', value: 'FAVELA' },
-                                      { label: 'JARDIM', value: 'JARDIM' },
-                                      { label: 'LADEIRA', value: 'LADEIRA' },
-                                      { label: 'LARGO', value: 'LARGO' },
-                                      { label: 'PARQUE', value: 'PARQUE' },
-                                      {
-                                        label: 'PASSARELA',
-                                        value: 'PASSARELA'
-                                      },
-                                      { label: 'PASSEIO', value: 'PASSEIO' },
-                                      { label: 'PRAÇA', value: 'PRAÇA' },
-                                      { label: 'QUADRA', value: 'QUADRA' },
-                                      { label: 'RAMPA', value: 'RAMPA' },
-                                      { label: 'RODOVIA', value: 'RODOVIA' },
-                                      { label: 'RUA', value: 'RUA' },
-                                      { label: 'TRAVESSA', value: 'TRAVESSA' },
-                                      { label: 'VIA', value: 'VIA' },
-                                      { label: 'VIADUTO', value: 'VIADUTO' },
-                                      { label: 'VIELA', value: 'VIELA' },
-                                      { label: 'VILA', value: 'VILA' }
-                                    ]}
-                                    multiple={false}
-                                    open={localTypeOpen}
-                                    setOpen={setLocalTypeOpen}
-                                    placeholder=""
-                                  />
-                                </View>
-                                <View flex={1} zIndex={Platform.OS === 'ios' ? 1 : 1} position="relative">
+                                <View flex={1}>
                                   <Text
                                     style={{
                                       paddingLeft: 5,
@@ -1567,16 +1416,20 @@ export function Prices({ navigation }: HomeScreenProps) {
                                   <KeyboardAvoidingView>
                                     <Input
                                       onChangeText={(value) => {
-                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                        setStreet(formattedValue)
+                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
+                                        const parts = formattedValue.trim().split(' ')
+                                        const localType = parts[0]?.toUpperCase() || ''
+                                        const streetName = parts.slice(1).join(' ')
+                                        setLocalType(localType)
+                                        setStreet(streetName)
+                                        setStreetComplete(formattedValue) // usado para exibir no campo
                                       }}
-                                      marginBottom={10}
                                       backgroundColor="white"
                                       borderColor="lightgray"
                                       borderRadius={5}
                                       borderTopLeftRadius={0}
                                       borderBottomLeftRadius={0}
-                                      value={street}
+                                      value={streetComplete}
                                       focusStyle={{
                                         borderColor: '#049A63',
                                         borderWidth: 1
@@ -1821,9 +1674,40 @@ export function Prices({ navigation }: HomeScreenProps) {
             </Modal>
           </View>
         )}
+        <DialogComercialInstance
+          openModal={showBlockedModal}
+          setOpenModal={setShowBlockedModal}
+          setRegisterInvalid={setShowBlockedModal}
+          rest={allRestaurants}
+          navigation={navigation}
+          messageText="Este restaurante não está liberado para fazer cotações. Entre em contato conosco ou selecione outro restaurante disponível."
+          onSelectAvailable={async () => {
+            try {
+              // Encontrar um restaurante disponível
+              const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp)
+
+              if (availableRestaurant) {
+                // 1. Fechar o modal
+                setShowBlockedModal(false)
+
+                // 2. Salvar o novo restaurante selecionado
+                await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+
+                // 3. Atualizar o estado local
+                setSelectedRestaurant(availableRestaurant)
+
+                // 4. Recarregar os preços para o novo restaurante
+                await loadPrices(availableRestaurant)
+
+                setDraftSelectedRestaurant(null)
+              }
+            } catch (error) {
+              console.error('Erro ao trocar de restaurante:', error)
+            }
+          }}
+        />
       </View>
       <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
     </Stack>
   )
 }
-
