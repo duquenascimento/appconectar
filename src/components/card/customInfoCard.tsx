@@ -9,44 +9,48 @@ interface InfoCardProps {
 
 const CardContainer = styled(YStack, {
   name: 'CardContainer',
-  bg: '#f0f0f0',
-  borderRadius: '$4',
-  padding: '$4',
-  marginTop: '$2',
-  space: '$4',
+  bg: 'white',
+  borderColor: 'gray',
+  borderWidth: 0.5,
+  padding: '$2',
+  paddingTop: '$1',
+  alignSelf: 'flex-start',
+  width: '100%',
 })
 
-const CardHeader = styled(XStack, {
-  name: 'CardHeader',
+const HeaderRow = styled(XStack, {
+  name: 'HeaderRow',
   alignItems: 'center',
-  space: '$2',
+  space: '$1',
 })
 
-const CardTitle = styled(Text, {
-  name: 'CardTitle',
-  fontSize: '$5',
+const TitleText = styled(Text, {
+  name: 'TitleText',
+  fontSize: 12,
   fontWeight: 'bold',
-  color: '#333',
+  color: 'gray',
   flexShrink: 1,
 })
 
-const CardDescription = styled(Text, {
-  name: 'CardDescription',
-  fontSize: '$3',
-  color: '#666',
+const DescriptionText = styled(Text, {
+  name: 'DescriptionText',
+  fontSize: 12,
+  color: 'gray',
+  marginTop: '$1',
 })
 
-const CustomInfoCard: React.FC<InfoCardProps> = ({ title = '', description = '' }) => {
-  return (
-    <CardContainer>
-      <CardHeader>
-        <Icons name="information-circle-outline" size={20} color="#666" />
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
+const CustomInfoCard: React.FC<InfoCardProps> = ({
+  title = '',
+  description = '',
+}) => (
+  <CardContainer>
+    <HeaderRow>
+      <Icons name="warning" size={20} color="gray" />
+      <TitleText>{title}</TitleText>
+    </HeaderRow>
 
-      <CardDescription>{description}</CardDescription>
-    </CardContainer>
-  )
-}
+    {!!description && <DescriptionText>{description}</DescriptionText>}
+  </CardContainer>
+)
 
-export default CustomInfoCard;
+export default CustomInfoCard
