@@ -11,7 +11,7 @@ type IoniconName =
   | 'warning'
   | 'alert'
 interface InfoCardProps {
-  icon?: string
+  icon?: IoniconName
   title?: string
   description?: string
 }
@@ -49,7 +49,7 @@ const DescriptionText = styled(Text, {
 })
 
 const CustomInfoCard: React.FC<InfoCardProps> = ({
-  icon = '',
+  icon = 'information-circle',
   title = '',
   description = '',
 }) => {
@@ -60,7 +60,7 @@ const CustomInfoCard: React.FC<InfoCardProps> = ({
     <CardContainer>
       {(showTitle || !showTitle) && (
         <HeaderRow>
-          <Icons name='warning' size={20} color="gray" />
+          <Icons name={icon} size={20} color="gray" />
           {showTitle ? (
             <TitleText>{title}</TitleText>
           ) : showDescription ? (
