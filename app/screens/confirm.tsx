@@ -398,7 +398,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
         await setStorage('finalConfirmData', JSON.stringify(response.data))
         navigation.replace('FinalConfirm')
       } else {
-
         setLoadingToConfirm(false)
         setShowErros(['Ocorreu um erro ao confirmar o pedido.'])
         setBooleanErros(true)
@@ -441,6 +440,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         open={showMissingItemsModal}
         onClose={() => setShowMissingItemsModal(false)}
         onConfirm={handleConfirmOrder}
+        missingItemsCount={displayMissingItems}
       />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
