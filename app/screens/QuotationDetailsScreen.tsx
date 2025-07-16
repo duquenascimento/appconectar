@@ -170,6 +170,7 @@ return (
           </XStack> */}
 
           <CustomInfoCard
+            icon="warning"
             description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
           />
 

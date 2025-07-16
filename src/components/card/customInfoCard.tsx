@@ -2,8 +2,15 @@ import React from 'react'
 import { styled, Text, XStack, YStack } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 
+type IoniconName =
+  | 'information-circle'
+  | 'information-circle-outline'
+  | 'help-circle-outline'
+  | 'alert-circle'
+  | 'warning'
+  | 'alert'
 interface InfoCardProps {
-  icon?: string
+  icon?: IoniconName
   title?: string
   description?: string
 }
@@ -41,7 +48,7 @@ const DescriptionText = styled(Text, {
 })
 
 const CustomInfoCard: React.FC<InfoCardProps> = ({
-  icon = '',
+  icon = 'information-circle',
   title = '',
   description = '',
 }) => {
@@ -52,7 +59,7 @@ const CustomInfoCard: React.FC<InfoCardProps> = ({
     <CardContainer>
       {(showTitle || !showTitle) && (
         <HeaderRow>
-          <Icons name='warning' size={20} color="gray" />
+          <Icons name={icon} size={20} color="gray" />
           {showTitle ? (
             <TitleText>{title}</TitleText>
           ) : showDescription ? (
