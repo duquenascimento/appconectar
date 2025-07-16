@@ -129,85 +129,109 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
   }
 
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
-  const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
+const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
 
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F2F6' }}>
-      <Stack flex={1} backgroundColor="#F0F2F6">
-        <XStack ai="center" p="$4" pb="$2">
-          <Icons onPress={() => navigation.replace('Prices')} size={28} name="arrow-back" color="$gray12" />
-          <Text flex={1} ta="center" fontSize={18} fontWeight="bold" mr={28}>
-            Combinação 1
-          </Text>
-        </XStack>
+return (
+  <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F2F6' }}>
+    <YStack 
+      flex={1} 
+      backgroundColor="#F0F2F6" 
+      alignSelf="center" 
+      width="100%"
+      $gtMd={{ 
+        maxWidth: 768 
+      }}
+    >
+      <XStack ai="center" p="$4" pb="$2" gap="$4">
+        <Icons onPress={() => navigation.replace('Prices')} size={28} name="arrow-back" color="$gray12" />
+        <Text fontSize={18} fontWeight="bold">
+          Combinação 1
+        </Text>
+      </XStack>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
-          <YStack px="$4" gap="$4">
-            <XStack bg="#FEF3C7" p="$3" borderRadius={8} alignItems="center" gap="$3">
-              <Icons name="warning" size={20} color="#F59E0B" />
-              <Text fontSize={12} color="$gray11" flex={1}>
-                Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
-              </Text>
-            </XStack>
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }}
+      >
+        <YStack px="$4" gap="$4">
+          <XStack bg="#FEF3C7" p="$3" borderRadius={8} alignItems="center" gap="$3">
+            <Icons name="warning" size={20} color="#F59E0B" />
+            <Text fontSize={12} color="$gray11" flex={1}>
+              Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
+            </Text>
+          </XStack>
 
-            {suppliers.map(({ supplier }) => (
-              <YStack key={supplier.externalId} bg="white" br={8} p="$3" gap="$3">
-                <XStack ai="center">
-                   <Image
-                      source={{ uri: supplier.image }}
+          {suppliers.map(({ supplier }) => (
+            <YStack 
+              key={supplier.externalId} 
+              bg="white" 
+              br={8} 
+              p="$3" 
+              gap="$3"
+              $gtSm={{
+                  hoverStyle: {
+                  borderColor: '$gray6',
+                  borderWidth: 1
+                }
+              }}
+            >
+              <XStack ai="center">
+                  <Image
+                    source={{ uri: supplier.image }}
+                    width={40}
+                    height={40}
+                    borderRadius={20}
+                  />
+                <YStack ml="$3" flex={1}>
+                  <Text fontSize={16} fontWeight="bold">
+                    {supplier.name.replace('Distribuidora', '').trim()}
+                  </Text>
+                  <XStack ai="center" gap="$1.5">
+                    <Icons name="star" color="#F59E0B" size={14} />
+                    <Text fontSize={12} color="$gray10">{supplier.star}</Text>
+                  </XStack>
+                </YStack>
+                <YStack ai="flex-end">
+                  <Text fontSize={16} fontWeight="bold">
+                    {formatCurrency(supplier.discount.orderValueFinish)}
+                  </Text>
+                  <Text fontSize={12} color="$gray10">
+                    {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
+                  </Text>
+                </YStack>
+              </XStack>
+
+              <YStack gap="$3">
+                {supplier.discount.product.map((product) => (
+                  <XStack key={product.sku} ai="center" gap="$3">
+                    <Image
+                      source={{ uri: product.image[0] }}
                       width={40}
                       height={40}
-                      borderRadius={20}
+                      borderRadius={5}
                     />
-                  <YStack ml="$3" flex={1}>
-                    <Text fontSize={16} fontWeight="bold">
-                      {supplier.name.replace('Distribuidora', '').trim()}
-                    </Text>
-                    <XStack ai="center" gap="$1.5">
-                      <Icons name="star" color="#F59E0B" size={14} />
-                      <Text fontSize={12} color="$gray10">{supplier.star}</Text>
-                    </XStack>
-                  </YStack>
-                  <YStack ai="flex-end">
-                    <Text fontSize={16} fontWeight="bold">
-                      {formatCurrency(supplier.discount.orderValueFinish)}
-                    </Text>
-                    <Text fontSize={12} color="$gray10">
-                      {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
-                    </Text>
-                  </YStack>
-                </XStack>
-
-                <YStack gap="$3">
-                  {supplier.discount.product.map((product) => (
-                    <XStack key={product.sku} ai="center" gap="$3">
-                      <Image
-                        source={{ uri: product.image[0] }}
-                        width={40}
-                        height={40}
-                        borderRadius={5}
-                      />
-                      <YStack flex={1}>
-                        <Text fontSize={14} color="$gray12">{product.name}</Text>
-                        {product.obs ? (
-                          <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
-                        ) : null}
-                      </YStack>
-                      <YStack ai="flex-end">
-                        <Text fontWeight="bold" fontSize={14} color={product.price ? '$gray12' : '$red10'}>
-                          {product.price ? formatCurrency(product.price) : 'Indisponível'}
-                        </Text>
-                        <Text fontSize={12} color="$gray10">
-                          {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
-                        </Text>
-                      </YStack>
-                    </XStack>
-                  ))}
-                </YStack>
+                    <YStack flex={1}>
+                      <Text fontSize={14} color="$gray12">{product.name}</Text>
+                      {product.obs ? (
+                        <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
+                      ) : null}
+                    </YStack>
+                    <YStack ai="flex-end">
+                      <Text fontWeight="bold" fontSize={14} color={product.price ? '$gray12' : '$red10'}>
+                        {product.price ? formatCurrency(product.price) : 'Indisponível'}
+                      </Text>
+                      <Text fontSize={12} color="$gray10">
+                        {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
+                      </Text>
+                    </YStack>
+                  </XStack>
+                ))}
               </YStack>
-            ))}
+            </YStack>
+          ))}
 
-            <YStack bg="white" br={8} p="$3.5" gap="$2.5">
+          {/* card de totais... */}
+          <YStack bg="white" br={8} p="$3.5" gap="$2.5">
               <XStack jc="space-between" ai="center">
                 <Text fontSize={14} color="$gray11">Subtotal</Text>
                 <Text fontSize={14} color="$gray11">{formatCurrency(totals.subtotal)}</Text>
@@ -224,15 +248,16 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
               <Text fontSize={12} color="$gray10" ta="right">
                 {totals.totalItems} item(s) | {totals.missingItems} faltante(s)
               </Text>
-            </YStack>
           </YStack>
-        </ScrollView>
+        </YStack>
+      </ScrollView>
 
-        <XStack pos="absolute" bottom={0} left={0} right={0} p="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4">
-          <CustomButton title="Alterar itens" onPress={() => navigation.replace('Cart')} backgroundColor="black" flex={1} borderRadius={10} textColor="white"/>
-          <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white"/>
-        </XStack>
-      </Stack>
-    </SafeAreaView>
-  );
+      {/* Os botões do rodapé respeitam a largura máxima do container pai */}
+      <XStack pos="absolute" bottom={0} left={0} right={0} p="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4">
+        <CustomButton title="Alterar itens" onPress={() => navigation.replace('Cart')} backgroundColor="black" flex={1} borderRadius={10} textColor="white"/>
+        <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white"/>
+      </XStack>
+    </YStack>
+  </SafeAreaView>
+);
 }
