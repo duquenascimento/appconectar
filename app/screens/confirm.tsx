@@ -8,7 +8,7 @@ import { DateTime } from 'luxon'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
-import CustomAlert from '../../src/components/modais/CustomAlert'
+import MissingItemsDialog from '../../src/components/modais/MissingItemsDialog'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -165,7 +165,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [booleanErros, setBooleanErros] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
-  const [hasBeenWarnedAboutMissingItems, setHasBeenWarnedAboutMissingItems] = useState(false)
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([])
 
   useEffect(() => {
@@ -353,6 +352,65 @@ export function Confirm({ navigation }: HomeScreenProps) {
     return paymentDescriptions[paymentWay] || ''
   }
 
+  // Nova lógica de confirmação (A que estava antes dentro do else)
+  const handleConfirmOrder = useCallback(async () => {
+    setShowMissingItemsModal(false)
+    setLoadingToConfirm(true)
+    
+    try {
+      const token = await getToken()
+      if (!token) {
+        setLoadingToConfirm(false)
+        return
+      }
+
+      const body = {
+        token,
+        supplier: supplier.supplier,
+        restaurant: selectedRestaurant
+      }
+
+      const erros = []
+      if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) {
+        erros.push('O fornecedor está fechado')
+      }
+      if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish && !selectedRestaurant.restaurant.allowMinimumOrder) {
+        erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
+      }
+
+      if (erros.length > 0) {
+        setShowErros(erros)
+        setBooleanErros(true)
+        setLoadingToConfirm(false)
+        return
+      }
+      
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (result.ok) {
+        const response = await result.json()
+        await setStorage('finalConfirmData', JSON.stringify(response.data))
+        navigation.replace('FinalConfirm')
+      } else {
+
+        setLoadingToConfirm(false)
+        setShowErros(['Ocorreu um erro ao confirmar o pedido.'])
+        setBooleanErros(true)
+      }
+    } catch (error) {
+      console.error("Erro em handleConfirmOrder:", error)
+      setLoadingToConfirm(false)
+      setShowErros(['Ocorreu um erro de conexão. Tente novamente.'])
+      setBooleanErros(true)
+    }
+  }, [supplier, selectedRestaurant, navigation])
+
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
@@ -372,21 +430,17 @@ export function Confirm({ navigation }: HomeScreenProps) {
     )
   }
 
-  // --- NOVO CÁLCULO PARA ITENS FALTANTES REAIS ---
+
   const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens
   const displayMissingItems = Math.max(0, actualMissingItemsCount)
   return (
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
       <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
-      <CustomAlert
-        visible={showMissingItemsModal}
-        title="Atenção!"
-        message="Este fornecedor não possui alguns ítens do seu pedido. Por favor revise os ítens ou conclua o pedido"
-        onConfirm={() => {
-          setShowMissingItemsModal(false)
-          setHasBeenWarnedAboutMissingItems(true)
-        }}
+      <MissingItemsDialog
+        open={showMissingItemsModal}
+        onClose={() => setShowMissingItemsModal(false)}
+        onConfirm={handleConfirmOrder}
       />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
@@ -675,12 +729,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
         <Button
           onPress={async () => {
             try {
-              let erros = []
-              if (displayMissingItems > 0 && !hasBeenWarnedAboutMissingItems) {
-                setShowMissingItemsModal(true)
-                return
-              }
               if (isBefore13Hours()) {
+                const erros = []
                 if (Platform.OS !== 'web') {
                   const { status } = await Notifications.getPermissionsAsync()
                   if (status !== 'granted') {
@@ -749,43 +799,17 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 setShowErros(erros)
                 if (erros.length) setBooleanErros(true)
               } else {
-                setLoadingToConfirm(true)
-                const token = await getToken()
-                if (!token) return new Map()
-
-                const body = {
-                  token,
-                  supplier: supplier.supplier,
-                  restaurant: selectedRestaurant
-                }
-
-                if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) erros.push('O fornecedor está fechado')
-                if (supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish && !selectedRestaurant.restaurant.allowMinimumOrder) erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
-
-                setShowErros(erros)
-
-                if (!erros.length) {
-                  const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(body)
-                  })
-
-                  if (result.ok) {
-                    const response = await result.json()
-                    await setStorage('finalConfirmData', JSON.stringify(response.data))
-                    navigation.replace('FinalConfirm')
-                  } else {
-                    setLoadingToConfirm(false)
-                  }
+                if (displayMissingItems > 0) {
+                  // Se tiver itens faltando, apenas abre a nova modal.
+                  setShowMissingItemsModal(true)
                 } else {
-                  setBooleanErros(true)
-                  setLoadingToConfirm(false)
+                  // Se não tiver itens faltando, confirma o pedido (Logica movida para handleConfirmOrder)
+                  await handleConfirmOrder()
                 }
               }
-            } catch (error) {}
+            } catch (error) {
+              console.error('Erro no botão de confirmação:', error)
+            }
           }}
           width={170}
           backgroundColor="#04BF7B"
