@@ -13,6 +13,7 @@ import { Register } from './screens/register';
 import { RegisterFinished } from './screens/registerFinished';
 import { OrdersScreen } from './screens/OrdersScreen';
 import {OrderDetailsScreen } from './screens/OrderDetailsScreen';
+import PreferencesScreen from './screens/PreferencesScreen';
 // import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 
@@ -42,6 +43,7 @@ export default function App() {
           <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
           <Navigation.Screen name="Orders" component={OrdersScreen} />
           <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
+          <Navigation.Screen name="Preferences" component={PreferencesScreen} />
         </Navigation.Navigator>
       </TamaguiProvider>
     </ NavigationContainer>
