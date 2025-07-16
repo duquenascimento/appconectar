@@ -5,6 +5,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView } from 'react-native';
 import { getStorage } from '../utils/utils';
 import CustomButton from '../../src/components/button/CustomButton';
+import CustomHeader from '@/src/components/header/customHeader';
+import CustomInfoCard from '@/src/components/card/customInfoCard';
 
 export interface Product {
   price: number;
@@ -128,8 +130,10 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     );
   }
 
-  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
+const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
 const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
+
+const handleBackPress = () => navigation.goBack();
 
 return (
   <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F2F6' }}>
@@ -142,24 +146,32 @@ return (
         maxWidth: 768 
       }}
     >
-      <XStack ai="center" p="$4" pb="$2" gap="$4">
+      {/* <XStack ai="center" p="$4" pb="$2" gap="$4">
         <Icons onPress={() => navigation.replace('Prices')} size={28} name="arrow-back" color="$gray12" />
         <Text fontSize={18} fontWeight="bold">
           Combinação 1
         </Text>
-      </XStack>
+      </XStack> */}
 
+      <CustomHeader title="Combinação 1" 
+      onBackPress={handleBackPress} 
+      />
+      
       <ScrollView 
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
         <YStack px="$4" gap="$4">
-          <XStack bg="#FEF3C7" p="$3" borderRadius={8} alignItems="center" gap="$3">
+          {/* <XStack bg="#FEF3C7" p="$3" borderRadius={8} alignItems="center" gap="$3">
             <Icons name="warning" size={20} color="#F59E0B" />
             <Text fontSize={12} color="$gray11" flex={1}>
               Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
             </Text>
-          </XStack>
+          </XStack> */}
+
+          <CustomInfoCard
+            description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
+          />
 
           {suppliers.map(({ supplier }) => (
             <YStack 

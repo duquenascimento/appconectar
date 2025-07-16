@@ -3,6 +3,7 @@ import { styled, Text, XStack, YStack } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 
 interface InfoCardProps {
+  icon?: string
   title?: string
   description?: string
 }
@@ -40,17 +41,30 @@ const DescriptionText = styled(Text, {
 })
 
 const CustomInfoCard: React.FC<InfoCardProps> = ({
+  icon = '',
   title = '',
   description = '',
-}) => (
-  <CardContainer>
-    <HeaderRow>
-      <Icons name="warning" size={20} color="gray" />
-      <TitleText>{title}</TitleText>
-    </HeaderRow>
+}) => {
+  const showTitle = !!title
+  const showDescription = !!description
 
-    {!!description && <DescriptionText>{description}</DescriptionText>}
-  </CardContainer>
-)
+  return (
+    <CardContainer>
+      {(showTitle || !showTitle) && (
+        <HeaderRow>
+          <Icons name='warning' size={20} color="gray" />
+          {showTitle ? (
+            <TitleText>{title}</TitleText>
+          ) : showDescription ? (
+            <DescriptionText style={{ marginTop: 0 }}>{description}</DescriptionText>
+          ) : null}
+        </HeaderRow>
+      )}
+      {showTitle && showDescription && (
+        <DescriptionText>{description}</DescriptionText>
+      )}
+    </CardContainer>
+  )
+}
 
 export default CustomInfoCard
