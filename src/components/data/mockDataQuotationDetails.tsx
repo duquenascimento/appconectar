@@ -89,7 +89,7 @@
                 price: 19.00, // Indisponível
                 priceWithoutTax: 0.00,
                 name: 'Pepino Francês',
-                sku: 'PEP-JAP-005',
+                sku: 'PEP-JAP-006',
                 quant: 0,
                 orderQuant: 0,
                 obs: 'Indisponível',
@@ -102,7 +102,7 @@
                 price: 19.00, // Indisponível
                 priceWithoutTax: 0.00,
                 name: 'Pepino Indiano',
-                sku: 'PEP-JAP-005',
+                sku: 'PEP-JAP-007',
                 quant: 0,
                 orderQuant: 0,
                 obs: 'Indisponível',
@@ -115,7 +115,7 @@
                 price: 19.00, // Indisponível
                 priceWithoutTax: 0.00,
                 name: 'Pepino Brasileiro',
-                sku: 'PEP-JAP-005',
+                sku: 'PEP-JAP-008',
                 quant: 0,
                 orderQuant: 0,
                 obs: 'Indisponível',
