@@ -5,9 +5,10 @@ interface MissingItemsDialogProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void>;
+  missingItemsCount?: number; 
 }
 
-const MissingItemsDialog: React.FC<MissingItemsDialogProps> = ({ open, onClose, onConfirm }) => {
+const MissingItemsDialog: React.FC<MissingItemsDialogProps> = ({ open, onClose, onConfirm, missingItemsCount }) => {
   return (
     <Dialog modal open={open} onOpenChange={onClose}>
       {/* Adapta a modal em telas pequenas (mobile) */}
@@ -32,7 +33,7 @@ const MissingItemsDialog: React.FC<MissingItemsDialogProps> = ({ open, onClose, 
         >
           <Dialog.Title>Atenção!</Dialog.Title>
           <Dialog.Description>
-            Este fornecedor não possui alguns itens do seu pedido. Deseja finalizar o pedido mesmo assim?
+            Este fornecedor possui {missingItemsCount} iten(s) em falta. Deseja finalizar o pedido mesmo assim?
           </Dialog.Description>
           
           {/* Container para os botões de ação */}
