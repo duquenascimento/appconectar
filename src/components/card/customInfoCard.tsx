@@ -20,8 +20,9 @@ const CardContainer = styled(YStack, {
   bg: 'white',
   borderColor: 'gray',
   borderWidth: 0.5,
+  borderRadius: '$2',
   padding: '$2',
-  paddingTop: '$1',
+  paddingTop: '$2',
   alignSelf: 'flex-start',
   width: '100%',
 })
