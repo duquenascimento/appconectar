@@ -37,7 +37,7 @@ export interface Discount {
 export interface Supplier {
   name: string;
   externalId: string;
-  image: string; 
+  image: string;
   missingItens: number;
   minimumOrder: number;
   hour: string;
@@ -88,19 +88,6 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     }
   }, [route.params, navigation]);
 
-  //    Simulação de chamada de API
-  //  setLoading(true); 
-  //   try {
-  //     const response = await fetch('https://api-conectar+.com/endpoint/cotacoes');
-  //     const dataFromApi: SupplierData[] = await response.json();
-  //     setSuppliers(dataFromApi);
-  //   } catch (error) {
-  //     console.error('Falha ao buscar dados da cotação:', error);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // }, []);
-
   useEffect(() => {
     loadQuotationData();
   }, [loadQuotationData]);
@@ -130,121 +117,103 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     );
   }
 
-const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
-const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
+  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
+  const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
 
-const handleBackPress = () => navigation.goBack();
+  const handleBackPress = () => navigation.goBack();
 
-return (
-  <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F2F6' }}>
-    <YStack 
-      flex={1} 
-      backgroundColor="#F0F2F6" 
-      alignSelf="center" 
-      width="100%"
-      $gtMd={{ 
-        maxWidth: 768 
-      }}
-    >
-      {/* <XStack ai="center" p="$4" pb="$2" gap="$4">
-        <Icons onPress={() => navigation.replace('Prices')} size={28} name="arrow-back" color="$gray12" />
-        <Text fontSize={18} fontWeight="bold">
-          Combinação 1
-        </Text>
-      </XStack> */}
-
-      <CustomHeader title="Combinação 1" 
-      onBackPress={handleBackPress} 
-      />
-      
-      <ScrollView 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <YStack
+        flex={1}
+        backgroundColor="#FFFFFF"
+        alignSelf="center"
+        width="100%"
+        $gtMd={{
+          maxWidth: 768
+        }}
       >
-        <YStack px="$4" gap="$4">
-          {/* <XStack bg="#FEF3C7" p="$3" borderRadius={8} alignItems="center" gap="$3">
-            <Icons name="warning" size={20} color="#F59E0B" />
-            <Text fontSize={12} color="$gray11" flex={1}>
-              Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
-            </Text>
-          </XStack> */}
+        <CustomHeader title="Combinação 1"
+          onBackPress={handleBackPress}
+        />
 
-          <CustomInfoCard
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 120, marginTop: 16 }}
+        >
+          <YStack gap="$4">
+            <CustomInfoCard
             icon="warning"
-            description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
-          />
+              description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
+            />
 
-          {suppliers.map(({ supplier }) => (
-            <YStack 
-              key={supplier.externalId} 
-              bg="white" 
-              br={8} 
-              p="$3" 
-              gap="$3"
-              $gtSm={{
-                  hoverStyle: {
-                  borderColor: '$gray6',
-                  borderWidth: 1
-                }
-              }}
-            >
-              <XStack ai="center">
+            {suppliers.map(({ supplier }) => (
+              <YStack
+                key={supplier.externalId}
+                bg="white"
+                br={8}
+                p="$3"
+                gap="$3"
+                borderColor='$gray6'
+                borderWidth={1}
+              >
+                <XStack ai="center">
                   <Image
                     source={{ uri: supplier.image }}
                     width={40}
                     height={40}
                     borderRadius={20}
                   />
-                <YStack ml="$3" flex={1}>
-                  <Text fontSize={16} fontWeight="bold">
-                    {supplier.name.replace('Distribuidora', '').trim()}
-                  </Text>
-                  <XStack ai="center" gap="$1.5">
-                    <Icons name="star" color="#F59E0B" size={14} />
-                    <Text fontSize={12} color="$gray10">{supplier.star}</Text>
-                  </XStack>
-                </YStack>
-                <YStack ai="flex-end">
-                  <Text fontSize={16} fontWeight="bold">
-                    {formatCurrency(supplier.discount.orderValueFinish)}
-                  </Text>
-                  <Text fontSize={12} color="$gray10">
-                    {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
-                  </Text>
-                </YStack>
-              </XStack>
+                  <YStack ml="$3" flex={1}>
+                    <Text fontSize={16} fontWeight="bold">
+                      {supplier.name.replace('Distribuidora', '').trim()}
+                    </Text>
+                    <XStack ai="center" gap="$1.5">
+                      <Icons name="star" color="#F59E0B" size={14} />
+                      <Text fontSize={12} color="$gray10">{supplier.star}</Text>
+                    </XStack>
+                  </YStack>
+                  <YStack ai="flex-end">
+                    <Text fontSize={16} fontWeight="bold">
+                      {formatCurrency(supplier.discount.orderValueFinish)}
+                    </Text>
+                    <Text fontSize={12} color="$gray10">
+                      {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
+                    </Text>
+                  </YStack>
+                </XStack>
 
-              <YStack gap="$3">
-                {supplier.discount.product.map((product) => (
-                  <XStack key={product.sku} ai="center" gap="$3">
-                    <Image
-                      source={{ uri: product.image[0] }}
-                      width={40}
-                      height={40}
-                      borderRadius={5}
-                    />
-                    <YStack flex={1}>
-                      <Text fontSize={14} color="$gray12">{product.name}</Text>
-                      {product.obs ? (
-                        <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
-                      ) : null}
-                    </YStack>
-                    <YStack ai="flex-end">
-                      <Text fontWeight="bold" fontSize={14} color={product.price ? '$gray12' : '$red10'}>
-                        {product.price ? formatCurrency(product.price) : 'Indisponível'}
-                      </Text>
-                      <Text fontSize={12} color="$gray10">
-                        {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
-                      </Text>
-                    </YStack>
-                  </XStack>
-                ))}
+                <YStack gap="$3">
+                  {supplier.discount.product.map((product) => (
+                    <XStack key={product.sku} ai="center" gap="$3">
+                      <Image
+                        source={{ uri: product.image[0] }}
+                        width={40}
+                        height={40}
+                        borderRadius={5}
+                      />
+                      <YStack flex={1}>
+                        <Text fontSize={14} color="$gray12">{product.name}</Text>
+                        {product.obs ? (
+                          <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
+                        ) : null}
+                      </YStack>
+                      <YStack ai="flex-end">
+                        <Text fontWeight="bold" fontSize={14} color={product.price ? '$gray12' : '$red10'}>
+                          {product.price ? formatCurrency(product.price) : 'Indisponível'}
+                        </Text>
+                        <Text fontSize={12} color="$gray10">
+                          {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
+                        </Text>
+                      </YStack>
+                    </XStack>
+                  ))}
+                </YStack>
               </YStack>
-            </YStack>
-          ))}
+            ))}
 
-          {/* card de totais... */}
-          <YStack bg="white" br={8} p="$3.5" gap="$2.5">
+            {/* card de totais... */}
+            <YStack bg="white" br={8} p="$3.5" gap="$2.5" borderColor='$gray6' borderWidth={1}>
               <XStack jc="space-between" ai="center">
                 <Text fontSize={14} color="$gray11">Subtotal</Text>
                 <Text fontSize={14} color="$gray11">{formatCurrency(totals.subtotal)}</Text>
@@ -261,16 +230,15 @@ return (
               <Text fontSize={12} color="$gray10" ta="right">
                 {totals.totalItems} item(s) | {totals.missingItems} faltante(s)
               </Text>
+            </YStack>
           </YStack>
-        </YStack>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Os botões do rodapé respeitam a largura máxima do container pai */}
-      <XStack pos="absolute" bottom={0} left={0} right={0} p="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4">
-        <CustomButton title="Alterar itens" onPress={() => navigation.replace('Cart')} backgroundColor="black" flex={1} borderRadius={10} textColor="white"/>
-        <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white"/>
-      </XStack>
-    </YStack>
-  </SafeAreaView>
-);
+         <XStack pos="absolute" bottom={0} left={0} right={0} py="$4" px="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4" alignItems="stretch">
+          <CustomButton title="Alterar itens" onPress={() => navigation.replace('Cart')} backgroundColor="black" flex={1} borderRadius={10} textColor="white" />
+          <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white" />
+        </XStack>
+      </YStack>
+    </SafeAreaView>
+  );
 }
