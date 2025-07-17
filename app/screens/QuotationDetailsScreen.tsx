@@ -117,6 +117,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     );
   }
 
+
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
   const formatUnit = (unit: string) => unit.replace('Unid', 'UN');
 
@@ -236,7 +237,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
 
          <XStack pos="absolute" bottom={0} left={0} right={0} py="$4" px="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4" alignItems="stretch">
           <CustomButton title="Alterar itens" onPress={() => navigation.replace('Cart')} backgroundColor="black" flex={1} borderRadius={10} textColor="white" />
-          <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white" />
+          <CustomButton title="Confirmar combinação" onPress={() => navigation.navigate('OrderConfirmed', { suppliers: suppliers })} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white" />
         </XStack>
       </YStack>
     </SafeAreaView>
