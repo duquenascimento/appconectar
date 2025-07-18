@@ -48,10 +48,10 @@ export function OrderConfirmedScreen({ navigation }: OrderConfirmedScreenProps) 
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F2F6' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#CFD8DC' }}>
       <YStack 
         flex={1} 
-        backgroundColor="#F0F2F6"
+        backgroundColor="#CFD8DC"
         alignSelf="center"
         width="100%"
         $gtMd={{
@@ -144,7 +144,7 @@ export function OrderConfirmedScreen({ navigation }: OrderConfirmedScreenProps) 
           </YStack>
         </ScrollView>
 
-        <YStack py="$4" px="$4" bg="#F0F2F6">
+        <YStack py="$4" px="$4" bg="#CFD8DC">
           <CustomButton
             title="Ir para Meus pedidos"
             onPress={() => navigation.navigate('Orders')}
