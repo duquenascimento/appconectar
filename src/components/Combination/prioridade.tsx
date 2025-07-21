@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { View, Text, XStack, YStack, Separator, Checkbox, Card, Label } from 'tamagui'
+import { View, Text, XStack, YStack, Separator, Card, Label } from 'tamagui'
 
 interface PrioritySectionProps {
   priorityNumber: number
@@ -17,10 +17,10 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
   return (
     <Card
       bordered
-      backgroundColor="white" // Força fundo branco
-      borderColor="$gray5" // Cor da borda mais suave
-      p="$2" // Padding interno
-      my="$4" // Margem inferior
+      backgroundColor="white"
+      borderColor="$gray5"
+      p="$2"
+      my="$4"
     >
       <YStack gap="$3" p="$2">
         {/* Cabeçalho Prioridade */}
@@ -80,7 +80,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             setOpen={setFornecedorOpen}
             setValue={setFornecedorValue}
             multiple={false}
-            zIndex={2000} // Z-index menor que o dropdown anterior para sobreposição correta
+            zIndex={2000}
             zIndexInverse={1000}
             placeholder="Selecione o fornecedor"
             placeholderStyle={{ color: 'gray' }}
@@ -103,7 +103,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             setOpen={setNaoPossivelOpen}
             setValue={setNaoPossivelValue}
             multiple={false}
-            zIndex={1000} // Z-index menor que os dropdowns anteriores
+            zIndex={1000}
             zIndexInverse={1000}
             placeholder="Selecione uma ação"
             placeholderStyle={{ color: 'gray' }}
