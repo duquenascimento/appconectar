@@ -27,7 +27,8 @@ const ItemContainer = styled(XStack, {
   paddingHorizontal: '$4',
   backgroundColor: '#fff',
   borderBottomWidth: 1,
-  borderBottomColor: '#eee'
+  borderBottomColor: '#eee',
+  flexDirection: 'row', // Alteração aqui para posicionar à direita
 })
 
 const LeftContent = styled(XStack, {
@@ -79,7 +80,7 @@ const ItemMissing = styled(Text, {
 
 const IconContent = styled(View, {
   justifyContent: 'center',
-  paddingRight: Platform.OS === 'web' ? '10%' : 0
+  paddingRight: Platform.OS === 'web' ? '1%' : 0,
 })
 
 const CustomListItem: React.FC<ListItemProps> = ({ id, combination, supplier, createdAt, delivery, totalValue, missingItems, supplierClosed, onPress }) => {
@@ -110,4 +111,4 @@ const CustomListItem: React.FC<ListItemProps> = ({ id, combination, supplier, cr
   )
 }
 
-export default CustomListItem
+export default CustomListItem;

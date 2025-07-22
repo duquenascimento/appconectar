@@ -5,18 +5,17 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator } from 'react-native'
 import { DialogInstance } from '../index'
 import { TextInputMask } from 'react-native-masked-text'
-import { deleteStorage, getStorage, getToken, setStorage, deleteToken, clearStorage } from '../utils/utils'
+import { getStorage, getToken, setStorage, deleteToken, clearStorage } from '../utils/utils'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { formatCNPJ } from '../utils/formatCNPJ'
 import { formatCep } from '../utils/formatCep'
-import { encontrarInscricaoRJ } from '../utils/encontrarInscricaoEstadual'
 import { dividirLogradouro } from '../utils/DividirLogradouro'
 import { campoString } from '../utils/formatCampos'
 import { VersionInfo } from '../utils/VersionApp'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
-import { red } from 'react-native-reanimated/lib/typescript/reanimated2/Colors'
+import { KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native'
 
 type RootStackParamList = {
   Home: undefined
@@ -105,14 +104,19 @@ export function Register({ navigation }: HomeScreenProps) {
   const [maxhours, setMaxhours] = useState<string[]>([])
   const [erros, setErros] = useState<string[]>([])
   const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [emailValid, setEmailValid] = useState(false)
-  const [emailAlternativeValid, setEmailAlternativeValid] = useState(false)
-  const [isCepValid, setIsCepValid] = useState(true) // Nova variável de estado
+  const [isCepValid, setIsCepValid] = useState(true)
   const [minHourOpen, setMinHourOpen] = useState(false)
   const [maxHourOpen, setMaxHourOpen] = useState(false)
   const [paymentWayOpen, setPaymentWayOpen] = useState(false)
   const [daysOpen, setDaysOpen] = useState(false)
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true)
+
+    const allClosedDropdowns = () => {
+    setMinHourOpen(false);
+    setMaxHourOpen(false);
+    setDaysOpen(false);
+    setScrollEnabled(true);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -179,25 +183,6 @@ export function Register({ navigation }: HomeScreenProps) {
     }
   })
 
-  const isStepValid = () => {
-    const requiredFieldsByStep: { [key: number]: string[] } = {
-      0: ['restaurantName', 'cnpj'],
-      1: ['zipcode', 'neigh', 'street', 'localNumber', 'legalRestaurantName', ...(formik.values.noStateNumberId ? ['cityNumberId'] : ['stateNumberId'])],
-      2: ['email', 'paymentWay', 'financeResponsibleName', 'financeResponsiblePhoneNumber', 'emailBilling'],
-      3: ['minHour', 'maxHour', 'weeklyOrderAmount', 'orderValue']
-    }
-
-    const requiredFields = requiredFieldsByStep[step] || []
-
-    return requiredFields.every((field) => {
-      const value = formik.values[field as keyof typeof formik.values]
-      const error = formik.errors[field as keyof typeof formik.errors]
-
-      // Considera válido se o valor existir (não vazio) e não houver erro
-      return value !== '' && error === undefined
-    })
-  }
-
   useEffect(() => {
     const hours = []
     for (let hour = 0; hour < 22; hour++) {
@@ -228,13 +213,12 @@ export function Register({ navigation }: HomeScreenProps) {
         }
       }
       setMaxhours(maxOptions)
-      // Define o primeiro valor como padrão se maxHour estiver vazio ou inválido
       if (!formik.values.maxHour || !maxOptions.includes(formik.values.maxHour)) {
         formik.setFieldValue('maxHour', maxOptions[0] || '')
       }
     } else {
       setMaxhours([])
-      formik.setFieldValue('maxHour', '') // Limpa maxHour se minHour for limpo
+      formik.setFieldValue('maxHour', '')
     }
   }, [formik.values.minHour])
 
@@ -243,7 +227,6 @@ export function Register({ navigation }: HomeScreenProps) {
       const format = value.replace(/\D/g, '')
       const formatted = formatCep(value)
 
-      // Atualiza o valor formatado no Formik
       formik.setFieldValue('zipcode', formatted)
       formik.setFieldError('zipcode', undefined)
 
@@ -261,7 +244,6 @@ export function Register({ navigation }: HomeScreenProps) {
         if (response.ok && !result.erro) {
           const endereco: any = dividirLogradouro(result.logradouro)
 
-          // Atualiza todos os campos de endereço no Formik
           formik.setValues({
             ...formik.values,
             neigh: result.bairro.toUpperCase(),
@@ -286,14 +268,13 @@ export function Register({ navigation }: HomeScreenProps) {
     }
   }
 
-  // Função para aplicar o estilo da borda
   const getCepBorderStyle = () => ({
     borderColor: isCepValid ? '#049A63' : 'red',
     borderWidth: 1
   })
 
   const initData = async () => {
-    setLoading(true) // Mantém o loading
+    setLoading(true)
     try {
       const fieldsToLoad = ['cnpj', 'stateNumberId', 'cityNumberId', 'restaurantName', 'legalRestaurantName', 'zipcode', 'neigh', 'street', 'localNumber', 'complement', 'alternativePhone', 'email', 'alternativeEmail', 'paymentWay', 'financeResponsibleName', 'financeResponsiblePhoneNumber', 'emailBilling', 'step', 'noStateNumberId', 'minHour', 'maxHour', 'closeDoor', 'deliveryObs', 'weeklyOrderAmount', 'orderValue', 'localType', 'city', 'inviteCode']
 
@@ -303,23 +284,21 @@ export function Register({ navigation }: HomeScreenProps) {
       fieldsToLoad.forEach((field, index) => {
         const value = storedValuesArray[index]
         if (value !== null) {
-          // Tratamento especial para booleanos e números vindos do storage como string
           if (field === 'noStateNumberId' || field === 'closeDoor') {
             loadedValues[field] = value === 'true'
           } else if (field === 'step') {
             const stepValue = parseInt(value)
-            setStep(isNaN(stepValue) ? 0 : stepValue) // Atualiza o state 'step' separadamente
+            setStep(isNaN(stepValue) ? 0 : stepValue)
           } else {
             loadedValues[field] = value
           }
         }
       })
 
-      // Define os valores carregados no Formik, mesclando com os default se algo não foi carregado
       formik.resetForm({
         values: {
-          ...formik.initialValues, // Começa com os padrões
-          ...loadedValues // Sobrescreve com os carregados
+          ...formik.initialValues,
+          ...loadedValues
         }
       })
     } catch (error) {
@@ -335,11 +314,12 @@ export function Register({ navigation }: HomeScreenProps) {
 
   const handleNextBtn = async () => {
     setLoading(true)
+    allClosedDropdowns()
     try {
-      const errors = await formik.validateForm()
+       await formik.validateForm()
 
       let currentStepIsValid = true
-      const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation // Obtenha o schema correto
+      const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation
       try {
         await currentSchema.validate(formik.values, { abortEarly: false })
       } catch (validationErrors: any) {
@@ -361,6 +341,7 @@ export function Register({ navigation }: HomeScreenProps) {
       }
 
       if (step === 0) {
+        const errosApi: string[] = []
         const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '')
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`, {
           method: 'POST',
@@ -368,8 +349,16 @@ export function Register({ navigation }: HomeScreenProps) {
           headers: { 'Content-type': 'application/json' }
         })
         const result: CheckCnpj = await response.json()
-
+   
         if (response.ok) {
+          if (result.data.msg) {
+            errosApi.push('Erro ao processar os dados do CNPJ.')
+            formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.')
+            setErros(errosApi)
+            setRegisterInvalid(true)
+            setLoading(false)
+          return
+          }
           const buscaCep = await fetch(`https://viacep.com.br/ws/${result.data.cep}/json/`)
           const enderecoCNPJ = await buscaCep.json()
           if (enderecoCNPJ.erro) {
@@ -394,7 +383,6 @@ export function Register({ navigation }: HomeScreenProps) {
           })
           setStep(1)
         } else {
-          const errosApi: string[] = []
           if (result.msg === 'already exists') {
             errosApi.push('Este CNPJ já existe na plataforma')
             formik.setFieldError('cnpj', 'CNPJ já cadastrado')
@@ -429,18 +417,15 @@ export function Register({ navigation }: HomeScreenProps) {
     }
   }
 
-  // Função auxiliar para salvar no storage
   const saveStepDataToStorage = async (values: typeof formik.values, currentStep: number) => {
     try {
       const dataToStore: { [key: string]: string } = {}
-      // Mapeia os valores do formik para o formato string do storage
       Object.entries(values).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
-          // Evita armazenar null/undefined
-          dataToStore[key] = String(value) // Converte tudo para string
+          dataToStore[key] = String(value)
         }
       })
-      dataToStore['step'] = String(currentStep) // Salva a etapa atual
+      dataToStore['step'] = String(currentStep)
 
       const storagePromises = Object.entries(dataToStore).map(([key, value]) => setStorage(key, value))
       await Promise.all(storagePromises)
@@ -454,76 +439,37 @@ export function Register({ navigation }: HomeScreenProps) {
     const prevStep = step - 1
 
     if (prevStep < 0) {
-      await clearToken() // Sua lógica clearToken [source 99]
-      // Navegar para tela anterior, ex: navigation.goBack() ou navigation.navigate("Sign");
-      navigation.navigate('Sign' as never) // Ajuste o nome da rota se necessário
+      await clearToken()
+      navigation.navigate('Sign' as never)
     } else {
       setStep(prevStep)
-      // Salvar estado atual no storage ao voltar (opcional, mas mantém consistência com o avançar)
       await saveStepDataToStorage(formik.values, prevStep)
     }
     setLoading(false)
   }
 
   const handleCnpjChange = (text: string) => {
-    //setCnpj(formatCNPJ(text));
     const formatted = formatCNPJ(text)
     formik.setFieldValue('cnpj', formatted)
   }
 
   const clearToken = async () => {
     try {
-      await deleteToken() // Exclui o token do armazenamento local
+      await deleteToken()
     } catch (error) {
       console.error('Erro ao excluir o token:', error)
     }
   }
 
-  const handleEmailChange = (text: string) => {
-    // Remover caracteres indesejados e garantir o formato de e-mail
-    const formattedText = text
-      .replace(/[^a-zA-Z0-9@._-]/g, '') // Remove caracteres não permitidos
-      .toLowerCase() // Converte para minúsculas
-
-    setEmailValid(testEmail(formattedText))
-  }
-
-  const testEmail = (text: string) => {
-    const test = /^[^\s@]+@[^\s@]+\.[^\s@]+$/ // Remove as aspas ao redor da expressão regular
-    return test.test(text)
-  }
-
-  const validateInput = (value: string) => value.length >= 8
-
-  const getBorderStyle = (value: string) => ({
-    borderColor: validateInput(value) ? '#049A63' : 'red',
-    borderWidth: 1
-  })
-
-  // Função para validar e formatar e-mail alternativo
-  const handleAlternativeEmailChange = (text: string) => {
-    const formattedText = text.replace(/[^a-zA-Z0-9@._-]/g, '').toLowerCase()
-
-    setEmailAlternativeValid(testEmail(formattedText))
-  }
-
-  const handlePhoneChange = (text: string) => {
-    formik.setFieldValue('phone', text)
-  }
-
-  const handleAlternativePhoneChange = (text: string) => {
-    formik.setFieldValue('alternativePhone', text)
-  }
 
   const handleCheckBox = () => {
     const newValue = !formik.values.noStateNumberId
     formik.setFieldValue('noStateNumberId', newValue)
     if (newValue) {
-      formik.setFieldValue('stateNumberId', '') // Lógica adicional ok
-      formik.setFieldTouched('stateNumberId', false, false) // Reseta o touched também
+      formik.setFieldValue('stateNumberId', '')
+      formik.setFieldTouched('stateNumberId', false, false)
     }
   }
-  // Handler para closeDoor
   const handleCheckBoxCloseDoor = () => {
     formik.setFieldValue('closeDoor', !formik.values.closeDoor)
   }
@@ -547,6 +493,11 @@ export function Register({ navigation }: HomeScreenProps) {
   }
 
   return (
+       <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+  >
     <View flex={1} backgroundColor="#F0F2F6">
       <DialogInstance openModal={registerInvalid} setRegisterInvalid={setRegisterInvalid} erros={erros} cnpj={formik.values.cnpj} />
       <View mb={10} pt={50} alignItems="center" justifyContent="center">
@@ -598,7 +549,6 @@ export function Register({ navigation }: HomeScreenProps) {
           </View>
         ) : step === 1 ? (
           <View f={1} mt={20} p={20}>
-            {/* ... cabeçalho igual ... */}
             <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} p={10}>
               <Text>Nome na fachada da rua</Text>
               <Input value={formik.values.restaurantName} disabled opacity={0.5} backgroundColor="white" borderRadius={2} />
@@ -663,7 +613,7 @@ export function Register({ navigation }: HomeScreenProps) {
                   </Text>
                 )}
                 <Text mt={15}>Bairro</Text>
-                <Input opacity={0.5} onBlur={() => formik.setFieldTouched('neigh', true)} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} keyboardType="number-pad" backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
+                <Input opacity={0.5} onBlur={() => formik.setFieldTouched('neigh', true)} onChangeText={(text) => formik.setFieldValue('neigh', text)} value={formik.values.neigh} backgroundColor="white" borderRadius={2} focusStyle={{ borderColor: '#049A63', borderWidth: 1 }} hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}></Input>
                 {formik.touched.neigh && formik.errors.neigh && (
                   <Text color="red" fontSize={12}>
                     {formik.errors.neigh}
@@ -711,7 +661,6 @@ export function Register({ navigation }: HomeScreenProps) {
               Contato
             </Text>
             <View backgroundColor="white" borderColor="lightgray" borderWidth={1} borderRadius={5} padding={10}>
-              {/* E-mail Principal */}
               <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                 <Text>E-mail</Text>
                 <Text fontSize={10} color="gray">
@@ -724,8 +673,6 @@ export function Register({ navigation }: HomeScreenProps) {
                   {formik.errors.email}
                 </Text>
               )}
-
-              {/* E-mail Alternativo */}
               <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                 <Text>E-mail alternativo</Text>
                 <Text fontSize={10} color="gray">
@@ -771,7 +718,8 @@ export function Register({ navigation }: HomeScreenProps) {
                     }}
                     items={[
                       { label: 'Diário: 7 dias após a entrega', value: 'DI07' },
-                      { label: 'Semanal: vencimento na quarta', value: 'UQ10' }
+                      { label: 'Semanal: vencimento na quarta', value: 'UQ10' },
+                      { label: 'Semanal: vencimento na sexta', value: 'UX12' }
                     ]}
                     multiple={false}
                     open={paymentWayOpen}
@@ -868,7 +816,9 @@ export function Register({ navigation }: HomeScreenProps) {
                 )}
               </View>
               <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                <Text>E-mail</Text>
+                <Text>E-mail
+                  <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                </Text>
                 <Text fontSize={10} color="gray">
                   Para cobranças
                 </Text>
@@ -1121,14 +1071,10 @@ export function Register({ navigation }: HomeScreenProps) {
           <Text>Voltar</Text>
         </Button>
         <Button
-          //disabled={formik.isSubmitting}
-          //opacity={formik.isSubmitting ? 0.5 : 1}
-          //disabled={!isStepValid() || formik.isSubmitting}
-          //opacity={!isStepValid() || formik.isSubmitting ? 0.4 : 1}
           f={1}
           backgroundColor="#04BF7B"
           onPress={() => {
-            handleNextBtn() // Chama o handler refatorado
+            handleNextBtn()
           }}
         >
           <Text color="white">{step === 3 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
@@ -1136,5 +1082,6 @@ export function Register({ navigation }: HomeScreenProps) {
       </View>
       <VersionInfo />
     </View>
+  </KeyboardAvoidingView>
   )
 }
