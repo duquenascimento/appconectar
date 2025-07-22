@@ -7,6 +7,7 @@ interface ButtonComponentProps {
   onPress: (event: GestureResponderEvent) => void
   backgroundColor?: string
   textColor?: string
+  fontSize?: number
 }
 
 const CustomButton: React.FC<ButtonComponentProps> = ({
