@@ -12,9 +12,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
-import CustomButton from '@/src/components/button/CustomButton'
+
 import { QuotationDetailsScreen } from './QuotationDetailsScreen'
 import { mockSuppliersData } from '@/src/components/data/mockDataQuotationDetails'
+import CustomButton from '../../src/components/button/customButton'
 
 
 type RootStackParamList = {

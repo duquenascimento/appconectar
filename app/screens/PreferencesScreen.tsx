@@ -11,7 +11,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import CustomSubtitle from '@/src/components/subtitle/customSubtitle';
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomListItem from '@/src/components/list/customListItem';
-import CustomButton from '@/src/components/button/customButton';
+import CustomButton from '../../src/components/button/customButton'
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View } from 'tamagui';

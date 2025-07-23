@@ -4,9 +4,10 @@ import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, SafeAreaView } from 'react-native';
 import { getStorage } from '../utils/utils';
-import CustomButton from '../../src/components/button/CustomButton';
+
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
+import CustomButton from '../../src/components/button/customButton'
 
 export interface Product {
   price: number;
