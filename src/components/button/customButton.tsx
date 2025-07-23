@@ -26,8 +26,9 @@ const CustomButton: React.FC<ButtonComponentProps> = ({
         background: backgroundColor,
         opacity: 0.90
       }}
-      width={'92%'}
+      width={Platform.OS === 'web' ? '70%' : '92%'}
       alignSelf='center'
+      
     >
       <Text fontWeight="500" fontSize={16} color={textColor}>
         {title}

@@ -86,9 +86,8 @@ const PreferencesScreen: React.FC = () => {
 
     try {
       const res = await getCombinationsByRestaurant(restaurantId);
-
-      if (res.success && Array.isArray(res.data)) {
-        setCombinations(res.data.map(mapCombination));
+      if (Array.isArray(res.return)) {
+        setCombinations(res.return.map(mapCombination));
       } else {
         throw new Error('Resposta inesperada da API');
       }

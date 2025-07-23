@@ -1,8 +1,8 @@
 import axios from 'axios';
-const API_URL = process.env.EXPO_PUBLIC_API_DBCONECTAR_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const getCombinationsByRestaurant = async (restaurantId: string) => {
-  const response = await axios.get(`${API_URL}/system/combinacao/${restaurantId}`);
+  const response = await axios.get(`${API_URL}/getCombination/${restaurantId}`);
   return response.data;
 };
 
@@ -18,3 +18,8 @@ export interface CombinationApiResponse {
   definir_preferencia_produto: boolean;
   preferencias_hard: boolean;
 }
+
+export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
+  const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/getCombination/${restaurantId}`);
+  return response.data;
+};

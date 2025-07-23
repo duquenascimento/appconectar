@@ -12,7 +12,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
-import { type Combo, getCombinations } from '@/src/services/combinationService'
 import CombinationList from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 
@@ -187,11 +186,24 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
   const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
-  const [combinations, setCombinations] = useState<Combo[]>([])
+  const [combinations, setCombinations] = useState<Combination[]>([])
 
   useEffect(() => {
     if (tab === 'plus') {
-      getCombinations().then(setCombinations)
+      const storedRestaurant = localStorage.getItem('selectedRestaurant')
+
+      if (storedRestaurant) {
+        try {
+          const parsed = JSON.parse(storedRestaurant)
+          const restaurantId = parsed?.id
+
+          if (restaurantId) {
+            getCombinations(restaurantId).then(setCombinations)
+          }
+        } catch (e) {
+          console.error('Erro ao ler selectedRestaurant:', e)
+        }
+      }
     }
   }, [tab])
 
@@ -645,34 +657,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
             )}
           </View>
         </View>
-        {tab === 'plus' && (
-          <CustomButton
-            title="Minhas combinações"
-            onPress={async () => {
-              if (!validateFields()) return
-              setLoading(true)
-              const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  token: await getToken(),
-                  selectedRestaurant: selectedRestaurant
-                })
-              })
-
-              if (result.ok) {
-                const teste = await result.json()
-                setLoading(false)
-                setShowNotification(true)
-              } else {
-                const teste = await result.json()
-                setLoading(false)
-              }
-            }}
-          ></CustomButton>
-        )}
+        {tab === 'plus' && <CustomButton title="Minhas combinações" onPress={() => navigation.navigate('Preferences')}></CustomButton>}
         <View
           onPress={() => {
             setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)
