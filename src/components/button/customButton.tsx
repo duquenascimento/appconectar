@@ -1,5 +1,5 @@
 import React from 'react'
-import { GestureResponderEvent, Platform } from 'react-native'
+import { GestureResponderEvent } from 'react-native'
 import { Button, Text } from 'tamagui'
 
 interface ButtonComponentProps {
