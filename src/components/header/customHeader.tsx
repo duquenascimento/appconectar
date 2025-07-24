@@ -29,7 +29,7 @@ const HeaderTitle = styled(Text, {
 const CustomHeader: React.FC<HeaderProps> = ({ title, onBackPress }) => {
   return (
     <HeaderContainer>
-      <TouchableOpacity onPress={onBackPress}>
+       <TouchableOpacity onPress={onBackPress} style={{ marginLeft: 25 }}>
         <Icons name="arrow-back" size={24} color="#000" />
       </TouchableOpacity>
 

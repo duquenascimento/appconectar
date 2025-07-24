@@ -13,6 +13,7 @@ import { Register } from './screens/register';
 import { RegisterFinished } from './screens/registerFinished';
 import { OrdersScreen } from './screens/OrdersScreen';
 import {OrderDetailsScreen } from './screens/OrderDetailsScreen';
+import { Combination } from '@/src/components/Combination/combination';
 import PreferencesScreen from './screens/PreferencesScreen';
 import { QuotationDetailsScreen } from './screens/QuotationDetailsScreen';
 import { OrderConfirmedScreen } from './screens/OrderConfirmedScreen';
@@ -45,6 +46,7 @@ export default function App() {
           <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
           <Navigation.Screen name="Orders" component={OrdersScreen} />
           <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
+          <Navigation.Screen name="Combination" component={Combination} />
           <Navigation.Screen name="Preferences" component={PreferencesScreen} />
           <Navigation.Screen name="QuotationDetails" component={QuotationDetailsScreen} />
           <Navigation.Screen name="OrderConfirmed" component={OrderConfirmedScreen} />
