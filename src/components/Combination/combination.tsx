@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Platform, SafeAreaView } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -8,17 +8,44 @@ import CustomButton from '../button/customButton'
 import CustomSubtitle from '../subtitle/customSubtitle'
 import { PrioritySection } from './prioridade'
 import CustomHeader from '../header/customHeader'
+import { getAllSuppliers } from '@/src/services/supplierService'
+import { mapSuppliers } from '@/app/utils/mapSupplier'
+
+export interface SuplierCombination {
+  id: string
+  nomeFornecedor: string
+}
 
 export const Combination: React.FC = () => {
   const navigation = useNavigation()
   const [combinationName, setCombinationName] = useState('')
   const [maxSuppliers, setMaxSuppliers] = useState('2 fornecedores')
+  const [suppliers, setSupplers] = useState<SuplierCombination[]>([])
   const [blockSuppliers, setBlockSuppliers] = useState(false)
   const [preference, setPreference] = useState('especificos')
   const [specificSuppliers, setSpecificSuppliers] = useState<string[]>([])
   const [open, setOpen] = useState(false)
+  const [openSupplier, setOpenSupplier] = useState(false)
   const [productPreferenceEnabled, setProductPreferenceEnabled] = useState(false)
   const [priorityList, setPriorityList] = useState<number[]>([1])
+
+  const loadSuppliers = useCallback(async () => {
+    try {
+      const data = await getAllSuppliers()
+      if (Array.isArray(data)) {
+        setSupplers(data.map(mapSuppliers))
+      } else {
+        throw new Error('Resposta inesperada da API')
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro desconhecido'
+      console.error('Erro ao buscar combinações:', message)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadSuppliers()
+  }, [loadSuppliers])
 
   const handleGoBack = () => {
     navigation.goBack()
@@ -105,9 +132,11 @@ export const Combination: React.FC = () => {
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Viewport>
-                      <Select.Item index={0} value="todos">
-                        <Select.ItemText>Todos os fornecedores</Select.ItemText>
-                      </Select.Item>
+                      {suppliers.map((s, index) => (
+                        <Select.Item key={s.id} index={index} value={s.id}>
+                          <Select.ItemText>{s.nomeFornecedor}</Select.ItemText>
+                        </Select.Item>
+                      ))}
                       <Select.Item index={1} value="especificos">
                         <Select.ItemText>Fornecedores específicos</Select.ItemText>
                       </Select.Item>
@@ -117,26 +146,22 @@ export const Combination: React.FC = () => {
               </YStack>
 
               {preference === 'especificos' && (
-                <YStack>
+                <YStack style={{ zIndex: 1000 }}>
                   <Label>Fornecedores específicos</Label>
-                  <Select value={specificSuppliers.join(', ')} onValueChange={(val) => setSpecificSuppliers(val ? val.split(', ') : [])}>
-                    <Select.Trigger>
-                      <Select.Value placeholder="Selecione..." />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Viewport>
-                        <Select.Item index={0} value="a">
-                          <Select.ItemText>Fornecedor A</Select.ItemText>
-                        </Select.Item>
-                        <Select.Item index={1} value="b">
-                          <Select.ItemText>Fornecedor B</Select.ItemText>
-                        </Select.Item>
-                        <Select.Item index={2} value="c">
-                          <Select.ItemText>Fornecedor C</Select.ItemText>
-                        </Select.Item>
-                      </Select.Viewport>
-                    </Select.Content>
-                  </Select>
+                  <DropDownPicker
+                    open={openSupplier}
+                    setOpen={setOpenSupplier}
+                    multiple={true}
+                    value={specificSuppliers}
+                    setValue={setSpecificSuppliers}
+                    items={suppliers.map((s) => ({
+                      label: s.nomeFornecedor,
+                      value: s.id
+                    }))}
+                    placeholder="Selecione os fornecedores"
+                    zIndex={1000}
+                    zIndexInverse={3000}
+                  />
                 </YStack>
               )}
             </YStack>
