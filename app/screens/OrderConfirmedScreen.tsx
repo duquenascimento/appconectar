@@ -3,7 +3,7 @@ import { YStack, XStack, Text, Separator, View } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
-import CustomButton from '../../src/components/button/CustomButton';
+import CustomButton from '@/src/components/button/customButton';
 
 type RootStackParamList = {
   QuotationDetails: undefined;
