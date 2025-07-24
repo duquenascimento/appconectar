@@ -109,7 +109,7 @@ const PreferencesScreen: React.FC = () => {
   const handleCombinationPress = (id: string) =>
     navigation.navigate('CombinationDetail', { id });
   const handleCreateNewCombination = () =>
-    navigation.navigate('CreateCombination');
+    navigation.navigate('Combination');
 
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`;
 
