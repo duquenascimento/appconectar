@@ -15,6 +15,7 @@ import { OrdersScreen } from './screens/OrdersScreen';
 import {OrderDetailsScreen } from './screens/OrderDetailsScreen';
 import PreferencesScreen from './screens/PreferencesScreen';
 import { QuotationDetailsScreen } from './screens/QuotationDetailsScreen';
+import { OrderConfirmedScreen } from './screens/OrderConfirmedScreen';
 // import 'react-native-reanimated';
 import 'react-native-gesture-handler';
 
@@ -46,6 +47,7 @@ export default function App() {
           <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
           <Navigation.Screen name="Preferences" component={PreferencesScreen} />
           <Navigation.Screen name="QuotationDetails" component={QuotationDetailsScreen} />
+          <Navigation.Screen name="OrderConfirmed" component={OrderConfirmedScreen} />
         </Navigation.Navigator>
       </TamaguiProvider>
     </ NavigationContainer>

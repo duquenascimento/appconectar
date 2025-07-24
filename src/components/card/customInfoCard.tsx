@@ -1,4 +1,3 @@
-
 import React from 'react'
 import { styled, Text, XStack, YStack } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
