@@ -18,9 +18,14 @@ export const Combination: React.FC = () => {
   const [specificSuppliers, setSpecificSuppliers] = useState<string[]>([])
   const [open, setOpen] = useState(false)
   const [productPreferenceEnabled, setProductPreferenceEnabled] = useState(false)
+  const [priorityList, setPriorityList] = useState<number[]>([1])
 
   const handleGoBack = () => {
     navigation.goBack()
+  }
+
+  const addPriority = () => {
+    setPriorityList((prev) => [...prev, prev.length + 1])
   }
 
   const handleSave = () => {
@@ -159,7 +164,16 @@ export const Combination: React.FC = () => {
                 </XStack>
               </RadioGroup>
             </YStack>
-            <PrioritySection priorityNumber={1}/>
+            {priorityList.map((number) => (
+              <PrioritySection key={number} priorityNumber={number} />
+            ))}
+            <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
+              <YStack f={1}>
+                <Button onPress={addPriority} backgroundColor="#ffffffff" color="#000000ff" borderColor="#A9A9A9" borderWidth={0}>
+                  + Adicionar preferência
+                </Button>
+              </YStack>
+            </XStack>
           </YStack>
         </YStack>
         {/* Botões rodapé */}
