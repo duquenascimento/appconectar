@@ -7,10 +7,13 @@ import { useRoute } from '@react-navigation/native'
 import { Restaurant } from '@/app/screens/PreferencesScreen'
 import { getAllCombinationsByRestaurant } from '../services/combinationsService'
 import { getStorage, setStorage } from '@/app/utils/utils'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { useNavigation } from '@react-navigation/native';
 
-interface CombosListProps {
-  combos: Combo[]
-}
+
+type HomeScreenPropsUtils = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
+};
 export interface Combination {
   id: string
   combination: string
@@ -40,16 +43,18 @@ export type RootStackParamList = {
   Preferences: undefined
   CombinationDetail: { id: string }
   CreateCombination: undefined
+  QuotationDetails: { id: string }
 }
 
-const handleCombinationPress = (combinationId: string) => {
-  //useNavigation.navigate('CombinationDetail', { id: combinationId })
-}
-
-const CombinationList: React.FC<CombosListProps> = ({ combos }) => {
+const CombinationList: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [minecombinations, setMineCombinations] = useState<Combination[]>([])
-  
+   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handleCombinationPress = (combinationId: string) => {
+  navigation.navigate('QuotationDetails', { id: combinationId })
+}
+
   const route = useRoute()
 
   const restaurantId = useMemo(() => {
@@ -122,7 +127,7 @@ const CombinationList: React.FC<CombosListProps> = ({ combos }) => {
     { title: 'Combinações indisponíveis', data: combinationsUnvaliable }
   ]
 
-  return <SectionList sections={sections} keyExtractor={(item) => item.id} renderItem={({ item }) => <CustomListItem id={item.id} combination={item.combination} supplier={item.supplier} delivery={item.delivery} totalValue={item.totalValue} missingItems={item.missingItems} createdAt={item.createdAt} supplierClosed={item.supplierClosed} onPress={handleCombinationPress} />} renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>} contentContainerStyle={styles.listContentContainer} style={[styles.container, { width: Platform.OS === 'web' ? '70%' : '90%', alignSelf: 'center' }]} />
+  return <SectionList sections={sections} keyExtractor={(item) => item.id} renderItem={({ item }) => <CustomListItem id={item.id} combination={item.combination} supplier={item.supplier} delivery={item.delivery} totalValue={item.totalValue} missingItems={item.missingItems} createdAt={item.createdAt} supplierClosed={item.supplierClosed} onPress={() => handleCombinationPress(item.id)} />} renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>} contentContainerStyle={styles.listContentContainer} style={[styles.container, { width: Platform.OS === 'web' ? '70%' : '90%', alignSelf: 'center' }]} />
 }
 
 const styles = StyleSheet.create({
@@ -130,7 +135,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   listContentContainer: {
-    paddingBottom: 100
+    paddingBottom: 100 
   }
 })
 
