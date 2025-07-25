@@ -62,7 +62,8 @@ const ItemSubTitle = styled(Text, {
 
 const RightContent = styled(YStack, {
   alignItems: 'flex-end',
-  space: '$1'
+  space: '$1',
+  marginRight: 90,
 })
 
 const ItemTotalValue = styled(Text, {
