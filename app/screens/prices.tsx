@@ -14,6 +14,7 @@ import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 import CombinationList from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
+import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
 
 export interface Product {
   price: number
@@ -190,20 +191,25 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
 
   useEffect(() => {
     if (tab === 'plus') {
-      const storedRestaurant = localStorage.getItem('selectedRestaurant')
-
-      if (storedRestaurant) {
+      const fetchData = async () => {
         try {
+          const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant')
+
+          if (!storedRestaurant) return
+
           const parsed = JSON.parse(storedRestaurant)
           const restaurantId = parsed?.id
 
           if (restaurantId) {
-            getCombinations(restaurantId).then(setCombinations)
+            const combinations = await getAllCombinationsByRestaurant(restaurantId)
+            setCombinations(combinations)
           }
         } catch (e) {
           console.error('Erro ao ler selectedRestaurant:', e)
         }
       }
+
+      fetchData()
     }
   }, [tab])
 

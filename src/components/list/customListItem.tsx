@@ -24,11 +24,11 @@ const ItemContainer = styled(XStack, {
   alignItems: 'center',
   justifyContent: 'space-between',
   paddingVertical: '$4',
-  paddingHorizontal: '$4',
+  paddingHorizontal: Platform.OS === 'web' ? '$4' : '$2',
   backgroundColor: '#fff',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
-  flexDirection: 'row', // Alteração aqui para posicionar à direita
+  flexDirection: 'row'
 })
 
 const LeftContent = styled(XStack, {
@@ -56,7 +56,7 @@ const ItemTitle = styled(Text, {
 })
 
 const ItemSubTitle = styled(Text, {
-  fontSize: 13,
+  fontSize: 12,
   color: '#555'
 })
 

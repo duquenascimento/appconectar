@@ -1,5 +1,5 @@
 import React from 'react'
-import { TouchableOpacity } from 'react-native'
+import { Platform, TouchableOpacity } from 'react-native'
 import Icons from '@expo/vector-icons/Ionicons'
 import { styled, Text, XStack } from 'tamagui'
 
@@ -13,10 +13,12 @@ const HeaderContainer = styled(XStack, {
   alignItems: 'center',
   justifyContent: 'flex-start',
   paddingVertical: '$4',
+  paddingTop: Platform.OS === 'web' ? undefined :'$6',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
   backgroundColor: '#fff',
   space: '$4',
+
 })
 
 const HeaderTitle = styled(Text, {

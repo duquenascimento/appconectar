@@ -40,9 +40,9 @@ const CombinationList: React.FC = () => {
   // lista de exemplo (mock) para as combinações
   // No futuro, você vai preencher isso com a resposta da sua API GET
   const [minecombinations, setMineCombinations] = useState<Combination[]>([
-    { id: 'mock-1', combination: 'Combinação 1', supplier: 'Luizão Hortifruti', totalValue: 120.00 },
-    { id: 'mock-2', combination: 'Combinação 2', supplier: 'Gustavo Frutas', totalValue: 80.00 },
-    { id: 'mock-3', combination: 'Combinação 3', supplier: 'Frutas do Zé', totalValue: 150.00 }
+    { id: 'mock-1', combination: 'Combinação 1', supplier: 'Luizão Hortifruti', totalValue: 120.00, missingItems: 1, },
+    { id: 'mock-2', combination: 'Combinação 2', supplier: 'Gustavo Frutas', totalValue: 80.00, missingItems: 1, },
+    { id: 'mock-3', combination: 'Combinação 3', supplier: 'Frutas do Zé', totalValue: 150.00, missingItems: 1, }
   ]);
   const [combinationsAlter, setCombinationsAlter] = useState<Combination[]>([
     { id: '1', combination: 'Combinação 1', supplier: 'Fornecedor 1', delivery: 'Entrega de 07:00 às 09:00', missingItems: 0, totalValue: 0 },
