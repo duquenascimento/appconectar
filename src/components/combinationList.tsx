@@ -13,6 +13,11 @@ export interface Combination {
   combination: string;
   supplier?: string;
   totalValue?: number;
+  delivery?: string;
+  missingItems?: number;
+  createdAt?: string;
+  supplierClosed?: string;
+  combinationAvailable?: boolean;
 }
 
 // tipagem da rota para incluir os dados que serão enviados
@@ -23,9 +28,9 @@ export type RootStackParamList = {
   CombinationDetail: { id: string };
   CreateCombination: undefined;
   QuotationDetails: { 
-    combinationId: string;
-    combinationName?: string;
-    suppliersData: SupplierData[]; // <-- Essencial para passar os dados
+  combinationId: string;
+  combinationName?: string;
+  suppliersData: SupplierData[]; // <-- Essencial para passar os dados
   };
 };
 
@@ -37,10 +42,16 @@ const CombinationList: React.FC = () => {
   const [minecombinations, setMineCombinations] = useState<Combination[]>([
     { id: 'mock-1', combination: 'Combinação 1', supplier: 'Luizão Hortifruti', totalValue: 120.00 },
     { id: 'mock-2', combination: 'Combinação 2', supplier: 'Gustavo Frutas', totalValue: 80.00 },
-    { id: 'mock-3', combination: 'Combinação 3', supplier: 'Frutas do Zé', totalValue: 150.00 },
-    { id: 'mock-4', combination: 'Combinação 4', supplier: 'Hortifruti da Maria', totalValue: 200.00 },
-    { id: 'mock-5', combination: 'Combinação 5', supplier: 'Frutas e Verduras do João', totalValue: 90.00 }
+    { id: 'mock-3', combination: 'Combinação 3', supplier: 'Frutas do Zé', totalValue: 150.00 }
   ]);
+  const [combinationsAlter, setCombinationsAlter] = useState<Combination[]>([
+    { id: '1', combination: 'Combinação 1', supplier: 'Fornecedor 1', delivery: 'Entrega de 07:00 às 09:00', missingItems: 0, totalValue: 0 },
+    { id: '2', combination: 'Combinação 2', supplier: 'Fornecedor 2', delivery: 'Entrega de 07:00 às 09:00', missingItems: 1, totalValue: 10.5 }
+  ]);
+  const [combinationsUnvaliable, setCombinationsUnvaliable] = useState<Combination[]>([
+    { id: '1', combination: 'Combinação 1', supplier: 'Fornecedor 1', supplierClosed: 'Forn. Fechado (18)', missingItems: 0, totalValue: 0 },
+    { id: '2', combination: 'Combinação 2', supplier: 'Fornecedor 2', supplierClosed: 'Forn. Fechado (18)', missingItems: 1, totalValue: 10.5 }
+  ])
 
   // 4. A função envia os dados mockados para a tela de detalhes (QuotationDetailsScreen)
   const handleCombinationPress = (item: Combination) => {
@@ -52,8 +63,7 @@ const CombinationList: React.FC = () => {
       suppliersData: mockSuppliersData 
     });
   };
-  const [combinationsAlter] = useState<Combination[]>([]);
-  const [combinationsUnvaliable] = useState<Combination[]>([]);
+ 
 
   const sections = [
     { title: 'Minhas combinações', data: minecombinations },
@@ -61,24 +71,7 @@ const CombinationList: React.FC = () => {
     { title: 'Combinações indisponíveis', data: combinationsUnvaliable }
   ];
 
-  return (
-    <SectionList
-      sections={sections}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => (
-        <CustomListItem
-          id={item.id}
-          combination={item.combination}
-          supplier={item.supplier}
-          totalValue={item.totalValue}
-          onPress={() => handleCombinationPress(item)}
-        />
-      )}
-      renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>}
-      contentContainerStyle={styles.listContentContainer}
-      style={[styles.container, { width: Platform.OS === 'web' ? '70%' : '90%', alignSelf: 'center' }]}
-    />
-  );
+  return <SectionList sections={sections} keyExtractor={(item) => item.id} renderItem={({ item }) => <CustomListItem id={item.id} combination={item.combination} supplier={item.supplier} delivery={item.delivery} totalValue={item.totalValue} missingItems={item.missingItems} createdAt={item.createdAt} supplierClosed={item.supplierClosed} onPress={() => handleCombinationPress(item.id)} />} renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>} contentContainerStyle={styles.listContentContainer} style={[styles.container, { width: Platform.OS === 'web' ? '70%' : '90%', alignSelf: 'center' }]} />;
 };
 
 const styles = StyleSheet.create({
