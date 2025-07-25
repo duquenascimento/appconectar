@@ -1,17 +1,14 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator } from 'tamagui';
+import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, Alert } from 'react-native';
-
-// import { getQuotationDetailsByCombinationId } from '../services/combinationsService';
-
-import { mockSuppliersData } from '../../src/components/data/mockDataQuotationDetails';
+import React, { useState } from 'react';
+import { SafeAreaView, Alert, Platform } from 'react-native';
 
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomButton from '../../src/components/button/customButton';
 
+// Interfaces (mantenha como estão)
 export interface Product {
   price: number;
   priceWithoutTax: number;
@@ -53,70 +50,33 @@ export interface SupplierData {
   supplier: Supplier;
 }
 
+// 1. Tipagem de Rota Atualizada
 type RootStackParamList = {
   Home: undefined;
   Products: undefined;
   Cart: undefined;
   Prices: undefined;
-  QuotationDetails: { combinationId: string; combinationName?: string }; 
+  OrderConfirmed: { suppliers: SupplierData[] }; // <-- Rota de destino adicionada
+  QuotationDetails: { 
+    combinationId: string; 
+    combinationName?: string;
+    suppliersData: SupplierData[]; 
+  };
 };
 
 type QuotationDetailsScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
-  route: { params: { combinationId: string; combinationName?: string } };
+  route: { params: RootStackParamList['QuotationDetails'] };
 };
 
 export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
-  const { combinationId, combinationName } = route.params;
-  const [loading, setLoading] = useState<boolean>(true);
-  const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
+  const { combinationName, suppliersData } = route.params;
+
+  const [suppliers, setSuppliers] = useState<SupplierData[]>(suppliersData || []);
   const [headerTitle, setHeaderTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
 
-  const loadQuotationData = useCallback(async () => {
-    setLoading(true);
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const detailedQuotation = mockSuppliersData;
-    
-    if (detailedQuotation && detailedQuotation.length > 0) {
-      setSuppliers(detailedQuotation);
-    } else {
-      Alert.alert("Aviso", "Não foram encontrados dados de exemplo para esta combinação.");
-      navigation.goBack();
-    }
-    
-    setLoading(false);
-
-    /*
-      // --- BLOCO DE CÓDIGO PARA QUANDO A API ESTIVER PRONTA ---
-      // Quando o backend estiver funcionando, substitua o código acima por este:
-      
-      try {
-        // 1. Descomente a linha abaixo para chamar a API real
-        // const detailedQuotation = await getQuotationDetailsByCombinationId(combinationId);
-        
-        if (detailedQuotation && detailedQuotation.length > 0) {
-          setSuppliers(detailedQuotation);
-        } else {
-          Alert.alert("Aviso", "Nenhum fornecedor encontrado para esta combinação.");
-          navigation.goBack();
-        }
-      } catch (error) {
-        console.error('Erro ao buscar detalhes da cotação:', error);
-        Alert.alert("Erro", "Não foi possível carregar os detalhes da cotação. Tente novamente.");
-        navigation.goBack();
-      } finally {
-        setLoading(false);
-      }
-    */
-  }, [combinationId, navigation]);
-
-  useEffect(() => {
-    loadQuotationData();
-  }, [loadQuotationData]);
-
-  // Lógica de cálculo de totais (mantenha como está)
   const totals = React.useMemo(() => {
+    if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 };
     return suppliers.reduce(
       (acc, { supplier }) => {
         acc.subtotal += supplier.discount.orderValue;
@@ -132,16 +92,22 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
 
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
   const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
-  const handleBackPress = () => navigation.goBack();
 
-  if (loading) {
+ // Funções de navegação 
+  const handleBackPress = () => navigation.goBack();
+  const handleConfirm = () => {
+    // Navega para a tela de confirmação, passando os dados dos fornecedores
+    navigation.navigate('OrderConfirmed', { suppliers: suppliersData });
+  };
+  
+  if (!suppliers || suppliers.length === 0) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center" bg="#F0F2F6">
-        <ActivityIndicator size="large" color="#04BF7B" />
-        <Text fontSize={16} mt="$3" color="$gray10">
-          Gerando melhor cotação...
-        </Text>
-      </View>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <CustomHeader title="Erro" onBackPress={handleBackPress} />
+        <View flex={1} justifyContent="center" alignItems="center">
+          <Text>Não foi possível carregar os dados da cotação.</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
@@ -233,8 +199,8 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
               </YStack>
             ))}
 
+            {/* Card de totais */}
             <YStack bg="white" br={8} p="$3.5" gap="$2.5" borderColor='$gray6' borderWidth={1}>
-              {/* ... JSX para totais ... */}
                <XStack jc="space-between" ai="center">
                 <Text fontSize={14} color="$gray11">Subtotal</Text>
                 <Text fontSize={14} color="$gray11">{formatCurrency(totals.subtotal)}</Text>
@@ -255,10 +221,52 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
           </YStack>
         </ScrollView>
 
-        <XStack pos="absolute" bottom={0} left={0} right={0} py="$4" px="$4" bg="white" gap="$3" borderTopWidth={1} borderTopColor="$gray4" alignItems="stretch">
-          <CustomButton title="Alterar itens" onPress={() => navigation.replace('Back')} backgroundColor="black" flex={1} borderRadius={10} textColor="white" />
-          <CustomButton title="Confirmar combinação" onPress={() => navigation.replace('Products')} backgroundColor="#04BF7B" flex={1} borderRadius={10} textColor="white" />
-        </XStack>
+        {/* 3. Botões do rodapé com a nova lógica e estilo */}
+        <View pos="absolute" bottom={0} left={0} right={0} py="$4" px="$4" bg="white" borderTopWidth={1} borderTopColor="$gray4">
+          {Platform.OS === 'web' ? (
+            <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
+              <YStack f={1}>
+                <Button
+                  onPress={handleBackPress}
+                  hoverStyle={{
+                    backgroundColor: '#333333',
+                    opacity: 0.9
+                  }}
+                  backgroundColor="#000000"
+                  color="#FFFFFF"
+                  borderColor="#A9A9A9"
+                  borderWidth={1}
+                >
+                  Voltar
+                </Button>
+              </YStack>
+              <YStack f={1}>
+                <Button
+                  onPress={handleConfirm}
+                  hoverStyle={{
+                    backgroundColor: '#1DC588',
+                    opacity: 0.9
+                  }}
+                  backgroundColor="#1DC588"
+                  color="#FFFFFF"
+                  borderColor="#A9A9A9"
+                  borderWidth={1}
+                >
+                  Confirmar combinação
+                </Button>
+              </YStack>
+            </XStack>
+          ) : (
+            <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
+              <YStack f={1}>
+                <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF" borderColor="#A9A9A9" borderWidth={1} />
+              </YStack>
+              <YStack f={1}>
+                <CustomButton title="Confirmar" onPress={handleConfirm} backgroundColor="#1DC588" textColor="#FFFFFF" borderColor="#A9A9A9" />
+              </YStack>
+            </XStack>
+          )}
+        </View>
       </YStack>
     </SafeAreaView>
   );
