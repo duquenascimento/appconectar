@@ -117,10 +117,8 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
         flex={1}
         backgroundColor="#FFFFFF"
         alignSelf="center"
-        width="100%"
-        $gtMd={{
-          maxWidth: 768
-        }}
+        width={Platform.OS === 'web' ? '70%' : '100%'}
+        maxWidth={1280}
       >
         <CustomHeader title={headerTitle} onBackPress={handleBackPress} />
 
