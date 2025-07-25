@@ -1,11 +1,12 @@
 import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Modal, View, Text, TouchableOpacity, StyleSheet, DimensionValue } from "react-native";
 
 interface CustomAlertProps {
   visible: boolean;
   title: string;
   message: string;
   onConfirm: () => void;
+  width?: DimensionValue;
 }
 
 const CustomAlert: React.FC<CustomAlertProps> = ({
@@ -13,6 +14,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   title,
   message,
   onConfirm,
+  width = "80%",
 }) => {
   return (
     <Modal
@@ -22,7 +24,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
       onRequestClose={onConfirm}
     >
       <View style={styles.overlay}>
-        <View style={styles.alertContainer}>
+        <View style={[styles.alertContainer, { width }]}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
@@ -43,7 +45,6 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   alertContainer: {
-    width: "80%",
     backgroundColor: "white",
     borderRadius: 10,
     padding: 20,

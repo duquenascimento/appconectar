@@ -35,12 +35,9 @@ export interface Restaurant {
 }
 
 export type RootStackParamList = {
-  Sign: undefined;
-  Products: undefined;
   Preferences: { restaurantId: string, restaurant: Restaurant };
   Combination: undefined;
   CombinationDetail: { id: string };
-  CreateCombination: undefined;
 };
 
 type PreferencesScreenNavigationProp = NativeStackNavigationProp<
@@ -125,12 +122,18 @@ const PreferencesScreen: React.FC = () => {
         title="Ops!"
         message="Ocorreu um erro ao buscar combinações, tente novamente mais tarde."
         onConfirm={() => setIsAlertVisible(false)}
+        width="35%"
       />
-
       <CustomHeader title="Minhas preferências" onBackPress={handleBackPress} />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         <YStack w={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" p="$4" gap={15} mt="$2">
-
+          <CustomAlert
+            visible={isAlertVisible}
+            title="Ops!"
+            message="Ocorreu um erro ao buscar combinações, tente novamente mais tarde."
+            onConfirm={() => setIsAlertVisible(false)}
+            width="35%"
+          />
           <CustomInfoCard
             icon="information-circle"
             title={cardTitle}
@@ -161,7 +164,6 @@ const PreferencesScreen: React.FC = () => {
       <CustomButton
         title="Criar nova combinação"
         onPress={handleCreateNewCombination}
-        width={Platform.OS === 'web' ? '76%' : '92%'}
       />
     </SafeAreaView>
   )
