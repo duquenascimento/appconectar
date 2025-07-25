@@ -1,142 +1,93 @@
-
-import { Platform, SectionList, StyleSheet } from 'react-native'
-import CustomSubtitle from './subtitle/customSubtitle'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import CustomListItem from './list/customListItem'
-import { useRoute } from '@react-navigation/native'
-import { Restaurant } from '@/app/screens/PreferencesScreen'
-import { getAllCombinationsByRestaurant } from '../services/combinationsService'
-import { getStorage, setStorage } from '@/app/utils/utils'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { Platform, SectionList, StyleSheet } from 'react-native';
+import CustomSubtitle from './subtitle/customSubtitle';
+import { useState } from 'react';
+import CustomListItem from './list/customListItem';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
+import { mockSuppliersData } from '@/src/components/data/mockDataQuotationDetails'; 
+import { SupplierData } from '@/app/screens/QuotationDetailsScreen'; 
 
-type HomeScreenPropsUtils = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
-};
 export interface Combination {
-  id: string
-  combination: string
-  supplier?: string
-  delivery?: string
-  createdAt?: string
-  missingItems?: number
-  totalValue?: number
-  supplierClosed?: string
-  status: 'minha' | 'com_alteracao' | 'indisponivel'
+  id: string;
+  combination: string;
+  supplier?: string;
+  totalValue?: number;
 }
 
-export interface CombinationService {
-  id: string
-  combination: string
-  supplier?: string
-  delivery?: string
-  createdAt?: string
-  missingItems?: number
-  totalValue?: number
-  supplierClosed?: string
-}
-
+// tipagem da rota para incluir os dados que serão enviados
 export type RootStackParamList = {
-  Sign: undefined
-  Products: undefined
-  Preferences: undefined
-  CombinationDetail: { id: string }
-  CreateCombination: undefined
-  QuotationDetails: { id: string }
-}
+  Sign: undefined;
+  Products: undefined;
+  Preferences: undefined;
+  CombinationDetail: { id: string };
+  CreateCombination: undefined;
+  QuotationDetails: { 
+    combinationId: string;
+    combinationName?: string;
+    suppliersData: SupplierData[]; // <-- Essencial para passar os dados
+  };
+};
 
 const CombinationList: React.FC = () => {
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([])
-   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const handleCombinationPress = (combinationId: string) => {
-  navigation.navigate('QuotationDetails', { id: combinationId })
-}
+  // lista de exemplo (mock) para as combinações
+  // No futuro, você vai preencher isso com a resposta da sua API GET
+  const [minecombinations, setMineCombinations] = useState<Combination[]>([
+    { id: 'mock-1', combination: 'Combinação 1', supplier: 'Luizão Hortifruti', totalValue: 120.00 },
+    { id: 'mock-2', combination: 'Combinação 2', supplier: 'Gustavo Frutas', totalValue: 80.00 },
+    { id: 'mock-3', combination: 'Combinação 3', supplier: 'Frutas do Zé', totalValue: 150.00 },
+    { id: 'mock-4', combination: 'Combinação 4', supplier: 'Hortifruti da Maria', totalValue: 200.00 },
+    { id: 'mock-5', combination: 'Combinação 5', supplier: 'Frutas e Verduras do João', totalValue: 90.00 }
+  ]);
 
-  const route = useRoute()
-
-  const restaurantId = useMemo(() => {
-    return (route.params as { restaurantId?: string })?.restaurantId ?? restaurant?.id
-  }, [route.params, restaurant])
-
-  useEffect(() => {
-    const fetchStoredRestaurant = async () => {
-      const storedValue = await getStorage('selectedRestaurant')
-      let restaurantFromStorage = null
-
-      if (storedValue) {
-        try {
-          const parsedValue = JSON.parse(storedValue)
-          restaurantFromStorage = parsedValue?.restaurant ?? parsedValue ?? null
-        } catch {
-          restaurantFromStorage = null
-        }
-      }
-
-      setRestaurant(restaurantFromStorage)
-    }
-
-    fetchStoredRestaurant()
-  }, [])
-
-  const loadCombinations = useCallback(async () => {
-    if (!restaurantId) return
-
-    try {
-      const res = await getAllCombinationsByRestaurant(restaurantId)
-
-      if (!res) {
-        throw new Error('Resposta inesperada da API')
-      } else {
-        const mapped = res.return.map((item: any) => ({
-          id: item.id,
-          combination: item.nome,
-          supplier: 'Fornecedor 1',
-          missingItems: 0,
-          totalValue: 10.5
-        }))
-
-        setMineCombinations(mapped)
-        await setStorage('combinations', JSON.stringify(mapped));
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro desconhecido'
-      console.error('Erro ao buscar combinações:', message)
-    }
-  }, [restaurantId])
-
-  useEffect(() => {
-    loadCombinations()
-  }, [loadCombinations])
-
-  
-  const [combinationsAlter, setCombinationsAlter] = useState<Combination[]>([
-    { id: '1', combination: 'Combinação 1', supplier: 'Fornecedor 1', delivery: 'Entrega de 07:00 às 09:00', missingItems: 0, totalValue: 0 },
-    { id: '2', combination: 'Combinação 2', supplier: 'Fornecedor 2', delivery: 'Entrega de 07:00 às 09:00', missingItems: 1, totalValue: 10.5 }
-  ])
-  const [combinationsUnvaliable, setCombinationsUnvaliable] = useState<Combination[]>([
-    { id: '1', combination: 'Combinação 1', supplier: 'Fornecedor 1', supplierClosed: 'Forn. Fechado (18)', missingItems: 0, totalValue: 0 },
-    { id: '2', combination: 'Combinação 2', supplier: 'Fornecedor 2', supplierClosed: 'Forn. Fechado (18)', missingItems: 1, totalValue: 10.5 }
-  ])
+  // 4. A função envia os dados mockados para a tela de detalhes (QuotationDetailsScreen)
+  const handleCombinationPress = (item: Combination) => {
+    // Ao clicar, navegamos e passamos o pacote completo de dados mockados.
+    // Isso garante que a próxima tela tenha o que precisa para renderizar.
+    navigation.navigate('QuotationDetails', {
+      combinationId: item.id,
+      combinationName: item.combination,
+      suppliersData: mockSuppliersData 
+    });
+  };
+  const [combinationsAlter] = useState<Combination[]>([]);
+  const [combinationsUnvaliable] = useState<Combination[]>([]);
 
   const sections = [
     { title: 'Minhas combinações', data: minecombinations },
     { title: 'Disponíveis com alteração', data: combinationsAlter },
     { title: 'Combinações indisponíveis', data: combinationsUnvaliable }
-  ]
+  ];
 
-  return <SectionList sections={sections} keyExtractor={(item) => item.id} renderItem={({ item }) => <CustomListItem id={item.id} combination={item.combination} supplier={item.supplier} delivery={item.delivery} totalValue={item.totalValue} missingItems={item.missingItems} createdAt={item.createdAt} supplierClosed={item.supplierClosed} onPress={() => handleCombinationPress(item.id)} />} renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>} contentContainerStyle={styles.listContentContainer} style={[styles.container, { width: Platform.OS === 'web' ? '70%' : '90%', alignSelf: 'center' }]} />
-}
+  return (
+    <SectionList
+      sections={sections}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => (
+        <CustomListItem
+          id={item.id}
+          combination={item.combination}
+          supplier={item.supplier}
+          totalValue={item.totalValue}
+          onPress={() => handleCombinationPress(item)}
+        />
+      )}
+      renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>}
+      contentContainerStyle={styles.listContentContainer}
+      style={[styles.container, { width: Platform.OS === 'web' ? '70%' : '90%', alignSelf: 'center' }]}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   listContentContainer: {
-    paddingBottom: 100 
-  }
-})
+    paddingBottom: 100,
+  },
+});
 
-export default CombinationList
+export default CombinationList;
