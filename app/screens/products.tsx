@@ -302,7 +302,9 @@ const ProductBox = React.memo(
 
     return (
       <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
+        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} 
+        backgroundColor={isCart ? '#fbffc3ff' : 'white'} 
+        borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
               p={Platform.OS === 'web' ? 10 : 0}
@@ -348,7 +350,7 @@ const ProductBox = React.memo(
             borderBottomWidth={0}
             borderBottomLeftRadius={12}
             borderBottomRightRadius={12}
-            backgroundColor="white"
+            backgroundColor={isCart ? 'white' : 'white'}
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
