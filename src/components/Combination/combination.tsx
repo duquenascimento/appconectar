@@ -10,10 +10,11 @@ import { PrioritySection } from './prioridade'
 import CustomHeader from '../header/customHeader'
 import { getAllSuppliers } from '@/src/services/supplierService'
 import { mapSuppliers } from '@/app/utils/mapSupplier'
+import { CustomRadioButton } from '../button/customRadioButton'
 
 export interface SuplierCombination {
   id: string
-  nomeFornecedor: string
+  nomefornecedor: string
 }
 
 export const Combination: React.FC = () => {
@@ -21,11 +22,13 @@ export const Combination: React.FC = () => {
   const [combinationName, setCombinationName] = useState('')
   const [maxSuppliers, setMaxSuppliers] = useState('2 fornecedores')
   const [suppliers, setSupplers] = useState<SuplierCombination[]>([])
+  const [openBlockSuppliers, setOpenBlockSupplers] = useState(false)
   const [blockSuppliers, setBlockSuppliers] = useState(false)
-  const [preference, setPreference] = useState('especificos')
+  const [preference, setPreference] = useState('Qualquer')
   const [specificSuppliers, setSpecificSuppliers] = useState<string[]>([])
   const [open, setOpen] = useState(false)
   const [openSupplier, setOpenSupplier] = useState(false)
+  const [openPreference, setOpenPreference] = useState(false)
   const [productPreferenceEnabled, setProductPreferenceEnabled] = useState(false)
   const [priorityList, setPriorityList] = useState<number[]>([1])
 
@@ -34,6 +37,7 @@ export const Combination: React.FC = () => {
       const data = await getAllSuppliers()
       if (Array.isArray(data)) {
         setSupplers(data.map(mapSuppliers))
+        console.log('suppliers', suppliers)
       } else {
         throw new Error('Resposta inesperada da API')
       }
@@ -104,18 +108,39 @@ export const Combination: React.FC = () => {
             <CustomSubtitle>Impedir que fornecedores apareçam na combinação</CustomSubtitle>
             <Separator my="$3" />
             <Text>Bloquear fornecedores na combinação?</Text>
-            <RadioGroup value={blockSuppliers ? 'sim' : 'nao'} onValueChange={(value) => setBlockSuppliers(value === 'sim')}>
-              <XStack gap="$3">
-                <XStack alignItems="center" gap="$2">
-                  <RadioGroup.Item value="sim" id="sim1" />
-                  <Label htmlFor="sim1">Sim</Label>
-                </XStack>
-                <XStack alignItems="center" gap="$2">
-                  <RadioGroup.Item value="nao" id="nao1" />
-                  <Label htmlFor="nao1">Não</Label>
-                </XStack>
-              </XStack>
-            </RadioGroup>
+            <XStack>
+              <CustomRadioButton selected={blockSuppliers} onPress={() => setBlockSuppliers(true)} label="Sim" />
+              <CustomRadioButton selected={!blockSuppliers} onPress={() => setBlockSuppliers(false)} label="Não" />
+            </XStack>
+            {blockSuppliers && (
+              <YStack style={{ zIndex: 1000, marginTop: 10 }}>
+                <Label>Fornecedores bloqueados</Label>
+                <DropDownPicker
+                  open={openBlockSuppliers}
+                  setOpen={setOpenBlockSupplers}
+                  multiple={true}
+                  value={specificSuppliers}
+                  setValue={setSpecificSuppliers}
+                  items={suppliers.map((s) => ({
+                    label: s.nomefornecedor,
+                    value: s.id
+                  }))}
+                  placeholder="Selecione os fornecedores"
+                  listMode="SCROLLVIEW"
+                  translation={{
+                    PLACEHOLDER: 'Selecione os fornecedores',
+                    SEARCH_PLACEHOLDER: 'Digite para buscar...',
+                    NOTHING_TO_SHOW: 'Nada encontrado'
+                  }}
+                  mode="BADGE"
+                  badgeTextStyle={{ color: 'black' }}
+                  badgeColors={['#E0E0E0']}
+                  badgeDotColors={['#999']}
+                  zIndex={1000}
+                  zIndexInverse={3000}
+                />
+              </YStack>
+            )}
           </YStack>
 
           {/* Preferência de fornecedores */}
@@ -124,25 +149,28 @@ export const Combination: React.FC = () => {
             <CustomSubtitle>Defina as preferências de combinação</CustomSubtitle>
 
             <YStack marginTop={10} gap="$3">
-              <YStack>
+              <YStack style={{ zIndex: 4000 }}>
                 <Label>Combinar meu pedido entre</Label>
-                <Select value={preference} onValueChange={setPreference}>
-                  <Select.Trigger>
-                    <Select.Value placeholder="Selecione..." />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Viewport>
-                      {suppliers.map((s, index) => (
-                        <Select.Item key={s.id} index={index} value={s.id}>
-                          <Select.ItemText>{s.nomeFornecedor}</Select.ItemText>
-                        </Select.Item>
-                      ))}
-                      <Select.Item index={1} value="especificos">
-                        <Select.ItemText>Fornecedores específicos</Select.ItemText>
-                      </Select.Item>
-                    </Select.Viewport>
-                  </Select.Content>
-                </Select>
+                <DropDownPicker
+                  open={openPreference}
+                  setOpen={setOpenPreference}
+                  value={preference}
+                  setValue={setPreference}
+                  items={[
+                    { label: 'Fornecedores melhor avaliados', value: 'Melhor' },
+                    { label: 'Fornecedores específicos', value: 'especificos' },
+                    { label: 'Qualquer fornecedor', value: 'Qualquer' }
+                  ]}
+                  placeholder="Selecione..."
+                  zIndex={4000}
+                  zIndexInverse={1000}
+                  listMode="SCROLLVIEW"
+                  dropDownContainerStyle={{
+                    maxHeight: 300
+                  }}
+                  style={{ marginTop: 5 }}
+                  dropDownDirection="BOTTOM"
+                />
               </YStack>
 
               {preference === 'especificos' && (
@@ -155,10 +183,20 @@ export const Combination: React.FC = () => {
                     value={specificSuppliers}
                     setValue={setSpecificSuppliers}
                     items={suppliers.map((s) => ({
-                      label: s.nomeFornecedor,
+                      label: s.nomefornecedor,
                       value: s.id
                     }))}
                     placeholder="Selecione os fornecedores"
+                    listMode="SCROLLVIEW"
+                    translation={{
+                      PLACEHOLDER: 'Selecione os fornecedores',
+                      SEARCH_PLACEHOLDER: 'Digite para buscar...',
+                      NOTHING_TO_SHOW: 'Nada encontrado'
+                    }}
+                    mode="BADGE"
+                    badgeTextStyle={{ color: 'black' }}
+                    badgeColors={['#E0E0E0']}
+                    badgeDotColors={['#999']}
                     zIndex={1000}
                     zIndexInverse={3000}
                   />
@@ -176,29 +214,28 @@ export const Combination: React.FC = () => {
 
             <YStack borderBottomWidth={1} py="$3" borderColor="$gray4" gap={6}>
               <Text fontSize={14}>Definir preferência de produto para um ou mais fornecedores?</Text>
-              <RadioGroup value={productPreferenceEnabled ? 'sim' : 'nao'} onValueChange={(value) => setProductPreferenceEnabled(value === 'sim')}>
-                <XStack gap="$3">
-                  <XStack alignItems="center" gap="$2">
-                    <RadioGroup.Item value="sim" id="sim2" />
-                    <Label htmlFor="sim2">Sim</Label>
+              <XStack>
+                <CustomRadioButton selected={productPreferenceEnabled} onPress={() => setProductPreferenceEnabled(true)} label="Sim" />
+                <CustomRadioButton selected={!productPreferenceEnabled} onPress={() => setProductPreferenceEnabled(false)} label="Não" />
+              </XStack>
+              {productPreferenceEnabled && (
+                <>
+                  {/* Lista de prioridades */}
+                  {priorityList.map((number) => (
+                    <PrioritySection key={number} priorityNumber={number} />
+                  ))}
+
+                  {/* Botão para adicionar nova prioridade */}
+                  <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
+                    <YStack f={1}>
+                      <Button onPress={addPriority} backgroundColor="#ffffffff" color="#000000ff" borderColor="#A9A9A9" borderWidth={0}>
+                        + Adicionar preferência
+                      </Button>
+                    </YStack>
                   </XStack>
-                  <XStack alignItems="center" gap="$2">
-                    <RadioGroup.Item value="nao" id="nao2" />
-                    <Label htmlFor="nao2">Não</Label>
-                  </XStack>
-                </XStack>
-              </RadioGroup>
+                </>
+              )}
             </YStack>
-            {priorityList.map((number) => (
-              <PrioritySection key={number} priorityNumber={number} />
-            ))}
-            <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
-              <YStack f={1}>
-                <Button onPress={addPriority} backgroundColor="#ffffffff" color="#000000ff" borderColor="#A9A9A9" borderWidth={0}>
-                  + Adicionar preferência
-                </Button>
-              </YStack>
-            </XStack>
           </YStack>
         </YStack>
         {/* Botões rodapé */}

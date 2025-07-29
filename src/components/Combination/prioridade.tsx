@@ -35,9 +35,8 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             open={euQueroOpen}
             value={euQueroValue}
             items={[
-              { label: 'fixar produtos por fornecedor', value: 'fixar' },
-              { label: 'distribuir entre fornecedores', value: 'distribuir' },
-              { label: 'priorizar fornecedor específico', value: 'priorizar' }
+              { label: 'Fixar produtos por fornecedor', value: 'fixar' },
+              { label: 'Remover produtos por fornecedor', value: 'remover' },
             ]}
             setOpen={setEuQueroOpen}
             setValue={setEuQueroValue}

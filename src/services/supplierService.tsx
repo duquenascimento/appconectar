@@ -14,7 +14,7 @@ export const getAllSuppliers = async () => {
 export interface Supplier {
   id: string
   idExterno: string
-  nomeFornecedor: string
+  nomefornecedor: string
   razaoSocial: string
   responsavel: string
   telefoneContato: string
