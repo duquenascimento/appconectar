@@ -242,7 +242,7 @@ export const Combination: React.FC = () => {
                 <>
                   {/* Lista de prioridades */}
                   {priorityList.map((number) => (
-                    <PrioritySection key={number} priorityNumber={number} products={products} suppliers={suppliers} />
+                    <PrioritySection key={number} priorityNumber={number} products={products} selectedSuppliers={specificSuppliers} suppliers={suppliers} />
                   ))}
 
                   {/* Botão para adicionar nova prioridade */}

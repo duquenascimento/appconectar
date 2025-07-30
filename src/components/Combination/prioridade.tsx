@@ -2,6 +2,7 @@ import { getAllProducts, ProductResponse } from '@/src/services/productsService'
 import React, { useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { View, Text, XStack, YStack, Separator, Card, Label } from 'tamagui'
+import { SuplierCombination } from './combination'
 
 export interface ProrityProductsCombination {
   id: string
@@ -11,10 +12,11 @@ export interface ProrityProductsCombination {
 interface PrioritySectionProps {
   priorityNumber: number
   products: ProrityProductsCombination[]
-  suppliers: { label: string; value: string }[]
+  selectedSuppliers: string[] // IDs selecionados
+  suppliers: SuplierCombination[]
 }
 
-export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber, products, suppliers }) => {
+export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber, products, selectedSuppliers, suppliers }) => {
   const [euQueroOpen, setEuQueroOpen] = useState(false)
   const [euQueroValue, setEuQueroValue] = useState('fixar')
   const [fornecedorOpen, setFornecedorOpen] = useState(false)
@@ -25,7 +27,13 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
   const [specificProducts, setSpecificProducts] = useState<string[]>([])
   const [searchText, setSearchText] = useState('')
   const [itemsDropdown, setItemsDropdown] = useState<{ label: string; value: string }[]>([])
-  
+
+  const selectedSupplierOptions = suppliers
+    .filter((s) => selectedSuppliers.includes(s.id))
+    .map((s) => ({
+      label: s.nomefornecedor,
+      value: s.id
+    }))
 
   useEffect(() => {
     const fetch = async () => {
@@ -52,7 +60,13 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
     if (searchText.length > 0) {
       fetch()
     } else {
-      setItemsDropdown([])
+      getAllProducts().then((all) => {
+        const preview = all.slice(0, 10).map((p) => ({
+          label: `${p.name}`,
+          value: p.id
+        }))
+        setItemsDropdown(preview)
+      })
     }
   }, [searchText])
 
@@ -121,18 +135,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
         {/* Com fornecedor(es) */}
         <View my={'$2'}>
           <Label>Com fornecedor(es)</Label>
-          <DropDownPicker
-            open={fornecedorOpen}
-            value={fornecedorValue}
-            items={suppliers}
-            setOpen={setFornecedorOpen}
-            setValue={setFornecedorValue}
-            multiple={false}
-            zIndex={20}
-            zIndexInverse={10}
-            placeholder="Selecione o fornecedor"
-            placeholderStyle={{ color: 'gray' }}
-          />
+          <DropDownPicker open={fornecedorOpen} value={fornecedorValue} items={selectedSupplierOptions} setOpen={setFornecedorOpen} setValue={setFornecedorValue} multiple={false} zIndex={20} zIndexInverse={10} placeholder="Selecione o fornecedor" placeholderStyle={{ color: 'gray' }} />
         </View>
 
         <Separator borderColor="$gray5" />
