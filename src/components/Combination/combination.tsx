@@ -11,6 +11,9 @@ import CustomHeader from '../header/customHeader'
 import { getAllSuppliers } from '@/src/services/supplierService'
 import { mapSuppliers } from '@/app/utils/mapSupplier'
 import { CustomRadioButton } from '../button/customRadioButton'
+import { getAllProducts, ProductResponse } from '@/src/services/productsService'
+import { mapProducts } from '@/app/utils/mapProducts'
+import { ProrityProductsCombination } from './prioridade'
 
 export interface SuplierCombination {
   id: string
@@ -31,6 +34,7 @@ export const Combination: React.FC = () => {
   const [openPreference, setOpenPreference] = useState(false)
   const [productPreferenceEnabled, setProductPreferenceEnabled] = useState(false)
   const [priorityList, setPriorityList] = useState<number[]>([1])
+  const [products, setProducts] = useState<ProrityProductsCombination[]>([])
 
   const loadSuppliers = useCallback(async () => {
     try {
@@ -47,9 +51,25 @@ export const Combination: React.FC = () => {
     }
   }, [])
 
+  const loadProducts = useCallback(async () => {
+    try {
+      const data = await getAllProducts()
+      if (Array.isArray(data)) {
+        setProducts(data.map(mapProducts))
+        console.log('Products', products)
+      } else {
+        throw new Error('Resposta inesperada da API')
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro desconhecido'
+      console.error('Erro ao buscar combinações:', message)
+    }
+  }, [])
+
   useEffect(() => {
     loadSuppliers()
-  }, [loadSuppliers])
+    loadProducts()
+  }, [loadSuppliers, loadProducts])
 
   const handleGoBack = () => {
     navigation.goBack()
@@ -103,7 +123,7 @@ export const Combination: React.FC = () => {
           </YStack>
 
           {/* Bloqueio de fornecedores */}
-          <YStack borderWidth={1} borderColor="$gray6" p="$4" borderRadius="$4" zIndex={2000}>
+          <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
             <Text fontWeight="bold">Bloquear fornecedores</Text>
             <CustomSubtitle>Impedir que fornecedores apareçam na combinação</CustomSubtitle>
             <Separator my="$3" />
@@ -222,7 +242,7 @@ export const Combination: React.FC = () => {
                 <>
                   {/* Lista de prioridades */}
                   {priorityList.map((number) => (
-                    <PrioritySection key={number} priorityNumber={number} />
+                    <PrioritySection key={number} priorityNumber={number} products={products} suppliers={suppliers} />
                   ))}
 
                   {/* Botão para adicionar nova prioridade */}

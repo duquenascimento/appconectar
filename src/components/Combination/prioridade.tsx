@@ -1,27 +1,63 @@
-import React, { useState } from 'react'
+import { getAllProducts, ProductResponse } from '@/src/services/productsService'
+import React, { useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { View, Text, XStack, YStack, Separator, Card, Label } from 'tamagui'
 
+export interface ProrityProductsCombination {
+  id: string
+  name: string
+  class: string
+}
 interface PrioritySectionProps {
   priorityNumber: number
+  products: ProrityProductsCombination[]
+  suppliers: { label: string; value: string }[]
 }
 
-export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber }) => {
+export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber, products, suppliers }) => {
   const [euQueroOpen, setEuQueroOpen] = useState(false)
   const [euQueroValue, setEuQueroValue] = useState('fixar')
   const [fornecedorOpen, setFornecedorOpen] = useState(false)
   const [fornecedorValue, setFornecedorValue] = useState('fornecedorB')
   const [naoPossivelOpen, setNaoPossivelOpen] = useState(false)
   const [naoPossivelValue, setNaoPossivelValue] = useState('selecionar')
+  const [openProducts, setOpenProducts] = useState(false)
+  const [specificProducts, setSpecificProducts] = useState<string[]>([])
+  const [searchText, setSearchText] = useState('')
+  const [itemsDropdown, setItemsDropdown] = useState<{ label: string; value: string }[]>([])
+  
+
+  useEffect(() => {
+    const fetch = async () => {
+      const all: ProductResponse[] = await getAllProducts()
+      const text = searchText.toLowerCase()
+
+      const matchedProducts = all
+        .filter((product: ProductResponse) => product.name.toLowerCase().includes(text))
+        .map((p) => ({
+          label: `${p.name}`,
+          value: p.id
+        }))
+
+      const matchedClasses = all.filter((product: ProductResponse) => product.class.toLowerCase().includes(text))
+
+      const classOptions = [...new Set(matchedClasses.map((p) => p.class.toLocaleUpperCase()))].map((className) => ({
+        label: `${className}`,
+        value: `classe-${className}`
+      }))
+
+      setItemsDropdown([...matchedProducts, ...classOptions])
+    }
+
+    if (searchText.length > 0) {
+      fetch()
+    } else {
+      setItemsDropdown([])
+    }
+  }, [searchText])
 
   return (
-    <Card
-      bordered
-      backgroundColor="white"
-      borderColor="$gray5"
-      p="$2"
-      my="$4"
-    >
+    <Card bordered backgroundColor="white" borderColor="$gray5" p="$2" my="$4">
       <YStack gap="$3" p="$2">
         {/* Cabeçalho Prioridade */}
         <XStack alignItems="center" borderBottomWidth={1} pb={'$4'}>
@@ -36,7 +72,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             value={euQueroValue}
             items={[
               { label: 'Fixar produtos por fornecedor', value: 'fixar' },
-              { label: 'Remover produtos por fornecedor', value: 'remover' },
+              { label: 'Remover produtos por fornecedor', value: 'remover' }
             ]}
             setOpen={setEuQueroOpen}
             setValue={setEuQueroValue}
@@ -48,21 +84,38 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
           />
         </View>
 
-        {/* Fixar produtos/classes */}
-        <YStack my={'$2'}>
-          <Text fontSize={16} mb="$2">
-            Fixar produtos e/ou classes
-          </Text>
-          <XStack my={'$2'}>
-            <Card bordered p="$2">
-              <Text>Alface crespa</Text>
-            </Card>
-            <Card bordered p="$2">
-              <Text>Frutas</Text>
-            </Card>
-          </XStack>
-        </YStack>
-
+        {euQueroValue === 'fixar' && (
+          <YStack>
+            <Label>Buscar produtos</Label>
+            <DropDownPicker
+              open={openProducts}
+              setOpen={setOpenProducts}
+              multiple={true}
+              value={specificProducts}
+              setValue={setSpecificProducts}
+              items={itemsDropdown}
+              onChangeSearchText={setSearchText}
+              placeholder="Digite o nome do produto ou classe..."
+              searchable={true}
+              searchPlaceholder="Digite para buscar..."
+              searchTextInputProps={{
+                autoCorrect: false
+              }}
+              listMode="SCROLLVIEW"
+              translation={{
+                PLACEHOLDER: 'Digite o nome do produto ou classe...',
+                SEARCH_PLACEHOLDER: 'Digite para buscar...',
+                NOTHING_TO_SHOW: 'Nenhum produto encontrado'
+              }}
+              mode="BADGE"
+              badgeTextStyle={{ color: 'black' }}
+              badgeColors={['#E0E0E0']}
+              badgeDotColors={['#999']}
+              zIndex={30}
+              zIndexInverse={10}
+            />
+          </YStack>
+        )}
         <Separator borderColor="$gray5" />
 
         {/* Com fornecedor(es) */}
@@ -71,16 +124,12 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
           <DropDownPicker
             open={fornecedorOpen}
             value={fornecedorValue}
-            items={[
-              { label: 'Fornecedor A', value: 'fornecedorA' },
-              { label: 'Fornecedor B', value: 'fornecedorB' },
-              { label: 'Fornecedor C', value: 'fornecedorC' }
-            ]}
+            items={suppliers}
             setOpen={setFornecedorOpen}
             setValue={setFornecedorValue}
             multiple={false}
-            zIndex={2000}
-            zIndexInverse={1000}
+            zIndex={20}
+            zIndexInverse={10}
             placeholder="Selecione o fornecedor"
             placeholderStyle={{ color: 'gray' }}
           />
@@ -102,8 +151,8 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             setOpen={setNaoPossivelOpen}
             setValue={setNaoPossivelValue}
             multiple={false}
-            zIndex={1000}
-            zIndexInverse={1000}
+            zIndex={10}
+            zIndexInverse={10}
             placeholder="Selecione uma ação"
             placeholderStyle={{ color: 'gray' }}
           />
