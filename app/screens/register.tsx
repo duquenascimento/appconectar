@@ -718,8 +718,7 @@ export function Register({ navigation }: HomeScreenProps) {
                     }}
                     items={[
                       { label: 'Diário: 7 dias após a entrega', value: 'DI07' },
-                      { label: 'Semanal: vencimento na quarta', value: 'UQ10' },
-                      { label: 'Semanal: vencimento na sexta', value: 'UX12' }
+                      { label: 'Semanal: vencimento na quarta', value: 'UQ10' }
                     ]}
                     multiple={false}
                     open={paymentWayOpen}
