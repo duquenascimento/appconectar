@@ -1,62 +1,50 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { YStack, XStack, Text, Separator, View } from 'tamagui';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { YStack, XStack, Text, Separator, View, Image } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import React from 'react';
-import { SafeAreaView, ScrollView } from 'react-native';
+import { SafeAreaView, ScrollView, Platform } from 'react-native';
 import CustomButton from '@/src/components/button/customButton';
+import { SupplierData } from '@/src/types/types';
 
 type RootStackParamList = {
   QuotationDetails: undefined;
-  OrderConfirmed: { suppliers: any[] }; // Recebe os fornecedores da tela anterior
+  OrderConfirmed: { suppliers: SupplierData[] };
   Orders: undefined;
 };
 
-type OrderConfirmedScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'OrderConfirmed'>;
-  // route: { params: { suppliers: any[] } }; 
-};
+type OrderConfirmedRouteProp = RouteProp<RootStackParamList, 'OrderConfirmed'>;
+type OrderConfirmedNavigationProp = NativeStackNavigationProp<RootStackParamList, 'OrderConfirmed'>;
 
-// --- Mock Data ---
-const mockSuppliers = [
-  {
-    name: 'Lorem',
-    star: '4,8',
-    orderId: '99999_999',
-    orderValue: 99.99,
-  },
-  {
-    name: 'Ipsum',
-    star: '4,8',
-    orderId: '99999_999',
-    orderValue: 99.99,
-  },
-];
 
+// --- Mock Data para detalhes do restaurante (manter por enquanto) ---
+// Em um app real, isso viria do perfil do usuário ou de um contexto global
 const mockDetails = {
-  restaurant: 'Restaurante Lorem Ipsum',
-  address: 'Rua Lorem Ipsum, 3500, Loja A.',
+  restaurant: 'Restaurante Sabor & Arte',
+  address: 'Avenida Brasil, 1234, Centro.',
   deliveryTime: 'Sexta-feira, 10/05/2024',
   deliveryWindow: 'Entre 09:00 e 12:00',
   paymentDueDate: '27/05/2024',
   paymentMethod: 'Boleto, 7 dias',
 };
-// --- Fim do Mock Data ---
 
-export function OrderConfirmedScreen({ navigation }: OrderConfirmedScreenProps) {
-  // const { suppliers } = route.params; // para os dados reais
+export function OrderConfirmedScreen() {
+  const navigation = useNavigation<OrderConfirmedNavigationProp>();
+  const route = useRoute<OrderConfirmedRouteProp>();
+  
+  
+  const { suppliers } = route.params;
 
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#CFD8DC' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F4F8' }}>
       <YStack 
         flex={1} 
-        backgroundColor="#CFD8DC"
+        backgroundColor="#F0F4F8"
         alignSelf="center"
         width="100%"
-        $gtMd={{
-          maxWidth: 768
-        }}
+        maxWidth={Platform.OS === 'web' ? 768 : undefined}
       >
         <ScrollView 
           contentContainerStyle={{ flexGrow: 1 }}
@@ -79,20 +67,25 @@ export function OrderConfirmedScreen({ navigation }: OrderConfirmedScreenProps) 
                 shadowRadius={3.84}
                 elevation={5}
               >
-                <Icons name="checkmark" size={48} color="#04BF7B" />
+                <Icons name="checkmark" size={48} color="#1DC588" />
               </YStack>
               <Text fontSize={24} fontWeight="bold" color="$gray12">
                 Pedidos confirmados!
               </Text>
             </YStack>
 
-            {/* Card de Pedidos */}
+            {/* 3. Card de Pedidos - Renderiza os dados recebidos */}
             <YStack width="100%" bg="white" br={8} p="$4" gap="$3">
-              {mockSuppliers.map((supplier, index) => (
-                <React.Fragment key={index}>
+              {suppliers.map(({ supplier }, index) => (
+                <React.Fragment key={supplier.externalId}>
                   <XStack ai="center" jc="space-between">
                     <XStack ai="center" gap="$3">
-                      <View width={40} height={40} br={20} bg="$gray4" />
+                      <Image
+                        source={{ uri: supplier.image }}
+                        width={40}
+                        height={40}
+                        borderRadius={20}
+                      />
                       <YStack>
                         <Text fontSize={16} fontWeight="bold">{supplier.name}</Text>
                         <XStack ai="center" gap="$1.5">
@@ -102,17 +95,17 @@ export function OrderConfirmedScreen({ navigation }: OrderConfirmedScreenProps) 
                       </YStack>
                     </XStack>
                     <YStack ai="flex-end">
-                      <Text fontSize={16} fontWeight="bold">{formatCurrency(supplier.orderValue)}</Text>
-                      <Text fontSize={12} color="$gray10">Pedido {supplier.orderId}</Text>
+                      <Text fontSize={16} fontWeight="bold">{formatCurrency(supplier.discount.orderValueFinish)}</Text>
+                      <Text fontSize={12} color="$gray10">Pedido #{supplier.externalId.slice(-5)}</Text>
                     </YStack>
                   </XStack>
                   
-                  {index < mockSuppliers.length - 1 && <Separator borderColor="$gray4" />}
+                  {index < suppliers.length - 1 && <Separator borderColor="$gray4" />}
                 </React.Fragment>
               ))}
             </YStack>
 
-            {/* Card de Detalhes */}
+            {/* 4. Detalhes do Pedido */}
             <YStack width="100%" bg="white" br={8} p="$4" gap="$4">
               {/* Endereço */}
               <XStack ai="flex-start" gap="$3">
@@ -144,7 +137,7 @@ export function OrderConfirmedScreen({ navigation }: OrderConfirmedScreenProps) 
           </YStack>
         </ScrollView>
 
-        <YStack py="$4" px="$4" bg="#CFD8DC">
+        <YStack py="$4" px="$4" bg="#F0F4F8">
           <CustomButton
             title="Ir para Meus pedidos"
             onPress={() => navigation.navigate('Orders')}
