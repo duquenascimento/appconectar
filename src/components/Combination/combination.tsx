@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Platform, SafeAreaView } from 'react-native'
-import { useNavigation } from '@react-navigation/native'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { ScrollView, Text, Input, Label, Select, XStack, YStack, Separator, RadioGroup, Button } from 'tamagui'
+import { ScrollView, Text, Input, Label, XStack, YStack, Separator, Button } from 'tamagui'
 
 import CustomButton from '../button/customButton'
 import CustomSubtitle from '../subtitle/customSubtitle'
@@ -11,9 +10,11 @@ import CustomHeader from '../header/customHeader'
 import { getAllSuppliers } from '@/src/services/supplierService'
 import { mapSuppliers } from '@/app/utils/mapSupplier'
 import { CustomRadioButton } from '../button/customRadioButton'
-import { getAllProducts, ProductResponse } from '@/src/services/productsService'
+import { getAllProducts } from '@/src/services/productsService'
 import { mapProducts } from '@/app/utils/mapProducts'
 import { ProrityProductsCombination } from './prioridade'
+import { getStorage } from '@/app/utils/utils'
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 export interface SuplierCombination {
   id: string
@@ -22,19 +23,75 @@ export interface SuplierCombination {
 
 export const Combination: React.FC = () => {
   const navigation = useNavigation()
-  const [combinationName, setCombinationName] = useState('')
-  const [maxSuppliers, setMaxSuppliers] = useState('2 fornecedores')
+  const [nome, setNome] = useState('')
+  const [dividir_em_maximo, setDividir_em_maximo] = useState(2)
   const [suppliers, setSupplers] = useState<SuplierCombination[]>([])
   const [openBlockSuppliers, setOpenBlockSupplers] = useState(false)
-  const [blockSuppliers, setBlockSuppliers] = useState(false)
-  const [preference, setPreference] = useState('Qualquer')
-  const [specificSuppliers, setSpecificSuppliers] = useState<string[]>([])
+  const [bloquear_fornecedores, setBloquear_fornecedores] = useState(false)
+  const [fornecedor_bloqueado, setFornecedor_bloqueado] = useState<string[]>([])
+  const [preferencia_fornecedor_tipo, setPreferencia_fornecedor_tipo] = useState('qualquer')
+  const [preferencias_hard, setPreferencias_hard] = useState(false)
+  const [restaurant_id, setRestaurant_id] = useState<string | null>(null)
+  const [fornecedor_especifico, setFornecedor_especifico] = useState<string[]>([])
   const [open, setOpen] = useState(false)
   const [openSupplier, setOpenSupplier] = useState(false)
   const [openPreference, setOpenPreference] = useState(false)
-  const [productPreferenceEnabled, setProductPreferenceEnabled] = useState(false)
+  const [definir_preferencia_produto, setDefinir_preferencia_produto] = useState(false)
   const [priorityList, setPriorityList] = useState<number[]>([1])
   const [products, setProducts] = useState<ProrityProductsCombination[]>([])
+  const route = useRoute();
+  const [prioritiesData, setPrioritiesData] = useState<
+    Record<
+      number,
+      {
+        tipo: string
+        produtos: {
+          produto_sku: string
+          classe: string
+          fornecedores: string[]
+          acao_na_falha: string
+        }[]
+      }
+    >
+  >({})
+
+  const handlePriorityChange = (
+    number: number,
+    data: {
+      tipo: string
+      produtos: {
+        produto_sku: string
+        classe: string
+        fornecedores: string[]
+        acao_na_falha: string
+      }[]
+    }
+  ) => {
+    setPrioritiesData((prev) => ({
+      ...prev,
+      [number]: data
+    }))
+  }
+
+  useEffect(() => {
+    const fetchStoredRestaurant = async () => {
+      const storedValue = await getStorage('selectedRestaurant')
+
+      if (storedValue) {
+        try {
+          const parsedValue = JSON.parse(storedValue)
+          const restaurante = parsedValue?.restaurant ?? parsedValue ?? null
+          const idFromRoute = (route.params as { restaurantId?: string })?.restaurantId
+
+          setRestaurant_id(idFromRoute ?? restaurante?.id ?? null)
+        } catch {
+          setRestaurant_id(null)
+        }
+      }
+    }
+
+    fetchStoredRestaurant()
+  }, [])
 
   const loadSuppliers = useCallback(async () => {
     try {
@@ -79,17 +136,41 @@ export const Combination: React.FC = () => {
     setPriorityList((prev) => [...prev, prev.length + 1])
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const preferencias = Object.entries(prioritiesData).map(([ordem, data]) => ({
+      ordem: Number(ordem),
+      tipo: data.tipo,
+      produtos: data.produtos
+    }))
+
     const combinationData = {
-      combinationName,
-      maxSuppliers,
-      blockSuppliers,
-      preference,
-      specificSuppliers,
-      productPreferenceEnabled
+      restaurant_id,
+      nome,
+      bloquear_fornecedores,
+      dividir_em_maximo,
+      fornecedor_especifico,
+      fornecedor_bloqueado,
+      preferencia_fornecedor_tipo,
+      definir_preferencia_produto,
+      preferencias,
+      preferencias_hard
     }
-    console.log('Salvando dados da combinação:', combinationData)
-    navigation.goBack()
+
+    console.log('Payload final para salvar:', combinationData)
+
+    try {
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(combinationData)
+      })
+      const combinacao = await result.json()
+      console.log('Dados enviados >>>>', combinacao)
+    } catch (erro) {
+      console.error('Erro ao criar combinação:', erro)
+    }
   }
 
   return (
@@ -101,7 +182,7 @@ export const Combination: React.FC = () => {
           {/* Nome da combinação */}
           <YStack>
             <Label>Nome da combinação</Label>
-            <Input placeholder="Lorem ipsum" value={combinationName} onChangeText={setCombinationName} />
+            <Input placeholder="Lorem ipsum" value={nome} onChangeText={setNome} />
           </YStack>
 
           {/* Dropdown máximo de fornecedores */}
@@ -109,13 +190,14 @@ export const Combination: React.FC = () => {
             <Label>Dividir em no máximo</Label>
             <DropDownPicker
               open={open}
-              value={maxSuppliers}
-              items={['1 fornecedor', '2 fornecedores', '3 fornecedores'].map((item) => ({
-                label: item,
-                value: item
-              }))}
+              value={dividir_em_maximo}
+              items={[
+                { label: '2 fornecedores', value: 2 },
+                { label: '3 fornecedores', value: 3 },
+                { label: '4 fornecedores', value: 4 }
+              ]}
               setOpen={setOpen}
-              setValue={setMaxSuppliers}
+              setValue={setDividir_em_maximo}
               multiple={false}
               zIndex={3000}
               zIndexInverse={1000}
@@ -129,18 +211,18 @@ export const Combination: React.FC = () => {
             <Separator my="$3" />
             <Text>Bloquear fornecedores na combinação?</Text>
             <XStack>
-              <CustomRadioButton selected={blockSuppliers} onPress={() => setBlockSuppliers(true)} label="Sim" />
-              <CustomRadioButton selected={!blockSuppliers} onPress={() => setBlockSuppliers(false)} label="Não" />
+              <CustomRadioButton selected={bloquear_fornecedores} onPress={() => setBloquear_fornecedores(true)} label="Sim" />
+              <CustomRadioButton selected={!bloquear_fornecedores} onPress={() => setBloquear_fornecedores(false)} label="Não" />
             </XStack>
-            {blockSuppliers && (
+            {bloquear_fornecedores && (
               <YStack style={{ zIndex: 1000, marginTop: 10 }}>
                 <Label>Fornecedores bloqueados</Label>
                 <DropDownPicker
                   open={openBlockSuppliers}
                   setOpen={setOpenBlockSupplers}
                   multiple={true}
-                  value={specificSuppliers}
-                  setValue={setSpecificSuppliers}
+                  value={fornecedor_bloqueado}
+                  setValue={setFornecedor_bloqueado}
                   items={suppliers.map((s) => ({
                     label: s.nomefornecedor,
                     value: s.id
@@ -174,12 +256,12 @@ export const Combination: React.FC = () => {
                 <DropDownPicker
                   open={openPreference}
                   setOpen={setOpenPreference}
-                  value={preference}
-                  setValue={setPreference}
+                  value={preferencia_fornecedor_tipo}
+                  setValue={setPreferencia_fornecedor_tipo}
                   items={[
-                    { label: 'Fornecedores melhor avaliados', value: 'Melhor' },
-                    { label: 'Fornecedores específicos', value: 'especificos' },
-                    { label: 'Qualquer fornecedor', value: 'Qualquer' }
+                    { label: 'Fornecedores melhor avaliados', value: 'melhor_avaliado' },
+                    { label: 'Fornecedores específicos', value: 'especifico' },
+                    { label: 'Qualquer fornecedor', value: 'qualquer' }
                   ]}
                   placeholder="Selecione..."
                   zIndex={4000}
@@ -193,15 +275,15 @@ export const Combination: React.FC = () => {
                 />
               </YStack>
 
-              {preference === 'especificos' && (
+              {preferencia_fornecedor_tipo === 'especifico' && (
                 <YStack style={{ zIndex: 1000 }}>
                   <Label>Fornecedores específicos</Label>
                   <DropDownPicker
                     open={openSupplier}
                     setOpen={setOpenSupplier}
                     multiple={true}
-                    value={specificSuppliers}
-                    setValue={setSpecificSuppliers}
+                    value={fornecedor_especifico}
+                    setValue={setFornecedor_especifico}
                     items={suppliers.map((s) => ({
                       label: s.nomefornecedor,
                       value: s.id
@@ -235,14 +317,14 @@ export const Combination: React.FC = () => {
             <YStack borderBottomWidth={1} py="$3" borderColor="$gray4" gap={6}>
               <Text fontSize={14}>Definir preferência de produto para um ou mais fornecedores?</Text>
               <XStack>
-                <CustomRadioButton selected={productPreferenceEnabled} onPress={() => setProductPreferenceEnabled(true)} label="Sim" />
-                <CustomRadioButton selected={!productPreferenceEnabled} onPress={() => setProductPreferenceEnabled(false)} label="Não" />
+                <CustomRadioButton selected={definir_preferencia_produto} onPress={() => setDefinir_preferencia_produto(true)} label="Sim" />
+                <CustomRadioButton selected={!definir_preferencia_produto} onPress={() => setDefinir_preferencia_produto(false)} label="Não" />
               </XStack>
-              {productPreferenceEnabled && (
+              {definir_preferencia_produto && (
                 <>
                   {/* Lista de prioridades */}
                   {priorityList.map((number) => (
-                    <PrioritySection key={number} priorityNumber={number} products={products} selectedSuppliers={specificSuppliers} suppliers={suppliers} />
+                    <PrioritySection key={number} priorityNumber={number} products={products} selectedSuppliers={fornecedor_especifico} suppliers={suppliers} onChange={handlePriorityChange} />
                   ))}
 
                   {/* Botão para adicionar nova prioridade */}

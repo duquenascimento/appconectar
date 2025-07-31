@@ -6,6 +6,7 @@ import { SuplierCombination } from './combination'
 
 export interface ProrityProductsCombination {
   id: string
+  sku: string
   name: string
   class: string
 }
@@ -14,19 +15,49 @@ interface PrioritySectionProps {
   products: ProrityProductsCombination[]
   selectedSuppliers: string[] // IDs selecionados
   suppliers: SuplierCombination[]
+  onChange: (
+    priorityNumber: number,
+    data: {
+      tipo: string
+      produtos: {
+        produto_sku: string
+        classe: string
+        fornecedores: string[]
+        acao_na_falha: string
+      }[]
+    }
+  ) => void
 }
 
-export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber, products, selectedSuppliers, suppliers }) => {
+export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber, products, selectedSuppliers, suppliers, onChange }) => {
   const [euQueroOpen, setEuQueroOpen] = useState(false)
   const [euQueroValue, setEuQueroValue] = useState('fixar')
   const [fornecedorOpen, setFornecedorOpen] = useState(false)
-  const [fornecedorValue, setFornecedorValue] = useState('fornecedorB')
+  const [fornecedorValue, setFornecedorValue] = useState<string[]>([])
   const [naoPossivelOpen, setNaoPossivelOpen] = useState(false)
-  const [naoPossivelValue, setNaoPossivelValue] = useState('selecionar')
+  const [acao_na_falha, setAcao_na_falha] = useState('ignorar')
   const [openProducts, setOpenProducts] = useState(false)
   const [specificProducts, setSpecificProducts] = useState<string[]>([])
   const [searchText, setSearchText] = useState('')
   const [itemsDropdown, setItemsDropdown] = useState<{ label: string; value: string }[]>([])
+
+  useEffect(() => {
+    const produtosFormatados = specificProducts.map((productId) => {
+      const produtoInfo = products.find((p) => p.id === productId)
+
+      return {
+        produto_sku: produtoInfo?.sku ?? '',
+        classe: produtoInfo?.class ?? '',
+        fornecedores: fornecedorValue,
+        acao_na_falha: acao_na_falha
+      }
+    })
+
+    onChange(priorityNumber, {
+      tipo: euQueroValue,
+      produtos: produtosFormatados
+    })
+  }, [euQueroValue, specificProducts, fornecedorValue, acao_na_falha])
 
   const selectedSupplierOptions = suppliers
     .filter((s) => selectedSuppliers.includes(s.id))
@@ -102,6 +133,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
           <YStack>
             <Label>Buscar produtos</Label>
             <DropDownPicker
+              dropDownDirection="BOTTOM"
               open={openProducts}
               setOpen={setOpenProducts}
               multiple={true}
@@ -135,7 +167,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
         {/* Com fornecedor(es) */}
         <View my={'$2'}>
           <Label>Com fornecedor(es)</Label>
-          <DropDownPicker open={fornecedorOpen} value={fornecedorValue} items={selectedSupplierOptions} setOpen={setFornecedorOpen} setValue={setFornecedorValue} multiple={false} zIndex={20} zIndexInverse={10} placeholder="Selecione o fornecedor" placeholderStyle={{ color: 'gray' }} />
+          <DropDownPicker open={fornecedorOpen} multiple={true} value={fornecedorValue} items={selectedSupplierOptions} setOpen={setFornecedorOpen} setValue={setFornecedorValue} zIndex={20} zIndexInverse={10} placeholder="Selecione o fornecedor" placeholderStyle={{ color: 'gray' }} />
         </View>
 
         <Separator borderColor="$gray5" />
@@ -145,14 +177,13 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
           <Label>Não sendo possível</Label>
           <DropDownPicker
             open={naoPossivelOpen}
-            value={naoPossivelValue}
+            value={acao_na_falha}
             items={[
               { label: 'Ignorar e pular esta preferência', value: 'ignorar' },
-              { label: 'Selecionar', value: 'selecionar' },
-              { label: 'Escolher alternativa automática', value: 'alternativa' }
+              { label: 'Deixar produto como indisponível', value: 'indisponivel' },
             ]}
             setOpen={setNaoPossivelOpen}
-            setValue={setNaoPossivelValue}
+            setValue={setAcao_na_falha}
             multiple={false}
             zIndex={10}
             zIndexInverse={10}

@@ -4,6 +4,7 @@ import { ProrityProductsCombination } from '@/src/components/Combination/priorid
 export function mapProducts (apiData: ProductResponse): ProrityProductsCombination {
   return {
     id: apiData.id,
+    sku: apiData.sku,
     name: apiData.name,
     class: apiData.class
   };
