@@ -3,12 +3,9 @@ import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator, Button
 import Icons from '@expo/vector-icons/Ionicons';
 import React, { useState } from 'react';
 import { SafeAreaView, Alert, Platform } from 'react-native';
-
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomButton from '../../src/components/button/customButton';
-
-// Interfaces (mantenha como estão)
 export interface Product {
   price: number;
   priceWithoutTax: number;
@@ -50,13 +47,12 @@ export interface SupplierData {
   supplier: Supplier;
 }
 
-// 1. Tipagem de Rota Atualizada
 type RootStackParamList = {
   Home: undefined;
   Products: undefined;
   Cart: undefined;
   Prices: undefined;
-  OrderConfirmed: { suppliers: SupplierData[] }; // <-- Rota de destino adicionada
+  OrderConfirmed: { suppliers: SupplierData[] };
   QuotationDetails: { 
     combinationId: string; 
     combinationName?: string;
@@ -93,10 +89,8 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
   const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
 
- // Funções de navegação 
   const handleBackPress = () => navigation.goBack();
   const handleConfirm = () => {
-    // Navega para a tela de confirmação, passando os dados dos fornecedores
     navigation.navigate('OrderConfirmed', { suppliers: suppliersData });
   };
   
