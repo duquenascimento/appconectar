@@ -13,7 +13,7 @@ export interface ProrityProductsCombination {
 interface PrioritySectionProps {
   priorityNumber: number
   products: ProrityProductsCombination[]
-  selectedSuppliers: string[] // IDs selecionados
+  selectedSuppliers: string[]
   suppliers: SuplierCombination[]
   onChange: (
     priorityNumber: number,

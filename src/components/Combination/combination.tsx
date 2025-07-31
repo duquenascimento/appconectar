@@ -98,7 +98,6 @@ export const Combination: React.FC = () => {
       const data = await getAllSuppliers()
       if (Array.isArray(data)) {
         setSupplers(data.map(mapSuppliers))
-        console.log('suppliers', suppliers)
       } else {
         throw new Error('Resposta inesperada da API')
       }
@@ -113,7 +112,6 @@ export const Combination: React.FC = () => {
       const data = await getAllProducts()
       if (Array.isArray(data)) {
         setProducts(data.map(mapProducts))
-        console.log('Products', products)
       } else {
         throw new Error('Resposta inesperada da API')
       }
@@ -156,8 +154,6 @@ export const Combination: React.FC = () => {
       preferencias_hard
     }
 
-    console.log('Payload final para salvar:', combinationData)
-
     try {
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
         method: 'POST',
@@ -167,7 +163,6 @@ export const Combination: React.FC = () => {
         body: JSON.stringify(combinationData)
       })
       const combinacao = await result.json()
-      console.log('Dados enviados >>>>', combinacao)
     } catch (erro) {
       console.error('Erro ao criar combinação:', erro)
     }
