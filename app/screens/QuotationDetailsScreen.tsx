@@ -1,70 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, Alert, Platform, ActivityIndicator } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Text, View, Image, ScrollView, XStack, YStack, Separator } from 'tamagui';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
+import Icons from '@expo/vector-icons/Ionicons';
+import React, { useState } from 'react';
+import { SafeAreaView, Alert, Platform } from 'react-native';
+
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomButton from '../../src/components/button/customButton';
-import { SupplierData } from '@/src/types/types'; // Verifique o caminho correto
-import { getStorage } from '../utils/utils'; // Importe a função de busca
-import { SavedCombination } from '@/src/components/Combination/combination'; // Importe a interface
 
-// Tipagem das rotas
+// Interfaces (mantenha como estão)
+export interface Product {
+  price: number;
+  priceWithoutTax: number;
+  name: string;
+  sku: string;
+  quant: number;
+  orderQuant: number;
+  obs: string;
+  priceUnique: number;
+  priceUniqueWithTaxAndDiscount: number;
+  image: string[];
+  orderUnit: string;
+}
+
+export interface Discount {
+  orderValue: number;
+  discount: number;
+  orderWithoutTax: number;
+  orderWithTax: number;
+  tax: number;
+  missingItens: number;
+  orderValueFinish: number;
+  product: Product[];
+  sku: string;
+}
+
+export interface Supplier {
+  name: string;
+  externalId: string;
+  image: string;
+  missingItens: number;
+  minimumOrder: number;
+  hour: string;
+  discount: Discount;
+  star: string;
+}
+
+export interface SupplierData {
+  supplier: Supplier;
+}
+
+// 1. Tipagem de Rota Atualizada
 type RootStackParamList = {
-  QuotationDetails: { combinationId: string };
-  OrderConfirmed: { suppliers: SupplierData[] };
+  Home: undefined;
+  Products: undefined;
+  Cart: undefined;
+  Prices: undefined;
+  OrderConfirmed: { suppliers: SupplierData[] }; // <-- Rota de destino adicionada
+  QuotationDetails: { 
+    combinationId: string; 
+    combinationName?: string;
+    suppliersData: SupplierData[]; 
+  };
 };
 
-type QuotationDetailsRouteProp = RouteProp<RootStackParamList, 'QuotationDetails'>;
-type QuotationDetailsNavigationProp = NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
+type QuotationDetailsScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
+  route: { params: RootStackParamList['QuotationDetails'] };
+};
 
-export function QuotationDetailsScreen() {
-  const navigation = useNavigation<QuotationDetailsNavigationProp>();
-  const route = useRoute<QuotationDetailsRouteProp>();
-  
-  const { combinationId } = route.params;
-  
-  const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
-  const [headerTitle, setHeaderTitle] = useState<string>('Detalhes da Cotação');
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    const loadCombinationDetails = async () => {
-      if (!combinationId) {
-        Alert.alert('Erro', 'ID da combinação não fornecido.');
-        setIsLoading(false);
-        return;
-      }
+export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
+  const { combinationName, suppliersData } = route.params;
 
-      try {
-        setIsLoading(true);
-        const combinationsJSON = await getStorage('savedCombinations');
-        if (combinationsJSON) {
-          const allCombinations: SavedCombination[] = JSON.parse(combinationsJSON);
-          // Encontra a combinação específica pelo ID
-          const currentCombination = allCombinations.find(c => c.id === combinationId);
-
-          if (currentCombination) {
-            setHeaderTitle(currentCombination.combinationName);
-            setSuppliers(currentCombination.suppliersData);
-          } else {
-            Alert.alert('Erro', 'Combinação não encontrada no armazenamento.');
-          }
-        } else {
-          Alert.alert('Erro', 'Nenhuma combinação encontrada no armazenamento.');
-        }
-      } catch (err) {
-        console.error('Erro ao carregar detalhes da combinação:', err);
-        Alert.alert('Erro', 'Ocorreu um erro ao carregar os detalhes da combinação.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCombinationDetails();
-  }, [combinationId]);
+  const [suppliers, setSuppliers] = useState<SupplierData[]>(suppliersData || []);
+  const [headerTitle, setHeaderTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
 
   const totals = React.useMemo(() => {
+    if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 };
     return suppliers.reduce(
       (acc, { supplier }) => {
         acc.subtotal += supplier.discount.orderValue;
@@ -81,30 +93,19 @@ export function QuotationDetailsScreen() {
   const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
   const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
 
+ // Funções de navegação 
   const handleBackPress = () => navigation.goBack();
   const handleConfirm = () => {
-    if (suppliers.length > 0) {
-      navigation.navigate('OrderConfirmed', { suppliers });
-    } else {
-      Alert.alert("Atenção", "Não há dados de fornecedores para confirmar.");
-    }
+    // Navega para a tela de confirmação, passando os dados dos fornecedores
+    navigation.navigate('OrderConfirmed', { suppliers: suppliersData });
   };
-
-  if (isLoading) {
-    return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#1DC588" />
-        <Text mt="$4">Carregando detalhes...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!suppliers.length) {
+  
+  if (!suppliers || suppliers.length === 0) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <CustomHeader title="Erro" onBackPress={handleBackPress} />
         <View flex={1} justifyContent="center" alignItems="center">
-          <Text>Não foi possível carregar os dados da combinação.</Text>
+          <Text>Não foi possível carregar os dados da cotação.</Text>
         </View>
       </SafeAreaView>
     );
@@ -112,36 +113,157 @@ export function QuotationDetailsScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <YStack flex={1} backgroundColor="#FFFFFF" alignSelf="center" width={Platform.OS === 'web' ? '70%' : '100%'} maxWidth={1280}>
+      <YStack
+        flex={1}
+        backgroundColor="#FFFFFF"
+        alignSelf="center"
+        width={Platform.OS === 'web' ? '70%' : '100%'}
+        maxWidth={1280}
+      >
         <CustomHeader title={headerTitle} onBackPress={handleBackPress} />
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, marginTop: 16 }}>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 120, marginTop: 16 }}
+        >
           <YStack gap="$4" px="$4">
-            <CustomInfoCard icon="warning" description="Podem ocorrer pequenas variações de peso/tamanho nos produtos." />
+            <CustomInfoCard
+              icon="warning"
+              description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
+            />
 
             {suppliers.map(({ supplier }) => (
-              <YStack key={supplier.externalId} bg="white" br={8} p="$3" gap="$3" borderColor='$gray6' borderWidth={1}>
-                {/* O resto do seu JSX para renderizar os detalhes continua aqui... */}
-                {/* ... */}
+              <YStack
+                key={supplier.externalId}
+                bg="white"
+                br={8}
+                p="$3"
+                gap="$3"
+                borderColor='$gray6'
+                borderWidth={1}
+              >
+                 <XStack ai="center">
+                  <Image
+                    source={{ uri: supplier.image }}
+                    width={40}
+                    height={40}
+                    borderRadius={20}
+                  />
+                  <YStack ml="$3" flex={1}>
+                    <Text fontSize={16} fontWeight="bold">
+                      {supplier.name.replace('Distribuidora', '').trim()}
+                    </Text>
+                    <XStack ai="center" gap="$1.5">
+                      <Icons name="star" color="#F59E0B" size={14} />
+                      <Text fontSize={12} color="$gray10">{supplier.star}</Text>
+                    </XStack>
+                  </YStack>
+                  <YStack ai="flex-end">
+                    <Text fontSize={16} fontWeight="bold">
+                      {formatCurrency(supplier.discount.orderValueFinish)}
+                    </Text>
+                    <Text fontSize={12} color="$gray10">
+                      {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
+                    </Text>
+                  </YStack>
+                </XStack>
+
+                <YStack gap="$3">
+                  {supplier.discount.product.map((product) => (
+                    <XStack key={product.sku} ai="center" gap="$3">
+                      <Image
+                        source={{ uri: product.image[0] }}
+                        width={40}
+                        height={40}
+                        borderRadius={5}
+                      />
+                      <YStack flex={1}>
+                        <Text fontSize={14} color="$gray12">{product.name}</Text>
+                        {product.obs ? (
+                          <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
+                        ) : null}
+                      </YStack>
+                      <YStack ai="flex-end">
+                        <Text fontWeight="bold" fontSize={14} color={product.price ? '$gray12' : '$red10'}>
+                          {product.price ? formatCurrency(product.price) : 'Indisponível'}
+                        </Text>
+                        <Text fontSize={12} color="$gray10">
+                          {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
+                        </Text>
+                      </YStack>
+                    </XStack>
+                  ))}
+                </YStack>
               </YStack>
             ))}
 
-            {/* Totais */}
+            {/* Card de totais */}
             <YStack bg="white" br={8} p="$3.5" gap="$2.5" borderColor='$gray6' borderWidth={1}>
-              {/* JSX dos totais... */}
+               <XStack jc="space-between" ai="center">
+                <Text fontSize={14} color="$gray11">Subtotal</Text>
+                <Text fontSize={14} color="$gray11">{formatCurrency(totals.subtotal)}</Text>
+              </XStack>
+              <XStack jc="space-between" ai="center">
+                <Text fontSize={14} color="$gray11">Descontos</Text>
+                <Text fontSize={14} color="$gray11">- {formatCurrency(totals.discount)}</Text>
+              </XStack>
+              <Separator my="$1" borderColor="$gray4" />
+              <XStack jc="space-between" ai="center">
+                <Text fontSize={18} fontWeight="bold">Total</Text>
+                <Text fontSize={18} fontWeight="bold">{formatCurrency(totals.grandTotal)}</Text>
+              </XStack>
+              <Text fontSize={12} color="$gray10" ta="right">
+                {totals.totalItems} item(s) | {totals.missingItems} faltante(s)
+              </Text>
             </YStack>
           </YStack>
         </ScrollView>
 
-        {/* Botões */}
+        {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View pos="absolute" bottom={0} left={0} right={0} py="$4" px="$4" bg="white" borderTopWidth={1} borderTopColor="$gray4">
-          <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
-            <YStack f={1}>
-              <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF" />
-            </YStack>
-            <YStack f={1}>
-              <CustomButton title="Confirmar" onPress={handleConfirm} backgroundColor="#1DC588" textColor="#FFFFFF" />
-            </YStack>
-          </XStack>
+          {Platform.OS === 'web' ? (
+            <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
+              <YStack f={1}>
+                <Button
+                  onPress={handleBackPress}
+                  hoverStyle={{
+                    backgroundColor: '#333333',
+                    opacity: 0.9
+                  }}
+                  backgroundColor="#000000"
+                  color="#FFFFFF"
+                  borderColor="#A9A9A9"
+                  borderWidth={1}
+                >
+                  Voltar
+                </Button>
+              </YStack>
+              <YStack f={1}>
+                <Button
+                  onPress={handleConfirm}
+                  hoverStyle={{
+                    backgroundColor: '#1DC588',
+                    opacity: 0.9
+                  }}
+                  backgroundColor="#1DC588"
+                  color="#FFFFFF"
+                  borderColor="#A9A9A9"
+                  borderWidth={1}
+                >
+                  Confirmar combinação
+                </Button>
+              </YStack>
+            </XStack>
+          ) : (
+            <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
+              <YStack f={1}>
+                <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF" borderColor="#A9A9A9" borderWidth={1} />
+              </YStack>
+              <YStack f={1}>
+                <CustomButton title="Confirmar" onPress={handleConfirm} backgroundColor="#1DC588" textColor="#FFFFFF" borderColor="#A9A9A9" />
+              </YStack>
+            </XStack>
+          )}
         </View>
       </YStack>
     </SafeAreaView>
