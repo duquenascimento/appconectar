@@ -167,7 +167,24 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
         {/* Com fornecedor(es) */}
         <View my={'$2'}>
           <Label>Com fornecedor(es)</Label>
-          <DropDownPicker open={fornecedorOpen} multiple={true} value={fornecedorValue} items={selectedSupplierOptions} setOpen={setFornecedorOpen} setValue={setFornecedorValue} zIndex={20} zIndexInverse={10} placeholder="Selecione o fornecedor" placeholderStyle={{ color: 'gray' }} />
+          <DropDownPicker
+            open={fornecedorOpen}
+            multiple={true}
+            value={fornecedorValue}
+            items={selectedSupplierOptions}
+            setOpen={setFornecedorOpen}
+            setValue={setFornecedorValue}
+            zIndex={20}
+            zIndexInverse={10}
+            placeholder="Selecione o fornecedor"
+            placeholderStyle={{ color: 'gray' }}
+            translation={{
+              PLACEHOLDER: 'Selecione os fornecedores',
+              SEARCH_PLACEHOLDER: 'Digite para buscar...',
+              NOTHING_TO_SHOW: 'Nada encontrado',
+              SELECTED_ITEMS_COUNT_TEXT: '{count} fornecedor(es) selecionado(s)'
+            }}
+          />
         </View>
 
         <Separator borderColor="$gray5" />
@@ -180,7 +197,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             value={acao_na_falha}
             items={[
               { label: 'Ignorar e pular esta preferência', value: 'ignorar' },
-              { label: 'Deixar produto como indisponível', value: 'indisponivel' },
+              { label: 'Deixar produto como indisponível', value: 'indisponivel' }
             ]}
             setOpen={setNaoPossivelOpen}
             setValue={setAcao_na_falha}

@@ -177,7 +177,7 @@ export const Combination: React.FC = () => {
           {/* Nome da combinação */}
           <YStack>
             <Label>Nome da combinação</Label>
-            <Input placeholder="Lorem ipsum" value={nome} onChangeText={setNome} />
+            <Input placeholder="Digite o nome da combinação" backgroundColor="white" value={nome} onChangeText={setNome} />
           </YStack>
 
           {/* Dropdown máximo de fornecedores */}

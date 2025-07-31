@@ -1,99 +1,142 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
-import React, { useState } from 'react';
-import { SafeAreaView, Alert, Platform } from 'react-native';
-import CustomHeader from '@/src/components/header/customHeader';
-import CustomInfoCard from '@/src/components/card/customInfoCard';
-import CustomButton from '../../src/components/button/customButton';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui'
+import Icons from '@expo/vector-icons/Ionicons'
+import React, { useState } from 'react'
+import { SafeAreaView, Alert, Platform } from 'react-native'
+import CustomHeader from '@/src/components/header/customHeader'
+import CustomInfoCard from '@/src/components/card/customInfoCard'
+import CustomButton from '../../src/components/button/customButton'
+import { getStorage, getToken } from '../utils/utils'
 export interface Product {
-  price: number;
-  priceWithoutTax: number;
-  name: string;
-  sku: string;
-  quant: number;
-  orderQuant: number;
-  obs: string;
-  priceUnique: number;
-  priceUniqueWithTaxAndDiscount: number;
-  image: string[];
-  orderUnit: string;
+  price: number
+  priceWithoutTax: number
+  name: string
+  sku: string
+  quant: number
+  orderQuant: number
+  obs: string
+  priceUnique: number
+  priceUniqueWithTaxAndDiscount: number
+  image: string[]
+  orderUnit: string
 }
 
 export interface Discount {
-  orderValue: number;
-  discount: number;
-  orderWithoutTax: number;
-  orderWithTax: number;
-  tax: number;
-  missingItens: number;
-  orderValueFinish: number;
-  product: Product[];
-  sku: string;
+  orderValue: number
+  discount: number
+  orderWithoutTax: number
+  orderWithTax: number
+  tax: number
+  missingItens: number
+  orderValueFinish: number
+  product: Product[]
+  sku: string
 }
 
 export interface Supplier {
-  name: string;
-  externalId: string;
-  image: string;
-  missingItens: number;
-  minimumOrder: number;
-  hour: string;
-  discount: Discount;
-  star: string;
+  name: string
+  externalId: string
+  image: string
+  missingItens: number
+  minimumOrder: number
+  hour: string
+  discount: Discount
+  star: string
 }
 
 export interface SupplierData {
-  supplier: Supplier;
+  supplier: Supplier
 }
 
 type RootStackParamList = {
-  Home: undefined;
-  Products: undefined;
-  Cart: undefined;
-  Prices: undefined;
-  OrderConfirmed: { suppliers: SupplierData[] };
-  QuotationDetails: { 
-    combinationId: string; 
-    combinationName?: string;
-    suppliersData: SupplierData[]; 
-  };
-};
+  Home: undefined
+  Products: undefined
+  Cart: undefined
+  Prices: undefined
+  OrderConfirmed: { suppliers: SupplierData[] }
+  QuotationDetails: {
+    combinationId: string
+    combinationName?: string
+    suppliersData: SupplierData[]
+  }
+}
 
 type QuotationDetailsScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
-  route: { params: RootStackParamList['QuotationDetails'] };
-};
+  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>
+  route: { params: RootStackParamList['QuotationDetails'] }
+}
 
 export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
-  const { combinationName, suppliersData } = route.params;
+  const { combinationName, suppliersData } = route.params
 
-  const [suppliers, setSuppliers] = useState<SupplierData[]>(suppliersData || []);
-  const [headerTitle, setHeaderTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
+  const [suppliers, setSuppliers] = useState<SupplierData[]>(suppliersData || [])
+  const [headerTitle, setHeaderTitle] = useState<string>(combinationName || 'Detalhes da Cotação')
 
   const totals = React.useMemo(() => {
-    if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 };
+    if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
     return suppliers.reduce(
       (acc, { supplier }) => {
-        acc.subtotal += supplier.discount.orderValue;
-        acc.discount += supplier.discount.discount;
-        acc.grandTotal += supplier.discount.orderValueFinish;
-        acc.totalItems += supplier.discount.product.filter(p => p.price > 0).length;
-        acc.missingItems += supplier.missingItens;
-        return acc;
+        acc.subtotal += supplier.discount.orderValue
+        acc.discount += supplier.discount.discount
+        acc.grandTotal += supplier.discount.orderValueFinish
+        acc.totalItems += supplier.discount.product.filter((p) => p.price > 0).length
+        acc.missingItems += supplier.missingItens
+        return acc
       },
       { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
-    );
-  }, [suppliers]);
+    )
+  }, [suppliers])
 
-  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
-  const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
+  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`
+  const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN')
 
-  const handleBackPress = () => navigation.goBack();
-  const handleConfirm = () => {
-    navigation.navigate('OrderConfirmed', { suppliers: suppliersData });
-  };
-  
+  const handleBackPress = () => navigation.goBack()
+  const handleConfirm = async () => {
+    try {
+      const token = await getToken()
+      if (!token) {
+        Alert.alert('Erro', 'Token de autenticação não encontrado.')
+        return
+      }
+
+      const storedRestaurant = await getStorage('selectedRestaurant')
+      if (!storedRestaurant) {
+        Alert.alert('Erro', 'Restaurante não encontrado.')
+        return
+      }
+
+      const parsedRestaurant = JSON.parse(storedRestaurant)
+
+      const body = {
+        token,
+        suppliers: suppliers.map(s => s.supplier),
+        restaurant: parsedRestaurant
+      }
+
+      console.log("body >>", body)
+
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        // Se quiser salvar dados da resposta:
+        // await setStorage('finalConfirmData', JSON.stringify(data));
+        navigation.navigate('OrderConfirmed', { suppliers: suppliers })
+      } else {
+        Alert.alert('Erro', 'Erro ao confirmar a combinação. Tente novamente.')
+      }
+    } catch (error) {
+      console.error('Erro ao confirmar a combinação:', error)
+      Alert.alert('Erro', 'Ocorreu um erro inesperado.')
+    }
+  }
+
   if (!suppliers || suppliers.length === 0) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -102,54 +145,31 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
           <Text>Não foi possível carregar os dados da cotação.</Text>
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <YStack
-        flex={1}
-        backgroundColor="#FFFFFF"
-        alignSelf="center"
-        width={Platform.OS === 'web' ? '70%' : '100%'}
-        maxWidth={1280}
-      >
+      <YStack flex={1} backgroundColor="#FFFFFF" alignSelf="center" width={Platform.OS === 'web' ? '70%' : '100%'} maxWidth={1280}>
         <CustomHeader title={headerTitle} onBackPress={handleBackPress} />
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120, marginTop: 16 }}
-        >
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, marginTop: 16 }}>
           <YStack gap="$4" px="$4">
-            <CustomInfoCard
-              icon="warning"
-              description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
-            />
+            <CustomInfoCard icon="warning" description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti." />
 
             {suppliers.map(({ supplier }) => (
-              <YStack
-                key={supplier.externalId}
-                bg="white"
-                br={8}
-                p="$3"
-                gap="$3"
-                borderColor='$gray6'
-                borderWidth={1}
-              >
-                 <XStack ai="center">
-                  <Image
-                    source={{ uri: supplier.image }}
-                    width={40}
-                    height={40}
-                    borderRadius={20}
-                  />
+              <YStack key={supplier.externalId} bg="white" br={8} p="$3" gap="$3" borderColor="$gray6" borderWidth={1}>
+                <XStack ai="center">
+                  <Image source={{ uri: supplier.image }} width={40} height={40} borderRadius={20} />
                   <YStack ml="$3" flex={1}>
                     <Text fontSize={16} fontWeight="bold">
                       {supplier.name.replace('Distribuidora', '').trim()}
                     </Text>
                     <XStack ai="center" gap="$1.5">
                       <Icons name="star" color="#F59E0B" size={14} />
-                      <Text fontSize={12} color="$gray10">{supplier.star}</Text>
+                      <Text fontSize={12} color="$gray10">
+                        {supplier.star}
+                      </Text>
                     </XStack>
                   </YStack>
                   <YStack ai="flex-end">
@@ -165,16 +185,15 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
                 <YStack gap="$3">
                   {supplier.discount.product.map((product) => (
                     <XStack key={product.sku} ai="center" gap="$3">
-                      <Image
-                        source={{ uri: product.image[0] }}
-                        width={40}
-                        height={40}
-                        borderRadius={5}
-                      />
+                      <Image source={{ uri: product.image[0] }} width={40} height={40} borderRadius={5} />
                       <YStack flex={1}>
-                        <Text fontSize={14} color="$gray12">{product.name}</Text>
+                        <Text fontSize={14} color="$gray12">
+                          {product.name}
+                        </Text>
                         {product.obs ? (
-                          <Text fontSize={10} color="$gray10">Obs: {product.obs}</Text>
+                          <Text fontSize={10} color="$gray10">
+                            Obs: {product.obs}
+                          </Text>
                         ) : null}
                       </YStack>
                       <YStack ai="flex-end">
@@ -192,19 +211,31 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
             ))}
 
             {/* Card de totais */}
-            <YStack bg="white" br={8} p="$3.5" gap="$2.5" borderColor='$gray6' borderWidth={1}>
-               <XStack jc="space-between" ai="center">
-                <Text fontSize={14} color="$gray11">Subtotal</Text>
-                <Text fontSize={14} color="$gray11">{formatCurrency(totals.subtotal)}</Text>
+            <YStack bg="white" br={8} p="$3.5" gap="$2.5" borderColor="$gray6" borderWidth={1}>
+              <XStack jc="space-between" ai="center">
+                <Text fontSize={14} color="$gray11">
+                  Subtotal
+                </Text>
+                <Text fontSize={14} color="$gray11">
+                  {formatCurrency(totals.subtotal)}
+                </Text>
               </XStack>
               <XStack jc="space-between" ai="center">
-                <Text fontSize={14} color="$gray11">Descontos</Text>
-                <Text fontSize={14} color="$gray11">- {formatCurrency(totals.discount)}</Text>
+                <Text fontSize={14} color="$gray11">
+                  Descontos
+                </Text>
+                <Text fontSize={14} color="$gray11">
+                  - {formatCurrency(totals.discount)}
+                </Text>
               </XStack>
               <Separator my="$1" borderColor="$gray4" />
               <XStack jc="space-between" ai="center">
-                <Text fontSize={18} fontWeight="bold">Total</Text>
-                <Text fontSize={18} fontWeight="bold">{formatCurrency(totals.grandTotal)}</Text>
+                <Text fontSize={18} fontWeight="bold">
+                  Total
+                </Text>
+                <Text fontSize={18} fontWeight="bold">
+                  {formatCurrency(totals.grandTotal)}
+                </Text>
               </XStack>
               <Text fontSize={12} color="$gray10" ta="right">
                 {totals.totalItems} item(s) | {totals.missingItems} faltante(s)
@@ -261,5 +292,5 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
         </View>
       </YStack>
     </SafeAreaView>
-  );
+  )
 }
