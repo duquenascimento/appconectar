@@ -1,4 +1,4 @@
-    import { SupplierData } from '../../../app/screens/QuotationDetailsScreen';
+    import { SupplierData } from '@/src/types/types';
 
     export const mockSuppliersData: SupplierData[] = [
       {
@@ -216,7 +216,56 @@
             ],
             sku: '',
           },
-        },
+        }
       },
+      {
+        supplier: {
+          name: 'Frutas do Zé',
+          externalId: 'mock-supplier-3',
+          image: 'https://placehold.co/80x80/EF4444/FFFFFF?text=FZ', 
+          missingItens: 0, // Exemplo de item faltante
+          minimumOrder: 60.00,
+          hour: '19:00',
+          star: '4.2',
+          discount: {
+            orderValue: 150.00,
+            discount: 0,
+            orderWithoutTax: 150.00,
+            orderWithTax: 150.00,
+            tax: 0,
+            missingItens: 0,
+            orderValueFinish: 150.00,
+            product: [
+              {
+                price: 50.00,
+                priceWithoutTax: 48.00,
+                name: 'Maçã Fuji',
+                sku: 'MAC-FUJ-001',
+                quant: 5,
+                orderQuant: 5,
+                obs: '',
+                priceUnique: 10.00,
+                priceUniqueWithTaxAndDiscount: 10.00,
+                image: ['https://placehold.co/50x50/000000/FFFFFF?text=MF'],
+                orderUnit: 'KG',
+              },
+              {
+                price: 30.00,
+                priceWithoutTax: 28.00,
+                name: 'Banana Prata',
+                sku: 'BAN-PRA-002',
+                quant: 3,
+                orderQuant: 3,
+                obs: '',
+                priceUnique: 10.00,
+                priceUniqueWithTaxAndDiscount: 10.00,
+                image: ['https://placehold.co/50x50/000000/FFFFFF?text=BP'],
+                orderUnit: 'KG',
+              }
+            ],
+            sku: '',
+          },
+        }
+      }
     ];
     
