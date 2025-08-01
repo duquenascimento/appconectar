@@ -27,6 +27,24 @@ interface PrioritySectionProps {
       }[]
     }
   ) => void
+  formErrors?: {
+    tipo?: string
+    produtos?: {
+      produto_sku?: string
+      classe?: string
+      fornecedores?: string
+      acao_na_falha?: string
+    }[]
+  }
+  formTouched?: {
+    tipo?: boolean
+    produtos?: {
+      produto_sku?: boolean
+      classe?: boolean
+      fornecedores?: boolean
+      acao_na_falha?: boolean
+    }[]
+  }
 }
 
 export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber, products, selectedSuppliers, suppliers, onChange }) => {
@@ -180,7 +198,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ priorityNumber
             value={acao_na_falha}
             items={[
               { label: 'Ignorar e pular esta preferência', value: 'ignorar' },
-              { label: 'Deixar produto como indisponível', value: 'indisponivel' },
+              { label: 'Deixar produto como indisponível', value: 'indisponivel' }
             ]}
             setOpen={setNaoPossivelOpen}
             setValue={setAcao_na_falha}
