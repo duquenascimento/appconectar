@@ -12,6 +12,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
+import CombinationList from '@/src/components/combinationList'
+import CustomButton from '@/src/components/button/customButton'
+import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
 
 export interface Product {
   price: number
@@ -184,6 +187,31 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
   const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
+  const [combinations, setCombinations] = useState<Combination[]>([])
+
+  useEffect(() => {
+    if (tab === 'plus') {
+      const fetchData = async () => {
+        try {
+          const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant')
+
+          if (!storedRestaurant) return
+
+          const parsed = JSON.parse(storedRestaurant)
+          const restaurantId = parsed?.id
+
+          if (restaurantId) {
+            const combinations = await getAllCombinationsByRestaurant(restaurantId)
+            setCombinations(combinations)
+          }
+        } catch (e) {
+          console.error('Erro ao ler selectedRestaurant:', e)
+        }
+      }
+
+      fetchData()
+    }
+  }, [tab])
 
   const handleConfirm = () => {
     setFinalCotacao(true)
@@ -626,48 +654,16 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
 
         <View backgroundColor="white" flex={1} paddingHorizontal={5}>
           <View p={10} paddingTop={0} height="100%">
+            {tab === 'plus' && <CombinationList combos={combinations} />}
             {tab === 'onlySupplier' && <VirtualizedList style={{ marginBottom: 5, flexGrow: 1 }} data={combinedSuppliers} getItemCount={getItemCount} getItem={getItem} keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)} renderItem={renderItem} ItemSeparatorComponent={() => <View height={2} />} initialNumToRender={10} windowSize={4} scrollEnabled={true} />}
             {tab !== 'onlySupplier' && (
               <View p={20} mt={10}>
                 <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
-
-                <Button
-                  backgroundColor="#04BF7B"
-                  onPress={async () => {
-                    if (!validateFields()) return
-                    setLoading(true)
-                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({
-                        token: await getToken(),
-                        selectedRestaurant: selectedRestaurant
-                      })
-                    })
-
-                    if (result.ok) {
-                      const teste = await result.json()
-                      setLoading(false)
-                      setShowNotification(true)
-                    } else {
-                      const teste = await result.json()
-                      setLoading(false)
-                    }
-                  }}
-                >
-                  <Text fontWeight="500" fontSize={16} color="white">
-                    Solicitar cotação
-                  </Text>
-                </Button>
-                <Text mt={5} textAlign="center" fontSize={12} color="gray">
-                  Você receberá a cotação no Whatsapp
-                </Text>
               </View>
             )}
           </View>
         </View>
+        {tab === 'plus' && <CustomButton title="Minhas combinações" onPress={() => navigation.navigate('Preferences')}></CustomButton>}
         <View
           onPress={() => {
             setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)
