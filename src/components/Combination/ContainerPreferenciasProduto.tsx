@@ -14,9 +14,9 @@ export function ContainerPreferenciasProduto() {
   const preferencias = combinacao.preferencias ?? []
 
   const resetPreferencias = () => {
-    //updateCampo('definir_preferencia_produto', false)
-    //updateCampo('preferencias', [])
-    resetarPreferencias(combinacao)
+    const atualizado = resetarPreferencias(combinacao)
+    updateCampo('definir_preferencia_produto', atualizado.definir_preferencia_produto)
+    updateCampo('preferencias', atualizado.preferencias)
     setShowModal(false)
   }
 
