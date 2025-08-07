@@ -82,11 +82,6 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
       {preferencia.produtos.map((produto, produtoIndex) => (
         <ProdutoPreferenciaCard key={produtoIndex} preferenciaIndex={index} produtoIndex={produtoIndex} produto={produto} onRemove={() => removerProduto(produtoIndex)} onMoveUp={() => produtoIndex > 0 && moverProduto(produtoIndex, produtoIndex - 1)} onMoveDown={() => produtoIndex < preferencia.produtos.length - 1 && moverProduto(produtoIndex, produtoIndex + 1)} />
       ))}
-
-      {/* <Button mt="$2" onPress={adicionarProduto}>
-        <Icons name="add" size={20} />
-        Adicionar Produto
-      </Button> */}
     </YStack>
   )
 }
