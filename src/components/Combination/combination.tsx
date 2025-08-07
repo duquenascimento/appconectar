@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Platform, SafeAreaView } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { ScrollView, Text, Input, Label, XStack, YStack, Separator, Button } from 'tamagui'
+import { ScrollView, Text, Label, XStack, YStack, Separator, Button } from 'tamagui'
 
 import CustomButton from '../button/customButton'
 import CustomSubtitle from '../subtitle/customSubtitle'
@@ -15,8 +15,18 @@ import { mapProducts } from '@/app/utils/mapProducts'
 import { ProrityProductsCombination } from './prioridade'
 import { getStorage } from '@/app/utils/utils'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { Formik, useFormik } from 'formik'
+import { FieldArray, FormikProvider, useFormik } from 'formik'
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
+import CustomAlert from '../modais/CustomAlert'
+import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
+import { InputNome } from './InputNome'
+import { DropdownCampo } from './DropdownCampo'
+import { BloqueioFornecedoresCampo } from './BloqueioFornecedores'
+import { PreferenciaFornecedorCampo } from './PreferenciaFornecedorTipo'
+import { PreferenciasProdutoCampo } from './PreferenciasProdutoCampo'
+import { useCombinacao } from '@/src/contexts/combinacao.context'
+import { ContainerPreferenciasProduto } from './ContainerPreferenciasProduto'
+import { TipoFornecedor } from '@/src/types/combinationTypes'
 
 export interface SuplierCombination {
   id: string
@@ -26,6 +36,7 @@ export interface SuplierCombination {
 export const Combination: React.FC = () => {
   const navigation = useNavigation()
   const route = useRoute()
+  const { combinacao, updateCampo } = useCombinacao()
 
   const [suppliers, setSupplers] = useState<SuplierCombination[]>([])
   const [supplierItems, setSupplierItems] = useState<{ label: string; value: string }[]>([])
@@ -36,23 +47,10 @@ export const Combination: React.FC = () => {
   const [open, setOpen] = useState(false)
   const [openSupplier, setOpenSupplier] = useState(false)
   const [openPreference, setOpenPreference] = useState(false)
-  const [priorityList, setPriorityList] = useState<number[]>([1])
-
+  const [showPreferencesModal, setShowPreferencesModal] = useState(false)
+  const [preferenciaFornecedorTipo, setPreferenciaFornecedorTipo] = useState<string>('qualquer')
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [blockedSuppliersValue, setBlockedSuppliersValue] = useState<string[]>([])
-  const [prioritiesData, setPrioritiesData] = useState<
-    Record<
-      number,
-      {
-        tipo: string
-        produtos: {
-          produto_sku: string
-          classe: string
-          fornecedores: string[]
-          acao_na_falha: string
-        }[]
-      }
-    >
-  >({})
 
   const initialValues = {
     restaurant_id,
@@ -72,19 +70,12 @@ export const Combination: React.FC = () => {
     validationSchema: combinacaoValidationSchema,
     enableReinitialize: true,
     onSubmit: async (values) => {
-      const preferencias = Object.entries(prioritiesData).map(([ordem, data]) => ({
-        ordem: Number(ordem),
-        tipo: data.tipo,
-        produtos: data.produtos
-      }))
-
       const combinationData = {
         ...values,
-        preferencias,
         restaurant_id: restaurant_id ?? ''
       }
 
-      try {
+      /* try {
         await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
           method: 'POST',
           headers: {
@@ -94,40 +85,28 @@ export const Combination: React.FC = () => {
         })
       } catch (erro) {
         console.error('Erro ao criar combinação:', erro)
-      }
+      } */
+
+      console.log(combinationData)
     }
   })
 
-  useEffect(() => {
-    if (!formik.values.bloquear_fornecedores && formik.values.fornecedores_bloqueados.length > 0) {
+  /*   useEffect(() => {
+    const { bloquear_fornecedores, fornecedores_bloqueados, preferencia_fornecedor_tipo, fornecedores_especificos, definir_preferencia_produto, preferencias } = formik.values
+
+    if (!bloquear_fornecedores && fornecedores_bloqueados.length > 0) {
       formik.setFieldValue('fornecedores_bloqueados', [])
     }
-  }, [formik.values.bloquear_fornecedores])
 
-  useEffect(() => {
-    if (formik.values.preferencia_fornecedor_tipo !== 'especifico' && formik.values.fornecedores_especificos.length > 0) {
+    if (preferencia_fornecedor_tipo !== 'especifico' && fornecedores_especificos.length > 0) {
       formik.setFieldValue('fornecedores_especificos', [])
     }
-  }, [formik.values.preferencia_fornecedor_tipo])
 
-  const handlePriorityChange = (
-    number: number,
-    data: {
-      tipo: string
-      produtos: {
-        produto_sku: string
-        classe: string
-        fornecedores: string[]
-        acao_na_falha: string
-      }[]
+    if (!definir_preferencia_produto && preferencias.length > 0) {
+      formik.setFieldValue('preferencias', [])
     }
-  ) => {
-    setPrioritiesData((prev) => ({
-      ...prev,
-      [number]: data
-    }))
-  }
-
+  }, [formik.values.bloquear_fornecedores, formik.values.fornecedores_bloqueados, formik.values.preferencia_fornecedor_tipo, formik.values.fornecedores_especificos, formik.values.definir_preferencia_produto, formik.values.preferencias])
+ */
   useEffect(() => {
     const fetchStoredRestaurant = async () => {
       const storedValue = await getStorage('selectedRestaurant')
@@ -196,44 +175,6 @@ export const Combination: React.FC = () => {
     setBlockedSuppliersValue(formik.values.fornecedores_bloqueados)
   }, [formik.values.fornecedores_bloqueados])
 
-  const addPriority = () => {
-    setPriorityList((prev) => [...prev, prev.length + 1])
-  }
-
-  /*  const handleSave = async () => {
-    const preferencias = Object.entries(prioritiesData).map(([ordem, data]) => ({
-      ordem: Number(ordem),
-      tipo: data.tipo,
-      produtos: data.produtos
-    }))
-
-    const combinationData = {
-      restaurant_id,
-      nome,
-      bloquear_fornecedores,
-      dividir_em_maximo,
-      fornecedor_especifico,
-      fornecedor_bloqueado,
-      preferencia_fornecedor_tipo,
-      definir_preferencia_produto,
-      preferencias,
-      preferencias_hard
-    }
-
-    try {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(combinationData)
-      })
-      const combinacao = await result.json()
-    } catch (erro) {
-      console.error('Erro ao criar combinação:', erro)
-    }
-  } */
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <CustomHeader title="Combinação 1" onBackPress={handleGoBack} />
@@ -241,7 +182,7 @@ export const Combination: React.FC = () => {
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         <YStack w={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" p="$4" gap={15} mt="$2">
           {/* Nome da combinação */}
-          <YStack>
+          {/* <YStack>
             <Label>Nome da combinação</Label>
             <Input placeholder="Lorem ipsum" value={formik.values.nome} onChangeText={formik.handleChange('nome')} onBlur={formik.handleBlur('nome')} />
             {formik.touched.nome && formik.errors.nome && (
@@ -249,10 +190,11 @@ export const Combination: React.FC = () => {
                 {formik.errors.nome}
               </Text>
             )}
-          </YStack>
+          </YStack> */}
+          <InputNome />
 
           {/* Dropdown máximo de fornecedores */}
-          <YStack style={{ zIndex: 3000 }}>
+          {/*  <YStack style={{ zIndex: 3000 }}>
             <Label>Dividir em no máximo</Label>
             <DropDownPicker
               open={open}
@@ -273,10 +215,23 @@ export const Combination: React.FC = () => {
                 {formik.errors.dividir_em_maximo}
               </Text>
             )}
-          </YStack>
+          </YStack> */}
+
+          <DropdownCampo
+            campo="dividir_em_maximo"
+            label="Dividir em, no máximo:"
+            items={[
+              { label: '2 fornecedores', value: 2 },
+              { label: '3 fornecedores', value: 3 },
+              { label: '4 fornecedores', value: 4 }
+            ]}
+            value={combinacao.dividir_em_maximo}
+            onChange={(val) => updateCampo('dividir_em_maximo', val)}
+            zIndex={3000}
+          />
 
           {/* Bloqueio de fornecedores */}
-          <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
+          {/*           <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
             <Text fontWeight="bold">Bloquear fornecedores</Text>
             <CustomSubtitle>Impedir que fornecedores apareçam na combinação</CustomSubtitle>
             <Separator my="$3" />
@@ -350,10 +305,10 @@ export const Combination: React.FC = () => {
                 )}
               </YStack>
             )}
-          </YStack>
-
+          </YStack> */}
+          <BloqueioFornecedoresCampo />
           {/* Preferência de fornecedores */}
-          <YStack borderWidth={1} borderColor="$gray6" p="$4" borderRadius="$4" zIndex={1000} gap="$2">
+          {/* <YStack borderWidth={1} borderColor="$gray6" p="$4" borderRadius="$4" zIndex={1000} gap="$2">
             <Text fontWeight="bold">Preferência de fornecedores</Text>
             <CustomSubtitle>Defina as preferências de combinação</CustomSubtitle>
 
@@ -382,7 +337,6 @@ export const Combination: React.FC = () => {
                 />
                 {formik.touched.preferencia_fornecedor_tipo && formik.errors.preferencia_fornecedor_tipo && <Text color="red">{formik.errors.preferencia_fornecedor_tipo}</Text>}
               </YStack>
-
               {formik.values.preferencia_fornecedor_tipo === 'especifico' && (
                 <YStack style={{ zIndex: 1000 }}>
                   <Label>Fornecedores específicos</Label>
@@ -447,11 +401,26 @@ export const Combination: React.FC = () => {
                   )}
                 </YStack>
               )}
+              {showConfirmModal && (
+                <TwoButtonCustomAlert
+                  visible={showConfirmModal}
+                  title="Deseja mesmo realizar esta ação?"
+                  message="Ao realizar esta mudança, as preferencias selecionadas serão removidas. Deseja continuar?"
+                  onConfirm={() => {
+                    formik.setFieldValue('preferencia_fornecedor_tipo', preferenciaFornecedorTipo)
+                    setShowConfirmModal(false)
+                  }}
+                  onCancel={() => setShowConfirmModal(false)}
+                  confirmText="Sim"
+                  cancelText="Não"
+                />
+              )}
             </YStack>
-          </YStack>
+          </YStack> */}
+          <PreferenciaFornecedorCampo />
 
           {/* Preferência de produtos */}
-          <YStack borderWidth={1} borderColor="$gray6" p="$4" borderRadius="$4">
+          {/*         <YStack borderWidth={1} borderColor="$gray6" p="$4" borderRadius="$4">
             <YStack borderBottomWidth={1} pb="$3" borderColor="$gray4">
               <Text fontSize={16}>Preferência de produtos</Text>
               <CustomSubtitle>Preferência de produtos por fornecedor</CustomSubtitle>
@@ -460,28 +429,40 @@ export const Combination: React.FC = () => {
             <YStack borderBottomWidth={1} py="$3" borderColor="$gray4" gap={6}>
               <Text fontSize={14}>Definir preferência de produto para um ou mais fornecedores?</Text>
               <XStack>
-                <CustomRadioButton selected={formik.values.definir_preferencia_produto} onPress={() => formik.setFieldValue('definir_preferencia_produto', true)} label="Sim" />
+                <CustomRadioButton selected={formik.values.definir_preferencia_produto} onPress={() => (formik.values.fornecedores_especificos.length > 0 ? formik.setFieldValue('definir_preferencia_produto', true) : setShowPreferencesModal(true))} label="Sim" />
                 <CustomRadioButton selected={!formik.values.definir_preferencia_produto} onPress={() => formik.setFieldValue('definir_preferencia_produto', false)} label="Não" />
               </XStack>
-              {formik.values.definir_preferencia_produto && (
+              {formik.values.fornecedores_especificos.length <= 0 ? (
                 <>
-                  {/* Lista de prioridades */}
-                  {priorityList.map((number, index) => (
-                    <PrioritySection key={number} priorityNumber={number} products={products} selectedSuppliers={formik.values.fornecedores_especificos} suppliers={suppliers} onChange={handlePriorityChange} formErrors={formik.errors.preferencias?.[index]} formTouched={formik.touched.preferencias?.[index]} />
-                  ))}
-
-                  {/* Botão para adicionar nova prioridade */}
-                  <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
-                    <YStack f={1}>
-                      <Button onPress={addPriority} backgroundColor="#ffffffff" color="#000000ff" borderColor="#A9A9A9" borderWidth={0}>
-                        + Adicionar preferência
-                      </Button>
-                    </YStack>
-                  </XStack>
+                  <CustomAlert
+                    message="Por favor, defina ao menos um fornecedor especifico"
+                    title="Ops!"
+                    onConfirm={() => {
+                      setShowPreferencesModal(false)
+                    }}
+                    visible={showPreferencesModal}
+                  />
                 </>
+              ) : (
+                <FormikProvider value={formik}>
+                  {formik.values.definir_preferencia_produto && (
+                    <FieldArray name="preferencias">
+                      {(arrayHelpers) => (
+                        <>
+                          {formik.values.preferencias.map((_, index) => (
+                            <PrioritySection key={index} index={index} suppliers={suppliers} products={products} selectedSuppliers={formik.values.fornecedores_especificos} onRemove={() => arrayHelpers.remove(index)} />
+                          ))}
+                          <Button onPress={() => arrayHelpers.push({ ordem: formik.values.preferencias.length + 1, tipo: 'fixar', produtos: [] })}>+ Adicionar preferência</Button>
+                        </>
+                      )}
+                    </FieldArray>
+                  )}
+                </FormikProvider>
               )}
             </YStack>
-          </YStack>
+          </YStack> */}
+          <PreferenciasProdutoCampo />
+          {combinacao.preferencia_fornecedor_tipo === 'especifico' && <ContainerPreferenciasProduto />}
         </YStack>
         {/* Botões rodapé */}
         {Platform.OS === 'web' ? (
