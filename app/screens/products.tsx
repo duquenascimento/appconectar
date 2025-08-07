@@ -1,7 +1,7 @@
 import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
-import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
+import { ActivityIndicator, Alert, FlatList, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import React from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ImageViewer from 'react-native-image-zoom-viewer'
@@ -274,13 +274,18 @@ const ProductBox = React.memo(
       }
 
       debounceTimerRef.current = setTimeout(async () => {
-        const updatedItem = { productId: id, amount: newAmount, obs }
-        const mapItem = new Map([[id, updatedItem]])
-        const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
+        try {
+          const updatedItem: Cart = { productId: id, amount: newAmount, obs }
+          const mapItem = new Map([[id, updatedItem]])
+          const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
 
-        await saveCart(updatedItem, true)
-        await saveCartArray(mapItem, mapToRemove)
-      }, 500)
+          await saveCart(updatedItem, true)
+          await saveCartArray(mapItem, mapToRemove)
+        } catch (err) {
+          console.error('Erro ao atualizar carrinho:', err)
+          Alert.alert('Erro', 'Não foi possível atualizar o carrinho.')
+        }
+      }, 300)
     }
 
     const handleBlur = useCallback(async () => {
@@ -302,9 +307,7 @@ const ProductBox = React.memo(
 
     return (
       <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} 
-        backgroundColor={isCart ? '#fbffc3ff' : 'white'} 
-        borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
+        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor={isCart ? '#fbffc3ff' : 'white'} borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
               p={Platform.OS === 'web' ? 10 : 0}
@@ -664,17 +667,18 @@ export function Products({ navigation }: HomeScreenProps) {
     }
   }, [])
 
-  const loadCart = async (): Promise<Map<string, Cart>> => {
+  const loadCart = useCallback(async (): Promise<Map<string, Cart>> => {
     try {
       const token = await getToken()
-      if (!token) return new Map()
+      const restaurant = await getSavedRestaurant()
+      if (!token || !restaurant) return new Map()
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({ token, selectedRestaurant: { id: restaurant.id } })
       })
 
       if (!result.ok) return new Map()
@@ -682,7 +686,7 @@ export function Products({ navigation }: HomeScreenProps) {
       const cart = await result.json()
       const cartMap = new Map<string, Cart>(cart.data.map((item: Cart) => [item.productId, item]))
 
-      const localCartString = await getStorage('cart')
+      const localCartString = await getStorage(`cart_${restaurant?.externalId}`)
       const localCart = localCartString ? new Map<string, Cart>(JSON.parse(localCartString)) : new Map()
 
       // Merge local cart with server cart
@@ -695,14 +699,16 @@ export function Products({ navigation }: HomeScreenProps) {
       })
 
       await deleteStorage('cart-inside')
-      await setStorage('cart', JSON.stringify(Array.from(cartMap.entries())))
-
+      await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(cartMap.entries())))
+      setCart(cartMap)
+      setDisplayedCartSize(cartMap.size)
       return cartMap
     } catch (error) {
       console.error('Erro ao carregar carrinho:', error)
       return new Map()
     }
-  }
+  }, [])
+
   const loadRestaurants = useCallback(async () => {
     try {
       const token = await getToken()
@@ -727,65 +733,88 @@ export function Products({ navigation }: HomeScreenProps) {
   }, [])
 
   const saveCart = useCallback(async (cart: Cart, isCart: boolean) => {
-    let newCart = new Map()
-    const attCart = async (): Promise<void> => {
-      setCart((prevCart) => {
-        newCart = new Map(prevCart)
+    try {
+      let newCart = new Map()
+      const restaurant = await getSavedRestaurant()
+      if (!restaurant?.externalId) {
+        console.warn('Restaurante não encontrado no storage.')
+        return
+      }
 
-        if (cart.amount === 0) {
-          if (isCart) {
-            newCart.delete(cart.productId)
+      const attCart = async (): Promise<void> => {
+        setCart((prevCart) => {
+          newCart = new Map(prevCart)
+
+          if (cart.amount === 0) {
+            if (isCart) {
+              newCart.delete(cart.productId)
+              setCartToExclude((prevCartToExclude) => {
+                const newCartToExclude = new Map(prevCartToExclude)
+                newCartToExclude.set(cart.productId, cart)
+                return newCartToExclude
+              })
+            }
+          } else {
+            newCart.set(cart.productId, cart)
             setCartToExclude((prevCartToExclude) => {
               const newCartToExclude = new Map(prevCartToExclude)
-              newCartToExclude.set(cart.productId, cart)
+              newCartToExclude.delete(cart.productId)
               return newCartToExclude
             })
           }
-        } else {
-          newCart.set(cart.productId, cart)
-          setCartToExclude((prevCartToExclude) => {
-            const newCartToExclude = new Map(prevCartToExclude)
-            newCartToExclude.delete(cart.productId)
-            return newCartToExclude
-          })
-        }
 
-        if (cart.obs) {
-          setProductObservations((prev) => {
-            const updated = new Map(prev)
-            const latestObs = prev.get(cart.productId) ?? cart.obs
-            updated.set(cart.productId, latestObs)
-            saveProductObservations(updated)
-            return updated
-          })
-        }
+          if (cart.obs) {
+            setProductObservations((prev) => {
+              const updated = new Map(prev)
+              const latestObs = prev.get(cart.productId) ?? cart.obs
+              updated.set(cart.productId, latestObs)
+              saveProductObservations(updated)
+              return updated
+            })
+          }
 
-        return newCart
-      })
+          return newCart
+        })
+      }
+      await attCart()
+      await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
+    } catch (err) {
+      console.error('Erro ao salvar item no carrinho local:', err)
+      Alert.alert('Erro', 'Não foi possível atualizar o carrinho localmente.')
     }
-    await attCart()
-    await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
   }, [])
 
   const saveCartArray = useCallback(
     async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
-      const token = await getToken()
-      if (token == null) return
+      try {
+        const token = await getToken()
+        const restaurant = await getSavedRestaurant()
+        if (!token || restaurant == null) return
 
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token,
-          carts: Array.from(carts.values()),
-          cartToExclude: Array.from(cartsToExclude.values())
+        console.log('Enviando restaurante:', restaurant)
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token,
+            carts: Array.from(carts.values()),
+            cartToExclude: Array.from(cartsToExclude.values()),
+            selectedRestaurant: { id: restaurant.id }
+          })
         })
-      })
 
-      setCartToExclude(new Map())
-      //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
+        if (!response.ok) {
+          const errorBody = await response.json()
+          console.error('Erro ao salvar carrinho em lote:', errorBody.msg)
+        }
+
+        setCartToExclude(new Map())
+        //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
+      } catch (err) {
+        console.error('Erro inesperado em saveCartArray:', err)
+      }
     },
     [saveCart, loadCart, loadProducts]
   )
@@ -1087,14 +1116,17 @@ export function Products({ navigation }: HomeScreenProps) {
           ...(currentClass.toLowerCase() === item.name.toLowerCase() ? { borderBottomWidth: 1.5, borderBottomColor: '#04BF7B' } : {}),
           justifyContent: 'center'
         }}
-        onPress={() => handlePress(item.name)}
+        onPress={async () => {
+          handlePress(item.name)
+          await loadCart()
+        }}
       >
         <Text color={currentClass.toLowerCase() !== item.name.toLowerCase() ? '#aaa' : '#04BF7B'} fontSize={14} width={90} textAlign="center">
           {item.name}
         </Text>
       </TouchableOpacity>
     ),
-    [currentClass, handlePress]
+    [currentClass, handlePress, loadCart]
   )
 
   const handleSetImage = (imageString: string): void => {
@@ -1235,6 +1267,9 @@ export function Products({ navigation }: HomeScreenProps) {
       </Text>
 
       <DropDownPicker
+        onPress={async () => {
+          await loadCart()
+        }}
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         value={selectedRestaurant}
@@ -1266,7 +1301,21 @@ export function Products({ navigation }: HomeScreenProps) {
 
       <View height={40} flex={1} paddingTop={8}>
         <XStack backgroundColor="#F0F2F6" marginTop={30} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" margin={10} style={{ width: Platform.OS === 'web' ? '68.4%' : '', alignSelf: 'center' }}>
-          <Input placeholder="Buscar produtos..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" focusVisibleStyle={{ outlineWidth: 0 }} outlineStyle="none" flex={1} maxLength={50} value={searchQuery} onChangeText={setSearchQuery} />
+          <Input
+            placeholder="Buscar produtos..."
+            backgroundColor="transparent"
+            borderWidth={0}
+            borderColor="transparent"
+            focusVisibleStyle={{ outlineWidth: 0 }}
+            outlineStyle="none"
+            flex={1}
+            maxLength={50}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onPressIn={async () => {
+              await loadCart()
+            }}
+          />
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 

@@ -5,6 +5,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type RootStackParamList = {
   Home: undefined
@@ -229,13 +230,39 @@ export function Cart({ navigation }: HomeScreenProps) {
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {})
 
   useEffect(() => {
-    setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
+    const fetchRestaurant = async () => {
+      const restaurant = await getSavedRestaurant()
+      setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(cart.entries()))).then()
+    }
+    fetchRestaurant()
   }, [cart])
 
   const flatListRef = useRef<VirtualizedList<Product>>(null)
 
+  const getSavedRestaurant = async () => {
+    try {
+      const data = await AsyncStorage.getItem('selectedRestaurant')
+      if (!data) return null
+
+      const parsedData = JSON.parse(data)
+
+      if (!parsedData?.restaurant) {
+        console.error('Formato inválido:', parsedData)
+        return null
+      }
+
+      return parsedData.restaurant
+    } catch (error) {
+      console.error('Erro ao parsear dados:', error)
+      return null
+    }
+  }
+
   const deleteItemFromCart = debounce(async (cartToDelete: TCart) => {
     const token = await getToken()
+    const restaurant = await getSavedRestaurant()
+
+    if (!token || !restaurant) return
 
     setCart((prevCart) => {
       const newCart = new Map(prevCart)
@@ -248,7 +275,7 @@ export function Cart({ navigation }: HomeScreenProps) {
         return newCartToExclude
       })
 
-      setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
+      setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
 
       setProducts((prevProducts) => {
         return prevProducts.filter((item) => item.id !== cartToDelete.productId)
@@ -259,13 +286,17 @@ export function Cart({ navigation }: HomeScreenProps) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token, productId: cartToDelete.productId })
+        body: JSON.stringify({
+          token,
+          productId: cartToDelete.productId,
+          selectedRestaurant: { id: restaurant.id }
+        })
       })
         .then((res) => res)
         .then((result) => {
           if (result.ok) {
             if (newCart.size < 1) {
-              deleteStorage('cart').then()
+              deleteStorage(`cart_${restaurant?.externalId}`).then()
               navigation.replace('Products')
             }
           }
@@ -281,14 +312,18 @@ export function Cart({ navigation }: HomeScreenProps) {
   const loadCart = useCallback(async (): Promise<Map<string, TCart>> => {
     try {
       const token = await getToken()
-      if (!token) return new Map()
+      const restaurant = await getSavedRestaurant()
+      if (!token || !restaurant) return new Map()
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ token })
+        body: JSON.stringify({
+          token,
+          selectedRestaurant: { id: restaurant.id }
+        })
       })
 
       if (!result.ok) return new Map()
@@ -298,7 +333,7 @@ export function Cart({ navigation }: HomeScreenProps) {
 
       const cartMap = new Map<string, TCart>(cart.data.map((item: TCart) => [item.productId, item]))
 
-      const localCartString = await getStorage('cart')
+      const localCartString = await getStorage(`cart_${restaurant?.externalId}`)
       const localCart = localCartString ? new Map<string, TCart>(JSON.parse(localCartString)) : new Map()
       localCart.forEach((value, key) => {
         cartMap.set(key, value)
@@ -314,6 +349,7 @@ export function Cart({ navigation }: HomeScreenProps) {
 
   const saveCart = useCallback(async (cart: TCart, isCart: boolean) => {
     let newCart = new Map()
+    const restaurant = await getSavedRestaurant()
     const attCart = async (): Promise<void> => {
       setCart((prevCart) => {
         newCart = new Map(prevCart)
@@ -340,20 +376,24 @@ export function Cart({ navigation }: HomeScreenProps) {
       })
     }
     await attCart()
-    await setStorage('cart', JSON.stringify(Array.from(newCart.entries())))
+    await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
   }, [])
 
   const loadProducts = useCallback(async () => {
     try {
       const token = await getToken()
-      if (token == null) return []
+      const restaurant = await getSavedRestaurant()
+      if (!token || !restaurant) return []
+
+      console.log('Enviando restaurante no cart:', restaurant)
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          token
+          token,
+          selectedRestaurant: { id: restaurant.id }
         })
       })
       if (!result.ok) return []
@@ -388,7 +428,8 @@ export function Cart({ navigation }: HomeScreenProps) {
 
   const saveCartArray = useCallback(async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
     const token = await getToken()
-    if (token == null) return []
+    const restaurant = await getSavedRestaurant()
+    if (!token || restaurant == null) return
     await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
       method: 'POST',
       headers: {
@@ -397,7 +438,8 @@ export function Cart({ navigation }: HomeScreenProps) {
       body: JSON.stringify({
         token,
         carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values())
+        cartToExclude: Array.from(cartsToExclude.values()),
+        selectedRestaurant: { id: restaurant.id }
       })
     })
     setCartToExclude(new Map())
@@ -529,17 +571,20 @@ export function Cart({ navigation }: HomeScreenProps) {
                         onPress={async () => {
                           setLoading(true)
                           const token = await getToken()
-                          if (token == null) return []
+                          const restaurant = await getSavedRestaurant()
+
+                          if (!token || !restaurant) return []
                           await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`, {
                             method: 'POST',
                             headers: {
                               'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                              token
+                              token,
+                              selectedRestaurant: { id: restaurant.id }
                             })
                           })
-                          deleteStorage('cart')
+                          deleteStorage(`cart_${restaurant?.externalId}`)
                           navigation.replace('Products')
                         }}
                       >
