@@ -625,7 +625,6 @@ export function Products({ navigation }: HomeScreenProps) {
     if (isLoading) return
     try {
       const productsList = productsContext
-      console.log('products', productsContext)
 
       setProductsList(productsList)
     } catch (error) {
