@@ -3,17 +3,27 @@ import { CustomRadioButton } from '../button/customRadioButton'
 import CustomSubtitle from '../subtitle/customSubtitle'
 import { ContainerSelecaoItems } from './ContainerSelecaoItems'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
-
-const mockFornecedores = [
-  { label: 'Dermale', value: 'd290f1ee-6c54-4b01-90e6-d701748f0851' },
-  { label: 'Casanova', value: '79e1fa4f-6a7b-4a8e-b9c2-5ae94a914b22' }
-]
+import { useSupplier } from '@/src/contexts/fornecedores.context'
 
 export function BloqueioFornecedoresCampo() {
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
+
+  const { suppliers, unavailableSupplier } = useSupplier();
+
+  const supplierContext = useMemo(() => {
+    const allSuppliers = [...suppliers, ...unavailableSupplier];
+    const sortedSuppliers = allSuppliers.sort((a, b) =>
+      a.supplier.name.localeCompare(b.supplier.name)
+    );
+    return sortedSuppliers.map(item => ({
+      label: item.supplier.name,
+      value: item.supplier.externalId
+    }));
+  }, [suppliers, unavailableSupplier]);
+
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false)
@@ -25,7 +35,7 @@ export function BloqueioFornecedoresCampo() {
     if (combinacao.fornecedores_bloqueados?.length !== 0) {
       setShowModal(true)
     } else {
-      updateCampo('bloquear_fornecedores', true)
+      updateCampo('bloquear_fornecedores', false)
     }
   }
 
@@ -45,7 +55,7 @@ export function BloqueioFornecedoresCampo() {
       {combinacao.bloquear_fornecedores && (
         <ContainerSelecaoItems
           label="Fornecedores bloqueados"
-          items={mockFornecedores}
+          items={supplierContext}
           value={combinacao.fornecedores_bloqueados ?? []}
           onChange={(val) => updateCampo('fornecedores_bloqueados', val)}
           schemaPath="fornecedores_bloqueados"

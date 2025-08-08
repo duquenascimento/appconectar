@@ -1,18 +1,12 @@
-// components/form/PreferenciaFornecedorCampo.tsx
 import { YStack, Separator, Text } from 'tamagui'
 import CustomSubtitle from '../subtitle/customSubtitle'
 import { DropdownCampo } from './DropdownCampo'
 import { ContainerSelecaoItems } from './ContainerSelecaoItems'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { TipoFornecedor } from '@/src/types/combinationTypes'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
-
-const mockFornecedores = [
-  { label: 'Fornecedor 1', value: 'd290f1ee-6c54-4b01-90e6-d701748f0851' },
-  { label: 'Fornecedor 2', value: '79e1fa4f-6a7b-4a8e-b9c2-5ae94a914b22' },
-  { label: 'Fornecedor 3', value: '3fa85f64-5717-4562-b3fc-2c963f66afa6' }
-]
+import { useSupplier } from '@/src/contexts/fornecedores.context'
 
 const tipoFornecedorItems = [
   { label: 'Qualquer', value: 'qualquer' },
@@ -24,6 +18,26 @@ export function PreferenciaFornecedorCampo() {
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
   const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null)
+
+  const { suppliers, unavailableSupplier } = useSupplier();
+
+  const supplierContext = useMemo(() => {
+    const allSuppliers = [...suppliers, ...unavailableSupplier];
+    
+    const fornecedoresNaoBloqueados = allSuppliers.filter(
+      (item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId)
+    );
+    
+    const sortedSuppliers = fornecedoresNaoBloqueados.sort((a, b) => 
+      a.supplier.name.localeCompare(b.supplier.name)
+    );
+
+    return sortedSuppliers.map(item => ({
+      label: item.supplier.name,
+      value: item.supplier.externalId
+    }));
+  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
+
 
   const resetarPreferenciaFornecedor = () => {
     if (!tipoTemporario) return
@@ -77,7 +91,7 @@ export function PreferenciaFornecedorCampo() {
       {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems
           label="Fornecedores específicos"
-          items={mockFornecedores}
+          items={supplierContext}
           value={combinacao.fornecedores_especificos ?? []}
           onChange={(val) => updateCampo('fornecedores_especificos', val)}
           schemaPath="fornecedores_especificos"

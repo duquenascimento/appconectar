@@ -1,6 +1,7 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
 import { useState } from 'react'
+import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { YStack, Label, Text } from 'tamagui'
 
@@ -59,6 +60,7 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         zIndex={zIndex}
         zIndexInverse={1000}
         dropDownDirection="BOTTOM"
+        listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
       />
       {touched && error && (
         <Text p={'$1'} color="red">

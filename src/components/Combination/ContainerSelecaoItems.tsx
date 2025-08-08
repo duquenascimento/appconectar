@@ -1,5 +1,6 @@
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
 import { useState } from 'react'
+import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { YStack, XStack, Text, Button, Label } from 'tamagui'
 
@@ -61,6 +62,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value, o
         placeholder="Selecione..."
         zIndex={4000}
         zIndexInverse={1000}
+        listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         onOpen={() => setTouched(true)}
       />
 
