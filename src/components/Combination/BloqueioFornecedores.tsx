@@ -13,10 +13,10 @@ export function BloqueioFornecedoresCampo() {
 
   const { suppliers, unavailableSupplier } = useSupplier()
 
-  const supplierContext = useMemo(() => {
-    const allSuppliers = [...suppliers, ...unavailableSupplier]
-    const sortedSuppliers = allSuppliers.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
-    return sortedSuppliers.map((item) => ({
+  const fornecedoresContexto = useMemo(() => {
+    const todosFornecedores = [...suppliers, ...unavailableSupplier]
+    const fornecedoresClassificados = todosFornecedores.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+    return fornecedoresClassificados.map((item) => ({
       label: item.supplier.name,
       value: item.supplier.externalId
     }))
@@ -52,7 +52,7 @@ export function BloqueioFornecedoresCampo() {
       {combinacao.bloquear_fornecedores && (
         <ContainerSelecaoItems
           label="Fornecedores bloqueados"
-          items={supplierContext}
+          items={fornecedoresContexto}
           value={combinacao.fornecedores_bloqueados ?? []}
           onChange={(val) => updateCampo('fornecedores_bloqueados', val)}
           schemaPath="fornecedores_bloqueados"

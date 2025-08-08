@@ -35,16 +35,18 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
 
   const { suppliers, unavailableSupplier } = useSupplier();
   
-  const supplierContext = useMemo(() => {
-    const allSuppliers = [...suppliers, ...unavailableSupplier];
-    const sortedSuppliers = allSuppliers.sort((a, b) =>
-      a.supplier.name.localeCompare(b.supplier.name)
-    );
-    return sortedSuppliers.map(item => ({
-      label: item.supplier.name,
-      value: item.supplier.externalId
-    }));
-  }, [suppliers, unavailableSupplier]);
+  const fornecedoresContexto = useMemo(() => {
+    const todosFornecedores = [...suppliers, ...unavailableSupplier];
+    const fornecedoresSelecionados = combinacao.fornecedores_especificos || [];
+
+    return todosFornecedores
+      .filter(f => fornecedoresSelecionados.includes(f.supplier.externalId))
+      .sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+      .map(f => ({
+        label: f.supplier.name,
+        value: f.supplier.externalId
+      }));
+  }, [combinacao.fornecedores_especificos, suppliers, unavailableSupplier]);
 
   useEffect(() => {
     if (!busca.trim()) {
@@ -215,7 +217,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
 
       <ContainerSelecaoItems
         label="Com fornecedor(es)"
-        items={supplierContext}
+        items={fornecedoresContexto}
         value={produto.fornecedores}
         onChange={(val) => updateProduto("fornecedores", val)}
         schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].fornecedores`}

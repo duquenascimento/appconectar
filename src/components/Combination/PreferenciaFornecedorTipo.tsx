@@ -21,14 +21,14 @@ export function PreferenciaFornecedorCampo() {
 
   const { suppliers, unavailableSupplier } = useSupplier()
 
-  const supplierContext = useMemo(() => {
-    const allSuppliers = [...suppliers, ...unavailableSupplier]
+  const fornecedoresContexto = useMemo(() => {
+    const todosFornecedores = [...suppliers, ...unavailableSupplier]
 
-    const fornecedoresNaoBloqueados = allSuppliers.filter((item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId))
+    const fornecedoresNaoBloqueados = todosFornecedores.filter((item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId))
 
-    const sortedSuppliers = fornecedoresNaoBloqueados.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+    const fornecedoresClassificados = fornecedoresNaoBloqueados.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
 
-    return sortedSuppliers.map((item) => ({
+    return fornecedoresClassificados.map((item) => ({
       label: item.supplier.name,
       value: item.supplier.externalId
     }))
@@ -86,7 +86,7 @@ export function PreferenciaFornecedorCampo() {
       {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems
           label="Fornecedores específicos"
-          items={supplierContext}
+          items={fornecedoresContexto}
           value={combinacao.fornecedores_especificos ?? []}
           onChange={(val) => updateCampo('fornecedores_especificos', val)}
           schemaPath="fornecedores_especificos"
