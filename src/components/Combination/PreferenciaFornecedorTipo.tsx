@@ -19,25 +19,20 @@ export function PreferenciaFornecedorCampo() {
   const [showModal, setShowModal] = useState(false)
   const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null)
 
-  const { suppliers, unavailableSupplier } = useSupplier();
+  const { suppliers, unavailableSupplier } = useSupplier()
 
   const supplierContext = useMemo(() => {
-    const allSuppliers = [...suppliers, ...unavailableSupplier];
-    
-    const fornecedoresNaoBloqueados = allSuppliers.filter(
-      (item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId)
-    );
-    
-    const sortedSuppliers = fornecedoresNaoBloqueados.sort((a, b) => 
-      a.supplier.name.localeCompare(b.supplier.name)
-    );
+    const allSuppliers = [...suppliers, ...unavailableSupplier]
 
-    return sortedSuppliers.map(item => ({
+    const fornecedoresNaoBloqueados = allSuppliers.filter((item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId))
+
+    const sortedSuppliers = fornecedoresNaoBloqueados.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+
+    return sortedSuppliers.map((item) => ({
       label: item.supplier.name,
       value: item.supplier.externalId
-    }));
-  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
-
+    }))
+  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados])
 
   const resetarPreferenciaFornecedor = () => {
     if (!tipoTemporario) return
@@ -63,7 +58,7 @@ export function PreferenciaFornecedorCampo() {
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
+    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={1000}>
       <TwoButtonCustomAlert
         visible={showModal}
         title={'Tem certeza de que quer realizar esta ação?'}

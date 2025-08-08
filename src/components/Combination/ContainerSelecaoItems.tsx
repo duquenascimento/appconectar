@@ -60,9 +60,10 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value, o
         }}
         items={items}
         placeholder="Selecione..."
-        zIndex={4000}
+        zIndex={3000}
         zIndexInverse={1000}
         listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
+        dropDownDirection="BOTTOM"
         onOpen={() => setTouched(true)}
       />
 

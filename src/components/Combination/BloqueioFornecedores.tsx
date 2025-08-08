@@ -11,19 +11,16 @@ export function BloqueioFornecedoresCampo() {
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
 
-  const { suppliers, unavailableSupplier } = useSupplier();
+  const { suppliers, unavailableSupplier } = useSupplier()
 
   const supplierContext = useMemo(() => {
-    const allSuppliers = [...suppliers, ...unavailableSupplier];
-    const sortedSuppliers = allSuppliers.sort((a, b) =>
-      a.supplier.name.localeCompare(b.supplier.name)
-    );
-    return sortedSuppliers.map(item => ({
+    const allSuppliers = [...suppliers, ...unavailableSupplier]
+    const sortedSuppliers = allSuppliers.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+    return sortedSuppliers.map((item) => ({
       label: item.supplier.name,
       value: item.supplier.externalId
-    }));
-  }, [suppliers, unavailableSupplier]);
-
+    }))
+  }, [suppliers, unavailableSupplier])
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false)
@@ -40,7 +37,7 @@ export function BloqueioFornecedoresCampo() {
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={3000}>
+    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
       <TwoButtonCustomAlert visible={showModal} title={'Tem certeza de que quer realizar esta ação?'} message={'Ao fazer isto, os fornecedores selecionados serão removidos'} onConfirm={resetFornecedoresBloqueados} onCancel={() => setShowModal(false)} />
 
       <Text fontWeight="bold">Bloquear fornecedores</Text>
@@ -62,7 +59,7 @@ export function BloqueioFornecedoresCampo() {
           extraValidationContext={{
             bloquear_fornecedores: combinacao.bloquear_fornecedores
           }}
-          zIndex={3000}
+          zIndex={4000}
         />
       )}
     </YStack>
