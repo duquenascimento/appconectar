@@ -1,12 +1,34 @@
 import { PreferenciaProdutoCard } from './PreferenciaProdutoCard'
-import { YStack, Text, Button, Separator } from 'tamagui'
+import { YStack, Text, Button, Separator, XStack } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
+import { CustomRadioButton } from '../button/customRadioButton'
+import { useEffect, useState } from 'react'
+import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
+import { resetarPreferencias } from '@/app/utils/preferenciaUtils'
 
 export function ContainerPreferenciasProduto() {
   const { combinacao, updateCampo } = useCombinacao()
+  const [showModal, setShowModal] = useState(false)
 
   const preferencias = combinacao.preferencias ?? []
+
+  const resetPreferencias = () => {
+    const atualizado = resetarPreferencias(combinacao)
+    updateCampo('definir_preferencia_produto', atualizado.definir_preferencia_produto)
+    updateCampo('preferencias', atualizado.preferencias)
+    setShowModal(false)
+  }
+
+  useEffect(() => {}, [showModal])
+
+  const handleDefinirPreferencias = () => {
+    if (preferencias.length !== 0) {
+      setShowModal(true)
+    } else {
+      updateCampo('definir_preferencia_produto', false)
+    }
+  }
 
   const adicionarPreferencia = () => {
     const novaPreferencia = {
@@ -42,7 +64,6 @@ export function ContainerPreferenciasProduto() {
     const [item] = atualizadas.splice(from, 1)
     atualizadas.splice(to, 0, item)
 
-    // Atualizar as ordens
     const reordenadas = atualizadas.map((p, i) => ({
       ...p,
       ordem: i + 1
@@ -52,20 +73,26 @@ export function ContainerPreferenciasProduto() {
 
   return (
     <YStack gap="$4" mt="$4">
+      <TwoButtonCustomAlert visible={showModal} title={'Tem certeza de que quer realizar esta ação?'} message={'Ao fazer isto, as preferências de produto serão removidas'} onConfirm={resetPreferencias} onCancel={() => setShowModal(false)} />
+
       <Text fontSize="$6" fontWeight="bold">
         Definir preferência de produtos para um ou mais fornecedores?
       </Text>
+      <XStack>
+        <CustomRadioButton selected={combinacao.definir_preferencia_produto} onPress={() => updateCampo('definir_preferencia_produto', true)} label="Sim" />
+        <CustomRadioButton selected={!combinacao.definir_preferencia_produto} onPress={handleDefinirPreferencias} label="Não" />
+      </XStack>
 
       <Separator />
 
-      {preferencias.map((_, index) => (
-        <PreferenciaProdutoCard key={index} index={index} onRemove={() => removerPreferencia(index)} onMoveUp={() => moverPreferencia(index, index - 1)} onMoveDown={() => moverPreferencia(index, index + 1)} />
-      ))}
+      {combinacao.definir_preferencia_produto && preferencias.map((_, index) => <PreferenciaProdutoCard key={index} index={index} onRemove={() => removerPreferencia(index)} onMoveUp={() => moverPreferencia(index, index - 1)} onMoveDown={() => moverPreferencia(index, index + 1)} />)}
 
-      <Button mt="$2" onPress={adicionarPreferencia}>
-        <Icons name="add" size={20} />
-        Adicionar Produto
-      </Button>
+      {combinacao.definir_preferencia_produto && (
+        <Button mt="$2" onPress={adicionarPreferencia}>
+          <Icons name="add" size={20} />
+          Adicionar Produto
+        </Button>
+      )}
     </YStack>
   )
 }

@@ -26,3 +26,11 @@ export const removePreferencia = (combinacao: Combinacao, index: number): Combin
     preferencias: prefs
   }
 }
+
+export const resetarPreferencias = (combinacao: Combinacao): Combinacao => {
+  return {
+    ...combinacao,
+    definir_preferencia_produto: false,
+    preferencias: []
+  }
+}

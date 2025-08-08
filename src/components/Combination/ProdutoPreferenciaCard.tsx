@@ -60,23 +60,6 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
 
   return (
     <YStack borderWidth={1} borderColor="$gray4" borderRadius="$4" p="$3" gap="$2">
-      {/* <XStack justifyContent="space-between" alignItems="center">
-        <Text fontWeight="bold">Produto #{produtoIndex + 1}</Text>
-        <XStack gap="$2">
-          <Button size="$2" circular onPress={onMoveUp}>
-            <Icons name="chevron-up" size={20} />
-          </Button>
-          <Button size="$2" circular onPress={onMoveDown}>
-            <Icons name="chevron-down" size={20} />
-          </Button>
-          <Button size="$2" circular backgroundColor="red" onPress={onRemove}>
-            <Icons name="trash" size={20} />
-          </Button>
-        </XStack>
-      </XStack>
-
-      <Separator /> */}
-
       <Text>Fixar produtos e/ou classes</Text>
 
       <XStack alignItems="center" gap="$2">
@@ -94,7 +77,6 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         </Button>
       </XStack>
 
-      {/* Badges com produto_sku ou classe */}
       {(produto.produto_sku || produto.classe) && (
         <XStack flexWrap="wrap" gap="$2">
           {produto.produto_sku && (
