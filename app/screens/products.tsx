@@ -17,6 +17,7 @@ import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeLi
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
+import { useProductContext } from '@/src/contexts/produtos.context'
 
 export type Product = {
   name: string
@@ -589,6 +590,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
   const [productObservations, setProductObservations] = useState(new Map())
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size)
+  const { productsContext, isLoading } = useProductContext()
 
   useEffect(() => {
     SaveUserAppInfo()
@@ -620,21 +622,16 @@ export function Products({ navigation }: HomeScreenProps) {
   }
 
   const loadProducts = useCallback(async () => {
+    if (isLoading) return
     try {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: '{}'
-      })
-      const products = await result.json()
+      const productsList = productsContext
+      console.log('products', productsContext)
 
-      setProductsList(products.data)
+      setProductsList(productsList)
     } catch (error) {
       console.error('Error loading products:', error)
     }
-  }, [])
+  }, [productsContext])
 
   const loadFavorites = useCallback(async () => {
     try {

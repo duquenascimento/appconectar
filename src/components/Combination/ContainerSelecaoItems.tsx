@@ -59,7 +59,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value, o
         }}
         items={items}
         placeholder="Selecione..."
-        zIndex={zIndex}
+        zIndex={4000}
         zIndexInverse={1000}
         onOpen={() => setTouched(true)}
       />

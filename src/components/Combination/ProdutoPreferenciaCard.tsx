@@ -2,10 +2,9 @@ import { YStack, XStack, Input, Button, Text, Separator } from 'tamagui'
 import { DropdownCampo } from './DropdownCampo'
 import { ContainerSelecaoItems } from './ContainerSelecaoItems'
 import Icons from '@expo/vector-icons/Ionicons'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
-
-// 🔧 Mock para dropdown de fornecedores
+import { Product, Classe, useProductContext } from '@/src/contexts/produtos.context'
 const fornecedoresMock = [
   { label: 'Fornecedor A', value: 'uuid-a' },
   { label: 'Fornecedor B', value: 'uuid-b' },
@@ -33,7 +32,42 @@ type Props = {
 
 export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto, onMoveUp, onMoveDown, onRemove }: Props) {
   const { combinacao, updateCampo } = useCombinacao()
+  const { productsContext, classe } = useProductContext()
   const [busca, setBusca] = useState('')
+  const [sugestoes, setSugestoes] = useState<Array<Product | Classe>>([])
+  const [selecionados, setSelecionados] = useState<Product[]>([])
+
+  useEffect(() => {
+    if (!busca.trim()) {
+      setSugestoes([])
+      return
+    }
+
+    const termo = busca.toLowerCase()
+    const matchesProduto = productsContext.filter((produto) => {
+      return produto.name.toLowerCase().includes(termo)
+    })
+    const matchesClasse = classe.filter((classe) => {
+      return classe.nome.toLowerCase().includes(termo)
+    })
+
+    const sugestoesCombinadas = [...matchesProduto, ...matchesClasse].slice(0, 5)
+
+    setSugestoes(sugestoesCombinadas)
+  }, [busca, productsContext, classe])
+
+  function selecionarProduto(itemSelecionado: Product | Classe) {
+    if ('nome' in itemSelecionado) {
+      updateProduto('classe', itemSelecionado.nome)
+      updateProduto('produto_sku', undefined)
+    } else {
+      updateProduto('produto_sku', itemSelecionado.name)
+      updateProduto('classe', undefined)
+    }
+
+    setBusca('')
+    setSugestoes([])
+  }
 
   const updateProduto = (field: keyof typeof produto, value: any) => {
     const preferencias = [...(combinacao.preferencias ?? [])]
@@ -67,15 +101,52 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         <Button
           onPress={() => {
             if (!busca.trim()) return
-            const isClasse = busca.toLowerCase().startsWith('classe:')
-            const valor = busca.replace(/^classe:/i, '').trim()
-            limparBuscaMutua(isClasse ? 'classe' : 'sku', valor)
+
+            const valor = busca.trim().toLowerCase()
+
+            const matchClasse = classe.find((c) => c.nome.toUpperCase().includes(valor))
+
+            if (matchClasse) {
+              limparBuscaMutua('classe', matchClasse.nome)
+            } else {
+              const matchProduto = productsContext.find((p) => p.name.toLowerCase().includes(valor) || p.sku.toLowerCase().includes(valor))
+
+              if (matchProduto) {
+                limparBuscaMutua('sku', matchProduto.name)
+              } else {
+                console.warn('Produto ou classe não encontrado:', valor)
+              }
+            }
+
             setBusca('')
           }}
         >
           <Icons name="search" size={20} />
         </Button>
       </XStack>
+
+      {busca.length > 0 && sugestoes.length > 0 && (
+        <YStack mt="$2" gap="$1">
+          {sugestoes.map((item) => {
+            const isClasse = 'nome' in item
+
+            return (
+              <Text key={item.id} onPress={() => selecionarProduto(item)} paddingVertical="$3" paddingHorizontal="$4" borderBottomWidth={1} borderColor="$gray4" alignItems="center" justifyContent="space-between">
+                {isClasse ? item.nome : item.name}
+              </Text>
+            )
+          })}
+        </YStack>
+      )}
+
+      {selecionados.length > 0 && (
+        <YStack mt="$4" gap="$1">
+          <Text fontWeight="bold">Produtos selecionados:</Text>
+          {selecionados.map((produto) => (
+            <Text key={produto.id}>• {produto.name}</Text>
+          ))}
+        </YStack>
+      )}
 
       {(produto.produto_sku || produto.classe) && (
         <XStack flexWrap="wrap" gap="$2">
