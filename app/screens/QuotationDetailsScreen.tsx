@@ -160,7 +160,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
             {suppliers.map(({ supplier }) => (
               <YStack key={supplier.externalId} bg="white" br={8} p="$3" gap="$3" borderColor="$gray6" borderWidth={1}>
                 <XStack ai="center">
-                  <Image source={{ uri: supplier.image }} width={40} height={40} borderRadius={20} />
+                  <Image source={{ uri: supplier.image }} width={Platform.OS === 'web'? 40 : undefined} height={40} borderRadius={20} />
                   <YStack ml="$3" flex={1}>
                     <Text fontSize={16} fontWeight="bold">
                       {supplier.name.replace('Distribuidora', '').trim()}
@@ -185,7 +185,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
                 <YStack gap="$3">
                   {supplier.discount.product.map((product) => (
                     <XStack key={product.sku} ai="center" gap="$3">
-                      <Image source={{ uri: product.image[0] }} width={40} height={40} borderRadius={5} />
+                      <Image source={{ uri: product.image[0] }} width={Platform.OS === 'web'? 40 : undefined} height={40} resizeMode="cover" borderRadius={5} />
                       <YStack flex={1}>
                         <Text fontSize={14} color="$gray12">
                           {product.name}
