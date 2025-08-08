@@ -13,7 +13,7 @@ export function BloqueioFornecedoresCampo() {
   const { combinacao, updateCampo } = useCombinacao()
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
+    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={3000}>
       <Text fontWeight="bold">Bloquear fornecedores</Text>
       <CustomSubtitle>Impedir que fornecedores apareçam na combinação</CustomSubtitle>
       <Separator my="$3" />

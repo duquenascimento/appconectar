@@ -17,6 +17,7 @@ import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeLi
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
+import { useProductContext } from '@/src/contexts/produtos.context'
 
 export type Product = {
   name: string
@@ -302,9 +303,7 @@ const ProductBox = React.memo(
 
     return (
       <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} 
-        backgroundColor={isCart ? '#fbffc3ff' : 'white'} 
-        borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
+        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
           <View flexDirection="row" alignItems="center">
             <View
               p={Platform.OS === 'web' ? 10 : 0}
@@ -350,7 +349,7 @@ const ProductBox = React.memo(
             borderBottomWidth={0}
             borderBottomLeftRadius={12}
             borderBottomRightRadius={12}
-            backgroundColor={isCart ? 'white' : 'white'}
+            backgroundColor="white"
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
@@ -591,6 +590,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
   const [productObservations, setProductObservations] = useState(new Map())
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size)
+  const { productsContext, isLoading } = useProductContext()
 
   useEffect(() => {
     SaveUserAppInfo()
@@ -622,21 +622,16 @@ export function Products({ navigation }: HomeScreenProps) {
   }
 
   const loadProducts = useCallback(async () => {
+    if (isLoading) return
     try {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: '{}'
-      })
-      const products = await result.json()
+      const productsList = productsContext
+      console.log('products', productsContext)
 
-      setProductsList(products.data)
+      setProductsList(productsList)
     } catch (error) {
       console.error('Error loading products:', error)
     }
-  }, [])
+  }, [productsContext])
 
   const loadFavorites = useCallback(async () => {
     try {

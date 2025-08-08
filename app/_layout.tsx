@@ -20,6 +20,7 @@ import { OrderConfirmedScreen } from './screens/OrderConfirmedScreen'
 // import 'react-native-reanimated';
 import 'react-native-gesture-handler'
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context'
+import { ProductProvider } from '@/src/contexts/produtos.context'
 
 const Navigation = createNativeStackNavigator()
 
@@ -36,24 +37,26 @@ export default function App() {
   return (
     <NavigationContainer independent={true}>
       <TamaguiProvider config={config}>
-        <CombinacaoProvider>
-          <Navigation.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
-            <Navigation.Screen name="Sign" component={Sign} />
-            <Navigation.Screen name="Products" component={Products} />
-            <Navigation.Screen name="Cart" component={Cart} />
-            <Navigation.Screen name="Prices" component={Prices} />
-            <Navigation.Screen name="Confirm" component={Confirm} />
-            <Navigation.Screen name="FinalConfirm" component={FinalConfirm} />
-            <Navigation.Screen name="Register" component={Register} />
-            <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
-            <Navigation.Screen name="Orders" component={OrdersScreen} />
-            <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
-            <Navigation.Screen name="Combination" component={Combination} />
-            <Navigation.Screen name="Preferences" component={PreferencesScreen} />
-            <Navigation.Screen name="QuotationDetails" component={QuotationDetailsScreen} />
-            <Navigation.Screen name="OrderConfirmed" component={OrderConfirmedScreen} />
-          </Navigation.Navigator>
-        </CombinacaoProvider>
+        <ProductProvider>
+          <CombinacaoProvider>
+            <Navigation.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
+              <Navigation.Screen name="Sign" component={Sign} />
+              <Navigation.Screen name="Products" component={Products} />
+              <Navigation.Screen name="Cart" component={Cart} />
+              <Navigation.Screen name="Prices" component={Prices} />
+              <Navigation.Screen name="Confirm" component={Confirm} />
+              <Navigation.Screen name="FinalConfirm" component={FinalConfirm} />
+              <Navigation.Screen name="Register" component={Register} />
+              <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
+              <Navigation.Screen name="Orders" component={OrdersScreen} />
+              <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
+              <Navigation.Screen name="Combination" component={Combination} />
+              <Navigation.Screen name="Preferences" component={PreferencesScreen} />
+              <Navigation.Screen name="QuotationDetails" component={QuotationDetailsScreen} />
+              <Navigation.Screen name="OrderConfirmed" component={OrderConfirmedScreen} />
+            </Navigation.Navigator>
+          </CombinacaoProvider>
+        </ProductProvider>
       </TamaguiProvider>
     </NavigationContainer>
   )
