@@ -16,7 +16,7 @@ type Props = {
   preferenciaIndex: number;
   produtoIndex: number;
   produto: {
-    produto_sku?: string;
+    produto_name?: string;
     classe?: string;
     fornecedores: string[];
     acao_na_falha: "ignorar" | "indisponivel";
@@ -70,9 +70,9 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
   function selecionarProduto(itemSelecionado: Product | Classe) {
     if ('nome' in itemSelecionado) {
       updateProduto('classe', itemSelecionado.nome)
-      updateProduto('produto_sku', undefined)
+      updateProduto('produto_name', undefined)
     } else {
-      updateProduto('produto_sku', itemSelecionado.name)
+      updateProduto('produto_name', itemSelecionado.name)
       updateProduto('classe', undefined)
     }
 
@@ -93,13 +93,13 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
     updateCampo("preferencias", preferencias);
   };
 
-  const limparBuscaMutua = (tipo: "sku" | "classe", valor: string) => {
-    if (tipo === "sku") {
-      updateProduto("produto_sku", valor);
+  const limparBuscaMutua = (tipo: "name" | "classe", valor: string) => {
+    if (tipo === "name") {
+      updateProduto("produto_name", valor);
       updateProduto("classe", undefined);
     } else {
       updateProduto("classe", valor);
-      updateProduto("produto_sku", undefined);
+      updateProduto("produto_name", undefined);
     }
   };
 
@@ -131,10 +131,10 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
             if (matchClasse) {
               limparBuscaMutua('classe', matchClasse.nome)
             } else {
-              const matchProduto = productsContext.find((p) => p.name.toLowerCase().includes(valor) || p.sku.toLowerCase().includes(valor))
+              const matchProduto = productsContext.find((p) => p.name.toLowerCase().includes(valor))
 
               if (matchProduto) {
-                limparBuscaMutua('sku', matchProduto.name)
+                limparBuscaMutua('name', matchProduto.name)
               } else {
                 console.warn('Produto ou classe não encontrado:', valor)
               }
@@ -170,9 +170,9 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         </YStack>
       )}
 
-      {(produto.produto_sku || produto.classe) && (
+      {(produto.produto_name || produto.classe) && (
         <XStack flexWrap="wrap" gap="$2">
-          {produto.produto_sku && (
+          {produto.produto_name && (
             <XStack
               px="$2"
               py="$1"
@@ -180,13 +180,13 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
               backgroundColor="$gray3"
               alignItems="center"
             >
-              <Text>{produto.produto_sku}</Text>
+              <Text>{produto.produto_name}</Text>
               <Button
                 size="$1"
                 circular
                 ml="$2"
                 backgroundColor="transparent"
-                onPress={() => updateProduto("produto_sku", undefined)}
+                onPress={() => updateProduto("produto_name", undefined)}
               >
                 ×
               </Button>

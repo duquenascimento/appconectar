@@ -104,7 +104,26 @@ export const Combination: React.FC = () => {
           <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
             <YStack f={1}>
               <Button
-                onPress={handleGoBack}
+                onPress={async () => {
+                  try {
+                    if (!id) {
+                      console.warn('ID da combinação não encontrado.')
+                      return
+                    }
+                    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/delete`, {
+                      method: 'DELETE'
+                    })
+                    if (response.ok) {
+                      console.log('Combinação excluída!')
+                      handleGoBack()
+                    } else {
+                      const errorData = await response.json()
+                      console.error('Erro ao excluir combinação:', errorData)
+                    }
+                  } catch (error) {
+                    console.error('Erro ao excluir combinação:', error)
+                  }
+                }}
                 hoverStyle={{
                   background: '#f84949ff',
                   opacity: 0.9
