@@ -8,6 +8,7 @@ type CombinacaoContextType = {
   setCombinacao: (novaCombinacao: Combinacao) => void
   updateCampo: <K extends keyof Combinacao>(campo: K, valor: Combinacao[K]) => void
   resetCombinacao: () => void
+  updateCombinacao: (update: Combinacao) => void
 }
 
 const combinacaoInicial: Combinacao = {
@@ -44,11 +45,15 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    setStorage('combinacao', JSON.stringify(combinacao)).catch((e) => {
-      console.warn('Falha ao salvar combinacao no Storage')
-    })
+    if(combinacao.restaurant_id !== '') {
+      console.log('Combinacao atualizada no Storage', combinacao)
+      setStorage('combinacao', JSON.stringify(combinacao)).catch((e) => {
+        console.warn('Falha ao salvar combinacao no Storage')
+      })
+    }
   }, [combinacao])
 
+  
   const addPreferencia = (preferencia: PreferenciaProduto) => {
     setCombinacaoState((prev) => addPrefUtil(prev, preferencia))
   }
@@ -72,6 +77,10 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
     }))
   }
 
+  const updateCombinacao = (update: Combinacao) => {
+    setCombinacaoState(update)
+  }
+
   const resetCombinacao = () => {
     setCombinacaoState(combinacaoInicial)
   }
@@ -84,11 +93,12 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
       resetCombinacao,
       addPreferencia,
       updatePreferencia,
-      removePreferencia
+      removePreferencia,
+      updateCombinacao
     }),
     [combinacao]
   )
-
+  console.log("combinacao contexto", combinacao)
   return <CombinacaoContext.Provider value={value}>{children}</CombinacaoContext.Provider>
 }
 

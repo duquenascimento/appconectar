@@ -29,7 +29,7 @@ export function BloqueioFornecedoresCampo() {
   }
 
   const handleBloquearFornecedores = () => {
-    if (combinacao.fornecedores_bloqueados?.length !== 0) {
+    if ((combinacao?.fornecedores_bloqueados || []).length !== 0) {
       setShowModal(true)
     } else {
       updateCampo('bloquear_fornecedores', false)
@@ -53,7 +53,7 @@ export function BloqueioFornecedoresCampo() {
         <ContainerSelecaoItems
           label="Fornecedores bloqueados"
           items={fornecedoresContexto}
-          value={combinacao.fornecedores_bloqueados ?? []}
+          value={Array.isArray(combinacao?.fornecedores_bloqueados) ? combinacao.fornecedores_bloqueados : []}
           onChange={(val) => updateCampo('fornecedores_bloqueados', val)}
           schemaPath="fornecedores_bloqueados"
           extraValidationContext={{

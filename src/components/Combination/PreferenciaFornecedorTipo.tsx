@@ -87,7 +87,7 @@ export function PreferenciaFornecedorCampo() {
         <ContainerSelecaoItems
           label="Fornecedores específicos"
           items={fornecedoresContexto}
-          value={combinacao.fornecedores_especificos ?? []}
+          value={Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : []}
           onChange={(val) => updateCampo('fornecedores_especificos', val)}
           schemaPath="fornecedores_especificos"
           extraValidationContext={{

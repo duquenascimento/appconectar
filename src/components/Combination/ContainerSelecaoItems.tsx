@@ -14,7 +14,7 @@ type ContainerSelecaoItemsProps<T extends string> = {
   extraValidationContext?: Record<string, unknown>
 }
 
-export function ContainerSelecaoItems<T extends string>({ label, items, value, onChange, zIndex = 3000, schemaPath, extraValidationContext = {} }: ContainerSelecaoItemsProps<T>) {
+export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {} }: ContainerSelecaoItemsProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
   const [error, setError] = useState<string | null>(null)

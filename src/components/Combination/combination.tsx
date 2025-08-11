@@ -1,32 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Platform, SafeAreaView } from 'react-native'
-import DropDownPicker from 'react-native-dropdown-picker'
-import { ScrollView, Text, Label, XStack, YStack, Separator, Button } from 'tamagui'
+import { ScrollView, XStack, YStack, Button } from 'tamagui'
 
 import CustomButton from '../button/customButton'
-import CustomSubtitle from '../subtitle/customSubtitle'
-import { PrioritySection } from './prioridade'
 import CustomHeader from '../header/customHeader'
-import { getAllSuppliers } from '@/src/services/supplierService'
-import { mapSuppliers } from '@/app/utils/mapSupplier'
-import { CustomRadioButton } from '../button/customRadioButton'
-import { getAllProducts } from '@/src/services/productsService'
-import { mapProducts } from '@/app/utils/mapProducts'
-import { ProrityProductsCombination } from './prioridade'
 import { getStorage } from '@/app/utils/utils'
 import { useNavigation, useRoute } from '@react-navigation/native'
-import { FieldArray, FormikProvider, useFormik } from 'formik'
-import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
-import CustomAlert from '../modais/CustomAlert'
-import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
 import { InputNome } from './InputNome'
 import { DropdownCampo } from './DropdownCampo'
 import { BloqueioFornecedoresCampo } from './BloqueioFornecedores'
 import { PreferenciaFornecedorCampo } from './PreferenciaFornecedorTipo'
-import { PreferenciasProdutoCampo } from './PreferenciasProdutoCampo'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { ContainerPreferenciasProduto } from './ContainerPreferenciasProduto'
-import { TipoFornecedor } from '@/src/types/combinationTypes'
+import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
 
 export interface SuplierCombination {
   id: string
@@ -36,77 +22,30 @@ export interface SuplierCombination {
 export const Combination: React.FC = () => {
   const navigation = useNavigation()
   const route = useRoute()
+  const { id } = route.params as { id?: string }
   const { combinacao, updateCampo } = useCombinacao()
-
-  const [suppliers, setSupplers] = useState<SuplierCombination[]>([])
-  const [supplierItems, setSupplierItems] = useState<{ label: string; value: string }[]>([])
-  const [products, setProducts] = useState<ProrityProductsCombination[]>([])
+  const { setCombinacao, resetCombinacao } = useCombinacao()
   const [restaurant_id, setRestaurant_id] = useState<string | null>(null)
 
-  const [openBlockSuppliers, setOpenBlockSupplers] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [openSupplier, setOpenSupplier] = useState(false)
-  const [openPreference, setOpenPreference] = useState(false)
-  const [showPreferencesModal, setShowPreferencesModal] = useState(false)
-  const [preferenciaFornecedorTipo, setPreferenciaFornecedorTipo] = useState<string>('qualquer')
-  const [showConfirmModal, setShowConfirmModal] = useState(false)
-  const [blockedSuppliersValue, setBlockedSuppliersValue] = useState<string[]>([])
+  useEffect(() => {
+    console.log('id da rota', id)
+    const carregarCombinacao = async () => {
+      if (!id) return // Se for criar nova, não faz nada
 
-  const initialValues = {
-    restaurant_id,
-    nome: '',
-    dividir_em_maximo: 2,
-    bloquear_fornecedores: false,
-    fornecedores_bloqueados: [],
-    preferencia_fornecedor_tipo: 'qualquer',
-    fornecedores_especificos: [],
-    definir_preferencia_produto: false,
-    preferencias_hard: false,
-    preferencias: []
-  }
-
-  const formik = useFormik({
-    initialValues,
-    validationSchema: combinacaoValidationSchema,
-    enableReinitialize: true,
-    onSubmit: async (values) => {
-      const combinationData = {
-        ...values,
-        restaurant_id: restaurant_id ?? ''
+      try {
+        const dados = await getCombinationsByRestaurant(id) // Busca dados da combinação no back-end
+        if (dados) {
+          //resetCombinacao() // Limpa o context anterior
+          //setCombinacao(dados)
+        }
+      } catch (err) {
+        console.error('Erro ao carregar combinação:', err)
       }
-
-      /* try {
-        await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(combinationData)
-        })
-      } catch (erro) {
-        console.error('Erro ao criar combinação:', erro)
-      } */
-
-      console.log(combinacao)
-    }
-  })
-
-  /*   useEffect(() => {
-    const { bloquear_fornecedores, fornecedores_bloqueados, preferencia_fornecedor_tipo, fornecedores_especificos, definir_preferencia_produto, preferencias } = formik.values
-
-    if (!bloquear_fornecedores && fornecedores_bloqueados.length > 0) {
-      formik.setFieldValue('fornecedores_bloqueados', [])
     }
 
-    if (preferencia_fornecedor_tipo !== 'especifico' && fornecedores_especificos.length > 0) {
-      formik.setFieldValue('fornecedores_especificos', [])
-    }
+    carregarCombinacao()
+  }, [])
 
-    if (!definir_preferencia_produto && preferencias.length > 0) {
-      formik.setFieldValue('preferencias', [])
-    }
-  }, [formik.values.bloquear_fornecedores, formik.values.fornecedores_bloqueados, formik.values.preferencia_fornecedor_tipo, formik.values.fornecedores_especificos, formik.values.definir_preferencia_produto, formik.values.preferencias])
- */
   useEffect(() => {
     const fetchStoredRestaurant = async () => {
       const storedValue = await getStorage('selectedRestaurant')
@@ -127,53 +66,11 @@ export const Combination: React.FC = () => {
     fetchStoredRestaurant()
   }, [])
 
-  const loadSuppliers = useCallback(async () => {
-    try {
-      const data = await getAllSuppliers()
-      if (Array.isArray(data)) {
-        const mapped = data.map(mapSuppliers)
-        setSupplers(mapped)
-        setSupplierItems(
-          mapped.map((s) => ({
-            label: s.nomefornecedor,
-            value: s.id
-          }))
-        )
-      } else {
-        throw new Error('Resposta inesperada da API')
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro desconhecido'
-      console.error('Erro ao buscar combinações:', message)
-    }
-  }, [])
-
-  const loadProducts = useCallback(async () => {
-    try {
-      const data = await getAllProducts()
-      if (Array.isArray(data)) {
-        setProducts(data.map(mapProducts))
-      } else {
-        throw new Error('Resposta inesperada da API')
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro desconhecido'
-      console.error('Erro ao buscar combinações:', message)
-    }
-  }, [])
-
-  useEffect(() => {
-    loadSuppliers()
-    loadProducts()
-  }, [loadSuppliers, loadProducts])
-
   const handleGoBack = () => {
     navigation.goBack()
   }
 
-  useEffect(() => {
-    setBlockedSuppliersValue(formik.values.fornecedores_bloqueados)
-  }, [formik.values.fornecedores_bloqueados])
+  console.log('combinação no componente', combinacao)
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -222,7 +119,25 @@ export const Combination: React.FC = () => {
             </YStack>
             <YStack f={1}>
               <Button
-                onPress={formik.handleSubmit}
+                onPress={async () => {
+                  try {
+                    // Envia para o backend
+                    const response = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify(combinacao)
+                    })
+
+                    console.log('Combinação salva!', response)
+                    // Navegue ou mostre feedback ao usuário
+                    navigation.goBack()
+                  } catch (error) {
+                    console.error('Erro ao salvar combinação:', error)
+                    // Mostre alerta ou feedback de erro
+                  }
+                }}
                 hoverStyle={{
                   background: '#1DC588',
                   opacity: 0.9
@@ -242,7 +157,17 @@ export const Combination: React.FC = () => {
               <CustomButton title="Excluir" onPress={handleGoBack} backgroundColor="#f84949ff" textColor="#FFFFFF" borderColor="#A9A9A9" borderWidth={1} />
             </YStack>
             <YStack f={1}>
-              <CustomButton title="Salvar" fontSize={10} onPress={formik.handleSubmit as any} backgroundColor="#1DC588" textColor="#FFFFFF" borderColor="#A9A9A9" Salvar />
+              <CustomButton
+                title="Salvar"
+                fontSize={10}
+                onPress={() => {
+                  console.log('Salvar combinação', combinacao)
+                }}
+                backgroundColor="#1DC588"
+                textColor="#FFFFFF"
+                borderColor="#A9A9A9"
+                Salvar
+              />
             </YStack>
           </XStack>
         )}
