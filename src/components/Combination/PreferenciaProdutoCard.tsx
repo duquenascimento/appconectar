@@ -43,6 +43,25 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     updateCampo('preferencias', novasPreferencias)
   }
 
+  const updateProduto = (field: keyof typeof produto, value: any) => {
+  updateCampo('preferencias', (prevPreferencias: any[]) => {
+    const novasPreferencias = [...prevPreferencias]
+    const preferenciaAtual = { ...novasPreferencias[preferenciaIndex] }
+    const produtosAtualizados = [...preferenciaAtual.produtos]
+
+    produtosAtualizados[produtoIndex] = {
+      ...produtosAtualizados[produtoIndex],
+      [field]: value ?? undefined
+    }
+
+    preferenciaAtual.produtos = produtosAtualizados
+    novasPreferencias[preferenciaIndex] = preferenciaAtual
+
+    return novasPreferencias
+  })
+}
+
+
   const removerProduto = (produtoIndex: number) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])]
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.filter((_, i) => i !== produtoIndex)

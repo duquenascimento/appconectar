@@ -13,6 +13,7 @@ import { PreferenciaFornecedorCampo } from './PreferenciaFornecedorTipo'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { ContainerPreferenciasProduto } from './ContainerPreferenciasProduto'
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
+import { Combinacao } from '@/src/types/combinationTypes'
 
 export interface SuplierCombination {
   id: string
@@ -28,7 +29,6 @@ export const Combination: React.FC = () => {
   const [restaurant_id, setRestaurant_id] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log('id da rota', id)
     const carregarCombinacao = async () => {
       if (!id) return // Se for criar nova, não faz nada
 
@@ -56,9 +56,14 @@ export const Combination: React.FC = () => {
           const restaurante = parsedValue?.restaurant ?? parsedValue ?? null
           const idFromRoute = (route.params as { restaurantId?: string })?.restaurantId
 
-          setRestaurant_id(idFromRoute ?? restaurante?.id ?? null)
+          const finalId = idFromRoute ?? restaurante?.id ?? null
+          setRestaurant_id(finalId)
+
+          // Atualiza no context
+          updateCampo('restaurant_id', finalId ?? '')
         } catch {
           setRestaurant_id(null)
+          updateCampo('restaurant_id', '')
         }
       }
     }
@@ -70,7 +75,40 @@ export const Combination: React.FC = () => {
     navigation.goBack()
   }
 
-  console.log('combinação no componente', combinacao)
+  const createCombination = async () => {
+    try {
+      console.log('Json criado', JSON.stringify(combinacao))
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(combinacao)
+      })
+      navigation.goBack()
+    } catch (error) {
+      console.error('Erro ao salvar combinação:', error)
+    }
+  }
+
+  const updateCombination = async () => {
+    
+    try {
+      console.log('Json atualizado', JSON.stringify(combinacao))
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(combinacao)
+      })
+
+      console.log('Combinação atualizada!', response)
+      navigation.goBack()
+    } catch (error) {
+      console.error('Erro ao salvar combinação:', error)
+    }
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -114,7 +152,6 @@ export const Combination: React.FC = () => {
                       method: 'DELETE'
                     })
                     if (response.ok) {
-                      console.log('Combinação excluída!')
                       handleGoBack()
                     } else {
                       const errorData = await response.json()
@@ -139,22 +176,10 @@ export const Combination: React.FC = () => {
             <YStack f={1}>
               <Button
                 onPress={async () => {
-                  try {
-                    // Envia para o backend
-                    const response = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify(combinacao)
-                    })
-
-                    console.log('Combinação salva!', response)
-                    // Navegue ou mostre feedback ao usuário
-                    navigation.goBack()
-                  } catch (error) {
-                    console.error('Erro ao salvar combinação:', error)
-                    // Mostre alerta ou feedback de erro
+                  if (id) {
+                    await updateCombination()
+                  } else {
+                    await createCombination()
                   }
                 }}
                 hoverStyle={{

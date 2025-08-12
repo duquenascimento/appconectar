@@ -45,15 +45,13 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
-    if(combinacao.restaurant_id !== '') {
-      console.log('Combinacao atualizada no Storage', combinacao)
+    if (combinacao.restaurant_id !== '') {
       setStorage('combinacao', JSON.stringify(combinacao)).catch((e) => {
         console.warn('Falha ao salvar combinacao no Storage')
       })
     }
   }, [combinacao])
 
-  
   const addPreferencia = (preferencia: PreferenciaProduto) => {
     setCombinacaoState((prev) => addPrefUtil(prev, preferencia))
   }
@@ -98,7 +96,6 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
     }),
     [combinacao]
   )
-  console.log("combinacao contexto", combinacao)
   return <CombinacaoContext.Provider value={value}>{children}</CombinacaoContext.Provider>
 }
 

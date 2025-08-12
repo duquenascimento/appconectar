@@ -25,7 +25,6 @@ export function PreferenciaFornecedorCampo() {
     const todosFornecedores = [...suppliers, ...unavailableSupplier]
 
     const fornecedoresNaoBloqueados = todosFornecedores.filter((item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId))
-
     const fornecedoresClassificados = fornecedoresNaoBloqueados.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
 
     return fornecedoresClassificados.map((item) => ({
@@ -82,7 +81,6 @@ export function PreferenciaFornecedorCampo() {
         onChange={(val) => handleFornecedorTipo(val)}
         zIndex={3000}
       />
-
       {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems
           label="Fornecedores específicos"

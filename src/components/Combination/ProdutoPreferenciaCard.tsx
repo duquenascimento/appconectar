@@ -8,23 +8,23 @@ import { Product, Classe, useProductContext } from '@/src/contexts/produtos.cont
 import { useSupplier } from '@/src/contexts/fornecedores.context'
 
 const acaoNaFalhaItems = [
-  { label: "Ignorar e pular", value: "ignorar" },
-  { label: "Indisponível", value: "indisponivel" },
-];
+  { label: 'Ignorar e pular', value: 'ignorar' },
+  { label: 'Indisponível', value: 'indisponivel' }
+]
 
 type Props = {
-  preferenciaIndex: number;
-  produtoIndex: number;
+  preferenciaIndex: number
+  produtoIndex: number
   produto: {
-    produto_name?: string;
-    classe?: string;
-    fornecedores: string[];
-    acao_na_falha: "ignorar" | "indisponivel";
-  };
-  onMoveUp: () => void;
-  onMoveDown: () => void;
-  onRemove: () => void;
-};
+    produto_sku?: string
+    classe?: string
+    fornecedores: string[]
+    acao_na_falha: 'ignorar' | 'indisponivel'
+  }
+  onMoveUp: () => void
+  onMoveDown: () => void
+  onRemove: () => void
+}
 
 export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto, onMoveUp, onMoveDown, onRemove }: Props) {
   const { combinacao, updateCampo } = useCombinacao()
@@ -33,20 +33,20 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
   const [sugestoes, setSugestoes] = useState<(Product | Classe)[]>([])
   const [selecionados, setSelecionados] = useState<Product[]>([])
 
-  const { suppliers, unavailableSupplier } = useSupplier();
-  
+  const { suppliers, unavailableSupplier } = useSupplier()
+
   const fornecedoresContexto = useMemo(() => {
-    const todosFornecedores = [...suppliers, ...unavailableSupplier];
-    const fornecedoresSelecionados = combinacao.fornecedores_especificos || [];
+    const todosFornecedores = [...suppliers, ...unavailableSupplier]
+    const fornecedoresSelecionados = combinacao.fornecedores_especificos || []
 
     return todosFornecedores
-      .filter(f => fornecedoresSelecionados.includes(f.supplier.externalId))
+      .filter((f) => fornecedoresSelecionados.includes(f.supplier.externalId))
       .sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
-      .map(f => ({
+      .map((f) => ({
         label: f.supplier.name,
         value: f.supplier.externalId
-      }));
-  }, [combinacao.fornecedores_especificos, suppliers, unavailableSupplier]);
+      }))
+  }, [combinacao.fornecedores_especificos, suppliers, unavailableSupplier])
 
   useEffect(() => {
     if (!busca.trim()) {
@@ -69,11 +69,9 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
 
   function selecionarProduto(itemSelecionado: Product | Classe) {
     if ('nome' in itemSelecionado) {
-      updateProduto('classe', itemSelecionado.nome)
-      updateProduto('produto_name', undefined)
+      updateProduto('classe', itemSelecionado.nome ?? undefined)
     } else {
-      updateProduto('produto_name', itemSelecionado.name)
-      updateProduto('classe', undefined)
+      updateProduto('produto_sku', itemSelecionado.sku ?? undefined)
     }
 
     setBusca('')
@@ -81,45 +79,35 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
   }
 
   const updateProduto = (field: keyof typeof produto, value: any) => {
-    const preferencias = [...(combinacao.preferencias ?? [])];
-    const produtos = [...(preferencias[preferenciaIndex].produtos ?? [])];
+    const preferencias = [...(combinacao.preferencias ?? [])]
+    const produtos = [...(preferencias[preferenciaIndex].produtos ?? [])]
 
     produtos[produtoIndex] = {
       ...produtos[produtoIndex],
-      [field]: value,
-    };
-
-    preferencias[preferenciaIndex].produtos = produtos;
-    updateCampo("preferencias", preferencias);
-  };
-
-  const limparBuscaMutua = (tipo: "name" | "classe", valor: string) => {
-    if (tipo === "name") {
-      updateProduto("produto_name", valor);
-      updateProduto("classe", undefined);
-    } else {
-      updateProduto("classe", valor);
-      updateProduto("produto_name", undefined);
+      [field]: value ?? undefined
     }
-  };
+
+    preferencias[preferenciaIndex].produtos = produtos
+    updateCampo('preferencias', preferencias)
+    
+  }
+
+  const limparBuscaMutua = (tipo: 'name' | 'classe', valor: string) => {
+    if (tipo === 'name') {
+      updateProduto('produto_sku', valor)
+      updateProduto('classe', undefined)
+    } else {
+      updateProduto('classe', valor)
+      updateProduto('produto_sku', undefined)
+    }
+  }
 
   return (
-    <YStack
-      borderWidth={1}
-      borderColor="$gray4"
-      borderRadius="$4"
-      p="$3"
-      gap="$2"
-    >
+    <YStack borderWidth={1} borderColor="$gray4" borderRadius="$4" p="$3" gap="$2">
       <Text>Fixar produtos e/ou classes</Text>
 
       <XStack alignItems="center" gap="$2">
-        <Input
-          flex={1}
-          placeholder="Buscar produto ou classe"
-          value={busca}
-          onChangeText={setBusca}
-        />
+        <Input flex={1} placeholder="Buscar produto ou classe" value={busca} onChangeText={setBusca} />
         <Button
           onPress={() => {
             if (!busca.trim()) return
@@ -170,44 +158,20 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         </YStack>
       )}
 
-      {(produto.produto_name || produto.classe) && (
+      {(produto.produto_sku) && (
         <XStack flexWrap="wrap" gap="$2">
-          {produto.produto_name && (
-            <XStack
-              px="$2"
-              py="$1"
-              borderRadius={8}
-              backgroundColor="$gray3"
-              alignItems="center"
-            >
-              <Text>{produto.produto_name}</Text>
-              <Button
-                size="$1"
-                circular
-                ml="$2"
-                backgroundColor="transparent"
-                onPress={() => updateProduto("produto_name", undefined)}
-              >
+          {produto.produto_sku && (
+            <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
+              <Text>{productsContext.find((p) => p.sku === produto.produto_sku)?.name ?? produto.produto_sku}</Text>
+              <Button size="$1" circular ml="$2" backgroundColor="transparent" onPress={() => updateProduto('produto_sku', undefined)}>
                 ×
               </Button>
             </XStack>
           )}
           {produto.classe && (
-            <XStack
-              px="$2"
-              py="$1"
-              borderRadius={8}
-              backgroundColor="$gray3"
-              alignItems="center"
-            >
+            <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
               <Text>{produto.classe}</Text>
-              <Button
-                size="$1"
-                circular
-                ml="$2"
-                backgroundColor="transparent"
-                onPress={() => updateProduto("classe", undefined)}
-              >
+              <Button size="$1" circular ml="$2" backgroundColor="transparent" onPress={() => updateProduto('classe', undefined)}>
                 ×
               </Button>
             </XStack>
@@ -215,24 +179,9 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         </XStack>
       )}
 
-      <ContainerSelecaoItems
-        label="Com fornecedor(es)"
-        items={fornecedoresContexto}
-        value={produto.fornecedores}
-        onChange={(val) => updateProduto("fornecedores", val)}
-        schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].fornecedores`}
-        zIndex={3000}
-      />
+      <ContainerSelecaoItems label="Com fornecedor(es)" items={fornecedoresContexto} value={produto.fornecedores} onChange={(val) => updateProduto('fornecedores', val)} schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].fornecedores`} zIndex={3000} />
 
-      <DropdownCampo
-        campo={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].acao_na_falha`}
-        schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].acao_na_falha`}
-        label="Não sendo possível..."
-        items={acaoNaFalhaItems}
-        value={produto.acao_na_falha}
-        onChange={(val) => updateProduto("acao_na_falha", val)}
-        zIndex={2500}
-      />
+      <DropdownCampo campo={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].acao_na_falha`} schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].acao_na_falha`} label="Não sendo possível..." items={acaoNaFalhaItems} value={produto.acao_na_falha} onChange={(val) => updateProduto('acao_na_falha', val)} zIndex={2500} />
     </YStack>
-  );
+  )
 }
