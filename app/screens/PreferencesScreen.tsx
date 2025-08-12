@@ -17,6 +17,7 @@ import CustomAlert from '@/src/components/modais/CustomAlert'
 import { getStorage } from '../utils/utils'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { Combinacao } from '@/src/types/combinationTypes'
+import { transformCombinacaoForSave } from '../utils/combinacaoUtils'
 
 export interface Combination {
   id: string
@@ -35,7 +36,7 @@ export interface Restaurant {
 
 export type RootStackParamList = {
   Preferences: { restaurantId: string; restaurant: Restaurant }
-  Combination: { id: string };
+  Combination: { id: string }
 }
 
 type PreferencesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Preferences'>
@@ -100,24 +101,17 @@ const PreferencesScreen: React.FC = () => {
   const handleCombinationPress = (id: string) => {
     const combinationResult = combinationsFull.filter((c) => c.id === id)
 
-    // Atualiza o estado primeiro
-    // updateCombinacao({
-    //   restaurant_id: combinationResult[0]?.restaurant_id ?? '',
-    //   nome: combinationResult[0]?.nome ?? '',
-    //   dividir_em_maximo: combinationResult[0]?.dividir_em_maximo ?? 1,
-    //   definir_preferencia_produto: combinationResult[0]?.definir_preferencia_produto ?? false,
-    // })
-
-    updateCombinacao(
-      combinationResult[0]
-    )
+    const normalizedCombination = transformCombinacaoForSave(combinationResult[0])
+    console.log('Normalized Combination:', normalizedCombination)
+    updateCombinacao(normalizedCombination as Combinacao)
 
     // Navega após a atualização do estado
     navigation.navigate('Combination', { id })
   }
   const handleCreateNewCombination = () => {
     resetCombinacao()
-    navigation.navigate('Combination', { id: '' })}
+    navigation.navigate('Combination', { id: '' })
+  }
 
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`
 
