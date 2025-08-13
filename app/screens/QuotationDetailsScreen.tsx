@@ -1,5 +1,5 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { Stack, Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui'
+import { Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import React, { useState } from 'react'
 import { SafeAreaView, Alert, Platform } from 'react-native'
@@ -69,18 +69,24 @@ type QuotationDetailsScreenProps = {
 export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
   const { combinationName, suppliersData } = route.params
 
-  const [suppliers, setSuppliers] = useState<SupplierData[]>(suppliersData || [])
-  const [headerTitle, setHeaderTitle] = useState<string>(combinationName || 'Detalhes da Cotação')
+  const [suppliers] = useState<SupplierData[]>(suppliersData || [])
+  const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação')
 
   const totals = React.useMemo(() => {
     if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
+  
     return suppliers.reduce(
       (acc, { supplier }) => {
         acc.subtotal += supplier.discount.orderValue
         acc.discount += supplier.discount.discount
         acc.grandTotal += supplier.discount.orderValueFinish
-        acc.totalItems += supplier.discount.product.filter((p) => p.price > 0).length
-        acc.missingItems += supplier.missingItens
+
+        const availableItems = supplier.discount.product.filter((p) => p.price > 0)
+        acc.totalItems += availableItems.length
+        
+        const missingItemsInSupplier = supplier.discount.product.filter((p) => p.price === 0)
+        acc.missingItems += missingItemsInSupplier.length
+  
         return acc
       },
       { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
@@ -175,7 +181,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
                       {formatCurrency(supplier.discount.orderValueFinish)}
                     </Text>
                     <Text fontSize={12} color="$gray10">
-                      {supplier.discount.product.length} item(s) / {supplier.missingItens} faltante(s)
+                      {supplier.discount.product.length} item{supplier.discount.product.length !== 1 ? 's' : ''}
                     </Text>
                   </YStack>
                 </XStack>
@@ -199,7 +205,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
                           {product.price ? formatCurrency(product.price) : 'Indisponível'}
                         </Text>
                         <Text fontSize={12} color="$gray10">
-                          {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUnique)}/${formatUnit(product.orderUnit)}`}
+                          {`${product.quant} ${formatUnit(product.orderUnit)} | ${formatCurrency(product.priceUniqueWithTaxAndDiscount)}/${formatUnit(product.orderUnit)}`}
                         </Text>
                       </YStack>
                     </XStack>
@@ -236,7 +242,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
                 </Text>
               </XStack>
               <Text fontSize={12} color="$gray10" ta="right">
-                {totals.totalItems} item(s) | {totals.missingItems} faltante(s)
+                {totals.totalItems} item{totals.totalItems !== 1 ? 's' : ''} | {totals.missingItems} faltante{totals.missingItems !== 1 ? 's' : ''}
               </Text>
             </YStack>
           </YStack>
@@ -280,10 +286,10 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
           ) : (
             <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
               <YStack f={1}>
-                <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF" borderColor="#A9A9A9" borderWidth={1} />
+                <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF"/>
               </YStack>
               <YStack f={1}>
-                <CustomButton title="Confirmar" onPress={handleConfirm} backgroundColor="#1DC588" textColor="#FFFFFF" borderColor="#A9A9A9" />
+                <CustomButton title="Confirmar" onPress={handleConfirm} backgroundColor="#1DC588" textColor="#FFFFFF" />
               </YStack>
             </XStack>
           )}

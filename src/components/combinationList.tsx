@@ -50,8 +50,8 @@ const CombinationList: React.FC = () => {
   const { suppliers, unavailableSupplier } = useSupplier();
 
     const allSuppliers = useMemo(() => {
-      return [...suppliers];
-    }, [suppliers]);
+      return [...suppliers, ...unavailableSupplier];
+    }, [suppliers, unavailableSupplier]);
   
 
   useEffect(() => {
@@ -102,10 +102,10 @@ const CombinationList: React.FC = () => {
 
 
   const handleCombinationPress = async (item: Combination) => {
-    const selectedCombination = combinationData.filter((data) => data.id === item.id);
-    
+    const selectedCombination = combinationData.filter((data) => data.id === item.id); 
+    const combinationSelected = selectedCombination as ChosenSupplierQuote[]
     const mergedData:any = mergeSupplierData(
-      selectedCombination as ChosenSupplierQuote[],
+      combinationSelected,
       suppliers as AvailableSupplier[]
     )
     

@@ -12,64 +12,69 @@ export function mergeSupplierData(
 ): OutputSupplier[] {
   const finalResult: OutputSupplier[] = [];
 
-  const chosenSupplier = chosenSuppliers[0].resultadoCotacao.supplier[0];
-  const chosenSupplierId = chosenSupplier.id;
+  for (const selectedCombination of chosenSuppliers) {
 
-  const matchingSupplier = allSuppliers.find(
-    (s) => s.supplier.externalId === chosenSupplierId
-  );
+    for (const chosenSupplier of selectedCombination.resultadoCotacao.supplier) {
+      
+      const chosenSupplierId = chosenSupplier.id;
 
-  if (matchingSupplier) {
-    const finalProducts: FinalProductItem[] = [];
-
-    for (const chosenProduct of chosenSupplier.cart) {
-      const matchingProduct = matchingSupplier.supplier.discount.product.find(
-        (p) => p.sku === chosenProduct.productId
+      const matchingSupplier = allSuppliers.find(
+        (s) => s.supplier.externalId === chosenSupplierId
       );
 
-      if (matchingProduct) {
-        const newProduct: FinalProductItem = {
-          price: chosenProduct.value,
-          priceWithoutTax: chosenProduct.valueWithoutFee,
-          name: matchingProduct.name,
-          sku: matchingProduct.sku,
-          quant: chosenProduct.amount,
-          orderQuant: chosenProduct.amount,
-          obs: matchingProduct.obs,
-          priceUnique: chosenProduct.unitValueWithoutFee,
-          priceUniqueWithTaxAndDiscount: chosenProduct.unitValue,
-          image: matchingProduct.image,
-          orderUnit: matchingProduct.orderUnit,
+      if (matchingSupplier) {
+        const finalProducts: FinalProductItem[] = [];
+
+        for (const chosenProduct of chosenSupplier.cart) {
+          const matchingProduct = matchingSupplier.supplier.discount.product.find(
+            (p) => p.sku === chosenProduct.productId
+          );
+
+          if (matchingProduct) {
+            const newProduct: FinalProductItem = {
+              price: chosenProduct.value,
+              priceWithoutTax: chosenProduct.valueWithoutFee,
+              name: matchingProduct.name,
+              sku: matchingProduct.sku,
+              quant: chosenProduct.amount,
+              orderQuant: chosenProduct.amount,
+              obs: matchingProduct.obs,
+              priceUnique: chosenProduct.unitValueWithoutFee,
+              priceUniqueWithTaxAndDiscount: chosenProduct.unitValue,
+              image: matchingProduct.image,
+              orderUnit: matchingProduct.orderUnit,
+            };
+            finalProducts.push(newProduct);
+          }
+        }
+
+        const abbreviation = generateAbbreviation(matchingSupplier.supplier.name);
+        const finalSupplier: OutputSupplier = {
+          supplier: {
+            name: matchingSupplier.supplier.name,
+            externalId: matchingSupplier.supplier.externalId,
+            image: `https://placehold.co/80x80/22C55E/FFFFFF?text=${abbreviation}`,
+            missingItens: matchingSupplier.supplier.missingItens,
+            minimumOrder: matchingSupplier.supplier.minimumOrder,
+            hour: matchingSupplier.supplier.hour,
+            star: matchingSupplier.supplier.star,
+            discount: {
+              orderValue: chosenSupplier.orderValue,
+              discount: chosenSupplier.discountUsed,
+              orderWithoutTax: chosenSupplier.orderValueWithoutFee,
+              orderWithTax: 0,
+              tax: 0,
+              missingItens: matchingSupplier.supplier.missingItens,
+              orderValueFinish: chosenSupplier.orderValue,
+              product: finalProducts,
+              sku: "",
+            },
+          },
         };
-        finalProducts.push(newProduct);
+
+        finalResult.push(finalSupplier);
       }
     }
-
-    const abbreviation = generateAbbreviation(matchingSupplier.supplier.name);
-    const finalSupplier: OutputSupplier = {
-      supplier: {
-        name: matchingSupplier.supplier.name,
-        externalId: matchingSupplier.supplier.externalId,
-        image: `https://placehold.co/80x80/22C55E/FFFFFF?text=${abbreviation}`,
-        missingItens: matchingSupplier.supplier.missingItens,
-        minimumOrder: matchingSupplier.supplier.minimumOrder,
-        hour: matchingSupplier.supplier.hour,
-        star: matchingSupplier.supplier.star,
-        discount: {
-          orderValue: chosenSupplier.orderValue,
-          discount: chosenSupplier.discountUsed,
-          orderWithoutTax: chosenSupplier.orderValueWithoutFee,
-          orderWithTax: 0,
-          tax: 0,
-          missingItens: matchingSupplier.supplier.missingItens,
-          orderValueFinish: chosenSupplier.orderValue,
-          product: finalProducts,
-          sku: "",
-        },
-      },
-    };
-
-    finalResult.push(finalSupplier);
   }
 
   return finalResult;
