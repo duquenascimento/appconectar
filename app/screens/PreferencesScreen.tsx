@@ -18,6 +18,7 @@ import { getStorage } from '../utils/utils'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { Combinacao } from '@/src/types/combinationTypes'
 import { transformCombinacaoForSave } from '../utils/combinacaoUtils'
+import { useFocusEffect } from '@react-navigation/native'
 
 export interface Combination {
   id: string
@@ -93,9 +94,12 @@ const PreferencesScreen: React.FC = () => {
     }
   }, [restaurantId])
 
-  useEffect(() => {
-    loadCombinations()
-  }, [loadCombinations])
+  
+  useFocusEffect(
+    useCallback(() => {
+      loadCombinations()
+    }, [loadCombinations])
+  )
 
   const handleBackPress = () => navigation.goBack()
 
