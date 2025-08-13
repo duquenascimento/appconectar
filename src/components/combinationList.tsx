@@ -10,7 +10,8 @@ import { getStorage, getToken } from '@/app/utils/utils';
 import { View } from 'tamagui';
 import CustomAlert from './modais/CustomAlert';
 import { useSupplier } from '../contexts/fornecedores.context';
-import { mergeSupplierData, ChosenSupplierQuote, AvailableSupplier } from '@/app/utils/mergeSuppliersData';
+import { mergeSupplierData } from '@/app/utils/mergeSuppliersData';
+import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
 
 export interface Combination {
   id: string;
@@ -102,19 +103,19 @@ const CombinationList: React.FC = () => {
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
-
-    const objeto1: ChosenSupplierQuote[] = selectedCombination
     
-    const objeto2: AvailableSupplier[] = suppliers
-
-    const resultado:any = mergeSupplierData(objeto1, objeto2);
+    const mergedData:any = mergeSupplierData(
+      selectedCombination as ChosenSupplierQuote[],
+      suppliers as AvailableSupplier[]
+    )
     
     navigation.navigate('QuotationDetails', {
       combinationId: item.id,
       combinationName: item.combination,
-      suppliersData: resultado,
+      suppliersData: mergedData,
     });
   };
+  
   const sections = [
     { title: 'Minhas combinações', data: minecombinations },
   ];
