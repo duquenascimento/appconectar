@@ -158,7 +158,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         </YStack>
       )}
 
-      {(produto.produto_sku) && (
+      {(produto.produto_sku || produto.classe) && (
         <XStack flexWrap="wrap" gap="$2">
           {produto.produto_sku && (
             <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
