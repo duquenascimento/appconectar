@@ -1,10 +1,10 @@
 import { Stack, Text, View, Image, Button, Input } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, VirtualizedList, Dimensions } from 'react-native'
 import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { clearStorage, getToken, setStorage } from '../utils/utils'
+import { clearStorage, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
 import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o CustomAlert
 import { loadRestaurants } from '../../src/services/restaurantService'
@@ -15,6 +15,7 @@ import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 import CombinationList from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
+import { useSupplier } from '@/src/contexts/fornecedores.context'
 
 export interface Product {
   price: number
@@ -153,8 +154,6 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
 
 export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loading, setLoading] = useState<boolean>(true)
-  const [suppliers, setSuppliers] = useState<SupplierData[]>([])
-  const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([])
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
   const [showRestInfo, setShowRestInfo] = useState<boolean>(false)
   const [minhours, setMinhours] = useState<string[]>([])
@@ -184,11 +183,12 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [missingFields, setMissingFields] = useState<string[]>([])
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
-  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false)
   const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
   const [combinations, setCombinations] = useState<Combination[]>([])
 
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
+  
   useEffect(() => {
     if (tab === 'plus') {
       const fetchData = async () => {
@@ -299,112 +299,12 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
       return null
     }
   }
-
-  const loadPrices = useCallback(async (selectedRestaurant?: any) => {
-    try {
-      setLoadingSuppliers(true)
-
-      const token = await getToken()
-      if (!token) return new Map()
-
-      const restaurantSelected = await getSavedRestaurant()
-      const restaurants = await loadRestaurants()
-
-      setAllRestaurants(restaurants)
-
-      // Verifica se o restaurante salvo ainda existe na lista
-      const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
-
-      const currentRestaurant = validRestaurant
-
-      if (!currentRestaurant) return
-
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token,
-          selectedRestaurant: selectedRestaurant ?? currentRestaurant
-        })
-      })
-
-      const response = await result.json()
-
-      const currentDate = DateTime.now().setZone('America/Sao_Paulo')
-      const currentHour = Number(`${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute.toString().padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`)
-      let supplier: SupplierData[] = []
-      let supplierUnavailable: SupplierData[] = []
-
-      const allSuppliers = response.data as SupplierData[]
-      if (currentRestaurant?.allowClosedSupplier && currentRestaurant?.allowMinimumOrder) {
-        supplier = allSuppliers.filter((item) => item.supplier.missingItens > 0)
-        supplierUnavailable = []
-      } else {
-        supplier = allSuppliers.filter((item) => Number(item.supplier.hour.replaceAll(':', '')) >= currentHour && item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish && item.supplier.missingItens > 0)
-
-        supplierUnavailable = allSuppliers.filter((item) => Number(item.supplier.hour.replaceAll(':', '')) < currentHour || item.supplier.minimumOrder > item.supplier.discount.orderValueFinish)
-      }
-      const sortedSuppliers = supplier.sort((a, b) => {
-        const diffA = a.supplier.discount.product.length - a.supplier.missingItens
-        const diffB = b.supplier.discount.product.length - b.supplier.missingItens
-
-        if (diffA !== diffB) {
-          return diffA - diffB
-        }
-
-        const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
-        const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
-
-        if (notaA !== notaB) {
-          return notaB - notaA
-        }
-
-        return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish
-      })
-
-      const sortedUnavailableSuppliers = supplierUnavailable.sort((a, b) => {
-        const hourA = Number(a.supplier.hour.replaceAll(':', ''))
-        const hourB = Number(b.supplier.hour.replaceAll(':', ''))
-
-        if (hourA !== hourB) {
-          return hourB - hourA
-        }
-
-        const diffA = a.supplier.discount.product.length - a.supplier.missingItens
-        const diffB = b.supplier.discount.product.length - b.supplier.missingItens
-
-        if (diffA !== diffB) {
-          return diffA - diffB
-        }
-
-        const notaA = a.supplier.star === '(NOVO)' ? 0 : Number(a.supplier.star)
-        const notaB = b.supplier.star === '(NOVO)' ? 0 : Number(b.supplier.star)
-
-        if (notaA !== notaB) {
-          return notaB - notaA
-        }
-
-        return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish
-      })
-
-      setSuppliers(sortedSuppliers)
-      setUnavailableSupplier(sortedUnavailableSuppliers)
-    } catch (error) {
-      console.error('Error loading product:', error)
-    } finally {
-      setLoadingSuppliers(false)
-    }
-  }, [])
-
+  
   useEffect(() => {
     const loadPricesAsync = async () => {
       try {
         const restaurants = await loadRestaurants()
         const restaurantSelected = await getSavedRestaurant()
-
-        items = restaurants
 
         setAllRestaurants(restaurants)
 
@@ -1639,7 +1539,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                           setSelectedRestaurant(rest)
 
                           setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }))
-                          setLoadingSuppliers(true)
                           await Promise.all([
                             loadPrices(rest),
                             fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
@@ -1652,8 +1551,6 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
                               method: 'POST'
                             })
                           ])
-                          setLoadingSuppliers(false)
-                          //setLoading(false);
                         }}
                         backgroundColor="#04BF7B"
                         flex={1}

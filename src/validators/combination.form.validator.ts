@@ -11,10 +11,10 @@ const produtoPreferenciaSchema = Yup.object({
   acao_na_falha: Yup.string().oneOf(acaoNaFalhaEnum)
 })
 
-const preferenciaProdutoSchema = Yup.object({
+export const preferenciaProdutoSchema = Yup.object({
   ordem: Yup.number().integer().min(1),
   tipo: Yup.string().oneOf(tipoProdutoEnum),
-  produtos: Yup.array(produtoPreferenciaSchema).min(1)
+  produtos: Yup.array(produtoPreferenciaSchema).min(1, 'Adicione ao menos um produto')
 })
 
 export const combinacaoValidationSchema = Yup.object({
@@ -24,18 +24,23 @@ export const combinacaoValidationSchema = Yup.object({
   dividir_em_maximo: Yup.number().integer().min(1).required(),
   preferencia_fornecedor_tipo: Yup.string().oneOf(tipoFornecedorEnum).required(),
   definir_preferencia_produto: Yup.boolean().required(),
-  preferencias: Yup.array(preferenciaProdutoSchema),
   preferencias_hard: Yup.boolean(),
 
-  fornecedores_bloqueados: Yup.array(Yup.string().uuid()).when('bloquear_fornecedores', {
+  fornecedores_bloqueados: Yup.array(Yup.string()).when('bloquear_fornecedores', {
     is: true,
     then: (schema) => schema.min(1, 'Ou defina fornecedores bloqueados ou desmarque essa opção'),
-    otherwise: (schema) => schema
+    otherwise: (schema) => schema.max(0, 'Remova os fornecedores bloqueados se não for usar a opção')
   }),
 
-  fornecedores_especificos: Yup.array(Yup.string().uuid()).when('preferencia_fornecedor_tipo', {
+  fornecedores_especificos: Yup.array(Yup.string()).when('preferencia_fornecedor_tipo', {
     is: 'especifico',
     then: (schema) => schema.min(1, 'Informe ao menos um fornecedor específico ou selecione outra opção'),
-    otherwise: (schema) => schema
+    otherwise: (schema) => schema.max(0, 'Remova os fornecedores específicos ao alterar o tipo')
+  }),
+
+  preferencias: Yup.array(preferenciaProdutoSchema).when(['definir_preferencia_produto', 'fornecedores_especificos'], {
+    is: (definir: boolean, fornecedores: string[]) => definir && fornecedores.length > 0,
+    then: (schema) => schema.min(1, 'Adicione ao menos uma preferência de produto'),
+    otherwise: (schema) => schema.max(0, 'Remova as preferências se não estiver definindo ou não houver fornecedores')
   })
 })

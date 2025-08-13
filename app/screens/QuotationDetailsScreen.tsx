@@ -113,8 +113,6 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
         restaurant: parsedRestaurant
       }
 
-      console.log("body >>", body)
-
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/`, {
         method: 'POST',
         headers: {

@@ -56,7 +56,6 @@ const CombinationList: React.FC = () => {
     const saveMockData = async () => {
       try {
         await setStorage('MockSuppliersData', JSON.stringify(mockSuppliersData));
-        console.log('Dados mockados salvos no storage.');
       } catch (error) {
         console.error('Erro ao salvar dados mockados:', error);
       }
