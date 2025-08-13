@@ -7,6 +7,7 @@ import CustomHeader from '@/src/components/header/customHeader'
 import CustomInfoCard from '@/src/components/card/customInfoCard'
 import CustomButton from '../../src/components/button/customButton'
 import { getStorage, getToken } from '../utils/utils'
+import CustomAlert from '@/src/components/modais/CustomAlert'
 export interface Product {
   price: number
   priceWithoutTax: number
@@ -68,13 +69,13 @@ type QuotationDetailsScreenProps = {
 
 export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
   const { combinationName, suppliersData } = route.params
-
   const [suppliers] = useState<SupplierData[]>(suppliersData || [])
   const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação')
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
 
   const totals = React.useMemo(() => {
     if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
-  
+
     return suppliers.reduce(
       (acc, { supplier }) => {
         acc.subtotal += supplier.discount.orderValue
@@ -83,10 +84,10 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
 
         const availableItems = supplier.discount.product.filter((p) => p.price > 0)
         acc.totalItems += availableItems.length
-        
+
         const missingItemsInSupplier = supplier.discount.product.filter((p) => p.price === 0)
         acc.missingItems += missingItemsInSupplier.length
-  
+
         return acc
       },
       { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
@@ -115,11 +116,11 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
 
       const body = {
         token,
-        suppliers: suppliers.map(s => s.supplier),
+        suppliers: suppliers.map((s) => s.supplier),
         restaurant: parsedRestaurant
       }
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/`, {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/conectar-plus`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -133,7 +134,8 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
         // await setStorage('finalConfirmData', JSON.stringify(data));
         navigation.navigate('OrderConfirmed', { suppliers: suppliers })
       } else {
-        Alert.alert('Erro', 'Erro ao confirmar a combinação. Tente novamente.')
+        Alert.alert('Erro', 'Erro ao confirmar a combinação.')
+        setIsAlertVisible(true)
       }
     } catch (error) {
       console.error('Erro ao confirmar a combinação:', error)
@@ -164,7 +166,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
             {suppliers.map(({ supplier }) => (
               <YStack key={supplier.externalId} bg="white" br={8} p="$3" gap="$3" borderColor="$gray6" borderWidth={1}>
                 <XStack ai="center">
-                  <Image source={{ uri: supplier.image }} width={Platform.OS === 'web'? 40 : undefined} height={40} borderRadius={20} />
+                  <Image source={{ uri: supplier.image }} width={Platform.OS === 'web' ? 40 : undefined} height={40} borderRadius={20} />
                   <YStack ml="$3" flex={1}>
                     <Text fontSize={16} fontWeight="bold">
                       {supplier.name.replace('Distribuidora', '').trim()}
@@ -189,7 +191,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
                 <YStack gap="$3">
                   {supplier.discount.product.map((product) => (
                     <XStack key={product.sku} ai="center" gap="$3">
-                      <Image source={{ uri: product.image[0] }} width={Platform.OS === 'web'? 40 : undefined} height={40} resizeMode="cover" borderRadius={5} />
+                      <Image source={{ uri: product.image[0] }} width={Platform.OS === 'web' ? 40 : undefined} height={40} resizeMode="cover" borderRadius={5} />
                       <YStack flex={1}>
                         <Text fontSize={14} color="$gray12">
                           {product.name}
@@ -248,6 +250,8 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
           </YStack>
         </ScrollView>
 
+        <CustomAlert visible={isAlertVisible} title="Ops!" message="Ocorreu um erro ao confirmar combinação, tente novamente mais tarde." onConfirm={() => setIsAlertVisible(false)} width="35%" />
+
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View pos="absolute" bottom={0} left={0} right={0} py="$4" px="$4" bg="white" borderTopWidth={1} borderTopColor="$gray4">
           {Platform.OS === 'web' ? (
@@ -286,7 +290,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
           ) : (
             <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
               <YStack f={1}>
-                <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF"/>
+                <CustomButton title="Voltar" onPress={handleBackPress} backgroundColor="#000000" textColor="#FFFFFF" />
               </YStack>
               <YStack f={1}>
                 <CustomButton title="Confirmar" onPress={handleConfirm} backgroundColor="#1DC588" textColor="#FFFFFF" />

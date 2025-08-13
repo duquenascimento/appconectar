@@ -21,7 +21,7 @@ export function InputNome() {
     <YStack>
       <Label>Nome da combinação</Label>
       <Input
-        placeholder="Lorem ipsum"
+        placeholder="Digite o nome da combinação"
         value={combinacao.nome}
         onChangeText={(text) => {
           updateCampo('nome', text)
