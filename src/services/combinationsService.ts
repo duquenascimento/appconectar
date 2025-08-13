@@ -56,7 +56,7 @@ export interface QuotationApiRequest {
 }
 
 export const getCombinationsByRestaurant = async (restaurantId: string) => {
-  const response = await axios.get(`${API_URL}/getCombination/${restaurantId}`);
+  const response = await axios.get(`${API_URL}/combination/${restaurantId}`);
   return response.data;
 };
 

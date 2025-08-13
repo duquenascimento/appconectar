@@ -49,7 +49,7 @@ const PreferencesScreen: React.FC = () => {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
-  const { updateCombinacao, combinacao, resetCombinacao } = useCombinacao()
+  const { updateCombinacao, resetCombinacao } = useCombinacao()
   const [combinationsFull, setCombinationsFull] = useState([])
 
   useEffect(() => {
@@ -107,10 +107,8 @@ const PreferencesScreen: React.FC = () => {
     const combinationResult = combinationsFull.filter((c) => c.id === id)
 
     const normalizedCombination = transformCombinacaoForSave(combinationResult[0])
-    console.log('Normalized Combination:', normalizedCombination)
     updateCombinacao(normalizedCombination as Combinacao)
 
-    // Navega após a atualização do estado
     navigation.navigate('Combination', { id })
   }
   const handleCreateNewCombination = () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Platform, SafeAreaView } from 'react-native'
 import { ScrollView, XStack, YStack, Button } from 'tamagui'
 
@@ -13,7 +13,6 @@ import { PreferenciaFornecedorCampo } from './PreferenciaFornecedorTipo'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { ContainerPreferenciasProduto } from './ContainerPreferenciasProduto'
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
-import { Combinacao } from '@/src/types/combinationTypes'
 
 export interface SuplierCombination {
   id: string
@@ -25,18 +24,15 @@ export const Combination: React.FC = () => {
   const route = useRoute()
   const { id } = route.params as { id?: string }
   const { combinacao, updateCampo } = useCombinacao()
-  const { setCombinacao, resetCombinacao } = useCombinacao()
-  const [restaurant_id, setRestaurant_id] = useState<string | null>(null)
 
   useEffect(() => {
     const carregarCombinacao = async () => {
-      if (!id) return // Se for criar nova, não faz nada
+      if (!id) return 
 
       try {
-        const dados = await getCombinationsByRestaurant(id) // Busca dados da combinação no back-end
-        if (dados) {
-          //resetCombinacao() // Limpa o context anterior
-          //setCombinacao(dados)
+        const dados = await getCombinationsByRestaurant(id)
+        if (!dados) {
+          throw new Error('Erro ao encontrar combinação')
         }
       } catch (err) {
         console.error('Erro ao carregar combinação:', err)
@@ -55,14 +51,10 @@ export const Combination: React.FC = () => {
           const parsedValue = JSON.parse(storedValue)
           const restaurante = parsedValue?.restaurant ?? parsedValue ?? null
           const idFromRoute = (route.params as { restaurantId?: string })?.restaurantId
-
           const finalId = idFromRoute ?? restaurante?.id ?? null
-          setRestaurant_id(finalId)
 
-          // Atualiza no context
           updateCampo('restaurant_id', finalId ?? '')
         } catch {
-          setRestaurant_id(null)
           updateCampo('restaurant_id', '')
         }
       }
@@ -77,7 +69,6 @@ export const Combination: React.FC = () => {
 
   const createCombination = async () => {
     try {
-      console.log('Json criado', JSON.stringify(combinacao))
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/combinacao`, {
         method: 'POST',
         headers: {
@@ -85,6 +76,12 @@ export const Combination: React.FC = () => {
         },
         body: JSON.stringify(combinacao)
       })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Erro ${response.status}: ${errorText}`)
+      }
+
       navigation.goBack()
     } catch (error) {
       console.error('Erro ao salvar combinação:', error)
@@ -92,9 +89,7 @@ export const Combination: React.FC = () => {
   }
 
   const updateCombination = async () => {
-    
     try {
-      console.log('Json atualizado', JSON.stringify(combinacao))
       const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/update`, {
         method: 'PUT',
         headers: {
@@ -103,7 +98,11 @@ export const Combination: React.FC = () => {
         body: JSON.stringify(combinacao)
       })
 
-      console.log('Combinação atualizada!', response)
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Erro ${response.status}: ${errorText}`)
+      }
+
       navigation.goBack()
     } catch (error) {
       console.error('Erro ao salvar combinação:', error)
@@ -204,8 +203,12 @@ export const Combination: React.FC = () => {
               <CustomButton
                 title="Salvar"
                 fontSize={10}
-                onPress={() => {
-                  console.log('Salvar combinação', combinacao)
+                onPress={async () => {
+                  if (id) {
+                    await updateCombination()
+                  } else {
+                    await createCombination()
+                  }
                 }}
                 backgroundColor="#1DC588"
                 textColor="#FFFFFF"
