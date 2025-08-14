@@ -88,11 +88,12 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
             })}
         </XStack>
       )}
-
-      {touched && error && !ignoreValidation && (
-        <Text p={'$1'} color="red">
-          {error}
-        </Text>
+      {!ignoreValidation && error && (
+        (!touched ? true : touched) && (
+          <Text p={'$1'} color="red">
+            {error}
+          </Text>
+        )
       )}
     </YStack>
   )

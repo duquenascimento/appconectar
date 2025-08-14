@@ -33,11 +33,22 @@ export const combinacaoValidationSchema = Yup.object({
     otherwise: (schema) => schema.max(0, 'Remova os fornecedores bloqueados se não for usar a opção.')
   }),
 
-  fornecedores_especificos: Yup.array(Yup.string()).when('preferencia_fornecedor_tipo', {
-    is: 'especifico',
-    then: (schema) => schema.min(1, 'Informe ao menos um fornecedor específico ou selecione outra opção.'),
-    otherwise: (schema) => schema.max(0, 'Remova os fornecedores específicos ao alterar o tipo.')
-  }),
+  fornecedores_especificos: Yup.array(Yup.string()).test(
+    'min-fornecedores-especificos',
+    (value, context) => {
+        const { preferencia_fornecedor_tipo, dividir_em_maximo } = context.parent;
+        
+        if (preferencia_fornecedor_tipo === 'especifico') {
+            const minSuppliers = dividir_em_maximo;
+            
+            if (!value || value.length < minSuppliers) {
+                return context.createError({ message: `Selecione pelo menos ${minSuppliers} fornecedor(es) específico(s).` });
+            }
+        }
+        
+        return true;
+    }
+  ),
 
   preferencias: Yup.array(preferenciaProdutoSchema).when(['definir_preferencia_produto', 'fornecedores_especificos'], {
     is: (definir: boolean, fornecedores: string[]) => definir && fornecedores.length > 0,
