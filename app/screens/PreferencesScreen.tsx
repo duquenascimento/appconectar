@@ -49,7 +49,7 @@ const PreferencesScreen: React.FC = () => {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
-  const { updateCombinacao, resetCombinacao, modificado } = useCombinacao()
+  const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao()
   const [combinationsFull, setCombinationsFull] = useState([])
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const PreferencesScreen: React.FC = () => {
 
   useEffect(() => {
     if (modificado) setLoading(true)
-  }, [])
+  }, [modificado])
 
   useFocusEffect(
     useCallback(() => {
@@ -111,11 +111,12 @@ const PreferencesScreen: React.FC = () => {
 
     const normalizedCombination = transformCombinacaoForSave(combinationResult[0])
     updateCombinacao(normalizedCombination as Combinacao)
-
+    setModificado(true)
     navigation.navigate('Combination', { id })
   }
   const handleCreateNewCombination = () => {
     resetCombinacao()
+    setModificado(true)
     navigation.navigate('Combination', { id: '' })
   }
 

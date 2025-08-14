@@ -80,12 +80,10 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
 
   const updateCombinacao = (update: Combinacao) => {
     setCombinacaoState(update)
-    setModificado(true)
   }
 
   const resetCombinacao = () => {
     setCombinacaoState(combinacaoInicial)
-    setModificado(true)
   }
 
   const value = useMemo(
