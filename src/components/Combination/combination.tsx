@@ -26,6 +26,7 @@ export const Combination: React.FC = () => {
   const route = useRoute()
   const { id } = route.params as { id?: string }
   const { combinacao, updateCampo } = useCombinacao()
+  const [isModaltVisible, setIsModalVisible] = useState<boolean>(false)
 
   const [isAlertVisible, setIsAlertVisible] = useState(false)
   const [alertMessage, setAlertMessage] = useState('')
@@ -35,7 +36,7 @@ export const Combination: React.FC = () => {
 
   useEffect(() => {
     const carregarCombinacao = async () => {
-      if (!id) return 
+      if (!id) return
 
       try {
         const dados = await getCombinationsByRestaurant(id)
@@ -236,7 +237,6 @@ export const Combination: React.FC = () => {
 
           {combinacao.preferencia_fornecedor_tipo === 'especifico' && <ContainerPreferenciasProduto error={validationErrors.preferencias} onClearErrors={clearPreferenceErrors} />}
         </YStack>
-
         {Platform.OS === 'web' ? (
           <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
             <YStack f={1}>

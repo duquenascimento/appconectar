@@ -18,6 +18,7 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
   const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null)
+  const [ignorarValidacao, setIgnorarValidacao] = useState(false)
 
   const { suppliers, unavailableSupplier } = useSupplier()
 
@@ -62,8 +63,12 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
         visible={showModal}
         title={'Tem certeza de que quer realizar esta ação?'}
         message={'Ao fazer isto, os fornecedores específicos e preferências selecionados serão removidos'}
-        onConfirm={resetarPreferenciaFornecedor}
+        onConfirm={() => {
+          setIgnorarValidacao(false) 
+          resetarPreferenciaFornecedor()
+        }}
         onCancel={() => {
+          setIgnorarValidacao(true)
           setTipoTemporario(null)
           setShowModal(false)
         }}
@@ -86,12 +91,25 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
           items={fornecedoresContexto}
           value={Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : []}
           onChange={onChange}
+          onRemove={(item) => {
+            const fornecedoresAtuais = combinacao.fornecedores_especificos ?? []
+            if (fornecedoresAtuais.length === 1) {
+              setIgnorarValidacao(true)
+              setTipoTemporario(combinacao.preferencia_fornecedor_tipo ?? null)
+              setShowModal(true)
+            } else {
+              // Remove normalmente
+              const updated = fornecedoresAtuais.filter((v) => v !== item)
+              updateCampo('fornecedores_especificos', updated)
+            }
+          }}
           schemaPath="fornecedores_especificos"
           extraValidationContext={{
             preferencia_fornecedor_tipo: combinacao.preferencia_fornecedor_tipo
           }}
           zIndex={2000}
           error={error}
+          ignoreValidation={ignorarValidacao}
         />
       )}
     </YStack>

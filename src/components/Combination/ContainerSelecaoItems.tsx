@@ -1,3 +1,4 @@
+import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
 import { useState } from 'react'
 import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -11,12 +12,15 @@ type ContainerSelecaoItemsProps<T extends string> = {
   zIndex?: number
   schemaPath?: string
   extraValidationContext?: Record<string, unknown>
+  ignoreValidation?: boolean
+  onRemove?: (item: T) => void
   error?: string 
 }
 
-export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, error }: ContainerSelecaoItemsProps<T>) {
+export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error }: ContainerSelecaoItemsProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
+  const [touched, setTouched] = useState(false)
 
   const addItem = (item: T) => {
     if (!value.includes(item)) {
@@ -27,7 +31,23 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
 
   const removeItem = (item: T) => {
     const updated = value.filter((v) => v !== item)
-    onChange(updated)
+    if (onRemove) {
+      onRemove(item)
+    } else {
+      onChange(updated)
+    }
+    validate(updated)
+    setTouched(true)
+  }
+
+  const validate = async (val: T[]) => {
+    try {
+      await combinacaoValidationSchema.validateAt(schemaPath ?? '', {
+        [schemaPath ?? '']: val,
+        ...extraValidationContext
+      })
+    } catch (err: any) {
+    }
   }
 
   return (
@@ -53,21 +73,23 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
 
       {value.length > 0 && (
         <XStack flexWrap="wrap" gap="$2" mt="$2">
-          {value.map((v) => {
-            const label = items.find((i) => i.value === v)?.label ?? v
-            return (
-              <XStack key={v} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
-                <Text>{label}</Text>
-                <Button size="$1" circular backgroundColor="transparent" fontSize={'22px'} color={'#777'} onPress={() => removeItem(v)}>
-                  ×
-                </Button>
-              </XStack>
-            )
-          })}
+          {value
+            .filter((v) => items.some((i) => i.value === v)) // mantém só IDs que ainda existem nos items
+            .map((v) => {
+              const label = items.find((i) => i.value === v)?.label ?? v
+              return (
+                <XStack key={v} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
+                  <Text>{label}</Text>
+                  <Button size="$1" circular backgroundColor="transparent" fontSize={'22px'} color={'#777'} onPress={() => removeItem(v)}>
+                    ×
+                  </Button>
+                </XStack>
+              )
+            })}
         </XStack>
       )}
 
-      {error && (
+      {touched && error && !ignoreValidation && (
         <Text p={'$1'} color="red">
           {error}
         </Text>
