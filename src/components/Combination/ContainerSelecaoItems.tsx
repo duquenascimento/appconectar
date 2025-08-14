@@ -80,7 +80,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
               return (
                 <XStack key={v} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
                   <Text>{label}</Text>
-                  <Button size="$1" circular backgroundColor="transparent" fontSize={'22px'} color={'#777'} onPress={() => removeItem(v)}>
+                  <Button size="$1" circular backgroundColor="transparent" fontSize={Platform.OS === 'web'? '22px': undefined} color={'#777'} onPress={() => removeItem(v)}>
                     ×
                   </Button>
                 </XStack>
