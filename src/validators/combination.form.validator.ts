@@ -40,12 +40,12 @@ export const combinacaoValidationSchema = Yup.object({
         
         if (preferencia_fornecedor_tipo === 'especifico') {
             const minSuppliers = dividir_em_maximo;
-            
-            if (!value || value.length < minSuppliers) {
+            if(minSuppliers < 2) {
+                return context.createError({ message: 'Selecione a quantidade de fornecedores para dividir.' });
+            }else if (!value || value.length < minSuppliers) {
                 return context.createError({ message: `Selecione pelo menos ${minSuppliers} fornecedor(es) específico(s).` });
             }
         }
-        
         return true;
     }
   ),
