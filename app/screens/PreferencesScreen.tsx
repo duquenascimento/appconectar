@@ -122,14 +122,6 @@ const PreferencesScreen: React.FC = () => {
 
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`
 
-  /*   if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
-  } */
-
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <CustomAlert visible={isAlertVisible} title="Ops!" message="Ocorreu um erro ao buscar combinações, tente novamente mais tarde." onConfirm={() => setIsAlertVisible(false)} width="35%" />

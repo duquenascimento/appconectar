@@ -31,7 +31,7 @@ export const Combination: React.FC = () => {
   const [isAlertVisible, setIsAlertVisible] = useState(false)
   const [alertMessage, setAlertMessage] = useState('')
   const [alertTitle, setAlertTitle] = useState('')
-  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
+  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null)
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -128,39 +128,42 @@ export const Combination: React.FC = () => {
     }
   }
 
-  const updateCampoAndValidate = useCallback(async (campo: string, valor: any) => {
-    updateCampo(campo as any, valor)
-    try {
-      const tempObj = { ...combinacao, [campo]: valor };
-      await combinacaoValidationSchema.validateAt(campo, tempObj)
-      setValidationErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[campo];
-        return newErrors;
-      });
-    } catch (err) {
-      if (err instanceof Yup.ValidationError) {
-        setValidationErrors(prev => ({
-          ...prev,
-          [campo]: err.message
-        }));
+  const updateCampoAndValidate = useCallback(
+    async (campo: string, valor: any) => {
+      updateCampo(campo as any, valor)
+      try {
+        const tempObj = { ...combinacao, [campo]: valor }
+        await combinacaoValidationSchema.validateAt(campo, tempObj)
+        setValidationErrors((prev) => {
+          const newErrors = { ...prev }
+          delete newErrors[campo]
+          return newErrors
+        })
+      } catch (err) {
+        if (err instanceof Yup.ValidationError) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            [campo]: err.message
+          }))
+        }
       }
-    }
-  }, [combinacao, updateCampo]);
+    },
+    [combinacao, updateCampo]
+  )
 
   const clearPreferenceErrors = useCallback(() => {
-    setValidationErrors(prev => {
-      const newErrors = { ...prev };
-      delete newErrors['preferencias'];
-      return newErrors;
-    });
-  }, []);
+    setValidationErrors((prev) => {
+      const newErrors = { ...prev }
+      delete newErrors['preferencias']
+      return newErrors
+    })
+  }, [])
 
   const handleSaveCombination = async () => {
     try {
       setValidationErrors({})
       await combinacaoValidationSchema.validate(combinacao, { abortEarly: false })
-      
+
       if (id) {
         await updateCombination()
       } else {
@@ -169,7 +172,7 @@ export const Combination: React.FC = () => {
     } catch (validationErrors) {
       if (validationErrors instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {}
-        validationErrors.inner.forEach(err => {
+        validationErrors.inner.forEach((err) => {
           if (err.path) {
             newErrors[err.path] = err.message
           }
@@ -186,30 +189,40 @@ export const Combination: React.FC = () => {
     }
   }
 
-  const handleAlertConfirm = () => {
-    setIsAlertVisible(false);
-    if (alertCallback) {
-      alertCallback();
+  const handleDeleteCombination = async () => {
+    try {
+      if (!id) {
+        console.warn('ID da combinação não encontrado.')
+        return
+      }
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/delete`, {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.error('Erro ao excluir combinação:', error)
+    } finally {
+      setAlertTitle('Sucesso!')
+      setAlertMessage('Combinação excluída com sucesso!')
+      setIsAlertVisible(true)
+      setAlertCallback(() => navigation.goBack)
     }
-    setAlertCallback(null);
-  };
+  }
+
+  const handleAlertConfirm = () => {
+    setIsAlertVisible(false)
+    if (alertCallback) {
+      alertCallback()
+    }
+    setAlertCallback(null)
+  }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <CustomHeader title={id ? `${combinacao.nome}` : 'Nova combinação'} onBackPress={handleGoBack} />
-      <CustomAlert
-      visible={isAlertVisible}
-      title={alertTitle}
-      message={alertMessage}
-      onConfirm={handleAlertConfirm}
-    />
+      <CustomAlert visible={isAlertVisible} title={alertTitle} message={alertMessage} onConfirm={handleAlertConfirm} />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         <YStack w={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" p="$4" gap={15} mt="$2">
-          <InputNome 
-            error={validationErrors.nome} 
-            onChangeText={(text) => updateCampoAndValidate('nome', text)}
-            value={combinacao.nome}
-          />
+          <InputNome error={validationErrors.nome} onChangeText={(text) => updateCampoAndValidate('nome', text)} value={combinacao.nome} />
 
           <DropdownCampo
             campo="dividir_em_maximo"
@@ -225,15 +238,9 @@ export const Combination: React.FC = () => {
             error={validationErrors.dividir_em_maximo}
           />
 
-          <BloqueioFornecedoresCampo 
-            error={validationErrors.fornecedores_bloqueados} 
-            onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)}
-          />
+          <BloqueioFornecedoresCampo error={validationErrors.fornecedores_bloqueados} onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)} />
 
-          <PreferenciaFornecedorCampo 
-            error={validationErrors.fornecedores_especificos} 
-            onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)}
-          />
+          <PreferenciaFornecedorCampo error={validationErrors.fornecedores_especificos} onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)} />
 
           {combinacao.preferencia_fornecedor_tipo === 'especifico' && <ContainerPreferenciasProduto error={validationErrors.preferencias} onClearErrors={clearPreferenceErrors} />}
         </YStack>
@@ -241,23 +248,11 @@ export const Combination: React.FC = () => {
           <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
             <YStack f={1}>
               <Button
-                onPress={async () => {
-                  try {
-                    if (!id) {
-                      console.warn('ID da combinação não encontrado.')
-                      return
-                    }
-                    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/delete`, {
-                      method: 'DELETE'
-                    })
-                    if (response.ok) {
-                      handleGoBack()
-                    } else {
-                      const errorData = await response.json()
-                      console.error('Erro ao excluir combinação:', errorData)
-                    }
-                  } catch (error) {
-                    console.error('Erro ao excluir combinação:', error)
+                onPress={() => {
+                  if (id) {
+                    handleDeleteCombination()
+                  } else {
+                    handleGoBack()
                   }
                 }}
                 hoverStyle={{
@@ -269,7 +264,7 @@ export const Combination: React.FC = () => {
                 borderColor="#A9A9A9"
                 borderWidth={1}
               >
-                Excluir combinação
+                {id ? 'Excluir combinação' : 'Cancelar'}
               </Button>
             </YStack>
             <YStack f={1}>
@@ -290,15 +285,21 @@ export const Combination: React.FC = () => {
         ) : (
           <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
             <YStack f={1}>
-              <CustomButton title="Excluir" onPress={handleGoBack} backgroundColor="#f84949ff" textColor="#FFFFFF" />
-            </YStack>
-            <YStack f={1}>
               <CustomButton
-                title="Salvar"
-                onPress={handleSaveCombination}
-                backgroundColor="#1DC588"
+                title="Excluir"
+                onPress={() => {
+                  if (id) {
+                    handleDeleteCombination()
+                  } else {
+                    handleGoBack()
+                  }
+                }}
+                backgroundColor="#f84949ff"
                 textColor="#FFFFFF"
               />
+            </YStack>
+            <YStack f={1}>
+              <CustomButton title="Salvar" onPress={handleSaveCombination} backgroundColor="#1DC588" textColor="#FFFFFF" />
             </YStack>
           </XStack>
         )}
