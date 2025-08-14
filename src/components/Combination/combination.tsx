@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Platform, SafeAreaView } from 'react-native'
 import { ScrollView, XStack, YStack, Button } from 'tamagui'
-
+import * as Yup from 'yup'
 import CustomButton from '../button/customButton'
 import CustomHeader from '../header/customHeader'
 import { getStorage } from '@/app/utils/utils'
@@ -13,6 +13,8 @@ import { PreferenciaFornecedorCampo } from './PreferenciaFornecedorTipo'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { ContainerPreferenciasProduto } from './ContainerPreferenciasProduto'
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
+import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
+import CustomAlert from '../modais/CustomAlert'
 
 export interface SuplierCombination {
   id: string
@@ -24,6 +26,10 @@ export const Combination: React.FC = () => {
   const route = useRoute()
   const { id } = route.params as { id?: string }
   const { combinacao, updateCampo } = useCombinacao()
+
+  const [isAlertVisible, setIsAlertVisible] = useState(false)
+  const [alertMessage, setAlertMessage] = useState('')
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -109,32 +115,100 @@ export const Combination: React.FC = () => {
     }
   }
 
+  const updateCampoAndValidate = useCallback(async (campo: string, valor: any) => {
+    updateCampo(campo as any, valor)
+    try {
+      const tempObj = { ...combinacao, [campo]: valor };
+      await combinacaoValidationSchema.validateAt(campo, tempObj)
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[campo];
+        return newErrors;
+      });
+    } catch (err) {
+      if (err instanceof Yup.ValidationError) {
+        setValidationErrors(prev => ({
+          ...prev,
+          [campo]: err.message
+        }));
+      }
+    }
+  }, [combinacao, updateCampo]);
+
+  const clearPreferenceErrors = useCallback(() => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors['preferencias'];
+      return newErrors;
+    });
+  }, []);
+
+  const handleSaveCombination = async () => {
+    try {
+      setValidationErrors({})
+      await combinacaoValidationSchema.validate(combinacao, { abortEarly: false })
+      
+      if (id) {
+        await updateCombination()
+      } else {
+        await createCombination()
+      }
+    } catch (validationErrors) {
+      if (validationErrors instanceof Yup.ValidationError) {
+        const newErrors: Record<string, string> = {}
+        validationErrors.inner.forEach(err => {
+          if (err.path) {
+            newErrors[err.path] = err.message
+          }
+        })
+        setValidationErrors(newErrors)
+        setAlertMessage('Por favor, corrija os campos destacados.')
+        setIsAlertVisible(true)
+      } else {
+        setAlertMessage('Ocorreu um erro inesperado ao salvar a combinação.')
+        setIsAlertVisible(true)
+      }
+    }
+  }
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <CustomHeader title={id ? `${combinacao.nome}` : 'Nova combinação'} onBackPress={handleGoBack} />
+      <CustomAlert visible={isAlertVisible} title="As informações abaixo devem ser preenchidas" message={alertMessage} onConfirm={() => setIsAlertVisible(false)} />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         <YStack w={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" p="$4" gap={15} mt="$2">
-          <InputNome />
+          <InputNome 
+            error={validationErrors.nome} 
+            onChangeText={(text) => updateCampoAndValidate('nome', text)}
+            value={combinacao.nome}
+          />
 
           <DropdownCampo
             campo="dividir_em_maximo"
-            label="Dividir em, no máximo:"
+            label="Dividir em no máximo:"
             items={[
               { label: '2 fornecedores', value: 2 },
               { label: '3 fornecedores', value: 3 },
               { label: '4 fornecedores', value: 4 }
             ]}
             value={combinacao.dividir_em_maximo}
-            onChange={(val) => updateCampo('dividir_em_maximo', val)}
+            onChange={(val) => updateCampoAndValidate('dividir_em_maximo', val)}
             zIndex={3000}
+            error={validationErrors.dividir_em_maximo}
           />
 
-          <BloqueioFornecedoresCampo />
+          <BloqueioFornecedoresCampo 
+            error={validationErrors.fornecedores_bloqueados} 
+            onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)}
+          />
 
-          <PreferenciaFornecedorCampo />
+          <PreferenciaFornecedorCampo 
+            error={validationErrors.fornecedores_especificos} 
+            onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)}
+          />
 
-          {combinacao.preferencia_fornecedor_tipo === 'especifico' && <ContainerPreferenciasProduto />}
+          {combinacao.preferencia_fornecedor_tipo === 'especifico' && <ContainerPreferenciasProduto error={validationErrors.preferencias} onClearErrors={clearPreferenceErrors} />}
         </YStack>
 
         {Platform.OS === 'web' ? (
@@ -174,13 +248,7 @@ export const Combination: React.FC = () => {
             </YStack>
             <YStack f={1}>
               <Button
-                onPress={async () => {
-                  if (id) {
-                    await updateCombination()
-                  } else {
-                    await createCombination()
-                  }
-                }}
+                onPress={handleSaveCombination}
                 hoverStyle={{
                   background: '#1DC588',
                   opacity: 0.9
@@ -188,7 +256,6 @@ export const Combination: React.FC = () => {
                 backgroundColor="#1DC588"
                 color="#FFFFFF"
                 borderColor="#A9A9A9"
-                type="submit"
               >
                 Salvar combinação
               </Button>
@@ -197,23 +264,14 @@ export const Combination: React.FC = () => {
         ) : (
           <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
             <YStack f={1}>
-              <CustomButton title="Excluir" onPress={handleGoBack} backgroundColor="#f84949ff" textColor="#FFFFFF" borderColor="#A9A9A9" borderWidth={1} />
+              <CustomButton title="Excluir" onPress={handleGoBack} backgroundColor="#f84949ff" textColor="#FFFFFF" />
             </YStack>
             <YStack f={1}>
               <CustomButton
                 title="Salvar"
-                fontSize={10}
-                onPress={async () => {
-                  if (id) {
-                    await updateCombination()
-                  } else {
-                    await createCombination()
-                  }
-                }}
+                onPress={handleSaveCombination}
                 backgroundColor="#1DC588"
                 textColor="#FFFFFF"
-                borderColor="#A9A9A9"
-                Salvar
               />
             </YStack>
           </XStack>

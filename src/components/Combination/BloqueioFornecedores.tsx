@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
 import { useSupplier } from '@/src/contexts/fornecedores.context'
 
-export function BloqueioFornecedoresCampo() {
+export function BloqueioFornecedoresCampo({ error, onChange }: { error?: string; onChange: (val: string[]) => void }) {
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
 
@@ -54,12 +54,13 @@ export function BloqueioFornecedoresCampo() {
           label="Fornecedores bloqueados"
           items={fornecedoresContexto}
           value={Array.isArray(combinacao?.fornecedores_bloqueados) ? combinacao.fornecedores_bloqueados : []}
-          onChange={(val) => updateCampo('fornecedores_bloqueados', val)}
+          onChange={onChange}
           schemaPath="fornecedores_bloqueados"
           extraValidationContext={{
             bloquear_fornecedores: combinacao.bloquear_fornecedores
           }}
           zIndex={4000}
+          error={error}
         />
       )}
     </YStack>

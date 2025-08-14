@@ -14,7 +14,7 @@ const tipoFornecedorItems = [
   { label: 'Específico', value: 'especifico' }
 ]
 
-export function PreferenciaFornecedorCampo() {
+export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string; onChange: (val: string[]) => void }) {
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
   const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null)
@@ -77,7 +77,6 @@ export function PreferenciaFornecedorCampo() {
         label="Tipo de preferência"
         items={tipoFornecedorItems}
         value={combinacao.preferencia_fornecedor_tipo ?? 'qualquer'}
-        // onChange={(val) => updateCampo('preferencia_fornecedor_tipo', val as TipoFornecedor)}
         onChange={(val) => handleFornecedorTipo(val)}
         zIndex={3000}
       />
@@ -86,12 +85,13 @@ export function PreferenciaFornecedorCampo() {
           label="Fornecedores específicos"
           items={fornecedoresContexto}
           value={Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : []}
-          onChange={(val) => updateCampo('fornecedores_especificos', val)}
+          onChange={onChange}
           schemaPath="fornecedores_especificos"
           extraValidationContext={{
             preferencia_fornecedor_tipo: combinacao.preferencia_fornecedor_tipo
           }}
           zIndex={2000}
+          error={error}
         />
       )}
     </YStack>

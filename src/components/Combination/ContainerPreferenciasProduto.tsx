@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react'
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
 import { resetarPreferencias } from '@/app/utils/preferenciaUtils'
 
-export function ContainerPreferenciasProduto() {
+export function ContainerPreferenciasProduto({ error, onClearErrors }: { error?: string, onClearErrors: () => void }) {
   const { combinacao, updateCampo } = useCombinacao()
   const [showModal, setShowModal] = useState(false)
 
@@ -18,6 +18,7 @@ export function ContainerPreferenciasProduto() {
     updateCampo('definir_preferencia_produto', atualizado.definir_preferencia_produto)
     updateCampo('preferencias', atualizado.preferencias)
     setShowModal(false)
+    onClearErrors();
   }
 
   useEffect(() => {}, [showModal])
@@ -27,6 +28,7 @@ export function ContainerPreferenciasProduto() {
       setShowModal(true)
     } else {
       updateCampo('definir_preferencia_produto', false)
+      onClearErrors();
     }
   }
 
@@ -84,6 +86,12 @@ export function ContainerPreferenciasProduto() {
       </XStack>
 
       <Separator />
+      
+      {error && (
+        <Text p={'$1'} color="red">
+          {error}
+        </Text>
+      )}
 
       {combinacao.definir_preferencia_produto && preferencias.map((_, index) => <PreferenciaProdutoCard key={index} index={index} onRemove={() => removerPreferencia(index)} onMoveUp={() => moverPreferencia(index, index - 1)} onMoveDown={() => moverPreferencia(index, index + 1)} />)}
 

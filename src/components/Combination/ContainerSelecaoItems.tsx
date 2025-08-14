@@ -1,4 +1,3 @@
-import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
 import { useState } from 'react'
 import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -12,38 +11,23 @@ type ContainerSelecaoItemsProps<T extends string> = {
   zIndex?: number
   schemaPath?: string
   extraValidationContext?: Record<string, unknown>
+  error?: string 
 }
 
-export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {} }: ContainerSelecaoItemsProps<T>) {
+export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, error }: ContainerSelecaoItemsProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [touched, setTouched] = useState(false)
 
   const addItem = (item: T) => {
     if (!value.includes(item)) {
       const updated = [...value, item]
       onChange(updated)
-      validate(updated)
     }
   }
 
   const removeItem = (item: T) => {
     const updated = value.filter((v) => v !== item)
     onChange(updated)
-    validate(updated)
-  }
-
-  const validate = async (val: T[]) => {
-    try {
-      await combinacaoValidationSchema.validateAt(schemaPath ?? '', {
-        [schemaPath ?? '']: val,
-        ...extraValidationContext
-      })
-      setError(null)
-    } catch (err: any) {
-      setError(err.message)
-    }
   }
 
   return (
@@ -64,7 +48,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
         zIndexInverse={1000}
         listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         dropDownDirection="BOTTOM"
-        onOpen={() => setTouched(true)}
+        style={{ borderColor: error ? 'red' : 'lightgray' }}
       />
 
       {value.length > 0 && (
@@ -83,7 +67,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
         </XStack>
       )}
 
-      {touched && error && (
+      {error && (
         <Text p={'$1'} color="red">
           {error}
         </Text>
