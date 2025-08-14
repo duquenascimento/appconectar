@@ -10,7 +10,6 @@ import { useSupplier } from '@/src/contexts/fornecedores.context'
 
 const tipoFornecedorItems = [
   { label: 'Qualquer', value: 'qualquer' },
-  { label: 'Melhor avaliado', value: 'melhor_avaliado' },
   { label: 'Específico', value: 'especifico' }
 ]
 

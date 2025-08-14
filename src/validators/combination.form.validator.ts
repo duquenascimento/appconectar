@@ -2,7 +2,7 @@ import * as Yup from 'yup'
 
 const acaoNaFalhaEnum = ['ignorar', 'indisponivel'] as const
 const tipoProdutoEnum = ['fixar', 'remover'] as const
-const tipoFornecedorEnum = ['qualquer', 'melhor_avaliado', 'especifico'] as const
+const tipoFornecedorEnum = ['qualquer', 'especifico'] as const
 
 const produtoPreferenciaSchema = Yup.object({
   produto_sku: Yup.string().optional(),
