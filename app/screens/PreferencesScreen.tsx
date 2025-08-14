@@ -49,7 +49,7 @@ const PreferencesScreen: React.FC = () => {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
-  const { updateCombinacao, resetCombinacao } = useCombinacao()
+  const { updateCombinacao, resetCombinacao, modificado } = useCombinacao()
   const [combinationsFull, setCombinationsFull] = useState([])
 
   useEffect(() => {
@@ -70,7 +70,6 @@ const PreferencesScreen: React.FC = () => {
     }
 
     fetchStoredRestaurant()
-    setLoading(false)
   }, [])
 
   const restaurantId = useMemo(() => {
@@ -92,9 +91,13 @@ const PreferencesScreen: React.FC = () => {
       const message = err instanceof Error ? err.message : 'Erro desconhecido'
       setIsAlertVisible(true)
     }
+    setLoading(false)
   }, [restaurantId])
 
-  
+  useEffect(() => {
+    if (modificado) setLoading(true)
+  }, [])
+
   useFocusEffect(
     useCallback(() => {
       loadCombinations()
@@ -118,13 +121,13 @@ const PreferencesScreen: React.FC = () => {
 
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`
 
-  if (loading) {
+  /*   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
     )
-  }
+  } */
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
@@ -135,10 +138,10 @@ const PreferencesScreen: React.FC = () => {
           <CustomAlert visible={isAlertVisible} title="Ops!" message="Ocorreu um erro ao buscar combinações, tente novamente mais tarde." onConfirm={() => setIsAlertVisible(false)} width="35%" />
           <CustomInfoCard icon="information-circle" title={cardTitle} description="As combinações Conéctar+ são salvas por unidade/restaurante cadastrado. Você pode alterar o restaurante na tela anterior." />
 
-          <CustomSubtitle>{combinations.length ? 'Combinações salvas' : 'Nenhuma combinação salva'}</CustomSubtitle>
+          <CustomSubtitle>{!loading && (combinations.length ? 'Combinações salvas' : 'Nenhuma combinação salva')}</CustomSubtitle>
 
           {loading ? (
-            <YStack f={1} jc="center" ai="center">
+            <YStack f={1} jc="center" ai="center" paddingTop={100}>
               <ActivityIndicator size="large" color="#04BF7B" />
             </YStack>
           ) : (

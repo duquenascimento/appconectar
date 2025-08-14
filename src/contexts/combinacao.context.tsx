@@ -5,6 +5,8 @@ import { getStorage, setStorage } from '@/app/utils/utils'
 
 type CombinacaoContextType = {
   combinacao: Combinacao
+  modificado: boolean
+  setModificado: (modificado: boolean) => void
   setCombinacao: (novaCombinacao: Combinacao) => void
   updateCampo: <K extends keyof Combinacao>(campo: K, valor: Combinacao[K]) => void
   resetCombinacao: () => void
@@ -28,6 +30,7 @@ const CombinacaoContext = createContext({} as CombinacaoContextType)
 
 export function CombinacaoProvider({ children }: { children: ReactNode }) {
   const [combinacao, setCombinacaoState] = useState<Combinacao>(combinacaoInicial)
+  const [modificado, setModificado] = useState<boolean>(true)
 
   useEffect(() => {
     const carregarDados = async () => {
@@ -77,15 +80,19 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
 
   const updateCombinacao = (update: Combinacao) => {
     setCombinacaoState(update)
+    setModificado(true)
   }
 
   const resetCombinacao = () => {
     setCombinacaoState(combinacaoInicial)
+    setModificado(true)
   }
 
   const value = useMemo(
     () => ({
       combinacao,
+      modificado,
+      setModificado,
       setCombinacao,
       updateCampo,
       resetCombinacao,
@@ -94,7 +101,7 @@ export function CombinacaoProvider({ children }: { children: ReactNode }) {
       removePreferencia,
       updateCombinacao
     }),
-    [combinacao]
+    [combinacao, modificado]
   )
   return <CombinacaoContext.Provider value={value}>{children}</CombinacaoContext.Provider>
 }

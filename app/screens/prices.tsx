@@ -16,6 +16,8 @@ import CombinationList from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
 import { useSupplier } from '@/src/contexts/fornecedores.context'
+import { useCombinacao } from '@/src/contexts/combinacao.context'
+import { useFocusEffect } from '@react-navigation/native'
 
 export interface Product {
   price: number
@@ -187,10 +189,12 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const screemSize = useScreenSize()
   const [combinations, setCombinations] = useState<Combination[]>([])
 
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
-  
-  useEffect(() => {
-    if (tab === 'plus') {
+  const { modificado, setModificado } = useCombinacao()
+
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier()
+
+  useFocusEffect(() => {
+    if (tab === 'plus' && modificado) {
       const fetchData = async () => {
         try {
           const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant')
@@ -207,11 +211,11 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
         } catch (e) {
           console.error('Erro ao ler selectedRestaurant:', e)
         }
+        setModificado(false)
       }
-
       fetchData()
     }
-  }, [tab])
+  })
 
   const handleConfirm = () => {
     setFinalCotacao(true)
@@ -299,7 +303,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
       return null
     }
   }
-  
+
   useEffect(() => {
     const loadPricesAsync = async () => {
       try {
