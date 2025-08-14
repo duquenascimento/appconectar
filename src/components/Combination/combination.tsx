@@ -29,6 +29,8 @@ export const Combination: React.FC = () => {
 
   const [isAlertVisible, setIsAlertVisible] = useState(false)
   const [alertMessage, setAlertMessage] = useState('')
+  const [alertTitle, setAlertTitle] = useState('')
+  const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
@@ -65,7 +67,6 @@ export const Combination: React.FC = () => {
         }
       }
     }
-
     fetchStoredRestaurant()
   }, [])
 
@@ -87,10 +88,15 @@ export const Combination: React.FC = () => {
         const errorText = await response.text()
         throw new Error(`Erro ${response.status}: ${errorText}`)
       }
-
-      navigation.goBack()
+      setAlertTitle('Sucesso!')
+      setAlertMessage('Combinação criada com sucesso!')
+      setIsAlertVisible(true)
+      setAlertCallback(() => navigation.goBack)
     } catch (error) {
       console.error('Erro ao salvar combinação:', error)
+      setAlertTitle('Erro!')
+      setAlertMessage('Ocorreu um erro inesperado ao criar a combinação.')
+      setIsAlertVisible(true)
     }
   }
 
@@ -109,9 +115,15 @@ export const Combination: React.FC = () => {
         throw new Error(`Erro ${response.status}: ${errorText}`)
       }
 
-      navigation.goBack()
+      setAlertTitle('Sucesso!')
+      setAlertMessage('Combinação atualizada com sucesso!')
+      setIsAlertVisible(true)
+      setAlertCallback(() => navigation.goBack)
     } catch (error) {
       console.error('Erro ao salvar combinação:', error)
+      setAlertTitle('Erro!')
+      setAlertMessage('Ocorreu um erro inesperado ao atualizar a combinação.')
+      setIsAlertVisible(true)
     }
   }
 
@@ -162,20 +174,34 @@ export const Combination: React.FC = () => {
           }
         })
         setValidationErrors(newErrors)
+        setAlertTitle('Campos Obrigatórios')
         setAlertMessage('Por favor, corrija os campos destacados.')
         setIsAlertVisible(true)
       } else {
+        setAlertTitle('Erro Inesperado')
         setAlertMessage('Ocorreu um erro inesperado ao salvar a combinação.')
         setIsAlertVisible(true)
       }
     }
   }
 
+  const handleAlertConfirm = () => {
+    setIsAlertVisible(false);
+    if (alertCallback) {
+      alertCallback();
+    }
+    setAlertCallback(null);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <CustomHeader title={id ? `${combinacao.nome}` : 'Nova combinação'} onBackPress={handleGoBack} />
-      <CustomAlert visible={isAlertVisible} title="As informações abaixo devem ser preenchidas" message={alertMessage} onConfirm={() => setIsAlertVisible(false)} />
-
+      <CustomAlert
+      visible={isAlertVisible}
+      title={alertTitle}
+      message={alertMessage}
+      onConfirm={handleAlertConfirm}
+    />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
         <YStack w={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" p="$4" gap={15} mt="$2">
           <InputNome 
