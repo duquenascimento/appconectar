@@ -6,7 +6,7 @@ import { SafeAreaView, Alert, Platform } from 'react-native'
 import CustomHeader from '@/src/components/header/customHeader'
 import CustomInfoCard from '@/src/components/card/customInfoCard'
 import CustomButton from '../../src/components/button/customButton'
-import { getStorage, getToken } from '../utils/utils'
+import { deleteMultiStorage, getStorage, getToken } from '../utils/utils'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 export interface Product {
   price: number
@@ -129,9 +129,9 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
       })
 
       if (response.ok) {
-        const data = await response.json()
-        // Se quiser salvar dados da resposta:
-        // await setStorage('finalConfirmData', JSON.stringify(data));
+        await response.json()
+        deleteMultiStorage(['cartOrder', 'cart'])
+        
         navigation.navigate('OrderConfirmed', { suppliers: suppliers })
       } else {
         Alert.alert('Erro', 'Erro ao confirmar a combinação.')
