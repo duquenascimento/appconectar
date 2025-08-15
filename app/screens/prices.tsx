@@ -1,18 +1,18 @@
-import { Stack, Text, View, Image, Button, Input } from 'tamagui'
+import { Stack, Text, View, Image, Button, Input, ScrollView } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, ScrollView, VirtualizedList, Dimensions } from 'react-native'
+import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, VirtualizedList, Dimensions } from 'react-native'
 import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { clearStorage, setStorage } from '../utils/utils'
+import { clearStorage, getToken, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
 import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o CustomAlert
-import { loadRestaurants } from '../../src/services/restaurantService'
+import { loadPermissionConectarPlus, loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
-import CombinationList from '@/src/components/combinationList'
+import CombinationList, { Combination } from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
 import { useSupplier } from '@/src/contexts/fornecedores.context'
@@ -188,6 +188,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
   const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
   const [combinations, setCombinations] = useState<Combination[]>([])
+  const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false)
 
   const { modificado, setModificado } = useCombinacao()
 
@@ -324,6 +325,10 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
         if (!currentRestaurant) return
 
         setSelectedRestaurant(currentRestaurant)
+        if(currentRestaurant.premium) {
+         const hasPermissionConectarPlus = await loadPermissionConectarPlus(currentRestaurant.externalId)
+         setPermissionConectarPlus(hasPermissionConectarPlus.authorized)
+        }
         setTab(currentRestaurant.premium ? 'plus' : 'onlySupplier')
         setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16))
         setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16))
@@ -509,7 +514,7 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
       </View>
     )
   }
-
+ 
   return (
     <Stack pt={20} backgroundColor="white" height="100%" position="relative">
       <View height={50} flex={1} paddingTop={20}>
@@ -555,19 +560,56 @@ export function Prices({ navigation }: HomeScreenPropsUtils) {
             <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}></View>
           </View>
         </View>
-
         <View backgroundColor="white" flex={1} paddingHorizontal={5}>
           <View p={10} paddingTop={0} height="100%">
-            {tab === 'plus' && <CombinationList combos={combinations} />}
             {tab === 'onlySupplier' && <VirtualizedList style={{ marginBottom: 5, flexGrow: 1 }} data={combinedSuppliers} getItemCount={getItemCount} getItem={getItem} keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)} renderItem={renderItem} ItemSeparatorComponent={() => <View height={2} />} initialNumToRender={10} windowSize={4} scrollEnabled={true} />}
-            {tab !== 'onlySupplier' && (
+            {tab !== 'onlySupplier' && !permissionConectarPlus && (
               <View p={20} mt={10}>
                 <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
+
+                <Button
+                  backgroundColor="#04BF7B"
+                  onPress={async () => {
+                    if (!validateFields()) return
+                    setLoading(true)
+                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        token: await getToken(),
+                        selectedRestaurant: selectedRestaurant
+                      })
+                    })
+
+                    if (result.ok) {
+                     await result.json()
+                      setLoading(false)
+                      setShowNotification(true)
+                    } else {
+                      await result.json()
+                      setLoading(false)
+                    }
+                  }}
+                >
+                  <Text fontWeight="500" fontSize={16} color="white">
+                    Solicitar cotação
+                  </Text>
+                </Button>
+                <Text mt={5} textAlign="center" fontSize={12} color="gray">
+                  Você receberá a cotação no Whatsapp
+                </Text>
               </View>
+            )}
+            {tab !== 'onlySupplier' && permissionConectarPlus && (
+              <ScrollView p={20} mt={10} flex={1}>
+                <CombinationList />
+              </ScrollView>
             )}
           </View>
         </View>
-        {tab === 'plus' && <CustomButton title="Minhas combinações" onPress={() => navigation.navigate('Preferences')}></CustomButton>}
+        {tab !== 'onlySupplier' && permissionConectarPlus && (<CustomButton title="Minhas combinações" onPress={() => navigation.navigate('Preferences')}></CustomButton>)}
         <View
           onPress={() => {
             setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)

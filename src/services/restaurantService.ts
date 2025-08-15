@@ -24,3 +24,24 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
             return [];
         }
     };
+
+    export const loadPermissionConectarPlus = async (externalId: string) => {
+        try {
+            const token = await getToken();
+            if (token == null) return [];
+            const result = await fetch(`${API_URL}/restaurant/premium-access/${externalId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            if (!result.ok) return []
+            const hasConectarPlus = await result.json();
+            
+            if (hasConectarPlus.length < 1) return []
+            return hasConectarPlus
+        } catch (error) {
+            console.error('Erro ao carregar permissão:', error);
+            return [];
+        }
+    };    
