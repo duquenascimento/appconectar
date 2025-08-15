@@ -41,6 +41,10 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         dropDownDirection="BOTTOM"
         listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         style={{ borderColor: error ? 'red' : 'lightgray' }}
+        modalProps={{
+          animationType: 'slide',
+          transparent: false
+        }}
       />
       {error && (
         <Text p={'$1'} color="red">

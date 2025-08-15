@@ -8,6 +8,7 @@ import CustomInfoCard from '@/src/components/card/customInfoCard'
 import CustomButton from '../../src/components/button/customButton'
 import { deleteMultiStorage, getStorage, getToken } from '../utils/utils'
 import CustomAlert from '@/src/components/modais/CustomAlert'
+import { LoadingConfirm } from '@/src/components/loading/confirmOrder'
 export interface Product {
   price: number
   priceWithoutTax: number
@@ -72,6 +73,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
   const [suppliers] = useState<SupplierData[]>(suppliersData || [])
   const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação')
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
   const totals = React.useMemo(() => {
     if (!suppliers) return { subtotal: 0, discount: 0, grandTotal: 0, totalItems: 0, missingItems: 0 }
@@ -99,6 +101,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
 
   const handleBackPress = () => navigation.goBack()
   const handleConfirm = async () => {
+    setIsLoading(true)
     try {
       const token = await getToken()
       if (!token) {
@@ -140,6 +143,8 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     } catch (error) {
       console.error('Erro ao confirmar a combinação:', error)
       Alert.alert('Erro', 'Ocorreu um erro inesperado.')
+    }finally {
+      setIsLoading(false)
     }
   }
 
@@ -299,6 +304,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
           )}
         </View>
       </YStack>
+      <LoadingConfirm loading={isLoading} />
     </SafeAreaView>
   )
 }

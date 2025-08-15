@@ -1,11 +1,11 @@
 import { YStack, XStack, Input, Button, Text } from 'tamagui'
 import { DropdownCampo } from './DropdownCampo'
-import { ContainerSelecaoItems } from './ContainerSelecaoItems'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useEffect, useMemo, useState } from 'react'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { Product, Classe, useProductContext } from '@/src/contexts/produtos.context'
 import { useSupplier } from '@/src/contexts/fornecedores.context'
+import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor'
 
 const acaoNaFalhaItems = [
   { label: 'Ignorar e pular', value: 'ignorar' },
@@ -179,7 +179,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
         </XStack>
       )}
 
-      <ContainerSelecaoItems label="Com fornecedor(es)" items={fornecedoresContexto} value={produto.fornecedores} onChange={(val) => updateProduto('fornecedores', val)} schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].fornecedores`} zIndex={3000} />
+      <ContainerSelecaoItemsComFornecedor label="Com fornecedor(es)" items={fornecedoresContexto} value={produto.fornecedores} onChange={(val) => updateProduto('fornecedores', val)} schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].fornecedores`} zIndex={30000} />
 
       <DropdownCampo campo={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].acao_na_falha`} schemaPath={`preferencias[${preferenciaIndex}].produtos[${produtoIndex}].acao_na_falha`} label="Não sendo possível..." items={acaoNaFalhaItems} value={produto.acao_na_falha} onChange={(val) => updateProduto('acao_na_falha', val)} zIndex={2500} />
     </YStack>
