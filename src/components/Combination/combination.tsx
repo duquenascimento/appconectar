@@ -286,7 +286,7 @@ export const Combination: React.FC = () => {
           <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
             <YStack f={1}>
               <CustomButton
-                title="Excluir"
+                title={id ? 'Excluir' : 'Cancelar'}
                 onPress={() => {
                   if (id) {
                     handleDeleteCombination()
