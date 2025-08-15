@@ -82,7 +82,7 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
         items={tipoFornecedorItems}
         value={combinacao.preferencia_fornecedor_tipo ?? 'qualquer'}
         onChange={(val) => handleFornecedorTipo(val)}
-        zIndex={3000}
+        zIndex={4000}
       />
       {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems

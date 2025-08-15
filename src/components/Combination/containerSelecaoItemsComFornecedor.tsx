@@ -4,7 +4,7 @@ import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { YStack, XStack, Text, Button, Label } from 'tamagui'
 
-type ContainerSelecaoItemsProps<T extends string> = {
+type ContainerSelecaoItemsComFornecedorProps<T extends string> = {
   label: string
   items: { label: string; value: T }[]
   value: T[]
@@ -14,10 +14,10 @@ type ContainerSelecaoItemsProps<T extends string> = {
   extraValidationContext?: Record<string, unknown>
   ignoreValidation?: boolean
   onRemove?: (item: T) => void
-  error?: string 
+  error?: string
 }
 
-export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error }: ContainerSelecaoItemsProps<T>) {
+export function ContainerSelecaoItemsComFornecedor<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error }: ContainerSelecaoItemsComFornecedorProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
   const [touched, setTouched] = useState(false)
@@ -46,12 +46,11 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
         [schemaPath ?? '']: val,
         ...extraValidationContext
       })
-    } catch (err: any) {
-    }
+    } catch (err: any) {}
   }
 
   return (
-    <YStack style={{ zIndex }} gap="$2" minHeight={open ? 300 : 100}>
+    <YStack style={{ zIndex }} gap="$2" minHeight={open ? 150 : 100}>
       <Label>{label}</Label>
       <DropDownPicker
         open={open}
@@ -64,12 +63,13 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
         }}
         items={items}
         placeholder="Selecione..."
-        zIndex={3000}
-        zIndexInverse={1000}
+        zIndex={30000}
+        zIndexInverse={zIndex - 1000}
         listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         dropDownDirection="BOTTOM"
-        style={{ 
-          borderColor: error ? 'red' : 'lightgray' }}
+        style={{
+          borderColor: error ? 'red' : 'lightgray'
+        }}
       />
 
       {value.length > 0 && (
@@ -81,7 +81,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
               return (
                 <XStack key={v} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
                   <Text>{label}</Text>
-                  <Button size="$1" circular backgroundColor="transparent" fontSize={Platform.OS === 'web'? '22px': undefined} color={'#777'} onPress={() => removeItem(v)}>
+                  <Button size="$1" circular backgroundColor="transparent" fontSize={Platform.OS === 'web' ? '22px' : undefined} color={'#777'} onPress={() => removeItem(v)}>
                     ×
                   </Button>
                 </XStack>
@@ -89,12 +89,10 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
             })}
         </XStack>
       )}
-      {!ignoreValidation && error && (
-        (!touched ? true : touched) && (
-          <Text p={'$1'} color="red">
-            {error}
-          </Text>
-        )
+      {!ignoreValidation && error && (!touched ? true : touched) && (
+        <Text p={'$1'} color="red">
+          {error}
+        </Text>
       )}
     </YStack>
   )
