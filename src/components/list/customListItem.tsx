@@ -63,7 +63,7 @@ const ItemSubTitle = styled(Text, {
 const RightContent = styled(YStack, {
   alignItems: 'flex-end',
   space: '$1',
-  marginRight: 10,
+  marginRight: 10
 })
 
 const ItemTotalValue = styled(Text, {
@@ -81,13 +81,26 @@ const ItemMissing = styled(Text, {
 
 const IconContent = styled(View, {
   justifyContent: 'center',
-  paddingRight: Platform.OS === 'web' ? '1%' : 0,
+  paddingRight: Platform.OS === 'web' ? '1%' : 0
 })
 
-const CustomListItem: React.FC<ListItemProps> = ({ id, combination, supplier, createdAt, delivery, totalValue, missingItems, supplierClosed, onPress }) => {
+const CustomListItem: React.FC<ListItemProps> = ({
+  id,
+  combination,
+  supplier,
+  createdAt,
+  delivery,
+  totalValue,
+  missingItems,
+  supplierClosed,
+  onPress
+}) => {
   return (
-    <TouchableOpacity onPress={() => onPress(id)}>
-      <ItemContainer>
+    <TouchableOpacity
+      disabled={totalValue === 0 ? true : false}
+      onPress={() => onPress(id)}
+    >
+      <ItemContainer opacity={totalValue === 0 ? 0.5 : 1}>
         <LeftContent>
           <Circle />
           <InfoContainer>
@@ -100,8 +113,14 @@ const CustomListItem: React.FC<ListItemProps> = ({ id, combination, supplier, cr
         </LeftContent>
 
         <RightContent>
-          {totalValue !== undefined && <ItemTotalValue>{formatCurrency(totalValue)}</ItemTotalValue>}
-          {missingItems !== undefined && <ItemMissing>{`${missingItems} faltante${missingItems !== 1 ? 's' : ''}`}</ItemMissing>}
+          {totalValue !== undefined && (
+            <ItemTotalValue>{formatCurrency(totalValue)}</ItemTotalValue>
+          )}
+          {missingItems !== undefined && (
+            <ItemMissing>{`${missingItems} faltante${
+              missingItems !== 1 ? 's' : ''
+            }`}</ItemMissing>
+          )}
         </RightContent>
 
         <IconContent>
@@ -112,4 +131,4 @@ const CustomListItem: React.FC<ListItemProps> = ({ id, combination, supplier, cr
   )
 }
 
-export default CustomListItem;
+export default CustomListItem

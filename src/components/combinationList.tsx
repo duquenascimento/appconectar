@@ -2,150 +2,168 @@ import {
   ActivityIndicator,
   Platform,
   SectionList,
-  StyleSheet,
-} from "react-native";
-import CustomSubtitle from "./subtitle/customSubtitle";
-import { useEffect, useMemo, useState } from "react";
-import CustomListItem from "./list/customListItem";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation } from "@react-navigation/native";
-import { SupplierData } from "@/app/screens/QuotationDetailsScreen";
+  StyleSheet
+} from 'react-native'
+import CustomSubtitle from './subtitle/customSubtitle'
+import { useEffect, useMemo, useState } from 'react'
+import CustomListItem from './list/customListItem'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { useNavigation } from '@react-navigation/native'
+import { SupplierData } from '@/app/screens/QuotationDetailsScreen'
 import {
   getAllQuotationByRestaurant,
-  QuotationApiResponse,
-} from "../services/combinationsService";
-import { getStorage, getToken } from "@/app/utils/utils";
-import { View } from "tamagui";
-import CustomAlert from "./modais/CustomAlert";
-import { useSupplier } from "../contexts/fornecedores.context";
-import { mergeSupplierData } from "@/app/utils/mergeSuppliersData";
+  QuotationApiResponse
+} from '../services/combinationsService'
+import { getStorage, getToken } from '@/app/utils/utils'
+import { View } from 'tamagui'
+import CustomAlert from './modais/CustomAlert'
+import { useSupplier } from '../contexts/fornecedores.context'
+import { mergeSupplierData } from '@/app/utils/mergeSuppliersData'
 import {
   AvailableSupplier,
-  ChosenSupplierQuote,
-} from "../types/suppliersDataTypes";
-import { useCombinacao } from "../contexts/combinacao.context";
+  ChosenSupplierQuote
+} from '../types/suppliersDataTypes'
+import { useCombinacao } from '../contexts/combinacao.context'
 
 export interface Combination {
-  id: string;
-  combination: string;
-  supplier?: string;
-  totalValue?: number;
-  delivery?: string;
-  missingItems?: number;
-  createdAt?: string;
-  supplierClosed?: string;
-  combinationAvailable?: boolean;
+  id: string
+  combination: string
+  supplier?: string
+  totalValue?: number
+  delivery?: string
+  missingItems?: number
+  createdAt?: string
+  supplierClosed?: string
+  combinationAvailable?: boolean
 }
 
 export type RootStackParamList = {
-  Sign: undefined;
-  Products: undefined;
-  Preferences: undefined;
-  CombinationDetail: { id: string };
-  CreateCombination: undefined;
+  Sign: undefined
+  Products: undefined
+  Preferences: undefined
+  CombinationDetail: { id: string }
+  CreateCombination: undefined
   QuotationDetails: {
-    combinationId: string;
-    combinationName?: string;
-    suppliersData: SupplierData[];
-    toalValue?: number;
-    missingItems?: number;
-  };
-};
+    combinationId: string
+    combinationName?: string
+    suppliersData: SupplierData[]
+    toalValue?: number
+    missingItems?: number
+  }
+}
 
 const CombinationList: React.FC = () => {
   const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const [minecombinations, setMineCombinations] = useState<Combination[]>([])
+  const [unavailableCombinations, setUnavailableCombinations] = useState<
+    Combination[]
+  >([])
+  const [loading, setLoading] = useState<boolean>(false)
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [combinationData, setCombinationData] = useState<
     QuotationApiResponse[]
-  >([]);
+  >([])
 
-  const { suppliers, unavailableSupplier } = useSupplier();
-  const { modificado } = useCombinacao();
+  const { suppliers, unavailableSupplier } = useSupplier()
+  const { modificado } = useCombinacao()
 
   const allSuppliers = useMemo(() => {
-    return [...suppliers, ...unavailableSupplier];
-  }, [suppliers, unavailableSupplier]);
+    return [...suppliers, ...unavailableSupplier]
+  }, [suppliers, unavailableSupplier])
 
   useEffect(() => {
     const initialize = async () => {
       try {
-        setLoading(true);
-        const token = await getToken();
-        const cartStoredValue = JSON.parse((await getStorage("cart")) || "[]");
+        setLoading(true)
+        const token = await getToken()
+        const cartStoredValue = JSON.parse((await getStorage('cart')) || '[]')
         const restaurantStoredValue = JSON.parse(
-          (await getStorage("selectedRestaurant")) || "[]"
-        );
-        const selectedRestaurant = { ...restaurantStoredValue.restaurant };
+          (await getStorage('selectedRestaurant')) || '[]'
+        )
+        const selectedRestaurant = { ...restaurantStoredValue.restaurant }
         const combinationsData: QuotationApiResponse[] =
           await getAllQuotationByRestaurant({
             token,
             selectedRestaurant,
             cart: cartStoredValue,
-            prices: allSuppliers,
-          });
+            prices: allSuppliers
+          })
 
-        const totalItens = cartStoredValue?.length || 0;
-        setCombinationData(combinationsData);
+        const totalItens = cartStoredValue?.length || 0
+        setCombinationData(combinationsData)
 
         const transformed: Combination[] = combinationsData.map((item) => {
           const suppliers =
             item.resultadoCotacao?.supplier
-              ?.map((c) => c.name.split("-")[0])
-              .join(" + ") || "N/A";
+              ?.map((c) => c.name.split('-')[0])
+              .join(' + ') || 'N/A'
           const cartItens =
             item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
-              return acc + (cesta.cart?.length || 0);
-            }, 0) || 0;
-          const missingItems = totalItens - cartItens;
+              return acc + (cesta.cart?.length || 0)
+            }, 0) || 0
+          const missingItems = totalItens - cartItens
 
           return {
             id: item.id,
             combination: item.nome,
             supplier: suppliers,
             totalValue: item.resultadoCotacao?.totalOrderValue,
-            missingItems: missingItems < 0 ? 0 : missingItems,
-          };
-        });
+            missingItems: missingItems < 0 ? 0 : missingItems
+          }
+        })
 
-        setMineCombinations(transformed);
+        const unavailableCombinationList = transformed.filter(
+          (item) => item.totalValue === 0
+        )
+        const availableCombinationList = transformed.filter(
+          (item) => item.totalValue !== 0
+        )
+
+        setUnavailableCombinations(unavailableCombinationList)
+        setMineCombinations(availableCombinationList)
       } catch (error) {
-        setIsAlertVisible(true);
-        console.error("Erro ao inicializar:", error);
+        setIsAlertVisible(true)
+        console.error('Erro ao inicializar:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-    initialize();
-  }, [allSuppliers, modificado]);
+    }
+    initialize()
+  }, [allSuppliers, modificado])
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter(
       (data) => data.id === item.id
-    );
-    const combinationSelected = selectedCombination as ChosenSupplierQuote[];
+    )
+    const combinationSelected = selectedCombination as ChosenSupplierQuote[]
     const mergedData: any = mergeSupplierData(
       combinationSelected,
       suppliers as AvailableSupplier[]
-    );
+    )
 
-    navigation.navigate("QuotationDetails", {
+    navigation.navigate('QuotationDetails', {
       combinationId: item.id,
       combinationName: item.combination,
-      suppliersData: mergedData,
-    });
-  };
+      suppliersData: mergedData
+    })
+  }
 
-  const sections = [{ title: "Minhas combinações", data: minecombinations }];
+  const sections = [
+    { title: 'Minhas combinações', data: minecombinations },
+    {
+      title:
+        unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
+      data: unavailableCombinations
+    }
+  ]
 
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
-    );
+    )
   }
 
   return (
@@ -180,22 +198,22 @@ const CombinationList: React.FC = () => {
         style={[
           styles.container,
           {
-            width: Platform.OS === "web" ? "70%" : "90%",
-            alignSelf: "center",
-          },
+            width: Platform.OS === 'web' ? '70%' : '90%',
+            alignSelf: 'center'
+          }
         ]}
       />
     </>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   listContentContainer: {
-    paddingBottom: 100,
-  },
-});
+    paddingBottom: 100
+  }
+})
 
-export default CombinationList;
+export default CombinationList
