@@ -96,7 +96,7 @@ export function ContainerPreferenciasProduto({ error, onClearErrors }: { error?:
       {combinacao.definir_preferencia_produto && preferencias.map((_, index) => <PreferenciaProdutoCard key={index} index={index} onRemove={() => removerPreferencia(index)} onMoveUp={() => moverPreferencia(index, index - 1)} onMoveDown={() => moverPreferencia(index, index + 1)} />)}
 
       {combinacao.definir_preferencia_produto && (
-        <Button mt="$2" onPress={adicionarPreferencia}>
+        <Button mt="$2" onPress={adicionarPreferencia} marginTop="$8">
           <Icons name="add" size={20} />
           Adicionar Produto
         </Button>

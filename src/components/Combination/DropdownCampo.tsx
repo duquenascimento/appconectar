@@ -39,29 +39,11 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         zIndex={zIndex}
         zIndexInverse={1000}
         dropDownDirection="BOTTOM"
-        listMode={Platform.OS === 'web' ? 'SCROLLVIEW' : 'MODAL'}
+        listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         style={{ borderColor: error ? 'red' : 'lightgray' }}
         modalProps={{
           animationType: 'slide',
           transparent: false
-        }}
-        modalContentContainerStyle={{
-          backgroundColor: '#ffffff',
-          borderRadius: 12,
-          marginHorizontal: 20,
-          marginTop: 200,
-          marginBottom: 400,
-          elevation: 10,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 10
-        }}
-        listItemLabelStyle={{
-          textAlign: 'center',
-          fontSize: 16,
-          color: '#333',
-          fontWeight: '500'
         }}
       />
       {error && (
