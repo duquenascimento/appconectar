@@ -268,26 +268,23 @@ const ProductBox = React.memo(
     }
 
     const handleValueQuantChange = async (delta: number) => {
-      const newAmount = Math.max(0, Number((valueQuant + delta).toFixed(3)))
-      setValueQuant(newAmount)
-
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current)
       }
+      setValueQuant((prev) => {
+        const newAmount = Math.max(0, Number((prev + delta).toFixed(3)))
 
-      debounceTimerRef.current = setTimeout(async () => {
-        try {
+        debounceTimerRef.current = setTimeout(async () => {
           const updatedItem: Cart = { productId: id, amount: newAmount, obs }
           const mapItem = new Map([[id, updatedItem]])
           const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
 
           await saveCart(updatedItem, true)
           await saveCartArray(mapItem, mapToRemove)
-        } catch (err) {
-          console.error('Erro ao atualizar carrinho:', err)
-          Alert.alert('Erro', 'Não foi possível atualizar o carrinho.')
-        }
-      }, 300)
+        }, 300)
+
+        return newAmount
+      })
     }
 
     const handleBlur = useCallback(async () => {
@@ -798,50 +795,47 @@ export function Products({ navigation }: HomeScreenProps) {
         })
       }
       await attCart()
-      
+
       if (cart.amount > 0) {
-      await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
-    }
+        await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
+      }
     } catch (err) {
       console.error('Erro ao salvar item no carrinho local:', err)
       Alert.alert('Erro', 'Não foi possível atualizar o carrinho localmente.')
     }
   }, [])
 
-  const saveCartArray = useCallback(
-    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
-      try {
-        const token = await getToken()
-        const restaurant = await getSavedRestaurant()
-        if (!token || restaurant == null) return
+  const saveCartArray = useCallback(async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
+    try {
+      const token = await getToken()
+      const restaurant = await getSavedRestaurant()
+      if (!token || restaurant == null) return
 
-        console.log('Enviando restaurante:', restaurant)
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            token,
-            carts: Array.from(carts.values()),
-            cartToExclude: Array.from(cartsToExclude.values()),
-            selectedRestaurant: { id: restaurant.id }
-          })
+      console.log('Enviando restaurante:', restaurant)
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token,
+          carts: Array.from(carts.values()),
+          cartToExclude: Array.from(cartsToExclude.values()),
+          selectedRestaurant: { id: restaurant.id }
         })
+      })
 
-        if (!response.ok) {
-          const errorBody = await response.json()
-          console.error('Erro ao salvar carrinho em lote:', errorBody.msg)
-        }
-
-        setCartToExclude(new Map())
-        //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
-      } catch (err) {
-        console.error('Erro inesperado em saveCartArray:', err)
+      if (!response.ok) {
+        const errorBody = await response.json()
+        console.error('Erro ao salvar carrinho em lote:', errorBody.msg)
       }
-    },
-    []
-  )
+
+      setCartToExclude(new Map())
+      //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
+    } catch (err) {
+      console.error('Erro inesperado em saveCartArray:', err)
+    }
+  }, [])
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
