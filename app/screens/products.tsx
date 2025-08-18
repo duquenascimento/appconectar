@@ -17,6 +17,7 @@ import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeLi
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
+import { RefreshCartButton } from '@/src/components/refreshButton'
 
 export type Product = {
   name: string
@@ -83,6 +84,7 @@ type ProductBoxProps = Product & {
   productObservations: Map<string, string>
   setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
   saveProductObservations?: (map: Map<string, string>) => Promise<void>
+  loadCart: () => Promise<Map<string, Cart>>
 }
 
 export function DialogFinanceInstance(props: { openModal: boolean; setRegisterInvalid: Function; rest: any }) {
@@ -167,7 +169,7 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations, setProductObservations, saveProductObservations }: ProductBoxProps) => {
+  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations, setProductObservations, saveProductObservations, loadCart }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -324,7 +326,15 @@ const ProductBox = React.memo(
             </View>
           </View>
           <View mr={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
-            <Icons size={24} name={isFavorite ? 'heart' : 'heart-outline'} color="red" onPress={() => toggleFavorite(id)} />
+            <Icons
+              size={24}
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              color="red"
+              onPress={async () => {
+                toggleFavorite(id)
+                await loadCart()
+              }}
+            />
             {(isFavorite && currentClass === 'Favoritos') || isCart ? (
               <></>
             ) : isCart ? (
@@ -375,11 +385,15 @@ const ProductBox = React.memo(
                         flex={1}
                         fontSize={10}
                         maxLength={999}
-                        onPressIn={(e) => {
+                        onPressIn={async (e) => {
                           e.stopPropagation()
+                          await loadCart()
                         }}
                         onChangeText={handleObsChange}
-                        onBlur={handleBlur}
+                        onBlur={async () => {
+                          handleBlur()
+                          await loadCart()
+                        }}
                         value={obs}
                       />
                     </XStack>
@@ -388,9 +402,10 @@ const ProductBox = React.memo(
 
                 {/*botao verde */}
                 <Button
-                  onPress={(e) => {
+                  onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(firstUnit ? firstUnit : 1)
+                    await loadCart()
                   }}
                   backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
                   height={30}
@@ -400,9 +415,10 @@ const ProductBox = React.memo(
                   <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>{firstUnit ? firstUnit : 1}</Text>
                 </Button>
                 <Button
-                  onPress={(e) => {
+                  onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(secondUnit ? secondUnit : 5)
+                    await loadCart()
                   }}
                   backgroundColor={quant === (secondUnit ? secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
                   color={quant === secondUnit ? '#fff' : '#000'}
@@ -413,9 +429,10 @@ const ProductBox = React.memo(
                   <Text color={quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'}>{secondUnit ? secondUnit : 5}</Text>
                 </Button>
                 <Button
-                  onPress={(e) => {
+                  onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(thirdUnit ? thirdUnit : 10)
+                    await loadCart()
                   }}
                   backgroundColor={quant === (thirdUnit ? thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
                   height={30}
@@ -462,11 +479,15 @@ const ProductBox = React.memo(
                     flex={1}
                     fontSize={10}
                     maxLength={999}
-                    onPressIn={(e) => {
+                    onPressIn={async (e) => {
                       e.stopPropagation()
+                      await loadCart()
                     }}
                     onChangeText={handleObsChange}
-                    onBlur={handleBlur}
+                    onBlur={async () => {
+                      handleBlur()
+                      await loadCart()
+                    }}
                     value={obs}
                   />
                 </XStack>
@@ -691,10 +712,10 @@ export function Products({ navigation }: HomeScreenProps) {
 
       // Merge local cart with server cart
       localCart.forEach((value, key) => {
-        if (value.amount > 0) {
-          cartMap.set(key, value)
-        } else {
-          cartMap.delete(key) // remove se estiver com amount 0
+        const serverItem = cartMap.get(key)
+        if (serverItem && value.obs) {
+          serverItem.obs = value.obs
+          cartMap.set(key, serverItem)
         }
       })
 
@@ -777,7 +798,10 @@ export function Products({ navigation }: HomeScreenProps) {
         })
       }
       await attCart()
+      
+      if (cart.amount > 0) {
       await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
+    }
     } catch (err) {
       console.error('Erro ao salvar item no carrinho local:', err)
       Alert.alert('Erro', 'Não foi possível atualizar o carrinho localmente.')
@@ -816,7 +840,7 @@ export function Products({ navigation }: HomeScreenProps) {
         console.error('Erro inesperado em saveCartArray:', err)
       }
     },
-    [saveCart, loadCart, loadProducts]
+    []
   )
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
@@ -1164,9 +1188,10 @@ export function Products({ navigation }: HomeScreenProps) {
         productObservations={productObservations}
         setProductObservations={setProductObservations}
         saveProductObservations={saveProductObservations}
+        loadCart={loadCart}
       />
     ),
-    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation]
+    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation, loadCart]
   )
 
   async function handleRestaurantChoice(value: string | null) {
@@ -1255,16 +1280,27 @@ export function Products({ navigation }: HomeScreenProps) {
       </Modal>
 
       {/*Lista de restaurantes do usuário*/}
-      <Text
+      <View
         style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           marginTop: Platform.OS === 'web' ? 15 : 35,
-          marginLeft: Platform.OS === 'web' ? 23 : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
+          width: Platform.OS === 'web' ? '68%' : '92%',
           alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
         }}
       >
-        Meus Restaurantes
-      </Text>
+        <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>Meus Restaurantes</Text>
+
+        <RefreshCartButton
+          onPress={async () => {
+            setLoading(true)
+            await loadCart()
+            await loadProducts()
+            setLoading(false)
+          }}
+        />
+      </View>
 
       <DropDownPicker
         onPress={async () => {
