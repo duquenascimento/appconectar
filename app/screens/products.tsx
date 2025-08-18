@@ -496,7 +496,17 @@ const ProductBox = React.memo(
     )
   },
   (prevProps, nextProps) => {
-    return prevProps.id === nextProps.id && prevProps.currentClass === nextProps.currentClass && prevProps.favorites.length === nextProps.favorites.length && prevProps.cart.size === nextProps.cart.size
+    if (prevProps.id !== nextProps.id) return false
+    if (prevProps.currentClass !== nextProps.currentClass) return false
+    if (prevProps.favorites.length !== nextProps.favorites.length) return false
+
+    const prevItem = prevProps.cart.get(prevProps.id)
+    const nextItem = nextProps.cart.get(nextProps.id)
+
+    const amountEqual = (prevItem?.amount ?? 0) === (nextItem?.amount ?? 0)
+    const obsEqual = (prevItem?.obs ?? '') === (nextItem?.obs ?? '')
+
+    return amountEqual && obsEqual
   }
 )
 
