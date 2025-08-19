@@ -1,28 +1,19 @@
-import React from "react";
-import { Modal, View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React from 'react'
+import { Modal, View, Text, TouchableOpacity, StyleSheet, DimensionValue } from 'react-native'
 
 interface CustomAlertProps {
-  visible: boolean;
-  title: string;
-  message: string;
-  onConfirm: () => void;
+  visible: boolean
+  title: string
+  message: string
+  onConfirm: () => void
+  width?: DimensionValue
 }
 
-const CustomAlert: React.FC<CustomAlertProps> = ({
-  visible,
-  title,
-  message,
-  onConfirm,
-}) => {
+const CustomAlert: React.FC<CustomAlertProps> = ({ visible, title, message, onConfirm, width = '80%' }) => {
   return (
-    <Modal
-      transparent={true}
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onConfirm}
-    >
+    <Modal transparent={true} visible={visible} animationType="fade" onRequestClose={onConfirm}>
       <View style={styles.overlay}>
-        <View style={styles.alertContainer}>
+        <View style={[styles.alertContainer, { width }]}>
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.message}>{message}</Text>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
@@ -31,46 +22,45 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
         </View>
       </View>
     </Modal>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    zIndex: 9999,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 9999
   },
   alertContainer: {
-    width: "80%",
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    alignItems: "center",
+    alignItems: 'center'
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
+    fontWeight: 'bold',
+    marginBottom: 10
   },
   message: {
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
     marginBottom: 20,
-    color: "red",
+    color: 'red'
   },
   button: {
-    backgroundColor: "#04BF7B",
+    backgroundColor: '#04BF7B',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 5
   },
   buttonText: {
-    color: "white",
+    color: 'white',
     fontSize: 14,
-    fontWeight: "bold",
-  },
-});
+    fontWeight: 'bold'
+  }
+})
 
-export default CustomAlert;
+export default CustomAlert

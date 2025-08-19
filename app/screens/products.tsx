@@ -17,6 +17,7 @@ import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeLi
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
+import { useProductContext } from '@/src/contexts/produtos.context'
 import { RefreshCartButton } from '@/src/components/refreshButton'
 
 export type Product = {
@@ -360,7 +361,7 @@ const ProductBox = React.memo(
             borderBottomWidth={0}
             borderBottomLeftRadius={12}
             borderBottomRightRadius={12}
-            backgroundColor={isCart ? 'white' : 'white'}
+            backgroundColor="white"
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
@@ -622,6 +623,7 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
   const [productObservations, setProductObservations] = useState(new Map())
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size)
+  const { productsContext, isLoading } = useProductContext()
 
   useEffect(() => {
     SaveUserAppInfo()
@@ -653,21 +655,15 @@ export function Products({ navigation }: HomeScreenProps) {
   }
 
   const loadProducts = useCallback(async () => {
+    if (isLoading) return
     try {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: '{}'
-      })
-      const products = await result.json()
+      const productsList = productsContext
 
-      setProductsList(products.data)
+      setProductsList(productsList)
     } catch (error) {
       console.error('Error loading products:', error)
     }
-  }, [])
+  }, [productsContext])
 
   const loadFavorites = useCallback(async () => {
     try {
