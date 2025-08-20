@@ -281,7 +281,6 @@ export function OrderDetailsScreen() {
         <TouchableOpacity
           onPress={async () => {
             const url = order.orderDocument;
-            console.log(url)
             if (!url) {
               setShowDocumentsModal(true);
               return;

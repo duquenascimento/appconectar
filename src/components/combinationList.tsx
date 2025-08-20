@@ -24,6 +24,7 @@ import {
   ChosenSupplierQuote
 } from '../types/suppliersDataTypes'
 import { useCombinacao } from '../contexts/combinacao.context'
+import { getSavedRestaurant } from './savedRestaurant'
 
 export interface Combination {
   id: string
@@ -77,10 +78,10 @@ const CombinationList: React.FC = () => {
       try {
         setLoading(true)
         const token = await getToken()
-        const cartStoredValue = JSON.parse((await getStorage('cart')) || '[]')
         const restaurantStoredValue = JSON.parse(
           (await getStorage('selectedRestaurant')) || '[]'
         )
+        const cartStoredValue = JSON.parse((await getStorage(`cart_${restaurantStoredValue?.restaurant.externalId}`)) || '[]')
         const selectedRestaurant = { ...restaurantStoredValue.restaurant }
         const combinationsData: QuotationApiResponse[] =
           await getAllQuotationByRestaurant({

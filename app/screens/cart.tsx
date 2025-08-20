@@ -385,7 +385,6 @@ export function Cart({ navigation }: HomeScreenProps) {
       const restaurant = await getSavedRestaurant()
       if (!token || !restaurant) return []
 
-      console.log('Enviando restaurante no cart:', restaurant)
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`, {
         method: 'POST',
         headers: {

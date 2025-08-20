@@ -133,7 +133,7 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
 
       if (response.ok) {
         await response.json()
-        deleteMultiStorage(['cartOrder', 'cart'])
+        deleteMultiStorage(['cartOrder', `cart_${parsedRestaurant?.restaurant.externalId}`])
         
         navigation.navigate('OrderConfirmed', { suppliers: suppliers })
       } else {
