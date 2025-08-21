@@ -5,7 +5,6 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
-import AsyncStorage from '@react-native-async-storage/async-storage'
 
 type RootStackParamList = {
   Home: undefined
@@ -241,7 +240,7 @@ export function Cart({ navigation }: HomeScreenProps) {
 
   const getSavedRestaurant = async () => {
     try {
-      const data = await AsyncStorage.getItem('selectedRestaurant')
+      const data = await getStorage('selectedRestaurant')
       if (!data) return null
 
       const parsedData = JSON.parse(data)
