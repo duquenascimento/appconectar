@@ -1126,14 +1126,12 @@ export function Products({ navigation }: HomeScreenProps) {
 
       {/*Lista de restaurantes do usuário*/}
       <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginTop: Platform.OS === 'web' ? 15 : 35,
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
-        }}
+        alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
+        width={Platform.OS === 'web' ? '68%' : '95%'}
+        marginTop={15}
+        alignItems='center'
+        justifyContent='space-between'
+        flexDirection="row"
       >
         <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>Meus Restaurantes</Text>
 

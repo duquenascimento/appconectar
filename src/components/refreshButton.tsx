@@ -1,6 +1,5 @@
-// src/components/RefreshCartButton.tsx
 import React from 'react'
-import { TouchableOpacity, Platform } from 'react-native'
+import { TouchableOpacity } from 'react-native'
 import { Text } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 
