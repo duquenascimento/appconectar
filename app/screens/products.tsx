@@ -405,7 +405,6 @@ const ProductBox = React.memo(
                   onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(firstUnit ? firstUnit : 1)
-                    await loadCart()
                   }}
                   backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
                   height={30}
@@ -418,7 +417,6 @@ const ProductBox = React.memo(
                   onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(secondUnit ? secondUnit : 5)
-                    await loadCart()
                   }}
                   backgroundColor={quant === (secondUnit ? secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
                   color={quant === secondUnit ? '#fff' : '#000'}
@@ -432,7 +430,6 @@ const ProductBox = React.memo(
                   onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(thirdUnit ? thirdUnit : 10)
-                    await loadCart()
                   }}
                   backgroundColor={quant === (thirdUnit ? thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
                   height={30}
