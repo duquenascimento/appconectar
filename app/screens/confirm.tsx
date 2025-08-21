@@ -9,6 +9,7 @@ import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
 import MissingItemsDialog from '../../src/components/modais/MissingItemsDialog'
+import CustomAlert from '@/src/components/modais/CustomAlert'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -166,6 +167,33 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [showNotification, setShowNotification] = useState(false)
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([])
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
+  const [alertMessage, setAlertMessage] = useState<string>('')
+
+  const validateAddress = (): boolean => {
+    const addressInfo = selectedRestaurant?.restaurant?.addressInfos?.[0]
+    if (!addressInfo) {
+      setAlertMessage('Nenhum endereço de entrega encontrado. Por favor, cadastre um endereço válido.')
+      setIsAlertVisible(true)
+      return false
+    }
+
+    const missingFields: string[] = []
+    if (!addressInfo.address?.trim()) missingFields.push('Logradouro')
+    if (!addressInfo.localNumber?.trim()) missingFields.push('Número')
+    if (!addressInfo.neighborhood?.trim()) missingFields.push('Bairro')
+    if (!addressInfo.city?.trim()) missingFields.push('Cidade')
+    if (!addressInfo.responsibleReceivingName?.trim()) missingFields.push('Nome de quem recebe')
+    if (!addressInfo.responsibleReceivingPhoneNumber?.trim()) missingFields.push('Telefone')
+
+    if (missingFields.length > 0) {
+      setAlertMessage(`Os seguintes campos estão incompletos:\n\n- ${missingFields.join('\n- ')}\n\n Por favor, complete-os no cadastro do restaurante.`)
+      setIsAlertVisible(true)
+      return false
+    }
+
+    return true
+  }
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -356,7 +384,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const handleConfirmOrder = useCallback(async () => {
     setShowMissingItemsModal(false)
     setLoadingToConfirm(true)
-    
+
     try {
       const token = await getToken()
       if (!token) {
@@ -384,7 +412,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         setLoadingToConfirm(false)
         return
       }
-      
+
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
         method: 'POST',
         headers: {
@@ -403,7 +431,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
         setBooleanErros(true)
       }
     } catch (error) {
-      console.error("Erro em handleConfirmOrder:", error)
+      console.error('Erro em handleConfirmOrder:', error)
       setLoadingToConfirm(false)
       setShowErros(['Ocorreu um erro de conexão. Tente novamente.'])
       setBooleanErros(true)
@@ -429,19 +457,14 @@ export function Confirm({ navigation }: HomeScreenProps) {
     )
   }
 
-
   const actualMissingItemsCount = supplier.supplier.discount.product.length - supplier.supplier.missingItens
   const displayMissingItems = Math.max(0, actualMissingItemsCount)
   return (
     <Stack backgroundColor="white" pt={20} height="100%" position="relative">
       <DialogInstance openModal={booleanErros} setRegisterInvalid={setBooleanErros} erros={showErros} />
       <DialogInstanceNotification openModal={showNotification} setRegisterInvalid={setShowNotification} />
-      <MissingItemsDialog
-        open={showMissingItemsModal}
-        onClose={() => setShowMissingItemsModal(false)}
-        onConfirm={handleConfirmOrder}
-        missingItemsCount={displayMissingItems}
-      />
+      <MissingItemsDialog open={showMissingItemsModal} onClose={() => setShowMissingItemsModal(false)} onConfirm={handleConfirmOrder} missingItemsCount={displayMissingItems} />
+      <CustomAlert visible={isAlertVisible} title="Endereço Incompleto" message={alertMessage} onConfirm={() => setIsAlertVisible(false)} width="80%" />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View px={10} flexDirection="row" justifyContent="center" alignItems="center">
           <Icons
@@ -799,11 +822,11 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 setShowErros(erros)
                 if (erros.length) setBooleanErros(true)
               } else {
+                if (!validateAddress()) return
+
                 if (displayMissingItems > 0) {
-                  // Se tiver itens faltando, apenas abre a nova modal.
                   setShowMissingItemsModal(true)
                 } else {
-                  // Se não tiver itens faltando, confirma o pedido (Logica movida para handleConfirmOrder)
                   await handleConfirmOrder()
                 }
               }
