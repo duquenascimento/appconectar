@@ -10,6 +10,7 @@ import * as Notifications from 'expo-notifications'
 import { Platform } from 'react-native'
 import MissingItemsDialog from '../../src/components/modais/MissingItemsDialog'
 import CustomAlert from '@/src/components/modais/CustomAlert'
+import { validateAddress } from '../utils/validateAddress'
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -169,31 +170,6 @@ export function Confirm({ navigation }: HomeScreenProps) {
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([])
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [alertMessage, setAlertMessage] = useState<string>('')
-
-  const validateAddress = (): boolean => {
-    const addressInfo = selectedRestaurant?.restaurant?.addressInfos?.[0]
-    if (!addressInfo) {
-      setAlertMessage('Nenhum endereço de entrega encontrado. Por favor, cadastre um endereço válido.')
-      setIsAlertVisible(true)
-      return false
-    }
-
-    const missingFields: string[] = []
-    if (!addressInfo.address?.trim()) missingFields.push('Logradouro')
-    if (!addressInfo.localNumber?.trim()) missingFields.push('Número')
-    if (!addressInfo.neighborhood?.trim()) missingFields.push('Bairro')
-    if (!addressInfo.city?.trim()) missingFields.push('Cidade')
-    if (!addressInfo.responsibleReceivingName?.trim()) missingFields.push('Nome de quem recebe')
-    if (!addressInfo.responsibleReceivingPhoneNumber?.trim()) missingFields.push('Telefone')
-
-    if (missingFields.length > 0) {
-      setAlertMessage(`Os seguintes campos estão incompletos:\n\n- ${missingFields.join('\n- ')}\n\n Por favor, complete-os no cadastro do restaurante.`)
-      setIsAlertVisible(true)
-      return false
-    }
-
-    return true
-  }
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -822,7 +798,12 @@ export function Confirm({ navigation }: HomeScreenProps) {
                 setShowErros(erros)
                 if (erros.length) setBooleanErros(true)
               } else {
-                if (!validateAddress()) return
+                const validationResult = validateAddress(selectedRestaurant)
+                if (!validationResult.isValid) {
+                  setAlertMessage(validationResult.message)
+                  setIsAlertVisible(true)
+                  return
+                }
 
                 if (displayMissingItems > 0) {
                   setShowMissingItemsModal(true)
