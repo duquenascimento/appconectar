@@ -261,10 +261,6 @@ const ProductBox = React.memo(
         }
         return updated
       })
-
-      if (isFavorite) {
-        addObservation(id, text)
-      }
     }
 
     const handleValueQuantChange = async (delta: number) => {
