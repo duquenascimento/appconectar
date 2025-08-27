@@ -18,6 +18,7 @@ import DialogComercialInstance from '@/src/components/dialogComercialInstance'
 import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
 import { useProductContext } from '@/src/contexts/produtos.context'
+import { filterCarts } from '../utils/filterCarts'
 
 export type Product = {
   name: string
@@ -765,6 +766,9 @@ export function Products({ navigation }: HomeScreenProps) {
     async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
       const token = await getToken()
       if (token == null) return
+      const cartsArray = Array.from(carts.values())
+      const cartsToExcludeArray = Array.from(cartsToExclude.values()) 
+      const cartsFiltered = filterCarts(cartsArray, cartsToExcludeArray)
 
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
         method: 'POST',
@@ -773,8 +777,8 @@ export function Products({ navigation }: HomeScreenProps) {
         },
         body: JSON.stringify({
           token,
-          carts: Array.from(carts.values()),
-          cartToExclude: Array.from(cartsToExclude.values())
+          carts: cartsFiltered.carts,
+          cartToExclude: cartsFiltered.cartToExclude
         })
       })
 

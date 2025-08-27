@@ -5,6 +5,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
+import { filterCarts } from '../utils/filterCarts'
 
 type RootStackParamList = {
   Home: undefined
@@ -388,7 +389,11 @@ export function Cart({ navigation }: HomeScreenProps) {
 
   const saveCartArray = useCallback(async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
     const token = await getToken()
-    if (token == null) return []
+    if (token == null) return []    
+    const cartsArray = Array.from(carts.values())
+    const cartsToExcludeArray = Array.from(cartsToExclude.values()) 
+    const cartsFiltered = filterCarts(cartsArray, cartsToExcludeArray)
+
     await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
       method: 'POST',
       headers: {
@@ -396,8 +401,8 @@ export function Cart({ navigation }: HomeScreenProps) {
       },
       body: JSON.stringify({
         token,
-        carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values())
+        carts: cartsFiltered.carts,
+        cartToExclude: cartsFiltered.cartToExclude
       })
     })
     setCartToExclude(new Map())
