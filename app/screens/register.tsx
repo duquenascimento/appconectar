@@ -277,7 +277,18 @@ export function Register({ navigation }: HomeScreenProps) {
   const initData = async () => {
     setLoading(true)
     try {
-      await registerVerify()
+      const progress = await loadProgress()
+
+      if (progress && progress.roleUser === 'registering') {
+        formik.setValues(progress.values)
+        setStep(progress.step)
+        return
+      }
+
+      if (progress?.roleUser === 'registered') {
+        navigation.replace('Products')
+        return
+      }
 
       const fieldsToLoad = ['cnpj', 'stateNumberId', 'cityNumberId', 'restaurantName', 'legalRestaurantName', 'zipcode', 'neigh', 'street', 'localNumber', 'complement', 'alternativePhone', 'email', 'alternativeEmail', 'paymentWay', 'financeResponsibleName', 'financeResponsiblePhoneNumber', 'emailBilling', 'step', 'noStateNumberId', 'minHour', 'maxHour', 'closeDoor', 'deliveryObs', 'weeklyOrderAmount', 'orderValue', 'localType', 'city', 'inviteCode']
 
@@ -315,19 +326,7 @@ export function Register({ navigation }: HomeScreenProps) {
     initData()
   }, [])
 
-  const registerVerify = async () => {
-    const progress = await loadProgress()
-    if (progress && progress.roleUser === 'registering') {
-      formik.setValues(progress.values)
-      setStep(progress.step)
-      return
-    } else {
-      navigation.replace('Products')
-    }
-  }
-
   const handleNextBtn = async () => {
-    await registerVerify()
     setLoading(true)
     allClosedDropdowns()
     try {
@@ -422,6 +421,7 @@ export function Register({ navigation }: HomeScreenProps) {
       if (step < 3) {
         const nextStep = step + 1
         await saveStepData(formik.values, nextStep)
+        console.log('Dados do passo salvos:', { step: nextStep, values: formik.values })
       }
     } catch (error) {
       console.error('Erro em handleNextBtn:', error)
@@ -433,7 +433,6 @@ export function Register({ navigation }: HomeScreenProps) {
   }
 
   const handleBackBtn = async () => {
-    await registerVerify()
     setLoading(true)
     const prevStep = step - 1
 

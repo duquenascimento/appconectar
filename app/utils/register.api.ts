@@ -20,19 +20,15 @@ export async function getProgressApi() {
       Authorization: `Bearer ${token}`,
     },
   })
-  if (!response.ok) throw new Error('Erro ao buscar progresso')
+  console.log('Response do progresso:', response)
+  if (!response.ok) {
+    console.log('Erro ao buscar progresso:', response)
+    throw new Error('Erro ao buscar progresso')
+  }
+  if (response.status === 204) {
+    return {
+      statusCode: 204
+    }
+  }
   return await response.json()
-}
-
-export const getUserRole = async () => {
-  const token = await getToken()
-  const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/`, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  })
-  if (!response.ok) throw new Error('Erro ao buscar papel do usuário')
-  const data = await response.json()
-  return data.role
 }

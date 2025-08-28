@@ -41,8 +41,21 @@ export async function loadProgress() {
 
   try {
     const data = await getProgressApi()
+    console.log('Dados do progresso:', data)
+    if (data.statusCode === 204) {
+      const progressData = {
+        progress: {
+          values: {},
+          step: [0]
+        }
+      }
+
+      await saveStepData(progressData.progress.values, progressData.progress.step[0])
+      return { progressData }
+    }
     if (data.progress) {
       await saveStepData(data.progress.values, data.progress.step)
+
       return data.progress
     }
   } catch {
