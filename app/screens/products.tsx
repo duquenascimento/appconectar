@@ -1,4 +1,4 @@
-import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
+import { View, Select, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
 import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
@@ -19,6 +19,7 @@ import { saveProductObservations, loadProductObservations } from '../utils/produ
 import { CartButton } from '@/src/components/cartButton'
 import { useProductContext } from '@/src/contexts/produtos.context'
 import { filterCarts } from '../utils/filterCarts'
+import { CustomImageBadge } from '@/src/components/image/customImageBadge'
 
 export type Product = {
   name: string
@@ -303,46 +304,107 @@ const ProductBox = React.memo(
     }, [addObservation, id, obs])
 
     return (
-      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor="white" borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
+      <Stack
+        onPress={toggleOpen}
+        flex={1}
+        minHeight={40}
+        borderWidth={1}
+        borderRadius={12}
+        borderColor="#F0F2F6"
+      >
+        <View
+          style={{
+            width: Platform.OS === "web" ? "70%" : "",
+            alignSelf: "center",
+          }}
+          flex={1}
+          justifyContent="space-between"
+          alignItems="center"
+          paddingHorizontal={8}
+          flexDirection="row"
+          minHeight={40}
+          backgroundColor="white"
+          borderRadius={12}
+          borderBottomLeftRadius={
+            open || isCart || (isFavorite && currentClass === "Favoritos")
+              ? 0
+              : 12
+          }
+          borderBottomRightRadius={
+            open || isCart || (isFavorite && currentClass === "Favoritos")
+              ? 0
+              : 12
+          }
+        >
           <View flexDirection="row" alignItems="center">
             <View
-              p={Platform.OS === 'web' ? 10 : 0}
+              p={Platform.OS === "web" ? 10 : 0}
               onPress={(e) => {
-                e.stopPropagation()
-                setImage(image[0])
-                setModalVisible(true)
+                e.stopPropagation();
+                setImage(image[0]);
+                setModalVisible(true);
               }}
             >
-              <Image source={{ uri: image[0] }} width={60} height={60} />
+              <CustomImageBadge
+                uri={image[0]}
+                badgeText={orderUnit}
+                badgeColor="#0BC07D"
+                badgeTextSize={10}
+              />
             </View>
-            <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 130 : 130}>
+            <View marginLeft={8} maxWidth={Platform.OS === "web" ? 130 : 130}>
               <Text fontSize={12}>{name}</Text>
             </View>
           </View>
-          <View mr={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
-            <Icons size={24} name={isFavorite ? 'heart' : 'heart-outline'} color="red" onPress={() => toggleFavorite(id)} />
-            {(isFavorite && currentClass === 'Favoritos') || isCart ? (
+          <View
+            mr={10}
+            flexDirection="row"
+            alignItems="center"
+            gap={16}
+            cursor="pointer"
+          >
+            <Icons
+              size={24}
+              name={isFavorite ? "heart" : "heart-outline"}
+              color="red"
+              onPress={() => toggleFavorite(id)}
+            />
+            {(isFavorite && currentClass === "Favoritos") || isCart ? (
               <></>
             ) : isCart ? (
-              <View borderColor="#FFA500" borderWidth={1} borderRadius={50} gap={8} justifyContent="center" alignItems="center" p={8} height={36} width={80} flexDirection="row">
+              <View
+                borderColor="#FFA500"
+                borderWidth={1}
+                borderRadius={50}
+                gap={8}
+                justifyContent="center"
+                alignItems="center"
+                p={8}
+                height={36}
+                width={80}
+                flexDirection="row"
+              >
                 <Text fontSize={12} fontWeight="800">
                   {valueQuant}
                   <Text fontSize={8} color="gray">
-                    {orderUnit.replace('Unid', 'Un')}
+                    {orderUnit.replace("Unid", "Un")}
                   </Text>
                 </Text>
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
               </View>
             ) : (
-              <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
+              <Icons
+                name={open ? "chevron-up" : "chevron-down"}
+                size={30}
+                color="#0BC07D"
+              />
             )}
           </View>
         </View>
-        {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
+        {(open || isCart || (isFavorite && currentClass === "Favoritos")) && (
           <View
             onPress={(e) => e.stopPropagation()}
-            minHeight={Platform.OS === 'web' ? 50 : 85}
+            minHeight={Platform.OS === "web" ? 50 : 85}
             borderTopWidth={1}
             borderTopColor="#ccc"
             paddingHorizontal={8}
@@ -354,15 +416,38 @@ const ProductBox = React.memo(
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
-              width: Platform.OS === 'web' ? '70%' : '100%',
-              alignSelf: 'center'
+              width: Platform.OS === "web" ? "70%" : "100%",
+              alignSelf: "center",
             }}
           >
-            <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
-              <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems="center" flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
-                {Platform.OS === 'web' && (
+            <View
+              paddingHorizontal={Platform.OS === "web" ? 10 : 0}
+              flexDirection="row"
+              alignItems="center"
+              marginTop={Platform.OS === "web" ? 0 : 10}
+            >
+              <View
+                justifyContent={
+                  Platform.OS === "web" ? "flex-end" : "flex-start"
+                }
+                alignItems="center"
+                flex={1}
+                mr={Platform.OS === "web" ? 5 : 5}
+                flexDirection="row"
+                gap={8}
+              >
+                {Platform.OS === "web" && (
                   <View alignSelf="flex-start" flex={1}>
-                    <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
+                    <XStack
+                      backgroundColor="#F0F2F6"
+                      flex={1}
+                      paddingRight={14}
+                      borderWidth={0}
+                      borderRadius={20}
+                      alignItems="center"
+                      flexDirection="row"
+                      height={36}
+                    >
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
                         placeholder="Observação para entrega..."
@@ -373,7 +458,7 @@ const ProductBox = React.memo(
                         fontSize={10}
                         maxLength={999}
                         onPressIn={(e) => {
-                          e.stopPropagation()
+                          e.stopPropagation();
                         }}
                         onChangeText={handleObsChange}
                         onBlur={handleBlur}
@@ -386,70 +471,117 @@ const ProductBox = React.memo(
                 {/*botao verde */}
                 <Button
                   onPress={(e) => {
-                    e.stopPropagation()
-                    handleQuantityChange(firstUnit ? firstUnit : 1)
+                    e.stopPropagation();
+                    handleQuantityChange(firstUnit ? firstUnit : 1);
                   }}
-                  backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={
+                    quant === (firstUnit ? firstUnit : 1)
+                      ? "#0BC07D"
+                      : "#F0F2F6"
+                  }
                   height={30}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>{firstUnit ? firstUnit : 1}</Text>
+                  <Text
+                    color={
+                      quant === (firstUnit ? firstUnit : 1) ? "#fff" : "#000"
+                    }
+                  >
+                    {firstUnit ? firstUnit : 1}
+                  </Text>
                 </Button>
                 <Button
                   onPress={(e) => {
-                    e.stopPropagation()
-                    handleQuantityChange(secondUnit ? secondUnit : 5)
+                    e.stopPropagation();
+                    handleQuantityChange(secondUnit ? secondUnit : 5);
                   }}
-                  backgroundColor={quant === (secondUnit ? secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
-                  color={quant === secondUnit ? '#fff' : '#000'}
+                  backgroundColor={
+                    quant === (secondUnit ? secondUnit : 5)
+                      ? "#0BC07D"
+                      : "#F0F2F6"
+                  }
+                  color={quant === secondUnit ? "#fff" : "#000"}
                   height={30}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'}>{secondUnit ? secondUnit : 5}</Text>
+                  <Text
+                    color={
+                      quant === (secondUnit ? secondUnit : 5) ? "#fff" : "#000"
+                    }
+                  >
+                    {secondUnit ? secondUnit : 5}
+                  </Text>
                 </Button>
                 <Button
                   onPress={(e) => {
-                    e.stopPropagation()
-                    handleQuantityChange(thirdUnit ? thirdUnit : 10)
+                    e.stopPropagation();
+                    handleQuantityChange(thirdUnit ? thirdUnit : 10);
                   }}
-                  backgroundColor={quant === (thirdUnit ? thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={
+                    quant === (thirdUnit ? thirdUnit : 10)
+                      ? "#0BC07D"
+                      : "#F0F2F6"
+                  }
                   height={30}
-                  color={quant === thirdUnit ? '#fff' : '#000'}
+                  color={quant === thirdUnit ? "#fff" : "#000"}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (thirdUnit ? thirdUnit : 10) ? '#fff' : '#000'}>{thirdUnit ? thirdUnit : 10}</Text>
+                  <Text
+                    color={
+                      quant === (thirdUnit ? thirdUnit : 10) ? "#fff" : "#000"
+                    }
+                  >
+                    {thirdUnit ? thirdUnit : 10}
+                  </Text>
                 </Button>
               </View>
-              <View alignItems="center" borderColor="#F0F2F6" borderWidth={1} p={4} borderRadius={18} flexDirection="row" gap={16}>
+              <View
+                alignItems="center"
+                borderColor="#F0F2F6"
+                borderWidth={1}
+                p={4}
+                borderRadius={18}
+                flexDirection="row"
+                gap={16}
+              >
                 <Icons
                   name="remove"
                   color="#04BF7B"
                   size={24}
                   onPress={async (e) => {
-                    e.stopPropagation()
-                    handleValueQuantChange(-quant)
+                    e.stopPropagation();
+                    handleValueQuantChange(-quant);
                   }}
                 />
                 <Text>
-                  {valueQuant} {orderUnit.replace('Unid', 'Un')}
+                  {valueQuant} {orderUnit.replace("Unid", "Un")}
                 </Text>
                 <Icons
                   name="add"
                   color="#04BF7B"
                   size={24}
                   onPress={async (e) => {
-                    e.stopPropagation()
-                    handleValueQuantChange(+quant)
+                    e.stopPropagation();
+                    handleValueQuantChange(+quant);
                   }}
                 />
               </View>
             </View>
-            {Platform.OS !== 'web' && (
+            {Platform.OS !== "web" && (
               <View>
-                <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" marginBottom={10} height={36}>
+                <XStack
+                  backgroundColor="#F0F2F6"
+                  paddingRight={14}
+                  borderWidth={0}
+                  borderRadius={20}
+                  alignItems="center"
+                  flexDirection="row"
+                  marginBottom={10}
+                  height={36}
+                >
                   <Input
                     focusVisibleStyle={{ outlineWidth: 0 }}
                     placeholder="Observação para entrega..."
@@ -460,7 +592,7 @@ const ProductBox = React.memo(
                     fontSize={10}
                     maxLength={999}
                     onPressIn={(e) => {
-                      e.stopPropagation()
+                      e.stopPropagation();
                     }}
                     onChangeText={handleObsChange}
                     onBlur={handleBlur}
@@ -472,7 +604,7 @@ const ProductBox = React.memo(
           </View>
         )}
       </Stack>
-    )
+    );
   },
   (prevProps, nextProps) => {
     return prevProps.id === nextProps.id && prevProps.currentClass === nextProps.currentClass && prevProps.favorites.length === nextProps.favorites.length && prevProps.cart.size === nextProps.cart.size
@@ -1174,41 +1306,67 @@ export function Products({ navigation }: HomeScreenProps) {
         navigation={navigation}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
-          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp)
+          const availableRestaurant = restaurantes.find(
+            (r) => !r.registrationReleasedNewApp
+          );
           if (availableRestaurant) {
-            AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
-            setSelectedRestaurant(availableRestaurant.externalId)
-            setShowRegistrationReleasedNewApp(false)
+            AsyncStorage.setItem(
+              "selectedRestaurant",
+              JSON.stringify({ restaurant: availableRestaurant })
+            );
+            setSelectedRestaurant(availableRestaurant.externalId);
+            setShowRegistrationReleasedNewApp(false);
             // Recarregar os dados do novo restaurante
-            loadProducts()
-            loadFavorites()
-            loadCart()
+            loadProducts();
+            loadFavorites();
+            loadCart();
           }
         }}
       />
-      <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
-      <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
+      <DialogFinanceInstance
+        openModal={showFinanceBlock}
+        setRegisterInvalid={setShowFinanceBlock}
+        rest={restaurantes}
+      />
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
         <TouchableOpacity
           style={{
             flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            justifyContent: 'center',
-            alignItems: 'center'
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            justifyContent: "center",
+            alignItems: "center",
           }}
           activeOpacity={1}
           onPress={() => setModalVisible(false)}
         >
-          <View width="100%" height="80%" backgroundColor="white" borderRadius={10} overflow="hidden" justifyContent="center" alignItems="center">
-            <ImageViewer imageUrls={[{ url: image }]} enableSwipeDown={true} onSwipeDown={() => setModalVisible(false)} style={{ width: '100%', height: '100%' }} />
+          <View
+            width="100%"
+            height="80%"
+            backgroundColor="white"
+            borderRadius={10}
+            overflow="hidden"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <ImageViewer
+              imageUrls={[{ url: image }]}
+              enableSwipeDown={true}
+              onSwipeDown={() => setModalVisible(false)}
+              style={{ width: "100%", height: "100%" }}
+            />
             <TouchableOpacity
               style={{
-                position: 'absolute',
+                position: "absolute",
                 top: 30,
                 right: 30,
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                backgroundColor: "rgba(0, 0, 0, 0.6)",
                 borderRadius: 20,
                 padding: 10,
-                zIndex: 1
+                zIndex: 1,
               }}
               onPress={() => setModalVisible(false)}
             >
@@ -1223,10 +1381,10 @@ export function Products({ navigation }: HomeScreenProps) {
       {/*Lista de restaurantes do usuário*/}
       <Text
         style={{
-          marginTop: Platform.OS === 'web' ? 15 : 35,
-          marginLeft: Platform.OS === 'web' ? 23 : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
+          marginTop: Platform.OS === "web" ? 15 : 35,
+          marginLeft: Platform.OS === "web" ? 23 : 15,
+          width: Platform.OS === "web" ? "70%" : "",
+          alignSelf: Platform.OS === "web" ? "center" : "flex-start",
         }}
       >
         Meus Restaurantes
@@ -1238,63 +1396,152 @@ export function Products({ navigation }: HomeScreenProps) {
         value={selectedRestaurant}
         items={restaurantes.map((restaurant) => ({
           label: restaurant.name,
-          value: restaurant.externalId
+          value: restaurant.externalId,
         }))}
         setValue={setSelectedRestaurant}
         onChangeValue={handleRestaurantChoice}
-        placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
+        placeholder={
+          selectedRestaurant ? undefined : "Selecione um restaurante"
+        }
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
         dropDownContainerStyle={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center'
+          width: Platform.OS === "web" ? "68%" : "92%",
+          alignSelf: "center",
         }}
         style={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center',
+          width: Platform.OS === "web" ? "68%" : "92%",
+          alignSelf: "center",
           marginTop: 10,
           marginHorizontal: 15,
           marginRight: 20,
-          borderColor: '#ccc',
+          borderColor: "#ccc",
           borderWidth: 1,
           borderRadius: 5,
-          height: 40
+          height: 40,
         }}
       />
 
       <View height={40} flex={1} paddingTop={8}>
-        <XStack backgroundColor="#F0F2F6" marginTop={30} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" margin={10} style={{ width: Platform.OS === 'web' ? '68.4%' : '', alignSelf: 'center' }}>
-          <Input placeholder="Buscar produtos..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" focusVisibleStyle={{ outlineWidth: 0 }} outlineStyle="none" flex={1} maxLength={50} value={searchQuery} onChangeText={setSearchQuery} />
+        <XStack
+          backgroundColor="#F0F2F6"
+          marginTop={30}
+          paddingRight={14}
+          borderWidth={0}
+          borderRadius={20}
+          alignItems="center"
+          flexDirection="row"
+          margin={10}
+          style={{
+            width: Platform.OS === "web" ? "68.4%" : "",
+            alignSelf: "center",
+          }}
+        >
+          <Input
+            placeholder="Buscar produtos..."
+            backgroundColor="transparent"
+            borderWidth={0}
+            borderColor="transparent"
+            focusVisibleStyle={{ outlineWidth: 0 }}
+            outlineStyle="none"
+            flex={1}
+            maxLength={50}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList style={{ marginTop: -5, maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
+        <FlatList
+          style={{
+            marginTop: -5,
+            maxHeight: Platform.OS === "web" ? 50 : 40,
+            minHeight: Platform.OS === "web" ? 50 : undefined,
+            width: Platform.OS === "web" ? "68%" : undefined,
+            alignSelf: Platform.OS === "web" ? "center" : undefined,
+          }}
+          data={classItems}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item: any) => item.name}
+          renderItem={renderClassItem}
+        />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} borderTopColor="#aaa" borderTopWidth={0.5}>
-          {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
+        <View
+          backgroundColor="#F0F2F6"
+          flex={1}
+          paddingHorizontal={16}
+          paddingTop={5}
+          borderTopColor="#aaa"
+          borderTopWidth={0.5}
+        >
+          {currentClass === "Favoritos" &&
+          favorites.length < 1 &&
+          !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
-              <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
-                Busque os produtos da sua culinária e clique no coração para favoritar.
+              <Text
+                pl={15}
+                marginBottom={5}
+                alignSelf="center"
+                fontSize={14}
+                color="#A9A9A9"
+                textAlign="center"
+              >
+                Busque os produtos da sua culinária e clique no coração para
+                favoritar.
                 <Text> </Text>
               </Text>
-              <Icons name="heart-outline" size={25} color="gray" />
+              <Icons name="heart-outline" size={25} color="green" />
             </View>
           ) : !skeletonLoading ? (
-            Platform.OS === 'android' ? (
-              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} />
+            Platform.OS === "android" ? (
+              <CustomVirtualizedList
+                data={displayedProducts}
+                renderItem={renderProduct}
+                keyExtractor={(item) => item.id}
+                listRef={virtualizedListRef}
+                onScroll={handleScroll}
+                onMomentumScrollBegin={handleScroll}
+                onMomentumScrollEnd={handleScrollEnd}
+              />
             ) : (
-              <CustomFlatList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} listRef={flatListRef} />
+              <CustomFlatList
+                data={displayedProducts}
+                renderItem={renderProduct}
+                keyExtractor={(item) => item.id}
+                onEndReached={loadProducts}
+                onScroll={handleScroll}
+                onMomentumScrollBegin={handleScroll}
+                onMomentumScrollEnd={handleScrollEnd}
+                listRef={flatListRef}
+              />
             )
           ) : (
             <ScrollView>
-              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+              <View
+                flex={1}
+                minHeight={40}
+                borderWidth={1}
+                borderRadius={12}
+                borderColor="#F0F2F6"
+              >
                 {[...Array(7)].map((_, index) => (
-                  <View key={index} justifyContent="space-between" alignItems="center" marginTop={8} paddingHorizontal={8} flexDirection="row" minHeight={80} backgroundColor="white" borderRadius={12}>
+                  <View
+                    key={index}
+                    justifyContent="space-between"
+                    alignItems="center"
+                    marginTop={8}
+                    paddingHorizontal={8}
+                    flexDirection="row"
+                    minHeight={80}
+                    backgroundColor="white"
+                    borderRadius={12}
+                  >
                     <MotiView
                       style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginLeft: Platform.OS === 'web' ? 10 : 0
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginLeft: Platform.OS === "web" ? 10 : 0,
                       }}
                     >
                       <Skeleton colorMode="light" height={60} width={60} />
@@ -1309,8 +1556,26 @@ export function Products({ navigation }: HomeScreenProps) {
             </ScrollView>
           )}
         </View>
-        <View justifyContent="center" alignItems="center" flexDirection="row" gap={30} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
-          <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+        <View
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="row"
+          gap={30}
+          height={55}
+          borderTopWidth={0.2}
+          borderTopColor="lightgray"
+        >
+          <View
+            onPress={() => navigation.replace("Products")}
+            padding={10}
+            marginVertical={10}
+            borderRadius={8}
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width={80}
+            height={70}
+          >
             <Icons name="home" size={20} color="#04BF7B" />
             <Text fontSize={12} color="#04BF7B">
               Home
@@ -1318,10 +1583,10 @@ export function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              setLoading(true)
-              saveCartArray(cart, cartToExclude).catch(console.error)
-              setLoading(false)
-              navigation.replace('Orders')
+              setLoading(true);
+              saveCartArray(cart, cartToExclude).catch(console.error);
+              setLoading(false);
+              navigation.replace("Orders");
             }}
             padding={10}
             marginVertical={10}
@@ -1340,11 +1605,11 @@ export function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              setLoading(true)
-              await saveCartArray(cart, cartToExclude)
-              await Promise.all([clearStorage(), deleteToken()])
-              setLoading(false)
-              navigation.replace('Sign')
+              setLoading(true);
+              await saveCartArray(cart, cartToExclude);
+              await Promise.all([clearStorage(), deleteToken()]);
+              setLoading(false);
+              navigation.replace("Sign");
             }}
             padding={10}
             marginVertical={10}
@@ -1370,10 +1635,11 @@ export function Products({ navigation }: HomeScreenProps) {
         isScrolling={isScrolling}
         visibleProducts={displayedProducts}
         onPress={async () => {
-          setLoading(true)
-          navigation.replace('Cart')
+          setLoading(true);
+          navigation.replace("Cart");
         }}
       />
+      
     </Stack>
-  )
+  );
 }
