@@ -20,7 +20,6 @@ export async function getProgressApi() {
       Authorization: `Bearer ${token}`,
     },
   })
-  console.log('Response do progresso:', response)
   if (!response.ok) {
     console.log('Erro ao buscar progresso:', response)
     throw new Error('Erro ao buscar progresso')

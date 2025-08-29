@@ -41,7 +41,6 @@ export async function loadProgress() {
 
   try {
     const data = await getProgressApi()
-    console.log('Dados do progresso:', data)
     if (data.statusCode === 204) {
       const progressData = {
         progress: {
