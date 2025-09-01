@@ -1,25 +1,22 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform } from 'react-native'
-import {Text, View } from 'tamagui'
+import { Text, View } from 'tamagui'
+import { getStorage } from './utils'
 
 export const VersionInfo = () => {
-    return (
-      <View position="absolute" bottom={2} right={10}>
-        <Text fontSize={10} color="gray">
-           v{process.env.EXPO_PUBLIC_VERSION}
-        </Text>
-      </View>
-    )
-  }
+  return (
+    <View position="absolute" bottom={2} right={10}>
+      <Text fontSize={10} color="gray">
+        v{process.env.EXPO_PUBLIC_VERSION}
+      </Text>
+    </View>
+  )
+}
 
 export const SaveUserAppInfo = async () => {
   try {
-    //const appVersion = DeviceInfo.getVersion()
     const appVersionExpo = process.env.EXPO_PUBLIC_VERSION
     const appOS = Platform.OS
-
-    //Pegar o externalId do restaurante
-    const data = await AsyncStorage.getItem('selectedRestaurant')
+    const data = await getStorage('selectedRestaurant')
     const restaurant = data ? JSON.parse(data) : null
     const externalId = restaurant?.restaurant?.externalId ?? null
     const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
@@ -42,5 +39,28 @@ export const SaveUserAppInfo = async () => {
     })
   } catch (error) {
     console.error('Erro ao salvar dados do app:', error)
+  }
+}
+
+export const checkVersion = async ():Promise<any> => {
+  try {
+    const data = await getStorage('selectedRestaurant')
+    const restaurant = data ? JSON.parse(data) : null
+    const externalId = restaurant?.restaurant?.externalId ?? null
+
+    const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/version/check`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        externalId: externalId
+      })
+    })
+    if (!response.ok) {
+      console.error('Versão do usuário não encontrada:', response)
+    }
+    const json = await response.json()
+    return json
+  } catch (error) {
+    console.error('Erro ao checar versão do app:', error)
   }
 }
