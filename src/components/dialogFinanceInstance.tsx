@@ -1,4 +1,3 @@
-// src/components/DialogFinanceInstance.tsx
 import { Button, XStack, Text } from 'tamagui'
 import * as Linking from 'expo-linking'
 import { BaseDialog } from './BaseDialog'

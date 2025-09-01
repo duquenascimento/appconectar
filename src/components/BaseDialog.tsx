@@ -5,7 +5,7 @@ interface BaseDialogProps {
   open: boolean
   title: string
   description?: string
-  children?: React.ReactNode // aqui você injeta botões, etc.
+  children?: React.ReactNode
 }
 
 export function BaseDialog({ open, title, description, children }: BaseDialogProps) {
