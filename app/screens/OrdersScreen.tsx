@@ -12,7 +12,7 @@ import { clearStorage, deleteToken } from '../utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { VersionInfo } from '../utils/VersionApp'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
-import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 
 //type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
