@@ -1034,7 +1034,14 @@ export function Products({ navigation }: HomeScreenProps) {
           }
         } else {
           if (!newCart.has(cart.productId)) {
-            cart.addOrder = newCart.size + 1
+            const items = [...newCart].sort(
+              (a, b) => a[1].addOrder - b[1].addOrder
+            )
+            console.log(JSON.stringify(items, null, 2))
+            const lastItem = items[items.length - 1]
+
+            console.log('Last Item: ', lastItem)
+            cart.addOrder = lastItem[1].addOrder + 1
           } else {
             cart.addOrder = newCart.get(cart.productId)!.addOrder
           }
