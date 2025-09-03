@@ -1,10 +1,12 @@
-import { View, Text, Stack, Button, XStack, Input, Image, debounce } from 'tamagui'
+import { View, Text, Stack, Button, XStack, Input, debounce } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
 import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
+import { filterCarts } from '../utils/filterCarts'
+import { CustomImageBadge } from '@/src/components/image/customImageBadge'
 
 type RootStackParamList = {
   Home: undefined
@@ -109,7 +111,13 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
   }
 
   return (
-    <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+    <View
+      flex={1}
+      minHeight={40}
+      borderWidth={1}
+      borderRadius={12}
+      borderColor="#F0F2F6"
+    >
       <View
         onPress={toggleOpen}
         flex={1}
@@ -124,15 +132,18 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
         borderBottomLeftRadius={open ? 0 : 12}
         borderBottomRightRadius={open ? 0 : 12}
         style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: 'center'
+          width: Platform.OS === "web" ? "70%" : "92%",
+          alignSelf: "center",
         }}
       >
         <View flexDirection="row" alignItems="center">
           <View p={Platform.OS === 'web' ? 10 : 5}>
-            <View>
-              <Image source={{ uri: produto.image[0] }} width={60} height={60} />
-            </View>
+            <CustomImageBadge 
+              uri={produto.image[0]} 
+              badgeText={produto.orderUnit} 
+              badgeTextSize={10}
+              badgeColor="#0BC07D" 
+            />
             <View
               ml={Platform.OS === 'web' ? 10 : 5}
               onPress={() => {
@@ -157,55 +168,213 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
           <View marginLeft={8} maxWidth={162}>
             <Text fontSize={12}>{produto.name}</Text>
             <Text color="#aaa" fontSize={10}>
-              Obs.: {obsC || '--'}
+              Obs.: {obsC || "--"}
             </Text>
           </View>
         </View>
-        <View mr={Platform.OS === 'web' ? 10 : 5} gap={Platform.OS === 'web' ? 15 : 0} flexDirection="row" alignItems="center">
+        <View
+          mr={Platform.OS === "web" ? 10 : 5}
+          gap={Platform.OS === "web" ? 15 : 0}
+          flexDirection="row"
+          alignItems="center"
+        >
           <Text fontWeight="800">
-            {valueQuant} {produto.orderUnit.replace('Unid', 'Un')}
+            {valueQuant} {produto.orderUnit.replace("Unid", "Un")}
           </Text>
-          <Icons name={open ? 'chevron-up' : 'chevron-down'} paddingLeft={10} size={25} color="lightgray" />
+          <Icons
+            name={open ? "chevron-up" : "chevron-down"}
+            paddingLeft={10}
+            size={25}
+            color="lightgray"
+          />
         </View>
       </View>
       {open && (
-        <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} width={Platform.OS === 'web' ? '70%' : '92%'} alignSelf="center" gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
-          <View paddingHorizontal={Platform.OS === 'web' ? 10 : 5} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
-            <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} flex={1} alignItems="center" mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
-              {Platform.OS === 'web' && (
+        <View
+          borderTopColor="#ccc"
+          borderTopWidth={1}
+          minHeight={Platform.OS === "web" ? 50 : 85}
+          width={Platform.OS === "web" ? "70%" : "92%"}
+          alignSelf="center"
+          gap={8}
+          borderBottomWidth={0}
+          borderBottomLeftRadius={12}
+          borderBottomRightRadius={12}
+          backgroundColor="white"
+          justifyContent="center"
+        >
+          <View
+            paddingHorizontal={Platform.OS === "web" ? 10 : 5}
+            flexDirection="row"
+            alignItems="center"
+            marginTop={Platform.OS === "web" ? 0 : 10}
+          >
+            <View
+              justifyContent={Platform.OS === "web" ? "flex-end" : "flex-start"}
+              flex={1}
+              alignItems="center"
+              mr={Platform.OS === "web" ? 35 : 0}
+              flexDirection="row"
+              gap={8}
+            >
+              {Platform.OS === "web" && (
                 <View alignSelf="flex-start" flex={1}>
-                  <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" zIndex={20} height={36}>
-                    <Input focusVisibleStyle={{ outlineWidth: 0 }} placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onChangeText={handleObsChange} value={obsC} />
+                  <XStack
+                    backgroundColor="#F0F2F6"
+                    paddingRight={14}
+                    borderWidth={0}
+                    borderRadius={20}
+                    alignItems="center"
+                    flexDirection="row"
+                    zIndex={20}
+                    height={36}
+                  >
+                    <Input
+                      focusVisibleStyle={{ outlineWidth: 0 }}
+                      placeholder="Observação para entrega..."
+                      backgroundColor="transparent"
+                      borderWidth={0}
+                      borderColor="transparent"
+                      flex={1}
+                      fontSize={10}
+                      maxLength={999}
+                      onChangeText={handleObsChange}
+                      value={obsC}
+                    />
                   </XStack>
                 </View>
               )}
-              <Button onPress={() => handleQuantityChange(produto.firstUnit ? produto.firstUnit : 1)} backgroundColor={quant === (produto.firstUnit ? produto.firstUnit : 1) ? '#0BC07D' : '#F0F2F6'} height={30} minWidth={48} borderRadius={12}>
-                <Text color={quant === (produto.firstUnit ? produto.firstUnit : 1) ? '#fff' : '#000'}>{produto.firstUnit ? produto.firstUnit : 1}</Text>
+              <Button
+                onPress={() =>
+                  handleQuantityChange(
+                    produto.firstUnit ? produto.firstUnit : 1
+                  )
+                }
+                backgroundColor={
+                  quant === (produto.firstUnit ? produto.firstUnit : 1)
+                    ? "#0BC07D"
+                    : "#F0F2F6"
+                }
+                height={30}
+                minWidth={48}
+                borderRadius={12}
+              >
+                <Text
+                  color={
+                    quant === (produto.firstUnit ? produto.firstUnit : 1)
+                      ? "#fff"
+                      : "#000"
+                  }
+                >
+                  {produto.firstUnit ? produto.firstUnit : 1}
+                </Text>
               </Button>
-              <Button onPress={() => handleQuantityChange(produto.secondUnit ? produto.secondUnit : 5)} backgroundColor={quant === (produto.secondUnit ? produto.secondUnit : 5) ? '#0BC07D' : '#F0F2F6'} height={30} minWidth={48} borderRadius={12}>
-                <Text color={quant === (produto.secondUnit ? produto.secondUnit : 5) ? '#fff' : '#000'}>{produto.secondUnit ? produto.secondUnit : 5}</Text>
+              <Button
+                onPress={() =>
+                  handleQuantityChange(
+                    produto.secondUnit ? produto.secondUnit : 5
+                  )
+                }
+                backgroundColor={
+                  quant === (produto.secondUnit ? produto.secondUnit : 5)
+                    ? "#0BC07D"
+                    : "#F0F2F6"
+                }
+                height={30}
+                minWidth={48}
+                borderRadius={12}
+              >
+                <Text
+                  color={
+                    quant === (produto.secondUnit ? produto.secondUnit : 5)
+                      ? "#fff"
+                      : "#000"
+                  }
+                >
+                  {produto.secondUnit ? produto.secondUnit : 5}
+                </Text>
               </Button>
-              <Button onPress={() => handleQuantityChange(produto.thirdUnit ? produto.thirdUnit : 10)} backgroundColor={quant === (produto.thirdUnit ? produto.thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'} height={30} minWidth={48} borderRadius={12}>
-                <Text color={quant === (produto.thirdUnit ? produto.thirdUnit : 10) ? '#fff' : '#000'}>{produto.thirdUnit ? produto.thirdUnit : 10}</Text>
+              <Button
+                onPress={() =>
+                  handleQuantityChange(
+                    produto.thirdUnit ? produto.thirdUnit : 10
+                  )
+                }
+                backgroundColor={
+                  quant === (produto.thirdUnit ? produto.thirdUnit : 10)
+                    ? "#0BC07D"
+                    : "#F0F2F6"
+                }
+                height={30}
+                minWidth={48}
+                borderRadius={12}
+              >
+                <Text
+                  color={
+                    quant === (produto.thirdUnit ? produto.thirdUnit : 10)
+                      ? "#fff"
+                      : "#000"
+                  }
+                >
+                  {produto.thirdUnit ? produto.thirdUnit : 10}
+                </Text>
               </Button>
             </View>
-            <View borderColor="#F0F2F6" borderWidth={1} p={3} borderRadius={18} flexDirection="row" justifyContent="flex-end" gap={16}>
-              <Icons name="remove" color="#04BF7B" size={24} onPress={() => handleValueQuantChange(-quant)} />
+            <View
+              borderColor="#F0F2F6"
+              borderWidth={1}
+              p={3}
+              borderRadius={18}
+              flexDirection="row"
+              justifyContent="flex-end"
+              gap={16}
+            >
+              <Icons
+                name="remove"
+                color="#04BF7B"
+                size={24}
+                onPress={() => handleValueQuantChange(-quant)}
+              />
               <Text>{valueQuant}</Text>
-              <Icons name="add" color="#04BF7B" size={24} onPress={() => handleValueQuantChange(quant)} />
+              <Icons
+                name="add"
+                color="#04BF7B"
+                size={24}
+                onPress={() => handleValueQuantChange(quant)}
+              />
             </View>
           </View>
-          {Platform.OS !== 'web' && (
+          {Platform.OS !== "web" && (
             <View>
-              <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36} marginBottom={5}>
-                <Input focusVisibleStyle={{ outlineWidth: 0 }} placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onChangeText={handleObsChange} value={obsC} />
+              <XStack
+                backgroundColor="#F0F2F6"
+                paddingRight={14}
+                borderWidth={0}
+                borderRadius={20}
+                alignItems="center"
+                flexDirection="row"
+                height={36}
+                marginBottom={5}
+              >
+                <Input
+                  focusVisibleStyle={{ outlineWidth: 0 }}
+                  placeholder="Observação para entrega..."
+                  backgroundColor="transparent"
+                  borderWidth={0}
+                  borderColor="transparent"
+                  flex={1}
+                  fontSize={10}
+                  maxLength={999}
+                  onChangeText={handleObsChange}
+                  value={obsC}
+                />
               </XStack>
             </View>
           )}
         </View>
       )}
     </View>
-  )
+  );
 })
 
 ProductBox.displayName = 'ProductBox'
@@ -388,7 +557,11 @@ export function Cart({ navigation }: HomeScreenProps) {
 
   const saveCartArray = useCallback(async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
     const token = await getToken()
-    if (token == null) return []
+    if (token == null) return []    
+    const cartsArray = Array.from(carts.values())
+    const cartsToExcludeArray = Array.from(cartsToExclude.values()) 
+    const cartsFiltered = filterCarts(cartsArray, cartsToExcludeArray)
+
     await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
       method: 'POST',
       headers: {
@@ -396,8 +569,8 @@ export function Cart({ navigation }: HomeScreenProps) {
       },
       body: JSON.stringify({
         token,
-        carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values())
+        carts: cartsFiltered.carts,
+        cartToExclude: cartsFiltered.cartToExclude
       })
     })
     setCartToExclude(new Map())
