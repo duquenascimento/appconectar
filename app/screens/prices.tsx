@@ -10,7 +10,7 @@ import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o C
 import { loadPermissionConectarPlus, loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../utils/formatCampos'
-import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import {DialogComercialInstance} from '@/src/components/dialogComercialInstance'
 import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
 import CombinationList, { Combination } from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
