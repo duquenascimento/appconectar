@@ -516,6 +516,8 @@ export function Products({ navigation }: HomeScreenProps) {
   const { productsContext, isLoading } = useProductContext()
 
   useEffect(() => {
+    if (Platform.OS === 'web') return
+    
     const runCheck = async () => {
       const result = await checkVersion()
 
