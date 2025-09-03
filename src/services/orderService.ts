@@ -1,3 +1,4 @@
+import { Supplier } from '@/app/screens/QuotationDetailsScreen';
 import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -48,4 +49,22 @@ export const cancelOrder = async (orderId: string) => {
         throw error;
     }
 };
+
+export const createOrderPremium = async (body: { token: string; suppliers: Supplier[]; restaurant: any; }) => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/confirm/conectar-plus`,
+        body,
+        {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+      );
+      return response;
+    } catch (error) {
+      console.error('Erro ao obter cotações por restaurante:', error);
+      throw error;
+    }
+  };
 

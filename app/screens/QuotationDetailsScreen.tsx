@@ -9,6 +9,9 @@ import CustomButton from '../../src/components/button/customButton'
 import { deleteMultiStorage, getStorage, getToken } from '../utils/utils'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 import { LoadingConfirm } from '@/src/components/loading/confirmOrder'
+import { formatCurrency } from '../utils/formatCurrency'
+import { createOrderPremium } from '@/src/services/orderService'
+import { processOrderResponse } from '../utils/processOrderResponse'
 export interface Product {
   price: number
   priceWithoutTax: number
@@ -55,7 +58,7 @@ type RootStackParamList = {
   Products: undefined
   Cart: undefined
   Prices: undefined
-  OrderConfirmed: { suppliers: SupplierData[] }
+  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string }
   QuotationDetails: {
     combinationId: string
     combinationName?: string
@@ -96,57 +99,65 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     )
   }, [suppliers])
 
-  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`
   const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN')
 
   const handleBackPress = () => navigation.goBack()
   const handleConfirm = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const token = await getToken()
+      const token = await getToken();
       if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.')
-        return
+        Alert.alert("Erro", "Token de autenticação não encontrado.");
+        return;
       }
 
-      const storedRestaurant = await getStorage('selectedRestaurant')
+      const storedRestaurant = await getStorage("selectedRestaurant");
       if (!storedRestaurant) {
-        Alert.alert('Erro', 'Restaurante não encontrado.')
-        return
+        Alert.alert("Erro", "Restaurante não encontrado.");
+        return;
       }
 
-      const parsedRestaurant = JSON.parse(storedRestaurant)
+      const parsedRestaurant = JSON.parse(storedRestaurant);
 
       const body = {
         token,
         suppliers: suppliers.map((s) => s.supplier),
-        restaurant: parsedRestaurant
-      }
+        restaurant: parsedRestaurant,
+      };
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/conectar-plus`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      })
+      const createdOrders = await createOrderPremium(body);
+      if (createdOrders && createdOrders.status === 201) {
+        deleteMultiStorage(["cartOrder", "cart"]);
+        const deliveryDateFormated =
+          createdOrders.data.data[0].deliveryDateFormated;
 
-      if (response.ok) {
-        await response.json()
-        deleteMultiStorage(['cartOrder', 'cart'])
-        
-        navigation.navigate('OrderConfirmed', { suppliers: suppliers })
+        const ordersBySupplier = createdOrders.data.data.map(
+          (item: { orderId: string; externalId: string }) => ({
+            orderId: item.orderId,
+            externalId: item.externalId,
+          })
+        );
+
+        const supplierWithOrderId = processOrderResponse(
+          suppliers,
+          ordersBySupplier
+        );
+
+        navigation.navigate("OrderConfirmed", {
+          suppliers: supplierWithOrderId,
+          deliveryDate: deliveryDateFormated,
+        });
       } else {
-        Alert.alert('Erro', 'Erro ao confirmar a combinação.')
-        setIsAlertVisible(true)
+        Alert.alert("Erro", "Erro ao confirmar a combinação.");
+        setIsAlertVisible(true);
       }
     } catch (error) {
-      console.error('Erro ao confirmar a combinação:', error)
-      Alert.alert('Erro', 'Ocorreu um erro inesperado.')
-    }finally {
-      setIsLoading(false)
+      console.error("Erro ao confirmar a combinação:", error);
+      Alert.alert("Erro", "Ocorreu um erro inesperado.");
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!suppliers || suppliers.length === 0) {
     return (
