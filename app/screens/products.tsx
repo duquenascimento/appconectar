@@ -1,4 +1,4 @@
-import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
+import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView } from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
 import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
@@ -8,17 +8,18 @@ import ImageViewer from 'react-native-image-zoom-viewer'
 import { MotiView } from 'moti'
 import { Skeleton } from 'moti/skeleton'
 import { clearStorage, deleteStorage, deleteToken, getStorage, getToken, setStorage } from '../utils/utils'
-import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
+import { VersionInfo, SaveUserAppInfo, checkVersion } from '../utils/VersionApp'
 import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
 import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
-import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
 import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
 import { useProductContext } from '@/src/contexts/produtos.context'
 import { filterCarts } from '../utils/filterCarts'
+import { UpdateAppModal } from '@/src/components/UpdateAppModal'
+import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance'
 
 export type Product = {
   name: string
@@ -85,87 +86,6 @@ type ProductBoxProps = Product & {
   productObservations: Map<string, string>
   setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
   saveProductObservations?: (map: Map<string, string>) => Promise<void>
-}
-
-export function DialogFinanceInstance(props: { openModal: boolean; setRegisterInvalid: Function; rest: any }) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true
-              }
-            }
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title mx="auto">Conta bloqueada</Dialog.Title>
-          <Dialog.Description>Informamos que sua conta está bloqueada devido a pendências com a plataforma. Por favor, entre em contato agora para desbloquear a sua conta</Dialog.Description>
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="$red9"
-                color="$white1"
-                onPress={async () => {
-                  const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
-${props.rest.map(
-  (item: any) => `
-- ${item.name}`
-)}
-
-Consegue me ajudar?`)
-                    .replace('!', '%21')
-                    .replace("'", '%27')
-                    .replace('(', '%28')
-                    .replace(')', '%29')
-                    .replace('*', '%2A')
-                  await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
-                }}
-              >
-                Entre em contato
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  )
 }
 
 const ProductBox = React.memo(
@@ -587,7 +507,26 @@ export function Products({ navigation }: HomeScreenProps) {
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
   const [productObservations, setProductObservations] = useState(new Map())
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size)
+  const [updateRequired, setUpdateRequired] = useState(false)
+  const [updateMessage, setUpdateMessage] = useState('')
   const { productsContext, isLoading } = useProductContext()
+
+  useEffect(() => {
+    if (Platform.OS === 'web') return
+    
+    const runCheck = async () => {
+      const result = await checkVersion()
+
+      if (result?.result?.updateRequired) {
+        setUpdateRequired(true)
+        setUpdateMessage(result.result.message ?? '')
+      } else {
+        setUpdateRequired(false)
+        setUpdateMessage('')
+      }
+    }
+    runCheck()
+  }, [])
 
   useEffect(() => {
     SaveUserAppInfo()
@@ -763,7 +702,7 @@ export function Products({ navigation }: HomeScreenProps) {
       const token = await getToken()
       if (token == null) return
       const cartsArray = Array.from(carts.values())
-      const cartsToExcludeArray = Array.from(cartsToExclude.values()) 
+      const cartsToExcludeArray = Array.from(cartsToExclude.values())
       const cartsFiltered = filterCarts(cartsArray, cartsToExcludeArray)
 
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
@@ -1182,6 +1121,7 @@ export function Products({ navigation }: HomeScreenProps) {
           }
         }}
       />
+      <UpdateAppModal openModal={updateRequired} message={updateMessage} />
       <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
       <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
