@@ -36,7 +36,7 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer independent={true}>
+    <NavigationContainer>
       <TamaguiProvider config={config}>
         <ProductProvider>
           <CombinacaoProvider>
