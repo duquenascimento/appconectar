@@ -33,20 +33,24 @@ import {
   getStorage,
   getToken,
   setStorage
-} from '../../src/utils/utils'
+} from '../src/utils/utils'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo, SaveUserAppInfo, checkVersion } from '../../src/utils/VersionApp'
-import CustomFlatList from '../../src/utils/FlatList_VirtualizeList/FlatList_Products'
-import CustomVirtualizedList from '../../src/utils/FlatList_VirtualizeList/VirtualizeList_Products'
+import {
+  VersionInfo,
+  SaveUserAppInfo,
+  checkVersion
+} from '../src/utils/VersionApp'
+import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products'
+import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products'
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
 import {
   saveProductObservations,
   loadProductObservations
-} from '../../src/utils/productObservation'
+} from '../src/utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
 import { useProductContext } from '@/src/contexts/produtos.context'
-import { filterCarts } from '../../src/utils/filterCarts'
+import { filterCarts } from '../src/utils/filterCarts'
 import { UpdateAppModal } from '@/src/components/UpdateAppModal'
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
@@ -328,11 +332,11 @@ const ProductBox = React.memo(
         >
           <View flexDirection="row" alignItems="center">
             <View
-              p={Platform.OS === "web" ? 10 : 0}
+              p={Platform.OS === 'web' ? 10 : 0}
               onPress={(e) => {
-                e.stopPropagation();
-                setImage(image[0]);
-                setModalVisible(true);
+                e.stopPropagation()
+                setImage(image[0])
+                setModalVisible(true)
               }}
             >
               <CustomImageBadge
@@ -342,7 +346,7 @@ const ProductBox = React.memo(
                 badgeTextSize={10}
               />
             </View>
-            <View marginLeft={8} maxWidth={Platform.OS === "web" ? 130 : 130}>
+            <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 130 : 130}>
               <Text fontSize={12}>{name}</Text>
             </View>
           </View>
@@ -377,7 +381,7 @@ const ProductBox = React.memo(
                 <Text fontSize={12} fontWeight="800">
                   {valueQuant}
                   <Text fontSize={8} color="gray">
-                    {orderUnit.replace("Unid", "Un")}
+                    {orderUnit.replace('Unid', 'Un')}
                   </Text>
                 </Text>
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
@@ -391,10 +395,10 @@ const ProductBox = React.memo(
             )}
           </View>
         </View>
-        {(open || isCart || (isFavorite && currentClass === "Favoritos")) && (
+        {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
           <View
             onPress={(e) => e.stopPropagation()}
-            minHeight={Platform.OS === "web" ? 50 : 85}
+            minHeight={Platform.OS === 'web' ? 50 : 85}
             borderTopWidth={1}
             borderTopColor="#ccc"
             paddingHorizontal={8}
@@ -406,8 +410,8 @@ const ProductBox = React.memo(
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
-              width: Platform.OS === "web" ? "70%" : "100%",
-              alignSelf: "center",
+              width: Platform.OS === 'web' ? '70%' : '100%',
+              alignSelf: 'center'
             }}
           >
             <View
@@ -448,7 +452,7 @@ const ProductBox = React.memo(
                         fontSize={10}
                         maxLength={999}
                         onPressIn={(e) => {
-                          e.stopPropagation();
+                          e.stopPropagation()
                         }}
                         onChangeText={handleObsChange}
                         onBlur={handleBlur}
@@ -461,8 +465,8 @@ const ProductBox = React.memo(
                 {/*botao verde */}
                 <Button
                   onPress={(e) => {
-                    e.stopPropagation();
-                    handleQuantityChange(firstUnit ? firstUnit : 1);
+                    e.stopPropagation()
+                    handleQuantityChange(firstUnit ? firstUnit : 1)
                   }}
                   backgroundColor={
                     quant === (firstUnit ? firstUnit : 1)
@@ -483,8 +487,8 @@ const ProductBox = React.memo(
                 </Button>
                 <Button
                   onPress={(e) => {
-                    e.stopPropagation();
-                    handleQuantityChange(secondUnit ? secondUnit : 5);
+                    e.stopPropagation()
+                    handleQuantityChange(secondUnit ? secondUnit : 5)
                   }}
                   backgroundColor={
                     quant === (secondUnit ? secondUnit : 5)
@@ -506,8 +510,8 @@ const ProductBox = React.memo(
                 </Button>
                 <Button
                   onPress={(e) => {
-                    e.stopPropagation();
-                    handleQuantityChange(thirdUnit ? thirdUnit : 10);
+                    e.stopPropagation()
+                    handleQuantityChange(thirdUnit ? thirdUnit : 10)
                   }}
                   backgroundColor={
                     quant === (thirdUnit ? thirdUnit : 10)
@@ -515,7 +519,7 @@ const ProductBox = React.memo(
                       : '#F0F2F6'
                   }
                   height={30}
-                  color={quant === thirdUnit ? "#fff" : "#000"}
+                  color={quant === thirdUnit ? '#fff' : '#000'}
                   minWidth={48}
                   borderRadius={12}
                 >
@@ -542,25 +546,25 @@ const ProductBox = React.memo(
                   color="#04BF7B"
                   size={24}
                   onPress={async (e) => {
-                    e.stopPropagation();
-                    handleValueQuantChange(-quant);
+                    e.stopPropagation()
+                    handleValueQuantChange(-quant)
                   }}
                 />
                 <Text>
-                  {valueQuant} {orderUnit.replace("Unid", "Un")}
+                  {valueQuant} {orderUnit.replace('Unid', 'Un')}
                 </Text>
                 <Icons
                   name="add"
                   color="#04BF7B"
                   size={24}
                   onPress={async (e) => {
-                    e.stopPropagation();
-                    handleValueQuantChange(+quant);
+                    e.stopPropagation()
+                    handleValueQuantChange(+quant)
                   }}
                 />
               </View>
             </View>
-            {Platform.OS !== "web" && (
+            {Platform.OS !== 'web' && (
               <View>
                 <XStack
                   backgroundColor="#F0F2F6"
@@ -582,7 +586,7 @@ const ProductBox = React.memo(
                     fontSize={10}
                     maxLength={999}
                     onPressIn={(e) => {
-                      e.stopPropagation();
+                      e.stopPropagation()
                     }}
                     onChangeText={handleObsChange}
                     onBlur={handleBlur}
@@ -594,7 +598,7 @@ const ProductBox = React.memo(
           </View>
         )}
       </Stack>
-    );
+    )
   },
   (prevProps, nextProps) => {
     return (
@@ -1515,9 +1519,9 @@ export default function Products({ navigation }: HomeScreenProps) {
             setSelectedRestaurant(availableRestaurant.externalId)
             setShowRegistrationReleasedNewApp(false)
             // Recarregar os dados do novo restaurante
-            loadProducts();
-            loadFavorites();
-            loadCart();
+            loadProducts()
+            loadFavorites()
+            loadCart()
           }
         }}
       />
@@ -1535,9 +1539,9 @@ export default function Products({ navigation }: HomeScreenProps) {
         <TouchableOpacity
           style={{
             flex: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            justifyContent: "center",
-            alignItems: "center",
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}
           activeOpacity={1}
           onPress={() => setModalVisible(false)}
@@ -1559,13 +1563,13 @@ export default function Products({ navigation }: HomeScreenProps) {
             />
             <TouchableOpacity
               style={{
-                position: "absolute",
+                position: 'absolute',
                 top: 30,
                 right: 30,
-                backgroundColor: "rgba(0, 0, 0, 0.6)",
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 borderRadius: 20,
                 padding: 10,
-                zIndex: 1,
+                zIndex: 1
               }}
               onPress={() => setModalVisible(false)}
             >
@@ -1580,10 +1584,10 @@ export default function Products({ navigation }: HomeScreenProps) {
       {/*Lista de restaurantes do usuário*/}
       <Text
         style={{
-          marginTop: Platform.OS === "web" ? 15 : 35,
-          marginLeft: Platform.OS === "web" ? 23 : 15,
-          width: Platform.OS === "web" ? "70%" : "",
-          alignSelf: Platform.OS === "web" ? "center" : "flex-start",
+          marginTop: Platform.OS === 'web' ? 15 : 35,
+          marginLeft: Platform.OS === 'web' ? 23 : 15,
+          width: Platform.OS === 'web' ? '70%' : '',
+          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
         }}
       >
         Meus Restaurantes
@@ -1595,7 +1599,7 @@ export default function Products({ navigation }: HomeScreenProps) {
         value={selectedRestaurant}
         items={restaurantes.map((restaurant) => ({
           label: restaurant.name,
-          value: restaurant.externalId,
+          value: restaurant.externalId
         }))}
         setValue={setSelectedRestaurant}
         onChangeValue={handleRestaurantChoice}
@@ -1605,19 +1609,19 @@ export default function Products({ navigation }: HomeScreenProps) {
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
         dropDownContainerStyle={{
-          width: Platform.OS === "web" ? "68%" : "92%",
-          alignSelf: "center",
+          width: Platform.OS === 'web' ? '68%' : '92%',
+          alignSelf: 'center'
         }}
         style={{
-          width: Platform.OS === "web" ? "68%" : "92%",
-          alignSelf: "center",
+          width: Platform.OS === 'web' ? '68%' : '92%',
+          alignSelf: 'center',
           marginTop: 10,
           marginHorizontal: 15,
           marginRight: 20,
-          borderColor: "#ccc",
+          borderColor: '#ccc',
           borderWidth: 1,
           borderRadius: 5,
-          height: 40,
+          height: 40
         }}
       />
 
@@ -1738,9 +1742,9 @@ export default function Products({ navigation }: HomeScreenProps) {
                   >
                     <MotiView
                       style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        marginLeft: Platform.OS === "web" ? 10 : 0,
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginLeft: Platform.OS === 'web' ? 10 : 0
                       }}
                     >
                       <Skeleton colorMode="light" height={60} width={60} />
@@ -1782,10 +1786,10 @@ export default function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              setLoading(true);
-              saveCartArray(cart, cartToExclude).catch(console.error);
-              setLoading(false);
-              navigation.replace("Orders");
+              setLoading(true)
+              saveCartArray(cart, cartToExclude).catch(console.error)
+              setLoading(false)
+              navigation.replace('Orders')
             }}
             padding={10}
             marginVertical={10}
@@ -1804,11 +1808,11 @@ export default function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              setLoading(true);
-              await saveCartArray(cart, cartToExclude);
-              await Promise.all([clearStorage(), deleteToken()]);
-              setLoading(false);
-              navigation.replace("Sign");
+              setLoading(true)
+              await saveCartArray(cart, cartToExclude)
+              await Promise.all([clearStorage(), deleteToken()])
+              setLoading(false)
+              navigation.replace('Sign')
             }}
             padding={10}
             marginVertical={10}
@@ -1834,11 +1838,10 @@ export default function Products({ navigation }: HomeScreenProps) {
         isScrolling={isScrolling}
         visibleProducts={displayedProducts}
         onPress={async () => {
-          setLoading(true);
-          navigation.replace("Cart");
+          setLoading(true)
+          navigation.replace('Cart')
         }}
       />
-      
     </Stack>
-  );
+  )
 }

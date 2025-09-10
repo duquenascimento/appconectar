@@ -1,17 +1,27 @@
 import { Stack, Text, View, Image, Button, Input, ScrollView } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, VirtualizedList, Dimensions } from 'react-native'
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  VirtualizedList,
+  Dimensions
+} from 'react-native'
 import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { clearStorage, getToken, setStorage } from '../../src/utils/utils'
-import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
-import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o CustomAlert
-import { loadPermissionConectarPlus, loadRestaurants } from '../../src/services/restaurantService'
+import { clearStorage, getToken, setStorage } from '../src/utils/utils'
+import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
+import CustomAlert from '../src/components/modais/CustomAlert' // Importe o CustomAlert
+import {
+  loadPermissionConectarPlus,
+  loadRestaurants
+} from '../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { campoString } from '../../src/utils/formatCampos'
-import {DialogComercialInstance} from '@/src/components/dialogComercialInstance'
-import { HomeScreenPropsUtils } from '../../src/utils/NavigationTypes'
+import { campoString } from '../src/utils/formatCampos'
+import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
+import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes'
 import CombinationList, { Combination } from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
@@ -88,11 +98,39 @@ const getScreenSize = () => {
   return width >= 1024 ? 'lg/xl' : 'sm/md'
 }
 
-const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: { supplier: SupplierData; star: string; available: boolean; selectedRestaurant: any; goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void }) => {
+const SupplierBox = ({
+  supplier,
+  available,
+  goToConfirm,
+  selectedRestaurant
+}: {
+  supplier: SupplierData
+  star: string
+  available: boolean
+  selectedRestaurant: any
+  goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void
+}) => {
   const isOpen = () => {
     const currentDate = DateTime.now().setZone('America/Sao_Paulo')
-    const currentHour = Number(`${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`)
-    return Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour && supplier.supplier.missingItens > 0
+    const currentHour = Number(
+      `${
+        currentDate.hour.toString().length < 2
+          ? `0${currentDate.hour}`
+          : currentDate.hour
+      }${
+        currentDate.minute.toString().length < 2
+          ? `0${currentDate.minute}`
+          : currentDate.minute
+      }${
+        currentDate.second.toString().length < 2
+          ? `0${currentDate.second}`
+          : currentDate.second
+      }`
+    )
+    return (
+      Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour &&
+      supplier.supplier.missingItens > 0
+    )
   }
 
   return (
@@ -107,7 +145,12 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
       borderBottomWidth={0.1}
       borderBottomColor="lightgray"
     >
-      <View style={{ paddingLeft: Platform.OS === 'web' ? '20vw' : '' }} marginVertical={10} flexDirection="row" f={1}>
+      <View
+        style={{ paddingLeft: Platform.OS === 'web' ? '20vw' : '' }}
+        marginVertical={10}
+        flexDirection="row"
+        f={1}
+      >
         <View p={5}>
           <Image
             source={{
@@ -119,26 +162,47 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
           />
         </View>
         <View ml={10} maxWidth="75%" justifyContent="center">
-          <Text fs={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
+          <Text fs={16}>
+            {supplier.supplier.name.replace('Distribuidora', '')}
+          </Text>
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star"></Icons>
             <Text pl={4}>{supplier.supplier.star}</Text>
           </View>
         </View>
       </View>
-      <View style={{ paddingRight: Platform.OS === 'web' ? '10vw' : '' }} justifyContent="center">
+      <View
+        style={{ paddingRight: Platform.OS === 'web' ? '10vw' : '' }}
+        justifyContent="center"
+      >
         <View>
           <Text textAlign="right" fontSize={16} fontWeight="800">
-            R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
+            R${' '}
+            {supplier.supplier.discount.orderValueFinish
+              .toFixed(2)
+              .replace('.', ',')}
           </Text>
           {available ? (
-            <Text color={supplier.supplier.discount.product.length - supplier.supplier.missingItens > 0 ? 'red' : 'black'} fontSize={12}>
-              {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)
+            <Text
+              color={
+                supplier.supplier.discount.product.length -
+                  supplier.supplier.missingItens >
+                0
+                  ? 'red'
+                  : 'black'
+              }
+              fontSize={12}
+            >
+              {supplier.supplier.discount.product.length -
+                supplier.supplier.missingItens}{' '}
+              iten(s) faltante(s)
             </Text>
           ) : (
             <>
               <Text color="red" fontSize={12}>
-                {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)
+                {supplier.supplier.discount.product.length -
+                  supplier.supplier.missingItens}{' '}
+                iten(s) faltante(s)
               </Text>
               {isOpen() ? (
                 <Text color="red" fontSize={12}>
@@ -154,7 +218,11 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
           )}
         </View>
       </View>
-      <View pl={10} justifyContent="center" style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}>
+      <View
+        pl={10}
+        justifyContent="center"
+        style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}
+      >
         {available && <Icons name="chevron-forward" size={24}></Icons>}
       </View>
     </View>
@@ -178,8 +246,10 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
   const [localNumber, setLocalNumber] = useState<string>('')
   const [neighborhood, setNeighborhood] = useState<string>()
   const [streetComplete, setStreetComplete] = useState<string>('') // para exibir
-  const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>()
-  const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>()
+  const [responsibleReceivingName, setResponsibleReceivingName] =
+    useState<string>()
+  const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] =
+    useState<string>()
   const [deliveryInformation, setDeliveryInformation] = useState<string>()
   const [complement, setComplement] = useState<string>()
   const [tab, setTab] = useState<string>('onlySupplier')
@@ -191,21 +261,26 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [missingFields, setMissingFields] = useState<string[]>([])
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
-  const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
+  const [draftSelectedRestaurant, setDraftSelectedRestaurant] =
+    useState<any>(null) //Escolha temporária do restaurante no dropdown.
   const [showBlockedModal, setShowBlockedModal] = useState(false)
   const screemSize = useScreenSize()
   const [combinations, setCombinations] = useState<Combination[]>([])
-  const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false)
+  const [permissionConectarPlus, setPermissionConectarPlus] =
+    useState<boolean>(false)
 
   const { modificado, setModificado } = useCombinacao()
 
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier()
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } =
+    useSupplier()
 
   useFocusEffect(() => {
     if (tab === 'plus' && modificado) {
       const fetchData = async () => {
         try {
-          const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant')
+          const storedRestaurant = await AsyncStorage.getItem(
+            'selectedRestaurant'
+          )
 
           if (!storedRestaurant) return
 
@@ -213,7 +288,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
           const restaurantId = parsed?.id
 
           if (restaurantId) {
-            const combinations = await getAllCombinationsByRestaurant(restaurantId)
+            const combinations = await getAllCombinationsByRestaurant(
+              restaurantId
+            )
             setCombinations(combinations)
           }
         } catch (e) {
@@ -236,7 +313,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
   useEffect(() => {
     if (minHour) {
       let [minHourValue, minMinuteValue] = minHour.split(':').map(Number)
-      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour ? maxHour.split(':').map(Number) : [0, 0]
+      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour
+        ? maxHour.split(':').map(Number)
+        : [0, 0]
 
       // Adiciona 1h30m à minHour
       let hour = minHourValue + 1
@@ -248,11 +327,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
 
       // Verifica se o maxHour existente é menor que o novo tempo
       const newMaxInMinutes = hour * 60 + minute
-      const currentMaxInMinutes = currentMaxHourValue * 60 + currentMaxMinuteValue
+      const currentMaxInMinutes =
+        currentMaxHourValue * 60 + currentMaxMinuteValue
 
       if (currentMaxInMinutes < newMaxInMinutes) {
         // Atualiza maxHour se o valor atual for menor que o novo calculado
-        const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+        const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(
+          minute
+        ).padStart(2, '0')}`
         setMaxHour(updatedMaxHour)
       }
 
@@ -266,7 +348,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
       }
 
       while (hour < 24) {
-        maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
+        maxOptions.push(
+          `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
+        )
         minute += 30
         if (minute >= 60) {
           minute -= 60
@@ -280,11 +364,17 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
     }
   }, [minHour, maxHour])
 
-  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
+  const goToConfirm = async (
+    supplier: SupplierData,
+    selectedRestaurant: any
+  ) => {
     try {
       setLoading(true)
       await setStorage('supplierSelected', JSON.stringify(supplier))
-      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }))
+      await setStorage(
+        'selectedRestaurant',
+        JSON.stringify({ restaurant: selectedRestaurant })
+      )
       navigation.replace('Confirm')
     } catch (err) {
       console.error(err)
@@ -321,7 +411,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
         setAllRestaurants(restaurants)
 
         // Verifica se o restaurante salvo ainda existe na lista
-        const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
+        const validRestaurant = restaurants.find(
+          (r: any) => r.externalId === restaurantSelected?.externalId
+        )
 
         if (restaurantSelected?.registrationReleasedNewApp) {
           setShowBlockedModal(true)
@@ -333,12 +425,21 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
 
         setSelectedRestaurant(currentRestaurant)
         if (currentRestaurant.premium) {
-          const hasPermissionConectarPlus = await loadPermissionConectarPlus(currentRestaurant.externalId)
+          const hasPermissionConectarPlus = await loadPermissionConectarPlus(
+            currentRestaurant.externalId
+          )
           setPermissionConectarPlus(hasPermissionConectarPlus.authorized)
         }
         setTab(currentRestaurant.premium ? 'plus' : 'onlySupplier')
-        setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16))
-        setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16))
+        setMinHour(
+          currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(
+            11,
+            16
+          )
+        )
+        setMaxHour(
+          currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16)
+        )
 
         await loadPrices()
         const hours = []
@@ -361,12 +462,16 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
   const combinedSuppliers = useMemo(() => {
     const itens: any[] = []
 
-    const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
+    const filteredSuppliers = suppliers.filter(
+      (item) => item.supplier.hour.substring(0, 5) !== '06:00'
+    )
 
     const filteredUnavailableSuppliers = unavailableSupplier
 
     if (filteredSuppliers.length) itens.push({ initialSeparator: true })
-    itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
+    itens.push(
+      ...filteredSuppliers.map((item) => ({ ...item, available: true }))
+    )
 
     if (filteredUnavailableSuppliers.length) itens.push({ separator: true })
     itens.push(
@@ -381,7 +486,8 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
 
   useEffect(() => {
     if (selectedRestaurant) {
-      const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0]
+      const addressInfo =
+        selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0]
 
       setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier')
 
@@ -391,14 +497,22 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
         setLocalType(addressInfo.localType)
         setLocalNumber(addressInfo.localNumber || '')
         setResponsibleReceivingName(addressInfo.responsibleReceivingName)
-        setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
-        setZipCode(addressInfo.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
+        setResponsibleReceivingPhoneNumber(
+          addressInfo.responsibleReceivingPhoneNumber
+        )
+        setZipCode(
+          addressInfo.zipCode
+            .replace(/\D/g, '')
+            .replace(/(\d{5})(\d{3})/, '$1-$2')
+        )
         setStreet(addressInfo.address)
         setComplement(addressInfo.complement)
         setDeliveryInformation(addressInfo.deliveryInformation)
         setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16))
         setMinHour(addressInfo.initialDeliveryTime.substring(11, 16))
-        setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
+        setStreetComplete(
+          `${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim()
+        )
       } else {
         console.log('Address info not found for the selected restaurant')
       }
@@ -417,14 +531,22 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
     setLocalType(addressInfo.localType)
     setLocalNumber(addressInfo.localNumber || '')
     setResponsibleReceivingName(addressInfo.responsibleReceivingName)
-    setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
-    setZipCode(addressInfo.zipCode?.replace(/\D/g, '')?.replace(/(\d{5})(\d{3})/, '$1-$2'))
+    setResponsibleReceivingPhoneNumber(
+      addressInfo.responsibleReceivingPhoneNumber
+    )
+    setZipCode(
+      addressInfo.zipCode
+        ?.replace(/\D/g, '')
+        ?.replace(/(\d{5})(\d{3})/, '$1-$2')
+    )
     setStreet(addressInfo.address)
     setComplement(addressInfo.complement)
     setDeliveryInformation(addressInfo.deliveryInformation)
     setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16))
     setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16))
-    setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
+    setStreetComplete(
+      `${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim()
+    )
   }, [draftSelectedRestaurant])
 
   const getItem = (data: SupplierData[], index: number) => data[index]
@@ -432,25 +554,56 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
   const renderItem = ({ item }: { item: any }) => {
     if (item.separator) {
       return (
-        <Text style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }} pb={10} pt={30} opacity={60} fontSize={16}>
+        <Text
+          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+          pb={10}
+          pt={30}
+          opacity={60}
+          fontSize={16}
+        >
           Fornecedores indisponíveis
         </Text>
       )
     }
     if (item.initialSeparator) {
       return (
-        <Text style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }} pb={5} opacity={60} mt={10} fontSize={16}>
+        <Text
+          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+          pb={5}
+          opacity={60}
+          mt={10}
+          fontSize={16}
+        >
           Fornecedores disponíveis
         </Text>
       )
     }
-    return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />
+    return (
+      <SupplierBox
+        supplier={item}
+        star={item.star}
+        available={item.available}
+        selectedRestaurant={selectedRestaurant}
+        goToConfirm={goToConfirm}
+      />
+    )
   }
 
-  const fields = [zipCode, localNumber, street, responsibleReceivingName, responsibleReceivingPhoneNumber, localType, city, neighborhood]
+  const fields = [
+    zipCode,
+    localNumber,
+    street,
+    responsibleReceivingName,
+    responsibleReceivingPhoneNumber,
+    localType,
+    city,
+    neighborhood
+  ]
 
   useEffect(() => {
-    const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
+    const allFieldsLoaded = fields.every(
+      (field) => field !== undefined && field !== null
+    )
 
     if (allFieldsLoaded && !hasCheckedFields) {
       const anyFieldEmpty = fields.some((field) => !field)
@@ -486,7 +639,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
     const isValid = requiredFields.every((field) => field?.trim())
 
     if (!isValid) {
-      const emptyFields = Object.keys(fields).filter((key) => !fields[key]?.trim())
+      const emptyFields = Object.keys(fields).filter(
+        (key) => !fields[key]?.trim()
+      )
       setMissingFields(emptyFields.map((key) => fieldLabels[key]))
       setIsAlertVisible(true)
     }
@@ -525,7 +680,13 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
   return (
     <Stack pt={20} backgroundColor="white" height="100%" position="relative">
       <View height={50} flex={1} paddingTop={20}>
-        <View pb={20} alignItems="center" paddingLeft={20} paddingRight={20} flexDirection="row">
+        <View
+          pb={20}
+          alignItems="center"
+          paddingLeft={20}
+          paddingRight={20}
+          flexDirection="row"
+        >
           <Icons
             onPress={() => {
               navigation.replace('Cart')
@@ -537,7 +698,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
             Cotações
           </Text>
         </View>
-        <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50} width={Platform.OS === 'web' ? '70vw' : ''} alignSelf="center">
+        <View
+          borderRadius={50}
+          flexDirection="row"
+          justifyContent="space-between"
+          height={50}
+          width={Platform.OS === 'web' ? '70vw' : ''}
+          alignSelf="center"
+        >
           <View
             disabled={!selectedRestaurant.premium}
             opacity={selectedRestaurant.premium ? 1 : 0.4}
@@ -551,7 +719,12 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
             justifyContent="center"
           >
             <Text color={tab === 'plus' ? '#04BF7B' : 'gray'}>Conéctar+</Text>
-            <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? '#04BF7B' : 'white'}></View>
+            <View
+              mt={10}
+              h={1}
+              width="100%"
+              backgroundColor={tab === 'plus' ? '#04BF7B' : 'white'}
+            ></View>
           </View>
           <View
             onPress={() => {
@@ -563,32 +736,65 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
             alignItems="center"
             justifyContent="center"
           >
-            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>Por fornecedor</Text>
-            <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}></View>
+            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>
+              Por fornecedor
+            </Text>
+            <View
+              mt={10}
+              h={1}
+              width="100%"
+              backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}
+            ></View>
           </View>
         </View>
         <View backgroundColor="white" flex={1} paddingHorizontal={5}>
           <View p={10} paddingTop={0} height="100%">
-            {tab === 'onlySupplier' && <VirtualizedList style={{ marginBottom: 5, flexGrow: 1 }} data={combinedSuppliers} getItemCount={getItemCount} getItem={getItem} keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)} renderItem={renderItem} ItemSeparatorComponent={() => <View height={2} />} initialNumToRender={10} windowSize={4} scrollEnabled={true} />}
+            {tab === 'onlySupplier' && (
+              <VirtualizedList
+                style={{ marginBottom: 5, flexGrow: 1 }}
+                data={combinedSuppliers}
+                getItemCount={getItemCount}
+                getItem={getItem}
+                keyExtractor={(item, index) =>
+                  item.supplier ? item.supplier.name : `separator-${index}`
+                }
+                renderItem={renderItem}
+                ItemSeparatorComponent={() => <View height={2} />}
+                initialNumToRender={10}
+                windowSize={4}
+                scrollEnabled={true}
+              />
+            )}
             {tab !== 'onlySupplier' && !permissionConectarPlus && (
               <View p={20} mt={10}>
-                <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
+                <DialogInstanceNotification
+                  openModal={showNotification}
+                  setOpenModal={setShowNotification}
+                  title="Pronto!"
+                  subtitle="Cotação solicitada."
+                  description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação."
+                  buttonText="Ok"
+                  onConfirm={handleConfirm}
+                />
 
                 <Button
                   backgroundColor="#04BF7B"
                   onPress={async () => {
                     if (!validateFields()) return
                     setLoading(true)
-                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      body: JSON.stringify({
-                        token: await getToken(),
-                        selectedRestaurant: selectedRestaurant
-                      })
-                    })
+                    const result = await fetch(
+                      `${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`,
+                      {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                          token: await getToken(),
+                          selectedRestaurant: selectedRestaurant
+                        })
+                      }
+                    )
 
                     if (result.ok) {
                       await result.json()
@@ -609,22 +815,39 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                 </Text>
               </View>
             )}
-            {tab !== 'onlySupplier' && permissionConectarPlus && <CombinationList />}
+            {tab !== 'onlySupplier' && permissionConectarPlus && (
+              <CombinationList />
+            )}
           </View>
         </View>
-        {tab !== 'onlySupplier' && permissionConectarPlus && <CustomButton title="Minhas combinações" onPress={() => navigation.navigate('Preferences')}></CustomButton>}
+        {tab !== 'onlySupplier' && permissionConectarPlus && (
+          <CustomButton
+            title="Minhas combinações"
+            onPress={() => navigation.navigate('Preferences')}
+          ></CustomButton>
+        )}
         <View
           onPress={() => {
             setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)
             setCity(selectedRestaurant.addressInfos[0].city)
             setLocalType(selectedRestaurant.addressInfos[0].localType)
             setLocalNumber(selectedRestaurant.addressInfos[0].localNumber)
-            setResponsibleReceivingName(selectedRestaurant.addressInfos[0].responsibleReceivingName)
-            setResponsibleReceivingPhoneNumber(selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber)
-            setZipCode(selectedRestaurant.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
+            setResponsibleReceivingName(
+              selectedRestaurant.addressInfos[0].responsibleReceivingName
+            )
+            setResponsibleReceivingPhoneNumber(
+              selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber
+            )
+            setZipCode(
+              selectedRestaurant.addressInfos[0].zipCode
+                .replace(/\D/g, '')
+                .replace(/(\d{5})(\d{3})/, '$1-$2')
+            )
             setStreet(selectedRestaurant.addressInfos[0].address)
             setComplement(selectedRestaurant.addressInfos[0].complement)
-            setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation)
+            setDeliveryInformation(
+              selectedRestaurant.addressInfos[0].deliveryInformation
+            )
             setEditInfos(true)
           }}
           backgroundColor="white"
@@ -636,18 +859,53 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
           borderTopWidth={1}
         >
           <View flexDirection="row" alignItems="center">
-            <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+            <View
+              p={10}
+              mr={10}
+              flexDirection="row"
+              f={1}
+              borderColor="lightgray"
+              borderRadius={5}
+              borderWidth={1}
+              paddingHorizontal={10}
+              backgroundColor="white"
+              alignItems="center"
+            >
               <Icons size={20} color="#04BF7B" name="storefront"></Icons>
               <View ml={20}></View>
-              <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail" fontSize={12} style={{ flexShrink: 1, width: '100%' }}>
+              <Text
+                numberOfLines={showRestInfo ? 1 : 1}
+                ellipsizeMode="tail"
+                fontSize={12}
+                style={{ flexShrink: 1, width: '100%' }}
+              >
                 {selectedRestaurant?.name || ''}
               </Text>
             </View>
-            <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+            <View
+              p={10}
+              mr={10}
+              flexDirection="row"
+              f={1}
+              borderColor="lightgray"
+              borderRadius={5}
+              borderWidth={1}
+              paddingHorizontal={10}
+              backgroundColor="white"
+              alignItems="center"
+            >
               <Icons size={20} color="#04BF7B" name="time"></Icons>
               <View ml={20}></View>
               <Text fontSize={12}>
-                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
+                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(
+                  11,
+                  16
+                )}{' '}
+                -{' '}
+                {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(
+                  11,
+                  16
+                )}
               </Text>
             </View>
             <Icons
@@ -660,35 +918,103 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
           </View>
           <View display={showRestInfo ? 'flex' : 'none'}>
             <View pt={5} flexDirection="row" alignItems="center">
-              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="location"></Icons>
                 <View ml={20}></View>
-                <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>
-                  {selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}
+                <Text
+                  numberOfLines={1}
+                  overflow="scroll"
+                  ellipsizeMode="tail"
+                  fontSize={12}
+                >
+                  {selectedRestaurant.addressInfos[0].localType}{' '}
+                  {selectedRestaurant.addressInfos[0].address},{' '}
+                  {selectedRestaurant.addressInfos[0].localNumber}.{' '}
+                  {selectedRestaurant.addressInfos[0].complement} -{' '}
+                  {selectedRestaurant.addressInfos[0].neighborhood},{' '}
+                  {selectedRestaurant.addressInfos[0].city}
                 </Text>
               </View>
-              <View p={10} mr={10} flexDirection="row" f={2} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={2}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                 <View ml={20}></View>
-                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
+                <Text fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].deliveryInformation}
+                </Text>
               </View>
             </View>
             <View pt={5} flexDirection="row" alignItems="center">
-              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="person"></Icons>
                 <View ml={20}></View>
-                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingName}</Text>
+                <Text fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].responsibleReceivingName}
+                </Text>
               </View>
-              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+              <View
+                p={10}
+                mr={10}
+                flexDirection="row"
+                f={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="call"></Icons>
                 <View ml={20}></View>
-                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}</Text>
+                <Text fontSize={12}>
+                  {
+                    selectedRestaurant.addressInfos[0]
+                      .responsibleReceivingPhoneNumber
+                  }
+                </Text>
               </View>
             </View>
           </View>
         </View>
         {editInfos && (
-          <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
+          <View
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor="white"
+          >
             <Modal transparent={true}>
               <ScrollView
                 contentContainerStyle={{
@@ -698,8 +1024,22 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                 }}
                 keyboardShouldPersistTaps="handled"
               >
-                <View flex={1} justifyContent="center" alignItems="center" backgroundColor="rgba(0, 0, 0, 0.9)">
-                  <View pb={15} paddingHorizontal={15} pt={15} minWidth={Platform.OS === 'web' ? '40%' : '90%'} backgroundColor="white" borderRadius={10} justifyContent="center" zIndex={101}>
+                <View
+                  flex={1}
+                  justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="rgba(0, 0, 0, 0.9)"
+                >
+                  <View
+                    pb={15}
+                    paddingHorizontal={15}
+                    pt={15}
+                    minWidth={Platform.OS === 'web' ? '40%' : '90%'}
+                    backgroundColor="white"
+                    borderRadius={10}
+                    justifyContent="center"
+                    zIndex={101}
+                  >
                     {screemSize === 'lg/xl' ? (
                       <>
                         <Text pl={5} fontSize={12} color="gray">
@@ -708,7 +1048,11 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                         {allRestaurants.length > 0 ? (
                           <DropDownPicker
                             listMode="SCROLLVIEW"
-                            value={draftSelectedRestaurant ? draftSelectedRestaurant.name : selectedRestaurant.name}
+                            value={
+                              draftSelectedRestaurant
+                                ? draftSelectedRestaurant.name
+                                : selectedRestaurant.name
+                            }
                             style={{
                               borderWidth: 1,
                               borderColor: 'lightgray',
@@ -726,7 +1070,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                             setOpen={setRestOpen}
                             placeholder=""
                             onSelectItem={(value) => {
-                              const rest = allRestaurants.find((item) => item?.name === value.value)
+                              const rest = allRestaurants.find(
+                                (item) => item?.name === value.value
+                              )
                               if (rest) {
                                 if (rest.registrationReleasedNewApp === true) {
                                   setShowBlockedModal(true)
@@ -739,7 +1085,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                         ) : (
                           <Text>Loading...</Text>
                         )}
-                        <View pt={10} gap={10} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row" zIndex={100}>
+                        <View
+                          pt={10}
+                          gap={10}
+                          mb={Platform.OS === 'web' ? 0 : 35}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                          zIndex={100}
+                        >
                           <View flex={1}>
                             <Text pl={5} fontSize={12} color="gray">
                               A partir de
@@ -816,19 +1169,31 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                 borderRadius={5}
                                 onChangeText={async (value) => {
                                   const cleaned = value.replace(/\D/g, '')
-                                  const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2')
+                                  const formatted = cleaned.replace(
+                                    /(\d{5})(\d{3})/,
+                                    '$1-$2'
+                                  )
 
                                   if (formatted.length === 9) {
                                     setLoading(true)
-                                    const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
+                                    const response = await fetch(
+                                      `https://viacep.com.br/ws/${cleaned}/json/`
+                                    )
                                     const result = await response.json()
                                     if (response.ok && !result.erro) {
-                                      const rawStreet = campoString(result.logradouro)
-                                      const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+                                      const rawStreet = campoString(
+                                        result.logradouro
+                                      )
+                                      const [streetType, ...streetNameParts] =
+                                        rawStreet.trim().split(' ')
 
                                       setCity(campoString(result.localidade))
-                                      setNeighborhood(campoString(result.bairro))
-                                      setLocalType(streetType?.toUpperCase() || '')
+                                      setNeighborhood(
+                                        campoString(result.bairro)
+                                      )
+                                      setLocalType(
+                                        streetType?.toUpperCase() || ''
+                                      )
                                       setStreet(streetNameParts.join(' '))
                                       setStreetComplete(rawStreet)
                                       setLocalNumber('')
@@ -893,7 +1258,11 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                             />
                           </KeyboardAvoidingView>
                         </View>
-                        <View flexDirection="row" mt={10} gap={Platform.OS === 'web' ? 10 : 50}>
+                        <View
+                          flexDirection="row"
+                          mt={10}
+                          gap={Platform.OS === 'web' ? 10 : 50}
+                        >
                           <View flex={1}>
                             <Text
                               style={{
@@ -907,9 +1276,13 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                             <KeyboardAvoidingView>
                               <Input
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
+                                  const formattedValue = value.replace(
+                                    /[^A-Za-z\s]/g,
+                                    ''
+                                  ) // mantém só letras e espaço
                                   const parts = formattedValue.trim().split(' ')
-                                  const localType = parts[0]?.toUpperCase() || ''
+                                  const localType =
+                                    parts[0]?.toUpperCase() || ''
                                   const streetName = parts.slice(1).join(' ')
                                   setLocalType(localType)
                                   setStreet(streetName)
@@ -941,7 +1314,8 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                           gap={10}
                           justifyContent="space-between"
                           style={{
-                            flexDirection: Platform.OS === 'web' ? 'row' : 'column'
+                            flexDirection:
+                              Platform.OS === 'web' ? 'row' : 'column'
                           }}
                         >
                           <View flex={1}>
@@ -959,7 +1333,10 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                 value={localNumber}
                                 keyboardType="numeric"
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^0-9]/g, '')
+                                  const formattedValue = value.replace(
+                                    /[^0-9]/g,
+                                    ''
+                                  )
                                   setLocalNumber(formattedValue)
                                 }}
                                 focusStyle={{
@@ -1001,7 +1378,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                        <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                        <View
+                          zIndex={-1}
+                          height={70}
+                          pt={10}
+                          gap={10}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                        >
                           <View flex={1}>
                             <Text pl={5} fontSize={12} color="gray">
                               Resp. recebimento <Text color="red">*</Text>
@@ -1015,7 +1399,10 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                 borderRadius={5}
                                 value={responsibleReceivingName}
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
+                                  const formattedValue = value.replace(
+                                    /[^A-Za-z\s]/g,
+                                    ''
+                                  )
                                   setResponsibleReceivingName(formattedValue)
                                 }}
                                 focusStyle={{
@@ -1055,13 +1442,25 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                   let onlyNums = value.replace(/\D/g, '')
 
                                   if (onlyNums.length > 10) {
-                                    onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{5})(\d{0,4})/,
+                                      '($1) $2-$3'
+                                    )
                                   } else if (onlyNums.length > 6) {
-                                    onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{4})(\d{0,4})/,
+                                      '($1) $2-$3'
+                                    )
                                   } else if (onlyNums.length > 2) {
-                                    onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{0,4})/,
+                                      '($1) $2'
+                                    )
                                   } else if (onlyNums.length > 0) {
-                                    onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{0,2})/,
+                                      '($1'
+                                    )
                                   }
 
                                   setResponsibleReceivingPhoneNumber(onlyNums)
@@ -1070,7 +1469,13 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                        <View height={70} pt={10} gap={5} justifyContent="space-between" flexDirection="row">
+                        <View
+                          height={70}
+                          pt={10}
+                          gap={5}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                        >
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
                               <Text pl={5} fontSize={12} color="gray">
@@ -1109,7 +1514,10 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                             {allRestaurants.length > 0 ? (
                               <DropDownPicker
                                 listMode="SCROLLVIEW"
-                                value={draftSelectedRestaurant?.name ?? selectedRestaurant?.name}
+                                value={
+                                  draftSelectedRestaurant?.name ??
+                                  selectedRestaurant?.name
+                                }
                                 style={{
                                   borderWidth: 1,
                                   borderColor: 'lightgray',
@@ -1127,9 +1535,13 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                 setOpen={setRestOpen}
                                 placeholder=""
                                 onSelectItem={(value) => {
-                                  const rest = allRestaurants.find((item) => item?.name === value.value)
+                                  const rest = allRestaurants.find(
+                                    (item) => item?.name === value.value
+                                  )
                                   if (rest) {
-                                    if (rest.registrationReleasedNewApp === true) {
+                                    if (
+                                      rest.registrationReleasedNewApp === true
+                                    ) {
                                       setShowBlockedModal(true)
                                       return
                                     }
@@ -1175,7 +1587,11 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                   open={minHourOpen}
                                   setOpen={setMinHourOpen}
                                   onOpen={() => setMaxHourOpen(false)}
-                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
+                                  listMode={
+                                    Platform.OS === 'ios'
+                                      ? 'MODAL'
+                                      : 'SCROLLVIEW'
+                                  }
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
@@ -1197,7 +1613,9 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                 />
                               </View>
 
-                              <View style={{ flex: 1, zIndex: 9, marginLeft: 5 }}>
+                              <View
+                                style={{ flex: 1, zIndex: 9, marginLeft: 5 }}
+                              >
                                 <Text
                                   style={{
                                     paddingLeft: 5,
@@ -1219,7 +1637,11 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                   setOpen={setMaxHourOpen}
                                   onOpen={() => setMinHourOpen(false)}
                                   placeholder=""
-                                  listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
+                                  listMode={
+                                    Platform.OS === 'ios'
+                                      ? 'MODAL'
+                                      : 'SCROLLVIEW'
+                                  }
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
@@ -1267,19 +1689,31 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                   borderRadius={5}
                                   onChangeText={async (value) => {
                                     const cleaned = value.replace(/\D/g, '')
-                                    const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2')
+                                    const formatted = cleaned.replace(
+                                      /(\d{5})(\d{3})/,
+                                      '$1-$2'
+                                    )
 
                                     if (formatted.length === 9) {
                                       setLoading(true)
-                                      const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
+                                      const response = await fetch(
+                                        `https://viacep.com.br/ws/${cleaned}/json/`
+                                      )
                                       const result = await response.json()
                                       if (response.ok && !result.erro) {
-                                        const rawStreet = campoString(result.logradouro)
-                                        const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+                                        const rawStreet = campoString(
+                                          result.logradouro
+                                        )
+                                        const [streetType, ...streetNameParts] =
+                                          rawStreet.trim().split(' ')
 
                                         setCity(campoString(result.localidade))
-                                        setNeighborhood(campoString(result.bairro))
-                                        setLocalType(streetType?.toUpperCase() || '')
+                                        setNeighborhood(
+                                          campoString(result.bairro)
+                                        )
+                                        setLocalType(
+                                          streetType?.toUpperCase() || ''
+                                        )
                                         setStreet(streetNameParts.join(' '))
                                         setStreetComplete(rawStreet)
                                         setLocalNumber('')
@@ -1361,10 +1795,18 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                   <KeyboardAvoidingView>
                                     <Input
                                       onChangeText={(value) => {
-                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
-                                        const parts = formattedValue.trim().split(' ')
-                                        const localType = parts[0]?.toUpperCase() || ''
-                                        const streetName = parts.slice(1).join(' ')
+                                        const formattedValue = value.replace(
+                                          /[^A-Za-z\s]/g,
+                                          ''
+                                        ) // mantém só letras e espaço
+                                        const parts = formattedValue
+                                          .trim()
+                                          .split(' ')
+                                        const localType =
+                                          parts[0]?.toUpperCase() || ''
+                                        const streetName = parts
+                                          .slice(1)
+                                          .join(' ')
                                         setLocalType(localType)
                                         setStreet(streetName)
                                         setStreetComplete(formattedValue) // usado para exibir no campo
@@ -1389,7 +1831,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                               </View>
                             </View>
 
-                            <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                            <View
+                              zIndex={-1}
+                              height={70}
+                              pt={10}
+                              gap={10}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
                               <View flex={1} position="relative">
                                 <Text pl={5} fontSize={12} color="gray">
                                   Nº
@@ -1403,7 +1852,10 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                   value={localNumber}
                                   keyboardType="numeric"
                                   onChangeText={(value) => {
-                                    const formattedValue = value.replace(/[^0-9]/g, '')
+                                    const formattedValue = value.replace(
+                                      /[^0-9]/g,
+                                      ''
+                                    )
                                     setLocalNumber(formattedValue)
                                   }}
                                   focusStyle={{
@@ -1442,7 +1894,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                 />
                               </View>
                             </View>
-                            <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                            <View
+                              zIndex={-1}
+                              height={70}
+                              pt={10}
+                              gap={10}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
                               <View flex={1}>
                                 <Text pl={5} fontSize={12} color="gray">
                                   Resp. recebimento <Text color="red">*</Text>
@@ -1456,8 +1915,13 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                                     borderRadius={5}
                                     value={responsibleReceivingName}
                                     onChangeText={(value) => {
-                                      const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                      setResponsibleReceivingName(formattedValue)
+                                      const formattedValue = value.replace(
+                                        /[^A-Za-z\s]/g,
+                                        ''
+                                      )
+                                      setResponsibleReceivingName(
+                                        formattedValue
+                                      )
                                     }}
                                     focusStyle={{
                                       borderColor: '#049A63',
@@ -1472,7 +1936,8 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                               </View>
                               <View flex={1}>
                                 <Text pl={5} fontSize={12} color="gray">
-                                  Cel Resp. recebimento <Text color="red">*</Text>
+                                  Cel Resp. recebimento{' '}
+                                  <Text color="red">*</Text>
                                 </Text>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                   <Input
@@ -1497,25 +1962,45 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
 
                                       if (onlyNums.length > 10) {
                                         // Formato moderno (celular): (XX) XXXXX-XXXX
-                                        onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{5})(\d{0,4})/,
+                                          '($1) $2-$3'
+                                        )
                                       } else if (onlyNums.length > 6) {
                                         // Formato convencional (fixo): (XX) XXXX-XXXX
-                                        onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{4})(\d{0,4})/,
+                                          '($1) $2-$3'
+                                        )
                                       } else if (onlyNums.length > 2) {
                                         // Formato parcial: (XX) XXXX
-                                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{0,4})/,
+                                          '($1) $2'
+                                        )
                                       } else if (onlyNums.length > 0) {
                                         // Formato parcial: (XX
-                                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{0,2})/,
+                                          '($1'
+                                        )
                                       }
 
-                                      setResponsibleReceivingPhoneNumber(onlyNums)
+                                      setResponsibleReceivingPhoneNumber(
+                                        onlyNums
+                                      )
                                     }}
                                   />
                                 </KeyboardAvoidingView>
                               </View>
                             </View>
-                            <View height={70} pt={10} gap={5} justifyContent="space-between" flexDirection="row">
+                            <View
+                              height={70}
+                              pt={10}
+                              gap={5}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
                               <View flex={1}>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                   <Text pl={5} fontSize={12} color="gray">
@@ -1548,7 +2033,13 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                       </>
                     )}
 
-                    <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
+                    <View
+                      height={70}
+                      pt={15}
+                      gap={5}
+                      justifyContent="space-between"
+                      flexDirection="row"
+                    >
                       <Button
                         onPress={() => {
                           setEditInfos(false)
@@ -1562,21 +2053,37 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                         </Text>
                       </Button>
                       <Button
-                        {...(zipCode?.length === 9 && localNumber?.length && street?.length && responsibleReceivingName?.length && responsibleReceivingPhoneNumber?.length && localType?.length && city?.length ? {} : { opacity: 0.4, disabled: true })}
+                        {...(zipCode?.length === 9 &&
+                        localNumber?.length &&
+                        street?.length &&
+                        responsibleReceivingName?.length &&
+                        responsibleReceivingPhoneNumber?.length &&
+                        localType?.length &&
+                        city?.length
+                          ? {}
+                          : { opacity: 0.4, disabled: true })}
                         onPress={async () => {
                           if (!validateFields()) return // Valida os campos antes de prosseguir
 
                           //setLoading(true);
-                          const rest: SelectItem = JSON.parse(JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant))
+                          const rest: SelectItem = JSON.parse(
+                            JSON.stringify(
+                              draftSelectedRestaurant ?? selectedRestaurant
+                            )
+                          )
                           const addressInfo = rest.addressInfos[0]
 
                           addressInfo.neighborhood = neighborhood
                           addressInfo.city = city
                           addressInfo.localType = localType
                           addressInfo.localNumber = localNumber
-                          addressInfo.responsibleReceivingName = responsibleReceivingName
-                          addressInfo.responsibleReceivingPhoneNumber = responsibleReceivingPhoneNumber
-                          addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '')
+                          addressInfo.responsibleReceivingName =
+                            responsibleReceivingName
+                          addressInfo.responsibleReceivingPhoneNumber =
+                            responsibleReceivingPhoneNumber
+                          addressInfo.zipCode = zipCode
+                            ?.replaceAll(' ', '')
+                            .replace('-', '')
                           addressInfo.address = street
                           addressInfo.complement = complement
                           addressInfo.deliveryInformation = deliveryInformation
@@ -1587,18 +2094,24 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
 
                           setSelectedRestaurant(rest)
 
-                          setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }))
+                          setStorage(
+                            'selectedRestaurant',
+                            JSON.stringify({ restaurant: rest })
+                          )
                           await Promise.all([
                             loadPrices(rest),
-                            fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
-                              body: JSON.stringify({
-                                ...rest
-                              }),
-                              headers: {
-                                'Content-Type': 'application/json'
-                              },
-                              method: 'POST'
-                            })
+                            fetch(
+                              `${process.env.EXPO_PUBLIC_API_URL}/address/update`,
+                              {
+                                body: JSON.stringify({
+                                  ...rest
+                                }),
+                                headers: {
+                                  'Content-Type': 'application/json'
+                                },
+                                method: 'POST'
+                              }
+                            )
                           ])
                         }}
                         backgroundColor="#04BF7B"
@@ -1612,7 +2125,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
                   </View>
                 </View>
               </ScrollView>
-              <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
+              <CustomAlert
+                visible={isAlertVisible}
+                title="Campos obrigatórios"
+                message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join(
+                  '\n- '
+                )}`}
+                onConfirm={() => setIsAlertVisible(false)}
+              />
             </Modal>
           </View>
         )}
@@ -1626,14 +2146,19 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
           onSelectAvailable={async () => {
             try {
               // Encontrar um restaurante disponível
-              const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp)
+              const availableRestaurant = allRestaurants.find(
+                (r) => !r.registrationReleasedNewApp
+              )
 
               if (availableRestaurant) {
                 // 1. Fechar o modal
                 setShowBlockedModal(false)
 
                 // 2. Salvar o novo restaurante selecionado
-                await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+                await AsyncStorage.setItem(
+                  'selectedRestaurant',
+                  JSON.stringify({ restaurant: availableRestaurant })
+                )
 
                 // 3. Atualizar o estado local
                 setSelectedRestaurant(availableRestaurant)
@@ -1649,7 +2174,14 @@ export default function Prices({ navigation }: HomeScreenPropsUtils) {
           }}
         />
       </View>
-      <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
+      <CustomAlert
+        visible={isAlertVisible}
+        title="Campos obrigatórios"
+        message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join(
+          '\n- '
+        )}`}
+        onConfirm={() => setIsAlertVisible(false)}
+      />
     </Stack>
   )
 }

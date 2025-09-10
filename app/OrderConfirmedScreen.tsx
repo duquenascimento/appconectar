@@ -1,119 +1,119 @@
-import { type NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
-import { YStack, XStack, Text, Separator, Image } from "tamagui";
-import Icons from "@expo/vector-icons/Ionicons";
-import React, { useState, useEffect } from "react";
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'
+import { YStack, XStack, Text, Separator, Image } from 'tamagui'
+import Icons from '@expo/vector-icons/Ionicons'
+import React, { useState, useEffect } from 'react'
 import {
   SafeAreaView,
   ScrollView,
   Platform,
   ActivityIndicator,
-  Alert,
-} from "react-native";
-import CustomButton from "@/src/components/button/customButton";
-import { SupplierData } from "@/src/types/types";
-import { getStorage } from "@/src/utils/utils";
-import { formatCurrency } from "../../src/utils/formatCurrency";
-import { getDeliveryWindow } from "../../src/utils/timeUtils";
-import { getPaymentDate } from "../../src/utils/getPaymentDate";
+  Alert
+} from 'react-native'
+import CustomButton from '@/src/components/button/customButton'
+import { SupplierData } from '@/src/types/types'
+import { getStorage } from '@/src/utils/utils'
+import { formatCurrency } from '../src/utils/formatCurrency'
+import { getDeliveryWindow } from '../src/utils/timeUtils'
+import { getPaymentDate } from '../src/utils/getPaymentDate'
 
 interface RestaurantAddress {
-  address: string;
-  neighborhood: string;
-  city: string;
-  localNumber: string;
-  zipCode: string;
-  initialDeliveryTime: string;
-  finalDeliveryTime: string;
+  address: string
+  neighborhood: string
+  city: string
+  localNumber: string
+  zipCode: string
+  initialDeliveryTime: string
+  finalDeliveryTime: string
 }
 
 interface RestaurantData {
-  name: string;
-  addressInfos: RestaurantAddress[];
-  paymentWay: string;
+  name: string
+  addressInfos: RestaurantAddress[]
+  paymentWay: string
 }
 
 type RootStackParamList = {
-  QuotationDetails: undefined;
-  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string };
-  Orders: undefined;
-};
+  QuotationDetails: undefined
+  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string }
+  Orders: undefined
+}
 
-type OrderConfirmedRouteProp = RouteProp<RootStackParamList, "OrderConfirmed">;
+type OrderConfirmedRouteProp = RouteProp<RootStackParamList, 'OrderConfirmed'>
 type OrderConfirmedNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
-  "OrderConfirmed"
->;
+  'OrderConfirmed'
+>
 
 export default function OrderConfirmedScreen() {
-  const navigation = useNavigation<OrderConfirmedNavigationProp>();
-  const route = useRoute<OrderConfirmedRouteProp>();
+  const navigation = useNavigation<OrderConfirmedNavigationProp>()
+  const route = useRoute<OrderConfirmedRouteProp>()
 
-  const { suppliers, deliveryDate } = route.params;
+  const { suppliers, deliveryDate } = route.params
 
   const [restaurantDetails, setRestaurantDetails] =
-    useState<RestaurantData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [paymentDateOrder, setPaymentDateOrder] = useState<string | null>(null);
+    useState<RestaurantData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [paymentDateOrder, setPaymentDateOrder] = useState<string | null>(null)
 
   useEffect(() => {
     const loadRestaurantData = async () => {
       try {
-        const storedData = await getStorage("selectedRestaurant");
+        const storedData = await getStorage('selectedRestaurant')
         if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          setRestaurantDetails(parsedData.restaurant);
-          setPaymentDateOrder(getPaymentDate(parsedData.restaurant.paymentWay));
+          const parsedData = JSON.parse(storedData)
+          setRestaurantDetails(parsedData.restaurant)
+          setPaymentDateOrder(getPaymentDate(parsedData.restaurant.paymentWay))
         } else {
           Alert.alert(
-            "Erro",
-            "Não foi possível encontrar os dados do restaurante."
-          );
+            'Erro',
+            'Não foi possível encontrar os dados do restaurante.'
+          )
         }
       } catch (error) {
-        console.error("Erro ao carregar dados do restaurante:", error);
+        console.error('Erro ao carregar dados do restaurante:', error)
         Alert.alert(
-          "Erro",
-          "Ocorreu um problema ao carregar as informações do restaurante."
-        );
+          'Erro',
+          'Ocorreu um problema ao carregar as informações do restaurante.'
+        )
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    loadRestaurantData();
-  }, []);
+    loadRestaurantData()
+  }, [])
 
   const getFormattedAddress = () => {
-    if (!restaurantDetails || !restaurantDetails.addressInfos.length) return "";
-    const addr = restaurantDetails.addressInfos[0];
-    return `${addr.address}, ${addr.localNumber} - ${addr.neighborhood}, ${addr.city}`;
-  };
+    if (!restaurantDetails || !restaurantDetails.addressInfos.length) return ''
+    const addr = restaurantDetails.addressInfos[0]
+    return `${addr.address}, ${addr.localNumber} - ${addr.neighborhood}, ${addr.city}`
+  }
 
   if (isLoading) {
     return (
       <SafeAreaView
         style={{
           flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#F0F4F8",
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: '#F0F4F8'
         }}
       >
         <ActivityIndicator size="large" color="#1DC588" />
         <Text mt="$4">Carregando confirmação...</Text>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#F0F4F8" }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F4F8' }}>
       <YStack
         flex={1}
         backgroundColor="#F0F4F8"
         alignSelf="center"
         width="100%"
-        maxWidth={Platform.OS === "web" ? 768 : undefined}
+        maxWidth={Platform.OS === 'web' ? 768 : undefined}
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, paddingVertical: 16 }}
@@ -171,7 +171,7 @@ export default function OrderConfirmedScreen() {
                         {formatCurrency(supplier.discount.orderValueFinish)}
                       </Text>
                       <Text fontSize={12} color="$gray10">
-                        Pedido {supplier.orderId ?? ""}
+                        Pedido {supplier.orderId ?? ''}
                       </Text>
                     </YStack>
                   </XStack>
@@ -212,7 +212,7 @@ export default function OrderConfirmedScreen() {
                   <Icons name="cash-outline" size={24} color="$gray11" />
                   <YStack>
                     <Text fontSize={16} fontWeight="bold">
-                      {!paymentDateOrder ? "" : `Venc. ${paymentDateOrder}`}
+                      {!paymentDateOrder ? '' : `Venc. ${paymentDateOrder}`}
                     </Text>
                     <Text fontSize={14} color="$gray10">
                       Pagamento via Boleto
@@ -227,12 +227,12 @@ export default function OrderConfirmedScreen() {
         <YStack py="$4" px="$4" bg="#F0F4F8">
           <CustomButton
             title="Ir para Meus pedidos"
-            onPress={() => navigation.navigate("Orders")}
+            onPress={() => navigation.navigate('Orders')}
             backgroundColor="white"
             textColor="black"
           />
         </YStack>
       </YStack>
     </SafeAreaView>
-  );
+  )
 }

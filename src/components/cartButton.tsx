@@ -1,8 +1,12 @@
 import React, { useEffect, useRef } from 'react'
 import { Platform, TouchableOpacity } from 'react-native'
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming
+} from 'react-native-reanimated'
 import { View, Text } from 'tamagui'
-import { Product } from '@/app/screens/products'
+import { Product } from '@/app/products'
 import Icons from '@expo/vector-icons/Ionicons'
 
 type Props = {
@@ -12,7 +16,12 @@ type Props = {
   onPress: () => void
 }
 
-export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProducts, onPress }) => {
+export const CartButton: React.FC<Props> = ({
+  cartSize,
+  isScrolling,
+  visibleProducts,
+  onPress
+}) => {
   const opacity = useSharedValue(0)
   const translateY = useSharedValue(50)
   const hideTimeout = useRef<NodeJS.Timeout | null>(null)
@@ -54,17 +63,19 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
 
   if (Platform.OS === 'web') {
     return (
-      <div style={{
-        position: 'absolute',
-        bottom: 65,
-        left: 0,
-        right: 0,
-        display: cartSize <= 0 ? 'none' : 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 100,
-        pointerEvents: 'none'
-      }}>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 65,
+          left: 0,
+          right: 0,
+          display: cartSize <= 0 ? 'none' : 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100,
+          pointerEvents: 'none'
+        }}
+      >
         <button
           style={{
             border: 'none',
@@ -75,34 +86,44 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
           onClick={cartSize > 0 ? onPress : undefined}
           disabled={cartSize <= 0}
         >
-          <div style={{
-            backgroundColor: '#FFA500',
-            width: 160,
-            height: 25,
-            borderRadius: 24,
-            padding: '8px 16px',
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-              <Icons size={25} color="white" name="cart" />
-              <div style={{
-                position: 'absolute',
-                bottom: -1,
-                right: -5,
-                backgroundColor: 'white',
-                borderRadius: 10,
-                width: 15,
-                height: 15,
+          <div
+            style={{
+              backgroundColor: '#FFA500',
+              width: 160,
+              height: 25,
+              borderRadius: 24,
+              padding: '8px 16px',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <div
+              style={{
+                position: 'relative',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid #FFA500',
-                fontSize: 9,
-                color: '#FFA500'
-              }}>
+                alignItems: 'center'
+              }}
+            >
+              <Icons size={25} color="white" name="cart" />
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: -1,
+                  right: -5,
+                  backgroundColor: 'white',
+                  borderRadius: 10,
+                  width: 15,
+                  height: 15,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid #FFA500',
+                  fontSize: 9,
+                  color: '#FFA500'
+                }}
+              >
                 {cartSize}
               </div>
             </div>
@@ -114,24 +135,61 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
   }
 
   return (
-    <Animated.View style={[{
-      position: 'absolute',
-      bottom: 65,
-      left: 0,
-      right: 0,
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 100
-    }, animatedStyle]} pointerEvents="box-none">
-      <TouchableOpacity activeOpacity={0.9} onPress={cartSize > 0 ? onPress : undefined} disabled={cartSize <= 0}>
-        <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
+    <Animated.View
+      style={[
+        {
+          position: 'absolute',
+          bottom: 65,
+          left: 0,
+          right: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100
+        },
+        animatedStyle
+      ]}
+      pointerEvents="box-none"
+    >
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={cartSize > 0 ? onPress : undefined}
+        disabled={cartSize <= 0}
+      >
+        <View
+          backgroundColor="#FFA500"
+          width={160}
+          height={45}
+          borderRadius={24}
+          paddingHorizontal={16}
+          paddingVertical={8}
+          flexDirection="row"
+          alignItems="center"
+          justifyContent="center"
+          pointerEvents="auto"
+        >
           <View>
             <Icons size={25} color="white" name="cart" />
-            <View position="absolute" bottom={-1} right={-5} backgroundColor="white" borderRadius={10} width={15} height={15} alignItems="center" justifyContent="center" borderColor="#FFA500" borderWidth={1}>
-              <Text fontSize={9} color="#FFA500">{cartSize}</Text>
+            <View
+              position="absolute"
+              bottom={-1}
+              right={-5}
+              backgroundColor="white"
+              borderRadius={10}
+              width={15}
+              height={15}
+              alignItems="center"
+              justifyContent="center"
+              borderColor="#FFA500"
+              borderWidth={1}
+            >
+              <Text fontSize={9} color="#FFA500">
+                {cartSize}
+              </Text>
             </View>
           </View>
-          <Text color="white" paddingLeft={8}>Carrinho</Text>
+          <Text color="white" paddingLeft={8}>
+            Carrinho
+          </Text>
         </View>
       </TouchableOpacity>
     </Animated.View>

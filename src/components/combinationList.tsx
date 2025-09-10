@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import CustomListItem from './list/customListItem'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
-import { SupplierData } from '@/app/screens/QuotationDetailsScreen'
+import { SupplierData } from '@/app/QuotationDetailsScreen'
 import {
   getAllQuotationByRestaurant,
   QuotationApiResponse

@@ -23,7 +23,7 @@
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-picker/picker": "2.11.1",
     "@react-native-seoul/masonry-list": "^1.4.2",
-    "@react-navigation/native": "^7.1.6",
+    "@react-navigation/native": "^6.1.18",
     "@tamagui/babel-plugin": "1.115.4",
     "@tamagui/config": "1.115.4",
     "@tamagui/metro-plugin": "1.115.4",
@@ -57,6 +57,9 @@
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "luxon": "^3.4.4",
+    "metro": "^0.82.0",
+    "metro-config": "^0.82.0",
+    "metro-resolver": "^0.82.0",
     "moti": "^0.29.0",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -73,10 +76,7 @@
     "react-test-renderer": "19.0.0",
     "tamagui": "1.115.4",
     "typescript": "~5.8.3",
-    "yup": "^1.6.1",
-    "metro": "^0.82.0",
-    "metro-resolver": "^0.82.0",
-    "metro-config": "^0.82.0"
+    "yup": "^1.6.1"
   },
   "private": true,
   "overrides": {
