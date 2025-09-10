@@ -5,7 +5,7 @@ import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { CustomRadioButton } from '../button/customRadioButton'
 import { useEffect, useState } from 'react'
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
-import { resetarPreferencias } from '@/app/utils/preferenciaUtils'
+import { resetarPreferencias } from '@/src/utils/preferenciaUtils'
 
 export function ContainerPreferenciasProduto({ error, onClearErrors }: { error?: string, onClearErrors: () => void }) {
   const { combinacao, updateCampo } = useCombinacao()

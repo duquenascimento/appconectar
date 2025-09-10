@@ -2,7 +2,7 @@ interface PaymentDescriptions {
     [key: string]: string;
 }
 
-export const getPaymentDate = (paymentWay: string): string => {
+export function getPaymentDate (paymentWay: string): string  {
     const today = new Date();
     const todayUTC = new Date(today.getTime() + today.getTimezoneOffset() * 60000);
 
@@ -63,3 +63,4 @@ export const getPaymentDate = (paymentWay: string): string => {
 
     return paymentDescriptions[paymentWay] || '';
 }
+

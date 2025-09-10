@@ -12,10 +12,10 @@ import {
 } from "react-native";
 import CustomButton from "@/src/components/button/customButton";
 import { SupplierData } from "@/src/types/types";
-import { getStorage } from "@/app/utils/utils";
-import { formatCurrency } from "../utils/formatCurrency";
-import { getDeliveryWindow } from "../utils/timeUtils";
-import { getPaymentDate } from "../utils/getPaymentDate";
+import { getStorage } from "@/src/utils/utils";
+import { formatCurrency } from "../../src/utils/formatCurrency";
+import { getDeliveryWindow } from "../../src/utils/timeUtils";
+import { getPaymentDate } from "../../src/utils/getPaymentDate";
 
 interface RestaurantAddress {
   address: string;
@@ -45,7 +45,7 @@ type OrderConfirmedNavigationProp = NativeStackNavigationProp<
   "OrderConfirmed"
 >;
 
-export function OrderConfirmedScreen() {
+export default function OrderConfirmedScreen() {
   const navigation = useNavigation<OrderConfirmedNavigationProp>();
   const route = useRoute<OrderConfirmedRouteProp>();
 

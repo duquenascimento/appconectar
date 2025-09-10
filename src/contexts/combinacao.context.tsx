@@ -1,7 +1,7 @@
 import { createContext, useContext, useMemo, useState, ReactNode, useEffect } from 'react'
 import { TipoFornecedor, Combinacao, PreferenciaProduto } from '../types/combinationTypes'
-import { addPreferencia as addPrefUtil, updatePreferencia as updatePrefUtil, removePreferencia as removePrefUtil } from '@/app/utils/preferenciaUtils'
-import { getStorage, setStorage } from '@/app/utils/utils'
+import { addPreferencia as addPrefUtil, updatePreferencia as updatePrefUtil, removePreferencia as removePrefUtil } from '@/src/utils/preferenciaUtils'
+import { getStorage, setStorage } from '@/src/utils/utils'
 
 type CombinacaoContextType = {
   combinacao: Combinacao

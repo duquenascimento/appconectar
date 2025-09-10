@@ -33,20 +33,20 @@ import {
   getStorage,
   getToken,
   setStorage
-} from '../utils/utils'
+} from '../../src/utils/utils'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo, SaveUserAppInfo, checkVersion } from '../utils/VersionApp'
-import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
-import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
+import { VersionInfo, SaveUserAppInfo, checkVersion } from '../../src/utils/VersionApp'
+import CustomFlatList from '../../src/utils/FlatList_VirtualizeList/FlatList_Products'
+import CustomVirtualizedList from '../../src/utils/FlatList_VirtualizeList/VirtualizeList_Products'
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
 import {
   saveProductObservations,
   loadProductObservations
-} from '../utils/productObservation'
+} from '../../src/utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
 import { useProductContext } from '@/src/contexts/produtos.context'
-import { filterCarts } from '../utils/filterCarts'
+import { filterCarts } from '../../src/utils/filterCarts'
 import { UpdateAppModal } from '@/src/components/UpdateAppModal'
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
@@ -754,7 +754,7 @@ interface Restaurant {
   registrationReleasedNewApp: boolean
 }
 
-export function Products({ navigation }: HomeScreenProps) {
+export default function Products({ navigation }: HomeScreenProps) {
   const [currentClass, setCurrentClass] = useState('Favoritos')
   const [productsList, setProductsList] = useState<Product[] | null>(null)
   const [loading, setLoading] = useState<boolean>(true)

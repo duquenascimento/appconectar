@@ -44,3 +44,4 @@ export const getStorage = async (key: string): Promise<string | null> => {
     if (platform === 'web') return localStorage.getItem(key)
     else return await AsyncStorage.getItem(key)
 }
+

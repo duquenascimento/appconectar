@@ -1,13 +1,13 @@
 import { Combinacao, PreferenciaProduto } from '@/src/types/combinationTypes'
 
-export const addPreferencia = (combinacao: Combinacao, nova: PreferenciaProduto): Combinacao => {
+export function addPreferencia (combinacao: Combinacao, nova: PreferenciaProduto): Combinacao  {
   return {
     ...combinacao,
     preferencias: [...(combinacao.preferencias || []), nova]
   }
 }
 
-export const updatePreferencia = (combinacao: Combinacao, index: number, atualizada: PreferenciaProduto): Combinacao => {
+export function  updatePreferencia  (combinacao: Combinacao, index: number, atualizada: PreferenciaProduto): Combinacao  {
   const prefs = [...(combinacao.preferencias || [])]
   prefs[index] = atualizada
 
@@ -17,7 +17,7 @@ export const updatePreferencia = (combinacao: Combinacao, index: number, atualiz
   }
 }
 
-export const removePreferencia = (combinacao: Combinacao, index: number): Combinacao => {
+export function  removePreferencia (combinacao: Combinacao, index: number): Combinacao {
   const prefs = [...(combinacao.preferencias || [])]
   prefs.splice(index, 1)
 
@@ -27,10 +27,11 @@ export const removePreferencia = (combinacao: Combinacao, index: number): Combin
   }
 }
 
-export const resetarPreferencias = (combinacao: Combinacao): Combinacao => {
+export function  resetarPreferencias (combinacao: Combinacao): Combinacao {
   return {
     ...combinacao,
     definir_preferencia_produto: false,
     preferencias: []
   }
 }
+

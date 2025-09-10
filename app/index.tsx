@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ActivityIndicator, Dimensions, Linking, Modal, type NativeScrollEvent, type NativeSyntheticEvent, Platform, ScrollView } from 'react-native'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { deleteToken, getToken, setToken } from './utils/utils'
+import { deleteToken, getToken, setToken } from '../src/utils/utils'
 import { openURL } from 'expo-linking'
-import { VersionInfo } from './utils/VersionApp'
+import { VersionInfo } from '../src/utils/VersionApp'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { TextInputMask } from 'react-native-masked-text'
 
@@ -226,7 +226,7 @@ const PwRecovery = ({ close, loading }: { close: () => void; loading: (active: b
   );
 }
 
-export function Sign({ navigation }: HomeScreenProps) {
+export default function Sign({ navigation }: HomeScreenProps) {
   const [currentPage, setCurrentPage] = useState('SignIn')
   const [visiblePage, setVisiblePage] = useState(true)
   const scrollRef = useRef<ScrollView>(null)

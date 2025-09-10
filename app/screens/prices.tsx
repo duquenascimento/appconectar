@@ -4,14 +4,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, VirtualizedList, Dimensions } from 'react-native'
 import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { clearStorage, getToken, setStorage } from '../utils/utils'
+import { clearStorage, getToken, setStorage } from '../../src/utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
 import CustomAlert from '../../src/components/modais/CustomAlert' // Importe o CustomAlert
 import { loadPermissionConectarPlus, loadRestaurants } from '../../src/services/restaurantService'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { campoString } from '../utils/formatCampos'
+import { campoString } from '../../src/utils/formatCampos'
 import {DialogComercialInstance} from '@/src/components/dialogComercialInstance'
-import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
+import { HomeScreenPropsUtils } from '../../src/utils/NavigationTypes'
 import CombinationList, { Combination } from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
@@ -161,7 +161,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
   )
 }
 
-export function Prices({ navigation }: HomeScreenPropsUtils) {
+export default function Prices({ navigation }: HomeScreenPropsUtils) {
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
   const [showRestInfo, setShowRestInfo] = useState<boolean>(false)

@@ -5,13 +5,13 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator } from 'react-native'
 import { DialogInstance } from '../index'
 import { TextInputMask } from 'react-native-masked-text'
-import { getStorage, getToken, deleteToken, clearStorage } from '../utils/utils'
+import { getStorage, getToken, deleteToken, clearStorage } from '../../src/utils/utils'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { formatCNPJ } from '../utils/formatCNPJ'
-import { formatCep } from '../utils/formatCep'
-import { dividirLogradouro } from '../utils/DividirLogradouro'
-import { campoString } from '../utils/formatCampos'
-import { VersionInfo } from '../utils/VersionApp'
+import { formatCNPJ } from '../../src/utils/formatCNPJ'
+import { formatCep } from '../../src/utils/formatCep'
+import { dividirLogradouro } from '../../src/utils/DividirLogradouro'
+import { campoString } from '../../src/utils/formatCampos'
+import { VersionInfo } from '../../src/utils/VersionApp'
 
 import { useFormik } from 'formik'
 import { step0Validation, step1Validation, step2Validation, step3Validation } from '@/src/validators/register.form.validator'
@@ -98,7 +98,7 @@ interface Socio {
   codigo_qualificacao_representante_legal: string | null
 }
 
-export function Register({ navigation }: HomeScreenProps) {
+export default function Register({ navigation }: HomeScreenProps) {
   const [step, setStep] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
   const [minhours, setMinhours] = useState<string[]>([])

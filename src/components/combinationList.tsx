@@ -14,11 +14,11 @@ import {
   getAllQuotationByRestaurant,
   QuotationApiResponse
 } from '../services/combinationsService'
-import { getStorage, getToken } from '@/app/utils/utils'
+import { getStorage, getToken } from '@/src/utils/utils'
 import { View } from 'tamagui'
 import CustomAlert from './modais/CustomAlert'
 import { useSupplier } from '../contexts/fornecedores.context'
-import { mergeSupplierData } from '@/app/utils/mergeSuppliersData'
+import { mergeSupplierData } from '@/src/utils/mergeSuppliersData'
 import {
   AvailableSupplier,
   ChosenSupplierQuote

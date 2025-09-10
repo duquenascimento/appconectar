@@ -3,7 +3,7 @@ export interface AddressValidationResult {
   message: string
 }
 
-export const validateAddress = (selectedRestaurant: any): AddressValidationResult => {
+export function validateAddress (selectedRestaurant: any): AddressValidationResult {
   const addressInfo = selectedRestaurant?.restaurant?.addressInfos?.[0]
 
   if (!addressInfo) {
@@ -33,3 +33,5 @@ export const validateAddress = (selectedRestaurant: any): AddressValidationResul
     message: 'Dados de endereço válidos.'
   }
 }
+
+

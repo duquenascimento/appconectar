@@ -1,4 +1,4 @@
-export function generateAbbreviation(name: string): string {
+export function generateAbbreviation (name: string): string {
     const words = name.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/);
     
     const abbreviation = words
@@ -8,3 +8,4 @@ export function generateAbbreviation(name: string): string {
 
     return abbreviation.substring(0, 2).toUpperCase();
   }
+

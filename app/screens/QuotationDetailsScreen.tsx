@@ -6,12 +6,12 @@ import { SafeAreaView, Alert, Platform } from 'react-native'
 import CustomHeader from '@/src/components/header/customHeader'
 import CustomInfoCard from '@/src/components/card/customInfoCard'
 import CustomButton from '../../src/components/button/customButton'
-import { deleteMultiStorage, getStorage, getToken } from '../utils/utils'
+import { deleteMultiStorage, getStorage, getToken } from '../../src/utils/utils'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 import { LoadingConfirm } from '@/src/components/loading/confirmOrder'
-import { formatCurrency } from '../utils/formatCurrency'
+import { formatCurrency } from '../../src/utils/formatCurrency'
 import { createOrderPremium } from '@/src/services/orderService'
-import { processOrderResponse } from '../utils/processOrderResponse'
+import { processOrderResponse } from '../../src/utils/processOrderResponse'
 export interface Product {
   price: number
   priceWithoutTax: number
@@ -71,7 +71,7 @@ type QuotationDetailsScreenProps = {
   route: { params: RootStackParamList['QuotationDetails'] }
 }
 
-export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsScreenProps) {
+ const QuotationDetailsScreen = ({ navigation, route }: QuotationDetailsScreenProps) =>  {
   const { combinationName, suppliersData } = route.params
   const [suppliers] = useState<SupplierData[]>(suppliersData || [])
   const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação')
@@ -319,3 +319,5 @@ export function QuotationDetailsScreen({ navigation, route }: QuotationDetailsSc
     </SafeAreaView>
   )
 }
+
+export default QuotationDetailsScreen

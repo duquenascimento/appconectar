@@ -3,9 +3,9 @@ import Icons from '@expo/vector-icons/Ionicons'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
-import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
+import { deleteStorage, getStorage, getToken, setStorage } from '../../src/utils/utils'
 import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
-import { filterCarts } from '../utils/filterCarts'
+import { filterCarts } from '../../src/utils/filterCarts'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
 
 type RootStackParamList = {
@@ -379,7 +379,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox'
 
-export function Cart({ navigation }: HomeScreenProps) {
+export default function Cart({ navigation }: HomeScreenProps) {
   const [loading, setLoading] = useState<boolean>(true)
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<Map<string, TCart>>(new Map())

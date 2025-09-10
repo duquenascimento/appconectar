@@ -2,7 +2,7 @@ import { Platform } from 'react-native'
 import { Text, View } from 'tamagui'
 import { getStorage } from './utils'
 
-export const VersionInfo = () => {
+export function VersionInfo () {
   return (
     <View position="absolute" bottom={2} right={10}>
       <Text fontSize={10} color="gray">
@@ -64,3 +64,5 @@ export const checkVersion = async ():Promise<any> => {
     console.error('Erro ao checar versão do app:', error)
   }
 }
+
+

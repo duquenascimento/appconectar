@@ -3,8 +3,8 @@ import { View, Image, Text, Button } from "tamagui";
 import Icons from '@expo/vector-icons/Ionicons';
 import { SupplierData } from "./prices";
 import { useCallback, useEffect, useState } from "react";
-import { clearStorage, getStorage } from "../utils/utils";
-import { SaveUserAppInfo } from "../utils/VersionApp";
+import { clearStorage, getStorage } from "../../src/utils/utils";
+import { SaveUserAppInfo } from "../../src/utils/VersionApp";
 
 type RootStackParamList = {
     Home: undefined;
@@ -31,7 +31,7 @@ interface PaymentDescriptions {
 }
 
 
-export function FinalConfirm({ navigation }: HomeScreenProps) {
+export default function FinalConfirm({ navigation }: HomeScreenProps) {
     const [supplier, setSupplier] = useState<SupplierData>();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [deliveryData, setDeliveryData] = useState<RestaurantInfo>();

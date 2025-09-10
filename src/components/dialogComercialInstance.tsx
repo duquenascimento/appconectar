@@ -1,6 +1,6 @@
 import { Button, Dialog, XStack, YStack } from 'tamagui'
 import { Linking } from 'react-native'
-import { clearStorage, deleteToken, setStorage } from '@/app/utils/utils'
+import { clearStorage, deleteToken, setStorage } from '@/src/utils/utils'
 import { BaseDialog } from './BaseDialog'
 
 type DialogComercialInstanceProps = {

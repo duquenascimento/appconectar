@@ -8,10 +8,10 @@ import { getOrders } from '../../src/services/orderService'
 import { loadRestaurants } from '../../src/services/restaurantService'
 import { RootStackParamList } from '../../src/types/navigationTypes'
 import { ordersScreenStyles as styles } from '../../src/styles/styles'
-import { clearStorage, deleteToken } from '../utils/utils'
+import { clearStorage, deleteToken } from '../../src/utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo } from '../utils/VersionApp'
-import { HomeScreenPropsUtils } from '../utils/NavigationTypes'
+import { VersionInfo } from '../../src/utils/VersionApp'
+import { HomeScreenPropsUtils } from '../../src/utils/NavigationTypes'
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 
@@ -42,7 +42,7 @@ const formatDate = (isoDate: string) => {
   return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
 }
 
-export function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
+export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [orders, setOrders] = useState<Order[]>([])
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)

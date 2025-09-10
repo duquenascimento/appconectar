@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect, useCallback, SetStateAction } from 'react';
 import { SupplierData } from '../types/types';
-import { getStorage, getToken, setStorage } from '@/app/utils/utils';
+import { getStorage, getToken, setStorage } from '@/src/utils/utils';
 import { loadRestaurants } from '@/src/services/restaurantService';
 import { DateTime } from 'luxon';
 

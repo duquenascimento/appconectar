@@ -2,7 +2,7 @@ import React from 'react'
 import { TouchableOpacity, Platform } from 'react-native'
 import Icons from '@expo/vector-icons/Ionicons'
 import { Text, View, styled, XStack, YStack } from 'tamagui'
-import { formatCurrency } from '@/app/utils/formatCurrency'
+import { formatCurrency } from '@/src/utils/formatCurrency'
 
 export interface Combination {
   id: string

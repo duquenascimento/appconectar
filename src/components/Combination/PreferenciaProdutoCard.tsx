@@ -4,7 +4,7 @@ import { DropdownCampo } from './DropdownCampo'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { ProdutoPreferenciaCard } from './ProdutoPreferenciaCard'
 import { AcaoNaFalha } from '@/src/types/combinationTypes'
-import { updatePreferencia } from '@/app/utils/preferenciaUtils'
+import { updatePreferencia } from '@/src/utils/preferenciaUtils'
 
 type Props = {
   index: number

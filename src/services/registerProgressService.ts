@@ -1,5 +1,5 @@
-import { saveProgressApi, getProgressApi } from '@/app/utils/register.api'
-import { getToken, setStorage } from '@/app/utils/utils'
+import { saveProgressApi, getProgressApi } from '@/src/utils/register.api'
+import { getToken, setStorage } from '@/src/utils/utils'
 import { jwtDecode } from 'jwt-decode'
 
 type DecodedToken = { id: string }

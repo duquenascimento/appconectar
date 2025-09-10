@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 
-export const isBefore13Hours = () => {
+export function isBefore13Hours () {
   const currentDate = DateTime.now().setZone('America/Sao_Paulo')
   const currentHour = Number(
     `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute
@@ -10,7 +10,7 @@ export const isBefore13Hours = () => {
   return 130000 >= currentHour
 }
 
-export const getSecondsUntil13h = () => {
+export function getSecondsUntil13h () {
   const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate()
   const target = new Date()
 
@@ -23,10 +23,11 @@ export const getSecondsUntil13h = () => {
   return differenceInSeconds
 }
 
-export const getDeliveryWindow = (data: any) => {
+export function getDeliveryWindow(data: any) {
   if (!data || !data.addressInfos || !data.addressInfos.length) return '';
   const addr = data.addressInfos[0];
   const startTime = addr.initialDeliveryTime.substring(11, 16);
   const endTime = addr.finalDeliveryTime.substring(11, 16);
   return `Entre ${startTime} e ${endTime}`;
 }
+

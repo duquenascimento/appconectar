@@ -21,10 +21,10 @@ import CustomAlert from "../../src/components/modais/CustomAlert";
 import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
 
 import { TouchableOpacity } from "react-native";
-import { clearStorage, deleteToken } from "../utils/utils";
+import { clearStorage, deleteToken } from "../../src/utils/utils";
 import PdfViewerModal from "@/src/components/modais/PdfViewerModal"
 
-export function ModalDocumentsAndInvoices(props: {
+export default function ModalDocumentsAndInvoices(props: {
   openModal: boolean;
   setRegisterInvalid: Function;
 }) {

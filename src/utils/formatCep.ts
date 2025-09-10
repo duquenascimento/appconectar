@@ -8,3 +8,4 @@ export const formatCep = (value: string) => {
     // Define o valor formatado
     return formatted;
 }
+

@@ -1,4 +1,4 @@
-export const processOrderResponse = (suppliers: any, ordersGenerated: any) => {
+export function processOrderResponse (suppliers: any, ordersGenerated: any){
     const orderIdMap = new Map(
       ordersGenerated.map((item: { externalId: string; orderId: string }) => [item.externalId, item.orderId])
     );
@@ -13,3 +13,4 @@ export const processOrderResponse = (suppliers: any, ordersGenerated: any) => {
   
     return supplierWithOrderId;
   };
+

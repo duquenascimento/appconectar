@@ -12,12 +12,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { ScrollView, View, YStack } from 'tamagui'
 
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
-import { mapCombination } from '../utils/mapCombination'
+import { mapCombination } from '../../src/utils/mapCombination'
 import CustomAlert from '@/src/components/modais/CustomAlert'
-import { getStorage } from '../utils/utils'
+import { getStorage } from '../../src/utils/utils'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { Combinacao } from '@/src/types/combinationTypes'
-import { transformCombinacaoForSave } from '../utils/combinacaoUtils'
+import { transformCombinacaoForSave } from '../../src/utils/combinacaoUtils'
 import { useFocusEffect } from '@react-navigation/native'
 
 export interface Combination {
