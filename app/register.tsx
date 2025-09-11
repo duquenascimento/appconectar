@@ -30,6 +30,7 @@ import {
   loadProgress,
   saveStepData
 } from '@/src/services/registerProgressService'
+import { router } from 'expo-router'
 
 type RootStackParamList = {
   Home: undefined
@@ -199,7 +200,8 @@ export default function Register({ navigation }: HomeScreenProps) {
 
         if (response.ok) {
           await clearStorage()
-          navigation.replace('RegisterFinished')
+          // navigation.replace('RegisterFinished')
+          router.push('registerFinished')
         }
       } finally {
         setLoading(false)
