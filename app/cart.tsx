@@ -1,7 +1,7 @@
 import { View, Text, Stack, Button, XStack, Input, debounce } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
+// import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   ActivityIndicator,
   Modal,
@@ -15,6 +15,7 @@ import {
   getToken,
   setStorage
 } from '../src/utils/utils'
+import { router } from 'expo-router'
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
 import { filterCarts } from '../src/utils/filterCarts'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
@@ -25,9 +26,9 @@ type RootStackParamList = {
   Prices: undefined
 }
 
-type HomeScreenProps = {
+/* type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
+} */
 
 export type Product = {
   name: string
@@ -412,7 +413,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox'
 
-export default function Cart({ navigation }: HomeScreenProps) {
+export default function Cart() {
   const [loading, setLoading] = useState<boolean>(true)
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<Map<string, TCart>>(new Map())
@@ -470,7 +471,9 @@ export default function Cart({ navigation }: HomeScreenProps) {
           if (result.ok) {
             if (newCart.size < 1) {
               deleteStorage('cart').then()
-              navigation.replace('Products')
+
+              //navigation.replace('Products')
+              router.push('products')
             }
           }
         })
@@ -700,7 +703,8 @@ export default function Cart({ navigation }: HomeScreenProps) {
             onPress={async () => {
               setLoading(true)
               await saveCartArray(cart, cartToExclude)
-              navigation.replace('Products')
+              // navigation.replace('Products')
+              router.push('products')
             }}
             size={25}
             name="chevron-back"
@@ -763,7 +767,8 @@ export default function Cart({ navigation }: HomeScreenProps) {
                 setLoading(true)
                 checkAlertItems(products)
                 saveCartArray(cart, cartToExclude).then(() => {
-                  navigation.replace('Prices')
+                  //navigation.replace('Prices')
+                  router.push('prices')
                 })
               }}
               justifyContent="center"
@@ -873,7 +878,8 @@ export default function Cart({ navigation }: HomeScreenProps) {
                             }
                           )
                           deleteStorage('cart')
-                          navigation.replace('Products')
+                          //navigation.replace('Products')
+                          router.push('products')
                         }}
                       >
                         <Text color="white" textAlign="center">

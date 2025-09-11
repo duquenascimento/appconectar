@@ -413,7 +413,7 @@ export default function Sign() {
     } finally {
       setLoading(false)
     }
-  }, [navigation])
+  }, [])
 
   useEffect(() => {
     checkLogin()
@@ -460,7 +460,7 @@ export default function Sign() {
               <View width={width} height="100%">
                 <SignInWeb
                   page={currentPage}
-                  navigation={navigation}
+                  //navigation={navigation}
                   onButtonPress={handleButtonPress}
                   modal={handleCloseModal}
                 />
@@ -469,7 +469,7 @@ export default function Sign() {
               <View width={width} height="100%">
                 <SignUpWeb
                   page={currentPage}
-                  navigation={navigation}
+                  //navigation={navigation}
                   onButtonPress={handleButtonPress}
                   modal={handleCloseModal}
                 />
@@ -482,7 +482,7 @@ export default function Sign() {
               <SignInMobile
                 page={currentPage}
                 onButtonPress={handleButtonPress}
-                navigation={navigation}
+                //navigation={navigation}
                 modal={handleCloseModal}
               />
             </View>
@@ -490,7 +490,7 @@ export default function Sign() {
               <SignUpMobile
                 page={currentPage}
                 onButtonPress={handleButtonPress}
-                navigation={navigation}
+                //navigation={navigation}
                 modal={handleCloseModal}
               />
             </View>

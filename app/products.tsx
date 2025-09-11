@@ -34,6 +34,7 @@ import {
   getToken,
   setStorage
 } from '../src/utils/utils'
+import { router } from 'expo-router'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
@@ -1839,7 +1840,8 @@ export default function Products({ navigation }: HomeScreenProps) {
         visibleProducts={displayedProducts}
         onPress={async () => {
           setLoading(true)
-          navigation.replace('Cart')
+          // navigation.replace('Cart')
+          router.push('cart')
         }}
       />
     </Stack>
