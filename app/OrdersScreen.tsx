@@ -1,18 +1,10 @@
 import React, { ReactNode, useEffect, useState } from 'react'
 import { View, Text, XStack, Input } from 'tamagui'
-import {
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Linking
-} from 'react-native'
+import { FlatList, TouchableOpacity, ActivityIndicator, Platform, Linking } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import Icons from '@expo/vector-icons/Ionicons'
 import { getOrders } from '../src/services/orderService'
 import { loadRestaurants } from '../src/services/restaurantService'
-import { RootStackParamList } from '../src/types/navigationTypes'
 import { ordersScreenStyles as styles } from '../src/styles/styles'
 import { clearStorage, deleteToken } from '../src/utils/utils'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -20,8 +12,8 @@ import { VersionInfo } from '../src/utils/VersionApp'
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes'
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
 import CustomAlert from '@/src/components/modais/CustomAlert'
+import { useRouter } from 'expo-router'
 
-//type OrdersScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>
 interface Order {
   orderDocument: ReactNode
   id: string
@@ -62,6 +54,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [showAlertVisible, setShowAlertVisible] = useState(false)
   const [customAlertTitle, setCustomAlertTitle] = useState('')
   const [customAlertMessage, setCustomAlertMessage] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     const LoadRestaurants = async () => {
@@ -91,10 +84,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         const result = await getOrders(1, 100, selectedRestaurant)
 
         const ordersData = result.map((order: any) => {
-          const filteredSupplier =
-            order.calcOrderAgain?.data?.filter(
-              (item: any) => item.supplier?.externalId === order.supplierId
-            ) || []
+          const filteredSupplier = order.calcOrderAgain?.data?.filter((item: any) => item.supplier?.externalId === order.supplierId) || []
 
           return {
             ...order,
@@ -118,8 +108,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const dialogProps = {
     openModal: showBlockedModal,
     setRegisterInvalid: setShowBlockedModal,
-    rest: restaurants.filter((r) => r.registrationReleasedNewApp),
-    navigation: navigation
+    rest: restaurants.filter((r) => r.registrationReleasedNewApp)
   }
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
@@ -156,10 +145,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       if (storedRestaurant?.externalId === value) {
         return
       }
-      await AsyncStorage.setItem(
-        'selectedRestaurant',
-        JSON.stringify({ restaurant })
-      )
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
       setSelectedRestaurant(value)
       setShowBlockedModal(false)
     } catch (error) {
@@ -183,14 +169,9 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       }
       const matchesId = order.id.toLowerCase().includes(query.toLowerCase())
       const matchesTotal = order.totalConectar.toString().includes(query)
-      const matchExternalId = order.calcOrderAgain.data.find(
-        (item: any) =>
-          item.supplier && item.supplier.externalId === order.supplierId
-      )
+      const matchExternalId = order.calcOrderAgain.data.find((item: any) => item.supplier && item.supplier.externalId === order.supplierId)
 
-      const matchesSupplier = matchExternalId.supplier.name
-        .toLowerCase()
-        .includes(query.toLowerCase())
+      const matchesSupplier = matchExternalId.supplier.name.toLowerCase().includes(query.toLowerCase())
 
       return matchesId || matchesTotal || matchesSupplier
     })
@@ -215,38 +196,25 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     for (const orderId of selectedOrders) {
       const order: any = orders.find((o) => o.id === orderId)
       if (!order) {
-        showAlert(
-          'Pedido inválido',
-          'Não foi possível encontrar o pedido selecionado.'
-        )
+        showAlert('Pedido inválido', 'Não foi possível encontrar o pedido selecionado.')
         continue
       }
 
       const { orderDocument, orderInvoices } = order
       const invoiceUrl = orderInvoices?.filePath?.[0]
-      const isValidDocUrl =
-        typeof orderDocument === 'string' && orderDocument.startsWith('http')
+      const isValidDocUrl = typeof orderDocument === 'string' && orderDocument.startsWith('http')
 
       if (!isValidDocUrl && !invoiceUrl) {
-        showAlert(
-          'Ocorreu um erro ao buscar documentos',
-          'Por favor, tente novamente mais tarde'
-        )
+        showAlert('Ocorreu um erro ao buscar documentos', 'Por favor, tente novamente mais tarde')
         return
       }
       if (!isValidDocUrl) {
-        showAlert(
-          'Documento indisponível',
-          'O pedido não está disponível para visualização.'
-        )
+        showAlert('Documento indisponível', 'O pedido não está disponível para visualização.')
       } else {
         await openUrl(orderDocument)
       }
       if (!invoiceUrl) {
-        showAlert(
-          'Nota fiscal indisponível',
-          'A nota fiscal deste pedido não está disponível para download.'
-        )
+        showAlert('Nota fiscal indisponível', 'A nota fiscal deste pedido não está disponível para download.')
       } else {
         await openUrl(invoiceUrl)
       }
@@ -267,15 +235,11 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       }
     } catch (error) {
       console.error('Erro ao abrir o link:', error)
-      showAlert(
-        'Erro ao abrir o link',
-        'Não foi possível abrir o link do pedido ou da nota fiscal.'
-      )
+      showAlert('Erro ao abrir o link', 'Não foi possível abrir o link do pedido ou da nota fiscal.')
     }
   }
 
-  const delay = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms))
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
   const showAlert = (title: string, message: string) => {
     setCustomAlertTitle(title)
@@ -304,12 +268,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
   return (
     <>
-      <CustomAlert
-        visible={showAlertVisible}
-        title={customAlertTitle}
-        message={customAlertMessage}
-        onConfirm={() => setShowAlertVisible(false)}
-      />
+      <CustomAlert visible={showAlertVisible} title={customAlertTitle} message={customAlertMessage} onConfirm={() => setShowAlertVisible(false)} />
       <Text
         style={{
           marginTop: 35,
@@ -332,9 +291,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
         onSelectItem={(value) => {
-          const rest = restaurants.find(
-            (item) => item?.externalId === value.value
-          )
+          const rest = restaurants.find((item) => item?.externalId === value.value)
           if (rest?.registrationReleasedNewApp) {
             setShowBlockedModal(true)
           } else {
@@ -359,20 +316,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         }}
       />
 
-      <XStack
-        backgroundColor="#FFF"
-        borderRadius={20}
-        width={Platform.OS === 'web' ? '70%' : '92%'}
-        marginTop={20}
-        alignSelf="center"
-        alignItems="center"
-      >
-        <Icons
-          name="search"
-          size={24}
-          color="#04BF7B"
-          style={{ marginLeft: 15 }}
-        />
+      <XStack backgroundColor="#FFF" borderRadius={20} width={Platform.OS === 'web' ? '70%' : '92%'} marginTop={20} alignSelf="center" alignItems="center">
+        <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
         <Input
           width={Platform.OS === 'web' ? '67%' : '92%'}
           placeholder="Buscar pedidos..."
@@ -407,13 +352,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           marginHorizontal: 15
         }}
       >
-        {isDownloading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
-            Baixar Documentos Selecionados
-          </Text>
-        )}
+        {isDownloading ? <ActivityIndicator color="#fff" /> : <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>Baixar Documentos Selecionados</Text>}
       </TouchableOpacity>
 
       <FlatList
@@ -423,25 +362,18 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         }}
         data={filteredOrders}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>
-        )}
+        ListEmptyComponent={() => <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>}
         renderItem={({ item }) => {
-          const supplierName =
-            item.calcOrderAgain?.data[0]?.supplier?.name ||
-            'Fornecedor não disponível'
+          const supplierName = item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível'
           const truncatedSupplierName = truncateText(supplierName, 20)
           return (
             <TouchableOpacity
               onPress={() =>
-                navigation.navigate('OrderDetails', { orderId: item.id })
+                router.push({ pathname: '/OrderDetailsScreen', params: { orderId: item.id } })
               }
               style={styles.itemContainer}
             >
-              <TouchableOpacity
-                onPress={() => toggleOrderSelection(item.id)}
-                style={styles.checkboxContainer}
-              >
+              <TouchableOpacity onPress={() => toggleOrderSelection(item.id)} style={styles.checkboxContainer}>
                 <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
               </TouchableOpacity>
 
@@ -449,9 +381,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
                 <Text mb={10} style={styles.orderId}>
                   {item.id}
                 </Text>
-                <Text style={styles.deliveryDate}>
-                  {formatDate(item.deliveryDate)}
-                </Text>
+                <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
               </View>
 
               <View style={styles.rightColumn}>
@@ -472,26 +402,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           )
         }}
       />
-      <View
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="row"
-        gap={30}
-        height={55}
-        borderTopWidth={0.2}
-        borderTopColor="lightgray"
-      >
-        <View
-          onPress={() => navigation.replace('Products')}
-          padding={10}
-          marginVertical={10}
-          borderRadius={8}
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-          width={80}
-          height={70}
-        >
+      <View justifyContent="center" alignItems="center" flexDirection="row" gap={30} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
+        <View onPress={() => router.push('/products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
           <Icons name="home" size={20} color="gray" />
           <Text fontSize={12} color="gray">
             Home
@@ -500,7 +412,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         <View
           onPress={async () => {
             setLoading(true)
-            navigation.replace('Orders')
+            router.push('/OrdersScreen')
           }}
           padding={10}
           marginVertical={10}
@@ -521,7 +433,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           onPress={async () => {
             setLoading(true)
             await Promise.all([clearStorage(), deleteToken()])
-            navigation.replace('Sign')
+            router.push('/')
           }}
           padding={10}
           marginVertical={10}
@@ -549,16 +461,11 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         messageText="Este restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
         onSelectAvailable={async () => {
           try {
-            const availableRestaurant = restaurants.find(
-              (r) => !r.registrationReleasedNewApp
-            )
+            const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp)
 
             if (availableRestaurant) {
               setShowBlockedModal(false)
-              await AsyncStorage.setItem(
-                'selectedRestaurant',
-                JSON.stringify({ restaurant: availableRestaurant })
-              )
+              await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
 
               setSelectedRestaurant(availableRestaurant.externalId)
               setShowBlockedModal(false)

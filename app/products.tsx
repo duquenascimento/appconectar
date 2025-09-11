@@ -34,7 +34,6 @@ import {
   getToken,
   setStorage
 } from '../src/utils/utils'
-import { router } from 'expo-router'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {
@@ -55,6 +54,7 @@ import { filterCarts } from '../src/utils/filterCarts'
 import { UpdateAppModal } from '@/src/components/UpdateAppModal'
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
+import { useRouter } from "expo-router"
 
 export type Product = {
   name: string
@@ -783,6 +783,7 @@ export default function Products({ navigation }: HomeScreenProps) {
   const [updateRequired, setUpdateRequired] = useState(false)
   const [updateMessage, setUpdateMessage] = useState('')
   const { productsContext, isLoading } = useProductContext()
+  const router = useRouter()
 
   useEffect(() => {
     if (Platform.OS === 'web') return
@@ -1770,7 +1771,7 @@ export default function Products({ navigation }: HomeScreenProps) {
           borderTopColor="lightgray"
         >
           <View
-            onPress={() => navigation.replace('Products')}
+            onPress={() => router.push("/products")}
             padding={10}
             marginVertical={10}
             borderRadius={8}
@@ -1790,7 +1791,7 @@ export default function Products({ navigation }: HomeScreenProps) {
               setLoading(true)
               saveCartArray(cart, cartToExclude).catch(console.error)
               setLoading(false)
-              navigation.replace('Orders')
+              router.push("/OrdersScreen")
             }}
             padding={10}
             marginVertical={10}
@@ -1813,7 +1814,7 @@ export default function Products({ navigation }: HomeScreenProps) {
               await saveCartArray(cart, cartToExclude)
               await Promise.all([clearStorage(), deleteToken()])
               setLoading(false)
-              navigation.replace('Sign')
+              router.push("/")
             }}
             padding={10}
             marginVertical={10}
@@ -1840,7 +1841,6 @@ export default function Products({ navigation }: HomeScreenProps) {
         visibleProducts={displayedProducts}
         onPress={async () => {
           setLoading(true)
-          // navigation.replace('Cart')
           router.push('cart')
         }}
       />
