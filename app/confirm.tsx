@@ -1,4 +1,3 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { type SupplierData } from './prices'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
@@ -27,6 +26,7 @@ import { Platform } from 'react-native'
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 import { validateAddress } from '../src/utils/validateAddress'
+import { useRouter } from "expo-router"
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -36,19 +36,7 @@ Notifications.setNotificationHandler({
   })
 })
 
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Cart: undefined
-  Prices: undefined
-  FinalConfirm: undefined
-}
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
-
-export default function DialogInstance(props: {
+export function DialogInstance(props: {
   openModal: boolean
   setRegisterInvalid: Function
   erros: string[]
@@ -216,7 +204,7 @@ function DialogInstanceNotification(props: {
   )
 }
 
-export function Confirm({ navigation }: HomeScreenProps) {
+export default function Confirm() {
   const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData)
   const [loading, setLoading] = useState<boolean>(true)
   const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
@@ -231,6 +219,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
   >([])
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
   const [alertMessage, setAlertMessage] = useState<string>('')
+  const router = useRouter()
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -265,13 +254,13 @@ export function Confirm({ navigation }: HomeScreenProps) {
         setSelectedRestaurant(selectedRestaurant)
       } catch (err) {
         console.error(err)
-        navigation.replace('Prices')
+        router.push('/prices')
       } finally {
         setLoading(false)
       }
     }
     loadSupplierAsync()
-  }, [loadSupplier, navigation])
+  }, [loadSupplier, router])
 
   useEffect(() => {
     ;(async () => {
@@ -419,9 +408,8 @@ export function Confirm({ navigation }: HomeScreenProps) {
       if (date.getDate() >= day) {
         nextDate.setMonth(date.getMonth() + 1)
       }
-      // Verificar se o próximo mês tem o dia desejado (ex.: 30 de fevereiro não existe)
       if (nextDate.getMonth() !== (date.getMonth() + 1) % 12) {
-        nextDate.setDate(0) // Definir para o último dia do mês anterior
+        nextDate.setDate(0)
       }
       return nextDate
     }
@@ -538,7 +526,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
       if (result.ok) {
         const response = await result.json()
         await setStorage('finalConfirmData', JSON.stringify(response.data))
-        navigation.replace('FinalConfirm')
+        router.push('/finalConfirm')
       } else {
         setLoadingToConfirm(false)
         setShowErros(['Ocorreu um erro ao confirmar o pedido.'])
@@ -550,7 +538,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
       setShowErros(['Ocorreu um erro de conexão. Tente novamente.'])
       setBooleanErros(true)
     }
-  }, [supplier, selectedRestaurant, navigation])
+  }, [supplier, selectedRestaurant, router])
 
   if (loading) {
     return (
@@ -620,7 +608,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
             onPress={() => {
               setLoading(true)
               deleteStorage('supplierSelected')
-              navigation.replace('Prices')
+              router.push('/prices')
             }}
           ></Icons>
         </View>
@@ -1037,7 +1025,7 @@ export function Confirm({ navigation }: HomeScreenProps) {
       >
         <Button
           onPress={() => {
-            navigation.replace('Cart')
+            router.push('/cart')
           }}
           width={170}
           backgroundColor="#000"

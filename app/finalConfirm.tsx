@@ -1,21 +1,10 @@
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { View, Image, Text, Button } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { SupplierData } from './prices'
 import { useCallback, useEffect, useState } from 'react'
 import { clearStorage, getStorage } from '../src/utils/utils'
 import { SaveUserAppInfo } from '../src/utils/VersionApp'
-
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Cart: undefined
-  Prices: undefined
-}
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
+import { useRouter } from 'expo-router'
 
 interface RestaurantInfo {
   restName: string
@@ -30,13 +19,14 @@ interface PaymentDescriptions {
   [key: string]: string
 }
 
-export default function FinalConfirm({ navigation }: HomeScreenProps) {
+export default function FinalConfirm() {
+  const router = useRouter()
   const [supplier, setSupplier] = useState<SupplierData>()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [deliveryData, setDeliveryData] = useState<RestaurantInfo>()
   const loadSupplier = useCallback(async () => {
     const supplierText = await getStorage('supplierSelected')
     const deliveryDataText = await getStorage('finalConfirmData')
+    
     if (supplierText) {
       const supplier = JSON.parse(supplierText)
       setSupplier(supplier)
@@ -53,13 +43,12 @@ export default function FinalConfirm({ navigation }: HomeScreenProps) {
         await loadSupplier()
       } catch (err) {
         console.error(err)
-        navigation.replace('Prices')
+        router.push('/prices')
       }
     }
     loadSupplierAsync()
-  }, [loadSupplier, navigation])
+  }, [loadSupplier, router])
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getPaymentDate = (paymentWay: string): string => {
     const today = new Date()
     const todayUTC = new Date(
@@ -275,7 +264,7 @@ export default function FinalConfirm({ navigation }: HomeScreenProps) {
         <View paddingTop={40}>
           <Button
             onPress={async () => {
-              navigation.replace('Products')
+              router.push('/products')
               SaveUserAppInfo()
             }}
             backgroundColor="#04BF7B"
@@ -283,32 +272,6 @@ export default function FinalConfirm({ navigation }: HomeScreenProps) {
             <Icons size={20} color="white" name="checkmark"></Icons>
           </Button>
         </View>
-        {/* <View alignItems="center" mt={15} flexDirection="row">
-                    <Icons size={20} name="location"></Icons>
-                    <View ml={10}>
-                        <Text fontSize={16}>{deliveryData?.restName}</Text>
-                        <Text fontSize={12}>{deliveryData?.address.toUpperCase()}</Text>
-                    </View>
-                </View>
-                <View alignItems="center" mt={15} flexDirection="row">
-                    <Icons size={20} name="time"></Icons>
-                    <View ml={10}>
-                        <Text fontSize={16}>Entre {deliveryData?.minHour} e {deliveryData?.maxHour}</Text>
-                        <Text fontSize={12}>{new Date(deliveryData?.deliveryDateFormated as string).toLocaleDateString('pt-BR')}</Text>
-                    </View>
-                </View>
-                <View alignItems="center" mt={15} flexDirection="row">
-                    <Icons size={20} name="cash"></Icons>
-                    <View ml={10}>
-                        <Text fontSize={16}>Venc. {getPaymentDate(deliveryData?.paymentWay as string)}</Text>
-                        <Text fontSize={12}>{getPaymentDescription(deliveryData?.paymentWay as string)}</Text>
-                    </View>
-                </View>
-                <View paddingTop={40}>
-                    <Button onPress={async () => {
-                        navigation.replace('Products')
-                    }} backgroundColor='#04BF7B'><Icons size={20} color='white' name="checkmark"></Icons></Button>
-                </View> */}
       </View>
     </View>
   )
