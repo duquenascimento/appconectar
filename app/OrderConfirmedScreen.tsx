@@ -1,22 +1,14 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'
 import { YStack, XStack, Text, Separator, Image } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import React, { useState, useEffect } from 'react'
-import {
-  SafeAreaView,
-  ScrollView,
-  Platform,
-  ActivityIndicator,
-  Alert
-} from 'react-native'
+import { SafeAreaView, ScrollView, Platform, ActivityIndicator, Alert } from 'react-native'
 import CustomButton from '@/src/components/button/customButton'
 import { SupplierData } from '@/src/types/types'
 import { getStorage } from '@/src/utils/utils'
 import { formatCurrency } from '../src/utils/formatCurrency'
 import { getDeliveryWindow } from '../src/utils/timeUtils'
 import { getPaymentDate } from '../src/utils/getPaymentDate'
-
+import { useRouter, useLocalSearchParams } from 'expo-router'
 interface RestaurantAddress {
   address: string
   neighborhood: string
@@ -26,33 +18,37 @@ interface RestaurantAddress {
   initialDeliveryTime: string
   finalDeliveryTime: string
 }
-
 interface RestaurantData {
   name: string
   addressInfos: RestaurantAddress[]
   paymentWay: string
 }
 
-type RootStackParamList = {
-  QuotationDetails: undefined
-  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string }
-  Orders: undefined
-}
-
-type OrderConfirmedRouteProp = RouteProp<RootStackParamList, 'OrderConfirmed'>
-type OrderConfirmedNavigationProp = NativeStackNavigationProp<
-  RootStackParamList,
-  'OrderConfirmed'
->
-
 export default function OrderConfirmedScreen() {
-  const navigation = useNavigation<OrderConfirmedNavigationProp>()
-  const route = useRoute<OrderConfirmedRouteProp>()
+  const router = useRouter()
+  const { suppliers: suppliersParam, deliveryDate } = useLocalSearchParams<{
+    suppliers?: string
+    deliveryDate?: string
+  }>()
 
-  const { suppliers, deliveryDate } = route.params
+  const [suppliers, setSuppliers] = useState<SupplierData[]>([])
 
-  const [restaurantDetails, setRestaurantDetails] =
-    useState<RestaurantData | null>(null)
+  useEffect(() => {
+    if (suppliersParam) {
+      try {
+        const parsed = JSON.parse(decodeURIComponent(suppliersParam))
+        if (Array.isArray(parsed)) {
+          setSuppliers(parsed)
+        } else {
+          console.error('suppliers não é um array:', parsed)
+        }
+      } catch (error) {
+        console.error('Erro ao parsear suppliers:', error)
+      }
+    }
+  }, [suppliersParam])
+
+  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [paymentDateOrder, setPaymentDateOrder] = useState<string | null>(null)
 
@@ -65,17 +61,11 @@ export default function OrderConfirmedScreen() {
           setRestaurantDetails(parsedData.restaurant)
           setPaymentDateOrder(getPaymentDate(parsedData.restaurant.paymentWay))
         } else {
-          Alert.alert(
-            'Erro',
-            'Não foi possível encontrar os dados do restaurante.'
-          )
+          Alert.alert('Erro', 'Não foi possível encontrar os dados do restaurante.')
         }
       } catch (error) {
         console.error('Erro ao carregar dados do restaurante:', error)
-        Alert.alert(
-          'Erro',
-          'Ocorreu um problema ao carregar as informações do restaurante.'
-        )
+        Alert.alert('Erro', 'Ocorreu um problema ao carregar as informações do restaurante.')
       } finally {
         setIsLoading(false)
       }
@@ -108,34 +98,11 @@ export default function OrderConfirmedScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F4F8' }}>
-      <YStack
-        flex={1}
-        backgroundColor="#F0F4F8"
-        alignSelf="center"
-        width="100%"
-        maxWidth={Platform.OS === 'web' ? 768 : undefined}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1, paddingVertical: 16 }}
-          showsVerticalScrollIndicator={false}
-        >
-          <YStack
-            flex={1}
-            alignItems="center"
-            justifyContent="center"
-            p="$4"
-            gap="$4"
-          >
+      <YStack flex={1} backgroundColor="#F0F4F8" alignSelf="center" width="100%" maxWidth={Platform.OS === 'web' ? 768 : undefined}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, paddingVertical: 16 }} showsVerticalScrollIndicator={false}>
+          <YStack flex={1} alignItems="center" justifyContent="center" p="$4" gap="$4">
             <YStack alignItems="center" gap="$3">
-              <YStack
-                width={80}
-                height={80}
-                borderRadius={40}
-                backgroundColor="white"
-                alignItems="center"
-                justifyContent="center"
-                elevation={5}
-              >
+              <YStack width={80} height={80} borderRadius={40} backgroundColor="white" alignItems="center" justifyContent="center" elevation={5}>
                 <Icons name="checkmark" size={48} color="#1DC588" />
               </YStack>
               <Text fontSize={24} fontWeight="bold" color="$gray12">
@@ -148,12 +115,7 @@ export default function OrderConfirmedScreen() {
                 <React.Fragment key={supplier.externalId}>
                   <XStack ai="center" jc="space-between">
                     <XStack ai="center" gap="$3">
-                      <Image
-                        source={{ uri: supplier.image }}
-                        width={40}
-                        height={40}
-                        borderRadius={20}
-                      />
+                      <Image source={{ uri: supplier.image }} width={40} height={40} borderRadius={20} />
                       <YStack>
                         <Text fontSize={16} fontWeight="bold">
                           {supplier.name}
@@ -175,9 +137,7 @@ export default function OrderConfirmedScreen() {
                       </Text>
                     </YStack>
                   </XStack>
-                  {index < suppliers.length - 1 && (
-                    <Separator borderColor="$gray4" />
-                  )}
+                  {index < suppliers.length - 1 && <Separator borderColor="$gray4" />}
                 </React.Fragment>
               ))}
             </YStack>
@@ -225,12 +185,7 @@ export default function OrderConfirmedScreen() {
         </ScrollView>
 
         <YStack py="$4" px="$4" bg="#F0F4F8">
-          <CustomButton
-            title="Ir para Meus pedidos"
-            onPress={() => navigation.navigate('Orders')}
-            backgroundColor="white"
-            textColor="black"
-          />
+          <CustomButton title="Ir para Meus pedidos" onPress={() => router.push('/OrdersScreen')} backgroundColor="white" textColor="black" />
         </YStack>
       </YStack>
     </SafeAreaView>
