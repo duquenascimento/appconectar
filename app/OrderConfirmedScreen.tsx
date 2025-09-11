@@ -31,6 +31,7 @@ export default function OrderConfirmedScreen() {
     deliveryDate?: string
   }>()
 
+
   const [suppliers, setSuppliers] = useState<SupplierData[]>([])
 
   useEffect(() => {

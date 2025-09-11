@@ -2,9 +2,9 @@ import { getAllProducts, ProductResponse } from '@/src/services/productsService'
 import React, { useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { View, Text, XStack, YStack, Separator, Card, Label, Button } from 'tamagui'
-import { SuplierCombination } from './combination'
+import { SuplierCombination } from '@/app/combination'
 import { getIn, useFormikContext } from 'formik'
-import { getFieldError } from '@/app/utils/formikUtils'
+import { getFieldError } from '@/src/utils/formikUtils'
 
 export interface ProrityProductsCombination {
   id: string

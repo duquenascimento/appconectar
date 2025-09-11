@@ -9,7 +9,7 @@ import CustomListItem from '../src/components/list/customListItem'
 import CustomButton from '../src/components/button/customButton'
 import CustomInfoCard from '../src/components/card/customInfoCard'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { ScrollView, View, YStack } from 'tamagui'
+import { ScrollView, YStack } from 'tamagui'
 
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
 import { mapCombination } from '../src/utils/mapCombination'
@@ -19,6 +19,7 @@ import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { Combinacao } from '@/src/types/combinationTypes'
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils'
 import { useFocusEffect } from '@react-navigation/native'
+import { router } from 'expo-router'
 
 export interface Combination {
   id: string
@@ -121,12 +122,12 @@ const PreferencesScreen: React.FC = () => {
     )
     updateCombinacao(normalizedCombination as Combinacao)
     setModificado(true)
-    navigation.navigate('Combination', { id })
+    router.push({ pathname: 'combination', params: { id } })
   }
   const handleCreateNewCombination = () => {
     resetCombinacao()
     setModificado(true)
-    navigation.navigate('Combination', { id: '' })
+    router.push('combination')
   }
 
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`
