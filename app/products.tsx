@@ -54,7 +54,7 @@ import { filterCarts } from '../src/utils/filterCarts'
 import { UpdateAppModal } from '@/src/components/UpdateAppModal'
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
-import { useRouter } from "expo-router"
+import { useRouter } from 'expo-router'
 
 export type Product = {
   name: string
@@ -1771,7 +1771,7 @@ export default function Products({ navigation }: HomeScreenProps) {
           borderTopColor="lightgray"
         >
           <View
-            onPress={() => router.push("/products")}
+            onPress={() => router.push('/products')}
             padding={10}
             marginVertical={10}
             borderRadius={8}
@@ -1791,7 +1791,7 @@ export default function Products({ navigation }: HomeScreenProps) {
               setLoading(true)
               saveCartArray(cart, cartToExclude).catch(console.error)
               setLoading(false)
-              router.push("/OrdersScreen")
+              router.push('/ordersScreen')
             }}
             padding={10}
             marginVertical={10}
@@ -1814,7 +1814,7 @@ export default function Products({ navigation }: HomeScreenProps) {
               await saveCartArray(cart, cartToExclude)
               await Promise.all([clearStorage(), deleteToken()])
               setLoading(false)
-              router.push("/")
+              router.push('/')
             }}
             padding={10}
             marginVertical={10}

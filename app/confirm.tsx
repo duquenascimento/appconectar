@@ -26,15 +26,19 @@ import { Platform } from 'react-native'
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog'
 import CustomAlert from '@/src/components/modais/CustomAlert'
 import { validateAddress } from '../src/utils/validateAddress'
-import { useRouter } from "expo-router"
+import { useRouter } from 'expo-router'
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+      shouldShowBanner: true,
+      shouldShowList: true
+    })
   })
-})
+}
 
 export function DialogInstance(props: {
   openModal: boolean

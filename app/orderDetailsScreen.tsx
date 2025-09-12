@@ -1,4 +1,13 @@
-import { Adapt, Button, Dialog, Sheet, Text, View, XStack, YStack } from 'tamagui'
+import {
+  Adapt,
+  Button,
+  Dialog,
+  Sheet,
+  Text,
+  View,
+  XStack,
+  YStack
+} from 'tamagui'
 import { useEffect, useState } from 'react'
 import { cancelOrder, getOrder } from '../src/services/orderService'
 import { OrderData } from '../src/types/IOrder'
@@ -11,7 +20,10 @@ import { TouchableOpacity } from 'react-native'
 import { clearStorage, deleteToken } from '../src/utils/utils'
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal'
 
-export function ModalDocumentsAndInvoices(props: { openModal: boolean; setRegisterInvalid: Function }) {
+export function ModalDocumentsAndInvoices(props: {
+  openModal: boolean
+  setRegisterInvalid: Function
+}) {
   return (
     <Dialog modal open={props.openModal}>
       {/* Modal adaptado para ocupar tela cheia no celular */}
@@ -33,12 +45,22 @@ export function ModalDocumentsAndInvoices(props: { openModal: boolean; setRegist
           <Sheet.Frame padding="$4" gap="$4" flex={1}>
             <Adapt.Contents />
           </Sheet.Frame>
-          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+          <Sheet.Overlay
+            animation="quickest"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
         </Sheet>
       </Adapt>
 
       <Dialog.Portal>
-        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+        <Dialog.Overlay
+          key="overlay"
+          animation="quick"
+          opacity={0.5}
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
 
         <Dialog.Content
           bordered
@@ -57,15 +79,30 @@ export function ModalDocumentsAndInvoices(props: { openModal: boolean; setRegist
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
+          <YStack
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            padding="$4"
+            gap="$4"
+          >
             <Dialog.Title textAlign="center" mx="auto" color="red">
               Documento ainda não disponível
             </Dialog.Title>
-            <Dialog.Description textAlign="center">O documento ainda não foi disponibilizado.</Dialog.Description>
+            <Dialog.Description textAlign="center">
+              O documento ainda não foi disponibilizado.
+            </Dialog.Description>
 
             <XStack justifyContent="center" alignSelf="center" gap="$4">
               <Dialog.Close displayWhenAdapted asChild>
-                <Button width="$20" theme="active" aria-label="Close" backgroundColor="#04BF7B" color="$white1" onPress={() => props.setRegisterInvalid(false)}>
+                <Button
+                  width="$20"
+                  theme="active"
+                  aria-label="Close"
+                  backgroundColor="#04BF7B"
+                  color="$white1"
+                  onPress={() => props.setRegisterInvalid(false)}
+                >
                   Fechar
                 </Button>
               </Dialog.Close>
@@ -80,12 +117,14 @@ export function ModalDocumentsAndInvoices(props: { openModal: boolean; setRegist
 export default function OrderDetailsScreen() {
   const router = useRouter()
   const { orderId } = useLocalSearchParams<{ orderId: string }>()
-  
+
   const [order, setOrder] = useState<OrderData | null>(null)
   const [loading, setLoading] = useState(true)
   const [modalErrorVisibility, setModalErrorVisibility] = useState(false)
-  const [modalCancelOrderVisibility, setModalCancelOrderVisibility] = useState(false)
-  const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] = useState(false)
+  const [modalCancelOrderVisibility, setModalCancelOrderVisibility] =
+    useState(false)
+  const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] =
+    useState(false)
   const [showDocumentsModal, setShowDocumentsModal] = useState(false)
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [showPdfModal, setShowPdfModal] = useState<boolean>(false)
@@ -132,14 +171,26 @@ export default function OrderDetailsScreen() {
     )
   }
 
-  const supplier = order.calcOrderAgain?.data?.find((item: any) => item.supplier.externalId === order.supplierId)?.supplier
+  const supplier = order.calcOrderAgain?.data?.find(
+    (item: any) => item.supplier.externalId === order.supplierId
+  )?.supplier
 
   const supplierName = supplier ? supplier.name : 'Fornecedor não encontrado'
 
   return (
     <View flex={1} backgroundColor="#F0F2F6">
-      <ModalDocumentsAndInvoices openModal={showDocumentsModal} setRegisterInvalid={setShowDocumentsModal} />
-      {pdfUrl && showPdfModal && <PdfViewerModal key={pdfUrl} pdfUrl={pdfUrl} open={showPdfModal} onClose={() => setShowPdfModal(false)} />}
+      <ModalDocumentsAndInvoices
+        openModal={showDocumentsModal}
+        setRegisterInvalid={setShowDocumentsModal}
+      />
+      {pdfUrl && showPdfModal && (
+        <PdfViewerModal
+          key={pdfUrl}
+          pdfUrl={pdfUrl}
+          open={showPdfModal}
+          onClose={() => setShowPdfModal(false)}
+        />
+      )}
 
       <Text
         style={{
@@ -187,8 +238,18 @@ export default function OrderDetailsScreen() {
         buttonText="Cancelar"
         negativeMainButton
       />
-      <View flexDirection="row" alignItems="center" padding={6} borderBottomWidth={1} borderBottomColor="lightgray">
-        <Icons onPress={() => router.push('/OrdersScreen')} size={25} name="chevron-back"></Icons>
+      <View
+        flexDirection="row"
+        alignItems="center"
+        padding={6}
+        borderBottomWidth={1}
+        borderBottomColor="lightgray"
+      >
+        <Icons
+          onPress={() => router.push('/ordersScreen')}
+          size={25}
+          name="chevron-back"
+        ></Icons>
         <View flex={1} alignItems="center" mb={5}>
           <Text>Pedido {order.id}</Text>
           <Text fontSize={10} color="gray">
@@ -217,7 +278,11 @@ export default function OrderDetailsScreen() {
             }
 
             try {
-              const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/verify-link?url=${encodeURIComponent(url)}`)
+              const res = await fetch(
+                `${
+                  process.env.EXPO_PUBLIC_API_URL
+                }/verify-link?url=${encodeURIComponent(url)}`
+              )
               const data = await res.json()
               if (data && data.status === 200) {
                 setPdfUrl(url)
@@ -231,7 +296,12 @@ export default function OrderDetailsScreen() {
             }
           }}
         >
-          <LabelAndBoxContent iconName="download" title="Recibo" subtitle="Por Conéctar" icon={true} />
+          <LabelAndBoxContent
+            iconName="download"
+            title="Recibo"
+            subtitle="Por Conéctar"
+            icon={true}
+          />
         </TouchableOpacity>
         <Text fontSize={10} color="gray"></Text>
         <TouchableOpacity
@@ -243,7 +313,11 @@ export default function OrderDetailsScreen() {
             }
 
             try {
-              const res = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/verify-link?url=${encodeURIComponent(url)}`)
+              const res = await fetch(
+                `${
+                  process.env.EXPO_PUBLIC_API_URL
+                }/verify-link?url=${encodeURIComponent(url)}`
+              )
               const data = await res.json()
               if (data && data.status === 200) {
                 setPdfUrl(url)
@@ -257,7 +331,12 @@ export default function OrderDetailsScreen() {
             }
           }}
         >
-          <LabelAndBoxContent iconName="download" icon={true} title="Nota Fiscal" subtitle={`Por ${supplierName}`} />
+          <LabelAndBoxContent
+            iconName="download"
+            icon={true}
+            title="Nota Fiscal"
+            subtitle={`Por ${supplierName}`}
+          />
         </TouchableOpacity>
         {/*<Button
           borderColor="red"

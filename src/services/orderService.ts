@@ -1,4 +1,4 @@
-import { Supplier } from '@/app/QuotationDetailsScreen'
+import { Supplier } from '@/app/quotationDetailsScreen'
 import axios from 'axios'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL

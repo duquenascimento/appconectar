@@ -1,5 +1,5 @@
 import { CombinationApiResponse } from '@/src/services/combinationsService'
-import { Combination } from '../../app/PreferencesScreen'
+import { Combination } from '../../app/preferencesScreen'
 
 export function mapCombination(apiData: CombinationApiResponse): Combination {
   return {
