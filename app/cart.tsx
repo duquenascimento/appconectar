@@ -690,7 +690,7 @@ export default function Cart() {
   }
 
   return (
-    <Stack pt={20} backgroundColor="#F0F2F6" height="100%" position="relative">
+    <Stack pt={Platform.OS === 'web' ? 20 : 15} backgroundColor="#F0F2F6" height="100%" position="relative">
       <View height={50} flex={1} paddingTop={20}>
         <View
           height={50}

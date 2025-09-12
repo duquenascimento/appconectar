@@ -310,7 +310,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       />
       <Text
         style={{
-          marginTop: 35,
+          marginTop: Platform.OS === 'web' ? 35 : 15,
           marginLeft: Platform.OS === 'web' ? '' : 15,
           width: Platform.OS === 'web' ? '70%' : '',
           alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
