@@ -13,7 +13,7 @@ import { DateTime } from 'luxon'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { clearStorage, getToken, setStorage } from '../src/utils/utils'
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
-import CustomAlert from '../src/components/modais/CustomAlert' // Importe o CustomAlert
+import CustomAlert from '../src/components/modais/CustomAlert'
 import {
   loadPermissionConectarPlus,
   loadRestaurants
@@ -21,7 +21,6 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { campoString } from '../src/utils/formatCampos'
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
-import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes'
 import CombinationList, { Combination } from '@/src/components/combinationList'
 import CustomButton from '@/src/components/button/customButton'
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
@@ -680,7 +679,12 @@ export default function Prices() {
   }
 
   return (
-    <Stack pt={20} backgroundColor="white" height="100%" position="relative">
+    <Stack
+      pt={Platform.OS === 'web' ? 20 : 15}
+      backgroundColor="white"
+      height="100%"
+      position="relative"
+    >
       <View height={50} flex={1} paddingTop={20}>
         <View
           pb={20}
