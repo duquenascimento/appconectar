@@ -786,6 +786,17 @@ export default function Products({ navigation }: HomeScreenProps) {
   const router = useRouter()
 
   useEffect(() => {
+    const checkAuth = async () => {
+      const token = await getToken()
+      if (!token) {
+        router.replace('/')
+        console.log('No token')
+      }
+    }
+    checkAuth()
+  }, [])
+
+  useEffect(() => {
     if (Platform.OS === 'web') return
 
     const runCheck = async () => {
@@ -1814,7 +1825,7 @@ export default function Products({ navigation }: HomeScreenProps) {
               await saveCartArray(cart, cartToExclude)
               await Promise.all([clearStorage(), deleteToken()])
               setLoading(false)
-              router.push('/')
+              router.replace('/')
             }}
             padding={10}
             marginVertical={10}
