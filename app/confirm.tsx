@@ -668,6 +668,7 @@ export default function Confirm() {
               mr={10}
               textBreakStrategy="simple"
               fontSize={12}
+              width={Platform.OS === 'web' ? '70vw' : '90%'}
             >
               Podem ocorrer pequenas variações de peso/tamanho nos produtos,
               comum ao hortifrúti.
@@ -1143,7 +1144,7 @@ export default function Confirm() {
           width={170}
           backgroundColor="#04BF7B"
         >
-          <Text fontSize={13} color="white">
+          <Text fontSize={13} color="white" textAlign='center' style={{ fontSize: 12 }}>
             {isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}
           </Text>
         </Button>

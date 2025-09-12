@@ -1597,7 +1597,7 @@ export default function Products({ navigation }: HomeScreenProps) {
       {/*Lista de restaurantes do usuário*/}
       <Text
         style={{
-          marginTop: Platform.OS === 'web' ? 15 : 35,
+          marginTop: 15,
           marginLeft: Platform.OS === 'web' ? 23 : 15,
           width: Platform.OS === 'web' ? '70%' : '',
           alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'

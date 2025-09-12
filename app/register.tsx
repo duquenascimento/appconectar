@@ -1,4 +1,3 @@
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { View, Text, Input, Button, ScrollView, Checkbox } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useEffect, useState } from 'react'
@@ -31,18 +30,6 @@ import {
   saveStepData
 } from '@/src/services/registerProgressService'
 import { router } from 'expo-router'
-
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Confirm: undefined
-  Prices: undefined
-  RegisterFinished: undefined
-}
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
 
 interface Empresa {
   inscricao_estadual?: string | null
@@ -112,7 +99,7 @@ interface Socio {
   codigo_qualificacao_representante_legal: string | null
 }
 
-export default function Register({ navigation }: HomeScreenProps) {
+export default function Register() {
   const [step, setStep] = useState<number>(0)
   const [loading, setLoading] = useState<boolean>(true)
   const [minhours, setMinhours] = useState<string[]>([])
@@ -125,6 +112,7 @@ export default function Register({ navigation }: HomeScreenProps) {
   const [paymentWayOpen, setPaymentWayOpen] = useState(false)
   const [daysOpen, setDaysOpen] = useState(false)
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true)
+ 
 
   const allClosedDropdowns = () => {
     setMinHourOpen(false)
@@ -200,7 +188,6 @@ export default function Register({ navigation }: HomeScreenProps) {
 
         if (response.ok) {
           await clearStorage()
-          // navigation.replace('RegisterFinished')
           router.push('registerFinished')
         }
       } finally {
@@ -316,7 +303,7 @@ export default function Register({ navigation }: HomeScreenProps) {
       }
 
       if (progress?.roleUser === 'registered') {
-        navigation.replace('Products')
+        router.push('/products')
         return
       }
 
@@ -515,7 +502,7 @@ export default function Register({ navigation }: HomeScreenProps) {
     if (prevStep < 0) {
       await clearToken()
       await clearStorage()
-      navigation.navigate('Sign' as never)
+      router.push('/' as never)
     } else {
       setStep(prevStep)
     }
