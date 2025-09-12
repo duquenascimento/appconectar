@@ -15,7 +15,7 @@ import {
   getToken,
   setStorage
 } from '../src/utils/utils'
-import { router } from 'expo-router'
+import { useRouter } from 'expo-router'
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
 import { filterCarts } from '../src/utils/filterCarts'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
@@ -432,6 +432,7 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('')
   const [modalButtonText, setModalButtonText] = useState('Ok')
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {})
+  const router = useRouter()
 
   useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()

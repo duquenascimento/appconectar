@@ -34,53 +34,39 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// node_modules/@tamagui/use-force-update/dist/esm/index.mjs
-function useForceUpdate() {
-  return isServerSide ? idFn : import_react.default.useReducer((x) => Math.random(), 0)[1];
-}
-var import_react, isServerSide, idFn;
-var init_esm = __esm({
-  "node_modules/@tamagui/use-force-update/dist/esm/index.mjs"() {
+// node_modules/@tamagui/constants/dist/esm/constants.mjs
+var import_react, isWeb, isWindowDefined, isServer, isClient, useIsomorphicLayoutEffect, isChrome, isWebTouchable, isTouchable, isAndroid, isIos, currentPlatform;
+var init_constants = __esm({
+  "node_modules/@tamagui/constants/dist/esm/constants.mjs"() {
     import_react = __toESM(require("react"), 1);
-    isServerSide = typeof window > "u";
-    idFn = /* @__PURE__ */ __name(() => {
-    }, "idFn");
-    __name(useForceUpdate, "useForceUpdate");
+    isWeb = true;
+    isWindowDefined = typeof window < "u";
+    isServer = isWeb && !isWindowDefined;
+    isClient = isWeb && isWindowDefined;
+    useIsomorphicLayoutEffect = isServer ? import_react.default.useEffect : import_react.default.useLayoutEffect;
+    isChrome = typeof navigator < "u" && /Chrome/.test(navigator.userAgent || "");
+    isWebTouchable = isClient && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    isTouchable = !isWeb || isWebTouchable;
+    isAndroid = false;
+    isIos = false;
+    currentPlatform = "web";
   }
 });
 
-// node_modules/@tamagui/animate-presence/dist/esm/LayoutGroupContext.mjs
-var import_react2, LayoutGroupContext;
-var init_LayoutGroupContext = __esm({
-  "node_modules/@tamagui/animate-presence/dist/esm/LayoutGroupContext.mjs"() {
-    import_react2 = __toESM(require("react"), 1);
-    LayoutGroupContext = import_react2.default.createContext({});
-  }
-});
-
-// node_modules/@tamagui/use-constant/dist/esm/index.mjs
-function useConstant(fn) {
-  if (typeof document > "u") return React3.useMemo(() => fn(), []);
-  const ref = React3.useRef();
-  return ref.current || (ref.current = {
-    v: fn()
-  }), ref.current.v;
-}
-var React3;
-var init_esm2 = __esm({
-  "node_modules/@tamagui/use-constant/dist/esm/index.mjs"() {
-    React3 = __toESM(require("react"), 1);
-    __name(useConstant, "useConstant");
+// node_modules/@tamagui/constants/dist/esm/index.mjs
+var init_esm = __esm({
+  "node_modules/@tamagui/constants/dist/esm/index.mjs"() {
+    init_constants();
   }
 });
 
 // node_modules/@tamagui/use-presence/dist/esm/PresenceContext.mjs
-var React4, import_jsx_runtime, PresenceContext, ResetPresence;
+var React2, import_jsx_runtime, PresenceContext, ResetPresence;
 var init_PresenceContext = __esm({
   "node_modules/@tamagui/use-presence/dist/esm/PresenceContext.mjs"() {
-    React4 = __toESM(require("react"), 1);
+    React2 = __toESM(require("react"), 1);
     import_jsx_runtime = require("react/jsx-runtime");
-    PresenceContext = React4.createContext(null);
+    PresenceContext = React2.createContext(null);
     ResetPresence = /* @__PURE__ */ __name((props) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)(PresenceContext.Provider, {
       value: null,
       children: props.children
@@ -90,7 +76,7 @@ var init_PresenceContext = __esm({
 
 // node_modules/@tamagui/use-presence/dist/esm/usePresence.mjs
 function usePresence() {
-  const context = React5.useContext(PresenceContext);
+  const context = React3.useContext(PresenceContext);
   if (!context) return [true, null, context];
   const {
     id,
@@ -98,18 +84,18 @@ function usePresence() {
     onExitComplete,
     register
   } = context;
-  return React5.useEffect(() => register(id), []), !isPresent2 && onExitComplete ? [false, () => onExitComplete == null ? void 0 : onExitComplete(id), context] : [true, void 0, context];
+  return React3.useEffect(() => register(id), []), !isPresent2 && onExitComplete ? [false, () => onExitComplete == null ? void 0 : onExitComplete(id), context] : [true, void 0, context];
 }
 function useIsPresent() {
-  return isPresent(React5.useContext(PresenceContext));
+  return isPresent(React3.useContext(PresenceContext));
 }
 function isPresent(context) {
   return context === null ? true : context.isPresent;
 }
-var React5;
+var React3;
 var init_usePresence = __esm({
   "node_modules/@tamagui/use-presence/dist/esm/usePresence.mjs"() {
-    React5 = __toESM(require("react"), 1);
+    React3 = __toESM(require("react"), 1);
     init_PresenceContext();
     __name(usePresence, "usePresence");
     __name(useIsPresent, "useIsPresent");
@@ -118,10 +104,50 @@ var init_usePresence = __esm({
 });
 
 // node_modules/@tamagui/use-presence/dist/esm/index.mjs
-var init_esm3 = __esm({
+var init_esm2 = __esm({
   "node_modules/@tamagui/use-presence/dist/esm/index.mjs"() {
     init_PresenceContext();
     init_usePresence();
+  }
+});
+
+// node_modules/@tamagui/use-force-update/dist/esm/index.mjs
+function useForceUpdate() {
+  return isServerSide ? idFn : import_react3.default.useReducer((x) => Math.random(), 0)[1];
+}
+var import_react3, isServerSide, idFn;
+var init_esm3 = __esm({
+  "node_modules/@tamagui/use-force-update/dist/esm/index.mjs"() {
+    import_react3 = __toESM(require("react"), 1);
+    isServerSide = typeof window > "u";
+    idFn = /* @__PURE__ */ __name(() => {
+    }, "idFn");
+    __name(useForceUpdate, "useForceUpdate");
+  }
+});
+
+// node_modules/@tamagui/animate-presence/dist/esm/LayoutGroupContext.mjs
+var import_react4, LayoutGroupContext;
+var init_LayoutGroupContext = __esm({
+  "node_modules/@tamagui/animate-presence/dist/esm/LayoutGroupContext.mjs"() {
+    import_react4 = __toESM(require("react"), 1);
+    LayoutGroupContext = import_react4.default.createContext({});
+  }
+});
+
+// node_modules/@tamagui/use-constant/dist/esm/index.mjs
+function useConstant(fn) {
+  if (typeof document > "u") return React7.useMemo(() => fn(), []);
+  const ref = React7.useRef();
+  return ref.current || (ref.current = {
+    v: fn()
+  }), ref.current.v;
+}
+var React7;
+var init_esm4 = __esm({
+  "node_modules/@tamagui/use-constant/dist/esm/index.mjs"() {
+    React7 = __toESM(require("react"), 1);
+    __name(useConstant, "useConstant");
   }
 });
 
@@ -129,15 +155,15 @@ var init_esm3 = __esm({
 function newChildrenMap() {
   return /* @__PURE__ */ new Map();
 }
-var React6, import_react3, import_jsx_runtime2, PresenceChild;
+var React8, import_react5, import_jsx_runtime2, PresenceChild;
 var init_PresenceChild = __esm({
   "node_modules/@tamagui/animate-presence/dist/esm/PresenceChild.mjs"() {
+    init_esm4();
     init_esm2();
-    init_esm3();
-    React6 = __toESM(require("react"), 1);
-    import_react3 = require("react");
+    React8 = __toESM(require("react"), 1);
+    import_react5 = require("react");
     import_jsx_runtime2 = require("react/jsx-runtime");
-    PresenceChild = React6.memo(({
+    PresenceChild = React8.memo(({
       children,
       initial,
       isPresent: isPresent2,
@@ -148,7 +174,7 @@ var init_PresenceChild = __esm({
       presenceAffectsLayout,
       custom
     }) => {
-      const presenceChildren = useConstant(newChildrenMap), id = (0, import_react3.useId)() || "", context = React6.useMemo(
+      const presenceChildren = useConstant(newChildrenMap), id = (0, import_react5.useId)() || "", context = React8.useMemo(
         () => ({
           id,
           initial,
@@ -172,9 +198,9 @@ var init_PresenceChild = __esm({
         // @ts-expect-error its ok
         presenceAffectsLayout ? void 0 : [isPresent2, exitVariant, enterVariant]
       );
-      return React6.useMemo(() => {
+      return React8.useMemo(() => {
         presenceChildren.forEach((_, key) => presenceChildren.set(key, false));
-      }, [isPresent2]), React6.useEffect(() => {
+      }, [isPresent2]), React8.useEffect(() => {
         !isPresent2 && !presenceChildren.size && (onExitComplete == null ? void 0 : onExitComplete());
       }, [isPresent2]), /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PresenceContext.Provider, {
         value: context,
@@ -194,15 +220,15 @@ function updateChildLookup(children, allChildren) {
 }
 function onlyElements(children) {
   const filtered = [];
-  return import_react4.Children.forEach(children, (child) => {
-    (0, import_react4.isValidElement)(child) && filtered.push(child);
+  return import_react6.Children.forEach(children, (child) => {
+    (0, import_react6.isValidElement)(child) && filtered.push(child);
   }), filtered;
 }
-var import_react4, import_jsx_runtime3, getChildKey, AnimatePresence;
+var import_react6, import_jsx_runtime3, getChildKey, AnimatePresence;
 var init_AnimatePresence = __esm({
   "node_modules/@tamagui/animate-presence/dist/esm/AnimatePresence.mjs"() {
-    init_esm();
-    import_react4 = require("react");
+    init_esm3();
+    import_react6 = require("react");
     init_LayoutGroupContext();
     init_PresenceChild();
     import_jsx_runtime3 = require("react/jsx-runtime");
@@ -220,10 +246,10 @@ var init_AnimatePresence = __esm({
       presenceAffectsLayout = true,
       custom
     }) => {
-      let forceRender = (0, import_react4.useContext)(LayoutGroupContext).forceRender ?? useForceUpdate();
-      const filteredChildren = onlyElements(children), presentChildren = (0, import_react4.useRef)(filteredChildren), allChildren = (0, import_react4.useRef)(/* @__PURE__ */ new Map()).current, exiting = (0, import_react4.useRef)(/* @__PURE__ */ new Set()).current;
+      let forceRender = (0, import_react6.useContext)(LayoutGroupContext).forceRender ?? useForceUpdate();
+      const filteredChildren = onlyElements(children), presentChildren = (0, import_react6.useRef)(filteredChildren), allChildren = (0, import_react6.useRef)(/* @__PURE__ */ new Map()).current, exiting = (0, import_react6.useRef)(/* @__PURE__ */ new Set()).current;
       updateChildLookup(filteredChildren, allChildren);
-      const isInitialRender = (0, import_react4.useRef)(true);
+      const isInitialRender = (0, import_react6.useRef)(true);
       if (isInitialRender.current) return isInitialRender.current = false, /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
         children: filteredChildren.map((child) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(PresenceChild, {
           isPresent: true,
@@ -275,7 +301,7 @@ var init_AnimatePresence = __esm({
       }), presentChildren.current = childrenToRender, /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(import_jsx_runtime3.Fragment, {
         children: exiting.size ? childrenToRender : (
           // biome-ignore lint/correctness/useJsxKeyInIterable: <explanation>
-          childrenToRender.map((child) => (0, import_react4.cloneElement)(child))
+          childrenToRender.map((child) => (0, import_react6.cloneElement)(child))
         )
       });
     }, "AnimatePresence");
@@ -290,10 +316,10 @@ var init_types = __esm({
 });
 
 // node_modules/@tamagui/animate-presence/dist/esm/index.mjs
-var init_esm4 = __esm({
+var init_esm5 = __esm({
   "node_modules/@tamagui/animate-presence/dist/esm/index.mjs"() {
     init_AnimatePresence();
-    init_esm3();
+    init_esm2();
     init_types();
     init_PresenceChild();
   }
@@ -311,7 +337,7 @@ function isValidCSSCharCode(code) {
   );
 }
 var cache, cacheSize, simpleHash, hashChar;
-var init_esm5 = __esm({
+var init_esm6 = __esm({
   "node_modules/@tamagui/simple-hash/dist/esm/index.mjs"() {
     cache = /* @__PURE__ */ new Map();
     cacheSize = 0;
@@ -435,32 +461,6 @@ var init_types2 = __esm({
   }
 });
 
-// node_modules/@tamagui/constants/dist/esm/constants.mjs
-var import_react5, isWeb, isWindowDefined, isServer, isClient, useIsomorphicLayoutEffect, isChrome, isWebTouchable, isTouchable, isAndroid, isIos, currentPlatform;
-var init_constants = __esm({
-  "node_modules/@tamagui/constants/dist/esm/constants.mjs"() {
-    import_react5 = __toESM(require("react"), 1);
-    isWeb = true;
-    isWindowDefined = typeof window < "u";
-    isServer = isWeb && !isWindowDefined;
-    isClient = isWeb && isWindowDefined;
-    useIsomorphicLayoutEffect = isServer ? import_react5.default.useEffect : import_react5.default.useLayoutEffect;
-    isChrome = typeof navigator < "u" && /Chrome/.test(navigator.userAgent || "");
-    isWebTouchable = isClient && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    isTouchable = !isWeb || isWebTouchable;
-    isAndroid = false;
-    isIos = false;
-    currentPlatform = "web";
-  }
-});
-
-// node_modules/@tamagui/constants/dist/esm/index.mjs
-var init_esm6 = __esm({
-  "node_modules/@tamagui/constants/dist/esm/index.mjs"() {
-    init_constants();
-  }
-});
-
 // node_modules/@tamagui/helpers/dist/esm/shouldRenderNativePlatform.mjs
 function shouldRenderNativePlatform(nativeProp) {
   if (!nativeProp) return null;
@@ -475,7 +475,7 @@ function resolvePlatformNames(nativeProp) {
 var ALL_PLATFORMS;
 var init_shouldRenderNativePlatform = __esm({
   "node_modules/@tamagui/helpers/dist/esm/shouldRenderNativePlatform.mjs"() {
-    init_esm6();
+    init_esm();
     ALL_PLATFORMS = ["web", "android", "ios"];
     __name(shouldRenderNativePlatform, "shouldRenderNativePlatform");
     __name(resolvePlatformNames, "resolvePlatformNames");
@@ -486,7 +486,7 @@ var init_shouldRenderNativePlatform = __esm({
 var textColors, tokenCategories, stylePropsUnitless, stylePropsTransform, stylePropsView, stylePropsFont, stylePropsTextOnly, stylePropsText, stylePropsAll, validPseudoKeys, validStyles;
 var init_validStyleProps = __esm({
   "node_modules/@tamagui/helpers/dist/esm/validStyleProps.mjs"() {
-    init_esm6();
+    init_esm();
     textColors = {
       color: true,
       textDecorationColor: true,
@@ -805,15 +805,15 @@ var init_validStyleProps = __esm({
 });
 
 // node_modules/@tamagui/helpers/dist/esm/withStaticProperties.mjs
-var import_react6, Decorated, withStaticProperties;
+var import_react7, Decorated, withStaticProperties;
 var init_withStaticProperties = __esm({
   "node_modules/@tamagui/helpers/dist/esm/withStaticProperties.mjs"() {
-    import_react6 = __toESM(require("react"), 1);
+    import_react7 = __toESM(require("react"), 1);
     Decorated = Symbol();
     withStaticProperties = /* @__PURE__ */ __name((component, staticProps) => {
       const next = (() => {
         if (component[Decorated]) {
-          const _ = import_react6.default.forwardRef((props, ref) => import_react6.default.createElement(component, {
+          const _ = import_react7.default.forwardRef((props, ref) => import_react7.default.createElement(component, {
             ...props,
             ref
           }));
@@ -834,7 +834,7 @@ var init_withStaticProperties = __esm({
 // node_modules/@tamagui/helpers/dist/esm/index.mjs
 var init_esm7 = __esm({
   "node_modules/@tamagui/helpers/dist/esm/index.mjs"() {
-    init_esm5();
+    init_esm6();
     init_clamp();
     init_composeEventHandlers();
     init_concatClassName();
@@ -847,19 +847,19 @@ var init_esm7 = __esm({
 
 // node_modules/@tamagui/use-event/dist/esm/useGet.mjs
 function useGet(currentValue, initialValue2, forwardToFunction) {
-  const curRef = React9.useRef(initialValue2 ?? currentValue);
+  const curRef = React10.useRef(initialValue2 ?? currentValue);
   return useIsomorphicLayoutEffect(() => {
     curRef.current = currentValue;
-  }), React9.useCallback(forwardToFunction ? (...args) => {
+  }), React10.useCallback(forwardToFunction ? (...args) => {
     var _a;
     return (_a = curRef.current) == null ? void 0 : _a.apply(null, args);
   } : () => curRef.current, []);
 }
-var React9;
+var React10;
 var init_useGet = __esm({
   "node_modules/@tamagui/use-event/dist/esm/useGet.mjs"() {
-    init_esm6();
-    React9 = __toESM(require("react"), 1);
+    init_esm();
+    React10 = __toESM(require("react"), 1);
     __name(useGet, "useGet");
   }
 });
@@ -888,12 +888,12 @@ var init_esm8 = __esm({
 });
 
 // node_modules/@tamagui/start-transition/dist/esm/index.mjs
-var import_react7, startTransition;
+var import_react8, startTransition;
 var init_esm9 = __esm({
   "node_modules/@tamagui/start-transition/dist/esm/index.mjs"() {
-    import_react7 = require("react");
+    import_react8 = require("react");
     startTransition = /* @__PURE__ */ __name((callback) => {
-      (0, import_react7.startTransition)(callback);
+      (0, import_react8.startTransition)(callback);
     }, "startTransition");
   }
 });
@@ -907,12 +907,12 @@ function useControllableState({
   preventUpdate,
   transition
 }) {
-  const [state, setState] = React10.useState(prop ?? defaultProp), previous = React10.useRef(state), propWins = strategy === "prop-wins" && prop !== void 0, value = propWins ? prop : state, onChangeCb = useEvent(onChange || idFn2), transitionFn = transition ? startTransition : emptyCallbackFn;
-  React10.useEffect(() => {
+  const [state, setState] = React11.useState(prop ?? defaultProp), previous = React11.useRef(state), propWins = strategy === "prop-wins" && prop !== void 0, value = propWins ? prop : state, onChangeCb = useEvent(onChange || idFn2), transitionFn = transition ? startTransition : emptyCallbackFn;
+  React11.useEffect(() => {
     prop !== void 0 && (previous.current = prop, transitionFn(() => {
       setState(prop);
     }));
-  }, [prop]), React10.useEffect(() => {
+  }, [prop]), React11.useEffect(() => {
     propWins || state !== previous.current && (previous.current = state, onChangeCb(state));
   }, [onChangeCb, state, propWins]);
   const setter = useEvent((next) => {
@@ -925,11 +925,11 @@ function useControllableState({
   });
   return [value, setter];
 }
-var React10, emptyCallbackFn, idFn2;
+var React11, emptyCallbackFn, idFn2;
 var init_useControllableState = __esm({
   "node_modules/@tamagui/use-controllable-state/dist/esm/useControllableState.mjs"() {
     init_esm8();
-    React10 = __toESM(require("react"), 1);
+    React11 = __toESM(require("react"), 1);
     init_esm9();
     emptyCallbackFn = /* @__PURE__ */ __name((_) => _(), "emptyCallbackFn");
     __name(useControllableState, "useControllableState");
@@ -949,18 +949,18 @@ var init_esm10 = __esm({
 function getState(open) {
   return open ? "open" : "closed";
 }
-var import_web, React11, import_jsx_runtime4, COLLAPSIBLE_NAME, CollapsibleProvider, useCollapsibleContext, _Collapsible, TRIGGER_NAME, CollapsibleTriggerFrame, CollapsibleTrigger, CONTENT_NAME, CollapsibleContentFrame, CollapsibleContent, Collapsible;
+var import_web5, React12, import_jsx_runtime4, COLLAPSIBLE_NAME, CollapsibleProvider, useCollapsibleContext, _Collapsible, TRIGGER_NAME, CollapsibleTriggerFrame, CollapsibleTrigger, CONTENT_NAME, CollapsibleContentFrame, CollapsibleContent, Collapsible;
 var init_Collapsible = __esm({
   "node_modules/@tamagui/collapsible/dist/esm/Collapsible.js"() {
-    init_esm4();
+    init_esm5();
     init_esm7();
     init_esm10();
-    import_web = require("@tamagui/core");
-    React11 = __toESM(require("react"));
+    import_web5 = require("@tamagui/core");
+    React12 = __toESM(require("react"));
     import_jsx_runtime4 = require("react/jsx-runtime");
     COLLAPSIBLE_NAME = "Collapsible";
-    ({ Provider: CollapsibleProvider, useStyledContext: useCollapsibleContext } = (0, import_web.createStyledContext)());
-    _Collapsible = React11.forwardRef(
+    ({ Provider: CollapsibleProvider, useStyledContext: useCollapsibleContext } = (0, import_web5.createStyledContext)());
+    _Collapsible = React12.forwardRef(
       (props, forwardedRef) => {
         const {
           __scopeCollapsible,
@@ -979,14 +979,14 @@ var init_Collapsible = __esm({
           {
             scope: __scopeCollapsible,
             disabled,
-            contentId: React11.useId(),
+            contentId: React12.useId(),
             open,
-            onOpenToggle: React11.useCallback(
+            onOpenToggle: React12.useCallback(
               () => setOpen((prevOpen) => !prevOpen),
               [setOpen]
             ),
             children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-              import_web.Stack,
+              import_web5.Stack,
               {
                 "data-state": getState(open),
                 "data-disabled": disabled ? "" : void 0,
@@ -1000,7 +1000,7 @@ var init_Collapsible = __esm({
     );
     _Collapsible.displayName = COLLAPSIBLE_NAME;
     TRIGGER_NAME = "CollapsibleTrigger";
-    CollapsibleTriggerFrame = (0, import_web.styled)(import_web.Stack, {
+    CollapsibleTriggerFrame = (0, import_web5.styled)(import_web5.Stack, {
       name: TRIGGER_NAME,
       tag: "button"
     });
@@ -1025,7 +1025,7 @@ var init_Collapsible = __esm({
     );
     CollapsibleTrigger.displayName = TRIGGER_NAME;
     CONTENT_NAME = "CollapsibleContent";
-    CollapsibleContentFrame = (0, import_web.styled)(import_web.Stack, {
+    CollapsibleContentFrame = (0, import_web5.styled)(import_web5.Stack, {
       name: CONTENT_NAME
     });
     CollapsibleContent = CollapsibleContentFrame.styleable(
@@ -1107,7 +1107,7 @@ var require_compose_refs = __commonJS({
       useComposedRefs: /* @__PURE__ */ __name(() => useComposedRefs4, "useComposedRefs")
     });
     module2.exports = __toCommonJS2(compose_refs_exports);
-    var React85 = __toESM2(require("react"));
+    var React78 = __toESM2(require("react"));
     function setRef2(ref, value) {
       typeof ref == "function" ? ref(value) : ref && (ref.current = value);
     }
@@ -1117,7 +1117,7 @@ var require_compose_refs = __commonJS({
     }
     __name(composeRefs2, "composeRefs");
     function useComposedRefs4(...refs) {
-      return React85.useCallback(composeRefs2(...refs), refs);
+      return React78.useCallback(composeRefs2(...refs), refs);
     }
     __name(useComposedRefs4, "useComposedRefs");
   }
@@ -1192,21 +1192,21 @@ var require_constants = __commonJS({
       isIos: /* @__PURE__ */ __name(() => isIos2, "isIos"),
       isServer: /* @__PURE__ */ __name(() => isServer3, "isServer"),
       isTouchable: /* @__PURE__ */ __name(() => isTouchable3, "isTouchable"),
-      isWeb: /* @__PURE__ */ __name(() => isWeb7, "isWeb"),
+      isWeb: /* @__PURE__ */ __name(() => isWeb9, "isWeb"),
       isWebTouchable: /* @__PURE__ */ __name(() => isWebTouchable3, "isWebTouchable"),
       isWindowDefined: /* @__PURE__ */ __name(() => isWindowDefined2, "isWindowDefined"),
       useIsomorphicLayoutEffect: /* @__PURE__ */ __name(() => useIsomorphicLayoutEffect3, "useIsomorphicLayoutEffect")
     });
     module2.exports = __toCommonJS2(constants_exports);
-    var import_react52 = __toESM2(require("react"));
-    var isWeb7 = true;
+    var import_react49 = __toESM2(require("react"));
+    var isWeb9 = true;
     var isWindowDefined2 = typeof window < "u";
-    var isServer3 = isWeb7 && !isWindowDefined2;
-    var isClient5 = isWeb7 && isWindowDefined2;
-    var useIsomorphicLayoutEffect3 = isServer3 ? import_react52.default.useEffect : import_react52.default.useLayoutEffect;
+    var isServer3 = isWeb9 && !isWindowDefined2;
+    var isClient5 = isWeb9 && isWindowDefined2;
+    var useIsomorphicLayoutEffect3 = isServer3 ? import_react49.default.useEffect : import_react49.default.useLayoutEffect;
     var isChrome3 = typeof navigator < "u" && /Chrome/.test(navigator.userAgent || "");
     var isWebTouchable3 = isClient5 && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    var isTouchable3 = !isWeb7 || isWebTouchable3;
+    var isTouchable3 = !isWeb9 || isWebTouchable3;
     var isAndroid4 = false;
     var isIos2 = false;
     var currentPlatform2 = "web";
@@ -1279,15 +1279,15 @@ var require_Collection = __commonJS({
     });
     module2.exports = __toCommonJS2(Collection_exports);
     var import_compose_refs25 = require_cjs();
-    var import_constants52 = require_cjs2();
-    var import_core62 = require("@tamagui/core");
-    var import_react52 = __toESM2(require("react"));
-    var import_jsx_runtime72 = require("react/jsx-runtime");
+    var import_constants45 = require_cjs2();
+    var import_core60 = require("@tamagui/core");
+    var import_react49 = __toESM2(require("react"));
+    var import_jsx_runtime64 = require("react/jsx-runtime");
     function createCollection2(name) {
       const {
         Provider: CollectionProviderImpl,
         useStyledContext: useCollectionContext
-      } = (0, import_core62.createStyledContext)({
+      } = (0, import_core60.createStyledContext)({
         collectionRef: {
           current: null
         },
@@ -1296,8 +1296,8 @@ var require_Collection = __commonJS({
         const {
           __scopeCollection,
           children
-        } = props, ref = import_react52.default.useRef(null), itemMap = import_react52.default.useRef(/* @__PURE__ */ new Map()).current;
-        return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(CollectionProviderImpl, {
+        } = props, ref = import_react49.default.useRef(null), itemMap = import_react49.default.useRef(/* @__PURE__ */ new Map()).current;
+        return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(CollectionProviderImpl, {
           scope: __scopeCollection,
           itemMap,
           collectionRef: ref,
@@ -1305,27 +1305,27 @@ var require_Collection = __commonJS({
         });
       }, "CollectionProvider");
       CollectionProvider.displayName = "CollectionProvider";
-      const COLLECTION_SLOT_NAME = name + "CollectionSlot", CollectionSlot = import_react52.default.forwardRef((props, forwardedRef) => {
+      const COLLECTION_SLOT_NAME = name + "CollectionSlot", CollectionSlot = import_react49.default.forwardRef((props, forwardedRef) => {
         const {
           __scopeCollection,
           children
         } = props, context = useCollectionContext(__scopeCollection), composedRefs = (0, import_compose_refs25.useComposedRefs)(forwardedRef, context.collectionRef);
-        return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(import_core62.Slot, {
+        return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(import_core60.Slot, {
           ref: composedRefs,
           children
         });
       });
       CollectionSlot.displayName = COLLECTION_SLOT_NAME;
-      const ITEM_SLOT_NAME = name + "CollectionItemSlot", ITEM_DATA_ATTR = "data-collection-item", CollectionItemSlot = import_react52.default.forwardRef((props, forwardedRef) => {
+      const ITEM_SLOT_NAME = name + "CollectionItemSlot", ITEM_DATA_ATTR = "data-collection-item", CollectionItemSlot = import_react49.default.forwardRef((props, forwardedRef) => {
         const {
           __scopeCollection,
           children,
           ...itemData
-        } = props, ref = import_react52.default.useRef(null), composedRefs = (0, import_compose_refs25.useComposedRefs)(forwardedRef, ref), context = useCollectionContext(__scopeCollection);
-        return import_react52.default.useEffect(() => (context.itemMap.set(ref, {
+        } = props, ref = import_react49.default.useRef(null), composedRefs = (0, import_compose_refs25.useComposedRefs)(forwardedRef, ref), context = useCollectionContext(__scopeCollection);
+        return import_react49.default.useEffect(() => (context.itemMap.set(ref, {
           ref,
           ...itemData
-        }), () => void context.itemMap.delete(ref))), /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(import_core62.Slot, {
+        }), () => void context.itemMap.delete(ref))), /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(import_core60.Slot, {
           [ITEM_DATA_ATTR]: "",
           ref: composedRefs,
           children
@@ -1334,8 +1334,8 @@ var require_Collection = __commonJS({
       CollectionItemSlot.displayName = ITEM_SLOT_NAME;
       function useCollection2(__scopeCollection) {
         const context = useCollectionContext(__scopeCollection);
-        return import_react52.default.useCallback(() => {
-          if (!import_constants52.isWeb) return [];
+        return import_react49.default.useCallback(() => {
+          if (!import_constants45.isWeb) return [];
           const collectionNode = context.collectionRef.current;
           if (!collectionNode) return [];
           const orderedNodes = Array.from(collectionNode.querySelectorAll(`[${ITEM_DATA_ATTR}]`));
@@ -1667,12 +1667,12 @@ var require_shouldRenderNativePlatform = __commonJS({
       shouldRenderNativePlatform: /* @__PURE__ */ __name(() => shouldRenderNativePlatform4, "shouldRenderNativePlatform")
     });
     module2.exports = __toCommonJS2(shouldRenderNativePlatform_exports);
-    var import_constants52 = require_cjs2();
+    var import_constants45 = require_cjs2();
     var ALL_PLATFORMS2 = ["web", "android", "ios"];
     function shouldRenderNativePlatform4(nativeProp) {
       if (!nativeProp) return null;
       const userRequestedPlatforms = resolvePlatformNames2(nativeProp);
-      for (const platform2 of ALL_PLATFORMS2) if (platform2 === import_constants52.currentPlatform && userRequestedPlatforms.has(platform2)) return platform2;
+      for (const platform2 of ALL_PLATFORMS2) if (platform2 === import_constants45.currentPlatform && userRequestedPlatforms.has(platform2)) return platform2;
       return null;
     }
     __name(shouldRenderNativePlatform4, "shouldRenderNativePlatform");
@@ -1721,7 +1721,7 @@ var require_validStyleProps = __commonJS({
       validStyles: /* @__PURE__ */ __name(() => validStyles2, "validStyles")
     });
     module2.exports = __toCommonJS2(validStyleProps_exports);
-    var import_constants52 = require_cjs2();
+    var import_constants45 = require_cjs2();
     var textColors2 = {
       color: true,
       textDecorationColor: true,
@@ -1986,7 +1986,7 @@ var require_validStyleProps = __commonJS({
       touchAction: true,
       transformStyle: true,
       userSelect: true,
-      ...import_constants52.isAndroid ? {
+      ...import_constants45.isAndroid ? {
         elevationAndroid: true
       } : {}
     };
@@ -2080,12 +2080,12 @@ var require_withStaticProperties = __commonJS({
       withStaticProperties: /* @__PURE__ */ __name(() => withStaticProperties7, "withStaticProperties")
     });
     module2.exports = __toCommonJS2(withStaticProperties_exports);
-    var import_react52 = __toESM2(require("react"));
+    var import_react49 = __toESM2(require("react"));
     var Decorated2 = Symbol();
     var withStaticProperties7 = /* @__PURE__ */ __name((component, staticProps) => {
       const next = (() => {
         if (component[Decorated2]) {
-          const _ = import_react52.default.forwardRef((props, ref) => import_react52.default.createElement(component, {
+          const _ = import_react49.default.forwardRef((props, ref) => import_react49.default.createElement(component, {
             ...props,
             ref
           }));
@@ -2163,12 +2163,12 @@ var require_getElevation = __commonJS({
       getSizedElevation: /* @__PURE__ */ __name(() => getSizedElevation2, "getSizedElevation")
     });
     module2.exports = __toCommonJS2(getElevation_exports);
-    var import_core62 = require("@tamagui/core");
-    var getElevation2 = /* @__PURE__ */ __name((size5, extras) => {
-      if (!size5) return;
+    var import_core60 = require("@tamagui/core");
+    var getElevation2 = /* @__PURE__ */ __name((size6, extras) => {
+      if (!size6) return;
       const {
         tokens: tokens2
-      } = extras, token = tokens2.size[size5], sizeNum = (0, import_core62.isVariable)(token) ? +token.val : size5;
+      } = extras, token = tokens2.size[size6], sizeNum = (0, import_core60.isVariable)(token) ? +token.val : size6;
       return getSizedElevation2(sizeNum, extras);
     }, "getElevation");
     var getSizedElevation2 = /* @__PURE__ */ __name((val, {
@@ -2177,7 +2177,7 @@ var require_getElevation = __commonJS({
     }) => {
       let num = 0;
       if (val === true) {
-        const val2 = (0, import_core62.getVariableValue)(tokens2.size.true);
+        const val2 = (0, import_core60.getVariableValue)(tokens2.size.true);
         typeof val2 == "number" ? num = val2 : num = 10;
       } else num = +val;
       if (num === 0) return;
@@ -2189,7 +2189,7 @@ var require_getElevation = __commonJS({
           height,
           width: 0
         },
-        ...import_core62.isAndroid ? {
+        ...import_core60.isAndroid ? {
           elevationAndroid: 2 * height
         } : {}
       };
@@ -2228,7 +2228,7 @@ var require_Stacks = __commonJS({
       fullscreenStyle: /* @__PURE__ */ __name(() => fullscreenStyle2, "fullscreenStyle")
     });
     module2.exports = __toCommonJS2(Stacks_exports);
-    var import_core62 = require("@tamagui/core");
+    var import_core60 = require("@tamagui/core");
     var import_getElevation3 = require_getElevation();
     var fullscreenStyle2 = {
       position: "absolute",
@@ -2253,17 +2253,17 @@ var require_Stacks = __commonJS({
       },
       inset: getInset2
     };
-    var YStack2 = (0, import_core62.styled)(import_core62.View, {
+    var YStack2 = (0, import_core60.styled)(import_core60.View, {
       flexDirection: "column",
       variants: variants2
     });
     YStack2.displayName = "YStack";
-    var XStack2 = (0, import_core62.styled)(import_core62.View, {
+    var XStack2 = (0, import_core60.styled)(import_core60.View, {
       flexDirection: "row",
       variants: variants2
     });
     XStack2.displayName = "XStack";
-    var ZStack2 = (0, import_core62.styled)(YStack2, {
+    var ZStack2 = (0, import_core60.styled)(YStack2, {
       position: "relative"
     }, {
       neverFlatten: true,
@@ -2305,12 +2305,12 @@ var require_cjs6 = __commonJS({
       stepTokenUpOrDown: /* @__PURE__ */ __name(() => stepTokenUpOrDown2, "stepTokenUpOrDown")
     });
     module2.exports = __toCommonJS2(src_exports);
-    var import_web22 = require("@tamagui/core");
+    var import_web24 = require("@tamagui/core");
     var defaultOptions2 = {
       shift: 0,
       bounds: [0]
     };
-    var getSize2 = /* @__PURE__ */ __name((size5, options) => getTokenRelative2("size", size5, options), "getSize");
+    var getSize2 = /* @__PURE__ */ __name((size6, options) => getTokenRelative2("size", size6, options), "getSize");
     var getSpace2 = /* @__PURE__ */ __name((space2, options) => getTokenRelative2("space", space2, options), "getSpace");
     var getRadius = /* @__PURE__ */ __name((radius2, options) => getTokenRelative2("radius", radius2, options), "getRadius");
     var cacheVariables2 = {};
@@ -2319,7 +2319,7 @@ var require_cjs6 = __commonJS({
     var cacheWholeKeys2 = {};
     var stepTokenUpOrDown2 = /* @__PURE__ */ __name((type, current, options = defaultOptions2) => {
       var _a, _b;
-      const tokens2 = (0, import_web22.getTokens)({
+      const tokens2 = (0, import_web24.getTokens)({
         prefixed: true
       })[type];
       if (!(type in cacheVariables2)) {
@@ -2331,7 +2331,7 @@ var require_cjs6 = __commonJS({
       }
       const isString = typeof current == "string", tokensOrdered = (options.excludeHalfSteps ? isString ? cacheWholeKeys2 : cacheWholeVariables2 : isString ? cacheKeys2 : cacheVariables2)[type], min2 = ((_a = options.bounds) == null ? void 0 : _a[0]) ?? 0, max2 = ((_b = options.bounds) == null ? void 0 : _b[1]) ?? tokensOrdered.length - 1, currentIndex = tokensOrdered.indexOf(current);
       let shift4 = options.shift || 0;
-      shift4 && (current === "$true" || (0, import_web22.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
+      shift4 && (current === "$true" || (0, import_web24.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
       const index3 = Math.min(max2, Math.max(min2, currentIndex + shift4)), found = tokensOrdered[index3];
       return (typeof found == "string" ? tokens2[found] : found) || tokens2.$true;
     }, "stepTokenUpOrDown");
@@ -2481,15 +2481,15 @@ var require_variants = __commonJS({
         tokens: tokens2
       }) => {
         if (!("size" in props)) return circularStyle2;
-        const size5 = typeof props.size == "number" ? props.size : tokens2.size[props.size];
+        const size6 = typeof props.size == "number" ? props.size : tokens2.size[props.size];
         return {
           ...circularStyle2,
-          width: size5,
-          height: size5,
-          maxWidth: size5,
-          maxHeight: size5,
-          minWidth: size5,
-          minHeight: size5
+          width: size6,
+          height: size6,
+          maxWidth: size6,
+          maxHeight: size6,
+          minWidth: size6,
+          minHeight: size6
         };
       }, "true")
     };
@@ -2552,11 +2552,11 @@ var require_SizableStack = __commonJS({
       SizableStack: /* @__PURE__ */ __name(() => SizableStack2, "SizableStack")
     });
     module2.exports = __toCommonJS2(SizableStack_exports);
-    var import_core62 = require("@tamagui/core");
+    var import_core60 = require("@tamagui/core");
     var import_get_button_sized6 = require_cjs7();
     var import_Stacks3 = require_Stacks();
     var import_variants3 = require_variants();
-    var SizableStack2 = (0, import_core62.styled)(import_Stacks3.XStack, {
+    var SizableStack2 = (0, import_core60.styled)(import_Stacks3.XStack, {
       name: "SizableStack",
       variants: {
         unstyled: {
@@ -2611,7 +2611,7 @@ var require_ThemeableStack = __commonJS({
       themeableVariants: /* @__PURE__ */ __name(() => themeableVariants2, "themeableVariants")
     });
     module2.exports = __toCommonJS2(ThemeableStack_exports);
-    var import_core62 = require("@tamagui/core");
+    var import_core60 = require("@tamagui/core");
     var import_Stacks3 = require_Stacks();
     var import_variants3 = require_variants();
     var chromelessStyle2 = {
@@ -2651,7 +2651,7 @@ var require_ThemeableStack = __commonJS({
         }
       }
     };
-    var ThemeableStack2 = (0, import_core62.styled)(import_Stacks3.YStack, {
+    var ThemeableStack2 = (0, import_core60.styled)(import_Stacks3.YStack, {
       variants: themeableVariants2
     });
   }
@@ -2698,8 +2698,8 @@ var require_NestingContext = __commonJS({
       ButtonNestingContext: /* @__PURE__ */ __name(() => ButtonNestingContext2, "ButtonNestingContext")
     });
     module2.exports = __toCommonJS2(NestingContext_exports);
-    var import_react52 = __toESM2(require("react"));
-    var ButtonNestingContext2 = import_react52.default.createContext(false);
+    var import_react49 = __toESM2(require("react"));
+    var ButtonNestingContext2 = import_react49.default.createContext(false);
   }
 });
 
@@ -2758,8 +2758,8 @@ var require_cjs9 = __commonJS({
       getFontSized: /* @__PURE__ */ __name(() => getFontSized2, "getFontSized")
     });
     module2.exports = __toCommonJS2(src_exports);
-    var import_constants52 = require_cjs2();
-    var import_core62 = require("@tamagui/core");
+    var import_constants45 = require_cjs2();
+    var import_core60 = require("@tamagui/core");
     var getFontSized2 = /* @__PURE__ */ __name((sizeTokenIn = "$true", {
       font,
       fontFamily,
@@ -2770,7 +2770,7 @@ var require_cjs9 = __commonJS({
         fontSize: sizeTokenIn
       };
       const sizeToken = sizeTokenIn === "$true" ? getDefaultSizeToken2(font) : sizeTokenIn, style = {}, fontSize = font.size[sizeToken], lineHeight = (_a = font.lineHeight) == null ? void 0 : _a[sizeToken], fontWeight = (_b = font.weight) == null ? void 0 : _b[sizeToken], letterSpacing = (_c = font.letterSpacing) == null ? void 0 : _c[sizeToken], textTransform = (_d = font.transform) == null ? void 0 : _d[sizeToken], fontStyle = props.fontStyle ?? ((_e = font.style) == null ? void 0 : _e[sizeToken]), color2 = props.color ?? ((_f = font.color) == null ? void 0 : _f[sizeToken]);
-      return fontStyle && (style.fontStyle = fontStyle), textTransform && (style.textTransform = textTransform), fontFamily && (style.fontFamily = fontFamily), fontWeight && (style.fontWeight = fontWeight), letterSpacing && (style.letterSpacing = letterSpacing), fontSize && (style.fontSize = fontSize), lineHeight && (style.lineHeight = lineHeight), color2 && (style.color = color2), process.env.NODE_ENV === "development" && props.debug && props.debug === "verbose" && (console.groupCollapsed("  \u{1F539} getFontSized", sizeTokenIn, sizeToken), import_constants52.isClient && console.info({
+      return fontStyle && (style.fontStyle = fontStyle), textTransform && (style.textTransform = textTransform), fontFamily && (style.fontFamily = fontFamily), fontWeight && (style.fontWeight = fontWeight), letterSpacing && (style.letterSpacing = letterSpacing), fontSize && (style.fontSize = fontSize), lineHeight && (style.lineHeight = lineHeight), color2 && (style.color = color2), process.env.NODE_ENV === "development" && props.debug && props.debug === "verbose" && (console.groupCollapsed("  \u{1F539} getFontSized", sizeTokenIn, sizeToken), import_constants45.isClient && console.info({
         style,
         props,
         font
@@ -2779,7 +2779,7 @@ var require_cjs9 = __commonJS({
     var cache3 = /* @__PURE__ */ new WeakMap();
     function getDefaultSizeToken2(font) {
       if (typeof font == "object" && cache3.has(font)) return cache3.get(font);
-      const sizeTokens = "$true" in font.size ? font.size : (0, import_core62.getTokens)().size, sizeDefault = sizeTokens.$true, sizeDefaultSpecific = sizeDefault ? Object.keys(sizeTokens).find((x) => x !== "$true" && sizeTokens[x].val === sizeDefault.val) : null;
+      const sizeTokens = "$true" in font.size ? font.size : (0, import_core60.getTokens)().size, sizeDefault = sizeTokens.$true, sizeDefaultSpecific = sizeDefault ? Object.keys(sizeTokens).find((x) => x !== "$true" && sizeTokens[x].val === sizeDefault.val) : null;
       return !sizeDefault || !sizeDefaultSpecific ? (process.env.NODE_ENV === "development" && console.warn(`No default size is set in your tokens for the "true" key, fonts will be inconsistent.
 
       Fix this by having consistent tokens across fonts and sizes and setting a true key for your size tokens, or
@@ -2818,8 +2818,8 @@ var require_SizableText = __commonJS({
     });
     module2.exports = __toCommonJS2(SizableText_exports);
     var import_get_font_sized5 = require_cjs9();
-    var import_web22 = require("@tamagui/core");
-    var SizableText2 = (0, import_web22.styled)(import_web22.Text, {
+    var import_web24 = require("@tamagui/core");
+    var SizableText2 = (0, import_web24.styled)(import_web24.Text, {
       name: "SizableText",
       fontFamily: "$body",
       variants: {
@@ -2837,8 +2837,8 @@ var require_SizableText = __commonJS({
     });
     SizableText2.staticConfig.variants.fontFamily = {
       "...": /* @__PURE__ */ __name((_val, extras) => {
-        const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size5 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
-        return (0, import_get_font_sized5.getFontSized)(size5, extras);
+        const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size6 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
+        return (0, import_get_font_sized5.getFontSized)(size6, extras);
       }, "...")
     };
   }
@@ -2872,9 +2872,9 @@ var require_Paragraph = __commonJS({
       Paragraph: /* @__PURE__ */ __name(() => Paragraph2, "Paragraph")
     });
     module2.exports = __toCommonJS2(Paragraph_exports);
-    var import_web22 = require("@tamagui/core");
+    var import_web24 = require("@tamagui/core");
     var import_SizableText2 = require_SizableText();
-    var Paragraph2 = (0, import_web22.styled)(import_SizableText2.SizableText, {
+    var Paragraph2 = (0, import_web24.styled)(import_SizableText2.SizableText, {
       name: "Paragraph",
       tag: "p",
       userSelect: "auto",
@@ -2919,9 +2919,9 @@ var require_Headings = __commonJS({
       Heading: /* @__PURE__ */ __name(() => Heading2, "Heading")
     });
     module2.exports = __toCommonJS2(Headings_exports);
-    var import_web22 = require("@tamagui/core");
+    var import_web24 = require("@tamagui/core");
     var import_Paragraph2 = require_Paragraph();
-    var Heading2 = (0, import_web22.styled)(import_Paragraph2.Paragraph, {
+    var Heading2 = (0, import_web24.styled)(import_Paragraph2.Paragraph, {
       tag: "span",
       name: "Heading",
       accessibilityRole: "header",
@@ -2929,32 +2929,32 @@ var require_Headings = __commonJS({
       size: "$8",
       margin: 0
     });
-    var H12 = (0, import_web22.styled)(Heading2, {
+    var H12 = (0, import_web24.styled)(Heading2, {
       name: "H1",
       tag: "h1",
       size: "$10"
     });
-    var H22 = (0, import_web22.styled)(Heading2, {
+    var H22 = (0, import_web24.styled)(Heading2, {
       name: "H2",
       tag: "h2",
       size: "$9"
     });
-    var H32 = (0, import_web22.styled)(Heading2, {
+    var H32 = (0, import_web24.styled)(Heading2, {
       name: "H3",
       tag: "h3",
       size: "$8"
     });
-    var H42 = (0, import_web22.styled)(Heading2, {
+    var H42 = (0, import_web24.styled)(Heading2, {
       name: "H4",
       tag: "h4",
       size: "$7"
     });
-    var H52 = (0, import_web22.styled)(Heading2, {
+    var H52 = (0, import_web24.styled)(Heading2, {
       name: "H5",
       tag: "h5",
       size: "$6"
     });
-    var H62 = (0, import_web22.styled)(Heading2, {
+    var H62 = (0, import_web24.styled)(Heading2, {
       name: "H6",
       tag: "h6",
       size: "$5"
@@ -3003,8 +3003,8 @@ var require_wrapChildrenInText = __commonJS({
       wrapChildrenInText: /* @__PURE__ */ __name(() => wrapChildrenInText2, "wrapChildrenInText")
     });
     module2.exports = __toCommonJS2(wrapChildrenInText_exports);
-    var import_react52 = __toESM2(require("react"));
-    var import_jsx_runtime72 = (
+    var import_react49 = __toESM2(require("react"));
+    var import_jsx_runtime64 = (
       // so "data-disable-theme" is a hack to fix themeInverse, don't ask me why
       require("react/jsx-runtime")
     );
@@ -3012,7 +3012,7 @@ var require_wrapChildrenInText = __commonJS({
       const {
         children,
         textProps,
-        size: size5,
+        size: size6,
         noTextWrap,
         color: color2,
         fontFamily,
@@ -3027,7 +3027,7 @@ var require_wrapChildrenInText = __commonJS({
       const props = {
         ...extraProps
       };
-      return color2 && (props.color = color2), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size5 && (props.size = size5), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react52.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(TextComponent, {
+      return color2 && (props.color = color2), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size6 && (props.size = size6), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react49.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(TextComponent, {
         ...props,
         ...textProps,
         children: child
@@ -3128,13 +3128,13 @@ var require_useGet = __commonJS({
       useGet: /* @__PURE__ */ __name(() => useGet6, "useGet")
     });
     module2.exports = __toCommonJS2(useGet_exports);
-    var import_constants52 = require_cjs2();
-    var React85 = __toESM2(require("react"));
+    var import_constants45 = require_cjs2();
+    var React78 = __toESM2(require("react"));
     function useGet6(currentValue, initialValue2, forwardToFunction) {
-      const curRef = React85.useRef(initialValue2 ?? currentValue);
-      return (0, import_constants52.useIsomorphicLayoutEffect)(() => {
+      const curRef = React78.useRef(initialValue2 ?? currentValue);
+      return (0, import_constants45.useIsomorphicLayoutEffect)(() => {
         curRef.current = currentValue;
-      }), React85.useCallback(forwardToFunction ? (...args) => {
+      }), React78.useCallback(forwardToFunction ? (...args) => {
         var _a;
         return (_a = curRef.current) == null ? void 0 : _a.apply(null, args);
       } : () => curRef.current, []);
@@ -3168,14 +3168,14 @@ var require_useEvent = __commonJS({
     }), mod), "__toCommonJS");
     var useEvent_exports = {};
     __export2(useEvent_exports, {
-      useEvent: /* @__PURE__ */ __name(() => useEvent17, "useEvent")
+      useEvent: /* @__PURE__ */ __name(() => useEvent13, "useEvent")
     });
     module2.exports = __toCommonJS2(useEvent_exports);
     var import_useGet2 = require_useGet();
-    function useEvent17(callback) {
+    function useEvent13(callback) {
       return (0, import_useGet2.useGet)(callback, defaultValue2, true);
     }
-    __name(useEvent17, "useEvent");
+    __name(useEvent13, "useEvent");
     var defaultValue2 = /* @__PURE__ */ __name(() => {
       throw new Error("Cannot call an event handler while rendering.");
     }, "defaultValue");
@@ -3235,9 +3235,9 @@ var require_cjs12 = __commonJS({
       startTransition: /* @__PURE__ */ __name(() => startTransition2, "startTransition")
     });
     module2.exports = __toCommonJS2(src_exports);
-    var import_react52 = require("react");
+    var import_react49 = require("react");
     var startTransition2 = /* @__PURE__ */ __name((callback) => {
-      (0, import_react52.startTransition)(callback);
+      (0, import_react49.startTransition)(callback);
     }, "startTransition");
   }
 });
@@ -3284,8 +3284,8 @@ var require_useControllableState = __commonJS({
     });
     module2.exports = __toCommonJS2(useControllableState_exports);
     var import_use_event4 = require_cjs11();
-    var React85 = __toESM2(require("react"));
-    var import_start_transition10 = require_cjs12();
+    var React78 = __toESM2(require("react"));
+    var import_start_transition6 = require_cjs12();
     var emptyCallbackFn2 = /* @__PURE__ */ __name((_) => _(), "emptyCallbackFn");
     function useControllableState2({
       prop,
@@ -3295,12 +3295,12 @@ var require_useControllableState = __commonJS({
       preventUpdate,
       transition
     }) {
-      const [state, setState] = React85.useState(prop ?? defaultProp), previous = React85.useRef(state), propWins = strategy === "prop-wins" && prop !== void 0, value = propWins ? prop : state, onChangeCb = (0, import_use_event4.useEvent)(onChange || idFn3), transitionFn = transition ? import_start_transition10.startTransition : emptyCallbackFn2;
-      React85.useEffect(() => {
+      const [state, setState] = React78.useState(prop ?? defaultProp), previous = React78.useRef(state), propWins = strategy === "prop-wins" && prop !== void 0, value = propWins ? prop : state, onChangeCb = (0, import_use_event4.useEvent)(onChange || idFn3), transitionFn = transition ? import_start_transition6.startTransition : emptyCallbackFn2;
+      React78.useEffect(() => {
         prop !== void 0 && (previous.current = prop, transitionFn(() => {
           setState(prop);
         }));
-      }, [prop]), React85.useEffect(() => {
+      }, [prop]), React78.useEffect(() => {
         propWins || state !== previous.current && (previous.current = state, onChangeCb(state));
       }, [onChangeCb, state, propWins]);
       const setter = (0, import_use_event4.useEvent)((next) => {
@@ -3386,21 +3386,21 @@ var require_useDirection = __commonJS({
       useDirection: /* @__PURE__ */ __name(() => useDirection2, "useDirection")
     });
     module2.exports = __toCommonJS2(useDirection_exports);
-    var React85 = __toESM2(require("react"));
-    var import_jsx_runtime72 = require("react/jsx-runtime");
-    var DirectionContext2 = React85.createContext(void 0);
+    var React78 = __toESM2(require("react"));
+    var import_jsx_runtime64 = require("react/jsx-runtime");
+    var DirectionContext2 = React78.createContext(void 0);
     var DirectionProvider = /* @__PURE__ */ __name((props) => {
       const {
         dir,
         children
       } = props;
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(DirectionContext2.Provider, {
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(DirectionContext2.Provider, {
         value: dir,
         children
       });
     }, "DirectionProvider");
     function useDirection2(localDir) {
-      const globalDir = React85.useContext(DirectionContext2);
+      const globalDir = React78.useContext(DirectionContext2);
       return localDir || globalDir || "ltr";
     }
     __name(useDirection2, "useDirection");
@@ -3468,23 +3468,23 @@ var require_Accordion = __commonJS({
     var import_collapsible = (init_esm11(), __toCommonJS(esm_exports));
     var import_collection2 = require_cjs3();
     var import_compose_refs25 = require_cjs();
-    var import_constants52 = require_cjs2();
-    var import_helpers28 = require_cjs5();
-    var import_stacks31 = require_cjs8();
+    var import_constants45 = require_cjs2();
+    var import_helpers29 = require_cjs5();
+    var import_stacks27 = require_cjs8();
     var import_text9 = require_cjs10();
     var import_use_controllable_state17 = require_cjs13();
     var import_use_direction5 = require_cjs14();
-    var import_web22 = require("@tamagui/core");
-    var import_web23 = require("@tamagui/core");
-    var React85 = __toESM2(require("react"));
-    var import_jsx_runtime72 = require("react/jsx-runtime");
+    var import_web24 = require("@tamagui/core");
+    var import_web25 = require("@tamagui/core");
+    var React78 = __toESM2(require("react"));
+    var import_jsx_runtime64 = require("react/jsx-runtime");
     var ACCORDION_NAME = "Accordion";
     var ACCORDION_KEYS = ["Home", "End", "ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight"];
     var [Collection2, useCollection2] = (0, import_collection2.createCollection)(ACCORDION_NAME);
     var ACCORDION_CONTEXT = "Accordion";
-    var AccordionComponent = React85.forwardRef((props, forwardedRef) => {
+    var AccordionComponent = React78.forwardRef((props, forwardedRef) => {
       const { type, ...accordionProps } = props, singleProps = accordionProps, multipleProps = accordionProps;
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Collection2.Provider, { __scopeCollection: props.__scopeAccordion || ACCORDION_CONTEXT, children: type === "multiple" ? /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(AccordionImplMultiple, { ...multipleProps, ref: forwardedRef }) : /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(AccordionImplSingle, { ...singleProps, ref: forwardedRef }) });
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Collection2.Provider, { __scopeCollection: props.__scopeAccordion || ACCORDION_CONTEXT, children: type === "multiple" ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(AccordionImplMultiple, { ...multipleProps, ref: forwardedRef }) : /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(AccordionImplSingle, { ...singleProps, ref: forwardedRef }) });
     });
     AccordionComponent.displayName = ACCORDION_NAME;
     AccordionComponent.propTypes = {
@@ -3499,12 +3499,12 @@ var require_Accordion = __commonJS({
         ) : null;
       }
     };
-    var { Provider: AccordionValueProvider, useStyledContext: useAccordionValueContext } = (0, import_web23.createStyledContext)();
+    var { Provider: AccordionValueProvider, useStyledContext: useAccordionValueContext } = (0, import_web25.createStyledContext)();
     var {
       Provider: AccordionCollapsibleProvider,
       useStyledContext: useAccordionCollapsibleContext
-    } = (0, import_web23.createStyledContext)();
-    var AccordionImplSingle = React85.forwardRef((props, forwardedRef) => {
+    } = (0, import_web25.createStyledContext)();
+    var AccordionImplSingle = React78.forwardRef((props, forwardedRef) => {
       const {
         value: valueProp,
         defaultValue: defaultValue2,
@@ -3518,28 +3518,28 @@ var require_Accordion = __commonJS({
         defaultProp: defaultValue2 || "",
         onChange: onValueChange
       });
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
         AccordionValueProvider,
         {
           scope: props.__scopeAccordion,
           value: value ? [value] : [],
           onItemOpen: setValue,
-          onItemClose: React85.useCallback(
+          onItemClose: React78.useCallback(
             () => collapsible && setValue(""),
             [setValue, collapsible]
           ),
-          children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+          children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
             AccordionCollapsibleProvider,
             {
               scope: props.__scopeAccordion,
               collapsible,
-              children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(AccordionImpl, { ...accordionSingleProps, ref: forwardedRef })
+              children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(AccordionImpl, { ...accordionSingleProps, ref: forwardedRef })
             }
           )
         }
       );
     });
-    var AccordionImplMultiple = React85.forwardRef((props, forwardedRef) => {
+    var AccordionImplMultiple = React78.forwardRef((props, forwardedRef) => {
       const {
         value: valueProp,
         defaultValue: defaultValue2,
@@ -3550,26 +3550,26 @@ var require_Accordion = __commonJS({
         prop: valueProp,
         defaultProp: defaultValue2 || [],
         onChange: onValueChange
-      }), handleItemOpen = React85.useCallback(
+      }), handleItemOpen = React78.useCallback(
         (itemValue) => setValue((prevValue = []) => [...prevValue, itemValue]),
         [setValue]
-      ), handleItemClose = React85.useCallback(
+      ), handleItemClose = React78.useCallback(
         (itemValue) => setValue((prevValue = []) => prevValue.filter((value2) => value2 !== itemValue)),
         [setValue]
       );
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
         AccordionValueProvider,
         {
           scope: props.__scopeAccordion,
           value: value || [],
           onItemOpen: handleItemOpen,
           onItemClose: handleItemClose,
-          children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(AccordionCollapsibleProvider, { scope: props.__scopeAccordion, collapsible: true, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(AccordionImpl, { ...accordionMultipleProps, ref: forwardedRef }) })
+          children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(AccordionCollapsibleProvider, { scope: props.__scopeAccordion, collapsible: true, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(AccordionImpl, { ...accordionMultipleProps, ref: forwardedRef }) })
         }
       );
     });
-    var { Provider: AccordionImplProvider, useStyledContext: useAccordionContext } = (0, import_web23.createStyledContext)();
-    var AccordionImpl = React85.forwardRef(
+    var { Provider: AccordionImplProvider, useStyledContext: useAccordionContext } = (0, import_web25.createStyledContext)();
+    var AccordionImpl = React78.forwardRef(
       (props, forwardedRef) => {
         const {
           __scopeAccordion,
@@ -3577,7 +3577,7 @@ var require_Accordion = __commonJS({
           dir,
           orientation = "vertical",
           ...accordionProps
-        } = props, accordionRef = React85.useRef(null), composedRef = (0, import_compose_refs25.useComposedRefs)(accordionRef, forwardedRef), getItems = useCollection2(__scopeAccordion || ACCORDION_CONTEXT), isDirectionLTR = (0, import_use_direction5.useDirection)(dir) === "ltr", handleKeyDown = (0, import_helpers28.composeEventHandlers)(
+        } = props, accordionRef = React78.useRef(null), composedRef = (0, import_compose_refs25.useComposedRefs)(accordionRef, forwardedRef), getItems = useCollection2(__scopeAccordion || ACCORDION_CONTEXT), isDirectionLTR = (0, import_use_direction5.useDirection)(dir) === "ltr", handleKeyDown = (0, import_helpers29.composeEventHandlers)(
           props.onKeyDown,
           (event) => {
             var _a;
@@ -3620,20 +3620,20 @@ var require_Accordion = __commonJS({
             (_a = triggerCollection[clampedIndex].ref.current) == null ? void 0 : _a.focus();
           }
         );
-        return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
           AccordionImplProvider,
           {
             scope: __scopeAccordion,
             disabled,
             direction: dir,
             orientation,
-            children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Collection2.Slot, { __scopeCollection: __scopeAccordion || ACCORDION_CONTEXT, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
-              import_stacks31.YStack,
+            children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Collection2.Slot, { __scopeCollection: __scopeAccordion || ACCORDION_CONTEXT, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
+              import_stacks27.YStack,
               {
                 "data-orientation": orientation,
                 ref: composedRef,
                 ...accordionProps,
-                ...import_constants52.isWeb && {
+                ...import_constants45.isWeb && {
                   onKeyDown: handleKeyDown
                 }
               }
@@ -3643,18 +3643,18 @@ var require_Accordion = __commonJS({
       }
     );
     var ITEM_NAME3 = "AccordionItem";
-    var { Provider: AccordionItemProvider, useStyledContext: useAccordionItemContext } = (0, import_web23.createStyledContext)();
-    var AccordionItem = React85.forwardRef(
+    var { Provider: AccordionItemProvider, useStyledContext: useAccordionItemContext } = (0, import_web25.createStyledContext)();
+    var AccordionItem = React78.forwardRef(
       (props, forwardedRef) => {
-        const { __scopeAccordion, value, ...accordionItemProps } = props, accordionContext = useAccordionContext(__scopeAccordion), valueContext = useAccordionValueContext(__scopeAccordion), triggerId = React85.useId(), open = value && valueContext.value.includes(value) || false, disabled = accordionContext.disabled || props.disabled;
-        return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+        const { __scopeAccordion, value, ...accordionItemProps } = props, accordionContext = useAccordionContext(__scopeAccordion), valueContext = useAccordionValueContext(__scopeAccordion), triggerId = React78.useId(), open = value && valueContext.value.includes(value) || false, disabled = accordionContext.disabled || props.disabled;
+        return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
           AccordionItemProvider,
           {
             scope: __scopeAccordion,
             open,
             disabled,
             triggerId,
-            children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+            children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
               import_collapsible.Collapsible,
               {
                 "data-orientation": accordionContext.orientation,
@@ -3675,10 +3675,10 @@ var require_Accordion = __commonJS({
     );
     AccordionItem.displayName = ITEM_NAME3;
     var HEADER_NAME = "AccordionHeader";
-    var AccordionHeader = React85.forwardRef(
+    var AccordionHeader = React78.forwardRef(
       (props, forwardedRef) => {
         const { __scopeAccordion, ...headerProps } = props, accordionContext = useAccordionContext(__scopeAccordion), itemContext = useAccordionItemContext(__scopeAccordion);
-        return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+        return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
           import_text9.H1,
           {
             "data-orientation": accordionContext.orientation,
@@ -3691,7 +3691,7 @@ var require_Accordion = __commonJS({
       }
     );
     AccordionHeader.displayName = HEADER_NAME;
-    var AccordionTriggerFrame = (0, import_web23.styled)(import_collapsible.Collapsible.Trigger, {
+    var AccordionTriggerFrame = (0, import_web25.styled)(import_collapsible.Collapsible.Trigger, {
       variants: {
         unstyled: {
           false: {
@@ -3718,7 +3718,7 @@ var require_Accordion = __commonJS({
     });
     var AccordionTrigger = AccordionTriggerFrame.styleable(function(props, forwardedRef) {
       const { __scopeAccordion, ...triggerProps } = props, accordionContext = useAccordionContext(__scopeAccordion), itemContext = useAccordionItemContext(__scopeAccordion), collapsibleContext = useAccordionCollapsibleContext(__scopeAccordion);
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(Collection2.ItemSlot, { __scopeCollection: __scopeAccordion || ACCORDION_CONTEXT, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Collection2.ItemSlot, { __scopeCollection: __scopeAccordion || ACCORDION_CONTEXT, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
         AccordionTriggerFrame,
         {
           __scopeCollapsible: __scopeAccordion || ACCORDION_CONTEXT,
@@ -3730,7 +3730,7 @@ var require_Accordion = __commonJS({
         }
       ) });
     });
-    var AccordionContentFrame = (0, import_web23.styled)(import_collapsible.Collapsible.Content, {
+    var AccordionContentFrame = (0, import_web25.styled)(import_collapsible.Collapsible.Content, {
       variants: {
         unstyled: {
           false: {
@@ -3745,7 +3745,7 @@ var require_Accordion = __commonJS({
     });
     var AccordionContent = AccordionContentFrame.styleable(function(props, forwardedRef) {
       const { __scopeAccordion, ...contentProps } = props, accordionContext = useAccordionContext(__scopeAccordion), itemContext = useAccordionItemContext(__scopeAccordion);
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
         AccordionContentFrame,
         {
           role: "region",
@@ -3757,16 +3757,16 @@ var require_Accordion = __commonJS({
         }
       );
     });
-    var HeightAnimator = import_web22.View.styleable((props, ref) => {
-      const itemContext = useAccordionItemContext(), { children, ...rest } = props, [height, setHeight] = React85.useState(0);
-      React85.useEffect(() => {
+    var HeightAnimator = import_web24.View.styleable((props, ref) => {
+      const itemContext = useAccordionItemContext(), { children, ...rest } = props, [height, setHeight] = React78.useState(0);
+      React78.useEffect(() => {
         itemContext.open || setHeight(0);
       }, [itemContext.open]);
-      const onLayout = (0, import_web22.useEvent)(({ nativeEvent }) => {
+      const onLayout = (0, import_web24.useEvent)(({ nativeEvent }) => {
         nativeEvent.layout.height && setHeight(nativeEvent.layout.height);
       });
-      return /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(import_web22.View, { ref, height, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime72.jsx)(
-        import_web22.View,
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(import_web24.View, { ref, height, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
+        import_web24.View,
         {
           position: "absolute",
           width: "100%",
@@ -3779,7 +3779,7 @@ var require_Accordion = __commonJS({
       return open ? "open" : "closed";
     }
     __name(getState7, "getState");
-    var Accordion = (0, import_helpers28.withStaticProperties)(AccordionComponent, {
+    var Accordion = (0, import_helpers29.withStaticProperties)(AccordionComponent, {
       Trigger: AccordionTrigger,
       Header: AccordionHeader,
       Content: AccordionContent,
@@ -4011,15 +4011,15 @@ function __extends(d, b) {
   d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 function __rest(s, e) {
-  var t2 = {};
+  var t = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-    t2[p] = s[p];
+    t[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function")
     for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
       if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-        t2[p[i]] = s[p[i]];
+        t[p[i]] = s[p[i]];
     }
-  return t2;
+  return t;
 }
 function __decorate(decorators, target, key, desc) {
   var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -4115,9 +4115,9 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 function __generator(thisArg, body) {
   var _ = { label: 0, sent: /* @__PURE__ */ __name(function() {
-    if (t2[0] & 1) throw t2[1];
-    return t2[1];
-  }, "sent"), trys: [], ops: [] }, f, y, t2, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    if (t[0] & 1) throw t[1];
+    return t[1];
+  }, "sent"), trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
   return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
     return this;
   }), g;
@@ -4130,12 +4130,12 @@ function __generator(thisArg, body) {
   function step(op) {
     if (f) throw new TypeError("Generator is already executing.");
     while (g && (g = 0, op[0] && (_ = 0)), _) try {
-      if (f = 1, y && (t2 = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t2 = y["return"]) && t2.call(y), 0) : y.next) && !(t2 = t2.call(y, op[1])).done) return t2;
-      if (y = 0, t2) op = [op[0] & 2, t2.value];
+      if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+      if (y = 0, t) op = [op[0] & 2, t.value];
       switch (op[0]) {
         case 0:
         case 1:
-          t2 = op;
+          t = op;
           break;
         case 4:
           _.label++;
@@ -4150,25 +4150,25 @@ function __generator(thisArg, body) {
           _.trys.pop();
           continue;
         default:
-          if (!(t2 = _.trys, t2 = t2.length > 0 && t2[t2.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+          if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
             _ = 0;
             continue;
           }
-          if (op[0] === 3 && (!t2 || op[1] > t2[0] && op[1] < t2[3])) {
+          if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
             _.label = op[1];
             break;
           }
-          if (op[0] === 6 && _.label < t2[1]) {
-            _.label = t2[1];
-            t2 = op;
+          if (op[0] === 6 && _.label < t[1]) {
+            _.label = t[1];
+            t = op;
             break;
           }
-          if (t2 && _.label < t2[2]) {
-            _.label = t2[2];
+          if (t && _.label < t[2]) {
+            _.label = t[2];
             _.ops.push(op);
             break;
           }
-          if (t2[2]) _.ops.pop();
+          if (t[2]) _.ops.pop();
           _.trys.pop();
           continue;
       }
@@ -4177,7 +4177,7 @@ function __generator(thisArg, body) {
       op = [6, e];
       y = 0;
     } finally {
-      f = t2 = 0;
+      f = t = 0;
     }
     if (op[0] & 5) throw op[1];
     return { value: op[0] ? op[1] : void 0, done: true };
@@ -4433,12 +4433,12 @@ var init_tslib_es6 = __esm({
     }, "extendStatics");
     __name(__extends, "__extends");
     __assign = /* @__PURE__ */ __name(function() {
-      __assign = Object.assign || /* @__PURE__ */ __name(function __assign2(t2) {
+      __assign = Object.assign || /* @__PURE__ */ __name(function __assign2(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
           s = arguments[i];
-          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t2[p] = s[p];
+          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
         }
-        return t2;
+        return t;
       }, "__assign");
       return __assign.apply(this, arguments);
     }, "__assign");
@@ -4660,10 +4660,10 @@ var require_useMergeRef = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.useMergeRefs = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var assignRef_1 = require_assignRef();
     var useRef_1 = require_useRef();
-    var useIsomorphicLayoutEffect3 = typeof window !== "undefined" ? React85.useLayoutEffect : React85.useEffect;
+    var useIsomorphicLayoutEffect3 = typeof window !== "undefined" ? React78.useLayoutEffect : React78.useEffect;
     var currentValues = /* @__PURE__ */ new WeakMap();
     function useMergeRefs(refs, defaultValue2) {
       var callbackRef = (0, useRef_1.useCallbackRef)(defaultValue2 || null, function(newValue) {
@@ -4905,7 +4905,7 @@ var require_hoc = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.sidecar = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var hook_1 = require_hook();
     function sidecar(importer, errorComponent) {
       var ErrorCase = /* @__PURE__ */ __name(function() {
@@ -4916,7 +4916,7 @@ var require_hoc = __commonJS({
         if (error2 && errorComponent) {
           return ErrorCase;
         }
-        return Car ? React85.createElement(Car, tslib_1.__assign({}, props)) : null;
+        return Car ? React78.createElement(Car, tslib_1.__assign({}, props)) : null;
       }, "Sidecar");
     }
     __name(sidecar, "sidecar");
@@ -5055,7 +5055,7 @@ var require_renderProp = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.renderCar = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var react_1 = require("react");
     function renderCar(WrappedComponent, defaults) {
       function State(_a) {
@@ -5070,10 +5070,10 @@ var require_renderProp = __commonJS({
           });
           return null;
         }, "SideTarget"), []);
-        return React85.createElement(WrappedComponent, tslib_1.__assign({}, props, { children: renderTarget }));
+        return React78.createElement(WrappedComponent, tslib_1.__assign({}, props, { children: renderTarget }));
       }
       __name(State, "State");
-      var Children7 = React85.memo(function(_a) {
+      var Children7 = React78.memo(function(_a) {
         var stateRef = _a.stateRef, defaultState = _a.defaultState, children = _a.children;
         var _b = (0, react_1.useState)(defaultState.current), state = _b[0], setState = _b[1];
         (0, react_1.useEffect)(function() {
@@ -5084,15 +5084,15 @@ var require_renderProp = __commonJS({
         return true;
       });
       return /* @__PURE__ */ __name(function Combiner(props) {
-        var defaultState = React85.useRef(defaults(props));
-        var ref = React85.useRef(function(state) {
+        var defaultState = React78.useRef(defaults(props));
+        var ref = React78.useRef(function(state) {
           return defaultState.current = state;
         });
-        return React85.createElement(
-          React85.Fragment,
+        return React78.createElement(
+          React78.Fragment,
           null,
-          React85.createElement(State, { stateRef: ref, props }),
-          React85.createElement(Children7, { stateRef: ref, defaultState, children: props.children })
+          React78.createElement(State, { stateRef: ref, props }),
+          React78.createElement(Children7, { stateRef: ref, defaultState, children: props.children })
         );
       }, "Combiner");
     }
@@ -5108,7 +5108,7 @@ var require_exports = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.exportSidecar = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var SideCar = /* @__PURE__ */ __name(function(_a) {
       var sideCar = _a.sideCar, rest = tslib_1.__rest(_a, ["sideCar"]);
       if (!sideCar) {
@@ -5118,7 +5118,7 @@ var require_exports = __commonJS({
       if (!Target) {
         throw new Error("Sidecar medium not found");
       }
-      return React85.createElement(Target, tslib_1.__assign({}, rest));
+      return React78.createElement(Target, tslib_1.__assign({}, rest));
     }, "SideCar");
     SideCar.isSideCarExport = true;
     function exportSidecar(medium, exported) {
@@ -5184,16 +5184,16 @@ var require_UI = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.RemoveScroll = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var constants_1 = require_constants2();
     var use_callback_ref_1 = require_es52();
     var medium_1 = require_medium2();
     var nothing = /* @__PURE__ */ __name(function() {
       return;
     }, "nothing");
-    var RemoveScroll2 = React85.forwardRef(function(props, parentRef) {
-      var ref = React85.useRef(null);
-      var _a = React85.useState({
+    var RemoveScroll2 = React78.forwardRef(function(props, parentRef) {
+      var ref = React78.useRef(null);
+      var _a = React78.useState({
         onScrollCapture: nothing,
         onWheelCapture: nothing,
         onTouchMoveCapture: nothing
@@ -5202,11 +5202,11 @@ var require_UI = __commonJS({
       var SideCar = sideCar;
       var containerRef = (0, use_callback_ref_1.useMergeRefs)([ref, parentRef]);
       var containerProps = tslib_1.__assign(tslib_1.__assign({}, rest), callbacks);
-      return React85.createElement(
-        React85.Fragment,
+      return React78.createElement(
+        React78.Fragment,
         null,
-        enabled && React85.createElement(SideCar, { sideCar: medium_1.effectCar, removeScrollBar, shards, noIsolation, inert, setCallbacks, allowPinchZoom: !!allowPinchZoom, lockRef: ref }),
-        forwardProps ? React85.cloneElement(React85.Children.only(children), tslib_1.__assign(tslib_1.__assign({}, containerProps), { ref: containerRef })) : React85.createElement(Container, tslib_1.__assign({}, containerProps, { className, ref: containerRef }), children)
+        enabled && React78.createElement(SideCar, { sideCar: medium_1.effectCar, removeScrollBar, shards, noIsolation, inert, setCallbacks, allowPinchZoom: !!allowPinchZoom, lockRef: ref }),
+        forwardProps ? React78.cloneElement(React78.Children.only(children), tslib_1.__assign(tslib_1.__assign({}, containerProps), { ref: containerRef })) : React78.createElement(Container, tslib_1.__assign({}, containerProps, { className, ref: containerRef }), children)
       );
     });
     exports2.RemoveScroll = RemoveScroll2;
@@ -5308,12 +5308,12 @@ var require_hook2 = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.styleHookSingleton = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var singleton_1 = require_singleton();
     var styleHookSingleton = /* @__PURE__ */ __name(function() {
       var sheet = (0, singleton_1.stylesheetSingleton)();
       return function(styles, isDynamic) {
-        React85.useEffect(function() {
+        React78.useEffect(function() {
           sheet.add(styles);
           return function() {
             sheet.remove();
@@ -5416,7 +5416,7 @@ var require_component2 = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.RemoveScrollBar = exports2.useLockAttribute = exports2.lockAttribute = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var react_style_singleton_1 = require_es55();
     var constants_1 = require_constants2();
     var utils_1 = require_utils();
@@ -5438,7 +5438,7 @@ var require_component2 = __commonJS({
       return isFinite(counter) ? counter : 0;
     }, "getCurrentUseCounter");
     var useLockAttribute = /* @__PURE__ */ __name(function() {
-      React85.useEffect(function() {
+      React78.useEffect(function() {
         document.body.setAttribute(exports2.lockAttribute, (getCurrentUseCounter() + 1).toString());
         return function() {
           var newCounter = getCurrentUseCounter() - 1;
@@ -5454,10 +5454,10 @@ var require_component2 = __commonJS({
     var RemoveScrollBar = /* @__PURE__ */ __name(function(_a) {
       var noRelative = _a.noRelative, noImportant = _a.noImportant, _b = _a.gapMode, gapMode = _b === void 0 ? "margin" : _b;
       (0, exports2.useLockAttribute)();
-      var gap = React85.useMemo(function() {
+      var gap = React78.useMemo(function() {
         return (0, utils_1.getGapWidth)(gapMode);
       }, [gapMode]);
-      return React85.createElement(Style, { styles: getStyles(gap, !noRelative, gapMode, !noImportant ? "!important" : "") });
+      return React78.createElement(Style, { styles: getStyles(gap, !noRelative, gapMode, !noImportant ? "!important" : "") });
     }, "RemoveScrollBar");
     exports2.RemoveScrollBar = RemoveScrollBar;
   }
@@ -5627,7 +5627,7 @@ var require_SideEffect = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.RemoveScrollSideCar = exports2.getDeltaXY = exports2.getTouchXY = void 0;
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var react_remove_scroll_bar_1 = require_es56();
     var react_style_singleton_1 = require_es55();
     var aggresiveCapture_1 = require_aggresiveCapture();
@@ -5652,18 +5652,18 @@ var require_SideEffect = __commonJS({
     var idCounter = 0;
     var lockStack = [];
     function RemoveScrollSideCar(props) {
-      var shouldPreventQueue = React85.useRef([]);
-      var touchStartRef = React85.useRef([0, 0]);
-      var activeAxis = React85.useRef();
-      var id = React85.useState(idCounter++)[0];
-      var Style = React85.useState(function() {
+      var shouldPreventQueue = React78.useRef([]);
+      var touchStartRef = React78.useRef([0, 0]);
+      var activeAxis = React78.useRef();
+      var id = React78.useState(idCounter++)[0];
+      var Style = React78.useState(function() {
         return (0, react_style_singleton_1.styleSingleton)();
       })[0];
-      var lastProps = React85.useRef(props);
-      React85.useEffect(function() {
+      var lastProps = React78.useRef(props);
+      React78.useEffect(function() {
         lastProps.current = props;
       }, [props]);
-      React85.useEffect(function() {
+      React78.useEffect(function() {
         if (props.inert) {
           document.body.classList.add("block-interactivity-".concat(id));
           var allow_1 = tslib_1.__spreadArray([props.lockRef.current], (props.shards || []).map(extractRef), true).filter(Boolean);
@@ -5679,7 +5679,7 @@ var require_SideEffect = __commonJS({
         }
         return;
       }, [props.inert, props.lockRef.current, props.shards]);
-      var shouldCancelEvent = React85.useCallback(function(event, parent) {
+      var shouldCancelEvent = React78.useCallback(function(event, parent) {
         if ("touches" in event && event.touches.length === 2) {
           return !lastProps.current.allowPinchZoom;
         }
@@ -5715,7 +5715,7 @@ var require_SideEffect = __commonJS({
         var cancelingAxis = activeAxis.current || currentAxis;
         return (0, handleScroll_1.handleScroll)(cancelingAxis, parent, event, cancelingAxis === "h" ? deltaX : deltaY, true);
       }, []);
-      var shouldPrevent = React85.useCallback(function(_event) {
+      var shouldPrevent = React78.useCallback(function(_event) {
         var event = _event;
         if (!lockStack.length || lockStack[lockStack.length - 1] !== Style) {
           return;
@@ -5742,7 +5742,7 @@ var require_SideEffect = __commonJS({
           }
         }
       }, []);
-      var shouldCancel = React85.useCallback(function(name, delta, target, should) {
+      var shouldCancel = React78.useCallback(function(name, delta, target, should) {
         var event = { name, delta, target, should };
         shouldPreventQueue.current.push(event);
         setTimeout(function() {
@@ -5751,17 +5751,17 @@ var require_SideEffect = __commonJS({
           });
         }, 1);
       }, []);
-      var scrollTouchStart = React85.useCallback(function(event) {
+      var scrollTouchStart = React78.useCallback(function(event) {
         touchStartRef.current = (0, exports2.getTouchXY)(event);
         activeAxis.current = void 0;
       }, []);
-      var scrollWheel = React85.useCallback(function(event) {
+      var scrollWheel = React78.useCallback(function(event) {
         shouldCancel(event.type, (0, exports2.getDeltaXY)(event), event.target, shouldCancelEvent(event, props.lockRef.current));
       }, []);
-      var scrollTouchMove = React85.useCallback(function(event) {
+      var scrollTouchMove = React78.useCallback(function(event) {
         shouldCancel(event.type, (0, exports2.getTouchXY)(event), event.target, shouldCancelEvent(event, props.lockRef.current));
       }, []);
-      React85.useEffect(function() {
+      React78.useEffect(function() {
         lockStack.push(Style);
         props.setCallbacks({
           onScrollCapture: scrollWheel,
@@ -5781,11 +5781,11 @@ var require_SideEffect = __commonJS({
         };
       }, []);
       var removeScrollBar = props.removeScrollBar, inert = props.inert;
-      return React85.createElement(
-        React85.Fragment,
+      return React78.createElement(
+        React78.Fragment,
         null,
-        inert ? React85.createElement(Style, { styles: generateStyle(id) }) : null,
-        removeScrollBar ? React85.createElement(react_remove_scroll_bar_1.RemoveScrollBar, { gapMode: "margin" }) : null
+        inert ? React78.createElement(Style, { styles: generateStyle(id) }) : null,
+        removeScrollBar ? React78.createElement(react_remove_scroll_bar_1.RemoveScrollBar, { gapMode: "margin" }) : null
       );
     }
     __name(RemoveScrollSideCar, "RemoveScrollSideCar");
@@ -5811,11 +5811,11 @@ var require_Combination = __commonJS({
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     var tslib_1 = (init_tslib_es6(), __toCommonJS(tslib_es6_exports));
-    var React85 = tslib_1.__importStar(require("react"));
+    var React78 = tslib_1.__importStar(require("react"));
     var UI_1 = require_UI();
     var sidecar_1 = tslib_1.__importDefault(require_sidecar());
-    var ReactRemoveScroll = React85.forwardRef(function(props, ref) {
-      return React85.createElement(UI_1.RemoveScroll, tslib_1.__assign({}, props, { ref, sideCar: sidecar_1.default }));
+    var ReactRemoveScroll = React78.forwardRef(function(props, ref) {
+      return React78.createElement(UI_1.RemoveScroll, tslib_1.__assign({}, props, { ref, sideCar: sidecar_1.default }));
     });
     ReactRemoveScroll.classNames = UI_1.RemoveScroll.classNames;
     exports2.default = ReactRemoveScroll;
@@ -5989,15 +5989,15 @@ var require_typeof = __commonJS({
 var require_toPrimitive = __commonJS({
   "node_modules/@babel/runtime/helpers/toPrimitive.js"(exports2, module2) {
     var _typeof = require_typeof()["default"];
-    function toPrimitive(t2, r) {
-      if ("object" != _typeof(t2) || !t2) return t2;
-      var e = t2[Symbol.toPrimitive];
+    function toPrimitive(t, r) {
+      if ("object" != _typeof(t) || !t) return t;
+      var e = t[Symbol.toPrimitive];
       if (void 0 !== e) {
-        var i = e.call(t2, r || "default");
+        var i = e.call(t, r || "default");
         if ("object" != _typeof(i)) return i;
         throw new TypeError("@@toPrimitive must return a primitive value.");
       }
-      return ("string" === r ? String : Number)(t2);
+      return ("string" === r ? String : Number)(t);
     }
     __name(toPrimitive, "toPrimitive");
     module2.exports = toPrimitive, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -6009,8 +6009,8 @@ var require_toPropertyKey = __commonJS({
   "node_modules/@babel/runtime/helpers/toPropertyKey.js"(exports2, module2) {
     var _typeof = require_typeof()["default"];
     var toPrimitive = require_toPrimitive();
-    function toPropertyKey(t2) {
-      var i = toPrimitive(t2, "string");
+    function toPropertyKey(t) {
+      var i = toPrimitive(t, "string");
       return "symbol" == _typeof(i) ? i : i + "";
     }
     __name(toPropertyKey, "toPropertyKey");
@@ -6022,13 +6022,13 @@ var require_toPropertyKey = __commonJS({
 var require_defineProperty = __commonJS({
   "node_modules/@babel/runtime/helpers/defineProperty.js"(exports2, module2) {
     var toPropertyKey = require_toPropertyKey();
-    function _defineProperty(e, r, t2) {
+    function _defineProperty(e, r, t) {
       return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
-        value: t2,
+        value: t,
         enumerable: true,
         configurable: true,
         writable: true
-      }) : e[r] = t2, e;
+      }) : e[r] = t, e;
     }
     __name(_defineProperty, "_defineProperty");
     module2.exports = _defineProperty, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -6040,23 +6040,23 @@ var require_objectSpread2 = __commonJS({
   "node_modules/@babel/runtime/helpers/objectSpread2.js"(exports2, module2) {
     var defineProperty = require_defineProperty();
     function ownKeys2(e, r) {
-      var t2 = Object.keys(e);
+      var t = Object.keys(e);
       if (Object.getOwnPropertySymbols) {
         var o = Object.getOwnPropertySymbols(e);
         r && (o = o.filter(function(r2) {
           return Object.getOwnPropertyDescriptor(e, r2).enumerable;
-        })), t2.push.apply(t2, o);
+        })), t.push.apply(t, o);
       }
-      return t2;
+      return t;
     }
     __name(ownKeys2, "ownKeys");
     function _objectSpread2(e) {
       for (var r = 1; r < arguments.length; r++) {
-        var t2 = null != arguments[r] ? arguments[r] : {};
-        r % 2 ? ownKeys2(Object(t2), true).forEach(function(r2) {
-          defineProperty(e, r2, t2[r2]);
-        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys2(Object(t2)).forEach(function(r2) {
-          Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t2, r2));
+        var t = null != arguments[r] ? arguments[r] : {};
+        r % 2 ? ownKeys2(Object(t), true).forEach(function(r2) {
+          defineProperty(e, r2, t[r2]);
+        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys2(Object(t)).forEach(function(r2) {
+          Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
         });
       }
       return e;
@@ -6071,12 +6071,12 @@ var require_objectWithoutPropertiesLoose = __commonJS({
   "node_modules/@babel/runtime/helpers/objectWithoutPropertiesLoose.js"(exports2, module2) {
     function _objectWithoutPropertiesLoose(r, e) {
       if (null == r) return {};
-      var t2 = {};
+      var t = {};
       for (var n in r) if ({}.hasOwnProperty.call(r, n)) {
         if (-1 !== e.indexOf(n)) continue;
-        t2[n] = r[n];
+        t[n] = r[n];
       }
-      return t2;
+      return t;
     }
     __name(_objectWithoutPropertiesLoose, "_objectWithoutPropertiesLoose");
     module2.exports = _objectWithoutPropertiesLoose, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -6279,21 +6279,21 @@ var require_normalize_colors = __commonJS({
       return null;
     }
     __name(normalizeColor, "normalizeColor");
-    function hue2rgb(p, q, t2) {
-      if (t2 < 0) {
-        t2 += 1;
+    function hue2rgb(p, q, t) {
+      if (t < 0) {
+        t += 1;
       }
-      if (t2 > 1) {
-        t2 -= 1;
+      if (t > 1) {
+        t -= 1;
       }
-      if (t2 < 1 / 6) {
-        return p + (q - p) * 6 * t2;
+      if (t < 1 / 6) {
+        return p + (q - p) * 6 * t;
       }
-      if (t2 < 1 / 2) {
+      if (t < 1 / 2) {
         return q;
       }
-      if (t2 < 2 / 3) {
-        return p + (q - p) * (2 / 3 - t2) * 6;
+      if (t < 2 / 3) {
+        return p + (q - p) * (2 / 3 - t) * 6;
       }
       return p;
     }
@@ -9950,22 +9950,22 @@ var require_createDOMProps = __commonJS({
 var require_interopRequireWildcard = __commonJS({
   "node_modules/@babel/runtime/helpers/interopRequireWildcard.js"(exports2, module2) {
     var _typeof = require_typeof()["default"];
-    function _interopRequireWildcard(e, t2) {
+    function _interopRequireWildcard(e, t) {
       if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
-      return (module2.exports = _interopRequireWildcard = /* @__PURE__ */ __name(function _interopRequireWildcard2(e2, t3) {
-        if (!t3 && e2 && e2.__esModule) return e2;
+      return (module2.exports = _interopRequireWildcard = /* @__PURE__ */ __name(function _interopRequireWildcard2(e2, t2) {
+        if (!t2 && e2 && e2.__esModule) return e2;
         var o, i, f = {
           __proto__: null,
           "default": e2
         };
         if (null === e2 || "object" != _typeof(e2) && "function" != typeof e2) return f;
-        if (o = t3 ? n : r) {
+        if (o = t2 ? n : r) {
           if (o.has(e2)) return o.get(e2);
           o.set(e2, f);
         }
         for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
         return f;
-      }, "_interopRequireWildcard"), module2.exports.__esModule = true, module2.exports["default"] = module2.exports)(e, t2);
+      }, "_interopRequireWildcard"), module2.exports.__esModule = true, module2.exports["default"] = module2.exports)(e, t);
     }
     __name(_interopRequireWildcard, "_interopRequireWildcard");
     module2.exports = _interopRequireWildcard, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -10427,7 +10427,7 @@ var require_UIManager = __commonJS({
           }
         }
       },
-      configureNextLayoutAnimation(config, onAnimationDidEnd) {
+      configureNextLayoutAnimation(config2, onAnimationDidEnd) {
         onAnimationDidEnd();
       },
       // mocks
@@ -10600,8 +10600,8 @@ var require_extends = __commonJS({
     function _extends2() {
       return module2.exports = _extends2 = Object.assign ? Object.assign.bind() : function(n) {
         for (var e = 1; e < arguments.length; e++) {
-          var t2 = arguments[e];
-          for (var r in t2) ({}).hasOwnProperty.call(t2, r) && (n[r] = t2[r]);
+          var t = arguments[e];
+          for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
         }
         return n;
       }, module2.exports.__esModule = true, module2.exports["default"] = module2.exports, _extends2.apply(null, arguments);
@@ -10903,7 +10903,7 @@ var require_mergeRefs = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = mergeRefs;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     function mergeRefs() {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
@@ -10938,13 +10938,13 @@ var require_useMergeRefs = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = useMergeRefs;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _mergeRefs = _interopRequireDefault(require_mergeRefs());
     function useMergeRefs() {
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
-      return React85.useMemo(
+      return React78.useMemo(
         () => (0, _mergeRefs.default)(...args),
         // eslint-disable-next-line
         [...args]
@@ -10962,10 +10962,10 @@ var require_useStable = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = useStable;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var UNINITIALIZED = typeof Symbol === "function" && typeof Symbol() === "symbol" ? Symbol() : Object.freeze({});
     function useStable(getInitialValue) {
-      var ref = React85.useRef(UNINITIALIZED);
+      var ref = React78.useRef(UNINITIALIZED);
       if (ref.current === UNINITIALIZED) {
         ref.current = getInitialValue();
       }
@@ -11570,8 +11570,8 @@ var require_ResponderSystem = __commonJS({
     }
     __name(changeCurrentResponder, "changeCurrentResponder");
     function getResponderConfig(id) {
-      var config = responderListenersMap.get(id);
-      return config != null ? config : emptyObject;
+      var config2 = responderListenersMap.get(id);
+      return config2 != null ? config2 : emptyObject;
     }
     __name(getResponderConfig, "getResponderConfig");
     function eventListener(domEvent) {
@@ -11713,8 +11713,8 @@ var require_ResponderSystem = __commonJS({
         var shouldSetCallbackBubbleName = shouldSetCallbacks[1];
         var bubbles = shouldSetCallbacks[2].bubbles;
         var check = /* @__PURE__ */ __name(function check2(id2, node2, callbackName) {
-          var config = getResponderConfig(id2);
-          var shouldSetCallback = config[callbackName];
+          var config2 = getResponderConfig(id2);
+          var shouldSetCallback = config2[callbackName];
           if (shouldSetCallback != null) {
             responderEvent.currentTarget = node2;
             if (shouldSetCallback(responderEvent) === true) {
@@ -11837,9 +11837,9 @@ var require_ResponderSystem = __commonJS({
       }
     }
     __name(attachListeners, "attachListeners");
-    function addNode(id, node, config) {
+    function addNode(id, node, config2) {
       (0, _utils.setResponderId)(node, id);
-      responderListenersMap.set(id, config);
+      responderListenersMap.set(id, config2);
     }
     __name(addNode, "addNode");
     function removeNode(id) {
@@ -11880,46 +11880,46 @@ var require_useResponderEvents = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = useResponderEvents;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var ResponderSystem = _interopRequireWildcard(require_ResponderSystem());
     var emptyObject = {};
     var idCounter = 0;
     function useStable(getInitialValue) {
-      var ref = React85.useRef(null);
+      var ref = React78.useRef(null);
       if (ref.current == null) {
         ref.current = getInitialValue();
       }
       return ref.current;
     }
     __name(useStable, "useStable");
-    function useResponderEvents(hostRef, config) {
-      if (config === void 0) {
-        config = emptyObject;
+    function useResponderEvents(hostRef, config2) {
+      if (config2 === void 0) {
+        config2 = emptyObject;
       }
       var id = useStable(() => idCounter++);
-      var isAttachedRef = React85.useRef(false);
-      React85.useEffect(() => {
+      var isAttachedRef = React78.useRef(false);
+      React78.useEffect(() => {
         ResponderSystem.attachListeners();
         return () => {
           ResponderSystem.removeNode(id);
         };
       }, [id]);
-      React85.useEffect(() => {
-        var _config = config, onMoveShouldSetResponder = _config.onMoveShouldSetResponder, onMoveShouldSetResponderCapture = _config.onMoveShouldSetResponderCapture, onScrollShouldSetResponder = _config.onScrollShouldSetResponder, onScrollShouldSetResponderCapture = _config.onScrollShouldSetResponderCapture, onSelectionChangeShouldSetResponder = _config.onSelectionChangeShouldSetResponder, onSelectionChangeShouldSetResponderCapture = _config.onSelectionChangeShouldSetResponderCapture, onStartShouldSetResponder = _config.onStartShouldSetResponder, onStartShouldSetResponderCapture = _config.onStartShouldSetResponderCapture;
+      React78.useEffect(() => {
+        var _config = config2, onMoveShouldSetResponder = _config.onMoveShouldSetResponder, onMoveShouldSetResponderCapture = _config.onMoveShouldSetResponderCapture, onScrollShouldSetResponder = _config.onScrollShouldSetResponder, onScrollShouldSetResponderCapture = _config.onScrollShouldSetResponderCapture, onSelectionChangeShouldSetResponder = _config.onSelectionChangeShouldSetResponder, onSelectionChangeShouldSetResponderCapture = _config.onSelectionChangeShouldSetResponderCapture, onStartShouldSetResponder = _config.onStartShouldSetResponder, onStartShouldSetResponderCapture = _config.onStartShouldSetResponderCapture;
         var requiresResponderSystem = onMoveShouldSetResponder != null || onMoveShouldSetResponderCapture != null || onScrollShouldSetResponder != null || onScrollShouldSetResponderCapture != null || onSelectionChangeShouldSetResponder != null || onSelectionChangeShouldSetResponderCapture != null || onStartShouldSetResponder != null || onStartShouldSetResponderCapture != null;
         var node = hostRef.current;
         if (requiresResponderSystem) {
-          ResponderSystem.addNode(id, node, config);
+          ResponderSystem.addNode(id, node, config2);
           isAttachedRef.current = true;
         } else if (isAttachedRef.current) {
           ResponderSystem.removeNode(id);
           isAttachedRef.current = false;
         }
-      }, [config, hostRef, id]);
-      React85.useDebugValue({
+      }, [config2, hostRef, id]);
+      React78.useDebugValue({
         isResponder: hostRef.current === ResponderSystem.getResponderNode()
       });
-      React85.useDebugValue(config);
+      React78.useDebugValue(config2);
     }
     __name(useResponderEvents, "useResponderEvents");
     module2.exports = exports2.default;
@@ -11950,7 +11950,7 @@ var require_View = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var forwardedProps = _interopRequireWildcard(require_forwardedProps());
     var _pick = _interopRequireDefault(require_pick());
@@ -11970,17 +11970,17 @@ var require_View = __commonJS({
       pointerEvents: true
     });
     var pickProps = /* @__PURE__ */ __name((props) => (0, _pick.default)(props, forwardPropsList), "pickProps");
-    var View10 = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var View10 = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var hrefAttrs = props.hrefAttrs, onLayout = props.onLayout, onMoveShouldSetResponder = props.onMoveShouldSetResponder, onMoveShouldSetResponderCapture = props.onMoveShouldSetResponderCapture, onResponderEnd = props.onResponderEnd, onResponderGrant = props.onResponderGrant, onResponderMove = props.onResponderMove, onResponderReject = props.onResponderReject, onResponderRelease = props.onResponderRelease, onResponderStart = props.onResponderStart, onResponderTerminate = props.onResponderTerminate, onResponderTerminationRequest = props.onResponderTerminationRequest, onScrollShouldSetResponder = props.onScrollShouldSetResponder, onScrollShouldSetResponderCapture = props.onScrollShouldSetResponderCapture, onSelectionChangeShouldSetResponder = props.onSelectionChangeShouldSetResponder, onSelectionChangeShouldSetResponderCapture = props.onSelectionChangeShouldSetResponderCapture, onStartShouldSetResponder = props.onStartShouldSetResponder, onStartShouldSetResponderCapture = props.onStartShouldSetResponderCapture, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       if (process.env.NODE_ENV !== "production") {
-        React85.Children.toArray(props.children).forEach((item) => {
+        React78.Children.toArray(props.children).forEach((item) => {
           if (typeof item === "string") {
             console.error("Unexpected text node: " + item + ". A text node cannot be a child of a <View>.");
           }
         });
       }
-      var hasTextAncestor = React85.useContext(_TextAncestorContext.default);
-      var hostRef = React85.useRef(null);
+      var hasTextAncestor = React78.useContext(_TextAncestorContext.default);
+      var hostRef = React78.useRef(null);
       var _useLocaleContext = (0, _useLocale.useLocaleContext)(), contextDirection = _useLocaleContext.direction;
       (0, _useElementLayout.default)(hostRef, onLayout);
       (0, _useResponderEvents.default)(hostRef, {
@@ -12172,8 +12172,8 @@ var require_unsupportedIterableToArray = __commonJS({
     function _unsupportedIterableToArray(r, a) {
       if (r) {
         if ("string" == typeof r) return arrayLikeToArray(r, a);
-        var t2 = {}.toString.call(r).slice(8, -1);
-        return "Object" === t2 && r.constructor && (t2 = r.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? arrayLikeToArray(r, a) : void 0;
+        var t = {}.toString.call(r).slice(8, -1);
+        return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? arrayLikeToArray(r, a) : void 0;
       }
     }
     __name(_unsupportedIterableToArray, "_unsupportedIterableToArray");
@@ -12186,10 +12186,10 @@ var require_createForOfIteratorHelperLoose = __commonJS({
   "node_modules/@babel/runtime/helpers/createForOfIteratorHelperLoose.js"(exports2, module2) {
     var unsupportedIterableToArray = require_unsupportedIterableToArray();
     function _createForOfIteratorHelperLoose(r, e) {
-      var t2 = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
-      if (t2) return (t2 = t2.call(r)).next.bind(t2);
-      if (Array.isArray(r) || (t2 = unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
-        t2 && (r = t2);
+      var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+      if (t) return (t = t.call(r)).next.bind(t);
+      if (Array.isArray(r) || (t = unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
+        t && (r = t);
         var o = 0;
         return function() {
           return o >= r.length ? {
@@ -12219,7 +12219,7 @@ var require_RefreshControl = __commonJS({
     var _react = _interopRequireDefault(require("react"));
     var _excluded = ["colors", "enabled", "onRefresh", "progressBackgroundColor", "progressViewOffset", "refreshing", "size", "tintColor", "title", "titleColor"];
     function RefreshControl(props) {
-      var colors = props.colors, enabled = props.enabled, onRefresh = props.onRefresh, progressBackgroundColor = props.progressBackgroundColor, progressViewOffset = props.progressViewOffset, refreshing = props.refreshing, size5 = props.size, tintColor = props.tintColor, title = props.title, titleColor = props.titleColor, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
+      var colors = props.colors, enabled = props.enabled, onRefresh = props.onRefresh, progressBackgroundColor = props.progressBackgroundColor, progressViewOffset = props.progressViewOffset, refreshing = props.refreshing, size6 = props.size, tintColor = props.tintColor, title = props.title, titleColor = props.titleColor, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       return /* @__PURE__ */ _react.default.createElement(_View.default, rest);
     }
     __name(RefreshControl, "RefreshControl");
@@ -12424,7 +12424,7 @@ var require_ScrollViewBase = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs());
@@ -12466,14 +12466,14 @@ var require_ScrollViewBase = __commonJS({
       return eventThrottle > 0 && timeSinceLastTick >= eventThrottle;
     }
     __name(shouldEmitScrollEvent, "shouldEmitScrollEvent");
-    var ScrollViewBase = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var ScrollViewBase = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var onScroll = props.onScroll, onTouchMove = props.onTouchMove, onWheel = props.onWheel, _props$scrollEnabled = props.scrollEnabled, scrollEnabled = _props$scrollEnabled === void 0 ? true : _props$scrollEnabled, _props$scrollEventThr = props.scrollEventThrottle, scrollEventThrottle = _props$scrollEventThr === void 0 ? 0 : _props$scrollEventThr, showsHorizontalScrollIndicator = props.showsHorizontalScrollIndicator, showsVerticalScrollIndicator = props.showsVerticalScrollIndicator, style = props.style, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      var scrollState = React85.useRef({
+      var scrollState = React78.useRef({
         isScrolling: false,
         scrollLastTick: 0
       });
-      var scrollTimeout = React85.useRef(null);
-      var scrollRef = React85.useRef(null);
+      var scrollTimeout = React78.useRef(null);
+      var scrollRef = React78.useRef(null);
       function createPreventableScrollHandler(handler) {
         return (e) => {
           if (scrollEnabled) {
@@ -12524,7 +12524,7 @@ var require_ScrollViewBase = __commonJS({
       }
       __name(handleScrollEnd, "handleScrollEnd");
       var hideScrollbar = showsHorizontalScrollIndicator === false || showsVerticalScrollIndicator === false;
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, {
         onScroll: handleScroll,
         onTouchMove: createPreventableScrollHandler(onTouchMove),
         onWheel: createPreventableScrollHandler(onWheel),
@@ -13965,8 +13965,8 @@ var require_StateSafePureComponent = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _invariant = _interopRequireDefault(require_invariant());
-    var React85 = _interopRequireWildcard(require("react"));
-    var _StateSafePureComponent = class _StateSafePureComponent extends React85.PureComponent {
+    var React78 = _interopRequireWildcard(require("react"));
+    var _StateSafePureComponent = class _StateSafePureComponent extends React78.PureComponent {
       constructor(props) {
         super(props);
         this._inAsyncStateUpdate = false;
@@ -14031,9 +14031,9 @@ var require_ViewabilityHelper = __commonJS({
     var _createForOfIteratorHelperLoose2 = _interopRequireDefault(require_createForOfIteratorHelperLoose());
     var _invariant = _interopRequireDefault(require_invariant());
     var _ViewabilityHelper = class _ViewabilityHelper {
-      constructor(config) {
-        if (config === void 0) {
-          config = {
+      constructor(config2) {
+        if (config2 === void 0) {
+          config2 = {
             viewAreaCoveragePercentThreshold: 0
           };
         }
@@ -14041,7 +14041,7 @@ var require_ViewabilityHelper = __commonJS({
         this._timers = /* @__PURE__ */ new Set();
         this._viewableIndices = [];
         this._viewableItems = /* @__PURE__ */ new Map();
-        this._config = config;
+        this._config = config2;
       }
       /**
        * Cleanup, e.g. on unmount. Clears any pending timers.
@@ -14202,15 +14202,15 @@ var require_VirtualizedListContext = __commonJS({
     exports2.VirtualizedListContextResetter = VirtualizedListContextResetter;
     var _objectSpread2 = _interopRequireDefault(require_objectSpread2());
     var _react = _interopRequireWildcard(require("react"));
-    var React85 = _react;
+    var React78 = _react;
     var __DEV__ = process.env.NODE_ENV !== "production";
-    var VirtualizedListContext = exports2.VirtualizedListContext = /* @__PURE__ */ React85.createContext(null);
+    var VirtualizedListContext = exports2.VirtualizedListContext = /* @__PURE__ */ React78.createContext(null);
     if (__DEV__) {
       VirtualizedListContext.displayName = "VirtualizedListContext";
     }
     function VirtualizedListContextResetter(_ref) {
       var children = _ref.children;
-      return /* @__PURE__ */ React85.createElement(VirtualizedListContext.Provider, {
+      return /* @__PURE__ */ React78.createElement(VirtualizedListContext.Provider, {
         value: null
       }, children);
     }
@@ -14225,7 +14225,7 @@ var require_VirtualizedListContext = __commonJS({
         registerAsNestedChild: value.registerAsNestedChild,
         unregisterAsNestedChild: value.unregisterAsNestedChild
       }), [value.getScrollMetrics, value.horizontal, value.getOutermostParentListRef, value.registerAsNestedChild, value.unregisterAsNestedChild]);
-      return /* @__PURE__ */ React85.createElement(VirtualizedListContext.Provider, {
+      return /* @__PURE__ */ React78.createElement(VirtualizedListContext.Provider, {
         value: context
       }, children);
     }
@@ -14236,7 +14236,7 @@ var require_VirtualizedListContext = __commonJS({
       var context = (0, _react.useMemo)(() => currContext == null ? null : (0, _objectSpread2.default)((0, _objectSpread2.default)({}, currContext), {}, {
         cellKey
       }), [currContext, cellKey]);
-      return /* @__PURE__ */ React85.createElement(VirtualizedListContext.Provider, {
+      return /* @__PURE__ */ React78.createElement(VirtualizedListContext.Provider, {
         value: context
       }, children);
     }
@@ -14258,8 +14258,8 @@ var require_VirtualizedListCellRenderer = __commonJS({
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _VirtualizedListContext = require_VirtualizedListContext();
     var _invariant = _interopRequireDefault(require_invariant());
-    var React85 = _interopRequireWildcard(require("react"));
-    var _CellRenderer = class _CellRenderer extends React85.Component {
+    var React78 = _interopRequireWildcard(require("react"));
+    var _CellRenderer = class _CellRenderer extends React78.Component {
       constructor() {
         super(...arguments);
         this.state = {
@@ -14313,7 +14313,7 @@ var require_VirtualizedListCellRenderer = __commonJS({
           console.warn("VirtualizedList: Both ListItemComponent and renderItem props are present. ListItemComponent will take precedence over renderItem.");
         }
         if (ListItemComponent2) {
-          return /* @__PURE__ */ React85.createElement(ListItemComponent2, {
+          return /* @__PURE__ */ React78.createElement(ListItemComponent2, {
             item,
             index: index3,
             separators: this._separators
@@ -14331,20 +14331,20 @@ var require_VirtualizedListCellRenderer = __commonJS({
       render() {
         var _this$props4 = this.props, CellRendererComponent = _this$props4.CellRendererComponent, ItemSeparatorComponent = _this$props4.ItemSeparatorComponent, ListItemComponent2 = _this$props4.ListItemComponent, cellKey = _this$props4.cellKey, horizontal = _this$props4.horizontal, item = _this$props4.item, index3 = _this$props4.index, inversionStyle = _this$props4.inversionStyle, onCellFocusCapture = _this$props4.onCellFocusCapture, onCellLayout = _this$props4.onCellLayout, renderItem = _this$props4.renderItem;
         var element = this._renderElement(renderItem, ListItemComponent2, item, index3);
-        var itemSeparator = /* @__PURE__ */ React85.isValidElement(ItemSeparatorComponent) ? (
+        var itemSeparator = /* @__PURE__ */ React78.isValidElement(ItemSeparatorComponent) ? (
           // $FlowFixMe[incompatible-type]
           ItemSeparatorComponent
         ) : (
           // $FlowFixMe[incompatible-type]
-          ItemSeparatorComponent && /* @__PURE__ */ React85.createElement(ItemSeparatorComponent, this.state.separatorProps)
+          ItemSeparatorComponent && /* @__PURE__ */ React78.createElement(ItemSeparatorComponent, this.state.separatorProps)
         );
         var cellStyle = inversionStyle ? horizontal ? [styles.rowReverse, inversionStyle] : [styles.columnReverse, inversionStyle] : horizontal ? [styles.row, inversionStyle] : inversionStyle;
-        var result = !CellRendererComponent ? /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({
+        var result = !CellRendererComponent ? /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({
           style: cellStyle,
           onFocusCapture: onCellFocusCapture
         }, onCellLayout && {
           onLayout: this._onLayout
-        }), element, itemSeparator) : /* @__PURE__ */ React85.createElement(CellRendererComponent, (0, _extends2.default)({
+        }), element, itemSeparator) : /* @__PURE__ */ React78.createElement(CellRendererComponent, (0, _extends2.default)({
           cellKey,
           index: index3,
           item,
@@ -14353,7 +14353,7 @@ var require_VirtualizedListCellRenderer = __commonJS({
         }, onCellLayout && {
           onLayout: this._onLayout
         }), element, itemSeparator);
-        return /* @__PURE__ */ React85.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
+        return /* @__PURE__ */ React78.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
           cellKey: this.props.cellKey
         }, result);
       }
@@ -14551,7 +14551,7 @@ var require_VirtualizedList = __commonJS({
     var _VirtualizeUtils = require_VirtualizeUtils();
     var _invariant = _interopRequireDefault(require_invariant());
     var _nullthrows = _interopRequireDefault(require_nullthrows());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var __DEV__ = process.env.NODE_ENV !== "production";
     var ON_EDGE_REACHED_EPSILON = 1e-3;
     var _usedIndexForKey = false;
@@ -14701,8 +14701,8 @@ var require_VirtualizedList = __commonJS({
         this._nestedChildLists.forEach((childList) => {
           childList.recordInteraction();
         });
-        this._viewabilityTuples.forEach((t2) => {
-          t2.viewabilityHelper.recordInteraction();
+        this._viewabilityTuples.forEach((t) => {
+          t.viewabilityHelper.recordInteraction();
         });
         this._updateViewableItems(this.props, this.state.cellsAroundViewport);
       }
@@ -14813,15 +14813,15 @@ var require_VirtualizedList = __commonJS({
         this._defaultRenderScrollComponent = (props) => {
           var onRefresh = props.onRefresh;
           if (this._isNestedWithSameOrientation()) {
-            return /* @__PURE__ */ React85.createElement(_View.default, props);
+            return /* @__PURE__ */ React78.createElement(_View.default, props);
           } else if (onRefresh) {
             var _props$refreshing;
             (0, _invariant.default)(typeof props.refreshing === "boolean", "`refreshing` prop must be set as a boolean in order to use `onRefresh`, but got `" + JSON.stringify((_props$refreshing = props.refreshing) !== null && _props$refreshing !== void 0 ? _props$refreshing : "undefined") + "`");
             return (
               // $FlowFixMe[prop-missing] Invalid prop usage
               // $FlowFixMe[incompatible-use]
-              /* @__PURE__ */ React85.createElement(_ScrollView.default, (0, _extends2.default)({}, props, {
-                refreshControl: props.refreshControl == null ? /* @__PURE__ */ React85.createElement(
+              /* @__PURE__ */ React78.createElement(_ScrollView.default, (0, _extends2.default)({}, props, {
+                refreshControl: props.refreshControl == null ? /* @__PURE__ */ React78.createElement(
                   _RefreshControl.default,
                   {
                     refreshing: props.refreshing,
@@ -14832,7 +14832,7 @@ var require_VirtualizedList = __commonJS({
               }))
             );
           } else {
-            return /* @__PURE__ */ React85.createElement(_ScrollView.default, props);
+            return /* @__PURE__ */ React78.createElement(_ScrollView.default, props);
           }
         };
         this._onCellLayout = (e, cellKey, index3) => {
@@ -15316,7 +15316,7 @@ var require_VirtualizedList = __commonJS({
             stickyHeaderIndices.push(cells.length);
           }
           var shouldListenForLayout = getItemLayout == null || debug || _this._fillRateHelper.enabled();
-          cells.push(/* @__PURE__ */ React85.createElement(_VirtualizedListCellRenderer.default, (0, _extends2.default)({
+          cells.push(/* @__PURE__ */ React78.createElement(_VirtualizedListCellRenderer.default, (0, _extends2.default)({
             CellRendererComponent,
             ItemSeparatorComponent: ii < end ? ItemSeparatorComponent : void 0,
             ListItemComponent: ListItemComponent2,
@@ -15381,15 +15381,15 @@ var require_VirtualizedList = __commonJS({
           if (stickyIndicesFromProps.has(0)) {
             stickyHeaderIndices.push(0);
           }
-          var _element = /* @__PURE__ */ React85.isValidElement(ListHeaderComponent) ? ListHeaderComponent : (
+          var _element = /* @__PURE__ */ React78.isValidElement(ListHeaderComponent) ? ListHeaderComponent : (
             // $FlowFixMe[not-a-component]
             // $FlowFixMe[incompatible-type-arg]
-            /* @__PURE__ */ React85.createElement(ListHeaderComponent, null)
+            /* @__PURE__ */ React78.createElement(ListHeaderComponent, null)
           );
-          cells.push(/* @__PURE__ */ React85.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
+          cells.push(/* @__PURE__ */ React78.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
             cellKey: this._getCellKey() + "-header",
             key: "$header"
-          }, /* @__PURE__ */ React85.createElement(
+          }, /* @__PURE__ */ React78.createElement(
             _View.default,
             {
               onLayout: this._onLayoutHeader,
@@ -15401,15 +15401,15 @@ var require_VirtualizedList = __commonJS({
         }
         var itemCount = this.props.getItemCount(data);
         if (itemCount === 0 && ListEmptyComponent) {
-          var _element2 = /* @__PURE__ */ React85.isValidElement(ListEmptyComponent) ? ListEmptyComponent : (
+          var _element2 = /* @__PURE__ */ React78.isValidElement(ListEmptyComponent) ? ListEmptyComponent : (
             // $FlowFixMe[not-a-component]
             // $FlowFixMe[incompatible-type-arg]
-            /* @__PURE__ */ React85.createElement(ListEmptyComponent, null)
+            /* @__PURE__ */ React78.createElement(ListEmptyComponent, null)
           );
-          cells.push(/* @__PURE__ */ React85.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
+          cells.push(/* @__PURE__ */ React78.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
             cellKey: this._getCellKey() + "-empty",
             key: "$empty"
-          }, /* @__PURE__ */ React85.cloneElement(_element2, {
+          }, /* @__PURE__ */ React78.cloneElement(_element2, {
             onLayout: /* @__PURE__ */ __name((event) => {
               this._onLayoutEmpty(event);
               if (_element2.props.onLayout) {
@@ -15437,7 +15437,7 @@ var require_VirtualizedList = __commonJS({
               var firstMetrics = this.__getFrameMetricsApprox(section.first, this.props);
               var lastMetrics = this.__getFrameMetricsApprox(last, this.props);
               var spacerSize = lastMetrics.offset + lastMetrics.length - firstMetrics.offset;
-              cells.push(/* @__PURE__ */ React85.createElement(_View.default, {
+              cells.push(/* @__PURE__ */ React78.createElement(_View.default, {
                 key: "$spacer-" + section.first,
                 style: {
                   [spacerKey]: spacerSize
@@ -15453,15 +15453,15 @@ var require_VirtualizedList = __commonJS({
           }
         }
         if (ListFooterComponent) {
-          var _element3 = /* @__PURE__ */ React85.isValidElement(ListFooterComponent) ? ListFooterComponent : (
+          var _element3 = /* @__PURE__ */ React78.isValidElement(ListFooterComponent) ? ListFooterComponent : (
             // $FlowFixMe[not-a-component]
             // $FlowFixMe[incompatible-type-arg]
-            /* @__PURE__ */ React85.createElement(ListFooterComponent, null)
+            /* @__PURE__ */ React78.createElement(ListFooterComponent, null)
           );
-          cells.push(/* @__PURE__ */ React85.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
+          cells.push(/* @__PURE__ */ React78.createElement(_VirtualizedListContext.VirtualizedListCellContextProvider, {
             cellKey: this._getFooterCellKey(),
             key: "$footer"
-          }, /* @__PURE__ */ React85.createElement(
+          }, /* @__PURE__ */ React78.createElement(
             _View.default,
             {
               onLayout: this._onLayoutFooter,
@@ -15486,7 +15486,7 @@ var require_VirtualizedList = __commonJS({
           style: inversionStyle ? [inversionStyle, this.props.style] : this.props.style
         });
         this._hasMore = this.state.cellsAroundViewport.last < itemCount - 1;
-        var innerRet = /* @__PURE__ */ React85.createElement(_VirtualizedListContext.VirtualizedListContextProvider, {
+        var innerRet = /* @__PURE__ */ React78.createElement(_VirtualizedListContext.VirtualizedListContextProvider, {
           value: {
             cellKey: null,
             getScrollMetrics: this._getScrollMetrics,
@@ -15495,12 +15495,12 @@ var require_VirtualizedList = __commonJS({
             registerAsNestedChild: this._registerAsNestedChild,
             unregisterAsNestedChild: this._unregisterAsNestedChild
           }
-        }, /* @__PURE__ */ React85.cloneElement((this.props.renderScrollComponent || this._defaultRenderScrollComponent)(scrollProps), {
+        }, /* @__PURE__ */ React78.cloneElement((this.props.renderScrollComponent || this._defaultRenderScrollComponent)(scrollProps), {
           ref: this._captureScrollRef
         }, cells));
         var ret = innerRet;
         if (this.props.debug) {
-          return /* @__PURE__ */ React85.createElement(_View.default, {
+          return /* @__PURE__ */ React78.createElement(_View.default, {
             style: styles.debug
           }, ret, this._renderDebugOverlay());
         } else {
@@ -15588,20 +15588,20 @@ var require_VirtualizedList = __commonJS({
         var windowLen = frameLast.offset + frameLast.length - windowTop;
         var visTop = this._scrollMetrics.offset;
         var visLen = this._scrollMetrics.visibleLength;
-        return /* @__PURE__ */ React85.createElement(_View.default, {
+        return /* @__PURE__ */ React78.createElement(_View.default, {
           style: [styles.debugOverlayBase, styles.debugOverlay]
-        }, framesInLayout.map((f, ii2) => /* @__PURE__ */ React85.createElement(_View.default, {
+        }, framesInLayout.map((f, ii2) => /* @__PURE__ */ React78.createElement(_View.default, {
           key: "f" + ii2,
           style: [styles.debugOverlayBase, styles.debugOverlayFrame, {
             top: f.offset * normalize,
             height: f.length * normalize
           }]
-        })), /* @__PURE__ */ React85.createElement(_View.default, {
+        })), /* @__PURE__ */ React78.createElement(_View.default, {
           style: [styles.debugOverlayBase, styles.debugOverlayFrameLast, {
             top: windowTop * normalize,
             height: windowLen * normalize
           }]
-        }), /* @__PURE__ */ React85.createElement(_View.default, {
+        }), /* @__PURE__ */ React78.createElement(_View.default, {
           style: [styles.debugOverlayBase, styles.debugOverlayFrameVis, {
             top: visTop * normalize,
             height: visLen * normalize
@@ -15807,7 +15807,7 @@ var require_FlatList = __commonJS({
     var _deepDiffer = _interopRequireDefault(require_deepDiffer());
     var _Platform = _interopRequireDefault(require_Platform());
     var _invariant = _interopRequireDefault(require_invariant());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _VirtualizedList = _interopRequireDefault(require_VirtualizedList());
     var _VirtualizeUtils = require_VirtualizeUtils();
     var _memoizeOne = _interopRequireDefault(require_memoize_one_cjs());
@@ -15824,7 +15824,7 @@ var require_FlatList = __commonJS({
       return typeof Object(data).length === "number";
     }
     __name(isArrayLike, "isArrayLike");
-    var _FlatList = class _FlatList extends React85.PureComponent {
+    var _FlatList = class _FlatList extends React78.PureComponent {
       /**
        * Scrolls to the end of the content. May be janky without `getItemLayout` prop.
        */
@@ -15952,7 +15952,7 @@ var require_FlatList = __commonJS({
           var cols = numColumnsOrDefault(numColumns);
           var render = /* @__PURE__ */ __name((props) => {
             if (ListItemComponent2) {
-              return /* @__PURE__ */ React85.createElement(ListItemComponent2, props);
+              return /* @__PURE__ */ React78.createElement(ListItemComponent2, props);
             } else if (renderItem) {
               return renderItem(props);
             } else {
@@ -15963,7 +15963,7 @@ var require_FlatList = __commonJS({
             if (cols > 1) {
               var _item2 = info.item, _index = info.index;
               (0, _invariant.default)(Array.isArray(_item2), "Expected array of items with numColumns > 1");
-              return /* @__PURE__ */ React85.createElement(_View.default, {
+              return /* @__PURE__ */ React78.createElement(_View.default, {
                 style: [styles.row, columnWrapperStyle]
               }, _item2.map((it, kk) => {
                 var element = render({
@@ -15972,7 +15972,7 @@ var require_FlatList = __commonJS({
                   index: _index * cols + kk,
                   separators: info.separators
                 });
-                return element != null ? /* @__PURE__ */ React85.createElement(React85.Fragment, {
+                return element != null ? /* @__PURE__ */ React78.createElement(React78.Fragment, {
                   key: kk
                 }, element) : null;
               }));
@@ -16062,7 +16062,7 @@ var require_FlatList = __commonJS({
         var renderer = strictMode ? this._memoizedRenderer : this._renderer;
         return (
           // $FlowFixMe[incompatible-exact] - `restProps` (`Props`) is inexact.
-          /* @__PURE__ */ React85.createElement(_VirtualizedList.default, (0, _extends2.default)({}, restProps, {
+          /* @__PURE__ */ React78.createElement(_VirtualizedList.default, (0, _extends2.default)({}, restProps, {
             getItem: this._getItem,
             getItemCount: this._getItemCount,
             keyExtractor: this._keyExtractor,
@@ -16349,7 +16349,7 @@ var require_NativeAnimatedHelper = __commonJS({
       }, {});
     }() : NativeAnimatedModule;
     var API = exports2.API = {
-      getValue: /* @__PURE__ */ __name(function getValue(tag, saveValueCallback) {
+      getValue: /* @__PURE__ */ __name(function getValue2(tag, saveValueCallback) {
         (0, _invariant.default)(nativeOps, "Native animated module is not available");
         if (useSingleOpBatching) {
           if (saveValueCallback) {
@@ -16400,11 +16400,11 @@ var require_NativeAnimatedHelper = __commonJS({
           fn(...args);
         }
       }, "queueOperation"),
-      createAnimatedNode: /* @__PURE__ */ __name(function createAnimatedNode(tag, config) {
+      createAnimatedNode: /* @__PURE__ */ __name(function createAnimatedNode(tag, config2) {
         (0, _invariant.default)(nativeOps, "Native animated module is not available");
-        API.queueOperation(nativeOps.createAnimatedNode, tag, config);
+        API.queueOperation(nativeOps.createAnimatedNode, tag, config2);
       }, "createAnimatedNode"),
-      updateAnimatedNodeConfig: /* @__PURE__ */ __name(function updateAnimatedNodeConfig(tag, config) {
+      updateAnimatedNodeConfig: /* @__PURE__ */ __name(function updateAnimatedNodeConfig(tag, config2) {
         (0, _invariant.default)(nativeOps, "Native animated module is not available");
       }, "updateAnimatedNodeConfig"),
       startListeningToAnimatedNodeValue: /* @__PURE__ */ __name(function startListeningToAnimatedNodeValue(tag) {
@@ -16423,15 +16423,15 @@ var require_NativeAnimatedHelper = __commonJS({
         (0, _invariant.default)(nativeOps, "Native animated module is not available");
         API.queueOperation(nativeOps.disconnectAnimatedNodes, parentTag, childTag);
       }, "disconnectAnimatedNodes"),
-      startAnimatingNode: /* @__PURE__ */ __name(function startAnimatingNode(animationId, nodeTag, config, endCallback) {
+      startAnimatingNode: /* @__PURE__ */ __name(function startAnimatingNode(animationId, nodeTag, config2, endCallback) {
         (0, _invariant.default)(nativeOps, "Native animated module is not available");
         if (useSingleOpBatching) {
           if (endCallback) {
             eventListenerAnimationFinishedCallbacks[animationId] = endCallback;
           }
-          API.queueOperation(nativeOps.startAnimatingNode, animationId, nodeTag, config);
+          API.queueOperation(nativeOps.startAnimatingNode, animationId, nodeTag, config2);
         } else {
-          API.queueOperation(nativeOps.startAnimatingNode, animationId, nodeTag, config, endCallback);
+          API.queueOperation(nativeOps.startAnimatingNode, animationId, nodeTag, config2, endCallback);
         }
       }, "startAnimatingNode"),
       stopAnimation: /* @__PURE__ */ __name(function stopAnimation(animationId) {
@@ -16564,9 +16564,9 @@ var require_NativeAnimatedHelper = __commonJS({
     }
     __name(isSupportedInterpolationParam, "isSupportedInterpolationParam");
     function validateTransform(configs) {
-      configs.forEach((config) => {
-        if (!isSupportedTransformProp(config.property)) {
-          throw new Error("Property '" + config.property + "' is not supported by native animated module");
+      configs.forEach((config2) => {
+        if (!isSupportedTransformProp(config2.property)) {
+          throw new Error("Property '" + config2.property + "' is not supported by native animated module");
         }
       });
     }
@@ -16579,8 +16579,8 @@ var require_NativeAnimatedHelper = __commonJS({
       }
     }
     __name(validateStyles, "validateStyles");
-    function validateInterpolation(config) {
-      for (var _key3 in config) {
+    function validateInterpolation(config2) {
+      for (var _key3 in config2) {
         if (!isSupportedInterpolationParam(_key3)) {
           throw new Error("Interpolation property '" + _key3 + "' is not supported by native animated module");
         }
@@ -16600,18 +16600,18 @@ var require_NativeAnimatedHelper = __commonJS({
     }
     __name(assertNativeAnimatedModule, "assertNativeAnimatedModule");
     var _warnedMissingNativeAnimated = false;
-    function shouldUseNativeDriver(config) {
-      if (config.useNativeDriver == null) {
+    function shouldUseNativeDriver(config2) {
+      if (config2.useNativeDriver == null) {
         console.warn("Animated: `useNativeDriver` was not specified. This is a required option and must be explicitly set to `true` or `false`");
       }
-      if (config.useNativeDriver === true && !NativeAnimatedModule) {
+      if (config2.useNativeDriver === true && !NativeAnimatedModule) {
         if (!_warnedMissingNativeAnimated) {
           console.warn("Animated: `useNativeDriver` is not supported because the native animated module is missing. Falling back to JS-based animation. To resolve this, add `RCTAnimation` module to this app, or remove `useNativeDriver`. Make sure to run `bundle exec pod install` first. Read more about autolinking: https://github.com/react-native-community/cli/blob/master/docs/autolinking.md");
           _warnedMissingNativeAnimated = true;
         }
         return false;
       }
-      return config.useNativeDriver || false;
+      return config2.useNativeDriver || false;
     }
     __name(shouldUseNativeDriver, "shouldUseNativeDriver");
     function transformDataType(value) {
@@ -16787,11 +16787,11 @@ var require_AnimatedNode = __commonJS({
         var nativeTag = (_this$__nativeTag = this.__nativeTag) !== null && _this$__nativeTag !== void 0 ? _this$__nativeTag : _NativeAnimatedHelper.default.generateNewNodeTag();
         if (this.__nativeTag == null) {
           this.__nativeTag = nativeTag;
-          var config = this.__getNativeConfig();
+          var config2 = this.__getNativeConfig();
           if (this._platformConfig) {
-            config.platformConfig = this._platformConfig;
+            config2.platformConfig = this._platformConfig;
           }
-          _NativeAnimatedHelper.default.API.createAnimatedNode(nativeTag, config);
+          _NativeAnimatedHelper.default.API.createAnimatedNode(nativeTag, config2);
           this.__shouldUpdateListenersForNewNativeTag = true;
         }
         return nativeTag;
@@ -16901,31 +16901,31 @@ var require_AnimatedInterpolation = __commonJS({
     var _invariant = _interopRequireDefault(require_invariant());
     var _normalizeColors = _interopRequireDefault(require_normalize_colors());
     var __DEV__ = process.env.NODE_ENV !== "production";
-    var linear = /* @__PURE__ */ __name((t2) => t2, "linear");
-    function createInterpolation(config) {
-      if (config.outputRange && typeof config.outputRange[0] === "string") {
-        return createInterpolationFromStringOutputRange(config);
+    var linear = /* @__PURE__ */ __name((t) => t, "linear");
+    function createInterpolation(config2) {
+      if (config2.outputRange && typeof config2.outputRange[0] === "string") {
+        return createInterpolationFromStringOutputRange(config2);
       }
-      var outputRange = config.outputRange;
-      var inputRange = config.inputRange;
+      var outputRange = config2.outputRange;
+      var inputRange = config2.inputRange;
       if (__DEV__) {
         checkInfiniteRange("outputRange", outputRange);
         checkInfiniteRange("inputRange", inputRange);
         checkValidInputRange(inputRange);
         (0, _invariant.default)(inputRange.length === outputRange.length, "inputRange (" + inputRange.length + ") and outputRange (" + outputRange.length + ") must have the same length");
       }
-      var easing = config.easing || linear;
+      var easing = config2.easing || linear;
       var extrapolateLeft = "extend";
-      if (config.extrapolateLeft !== void 0) {
-        extrapolateLeft = config.extrapolateLeft;
-      } else if (config.extrapolate !== void 0) {
-        extrapolateLeft = config.extrapolate;
+      if (config2.extrapolateLeft !== void 0) {
+        extrapolateLeft = config2.extrapolateLeft;
+      } else if (config2.extrapolate !== void 0) {
+        extrapolateLeft = config2.extrapolate;
       }
       var extrapolateRight = "extend";
-      if (config.extrapolateRight !== void 0) {
-        extrapolateRight = config.extrapolateRight;
-      } else if (config.extrapolate !== void 0) {
-        extrapolateRight = config.extrapolate;
+      if (config2.extrapolateRight !== void 0) {
+        extrapolateRight = config2.extrapolateRight;
+      } else if (config2.extrapolate !== void 0) {
+        extrapolateRight = config2.extrapolate;
       }
       return (input) => {
         (0, _invariant.default)(typeof input === "number", "Cannot interpolation an input which is not a number");
@@ -16993,8 +16993,8 @@ var require_AnimatedInterpolation = __commonJS({
     }
     __name(colorToRgba, "colorToRgba");
     var stringShapeRegex = /[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/g;
-    function createInterpolationFromStringOutputRange(config) {
-      var outputRange = config.outputRange;
+    function createInterpolationFromStringOutputRange(config2) {
+      var outputRange = config2.outputRange;
       (0, _invariant.default)(outputRange.length >= 2, "Bad output range");
       outputRange = outputRange.map(colorToRgba);
       checkPattern(outputRange);
@@ -17005,7 +17005,7 @@ var require_AnimatedInterpolation = __commonJS({
         });
       });
       var interpolations = outputRange[0].match(stringShapeRegex).map((value, i) => {
-        return createInterpolation((0, _objectSpread2.default)((0, _objectSpread2.default)({}, config), {}, {
+        return createInterpolation((0, _objectSpread2.default)((0, _objectSpread2.default)({}, config2), {}, {
           outputRange: outputRanges[i]
         }));
       });
@@ -17066,11 +17066,11 @@ var require_AnimatedInterpolation = __commonJS({
     __name(checkInfiniteRange, "checkInfiniteRange");
     var _AnimatedInterpolation = class _AnimatedInterpolation extends _AnimatedWithChildren.default {
       // Export for testing.
-      constructor(parent, config) {
+      constructor(parent, config2) {
         super();
         this._parent = parent;
-        this._config = config;
-        this._interpolation = createInterpolation(config);
+        this._config = config2;
+        this._interpolation = createInterpolation(config2);
       }
       __makeNative(platformConfig) {
         this._parent.__makeNative(platformConfig);
@@ -17081,8 +17081,8 @@ var require_AnimatedInterpolation = __commonJS({
         (0, _invariant.default)(typeof parentValue === "number", "Cannot interpolate an input which is not a number.");
         return this._interpolation(parentValue);
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation(this, config2);
       }
       __attach() {
         this._parent.__addChild(this);
@@ -17149,7 +17149,7 @@ var require_AnimatedValue = __commonJS({
     }
     __name(_executeAsAnimatedBatch, "_executeAsAnimatedBatch");
     var _AnimatedValue = class _AnimatedValue extends _AnimatedWithChildren.default {
-      constructor(value, config) {
+      constructor(value, config2) {
         super();
         if (typeof value !== "number") {
           throw new Error("AnimatedValue: Attempting to set value to undefined");
@@ -17157,7 +17157,7 @@ var require_AnimatedValue = __commonJS({
         this._startingValue = this._value = value;
         this._offset = 0;
         this._animation = null;
-        if (config && config.useNativeDriver) {
+        if (config2 && config2.useNativeDriver) {
           this.__makeNative();
         }
       }
@@ -17274,8 +17274,8 @@ var require_AnimatedValue = __commonJS({
        * Interpolates the value before updating the property, e.g. mapping 0-1 to
        * 0-10.
        */
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       /**
        * Typically only used internally, but could be used by a custom Animation
@@ -17419,21 +17419,21 @@ var require_AnimatedEvent = __commonJS({
     }
     __name(validateMapping, "validateMapping");
     var _AnimatedEvent = class _AnimatedEvent {
-      constructor(argMapping, config) {
+      constructor(argMapping, config2) {
         this._listeners = [];
         this._argMapping = argMapping;
-        if (config == null) {
+        if (config2 == null) {
           console.warn("Animated.event now requires a second argument for options");
-          config = {
+          config2 = {
             useNativeDriver: false
           };
         }
-        if (config.listener) {
-          this.__addListener(config.listener);
+        if (config2.listener) {
+          this.__addListener(config2.listener);
         }
         this._callListeners = this._callListeners.bind(this);
         this._attachedEvent = null;
-        this.__isNative = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config);
+        this.__isNative = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config2);
       }
       __addListener(callback) {
         this._listeners.push(callback);
@@ -18035,16 +18035,16 @@ var require_createAnimatedComponent = __commonJS({
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs2());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _excluded = ["style"];
     function createAnimatedComponent(Component) {
-      return /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+      return /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
         var _useAnimatedProps = (0, _useAnimatedProps2.default)(props), reducedProps = _useAnimatedProps[0], callbackRef = _useAnimatedProps[1];
         var ref = (0, _useMergeRefs.default)(callbackRef, forwardedRef);
         var passthroughAnimatedPropExplicitValues = reducedProps.passthroughAnimatedPropExplicitValues, style = reducedProps.style;
         var _ref = passthroughAnimatedPropExplicitValues !== null && passthroughAnimatedPropExplicitValues !== void 0 ? passthroughAnimatedPropExplicitValues : {}, passthroughStyle = _ref.style, passthroughProps = (0, _objectWithoutPropertiesLoose2.default)(_ref, _excluded);
         var mergedStyle = [style, passthroughStyle];
-        return /* @__PURE__ */ React85.createElement(Component, (0, _extends2.default)({}, reducedProps, passthroughProps, {
+        return /* @__PURE__ */ React78.createElement(Component, (0, _extends2.default)({}, reducedProps, passthroughProps, {
           style: mergedStyle,
           ref
         }));
@@ -18064,10 +18064,10 @@ var require_AnimatedFlatList = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _FlatList = _interopRequireDefault(require_FlatList2());
     var _createAnimatedComponent = _interopRequireDefault(require_createAnimatedComponent());
-    var FlatListWithEventThrottle = /* @__PURE__ */ React85.forwardRef((props, ref) => /* @__PURE__ */ React85.createElement(_FlatList.default, (0, _extends2.default)({
+    var FlatListWithEventThrottle = /* @__PURE__ */ React78.forwardRef((props, ref) => /* @__PURE__ */ React78.createElement(_FlatList.default, (0, _extends2.default)({
       scrollEventThrottle: 1e-4
     }, props, {
       ref
@@ -18295,7 +18295,7 @@ var require_Image = __commonJS({
     var _objectSpread2 = _interopRequireDefault(require_objectSpread2());
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var _AssetRegistry = require_AssetRegistry();
     var _preprocess = require_preprocess();
@@ -18313,20 +18313,20 @@ var require_Image = __commonJS({
     var _filterId = 0;
     var svgDataUriPattern = /^(data:image\/svg\+xml;utf8,)(.*)/;
     function createTintColorSVG(tintColor, id) {
-      return tintColor && id != null ? /* @__PURE__ */ React85.createElement("svg", {
+      return tintColor && id != null ? /* @__PURE__ */ React78.createElement("svg", {
         style: {
           position: "absolute",
           height: 0,
           visibility: "hidden",
           width: 0
         }
-      }, /* @__PURE__ */ React85.createElement("defs", null, /* @__PURE__ */ React85.createElement("filter", {
+      }, /* @__PURE__ */ React78.createElement("defs", null, /* @__PURE__ */ React78.createElement("filter", {
         id: "tint-" + id,
         suppressHydrationWarning: true
-      }, /* @__PURE__ */ React85.createElement("feFlood", {
+      }, /* @__PURE__ */ React78.createElement("feFlood", {
         floodColor: "" + tintColor,
         key: tintColor
-      }), /* @__PURE__ */ React85.createElement("feComposite", {
+      }), /* @__PURE__ */ React78.createElement("feComposite", {
         in2: "SourceAlpha",
         operator: "in"
       })))) : null;
@@ -18410,7 +18410,7 @@ var require_Image = __commonJS({
       return uri;
     }
     __name(resolveAssetUri, "resolveAssetUri");
-    var Image2 = /* @__PURE__ */ React85.forwardRef((props, ref) => {
+    var Image2 = /* @__PURE__ */ React78.forwardRef((props, ref) => {
       var _ariaLabel = props["aria-label"], accessibilityLabel = props.accessibilityLabel, blurRadius = props.blurRadius, defaultSource = props.defaultSource, draggable = props.draggable, onError = props.onError, onLayout = props.onLayout, onLoad = props.onLoad, onLoadEnd = props.onLoadEnd, onLoadStart = props.onLoadStart, pointerEvents = props.pointerEvents, source = props.source, style = props.style, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       var ariaLabel = _ariaLabel || accessibilityLabel;
       if (process.env.NODE_ENV !== "production") {
@@ -18418,7 +18418,7 @@ var require_Image = __commonJS({
           throw new Error("The <Image> component cannot contain children. If you want to render content on top of the image, consider using the <ImageBackground> component or absolute positioning.");
         }
       }
-      var _React$useState = React85.useState(() => {
+      var _React$useState = React78.useState(() => {
         var uri2 = resolveAssetUri(source);
         if (uri2 != null) {
           var isLoaded = _ImageLoader.default.has(uri2);
@@ -18428,11 +18428,11 @@ var require_Image = __commonJS({
         }
         return IDLE;
       }), state = _React$useState[0], updateState = _React$useState[1];
-      var _React$useState2 = React85.useState({}), layout = _React$useState2[0], updateLayout = _React$useState2[1];
-      var hasTextAncestor = React85.useContext(_TextAncestorContext.default);
-      var hiddenImageRef = React85.useRef(null);
-      var filterRef = React85.useRef(_filterId++);
-      var requestRef = React85.useRef(null);
+      var _React$useState2 = React78.useState({}), layout = _React$useState2[0], updateLayout = _React$useState2[1];
+      var hasTextAncestor = React78.useContext(_TextAncestorContext.default);
+      var hiddenImageRef = React78.useRef(null);
+      var filterRef = React78.useRef(_filterId++);
+      var requestRef = React78.useRef(null);
       var shouldDisplaySource = state === LOADED || state === LOADING && defaultSource == null;
       var _extractNonStandardSt = extractNonStandardStyleProps(style, blurRadius, filterRef.current, props.tintColor), _resizeMode = _extractNonStandardSt[0], filter = _extractNonStandardSt[1], _tintColor = _extractNonStandardSt[2];
       var resizeMode = props.resizeMode || _resizeMode || "cover";
@@ -18471,7 +18471,7 @@ var require_Image = __commonJS({
       }
       __name(handleLayout, "handleLayout");
       var uri = resolveAssetUri(source);
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         abortPendingRequest();
         if (uri != null) {
           updateState(LOADING);
@@ -18509,7 +18509,7 @@ var require_Image = __commonJS({
         __name(abortPendingRequest, "abortPendingRequest");
         return abortPendingRequest;
       }, [uri, requestRef, updateState, onError, onLoad, onLoadEnd, onLoadStart]);
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, {
         "aria-label": ariaLabel,
         onLayout: handleLayout,
         pointerEvents,
@@ -18526,7 +18526,7 @@ var require_Image = __commonJS({
             boxShadow: null
           }
         ]
-      }), /* @__PURE__ */ React85.createElement(_View.default, {
+      }), /* @__PURE__ */ React78.createElement(_View.default, {
         style: [styles.image, resizeModeStyles[resizeMode], {
           backgroundImage,
           filter
@@ -18621,7 +18621,7 @@ var require_AnimatedImage = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _Image = _interopRequireDefault(require_Image());
     var _createAnimatedComponent = _interopRequireDefault(require_createAnimatedComponent());
     var _default = exports2.default = (0, _createAnimatedComponent.default)(_Image.default);
@@ -18638,10 +18638,10 @@ var require_AnimatedScrollView = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _ScrollView = _interopRequireDefault(require_ScrollView());
     var _createAnimatedComponent = _interopRequireDefault(require_createAnimatedComponent());
-    var ScrollViewWithEventThrottle = /* @__PURE__ */ React85.forwardRef((props, ref) => /* @__PURE__ */ React85.createElement(_ScrollView.default, (0, _extends2.default)({
+    var ScrollViewWithEventThrottle = /* @__PURE__ */ React78.forwardRef((props, ref) => /* @__PURE__ */ React78.createElement(_ScrollView.default, (0, _extends2.default)({
       scrollEventThrottle: 1e-4
     }, props, {
       ref
@@ -18667,9 +18667,9 @@ var require_VirtualizedSectionList = __commonJS({
     var _VirtualizedList = _interopRequireDefault(require_VirtualizedList());
     var _VirtualizeUtils = require_VirtualizeUtils();
     var _invariant = _interopRequireDefault(require_invariant());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _excluded = ["ItemSeparatorComponent", "SectionSeparatorComponent", "renderItem", "renderSectionFooter", "renderSectionHeader", "sections", "stickySectionHeadersEnabled"];
-    var _VirtualizedSectionList = class _VirtualizedSectionList extends React85.PureComponent {
+    var _VirtualizedSectionList = class _VirtualizedSectionList extends React78.PureComponent {
       constructor() {
         super(...arguments);
         this._keyExtractor = (item, index3) => {
@@ -18728,7 +18728,7 @@ var require_VirtualizedSectionList = __commonJS({
               var renderItem = info.section.renderItem || this.props.renderItem;
               var SeparatorComponent = this._getSeparatorComponent(index3, info, listItemCount);
               (0, _invariant.default)(renderItem, "no renderItem!");
-              return /* @__PURE__ */ React85.createElement(ItemWithSeparator, {
+              return /* @__PURE__ */ React78.createElement(ItemWithSeparator, {
                 SeparatorComponent,
                 LeadingSeparatorComponent: infoIndex === 0 ? this.props.SectionSeparatorComponent : void 0,
                 cellKey: info.key,
@@ -18818,7 +18818,7 @@ var require_VirtualizedSectionList = __commonJS({
           itemCount += this.props.getItemCount(section.data);
         }
         var renderItem = this._renderItem(itemCount);
-        return /* @__PURE__ */ React85.createElement(_VirtualizedList.default, (0, _extends2.default)({}, passThroughProps, {
+        return /* @__PURE__ */ React78.createElement(_VirtualizedList.default, (0, _extends2.default)({}, passThroughProps, {
           keyExtractor: this._keyExtractor,
           stickyHeaderIndices,
           renderItem,
@@ -18911,23 +18911,23 @@ var require_VirtualizedSectionList = __commonJS({
     var VirtualizedSectionList = _VirtualizedSectionList;
     function ItemWithSeparator(props) {
       var LeadingSeparatorComponent = props.LeadingSeparatorComponent, SeparatorComponent = props.SeparatorComponent, cellKey = props.cellKey, prevCellKey = props.prevCellKey, setSelfHighlightCallback = props.setSelfHighlightCallback, updateHighlightFor = props.updateHighlightFor, setSelfUpdatePropsCallback = props.setSelfUpdatePropsCallback, updatePropsFor = props.updatePropsFor, item = props.item, index3 = props.index, section = props.section, inverted = props.inverted;
-      var _React$useState = React85.useState(false), leadingSeparatorHiglighted = _React$useState[0], setLeadingSeparatorHighlighted = _React$useState[1];
-      var _React$useState2 = React85.useState(false), separatorHighlighted = _React$useState2[0], setSeparatorHighlighted = _React$useState2[1];
-      var _React$useState3 = React85.useState({
+      var _React$useState = React78.useState(false), leadingSeparatorHiglighted = _React$useState[0], setLeadingSeparatorHighlighted = _React$useState[1];
+      var _React$useState2 = React78.useState(false), separatorHighlighted = _React$useState2[0], setSeparatorHighlighted = _React$useState2[1];
+      var _React$useState3 = React78.useState({
         leadingItem: props.leadingItem,
         leadingSection: props.leadingSection,
         section: props.section,
         trailingItem: props.item,
         trailingSection: props.trailingSection
       }), leadingSeparatorProps = _React$useState3[0], setLeadingSeparatorProps = _React$useState3[1];
-      var _React$useState4 = React85.useState({
+      var _React$useState4 = React78.useState({
         leadingItem: props.item,
         leadingSection: props.leadingSection,
         section: props.section,
         trailingItem: props.trailingItem,
         trailingSection: props.trailingSection
       }), separatorProps = _React$useState4[0], setSeparatorProps = _React$useState4[1];
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         setSelfHighlightCallback(cellKey, setSeparatorHighlighted);
         setSelfUpdatePropsCallback(cellKey, setSeparatorProps);
         return () => {
@@ -18968,13 +18968,13 @@ var require_VirtualizedSectionList = __commonJS({
         section,
         separators
       });
-      var leadingSeparator = LeadingSeparatorComponent != null && /* @__PURE__ */ React85.createElement(LeadingSeparatorComponent, (0, _extends2.default)({
+      var leadingSeparator = LeadingSeparatorComponent != null && /* @__PURE__ */ React78.createElement(LeadingSeparatorComponent, (0, _extends2.default)({
         highlighted: leadingSeparatorHiglighted
       }, leadingSeparatorProps));
-      var separator = SeparatorComponent != null && /* @__PURE__ */ React85.createElement(SeparatorComponent, (0, _extends2.default)({
+      var separator = SeparatorComponent != null && /* @__PURE__ */ React78.createElement(SeparatorComponent, (0, _extends2.default)({
         highlighted: separatorHighlighted
       }, separatorProps));
-      return leadingSeparator || separator ? /* @__PURE__ */ React85.createElement(_View.default, null, inverted === false ? leadingSeparator : separator, element, inverted === false ? separator : leadingSeparator) : element;
+      return leadingSeparator || separator ? /* @__PURE__ */ React78.createElement(_View.default, null, inverted === false ? leadingSeparator : separator, element, inverted === false ? separator : leadingSeparator) : element;
     }
     __name(ItemWithSeparator, "ItemWithSeparator");
     var _default = exports2.default = VirtualizedSectionList;
@@ -18993,10 +18993,10 @@ var require_SectionList = __commonJS({
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
     var _Platform = _interopRequireDefault(require_Platform());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _VirtualizedSectionList = _interopRequireDefault(require_VirtualizedSectionList());
     var _excluded = ["stickySectionHeadersEnabled"];
-    var _SectionList = class _SectionList extends React85.PureComponent {
+    var _SectionList = class _SectionList extends React78.PureComponent {
       constructor() {
         super(...arguments);
         this._captureRef = (ref) => {
@@ -19054,7 +19054,7 @@ var require_SectionList = __commonJS({
       render() {
         var _this$props = this.props, _stickySectionHeadersEnabled = _this$props.stickySectionHeadersEnabled, restProps = (0, _objectWithoutPropertiesLoose2.default)(_this$props, _excluded);
         var stickySectionHeadersEnabled = _stickySectionHeadersEnabled !== null && _stickySectionHeadersEnabled !== void 0 ? _stickySectionHeadersEnabled : _Platform.default.OS === "ios";
-        return /* @__PURE__ */ React85.createElement(_VirtualizedSectionList.default, (0, _extends2.default)({}, restProps, {
+        return /* @__PURE__ */ React78.createElement(_VirtualizedSectionList.default, (0, _extends2.default)({}, restProps, {
           stickySectionHeadersEnabled,
           ref: this._captureRef,
           getItemCount: /* @__PURE__ */ __name((items) => items.length, "getItemCount"),
@@ -19092,10 +19092,10 @@ var require_AnimatedSectionList = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _SectionList = _interopRequireDefault(require_SectionList2());
     var _createAnimatedComponent = _interopRequireDefault(require_createAnimatedComponent());
-    var SectionListWithEventThrottle = /* @__PURE__ */ React85.forwardRef((props, ref) => /* @__PURE__ */ React85.createElement(_SectionList.default, (0, _extends2.default)({
+    var SectionListWithEventThrottle = /* @__PURE__ */ React78.forwardRef((props, ref) => /* @__PURE__ */ React78.createElement(_SectionList.default, (0, _extends2.default)({
       scrollEventThrottle: 1e-4
     }, props, {
       ref
@@ -19116,7 +19116,7 @@ var require_Text = __commonJS({
     exports2.default = void 0;
     var _objectSpread2 = _interopRequireDefault(require_objectSpread2());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var forwardedProps = _interopRequireWildcard(require_forwardedProps());
     var _pick = _interopRequireDefault(require_pick());
@@ -19134,10 +19134,10 @@ var require_Text = __commonJS({
       pointerEvents: true
     });
     var pickProps = /* @__PURE__ */ __name((props) => (0, _pick.default)(props, forwardPropsList), "pickProps");
-    var Text5 = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var Text5 = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var hrefAttrs = props.hrefAttrs, numberOfLines = props.numberOfLines, onClick = props.onClick, onLayout = props.onLayout, onPress = props.onPress, onMoveShouldSetResponder = props.onMoveShouldSetResponder, onMoveShouldSetResponderCapture = props.onMoveShouldSetResponderCapture, onResponderEnd = props.onResponderEnd, onResponderGrant = props.onResponderGrant, onResponderMove = props.onResponderMove, onResponderReject = props.onResponderReject, onResponderRelease = props.onResponderRelease, onResponderStart = props.onResponderStart, onResponderTerminate = props.onResponderTerminate, onResponderTerminationRequest = props.onResponderTerminationRequest, onScrollShouldSetResponder = props.onScrollShouldSetResponder, onScrollShouldSetResponderCapture = props.onScrollShouldSetResponderCapture, onSelectionChangeShouldSetResponder = props.onSelectionChangeShouldSetResponder, onSelectionChangeShouldSetResponderCapture = props.onSelectionChangeShouldSetResponderCapture, onStartShouldSetResponder = props.onStartShouldSetResponder, onStartShouldSetResponderCapture = props.onStartShouldSetResponderCapture, selectable = props.selectable, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      var hasTextAncestor = React85.useContext(_TextAncestorContext.default);
-      var hostRef = React85.useRef(null);
+      var hasTextAncestor = React78.useContext(_TextAncestorContext.default);
+      var hostRef = React78.useRef(null);
       var _useLocaleContext = (0, _useLocale.useLocaleContext)(), contextDirection = _useLocaleContext.direction;
       (0, _useElementLayout.default)(hostRef, onLayout);
       (0, _useResponderEvents.default)(hostRef, {
@@ -19158,7 +19158,7 @@ var require_Text = __commonJS({
         onStartShouldSetResponder,
         onStartShouldSetResponderCapture
       });
-      var handleClick = React85.useCallback((e) => {
+      var handleClick = React78.useCallback((e) => {
         if (onClick != null) {
           onClick(e);
         } else if (onPress != null) {
@@ -19202,7 +19202,7 @@ var require_Text = __commonJS({
       var element = (0, _createElement.default)(component, supportedProps, {
         writingDirection
       });
-      return hasTextAncestor ? element : /* @__PURE__ */ React85.createElement(_TextAncestorContext.default.Provider, {
+      return hasTextAncestor ? element : /* @__PURE__ */ React78.createElement(_TextAncestorContext.default.Provider, {
         value: true
       }, element);
     });
@@ -19269,7 +19269,7 @@ var require_AnimatedText = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _Text = _interopRequireDefault(require_Text());
     var _createAnimatedComponent = _interopRequireDefault(require_createAnimatedComponent());
     var _default = exports2.default = (0, _createAnimatedComponent.default)(_Text.default);
@@ -19285,7 +19285,7 @@ var require_AnimatedView = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _View = _interopRequireDefault(require_View());
     var _createAnimatedComponent = _interopRequireDefault(require_createAnimatedComponent());
     var _default = exports2.default = (0, _createAnimatedComponent.default)(_View.default);
@@ -19317,8 +19317,8 @@ var require_AnimatedAddition = __commonJS({
       __getValue() {
         return this._a.__getValue() + this._b.__getValue();
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       __attach() {
         this._a.__addChild(this);
@@ -19364,8 +19364,8 @@ var require_AnimatedDiffClamp = __commonJS({
         this._a.__makeNative(platformConfig);
         super.__makeNative(platformConfig);
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       __getValue() {
         var value = this._a.__getValue();
@@ -19436,8 +19436,8 @@ var require_AnimatedDivision = __commonJS({
         this._warnedAboutDivideByZero = false;
         return a / b;
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       __attach() {
         this._a.__addChild(this);
@@ -19484,8 +19484,8 @@ var require_AnimatedModulo = __commonJS({
       __getValue() {
         return (this._a.__getValue() % this._modulus + this._modulus) % this._modulus;
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       __attach() {
         this._a.__addChild(this);
@@ -19533,8 +19533,8 @@ var require_AnimatedMultiplication = __commonJS({
       __getValue() {
         return this._a.__getValue() * this._b.__getValue();
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       __attach() {
         this._a.__addChild(this);
@@ -19583,8 +19583,8 @@ var require_AnimatedSubtraction = __commonJS({
       __getValue() {
         return this._a.__getValue() - this._b.__getValue();
       }
-      interpolate(config) {
-        return new _AnimatedInterpolation.default(this, config);
+      interpolate(config2) {
+        return new _AnimatedInterpolation.default(this, config2);
       }
       __attach() {
         this._a.__addChild(this);
@@ -19878,13 +19878,13 @@ var require_Animation = __commonJS({
         startNativeAnimationNextId += 1;
         _NativeAnimatedHelper.default.API.setWaitingForIdentifier(startNativeAnimationWaitId);
         try {
-          var config = this.__getNativeAnimationConfig();
-          animatedValue.__makeNative(config.platformConfig);
+          var config2 = this.__getNativeAnimationConfig();
+          animatedValue.__makeNative(config2.platformConfig);
           this.__nativeId = _NativeAnimatedHelper.default.generateNewAnimationId();
           _NativeAnimatedHelper.default.API.startAnimatingNode(
             this.__nativeId,
             animatedValue.__getNativeTag(),
-            config,
+            config2,
             // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             this.__debouncedOnEnd.bind(this)
           );
@@ -19912,14 +19912,14 @@ var require_DecayAnimation = __commonJS({
     var _Animation = _interopRequireDefault(require_Animation());
     var _NativeAnimatedHelper = require_NativeAnimatedHelper();
     var _DecayAnimation = class _DecayAnimation extends _Animation.default {
-      constructor(config) {
+      constructor(config2) {
         var _config$deceleration, _config$isInteraction, _config$iterations;
         super();
-        this._deceleration = (_config$deceleration = config.deceleration) !== null && _config$deceleration !== void 0 ? _config$deceleration : 0.998;
-        this._velocity = config.velocity;
-        this._useNativeDriver = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config);
-        this.__isInteraction = (_config$isInteraction = config.isInteraction) !== null && _config$isInteraction !== void 0 ? _config$isInteraction : !this._useNativeDriver;
-        this.__iterations = (_config$iterations = config.iterations) !== null && _config$iterations !== void 0 ? _config$iterations : 1;
+        this._deceleration = (_config$deceleration = config2.deceleration) !== null && _config$deceleration !== void 0 ? _config$deceleration : 0.998;
+        this._velocity = config2.velocity;
+        this._useNativeDriver = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config2);
+        this.__isInteraction = (_config$isInteraction = config2.isInteraction) !== null && _config$isInteraction !== void 0 ? _config$isInteraction : !this._useNativeDriver;
+        this.__iterations = (_config$iterations = config2.iterations) !== null && _config$iterations !== void 0 ? _config$iterations : 1;
       }
       __getNativeAnimationConfig() {
         return {
@@ -20003,12 +20003,12 @@ var require_SpringConfig = __commonJS({
         return start + n * (end - start);
       }
       __name(projectNormal, "projectNormal");
-      function linearInterpolation(t2, start, end) {
-        return t2 * end + (1 - t2) * start;
+      function linearInterpolation(t, start, end) {
+        return t * end + (1 - t) * start;
       }
       __name(linearInterpolation, "linearInterpolation");
-      function quadraticOutInterpolation(t2, start, end) {
-        return linearInterpolation(2 * t2 - t2 * t2, start, end);
+      function quadraticOutInterpolation(t, start, end) {
+        return linearInterpolation(2 * t - t * t, start, end);
       }
       __name(quadraticOutInterpolation, "quadraticOutInterpolation");
       function b3Friction1(x) {
@@ -20117,7 +20117,7 @@ var require_AnimatedColor = __commonJS({
     }
     __name(isRgbaAnimatedValue, "isRgbaAnimatedValue");
     var _AnimatedColor = class _AnimatedColor extends _AnimatedWithChildren.default {
-      constructor(valueIn, config) {
+      constructor(valueIn, config2) {
         super();
         this._listeners = {};
         var value = valueIn !== null && valueIn !== void 0 ? valueIn : defaultColor;
@@ -20144,7 +20144,7 @@ var require_AnimatedColor = __commonJS({
           this.b = new _AnimatedValue.default(initColor.b);
           this.a = new _AnimatedValue.default(initColor.a);
         }
-        if (this.nativeColor || config && config.useNativeDriver) {
+        if (this.nativeColor || config2 && config2.useNativeDriver) {
           this.__makeNative();
         }
       }
@@ -20339,36 +20339,36 @@ var require_SpringAnimation = __commonJS({
     var _NativeAnimatedHelper = require_NativeAnimatedHelper();
     var _AnimatedColor = _interopRequireDefault(require_AnimatedColor());
     var _SpringAnimation = class _SpringAnimation extends _Animation.default {
-      constructor(config) {
+      constructor(config2) {
         var _config$overshootClam, _config$restDisplacem, _config$restSpeedThre, _config$velocity, _config$velocity2, _config$delay, _config$isInteraction, _config$iterations;
         super();
-        this._overshootClamping = (_config$overshootClam = config.overshootClamping) !== null && _config$overshootClam !== void 0 ? _config$overshootClam : false;
-        this._restDisplacementThreshold = (_config$restDisplacem = config.restDisplacementThreshold) !== null && _config$restDisplacem !== void 0 ? _config$restDisplacem : 1e-3;
-        this._restSpeedThreshold = (_config$restSpeedThre = config.restSpeedThreshold) !== null && _config$restSpeedThre !== void 0 ? _config$restSpeedThre : 1e-3;
-        this._initialVelocity = (_config$velocity = config.velocity) !== null && _config$velocity !== void 0 ? _config$velocity : 0;
-        this._lastVelocity = (_config$velocity2 = config.velocity) !== null && _config$velocity2 !== void 0 ? _config$velocity2 : 0;
-        this._toValue = config.toValue;
-        this._delay = (_config$delay = config.delay) !== null && _config$delay !== void 0 ? _config$delay : 0;
-        this._useNativeDriver = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config);
-        this._platformConfig = config.platformConfig;
-        this.__isInteraction = (_config$isInteraction = config.isInteraction) !== null && _config$isInteraction !== void 0 ? _config$isInteraction : !this._useNativeDriver;
-        this.__iterations = (_config$iterations = config.iterations) !== null && _config$iterations !== void 0 ? _config$iterations : 1;
-        if (config.stiffness !== void 0 || config.damping !== void 0 || config.mass !== void 0) {
+        this._overshootClamping = (_config$overshootClam = config2.overshootClamping) !== null && _config$overshootClam !== void 0 ? _config$overshootClam : false;
+        this._restDisplacementThreshold = (_config$restDisplacem = config2.restDisplacementThreshold) !== null && _config$restDisplacem !== void 0 ? _config$restDisplacem : 1e-3;
+        this._restSpeedThreshold = (_config$restSpeedThre = config2.restSpeedThreshold) !== null && _config$restSpeedThre !== void 0 ? _config$restSpeedThre : 1e-3;
+        this._initialVelocity = (_config$velocity = config2.velocity) !== null && _config$velocity !== void 0 ? _config$velocity : 0;
+        this._lastVelocity = (_config$velocity2 = config2.velocity) !== null && _config$velocity2 !== void 0 ? _config$velocity2 : 0;
+        this._toValue = config2.toValue;
+        this._delay = (_config$delay = config2.delay) !== null && _config$delay !== void 0 ? _config$delay : 0;
+        this._useNativeDriver = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config2);
+        this._platformConfig = config2.platformConfig;
+        this.__isInteraction = (_config$isInteraction = config2.isInteraction) !== null && _config$isInteraction !== void 0 ? _config$isInteraction : !this._useNativeDriver;
+        this.__iterations = (_config$iterations = config2.iterations) !== null && _config$iterations !== void 0 ? _config$iterations : 1;
+        if (config2.stiffness !== void 0 || config2.damping !== void 0 || config2.mass !== void 0) {
           var _config$stiffness, _config$damping, _config$mass;
-          (0, _invariant.default)(config.bounciness === void 0 && config.speed === void 0 && config.tension === void 0 && config.friction === void 0, "You can define one of bounciness/speed, tension/friction, or stiffness/damping/mass, but not more than one");
-          this._stiffness = (_config$stiffness = config.stiffness) !== null && _config$stiffness !== void 0 ? _config$stiffness : 100;
-          this._damping = (_config$damping = config.damping) !== null && _config$damping !== void 0 ? _config$damping : 10;
-          this._mass = (_config$mass = config.mass) !== null && _config$mass !== void 0 ? _config$mass : 1;
-        } else if (config.bounciness !== void 0 || config.speed !== void 0) {
+          (0, _invariant.default)(config2.bounciness === void 0 && config2.speed === void 0 && config2.tension === void 0 && config2.friction === void 0, "You can define one of bounciness/speed, tension/friction, or stiffness/damping/mass, but not more than one");
+          this._stiffness = (_config$stiffness = config2.stiffness) !== null && _config$stiffness !== void 0 ? _config$stiffness : 100;
+          this._damping = (_config$damping = config2.damping) !== null && _config$damping !== void 0 ? _config$damping : 10;
+          this._mass = (_config$mass = config2.mass) !== null && _config$mass !== void 0 ? _config$mass : 1;
+        } else if (config2.bounciness !== void 0 || config2.speed !== void 0) {
           var _config$bounciness, _config$speed;
-          (0, _invariant.default)(config.tension === void 0 && config.friction === void 0 && config.stiffness === void 0 && config.damping === void 0 && config.mass === void 0, "You can define one of bounciness/speed, tension/friction, or stiffness/damping/mass, but not more than one");
-          var springConfig = _SpringConfig.default.fromBouncinessAndSpeed((_config$bounciness = config.bounciness) !== null && _config$bounciness !== void 0 ? _config$bounciness : 8, (_config$speed = config.speed) !== null && _config$speed !== void 0 ? _config$speed : 12);
+          (0, _invariant.default)(config2.tension === void 0 && config2.friction === void 0 && config2.stiffness === void 0 && config2.damping === void 0 && config2.mass === void 0, "You can define one of bounciness/speed, tension/friction, or stiffness/damping/mass, but not more than one");
+          var springConfig = _SpringConfig.default.fromBouncinessAndSpeed((_config$bounciness = config2.bounciness) !== null && _config$bounciness !== void 0 ? _config$bounciness : 8, (_config$speed = config2.speed) !== null && _config$speed !== void 0 ? _config$speed : 12);
           this._stiffness = springConfig.stiffness;
           this._damping = springConfig.damping;
           this._mass = 1;
         } else {
           var _config$tension, _config$friction;
-          var _springConfig = _SpringConfig.default.fromOrigamiTensionAndFriction((_config$tension = config.tension) !== null && _config$tension !== void 0 ? _config$tension : 40, (_config$friction = config.friction) !== null && _config$friction !== void 0 ? _config$friction : 7);
+          var _springConfig = _SpringConfig.default.fromOrigamiTensionAndFriction((_config$tension = config2.tension) !== null && _config$tension !== void 0 ? _config$tension : 40, (_config$friction = config2.friction) !== null && _config$friction !== void 0 ? _config$friction : 7);
           this._stiffness = _springConfig.stiffness;
           this._damping = _springConfig.damping;
           this._mass = 1;
@@ -20467,15 +20467,15 @@ var require_SpringAnimation = __commonJS({
         var x0 = this._toValue - this._startPosition;
         var position = 0;
         var velocity = 0;
-        var t2 = this._frameTime;
+        var t = this._frameTime;
         if (zeta < 1) {
-          var envelope = Math.exp(-zeta * omega0 * t2);
-          position = this._toValue - envelope * ((v0 + zeta * omega0 * x0) / omega1 * Math.sin(omega1 * t2) + x0 * Math.cos(omega1 * t2));
-          velocity = zeta * omega0 * envelope * (Math.sin(omega1 * t2) * (v0 + zeta * omega0 * x0) / omega1 + x0 * Math.cos(omega1 * t2)) - envelope * (Math.cos(omega1 * t2) * (v0 + zeta * omega0 * x0) - omega1 * x0 * Math.sin(omega1 * t2));
+          var envelope = Math.exp(-zeta * omega0 * t);
+          position = this._toValue - envelope * ((v0 + zeta * omega0 * x0) / omega1 * Math.sin(omega1 * t) + x0 * Math.cos(omega1 * t));
+          velocity = zeta * omega0 * envelope * (Math.sin(omega1 * t) * (v0 + zeta * omega0 * x0) / omega1 + x0 * Math.cos(omega1 * t)) - envelope * (Math.cos(omega1 * t) * (v0 + zeta * omega0 * x0) - omega1 * x0 * Math.sin(omega1 * t));
         } else {
-          var _envelope = Math.exp(-omega0 * t2);
-          position = this._toValue - _envelope * (x0 + (v0 + omega0 * x0) * t2);
-          velocity = _envelope * (v0 * (t2 * omega0 - 1) + t2 * x0 * (omega0 * omega0));
+          var _envelope = Math.exp(-omega0 * t);
+          position = this._toValue - _envelope * (x0 + (v0 + omega0 * x0) * t);
+          velocity = _envelope * (v0 * (t * omega0 - 1) + t * x0 * (omega0 * omega0));
         }
         this._lastTime = now;
         this._lastPosition = position;
@@ -20663,8 +20663,8 @@ var require_Easing = __commonJS({
        *
        * http://cubic-bezier.com/#0,0,1,1
        */
-      static linear(t2) {
-        return t2;
+      static linear(t) {
+        return t;
       }
       /**
        * A simple inertial interaction, similar to an object slowly accelerating to
@@ -20672,11 +20672,11 @@ var require_Easing = __commonJS({
        *
        * http://cubic-bezier.com/#.42,0,1,1
        */
-      static ease(t2) {
+      static ease(t) {
         if (!ease) {
           ease = _Easing.bezier(0.42, 0, 1, 1);
         }
-        return ease(t2);
+        return ease(t);
       }
       /**
        * A quadratic function, `f(t) = t * t`. Position equals the square of elapsed
@@ -20684,8 +20684,8 @@ var require_Easing = __commonJS({
        *
        * http://easings.net/#easeInQuad
        */
-      static quad(t2) {
-        return t2 * t2;
+      static quad(t) {
+        return t * t;
       }
       /**
        * A cubic function, `f(t) = t * t * t`. Position equals the cube of elapsed
@@ -20693,8 +20693,8 @@ var require_Easing = __commonJS({
        *
        * http://easings.net/#easeInCubic
        */
-      static cubic(t2) {
-        return t2 * t2 * t2;
+      static cubic(t) {
+        return t * t * t;
       }
       /**
        * A power function. Position is equal to the Nth power of elapsed time.
@@ -20703,31 +20703,31 @@ var require_Easing = __commonJS({
        * n = 5: http://easings.net/#easeInQuint
        */
       static poly(n) {
-        return (t2) => Math.pow(t2, n);
+        return (t) => Math.pow(t, n);
       }
       /**
        * A sinusoidal function.
        *
        * http://easings.net/#easeInSine
        */
-      static sin(t2) {
-        return 1 - Math.cos(t2 * Math.PI / 2);
+      static sin(t) {
+        return 1 - Math.cos(t * Math.PI / 2);
       }
       /**
        * A circular function.
        *
        * http://easings.net/#easeInCirc
        */
-      static circle(t2) {
-        return 1 - Math.sqrt(1 - t2 * t2);
+      static circle(t) {
+        return 1 - Math.sqrt(1 - t * t);
       }
       /**
        * An exponential function.
        *
        * http://easings.net/#easeInExpo
        */
-      static exp(t2) {
-        return Math.pow(2, 10 * (t2 - 1));
+      static exp(t) {
+        return Math.pow(2, 10 * (t - 1));
       }
       /**
        * A simple elastic interaction, similar to a spring oscillating back and
@@ -20744,7 +20744,7 @@ var require_Easing = __commonJS({
           bounciness = 1;
         }
         var p = bounciness * Math.PI;
-        return (t2) => 1 - Math.pow(Math.cos(t2 * Math.PI / 2), 3) * Math.cos(t2 * p);
+        return (t) => 1 - Math.pow(Math.cos(t * Math.PI / 2), 3) * Math.cos(t * p);
       }
       /**
        * Use with `Animated.parallel()` to create a simple effect where the object
@@ -20758,27 +20758,27 @@ var require_Easing = __commonJS({
         if (s === void 0) {
           s = 1.70158;
         }
-        return (t2) => t2 * t2 * ((s + 1) * t2 - s);
+        return (t) => t * t * ((s + 1) * t - s);
       }
       /**
        * Provides a simple bouncing effect.
        *
        * http://easings.net/#easeInBounce
        */
-      static bounce(t2) {
-        if (t2 < 1 / 2.75) {
-          return 7.5625 * t2 * t2;
+      static bounce(t) {
+        if (t < 1 / 2.75) {
+          return 7.5625 * t * t;
         }
-        if (t2 < 2 / 2.75) {
-          var _t = t2 - 1.5 / 2.75;
+        if (t < 2 / 2.75) {
+          var _t = t - 1.5 / 2.75;
           return 7.5625 * _t * _t + 0.75;
         }
-        if (t2 < 2.5 / 2.75) {
-          var _t2 = t2 - 2.25 / 2.75;
+        if (t < 2.5 / 2.75) {
+          var _t2 = t - 2.25 / 2.75;
           return 7.5625 * _t2 * _t2 + 0.9375;
         }
-        var t22 = t2 - 2.625 / 2.75;
-        return 7.5625 * t22 * t22 + 0.984375;
+        var t2 = t - 2.625 / 2.75;
+        return 7.5625 * t2 * t2 + 0.984375;
       }
       /**
        * Provides a cubic bezier curve, equivalent to CSS Transitions'
@@ -20800,7 +20800,7 @@ var require_Easing = __commonJS({
        * Runs an easing function backwards.
        */
       static out(easing) {
-        return (t2) => 1 - easing(1 - t2);
+        return (t) => 1 - easing(1 - t);
       }
       /**
        * Makes any easing function symmetrical. The easing function will run
@@ -20808,11 +20808,11 @@ var require_Easing = __commonJS({
        * duration.
        */
       static inOut(easing) {
-        return (t2) => {
-          if (t2 < 0.5) {
-            return easing(t2 * 2) / 2;
+        return (t) => {
+          if (t < 0.5) {
+            return easing(t * 2) / 2;
           }
-          return 1 - easing((1 - t2) * 2) / 2;
+          return 1 - easing((1 - t) * 2) / 2;
         };
       }
     };
@@ -20859,17 +20859,17 @@ var require_TimingAnimation = __commonJS({
     }
     __name(easeInOut, "easeInOut");
     var _TimingAnimation = class _TimingAnimation extends _Animation.default {
-      constructor(config) {
+      constructor(config2) {
         var _config$easing, _config$duration, _config$delay, _config$iterations, _config$isInteraction;
         super();
-        this._toValue = config.toValue;
-        this._easing = (_config$easing = config.easing) !== null && _config$easing !== void 0 ? _config$easing : easeInOut();
-        this._duration = (_config$duration = config.duration) !== null && _config$duration !== void 0 ? _config$duration : 500;
-        this._delay = (_config$delay = config.delay) !== null && _config$delay !== void 0 ? _config$delay : 0;
-        this.__iterations = (_config$iterations = config.iterations) !== null && _config$iterations !== void 0 ? _config$iterations : 1;
-        this._useNativeDriver = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config);
-        this._platformConfig = config.platformConfig;
-        this.__isInteraction = (_config$isInteraction = config.isInteraction) !== null && _config$isInteraction !== void 0 ? _config$isInteraction : !this._useNativeDriver;
+        this._toValue = config2.toValue;
+        this._easing = (_config$easing = config2.easing) !== null && _config$easing !== void 0 ? _config$easing : easeInOut();
+        this._duration = (_config$duration = config2.duration) !== null && _config$duration !== void 0 ? _config$duration : 500;
+        this._delay = (_config$delay = config2.delay) !== null && _config$delay !== void 0 ? _config$delay : 0;
+        this.__iterations = (_config$iterations = config2.iterations) !== null && _config$iterations !== void 0 ? _config$iterations : 1;
+        this._useNativeDriver = (0, _NativeAnimatedHelper.shouldUseNativeDriver)(config2);
+        this._platformConfig = config2.platformConfig;
+        this.__isInteraction = (_config$isInteraction = config2.isInteraction) !== null && _config$isInteraction !== void 0 ? _config$isInteraction : !this._useNativeDriver;
       }
       __getNativeAnimationConfig() {
         var frameDuration = 1e3 / 60;
@@ -20995,22 +20995,22 @@ var require_AnimatedImplementation = __commonJS({
     var diffClamp = /* @__PURE__ */ __name(function diffClamp2(a, min2, max2) {
       return new _AnimatedDiffClamp.default(a, min2, max2);
     }, "diffClamp");
-    var _combineCallbacks = /* @__PURE__ */ __name(function _combineCallbacks2(callback, config) {
-      if (callback && config.onComplete) {
+    var _combineCallbacks = /* @__PURE__ */ __name(function _combineCallbacks2(callback, config2) {
+      if (callback && config2.onComplete) {
         return function() {
-          config.onComplete && config.onComplete(...arguments);
+          config2.onComplete && config2.onComplete(...arguments);
           callback && callback(...arguments);
         };
       } else {
-        return callback || config.onComplete;
+        return callback || config2.onComplete;
       }
     }, "_combineCallbacks");
-    var maybeVectorAnim = /* @__PURE__ */ __name(function maybeVectorAnim2(value, config, anim) {
+    var maybeVectorAnim = /* @__PURE__ */ __name(function maybeVectorAnim2(value, config2, anim) {
       if (value instanceof _AnimatedValueXY.default) {
-        var configX = (0, _objectSpread2.default)({}, config);
-        var configY = (0, _objectSpread2.default)({}, config);
-        for (var key in config) {
-          var _config$key = config[key], x = _config$key.x, y = _config$key.y;
+        var configX = (0, _objectSpread2.default)({}, config2);
+        var configY = (0, _objectSpread2.default)({}, config2);
+        for (var key in config2) {
+          var _config$key = config2[key], x = _config$key.x, y = _config$key.y;
           if (x !== void 0 && y !== void 0) {
             configX[key] = x;
             configY[key] = y;
@@ -21022,12 +21022,12 @@ var require_AnimatedImplementation = __commonJS({
           stopTogether: false
         });
       } else if (value instanceof _AnimatedColor.default) {
-        var configR = (0, _objectSpread2.default)({}, config);
-        var configG = (0, _objectSpread2.default)({}, config);
-        var configB = (0, _objectSpread2.default)({}, config);
-        var configA = (0, _objectSpread2.default)({}, config);
-        for (var _key in config) {
-          var _config$_key = config[_key], r = _config$_key.r, g = _config$_key.g, b = _config$_key.b, a = _config$_key.a;
+        var configR = (0, _objectSpread2.default)({}, config2);
+        var configG = (0, _objectSpread2.default)({}, config2);
+        var configB = (0, _objectSpread2.default)({}, config2);
+        var configA = (0, _objectSpread2.default)({}, config2);
+        for (var _key in config2) {
+          var _config$_key = config2[_key], r = _config$_key.r, g = _config$_key.g, b = _config$_key.b, a = _config$_key.a;
           if (r !== void 0 && g !== void 0 && b !== void 0 && a !== void 0) {
             configR[_key] = r;
             configG[_key] = g;
@@ -21045,7 +21045,7 @@ var require_AnimatedImplementation = __commonJS({
       }
       return null;
     }, "maybeVectorAnim");
-    var spring = /* @__PURE__ */ __name(function spring2(value, config) {
+    var spring = /* @__PURE__ */ __name(function spring2(value, config2) {
       var _start = /* @__PURE__ */ __name(function start(animatedValue, configuration, callback) {
         callback = _combineCallbacks(callback, configuration);
         var singleValue = animatedValue;
@@ -21057,9 +21057,9 @@ var require_AnimatedImplementation = __commonJS({
           singleValue.animate(new _SpringAnimation.default(singleConfig), callback);
         }
       }, "start");
-      return maybeVectorAnim(value, config, spring2) || {
+      return maybeVectorAnim(value, config2, spring2) || {
         start: /* @__PURE__ */ __name(function start(callback) {
-          _start(value, config, callback);
+          _start(value, config2, callback);
         }, "start"),
         stop: /* @__PURE__ */ __name(function stop() {
           value.stopAnimation();
@@ -21068,17 +21068,17 @@ var require_AnimatedImplementation = __commonJS({
           value.resetAnimation();
         }, "reset"),
         _startNativeLoop: /* @__PURE__ */ __name(function _startNativeLoop(iterations) {
-          var singleConfig = (0, _objectSpread2.default)((0, _objectSpread2.default)({}, config), {}, {
+          var singleConfig = (0, _objectSpread2.default)((0, _objectSpread2.default)({}, config2), {}, {
             iterations
           });
           _start(value, singleConfig);
         }, "_startNativeLoop"),
         _isUsingNativeDriver: /* @__PURE__ */ __name(function _isUsingNativeDriver() {
-          return config.useNativeDriver || false;
+          return config2.useNativeDriver || false;
         }, "_isUsingNativeDriver")
       };
     }, "spring");
-    var timing = /* @__PURE__ */ __name(function timing2(value, config) {
+    var timing = /* @__PURE__ */ __name(function timing2(value, config2) {
       var _start2 = /* @__PURE__ */ __name(function start(animatedValue, configuration, callback) {
         callback = _combineCallbacks(callback, configuration);
         var singleValue = animatedValue;
@@ -21090,9 +21090,9 @@ var require_AnimatedImplementation = __commonJS({
           singleValue.animate(new _TimingAnimation.default(singleConfig), callback);
         }
       }, "start");
-      return maybeVectorAnim(value, config, timing2) || {
+      return maybeVectorAnim(value, config2, timing2) || {
         start: /* @__PURE__ */ __name(function start(callback) {
-          _start2(value, config, callback);
+          _start2(value, config2, callback);
         }, "start"),
         stop: /* @__PURE__ */ __name(function stop() {
           value.stopAnimation();
@@ -21101,17 +21101,17 @@ var require_AnimatedImplementation = __commonJS({
           value.resetAnimation();
         }, "reset"),
         _startNativeLoop: /* @__PURE__ */ __name(function _startNativeLoop(iterations) {
-          var singleConfig = (0, _objectSpread2.default)((0, _objectSpread2.default)({}, config), {}, {
+          var singleConfig = (0, _objectSpread2.default)((0, _objectSpread2.default)({}, config2), {}, {
             iterations
           });
           _start2(value, singleConfig);
         }, "_startNativeLoop"),
         _isUsingNativeDriver: /* @__PURE__ */ __name(function _isUsingNativeDriver() {
-          return config.useNativeDriver || false;
+          return config2.useNativeDriver || false;
         }, "_isUsingNativeDriver")
       };
     }, "timing");
-    var decay = /* @__PURE__ */ __name(function decay2(value, config) {
+    var decay = /* @__PURE__ */ __name(function decay2(value, config2) {
       var _start3 = /* @__PURE__ */ __name(function start(animatedValue, configuration, callback) {
         callback = _combineCallbacks(callback, configuration);
         var singleValue = animatedValue;
@@ -21119,9 +21119,9 @@ var require_AnimatedImplementation = __commonJS({
         singleValue.stopTracking();
         singleValue.animate(new _DecayAnimation.default(singleConfig), callback);
       }, "start");
-      return maybeVectorAnim(value, config, decay2) || {
+      return maybeVectorAnim(value, config2, decay2) || {
         start: /* @__PURE__ */ __name(function start(callback) {
-          _start3(value, config, callback);
+          _start3(value, config2, callback);
         }, "start"),
         stop: /* @__PURE__ */ __name(function stop() {
           value.stopAnimation();
@@ -21130,13 +21130,13 @@ var require_AnimatedImplementation = __commonJS({
           value.resetAnimation();
         }, "reset"),
         _startNativeLoop: /* @__PURE__ */ __name(function _startNativeLoop(iterations) {
-          var singleConfig = (0, _objectSpread2.default)((0, _objectSpread2.default)({}, config), {}, {
+          var singleConfig = (0, _objectSpread2.default)((0, _objectSpread2.default)({}, config2), {}, {
             iterations
           });
           _start3(value, singleConfig);
         }, "_startNativeLoop"),
         _isUsingNativeDriver: /* @__PURE__ */ __name(function _isUsingNativeDriver() {
-          return config.useNativeDriver || false;
+          return config2.useNativeDriver || false;
         }, "_isUsingNativeDriver")
       };
     }, "decay");
@@ -21185,10 +21185,10 @@ var require_AnimatedImplementation = __commonJS({
         }, "_isUsingNativeDriver")
       };
     }, "sequence");
-    var parallel = /* @__PURE__ */ __name(function parallel2(animations, config) {
+    var parallel = /* @__PURE__ */ __name(function parallel2(animations, config2) {
       var doneCount = 0;
       var hasEnded = {};
-      var stopTogether = !(config && config.stopTogether === false);
+      var stopTogether = !(config2 && config2.stopTogether === false);
       var result = {
         start: /* @__PURE__ */ __name(function start(callback) {
           if (doneCount === animations.length) {
@@ -21323,8 +21323,8 @@ var require_AnimatedImplementation = __commonJS({
       }
     }
     __name(unforkEvent, "unforkEvent");
-    var event = /* @__PURE__ */ __name(function event2(argMapping, config) {
-      var animatedEvent = new _AnimatedEvent.AnimatedEvent(argMapping, config);
+    var event = /* @__PURE__ */ __name(function event2(argMapping, config2) {
+      var animatedEvent = new _AnimatedEvent.AnimatedEvent(argMapping, config2);
       if (animatedEvent.__isNative) {
         return animatedEvent;
       } else {
@@ -21555,35 +21555,35 @@ var require_AnimatedMock = __commonJS({
         });
       })
     }), "mockCompositeAnimation");
-    var spring = /* @__PURE__ */ __name(function spring2(value, config) {
+    var spring = /* @__PURE__ */ __name(function spring2(value, config2) {
       var anyValue = value;
       return (0, _objectSpread2.default)((0, _objectSpread2.default)({}, emptyAnimation), {}, {
         start: mockAnimationStart((callback) => {
-          anyValue.setValue(config.toValue);
+          anyValue.setValue(config2.toValue);
           callback == null ? void 0 : callback({
             finished: true
           });
         })
       });
     }, "spring");
-    var timing = /* @__PURE__ */ __name(function timing2(value, config) {
+    var timing = /* @__PURE__ */ __name(function timing2(value, config2) {
       var anyValue = value;
       return (0, _objectSpread2.default)((0, _objectSpread2.default)({}, emptyAnimation), {}, {
         start: mockAnimationStart((callback) => {
-          anyValue.setValue(config.toValue);
+          anyValue.setValue(config2.toValue);
           callback == null ? void 0 : callback({
             finished: true
           });
         })
       });
     }, "timing");
-    var decay = /* @__PURE__ */ __name(function decay2(value, config) {
+    var decay = /* @__PURE__ */ __name(function decay2(value, config2) {
       return emptyAnimation;
     }, "decay");
     var sequence = /* @__PURE__ */ __name(function sequence2(animations) {
       return mockCompositeAnimation(animations);
     }, "sequence");
-    var parallel = /* @__PURE__ */ __name(function parallel2(animations, config) {
+    var parallel = /* @__PURE__ */ __name(function parallel2(animations, config2) {
       return mockCompositeAnimation(animations);
     }, "parallel");
     var delay = /* @__PURE__ */ __name(function delay2(time) {
@@ -21730,23 +21730,23 @@ var require_AppContainer = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
-    var RootTagContext = /* @__PURE__ */ React85.createContext(null);
-    var AppContainer = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var RootTagContext = /* @__PURE__ */ React78.createContext(null);
+    var AppContainer = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var children = props.children, WrapperComponent = props.WrapperComponent;
-      var innerView = /* @__PURE__ */ React85.createElement(_View.default, {
+      var innerView = /* @__PURE__ */ React78.createElement(_View.default, {
         children,
         key: 1,
         style: styles.appContainer
       });
       if (WrapperComponent) {
-        innerView = /* @__PURE__ */ React85.createElement(WrapperComponent, null, innerView);
+        innerView = /* @__PURE__ */ React78.createElement(WrapperComponent, null, innerView);
       }
-      return /* @__PURE__ */ React85.createElement(RootTagContext.Provider, {
+      return /* @__PURE__ */ React78.createElement(RootTagContext.Provider, {
         value: props.rootTag
-      }, /* @__PURE__ */ React85.createElement(_View.default, {
+      }, /* @__PURE__ */ React78.createElement(_View.default, {
         ref: forwardedRef,
         style: styles.appContainer
       }, innerView));
@@ -21849,8 +21849,8 @@ var require_AppRegistry = __commonJS({
         };
         return appKey;
       }
-      static registerConfig(config) {
-        config.forEach((_ref) => {
+      static registerConfig(config2) {
+        config2.forEach((_ref) => {
           var appKey = _ref.appKey, component = _ref.component, run = _ref.run;
           if (run) {
             _AppRegistry.registerRunnable(appKey, run);
@@ -22094,10 +22094,10 @@ var require_LayoutAnimation = __commonJS({
     var _Platform = _interopRequireDefault(require_Platform());
     var _UIManager = _interopRequireDefault(require_UIManager());
     var __DEV__ = process.env.NODE_ENV !== "production";
-    function configureNext(config, onAnimationDidEnd) {
+    function configureNext(config2, onAnimationDidEnd) {
       if (!_Platform.default.isTesting) {
         _UIManager.default.configureNextLayoutAnimation(
-          config,
+          config2,
           onAnimationDidEnd !== null && onAnimationDidEnd !== void 0 ? onAnimationDidEnd : function() {
           },
           function() {
@@ -22605,7 +22605,7 @@ var require_PanResponder = __commonJS({
        *  accordingly. (numberActiveTouches) may not be totally accurate unless you
        *  are the responder.
        */
-      create(config) {
+      create(config2) {
         var interactionState = {
           handle: null,
           shouldCancelClick: false,
@@ -22627,17 +22627,17 @@ var require_PanResponder = __commonJS({
         };
         var panHandlers = {
           onStartShouldSetResponder(event) {
-            return config.onStartShouldSetPanResponder == null ? false : config.onStartShouldSetPanResponder(event, gestureState);
+            return config2.onStartShouldSetPanResponder == null ? false : config2.onStartShouldSetPanResponder(event, gestureState);
           },
           onMoveShouldSetResponder(event) {
-            return config.onMoveShouldSetPanResponder == null ? false : config.onMoveShouldSetPanResponder(event, gestureState);
+            return config2.onMoveShouldSetPanResponder == null ? false : config2.onMoveShouldSetPanResponder(event, gestureState);
           },
           onStartShouldSetResponderCapture(event) {
             if (event.nativeEvent.touches.length === 1) {
               PanResponder2._initializeGestureState(gestureState);
             }
             gestureState.numberActiveTouches = event.touchHistory.numberActiveTouches;
-            return config.onStartShouldSetPanResponderCapture != null ? config.onStartShouldSetPanResponderCapture(event, gestureState) : false;
+            return config2.onStartShouldSetPanResponderCapture != null ? config2.onStartShouldSetPanResponderCapture(event, gestureState) : false;
           },
           onMoveShouldSetResponderCapture(event) {
             var touchHistory = event.touchHistory;
@@ -22645,7 +22645,7 @@ var require_PanResponder = __commonJS({
               return false;
             }
             PanResponder2._updateGestureStateOnMove(gestureState, touchHistory);
-            return config.onMoveShouldSetPanResponderCapture ? config.onMoveShouldSetPanResponderCapture(event, gestureState) : false;
+            return config2.onMoveShouldSetPanResponderCapture ? config2.onMoveShouldSetPanResponderCapture(event, gestureState) : false;
           },
           onResponderGrant(event) {
             if (!interactionState.handle) {
@@ -22659,24 +22659,24 @@ var require_PanResponder = __commonJS({
             gestureState.y0 = currentCentroidY(event.touchHistory);
             gestureState.dx = 0;
             gestureState.dy = 0;
-            if (config.onPanResponderGrant) {
-              config.onPanResponderGrant(event, gestureState);
+            if (config2.onPanResponderGrant) {
+              config2.onPanResponderGrant(event, gestureState);
             }
-            return config.onShouldBlockNativeResponder == null ? true : config.onShouldBlockNativeResponder(event, gestureState);
+            return config2.onShouldBlockNativeResponder == null ? true : config2.onShouldBlockNativeResponder(event, gestureState);
           },
           onResponderReject(event) {
-            clearInteractionHandle(interactionState, config.onPanResponderReject, event, gestureState);
+            clearInteractionHandle(interactionState, config2.onPanResponderReject, event, gestureState);
           },
           onResponderRelease(event) {
-            clearInteractionHandle(interactionState, config.onPanResponderRelease, event, gestureState);
+            clearInteractionHandle(interactionState, config2.onPanResponderRelease, event, gestureState);
             setInteractionTimeout(interactionState);
             PanResponder2._initializeGestureState(gestureState);
           },
           onResponderStart(event) {
             var touchHistory = event.touchHistory;
             gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
-            if (config.onPanResponderStart) {
-              config.onPanResponderStart(event, gestureState);
+            if (config2.onPanResponderStart) {
+              config2.onPanResponderStart(event, gestureState);
             }
           },
           onResponderMove(event) {
@@ -22685,22 +22685,22 @@ var require_PanResponder = __commonJS({
               return;
             }
             PanResponder2._updateGestureStateOnMove(gestureState, touchHistory);
-            if (config.onPanResponderMove) {
-              config.onPanResponderMove(event, gestureState);
+            if (config2.onPanResponderMove) {
+              config2.onPanResponderMove(event, gestureState);
             }
           },
           onResponderEnd(event) {
             var touchHistory = event.touchHistory;
             gestureState.numberActiveTouches = touchHistory.numberActiveTouches;
-            clearInteractionHandle(interactionState, config.onPanResponderEnd, event, gestureState);
+            clearInteractionHandle(interactionState, config2.onPanResponderEnd, event, gestureState);
           },
           onResponderTerminate(event) {
-            clearInteractionHandle(interactionState, config.onPanResponderTerminate, event, gestureState);
+            clearInteractionHandle(interactionState, config2.onPanResponderTerminate, event, gestureState);
             setInteractionTimeout(interactionState);
             PanResponder2._initializeGestureState(gestureState);
           },
           onResponderTerminationRequest(event) {
-            return config.onPanResponderTerminationRequest == null ? true : config.onPanResponderTerminationRequest(event, gestureState);
+            return config2.onPanResponderTerminationRequest == null ? true : config2.onPanResponderTerminationRequest(event, gestureState);
           },
           // We do not want to trigger 'click' activated gestures or native behaviors
           // on any pan target that is under a mouse cursor when it is released.
@@ -22845,11 +22845,11 @@ var require_ActivityIndicator = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
     var _excluded = ["animating", "color", "hidesWhenStopped", "size", "style"];
-    var createSvgCircle = /* @__PURE__ */ __name((style) => /* @__PURE__ */ React85.createElement("circle", {
+    var createSvgCircle = /* @__PURE__ */ __name((style) => /* @__PURE__ */ React78.createElement("circle", {
       cx: "16",
       cy: "16",
       fill: "none",
@@ -22857,9 +22857,9 @@ var require_ActivityIndicator = __commonJS({
       strokeWidth: "4",
       style
     }), "createSvgCircle");
-    var ActivityIndicator2 = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
-      var _props$animating = props.animating, animating = _props$animating === void 0 ? true : _props$animating, _props$color = props.color, color2 = _props$color === void 0 ? "#1976D2" : _props$color, _props$hidesWhenStopp = props.hidesWhenStopped, hidesWhenStopped = _props$hidesWhenStopp === void 0 ? true : _props$hidesWhenStopp, _props$size = props.size, size5 = _props$size === void 0 ? "small" : _props$size, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      var svg = /* @__PURE__ */ React85.createElement("svg", {
+    var ActivityIndicator2 = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
+      var _props$animating = props.animating, animating = _props$animating === void 0 ? true : _props$animating, _props$color = props.color, color2 = _props$color === void 0 ? "#1976D2" : _props$color, _props$hidesWhenStopp = props.hidesWhenStopped, hidesWhenStopped = _props$hidesWhenStopp === void 0 ? true : _props$hidesWhenStopp, _props$size = props.size, size6 = _props$size === void 0 ? "small" : _props$size, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
+      var svg = /* @__PURE__ */ React78.createElement("svg", {
         height: "100%",
         viewBox: "0 0 32 32",
         width: "100%"
@@ -22871,18 +22871,18 @@ var require_ActivityIndicator = __commonJS({
         strokeDasharray: 80,
         strokeDashoffset: 60
       }));
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, other, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, other, {
         "aria-valuemax": 1,
         "aria-valuemin": 0,
         ref: forwardedRef,
         role: "progressbar",
         style: [styles.container, style]
-      }), /* @__PURE__ */ React85.createElement(_View.default, {
+      }), /* @__PURE__ */ React78.createElement(_View.default, {
         children: svg,
-        style: [typeof size5 === "number" ? {
-          height: size5,
-          width: size5
-        } : indicatorSizes[size5], styles.animation, !animating && styles.animationPause, !animating && hidesWhenStopped && styles.hidesWhenStopped]
+        style: [typeof size6 === "number" ? {
+          height: size6,
+          width: size6
+        } : indicatorSizes[size6], styles.animation, !animating && styles.animationPause, !animating && hidesWhenStopped && styles.hidesWhenStopped]
       }));
     });
     ActivityIndicator2.displayName = "ActivityIndicator";
@@ -22994,7 +22994,7 @@ var require_PressResponder = __commonJS({
     var DEFAULT_LONG_PRESS_DELAY_MS = 450;
     var DEFAULT_PRESS_DELAY_MS = 50;
     var _PressResponder = class _PressResponder {
-      constructor(config) {
+      constructor(config2) {
         this._eventHandlers = null;
         this._isPointerTouch = false;
         this._longPressDelayTimeout = null;
@@ -23003,10 +23003,10 @@ var require_PressResponder = __commonJS({
         this._pressOutDelayTimeout = null;
         this._touchState = NOT_RESPONDER;
         this._responderElement = null;
-        this.configure(config);
+        this.configure(config2);
       }
-      configure(config) {
-        this._config = config;
+      configure(config2) {
+        this._config = config2;
       }
       /**
        * Resets any pending timers. This should be called on unmount.
@@ -23321,21 +23321,21 @@ var require_usePressEvents = __commonJS({
     exports2.default = usePressEvents;
     var _PressResponder = _interopRequireDefault(require_PressResponder());
     var _react = require("react");
-    function usePressEvents(hostRef, config) {
+    function usePressEvents(hostRef, config2) {
       var pressResponderRef = (0, _react.useRef)(null);
       if (pressResponderRef.current == null) {
-        pressResponderRef.current = new _PressResponder.default(config);
+        pressResponderRef.current = new _PressResponder.default(config2);
       }
       var pressResponder = pressResponderRef.current;
       (0, _react.useEffect)(() => {
-        pressResponder.configure(config);
-      }, [config, pressResponder]);
+        pressResponder.configure(config2);
+      }, [config2, pressResponder]);
       (0, _react.useEffect)(() => {
         return () => {
           pressResponder.reset();
         };
       }, [pressResponder]);
-      (0, _react.useDebugValue)(config);
+      (0, _react.useDebugValue)(config2);
       return pressResponder.getEventHandlers();
     }
     __name(usePressEvents, "usePressEvents");
@@ -23355,7 +23355,7 @@ var require_TouchableOpacity = __commonJS({
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
     var _react = _interopRequireWildcard(require("react"));
-    var React85 = _react;
+    var React78 = _react;
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs());
     var _usePressEvents = _interopRequireDefault(require_usePressEvents());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
@@ -23400,7 +23400,7 @@ var require_TouchableOpacity = __commonJS({
         }
       }), [delayLongPress, delayPressIn, delayPressOut, disabled, onLongPress, onPress, onPressIn, onPressOut, rejectResponderTermination, setOpacityActive, setOpacityInactive]);
       var pressEventHandlers = (0, _usePressEvents.default)(hostRef, pressConfig);
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, pressEventHandlers, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, pressEventHandlers, {
         accessibilityDisabled: disabled,
         focusable: !disabled && focusable !== false,
         pointerEvents: disabled ? "box-none" : void 0,
@@ -23424,7 +23424,7 @@ var require_TouchableOpacity = __commonJS({
         touchAction: "manipulation"
       }
     });
-    var MemoedTouchableOpacity = /* @__PURE__ */ React85.memo(/* @__PURE__ */ React85.forwardRef(TouchableOpacity));
+    var MemoedTouchableOpacity = /* @__PURE__ */ React78.memo(/* @__PURE__ */ React78.forwardRef(TouchableOpacity));
     MemoedTouchableOpacity.displayName = "TouchableOpacity";
     var _default = exports2.default = MemoedTouchableOpacity;
     module2.exports = exports2.default;
@@ -23439,13 +23439,13 @@ var require_Button = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _TouchableOpacity = _interopRequireDefault(require_TouchableOpacity());
     var _Text = _interopRequireDefault(require_Text());
-    var Button = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var Button = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var accessibilityLabel = props.accessibilityLabel, color2 = props.color, disabled = props.disabled, onPress = props.onPress, testID = props.testID, title = props.title;
-      return /* @__PURE__ */ React85.createElement(_TouchableOpacity.default, {
+      return /* @__PURE__ */ React78.createElement(_TouchableOpacity.default, {
         accessibilityLabel,
         accessibilityRole: "button",
         disabled,
@@ -23456,7 +23456,7 @@ var require_Button = __commonJS({
           backgroundColor: color2
         }, disabled && styles.buttonDisabled],
         testID
-      }, /* @__PURE__ */ React85.createElement(_Text.default, {
+      }, /* @__PURE__ */ React78.createElement(_Text.default, {
         style: [styles.text, disabled && styles.textDisabled]
       }, title));
     });
@@ -23497,12 +23497,12 @@ var require_CheckBox = __commonJS({
     var _objectSpread2 = _interopRequireDefault(require_objectSpread2());
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
     var _excluded = ["aria-readonly", "color", "disabled", "onChange", "onValueChange", "readOnly", "style", "value"];
-    var CheckBox = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var CheckBox = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var ariaReadOnly = props["aria-readonly"], color2 = props.color, disabled = props.disabled, onChange = props.onChange, onValueChange = props.onValueChange, readOnly = props.readOnly, style = props.style, value = props.value, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       function handleChange(event) {
         var value2 = event.nativeEvent.target.checked;
@@ -23511,7 +23511,7 @@ var require_CheckBox = __commonJS({
         onValueChange && onValueChange(value2);
       }
       __name(handleChange, "handleChange");
-      var fakeControl = /* @__PURE__ */ React85.createElement(_View.default, {
+      var fakeControl = /* @__PURE__ */ React78.createElement(_View.default, {
         style: [
           styles.fakeControl,
           value && styles.fakeControlChecked,
@@ -23533,7 +23533,7 @@ var require_CheckBox = __commonJS({
         style: [styles.nativeControl, styles.cursorInherit],
         type: "checkbox"
       });
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, other, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, other, {
         "aria-disabled": disabled,
         "aria-readonly": ariaReadOnly,
         style: [styles.root, style, disabled && styles.cursorDefault]
@@ -23601,7 +23601,7 @@ var require_ImageBackground = __commonJS({
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
     var _react = _interopRequireWildcard(require("react"));
-    var React85 = _react;
+    var React78 = _react;
     var _Image = _interopRequireDefault(require_Image());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
@@ -23610,10 +23610,10 @@ var require_ImageBackground = __commonJS({
     var ImageBackground = /* @__PURE__ */ (0, _react.forwardRef)((props, forwardedRef) => {
       var children = props.children, _props$style = props.style, style = _props$style === void 0 ? emptyObject : _props$style, imageStyle = props.imageStyle, imageRef = props.imageRef, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       var _StyleSheet$flatten = _StyleSheet.default.flatten(style), height = _StyleSheet$flatten.height, width = _StyleSheet$flatten.width;
-      return /* @__PURE__ */ React85.createElement(_View.default, {
+      return /* @__PURE__ */ React78.createElement(_View.default, {
         ref: forwardedRef,
         style
-      }, /* @__PURE__ */ React85.createElement(_Image.default, (0, _extends2.default)({}, rest, {
+      }, /* @__PURE__ */ React78.createElement(_Image.default, (0, _extends2.default)({}, rest, {
         ref: imageRef,
         style: [{
           // Temporary Workaround:
@@ -23646,10 +23646,10 @@ var require_KeyboardAvoidingView = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _View = _interopRequireDefault(require_View());
     var _excluded = ["behavior", "contentContainerStyle", "keyboardVerticalOffset"];
-    var _KeyboardAvoidingView = class _KeyboardAvoidingView extends React85.Component {
+    var _KeyboardAvoidingView = class _KeyboardAvoidingView extends React78.Component {
       constructor() {
         super(...arguments);
         this.frame = null;
@@ -23669,7 +23669,7 @@ var require_KeyboardAvoidingView = __commonJS({
       }
       render() {
         var _this$props = this.props, behavior = _this$props.behavior, contentContainerStyle = _this$props.contentContainerStyle, keyboardVerticalOffset = _this$props.keyboardVerticalOffset, rest = (0, _objectWithoutPropertiesLoose2.default)(_this$props, _excluded);
-        return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({
+        return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({
           onLayout: this.onLayout
         }, rest));
       }
@@ -23689,12 +23689,12 @@ var require_ModalPortal = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _reactDom = _interopRequireDefault(require("react-dom"));
     var _canUseDom = _interopRequireDefault(require_canUseDom());
     function ModalPortal(props) {
       var children = props.children;
-      var elementRef = React85.useRef(null);
+      var elementRef = React78.useRef(null);
       if (_canUseDom.default && !elementRef.current) {
         var element = document.createElement("div");
         if (element && document.body) {
@@ -23702,7 +23702,7 @@ var require_ModalPortal = __commonJS({
           elementRef.current = element;
         }
       }
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         if (_canUseDom.default) {
           return () => {
             if (document.body && elementRef.current) {
@@ -23728,7 +23728,7 @@ var require_ModalAnimation = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _createElement = _interopRequireDefault(require_createElement());
     var ANIMATION_DURATION = 300;
@@ -23744,11 +23744,11 @@ var require_ModalAnimation = __commonJS({
     __name(getAnimationStyle, "getAnimationStyle");
     function ModalAnimation(props) {
       var animationType = props.animationType, children = props.children, onDismiss = props.onDismiss, onShow = props.onShow, visible = props.visible;
-      var _React$useState = React85.useState(false), isRendering = _React$useState[0], setIsRendering = _React$useState[1];
-      var wasVisible = React85.useRef(false);
-      var wasRendering = React85.useRef(false);
+      var _React$useState = React78.useState(false), isRendering = _React$useState[0], setIsRendering = _React$useState[1];
+      var wasVisible = React78.useRef(false);
+      var wasRendering = React78.useRef(false);
       var isAnimated = animationType && animationType !== "none";
-      var animationEndCallback = React85.useCallback((e) => {
+      var animationEndCallback = React78.useCallback((e) => {
         if (e && e.currentTarget !== e.target) {
           return;
         }
@@ -23760,13 +23760,13 @@ var require_ModalAnimation = __commonJS({
           setIsRendering(false);
         }
       }, [onShow, visible]);
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         if (wasRendering.current && !isRendering && onDismiss) {
           onDismiss();
         }
         wasRendering.current = isRendering;
       }, [isRendering, onDismiss]);
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         if (visible) {
           setIsRendering(true);
         }
@@ -23867,14 +23867,14 @@ var require_ModalContent = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _View = _interopRequireDefault(require_View());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _canUseDom = _interopRequireDefault(require_canUseDom());
     var _excluded = ["active", "children", "onRequestClose", "transparent"];
-    var ModalContent = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var ModalContent = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var active = props.active, children = props.children, onRequestClose = props.onRequestClose, transparent = props.transparent, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         if (_canUseDom.default) {
           var closeOnEscape = /* @__PURE__ */ __name((e) => {
             if (active && e.key === "Escape") {
@@ -23888,15 +23888,15 @@ var require_ModalContent = __commonJS({
           return () => document.removeEventListener("keyup", closeOnEscape, false);
         }
       }, [active, onRequestClose]);
-      var style = React85.useMemo(() => {
+      var style = React78.useMemo(() => {
         return [styles.modal, transparent ? styles.modalTransparent : styles.modalOpaque];
       }, [transparent]);
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, {
         "aria-modal": true,
         ref: forwardedRef,
         role: active ? "dialog" : null,
         style
-      }), /* @__PURE__ */ React85.createElement(_View.default, {
+      }), /* @__PURE__ */ React78.createElement(_View.default, {
         style: styles.container
       }, children));
     });
@@ -23932,7 +23932,7 @@ var require_ModalFocusTrap = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _View = _interopRequireDefault(require_View());
     var _createElement = _interopRequireDefault(require_createElement());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
@@ -23978,12 +23978,12 @@ var require_ModalFocusTrap = __commonJS({
     __name(focusLastDescendant, "focusLastDescendant");
     var ModalFocusTrap = /* @__PURE__ */ __name((_ref) => {
       var active = _ref.active, children = _ref.children;
-      var trapElementRef = React85.useRef();
-      var focusRef = React85.useRef({
+      var trapElementRef = React78.useRef();
+      var focusRef = React78.useRef({
         trapFocusInProgress: false,
         lastFocusedElement: null
       });
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         if (_canUseDom.default) {
           var trapFocus = /* @__PURE__ */ __name(() => {
             if (trapElementRef.current == null || focusRef.current.trapFocusInProgress || !active) {
@@ -24010,7 +24010,7 @@ var require_ModalFocusTrap = __commonJS({
           return () => document.removeEventListener("focus", trapFocus, true);
         }
       }, [active]);
-      React85.useEffect(function() {
+      React78.useEffect(function() {
         if (_canUseDom.default) {
           var lastFocusedElementOutsideTrap = document.activeElement;
           return function() {
@@ -24020,9 +24020,9 @@ var require_ModalFocusTrap = __commonJS({
           };
         }
       }, []);
-      return /* @__PURE__ */ React85.createElement(React85.Fragment, null, /* @__PURE__ */ React85.createElement(FocusBracket, null), /* @__PURE__ */ React85.createElement(_View.default, {
+      return /* @__PURE__ */ React78.createElement(React78.Fragment, null, /* @__PURE__ */ React78.createElement(FocusBracket, null), /* @__PURE__ */ React78.createElement(_View.default, {
         ref: trapElementRef
-      }, children), /* @__PURE__ */ React85.createElement(FocusBracket, null));
+      }, children), /* @__PURE__ */ React78.createElement(FocusBracket, null));
     }, "ModalFocusTrap");
     var _default = exports2.default = ModalFocusTrap;
     var styles = _StyleSheet.default.create({
@@ -24045,7 +24045,7 @@ var require_Modal = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _ModalPortal = _interopRequireDefault(require_ModalPortal());
     var _ModalAnimation = _interopRequireDefault(require_ModalAnimation());
     var _ModalContent = _interopRequireDefault(require_ModalContent());
@@ -24085,33 +24085,33 @@ var require_Modal = __commonJS({
       notifyActiveModalListeners();
     }
     __name(addActiveModal, "addActiveModal");
-    var Modal = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var Modal = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var animationType = props.animationType, children = props.children, onDismiss = props.onDismiss, onRequestClose = props.onRequestClose, onShow = props.onShow, transparent = props.transparent, _props$visible = props.visible, visible = _props$visible === void 0 ? true : _props$visible, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      var modalId = React85.useMemo(() => uniqueModalIdentifier++, []);
-      var _React$useState = React85.useState(false), isActive = _React$useState[0], setIsActive = _React$useState[1];
-      var onDismissCallback = React85.useCallback(() => {
+      var modalId = React78.useMemo(() => uniqueModalIdentifier++, []);
+      var _React$useState = React78.useState(false), isActive = _React$useState[0], setIsActive = _React$useState[1];
+      var onDismissCallback = React78.useCallback(() => {
         removeActiveModal(modalId);
         if (onDismiss) {
           onDismiss();
         }
       }, [modalId, onDismiss]);
-      var onShowCallback = React85.useCallback(() => {
+      var onShowCallback = React78.useCallback(() => {
         addActiveModal(modalId, setIsActive);
         if (onShow) {
           onShow();
         }
       }, [modalId, onShow]);
-      React85.useEffect(() => {
+      React78.useEffect(() => {
         return () => removeActiveModal(modalId);
       }, [modalId]);
-      return /* @__PURE__ */ React85.createElement(_ModalPortal.default, null, /* @__PURE__ */ React85.createElement(_ModalAnimation.default, {
+      return /* @__PURE__ */ React78.createElement(_ModalPortal.default, null, /* @__PURE__ */ React78.createElement(_ModalAnimation.default, {
         animationType,
         onDismiss: onDismissCallback,
         onShow: onShowCallback,
         visible
-      }, /* @__PURE__ */ React85.createElement(_ModalFocusTrap.default, {
+      }, /* @__PURE__ */ React78.createElement(_ModalFocusTrap.default, {
         active: isActive
-      }, /* @__PURE__ */ React85.createElement(_ModalContent.default, (0, _extends2.default)({}, rest, {
+      }, /* @__PURE__ */ React78.createElement(_ModalContent.default, (0, _extends2.default)({}, rest, {
         active: isActive,
         onRequestClose,
         ref: forwardedRef,
@@ -24159,16 +24159,16 @@ var require_Picker = __commonJS({
     exports2.default = void 0;
     var _objectSpread2 = _interopRequireDefault(require_objectSpread2());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs());
     var _usePlatformMethods = _interopRequireDefault(require_usePlatformMethods());
     var _PickerItem = _interopRequireDefault(require_PickerItem());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _excluded = ["children", "enabled", "onValueChange", "selectedValue", "style", "testID", "itemStyle", "mode", "prompt"];
-    var Picker = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var Picker = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var children = props.children, enabled = props.enabled, onValueChange = props.onValueChange, selectedValue = props.selectedValue, style = props.style, testID = props.testID, itemStyle = props.itemStyle, mode = props.mode, prompt = props.prompt, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      var hostRef = React85.useRef(null);
+      var hostRef = React78.useRef(null);
       function handleChange(e) {
         var _e$target = e.target, selectedIndex = _e$target.selectedIndex, value = _e$target.value;
         if (onValueChange) {
@@ -24466,11 +24466,11 @@ var require_useEvent2 = __commonJS({
     "use strict";
     var _interopRequireDefault = require_interopRequireDefault().default;
     exports2.__esModule = true;
-    exports2.default = useEvent17;
+    exports2.default = useEvent13;
     var _addEventListener = require_addEventListener();
     var _useLayoutEffect = _interopRequireDefault(require_useLayoutEffect());
     var _useStable = _interopRequireDefault(require_useStable());
-    function useEvent17(eventType, options) {
+    function useEvent13(eventType, options) {
       var targetListeners = (0, _useStable.default)(() => /* @__PURE__ */ new Map());
       var addListener = (0, _useStable.default)(() => {
         return (target, callback) => {
@@ -24498,7 +24498,7 @@ var require_useEvent2 = __commonJS({
       }, [targetListeners]);
       return addListener;
     }
-    __name(useEvent17, "useEvent");
+    __name(useEvent13, "useEvent");
     module2.exports = exports2.default;
   }
 });
@@ -24532,8 +24532,8 @@ var require_useHover = __commonJS({
       return pointerType != null ? pointerType : (0, _modality.getModality)();
     }
     __name(getPointerType, "getPointerType");
-    function useHover2(targetRef, config) {
-      var contain = config.contain, disabled = config.disabled, onHoverStart = config.onHoverStart, onHoverChange = config.onHoverChange, onHoverUpdate = config.onHoverUpdate, onHoverEnd = config.onHoverEnd;
+    function useHover2(targetRef, config2) {
+      var contain = config2.contain, disabled = config2.disabled, onHoverStart = config2.onHoverStart, onHoverChange = config2.onHoverChange, onHoverUpdate = config2.onHoverUpdate, onHoverEnd = config2.onHoverEnd;
       var canUsePE = supportsPointerEvent();
       var addMoveListener = (0, _useEvent.default)(canUsePE ? "pointermove" : "mousemove", opts);
       var addEnterListener = (0, _useEvent.default)(canUsePE ? "pointerenter" : "mouseenter", opts);
@@ -24629,7 +24629,7 @@ var require_Pressable = __commonJS({
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
     var _react = _interopRequireWildcard(require("react"));
-    var React85 = _react;
+    var React78 = _react;
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs());
     var _useHover = _interopRequireDefault(require_useHover());
     var _usePressEvents = _interopRequireDefault(require_usePressEvents());
@@ -24669,7 +24669,7 @@ var require_Pressable = __commonJS({
         focused,
         pressed
       };
-      var blurHandler = React85.useCallback((e) => {
+      var blurHandler = React78.useCallback((e) => {
         if (e.nativeEvent.target === hostRef.current) {
           setFocused(false);
           if (onBlur != null) {
@@ -24677,7 +24677,7 @@ var require_Pressable = __commonJS({
           }
         }
       }, [hostRef, setFocused, onBlur]);
-      var focusHandler = React85.useCallback((e) => {
+      var focusHandler = React78.useCallback((e) => {
         if (e.nativeEvent.target === hostRef.current) {
           setFocused(true);
           if (onFocus != null) {
@@ -24685,7 +24685,7 @@ var require_Pressable = __commonJS({
           }
         }
       }, [hostRef, setFocused, onFocus]);
-      var contextMenuHandler = React85.useCallback((e) => {
+      var contextMenuHandler = React78.useCallback((e) => {
         if (onContextMenuPress != null) {
           onContextMenuPress(e);
         }
@@ -24693,7 +24693,7 @@ var require_Pressable = __commonJS({
           onContextMenu(e);
         }
       }, [onContextMenu, onContextMenuPress]);
-      var keyDownHandler = React85.useCallback((e) => {
+      var keyDownHandler = React78.useCallback((e) => {
         if (onKeyDownPress != null) {
           onKeyDownPress(e);
         }
@@ -24707,7 +24707,7 @@ var require_Pressable = __commonJS({
       } else {
         _tabIndex = disabled ? -1 : 0;
       }
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, pressEventHandlers, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, pressEventHandlers, {
         "aria-disabled": disabled,
         onBlur: blurHandler,
         onContextMenu: contextMenuHandler,
@@ -24751,15 +24751,15 @@ var require_ProgressBar = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
     var _excluded = ["color", "indeterminate", "progress", "trackColor", "style"];
-    var ProgressBar = /* @__PURE__ */ React85.forwardRef((props, ref) => {
+    var ProgressBar = /* @__PURE__ */ React78.forwardRef((props, ref) => {
       var _props$color = props.color, color2 = _props$color === void 0 ? "#1976D2" : _props$color, _props$indeterminate = props.indeterminate, indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate, _props$progress = props.progress, progress = _props$progress === void 0 ? 0 : _props$progress, _props$trackColor = props.trackColor, trackColor = _props$trackColor === void 0 ? "transparent" : _props$trackColor, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       var percentageProgress = progress * 100;
       var width = indeterminate ? "25%" : percentageProgress + "%";
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, other, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, other, {
         "aria-valuemax": 100,
         "aria-valuemin": 0,
         "aria-valuenow": indeterminate ? null : percentageProgress,
@@ -24768,7 +24768,7 @@ var require_ProgressBar = __commonJS({
         style: [styles.track, style, {
           backgroundColor: trackColor
         }]
-      }), /* @__PURE__ */ React85.createElement(_View.default, {
+      }), /* @__PURE__ */ React78.createElement(_View.default, {
         style: [{
           backgroundColor: color2,
           width
@@ -24818,7 +24818,7 @@ var require_SafeAreaView = __commonJS({
     exports2.default = void 0;
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
     var _View = _interopRequireDefault(require_View());
     var _canUseDom = _interopRequireDefault(require_canUseDom());
@@ -24829,9 +24829,9 @@ var require_SafeAreaView = __commonJS({
       }
       return "env";
     }();
-    var SafeAreaView = /* @__PURE__ */ React85.forwardRef((props, ref) => {
+    var SafeAreaView = /* @__PURE__ */ React78.forwardRef((props, ref) => {
       var style = props.style, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, {
         ref,
         style: [styles.root, style]
       }));
@@ -24909,7 +24909,7 @@ var require_Switch = __commonJS({
     var _objectSpread2 = _interopRequireDefault(require_objectSpread2());
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var _multiplyStyleLengthValue = _interopRequireDefault(require_multiplyStyleLengthValue());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
@@ -24924,9 +24924,9 @@ var require_Switch = __commonJS({
     var defaultActiveThumbColor = "#009688";
     var defaultThumbColor = "#FAFAFA";
     var defaultDisabledThumbColor = "#BDBDBD";
-    var Switch2 = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var Switch2 = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var ariaLabel = props["aria-label"], accessibilityLabel = props.accessibilityLabel, activeThumbColor = props.activeThumbColor, activeTrackColor = props.activeTrackColor, _props$disabled = props.disabled, disabled = _props$disabled === void 0 ? false : _props$disabled, onValueChange = props.onValueChange, _props$style = props.style, style = _props$style === void 0 ? emptyObject : _props$style, thumbColor = props.thumbColor, trackColor = props.trackColor, _props$value = props.value, value = _props$value === void 0 ? false : _props$value, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
-      var thumbRef = React85.useRef(null);
+      var thumbRef = React78.useRef(null);
       function handleChange(event) {
         if (onValueChange != null) {
           onValueChange(event.nativeEvent.target.checked);
@@ -25020,11 +25020,11 @@ var require_Switch = __commonJS({
         type: "checkbox",
         role: "switch"
       });
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, other, {
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, other, {
         style: rootStyle
-      }), /* @__PURE__ */ React85.createElement(_View.default, {
+      }), /* @__PURE__ */ React78.createElement(_View.default, {
         style: trackStyle
-      }), /* @__PURE__ */ React85.createElement(_View.default, {
+      }), /* @__PURE__ */ React78.createElement(_View.default, {
         ref: thumbRef,
         style: thumbStyle
       }), nativeControl);
@@ -25083,7 +25083,7 @@ var require_TextInput = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = void 0;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _createElement = _interopRequireDefault(require_createElement());
     var forwardedProps = _interopRequireWildcard(require_forwardedProps());
     var _pick = _interopRequireDefault(require_pick());
@@ -25134,7 +25134,7 @@ var require_TextInput = __commonJS({
     }
     __name(isEventComposing, "isEventComposing");
     var focusTimeout = null;
-    var TextInput2 = /* @__PURE__ */ React85.forwardRef((props, forwardedRef) => {
+    var TextInput2 = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
       var _props$autoCapitalize = props.autoCapitalize, autoCapitalize = _props$autoCapitalize === void 0 ? "sentences" : _props$autoCapitalize, autoComplete = props.autoComplete, autoCompleteType = props.autoCompleteType, _props$autoCorrect = props.autoCorrect, autoCorrect = _props$autoCorrect === void 0 ? true : _props$autoCorrect, blurOnSubmit = props.blurOnSubmit, caretHidden = props.caretHidden, clearTextOnFocus = props.clearTextOnFocus, dir = props.dir, editable = props.editable, enterKeyHint = props.enterKeyHint, inputMode = props.inputMode, keyboardType = props.keyboardType, _props$multiline = props.multiline, multiline = _props$multiline === void 0 ? false : _props$multiline, numberOfLines = props.numberOfLines, onBlur = props.onBlur, onChange = props.onChange, onChangeText = props.onChangeText, onContentSizeChange = props.onContentSizeChange, onFocus = props.onFocus, onKeyPress = props.onKeyPress, onLayout = props.onLayout, onMoveShouldSetResponder = props.onMoveShouldSetResponder, onMoveShouldSetResponderCapture = props.onMoveShouldSetResponderCapture, onResponderEnd = props.onResponderEnd, onResponderGrant = props.onResponderGrant, onResponderMove = props.onResponderMove, onResponderReject = props.onResponderReject, onResponderRelease = props.onResponderRelease, onResponderStart = props.onResponderStart, onResponderTerminate = props.onResponderTerminate, onResponderTerminationRequest = props.onResponderTerminationRequest, onScrollShouldSetResponder = props.onScrollShouldSetResponder, onScrollShouldSetResponderCapture = props.onScrollShouldSetResponderCapture, onSelectionChange = props.onSelectionChange, onSelectionChangeShouldSetResponder = props.onSelectionChangeShouldSetResponder, onSelectionChangeShouldSetResponderCapture = props.onSelectionChangeShouldSetResponderCapture, onStartShouldSetResponder = props.onStartShouldSetResponder, onStartShouldSetResponderCapture = props.onStartShouldSetResponderCapture, onSubmitEditing = props.onSubmitEditing, placeholderTextColor = props.placeholderTextColor, _props$readOnly = props.readOnly, readOnly = _props$readOnly === void 0 ? false : _props$readOnly, returnKeyType = props.returnKeyType, rows = props.rows, _props$secureTextEntr = props.secureTextEntry, secureTextEntry = _props$secureTextEntr === void 0 ? false : _props$secureTextEntr, selection = props.selection, selectTextOnFocus = props.selectTextOnFocus, showSoftInputOnFocus = props.showSoftInputOnFocus, spellCheck = props.spellCheck;
       var type;
       var _inputMode;
@@ -25180,20 +25180,20 @@ var require_TextInput = __commonJS({
       if (secureTextEntry) {
         type = "password";
       }
-      var dimensions = React85.useRef({
+      var dimensions = React78.useRef({
         height: null,
         width: null
       });
-      var hostRef = React85.useRef(null);
-      var prevSelection = React85.useRef(null);
-      var prevSecureTextEntry = React85.useRef(false);
-      React85.useEffect(() => {
+      var hostRef = React78.useRef(null);
+      var prevSelection = React78.useRef(null);
+      var prevSecureTextEntry = React78.useRef(false);
+      React78.useEffect(() => {
         if (hostRef.current && prevSelection.current) {
           setSelection(hostRef.current, prevSelection.current);
         }
         prevSecureTextEntry.current = secureTextEntry;
       }, [secureTextEntry]);
-      var handleContentSizeChange = React85.useCallback((hostNode) => {
+      var handleContentSizeChange = React78.useCallback((hostNode) => {
         if (multiline && onContentSizeChange && hostNode != null) {
           var newHeight = hostNode.scrollHeight;
           var newWidth = hostNode.scrollWidth;
@@ -25211,7 +25211,7 @@ var require_TextInput = __commonJS({
           }
         }
       }, [multiline, onContentSizeChange]);
-      var imperativeRef = React85.useMemo(() => (hostNode) => {
+      var imperativeRef = React78.useMemo(() => (hostNode) => {
         if (hostNode != null) {
           hostNode.clear = function() {
             if (hostNode != null) {
@@ -25897,8 +25897,8 @@ var require_Touchable = __commonJS({
         }
         _UIManager.default.measure(tag, this._handleQueryLayout);
       }, "_remeasureMetricsOnActivation"),
-      _handleQueryLayout: /* @__PURE__ */ __name(function _handleQueryLayout(l, t2, w, h, globalX, globalY) {
-        if (!l && !t2 && !w && !h && !globalX && !globalY) {
+      _handleQueryLayout: /* @__PURE__ */ __name(function _handleQueryLayout(l, t, w, h, globalX, globalY) {
+        if (!l && !t && !w && !h && !globalX && !globalY) {
           return;
         }
         this.state.touchable.positionOnActivate && _Position.default.release(this.state.touchable.positionOnActivate);
@@ -26128,7 +26128,7 @@ var require_TouchableHighlight = __commonJS({
     var _extends2 = _interopRequireDefault(require_extends());
     var _objectWithoutPropertiesLoose2 = _interopRequireDefault(require_objectWithoutPropertiesLoose());
     var _react = _interopRequireWildcard(require("react"));
-    var React85 = _react;
+    var React78 = _react;
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs());
     var _usePressEvents = _interopRequireDefault(require_usePressEvents());
     var _StyleSheet = _interopRequireDefault(require_StyleSheet());
@@ -26196,14 +26196,14 @@ var require_TouchableHighlight = __commonJS({
         }
       }), [delayLongPress, delayPressIn, delayPressOut, disabled, onLongPress, onPress, onPressIn, onPressOut, rejectResponderTermination, showUnderlay, hideUnderlay]);
       var pressEventHandlers = (0, _usePressEvents.default)(hostRef, pressConfig);
-      var child = React85.Children.only(children);
-      return /* @__PURE__ */ React85.createElement(_View.default, (0, _extends2.default)({}, rest, pressEventHandlers, {
+      var child = React78.Children.only(children);
+      return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, rest, pressEventHandlers, {
         accessibilityDisabled: disabled,
         focusable: !disabled && focusable !== false,
         pointerEvents: disabled ? "box-none" : void 0,
         ref: setRef2,
         style: [styles.root, style, !disabled && styles.actionable, extraStyles && extraStyles.underlay]
-      }), /* @__PURE__ */ React85.cloneElement(child, {
+      }), /* @__PURE__ */ React78.cloneElement(child, {
         style: [child.props.style, extraStyles && extraStyles.child]
       }));
     }
@@ -26217,7 +26217,7 @@ var require_TouchableHighlight = __commonJS({
         touchAction: "manipulation"
       }
     });
-    var MemoedTouchableHighlight = /* @__PURE__ */ React85.memo(/* @__PURE__ */ React85.forwardRef(TouchableHighlight));
+    var MemoedTouchableHighlight = /* @__PURE__ */ React78.memo(/* @__PURE__ */ React78.forwardRef(TouchableHighlight));
     MemoedTouchableHighlight.displayName = "TouchableHighlight";
     var _default = exports2.default = MemoedTouchableHighlight;
     module2.exports = exports2.default;
@@ -26276,7 +26276,7 @@ var require_TouchableWithoutFeedback = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _react = _interopRequireWildcard(require("react"));
-    var React85 = _react;
+    var React78 = _react;
     var _pick = _interopRequireDefault(require_pick());
     var _useMergeRefs = _interopRequireDefault(require_useMergeRefs());
     var _usePressEvents = _interopRequireDefault(require_usePressEvents());
@@ -26314,17 +26314,17 @@ var require_TouchableWithoutFeedback = __commonJS({
         onPressEnd: onPressOut
       }), [disabled, delayPressIn, delayPressOut, delayLongPress, onLongPress, onPress, onPressIn, onPressOut, rejectResponderTermination]);
       var pressEventHandlers = (0, _usePressEvents.default)(hostRef, pressConfig);
-      var element = React85.Children.only(props.children);
+      var element = React78.Children.only(props.children);
       var children = [element.props.children];
       var supportedProps = pickProps(props);
       supportedProps.accessibilityDisabled = disabled;
       supportedProps.focusable = !disabled && focusable !== false;
       supportedProps.ref = (0, _useMergeRefs.default)(forwardedRef, hostRef, element.ref);
       var elementProps = Object.assign(supportedProps, pressEventHandlers);
-      return /* @__PURE__ */ React85.cloneElement(element, elementProps, ...children);
+      return /* @__PURE__ */ React78.cloneElement(element, elementProps, ...children);
     }
     __name(TouchableWithoutFeedback, "TouchableWithoutFeedback");
-    var MemoedTouchableWithoutFeedback = /* @__PURE__ */ React85.memo(/* @__PURE__ */ React85.forwardRef(TouchableWithoutFeedback));
+    var MemoedTouchableWithoutFeedback = /* @__PURE__ */ React78.memo(/* @__PURE__ */ React78.forwardRef(TouchableWithoutFeedback));
     MemoedTouchableWithoutFeedback.displayName = "TouchableWithoutFeedback";
     var _default = exports2.default = MemoedTouchableWithoutFeedback;
     module2.exports = exports2.default;
@@ -26408,11 +26408,11 @@ var require_useColorScheme = __commonJS({
     var _interopRequireWildcard = require_interopRequireWildcard().default;
     exports2.__esModule = true;
     exports2.default = useColorScheme;
-    var React85 = _interopRequireWildcard(require("react"));
+    var React78 = _interopRequireWildcard(require("react"));
     var _Appearance = _interopRequireDefault(require_Appearance());
     function useColorScheme() {
-      var _React$useState = React85.useState(_Appearance.default.getColorScheme()), colorScheme = _React$useState[0], setColorScheme = _React$useState[1];
-      React85.useEffect(() => {
+      var _React$useState = React78.useState(_Appearance.default.getColorScheme()), colorScheme = _React$useState[0], setColorScheme = _React$useState[1];
+      React78.useEffect(() => {
         function listener(appearance) {
           setColorScheme(appearance.colorScheme);
         }
@@ -26954,6 +26954,1660 @@ __export(tamagui_config_exports, {
 });
 module.exports = __toCommonJS(tamagui_config_exports);
 
+// node_modules/@tamagui/shorthands/dist/esm/v2.mjs
+var shorthands = {
+  // web-only
+  ussel: "userSelect",
+  cur: "cursor",
+  // tamagui
+  pe: "pointerEvents",
+  // text
+  col: "color",
+  ff: "fontFamily",
+  fos: "fontSize",
+  fost: "fontStyle",
+  fow: "fontWeight",
+  ls: "letterSpacing",
+  lh: "lineHeight",
+  ta: "textAlign",
+  tt: "textTransform",
+  ww: "wordWrap",
+  // view
+  ac: "alignContent",
+  ai: "alignItems",
+  als: "alignSelf",
+  b: "bottom",
+  bg: "backgroundColor",
+  bbc: "borderBottomColor",
+  bblr: "borderBottomLeftRadius",
+  bbrr: "borderBottomRightRadius",
+  bbw: "borderBottomWidth",
+  blc: "borderLeftColor",
+  blw: "borderLeftWidth",
+  bc: "borderColor",
+  br: "borderRadius",
+  bs: "borderStyle",
+  brw: "borderRightWidth",
+  brc: "borderRightColor",
+  btc: "borderTopColor",
+  btlr: "borderTopLeftRadius",
+  btrr: "borderTopRightRadius",
+  btw: "borderTopWidth",
+  bw: "borderWidth",
+  dsp: "display",
+  f: "flex",
+  fb: "flexBasis",
+  fd: "flexDirection",
+  fg: "flexGrow",
+  fs: "flexShrink",
+  fw: "flexWrap",
+  h: "height",
+  jc: "justifyContent",
+  l: "left",
+  m: "margin",
+  mah: "maxHeight",
+  maw: "maxWidth",
+  mb: "marginBottom",
+  mih: "minHeight",
+  miw: "minWidth",
+  ml: "marginLeft",
+  mr: "marginRight",
+  mt: "marginTop",
+  mx: "marginHorizontal",
+  my: "marginVertical",
+  o: "opacity",
+  ov: "overflow",
+  p: "padding",
+  pb: "paddingBottom",
+  pl: "paddingLeft",
+  pos: "position",
+  pr: "paddingRight",
+  pt: "paddingTop",
+  px: "paddingHorizontal",
+  py: "paddingVertical",
+  r: "right",
+  shac: "shadowColor",
+  shar: "shadowRadius",
+  shof: "shadowOffset",
+  shop: "shadowOpacity",
+  t: "top",
+  w: "width",
+  zi: "zIndex"
+};
+shorthands.bls = "borderLeftStyle";
+shorthands.brs = "borderRightStyle";
+shorthands.bts = "borderTopStyle";
+shorthands.bbs = "borderBottomStyle";
+shorthands.bxs = "boxSizing";
+shorthands.bxsh = "boxShadow";
+shorthands.ox = "overflowX";
+shorthands.oy = "overflowY";
+
+// node_modules/@tamagui/colors/dist/esm/dark/blue.mjs
+var blue = {
+  blue1: "hsl(212, 35.0%, 9.2%)",
+  blue2: "hsl(216, 50.0%, 11.8%)",
+  blue3: "hsl(214, 59.4%, 15.3%)",
+  blue4: "hsl(214, 65.8%, 17.9%)",
+  blue5: "hsl(213, 71.2%, 20.2%)",
+  blue6: "hsl(212, 77.4%, 23.1%)",
+  blue7: "hsl(211, 85.1%, 27.4%)",
+  blue8: "hsl(211, 89.7%, 34.1%)",
+  blue9: "hsl(206, 100%, 50.0%)",
+  blue10: "hsl(209, 100%, 60.6%)",
+  blue11: "hsl(210, 100%, 66.1%)",
+  blue12: "hsl(206, 98.0%, 95.8%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/gray.mjs
+var gray = {
+  gray1: "hsl(0, 0%, 8.5%)",
+  gray2: "hsl(0, 0%, 11.0%)",
+  gray3: "hsl(0, 0%, 13.6%)",
+  gray4: "hsl(0, 0%, 15.8%)",
+  gray5: "hsl(0, 0%, 17.9%)",
+  gray6: "hsl(0, 0%, 20.5%)",
+  gray7: "hsl(0, 0%, 24.3%)",
+  gray8: "hsl(0, 0%, 31.2%)",
+  gray9: "hsl(0, 0%, 43.9%)",
+  gray10: "hsl(0, 0%, 49.4%)",
+  gray11: "hsl(0, 0%, 62.8%)",
+  gray12: "hsl(0, 0%, 93.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/green.mjs
+var green = {
+  green1: "hsl(146, 30.0%, 7.4%)",
+  green2: "hsl(155, 44.2%, 8.4%)",
+  green3: "hsl(155, 46.7%, 10.9%)",
+  green4: "hsl(154, 48.4%, 12.9%)",
+  green5: "hsl(154, 49.7%, 14.9%)",
+  green6: "hsl(154, 50.9%, 17.6%)",
+  green7: "hsl(153, 51.8%, 21.8%)",
+  green8: "hsl(151, 51.7%, 28.4%)",
+  green9: "hsl(151, 55.0%, 41.5%)",
+  green10: "hsl(151, 49.3%, 46.5%)",
+  green11: "hsl(151, 50.0%, 53.2%)",
+  green12: "hsl(137, 72.0%, 94.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/orange.mjs
+var orange = {
+  orange1: "hsl(30, 70.0%, 7.2%)",
+  orange2: "hsl(28, 100%, 8.4%)",
+  orange3: "hsl(26, 91.1%, 11.6%)",
+  orange4: "hsl(25, 88.3%, 14.1%)",
+  orange5: "hsl(24, 87.6%, 16.6%)",
+  orange6: "hsl(24, 88.6%, 19.8%)",
+  orange7: "hsl(24, 92.4%, 24.0%)",
+  orange8: "hsl(25, 100%, 29.0%)",
+  orange9: "hsl(24, 94.0%, 50.0%)",
+  orange10: "hsl(24, 100%, 58.5%)",
+  orange11: "hsl(24, 100%, 62.2%)",
+  orange12: "hsl(24, 97.0%, 93.2%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/pink.mjs
+var pink = {
+  pink1: "hsl(318, 25.0%, 9.6%)",
+  pink2: "hsl(319, 32.2%, 11.6%)",
+  pink3: "hsl(319, 41.0%, 16.0%)",
+  pink4: "hsl(320, 45.4%, 18.7%)",
+  pink5: "hsl(320, 49.0%, 21.1%)",
+  pink6: "hsl(321, 53.6%, 24.4%)",
+  pink7: "hsl(321, 61.1%, 29.7%)",
+  pink8: "hsl(322, 74.9%, 37.5%)",
+  pink9: "hsl(322, 65.0%, 54.5%)",
+  pink10: "hsl(323, 72.8%, 59.2%)",
+  pink11: "hsl(325, 90.0%, 66.4%)",
+  pink12: "hsl(322, 90.0%, 95.8%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/purple.mjs
+var purple = {
+  purple1: "hsl(284, 20.0%, 9.6%)",
+  purple2: "hsl(283, 30.0%, 11.8%)",
+  purple3: "hsl(281, 37.5%, 16.5%)",
+  purple4: "hsl(280, 41.2%, 20.0%)",
+  purple5: "hsl(279, 43.8%, 23.3%)",
+  purple6: "hsl(277, 46.4%, 27.5%)",
+  purple7: "hsl(275, 49.3%, 34.6%)",
+  purple8: "hsl(272, 52.1%, 45.9%)",
+  purple9: "hsl(272, 51.0%, 54.0%)",
+  purple10: "hsl(273, 57.3%, 59.1%)",
+  purple11: "hsl(275, 80.0%, 71.0%)",
+  purple12: "hsl(279, 75.0%, 95.7%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/red.mjs
+var red = {
+  red1: "hsl(353, 23.0%, 9.8%)",
+  red2: "hsl(357, 34.4%, 12.0%)",
+  red3: "hsl(356, 43.4%, 16.4%)",
+  red4: "hsl(356, 47.6%, 19.2%)",
+  red5: "hsl(356, 51.1%, 21.9%)",
+  red6: "hsl(356, 55.2%, 25.9%)",
+  red7: "hsl(357, 60.2%, 31.8%)",
+  red8: "hsl(358, 65.0%, 40.4%)",
+  red9: "hsl(358, 75.0%, 59.0%)",
+  red10: "hsl(358, 85.3%, 64.0%)",
+  red11: "hsl(358, 100%, 69.5%)",
+  red12: "hsl(351, 89.0%, 96.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/dark/yellow.mjs
+var yellow = {
+  yellow1: "hsl(45, 100%, 5.5%)",
+  yellow2: "hsl(46, 100%, 6.7%)",
+  yellow3: "hsl(45, 100%, 8.7%)",
+  yellow4: "hsl(45, 100%, 10.4%)",
+  yellow5: "hsl(47, 100%, 12.1%)",
+  yellow6: "hsl(49, 100%, 14.3%)",
+  yellow7: "hsl(49, 90.3%, 18.4%)",
+  yellow8: "hsl(50, 100%, 22.0%)",
+  yellow9: "hsl(53, 92.0%, 50.0%)",
+  yellow10: "hsl(54, 100%, 68.0%)",
+  yellow11: "hsl(48, 100%, 47.0%)",
+  yellow12: "hsl(53, 100%, 91.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/blue.mjs
+var blue2 = {
+  blue1: "hsl(206, 100%, 99.2%)",
+  blue2: "hsl(210, 100%, 98.0%)",
+  blue3: "hsl(209, 100%, 96.5%)",
+  blue4: "hsl(210, 98.8%, 94.0%)",
+  blue5: "hsl(209, 95.0%, 90.1%)",
+  blue6: "hsl(209, 81.2%, 84.5%)",
+  blue7: "hsl(208, 77.5%, 76.9%)",
+  blue8: "hsl(206, 81.9%, 65.3%)",
+  blue9: "hsl(206, 100%, 50.0%)",
+  blue10: "hsl(208, 100%, 47.3%)",
+  blue11: "hsl(211, 100%, 43.2%)",
+  blue12: "hsl(211, 100%, 15.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/gray.mjs
+var gray2 = {
+  gray1: "hsl(0, 0%, 99.0%)",
+  gray2: "hsl(0, 0%, 97.3%)",
+  gray3: "hsl(0, 0%, 95.1%)",
+  gray4: "hsl(0, 0%, 93.0%)",
+  gray5: "hsl(0, 0%, 90.9%)",
+  gray6: "hsl(0, 0%, 88.7%)",
+  gray7: "hsl(0, 0%, 85.8%)",
+  gray8: "hsl(0, 0%, 78.0%)",
+  gray9: "hsl(0, 0%, 56.1%)",
+  gray10: "hsl(0, 0%, 52.3%)",
+  gray11: "hsl(0, 0%, 43.5%)",
+  gray12: "hsl(0, 0%, 9.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/green.mjs
+var green2 = {
+  green1: "hsl(136, 50.0%, 98.9%)",
+  green2: "hsl(138, 62.5%, 96.9%)",
+  green3: "hsl(139, 55.2%, 94.5%)",
+  green4: "hsl(140, 48.7%, 91.0%)",
+  green5: "hsl(141, 43.7%, 86.0%)",
+  green6: "hsl(143, 40.3%, 79.0%)",
+  green7: "hsl(146, 38.5%, 69.0%)",
+  green8: "hsl(151, 40.2%, 54.1%)",
+  green9: "hsl(151, 55.0%, 41.5%)",
+  green10: "hsl(152, 57.5%, 37.6%)",
+  green11: "hsl(153, 67.0%, 28.5%)",
+  green12: "hsl(155, 40.0%, 14.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/orange.mjs
+var orange2 = {
+  orange1: "hsl(24, 70.0%, 99.0%)",
+  orange2: "hsl(24, 83.3%, 97.6%)",
+  orange3: "hsl(24, 100%, 95.3%)",
+  orange4: "hsl(25, 100%, 92.2%)",
+  orange5: "hsl(25, 100%, 88.2%)",
+  orange6: "hsl(25, 100%, 82.8%)",
+  orange7: "hsl(24, 100%, 75.3%)",
+  orange8: "hsl(24, 94.5%, 64.3%)",
+  orange9: "hsl(24, 94.0%, 50.0%)",
+  orange10: "hsl(24, 100%, 46.5%)",
+  orange11: "hsl(24, 100%, 37.0%)",
+  orange12: "hsl(15, 60.0%, 17.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/pink.mjs
+var pink2 = {
+  pink1: "hsl(322, 100%, 99.4%)",
+  pink2: "hsl(323, 100%, 98.4%)",
+  pink3: "hsl(323, 86.3%, 96.5%)",
+  pink4: "hsl(323, 78.7%, 94.2%)",
+  pink5: "hsl(323, 72.2%, 91.1%)",
+  pink6: "hsl(323, 66.3%, 86.6%)",
+  pink7: "hsl(323, 62.0%, 80.1%)",
+  pink8: "hsl(323, 60.3%, 72.4%)",
+  pink9: "hsl(322, 65.0%, 54.5%)",
+  pink10: "hsl(322, 63.9%, 50.7%)",
+  pink11: "hsl(322, 75.0%, 46.0%)",
+  pink12: "hsl(320, 70.0%, 13.5%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/purple.mjs
+var purple2 = {
+  purple1: "hsl(280, 65.0%, 99.4%)",
+  purple2: "hsl(276, 100%, 99.0%)",
+  purple3: "hsl(276, 83.1%, 97.0%)",
+  purple4: "hsl(275, 76.4%, 94.7%)",
+  purple5: "hsl(275, 70.8%, 91.8%)",
+  purple6: "hsl(274, 65.4%, 87.8%)",
+  purple7: "hsl(273, 61.0%, 81.7%)",
+  purple8: "hsl(272, 60.0%, 73.5%)",
+  purple9: "hsl(272, 51.0%, 54.0%)",
+  purple10: "hsl(272, 46.8%, 50.3%)",
+  purple11: "hsl(272, 50.0%, 45.8%)",
+  purple12: "hsl(272, 66.0%, 16.0%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/red.mjs
+var red2 = {
+  red1: "hsl(359, 100%, 99.4%)",
+  red2: "hsl(359, 100%, 98.6%)",
+  red3: "hsl(360, 100%, 96.8%)",
+  red4: "hsl(360, 97.9%, 94.8%)",
+  red5: "hsl(360, 90.2%, 91.9%)",
+  red6: "hsl(360, 81.7%, 87.8%)",
+  red7: "hsl(359, 74.2%, 81.7%)",
+  red8: "hsl(359, 69.5%, 74.3%)",
+  red9: "hsl(358, 75.0%, 59.0%)",
+  red10: "hsl(358, 69.4%, 55.2%)",
+  red11: "hsl(358, 65.0%, 48.7%)",
+  red12: "hsl(354, 50.0%, 14.6%)"
+};
+
+// node_modules/@tamagui/colors/dist/esm/light/yellow.mjs
+var yellow2 = {
+  yellow1: "hsl(60, 54.0%, 98.5%)",
+  yellow2: "hsl(52, 100%, 95.5%)",
+  yellow3: "hsl(55, 100%, 90.9%)",
+  yellow4: "hsl(54, 100%, 86.6%)",
+  yellow5: "hsl(52, 97.9%, 82.0%)",
+  yellow6: "hsl(50, 89.4%, 76.1%)",
+  yellow7: "hsl(47, 80.4%, 68.0%)",
+  yellow8: "hsl(48, 100%, 46.1%)",
+  yellow9: "hsl(53, 92.0%, 50.0%)",
+  yellow10: "hsl(50, 100%, 48.5%)",
+  yellow11: "hsl(42, 100%, 29.0%)",
+  yellow12: "hsl(40, 55.0%, 13.5%)"
+};
+
+// node_modules/@tamagui/create-theme/dist/esm/isMinusZero.mjs
+function isMinusZero(value) {
+  return 1 / value === Number.NEGATIVE_INFINITY;
+}
+__name(isMinusZero, "isMinusZero");
+
+// node_modules/@tamagui/create-theme/dist/esm/themeInfo.mjs
+var THEME_INFO = /* @__PURE__ */ new Map();
+var getThemeInfo = /* @__PURE__ */ __name((theme, name) => THEME_INFO.get(name || JSON.stringify(theme)), "getThemeInfo");
+var setThemeInfo = /* @__PURE__ */ __name((theme, info) => {
+  const next = {
+    ...info,
+    cache: /* @__PURE__ */ new Map()
+  };
+  THEME_INFO.set(info.name || JSON.stringify(theme), next), THEME_INFO.set(JSON.stringify(info.definition), next);
+}, "setThemeInfo");
+
+// node_modules/@tamagui/create-theme/dist/esm/createTheme.mjs
+var identityCache = /* @__PURE__ */ new Map();
+function createThemeWithPalettes(palettes, defaultPalette, definition, options, name, skipCache = false) {
+  if (!palettes[defaultPalette]) throw new Error(`No pallete: ${defaultPalette}`);
+  const newDef = {
+    ...definition
+  };
+  for (const key in definition) {
+    let val = definition[key];
+    if (typeof val == "string" && val[0] === "$") {
+      const [altPaletteName$, altPaletteIndex] = val.split("."), altPaletteName = altPaletteName$.slice(1), parentName = defaultPalette.split("_")[0], altPalette = palettes[altPaletteName] || palettes[`${parentName}_${altPaletteName}`];
+      if (altPalette) {
+        const next = getValue(altPalette, +altPaletteIndex);
+        typeof next < "u" && (newDef[key] = next);
+      }
+    }
+  }
+  return createTheme(palettes[defaultPalette], newDef, options, name, skipCache);
+}
+__name(createThemeWithPalettes, "createThemeWithPalettes");
+function createTheme(palette, definition, options, name, skipCache = false) {
+  const cacheKey = skipCache ? "" : JSON.stringify([name, palette, definition, options]);
+  if (!skipCache && identityCache.has(cacheKey)) return identityCache.get(cacheKey);
+  const theme = {
+    ...Object.fromEntries(Object.entries(definition).map(([key, offset4]) => [key, getValue(palette, offset4)])),
+    ...options == null ? void 0 : options.nonInheritedValues
+  };
+  return setThemeInfo(theme, {
+    palette,
+    definition,
+    options,
+    name
+  }), cacheKey && identityCache.set(cacheKey, theme), theme;
+}
+__name(createTheme, "createTheme");
+var getValue = /* @__PURE__ */ __name((palette, value) => {
+  if (!palette) throw new Error("No palette!");
+  if (typeof value == "string") return value;
+  const max2 = palette.length - 1, next = (value === 0 ? !isMinusZero(value) : value >= 0) ? value : max2 + value, index3 = Math.min(Math.max(0, next), max2);
+  return palette[index3];
+}, "getValue");
+
+// node_modules/@tamagui/create-theme/dist/esm/helpers.mjs
+function objectEntries(obj) {
+  return Object.entries(obj);
+}
+__name(objectEntries, "objectEntries");
+function objectFromEntries(arr) {
+  return Object.fromEntries(arr);
+}
+__name(objectFromEntries, "objectFromEntries");
+
+// node_modules/@tamagui/create-theme/dist/esm/masks.mjs
+var createMask = /* @__PURE__ */ __name((createMask2) => typeof createMask2 == "function" ? {
+  name: createMask2.name || "unnamed",
+  mask: createMask2
+} : createMask2, "createMask");
+var skipMask = {
+  name: "skip-mask",
+  mask: /* @__PURE__ */ __name((template, opts) => {
+    const {
+      skip
+    } = opts;
+    return Object.fromEntries(Object.entries(template).filter(([k]) => !skip || !(k in skip)).map(([k, v]) => [k, applyOverrides(k, v, opts)]));
+  }, "mask")
+};
+function applyOverrides(key, value, opts) {
+  var _a, _b, _c;
+  let override, strategy = opts.overrideStrategy;
+  const overrideSwap = (_a = opts.overrideSwap) == null ? void 0 : _a[key];
+  if (typeof overrideSwap < "u") override = overrideSwap, strategy = "swap";
+  else {
+    const overrideShift = (_b = opts.overrideShift) == null ? void 0 : _b[key];
+    if (typeof overrideShift < "u") override = overrideShift, strategy = "shift";
+    else {
+      const overrideDefault = (_c = opts.override) == null ? void 0 : _c[key];
+      typeof overrideDefault < "u" && (override = overrideDefault, strategy = opts.overrideStrategy);
+    }
+  }
+  return typeof override > "u" || typeof override == "string" ? value : strategy === "swap" ? override : value;
+}
+__name(applyOverrides, "applyOverrides");
+var createIdentityMask = /* @__PURE__ */ __name(() => ({
+  name: "identity-mask",
+  mask: /* @__PURE__ */ __name((template, opts) => skipMask.mask(template, opts), "mask")
+}), "createIdentityMask");
+var createInverseMask = /* @__PURE__ */ __name(() => ({
+  name: "inverse-mask",
+  mask: /* @__PURE__ */ __name((template, opts) => {
+    const inversed = objectFromEntries(objectEntries(template).map(([k, v]) => [k, -v]));
+    return skipMask.mask(inversed, opts);
+  }, "mask")
+}), "createInverseMask");
+var createShiftMask = /* @__PURE__ */ __name(({
+  inverse
+} = {}, defaultOptions2) => ({
+  name: "shift-mask",
+  mask: /* @__PURE__ */ __name((template, opts) => {
+    const {
+      override,
+      overrideStrategy = "shift",
+      max: maxIn,
+      palette,
+      min: min2 = 0,
+      strength = 1
+    } = {
+      ...defaultOptions2,
+      ...opts
+    }, values = Object.entries(template), max2 = maxIn ?? (palette ? Object.values(palette).length - 1 : Number.POSITIVE_INFINITY), out = {};
+    for (const [key, value] of values) {
+      if (typeof value == "string") continue;
+      if (typeof (override == null ? void 0 : override[key]) == "number") {
+        const overrideVal = override[key];
+        out[key] = overrideStrategy === "shift" ? value + overrideVal : overrideVal;
+        continue;
+      }
+      if (typeof (override == null ? void 0 : override[key]) == "string") {
+        out[key] = override[key];
+        continue;
+      }
+      const isPositive = value === 0 ? !isMinusZero(value) : value >= 0, direction = isPositive ? 1 : -1, invert = inverse ? -1 : 1, next = value + strength * direction * invert, clamped = isPositive ? Math.max(min2, Math.min(max2, next)) : Math.min(-min2, Math.max(-max2, next));
+      out[key] = clamped;
+    }
+    return skipMask.mask(out, opts);
+  }, "mask")
+}), "createShiftMask");
+var createWeakenMask = /* @__PURE__ */ __name((defaultOptions2) => ({
+  name: "soften-mask",
+  mask: createShiftMask({}, defaultOptions2).mask
+}), "createWeakenMask");
+var createSoftenMask = createWeakenMask;
+var createStrengthenMask = /* @__PURE__ */ __name((defaultOptions2) => ({
+  name: "strengthen-mask",
+  mask: createShiftMask({
+    inverse: true
+  }, defaultOptions2).mask
+}), "createStrengthenMask");
+
+// node_modules/@tamagui/create-theme/dist/esm/applyMask.mjs
+function applyMask(theme, mask, options = {}, parentName, nextName) {
+  const info = getThemeInfo(theme, parentName);
+  if (!info) throw new Error(process.env.NODE_ENV !== "production" ? "No info found for theme, you must pass the theme created by createThemeFromPalette directly to extendTheme" : "\u274C Err2");
+  const next = applyMaskStateless(info, mask, options, parentName);
+  return setThemeInfo(next.theme, {
+    definition: next.definition,
+    palette: info.palette,
+    name: nextName
+  }), next.theme;
+}
+__name(applyMask, "applyMask");
+function applyMaskStateless(info, mask, options = {}, parentName) {
+  var _a;
+  const skip = {
+    ...options.skip
+  };
+  if ((_a = info.options) == null ? void 0 : _a.nonInheritedValues) for (const key in info.options.nonInheritedValues) skip[key] = 1;
+  const maskOptions = {
+    parentName,
+    palette: info.palette,
+    ...options,
+    skip
+  }, template = mask.mask(info.definition, maskOptions), theme = createTheme(info.palette, template);
+  return {
+    ...info,
+    cache: /* @__PURE__ */ new Map(),
+    definition: template,
+    theme
+  };
+}
+__name(applyMaskStateless, "applyMaskStateless");
+
+// node_modules/@tamagui/create-theme/dist/esm/combineMasks.mjs
+var combineMasks = /* @__PURE__ */ __name((...masks2) => ({
+  name: "combine-mask",
+  mask: /* @__PURE__ */ __name((template, opts) => {
+    let current = getThemeInfo(template, opts.parentName), theme;
+    for (const mask2 of masks2) {
+      if (!current) throw new Error(`Nothing returned from mask: ${current}, for template: ${template} and mask: ${mask2.toString()}, given opts ${JSON.stringify(opts, null, 2)}`);
+      const next = applyMaskStateless(current, mask2, opts);
+      current = next, theme = next.theme;
+    }
+    return theme;
+  }, "mask")
+}), "combineMasks");
+
+// node_modules/@tamagui/theme-builder/dist/esm/ThemeBuilder.mjs
+var _ThemeBuilder = class _ThemeBuilder {
+  constructor(state) {
+    this.state = state;
+  }
+  addPalettes(palettes) {
+    return this.state.palettes = {
+      // as {} prevents generic string key merge messing up types
+      ...this.state.palettes,
+      ...palettes
+    }, this;
+  }
+  addTemplates(templates) {
+    return this.state.templates = {
+      // as {} prevents generic string key merge messing up types
+      ...this.state.templates,
+      ...templates
+    }, this;
+  }
+  addMasks(masks2) {
+    return this.state.masks = {
+      // as {} prevents generic string key merge messing up types
+      ...this.state.masks,
+      ...objectFromEntries(objectEntries(masks2).map(([key, val]) => [key, createMask(val)]))
+    }, this;
+  }
+  // for dev mode only really
+  _addedThemes = [];
+  addThemes(themes3) {
+    return this._addedThemes.push({
+      type: "themes",
+      args: [themes3]
+    }), this.state.themes = {
+      // as {} prevents generic string key merge messing up types
+      ...this.state.themes,
+      ...themes3
+    }, this;
+  }
+  // these wont be typed to save some complexity and because they don't need to be typed!
+  addComponentThemes(childThemeDefinition, options) {
+    return this.addChildThemes(childThemeDefinition, options), this;
+  }
+  addChildThemes(childThemeDefinition, options) {
+    const currentThemes = this.state.themes;
+    if (!currentThemes) throw new Error("No themes defined yet, use addThemes first to set your base themes");
+    this._addedThemes.push({
+      type: "childThemes",
+      args: [childThemeDefinition, options]
+    });
+    const currentThemeNames = Object.keys(currentThemes), incomingThemeNames = Object.keys(childThemeDefinition), namesWithDefinitions = currentThemeNames.flatMap((prefix) => {
+      const avoidNestingWithin = options == null ? void 0 : options.avoidNestingWithin;
+      return avoidNestingWithin && avoidNestingWithin.some((avoidName) => prefix.startsWith(avoidName) || prefix.endsWith(avoidName)) ? [] : incomingThemeNames.map((subName) => {
+        const fullName = `${prefix}_${subName}`, definition = childThemeDefinition[subName];
+        return "avoidNestingWithin" in definition && definition.avoidNestingWithin.some((name) => prefix.startsWith(name) || prefix.endsWith(name)) ? null : [fullName, definition];
+      }).filter(Boolean);
+    }), childThemes = Object.fromEntries(namesWithDefinitions), next = {
+      // as {} prevents generic string key merge messing up types
+      ...this.state.themes,
+      ...childThemes
+    };
+    return this.state.themes = next, this;
+  }
+  build() {
+    var _a, _b, _c, _d;
+    if (!this.state.themes) return {};
+    const out = {}, maskedThemes = [];
+    for (const themeName in this.state.themes) {
+      const nameParts = themeName.split("_"), parentName = nameParts.slice(0, nameParts.length - 1).join("_"), definitions = this.state.themes[themeName], themeDefinition = Array.isArray(definitions) ? (() => {
+        const found = definitions.find(
+          // endWith match stronger than startsWith
+          (d) => d.parent ? parentName.endsWith(d.parent) || parentName.startsWith(d.parent) : true
+        );
+        return found || null;
+      })() : definitions;
+      if (themeDefinition) if ("theme" in themeDefinition) out[themeName] = themeDefinition.theme;
+      else if ("mask" in themeDefinition) maskedThemes.push({
+        parentName,
+        themeName,
+        mask: themeDefinition
+      });
+      else {
+        let {
+          palette: paletteName = "",
+          template: templateName,
+          ...options
+        } = themeDefinition;
+        const parentDefinition = this.state.themes[parentName];
+        if (!this.state.palettes) throw new Error(`No palettes defined for theme with palette expected: ${themeName}`);
+        let palette = this.state.palettes[paletteName || ""], attemptParentName = `${parentName}_${paletteName}`;
+        for (; !palette && attemptParentName; ) attemptParentName in this.state.palettes ? (palette = this.state.palettes[attemptParentName], paletteName = attemptParentName) : attemptParentName = attemptParentName.split("_").slice(0, -1).join("_");
+        if (!palette) {
+          const msg = process.env.NODE_ENV !== "production" ? `: ${themeName}: ${paletteName}
+          Definition: ${JSON.stringify(themeDefinition)}
+          Parent: ${JSON.stringify(parentDefinition)}
+          Potential: (${Object.keys(this.state.palettes).join(", ")})` : "";
+          throw new Error(`No palette for theme${msg}`);
+        }
+        const template = ((_a = this.state.templates) == null ? void 0 : _a[templateName]) ?? // fall back to finding the scheme specific on if it exists
+        ((_b = this.state.templates) == null ? void 0 : _b[`${nameParts[0]}_${templateName}`]);
+        if (!template) throw new Error(`No template for theme ${themeName}: ${templateName}`);
+        out[themeName] = createThemeWithPalettes(this.state.palettes, paletteName, template, options, themeName, true);
+      }
+    }
+    for (const {
+      mask,
+      themeName,
+      parentName
+    } of maskedThemes) {
+      const parent = out[parentName];
+      if (!parent) continue;
+      const {
+        mask: maskName,
+        ...options
+      } = mask;
+      let maskFunction = (_c = this.state.masks) == null ? void 0 : _c[maskName];
+      if (!maskFunction) throw new Error(`No mask ${maskName}`);
+      const parentTheme = this.state.themes[parentName];
+      if (parentTheme && "childOptions" in parentTheme) {
+        const {
+          mask: mask2,
+          ...childOpts
+        } = parentTheme.childOptions;
+        mask2 && (maskFunction = (_d = this.state.masks) == null ? void 0 : _d[mask2]), Object.assign(options, childOpts);
+      }
+      out[themeName] = applyMask(parent, maskFunction, options, parentName, themeName);
+    }
+    return out;
+  }
+};
+__name(_ThemeBuilder, "ThemeBuilder");
+var ThemeBuilder = _ThemeBuilder;
+function createThemeBuilder() {
+  return new ThemeBuilder({});
+}
+__name(createThemeBuilder, "createThemeBuilder");
+
+// node_modules/@tamagui/theme-builder/dist/esm/masks.mjs
+var masks = {
+  identity: createIdentityMask(),
+  soften: createSoftenMask(),
+  soften2: createSoftenMask({
+    strength: 2
+  }),
+  soften3: createSoftenMask({
+    strength: 3
+  }),
+  strengthen: createStrengthenMask(),
+  inverse: createInverseMask(),
+  inverseSoften: combineMasks(createInverseMask(), createSoftenMask({
+    strength: 2
+  })),
+  inverseSoften2: combineMasks(createInverseMask(), createSoftenMask({
+    strength: 3
+  })),
+  inverseSoften3: combineMasks(createInverseMask(), createSoftenMask({
+    strength: 4
+  })),
+  inverseStrengthen2: combineMasks(createInverseMask(), createStrengthenMask({
+    strength: 2
+  })),
+  strengthenButSoftenBorder: createMask((template, options) => {
+    const stronger = createStrengthenMask().mask(template, options), softer = createSoftenMask().mask(template, options);
+    return {
+      ...stronger,
+      borderColor: softer.borderColor,
+      borderColorHover: softer.borderColorHover,
+      borderColorPress: softer.borderColorPress,
+      borderColorFocus: softer.borderColorFocus
+    };
+  }),
+  soften2Border1: createMask((template, options) => {
+    const softer2 = createSoftenMask({
+      strength: 2
+    }).mask(template, options), softer1 = createSoftenMask({
+      strength: 1
+    }).mask(template, options);
+    return {
+      ...softer2,
+      borderColor: softer1.borderColor,
+      borderColorHover: softer1.borderColorHover,
+      borderColorPress: softer1.borderColorPress,
+      borderColorFocus: softer1.borderColorFocus
+    };
+  }),
+  soften3FlatBorder: createMask((template, options) => {
+    const borderMask = createSoftenMask({
+      strength: 2
+    }).mask(template, options);
+    return {
+      ...createSoftenMask({
+        strength: 3
+      }).mask(template, options),
+      borderColor: borderMask.borderColor,
+      borderColorHover: borderMask.borderColorHover,
+      borderColorPress: borderMask.borderColorPress,
+      borderColorFocus: borderMask.borderColorFocus
+    };
+  }),
+  softenBorder: createMask((template, options) => {
+    const plain = skipMask.mask(template, options), softer = createSoftenMask().mask(template, options);
+    return {
+      ...plain,
+      borderColor: softer.borderColor,
+      borderColorHover: softer.borderColorHover,
+      borderColorPress: softer.borderColorPress,
+      borderColorFocus: softer.borderColorFocus
+    };
+  }),
+  softenBorder2: createMask((template, options) => {
+    const plain = skipMask.mask(template, options), softer = createSoftenMask({
+      strength: 2
+    }).mask(template, options);
+    return {
+      ...plain,
+      borderColor: softer.borderColor,
+      borderColorHover: softer.borderColorHover,
+      borderColorPress: softer.borderColorPress,
+      borderColorFocus: softer.borderColorFocus
+    };
+  })
+};
+
+// node_modules/@tamagui/themes/dist/esm/v3-themes.mjs
+var import_web = require("@tamagui/core");
+var colorTokens = {
+  light: {
+    blue: blue2,
+    gray: gray2,
+    green: green2,
+    orange: orange2,
+    pink: pink2,
+    purple: purple2,
+    red: red2,
+    yellow: yellow2
+  },
+  dark: {
+    blue,
+    gray,
+    green,
+    orange,
+    pink,
+    purple,
+    red,
+    yellow
+  }
+};
+var lightShadowColor = "rgba(0,0,0,0.04)";
+var lightShadowColorStrong = "rgba(0,0,0,0.085)";
+var darkShadowColor = "rgba(0,0,0,0.2)";
+var darkShadowColorStrong = "rgba(0,0,0,0.3)";
+var darkColors = {
+  ...colorTokens.dark.blue,
+  ...colorTokens.dark.gray,
+  ...colorTokens.dark.green,
+  ...colorTokens.dark.orange,
+  ...colorTokens.dark.pink,
+  ...colorTokens.dark.purple,
+  ...colorTokens.dark.red,
+  ...colorTokens.dark.yellow
+};
+var lightColors = {
+  ...colorTokens.light.blue,
+  ...colorTokens.light.gray,
+  ...colorTokens.light.green,
+  ...colorTokens.light.orange,
+  ...colorTokens.light.pink,
+  ...colorTokens.light.purple,
+  ...colorTokens.light.red,
+  ...colorTokens.light.yellow
+};
+var color = {
+  white0: "rgba(255,255,255,0)",
+  white075: "rgba(255,255,255,0.75)",
+  white05: "rgba(255,255,255,0.5)",
+  white025: "rgba(255,255,255,0.25)",
+  black0: "rgba(10,10,10,0)",
+  black075: "rgba(10,10,10,0.75)",
+  black05: "rgba(10,10,10,0.5)",
+  black025: "rgba(10,10,10,0.25)",
+  white1: "#fff",
+  white2: "#f8f8f8",
+  white3: "hsl(0, 0%, 96.3%)",
+  white4: "hsl(0, 0%, 94.1%)",
+  white5: "hsl(0, 0%, 92.0%)",
+  white6: "hsl(0, 0%, 90.0%)",
+  white7: "hsl(0, 0%, 88.5%)",
+  white8: "hsl(0, 0%, 81.0%)",
+  white9: "hsl(0, 0%, 56.1%)",
+  white10: "hsl(0, 0%, 50.3%)",
+  white11: "hsl(0, 0%, 42.5%)",
+  white12: "hsl(0, 0%, 9.0%)",
+  black1: "#050505",
+  black2: "#151515",
+  black3: "#191919",
+  black4: "#232323",
+  black5: "#282828",
+  black6: "#323232",
+  black7: "#424242",
+  black8: "#494949",
+  black9: "#545454",
+  black10: "#626262",
+  black11: "#a5a5a5",
+  black12: "#fff",
+  ...postfixObjKeys(lightColors, "Light"),
+  ...postfixObjKeys(darkColors, "Dark")
+};
+var defaultPalettes = (() => {
+  const transparent = /* @__PURE__ */ __name((hsl, opacity = 0) => hsl.replace("%)", `%, ${opacity})`).replace("hsl(", "hsla("), "transparent"), getColorPalette = /* @__PURE__ */ __name((colors, accentColors) => {
+    const colorPalette = Object.values(colors), colorI = colorPalette.length - 4, accentPalette = Object.values(accentColors), accentBackground = accentPalette[0], accentColor = accentPalette[accentPalette.length - 1];
+    return [accentBackground, transparent(colorPalette[0], 0), transparent(colorPalette[0], 0.25), transparent(colorPalette[0], 0.5), transparent(colorPalette[0], 0.75), ...colorPalette, transparent(colorPalette[colorI], 0.75), transparent(colorPalette[colorI], 0.5), transparent(colorPalette[colorI], 0.25), transparent(colorPalette[colorI], 0), accentColor];
+  }, "getColorPalette"), brandColor = {
+    light: color.blue4Light,
+    dark: color.blue4Dark
+  }, lightPalette = [brandColor.light, color.white0, color.white025, color.white05, color.white075, color.white1, color.white2, color.white3, color.white4, color.white5, color.white6, color.white7, color.white8, color.white9, color.white10, color.white11, color.white12, color.black075, color.black05, color.black025, color.black0, brandColor.dark], darkPalette = [brandColor.dark, color.black0, color.black025, color.black05, color.black075, color.black1, color.black2, color.black3, color.black4, color.black5, color.black6, color.black7, color.black8, color.black9, color.black10, color.black11, color.black12, color.white075, color.white05, color.white025, color.white0, brandColor.light], lightColorNames = objectKeys(colorTokens.light), lightPalettes = objectFromEntries2(lightColorNames.map((key, index3) => [`light_${key}`, getColorPalette(colorTokens.light[key], colorTokens.light[lightColorNames[(index3 + 1) % lightColorNames.length]])])), darkColorNames = objectKeys(colorTokens.dark), darkPalettes = objectFromEntries2(darkColorNames.map((key, index3) => [`dark_${key}`, getColorPalette(colorTokens.dark[key], colorTokens.light[darkColorNames[(index3 + 1) % darkColorNames.length]])])), colorPalettes = {
+    ...lightPalettes,
+    ...darkPalettes
+  };
+  return {
+    light: lightPalette,
+    dark: darkPalette,
+    ...colorPalettes
+  };
+})();
+var getTemplates = /* @__PURE__ */ __name(() => {
+  const getBaseTemplates = /* @__PURE__ */ __name((scheme) => {
+    const isLight = scheme === "light", bgIndex = 5, lighten = isLight ? -1 : 1, darken = -lighten, borderColor = bgIndex + 3, base = {
+      accentBackground: 0,
+      accentColor: -0,
+      background0: 1,
+      background025: 2,
+      background05: 3,
+      background075: 4,
+      color1: bgIndex,
+      color2: bgIndex + 1,
+      color3: bgIndex + 2,
+      color4: bgIndex + 3,
+      color5: bgIndex + 4,
+      color6: bgIndex + 5,
+      color7: bgIndex + 6,
+      color8: bgIndex + 7,
+      color9: bgIndex + 8,
+      color10: bgIndex + 9,
+      color11: bgIndex + 10,
+      color12: bgIndex + 11,
+      color0: -1,
+      color025: -2,
+      color05: -3,
+      color075: -4,
+      // the background, color, etc keys here work like generics - they make it so you
+      // can publish components for others to use without mandating a specific color scale
+      // the @tamagui/button Button component looks for `$background`, so you set the
+      // dark_red_Button theme to have a stronger background than the dark_red theme.
+      background: bgIndex,
+      backgroundHover: bgIndex + lighten,
+      // always lighten on hover no matter the scheme
+      backgroundPress: bgIndex + darken,
+      // always darken on press no matter the theme
+      backgroundFocus: bgIndex + darken,
+      borderColor,
+      borderColorHover: borderColor + lighten,
+      borderColorPress: borderColor + darken,
+      borderColorFocus: borderColor,
+      color: -bgIndex,
+      colorHover: -bgIndex - 1,
+      colorPress: -bgIndex,
+      colorFocus: -bgIndex - 1,
+      colorTransparent: -1,
+      placeholderColor: -bgIndex - 3,
+      outlineColor: -2
+    }, surface12 = {
+      background: base.background + 1,
+      backgroundHover: base.backgroundHover + 1,
+      backgroundPress: base.backgroundPress + 1,
+      backgroundFocus: base.backgroundFocus + 1,
+      borderColor: base.borderColor + 1,
+      borderColorHover: base.borderColorHover + 1,
+      borderColorFocus: base.borderColorFocus + 1,
+      borderColorPress: base.borderColorPress + 1
+    }, surface22 = {
+      background: base.background + 2,
+      backgroundHover: base.backgroundHover + 2,
+      backgroundPress: base.backgroundPress + 2,
+      backgroundFocus: base.backgroundFocus + 2,
+      borderColor: base.borderColor + 2,
+      borderColorHover: base.borderColorHover + 2,
+      borderColorFocus: base.borderColorFocus + 2,
+      borderColorPress: base.borderColorPress + 2
+    }, surface32 = {
+      background: base.background + 3,
+      backgroundHover: base.backgroundHover + 3,
+      backgroundPress: base.backgroundPress + 3,
+      backgroundFocus: base.backgroundFocus + 3,
+      borderColor: base.borderColor + 3,
+      borderColorHover: base.borderColorHover + 3,
+      borderColorFocus: base.borderColorFocus + 3,
+      borderColorPress: base.borderColorPress + 3
+    }, surfaceActiveBg = {
+      background: base.background + 5,
+      backgroundHover: base.background + 5,
+      backgroundPress: base.backgroundPress + 5,
+      backgroundFocus: base.backgroundFocus + 5
+    }, surfaceActive = {
+      ...surfaceActiveBg,
+      // match border to background when active
+      borderColor: surfaceActiveBg.background,
+      borderColorHover: surfaceActiveBg.backgroundHover,
+      borderColorFocus: surfaceActiveBg.backgroundFocus,
+      borderColorPress: surfaceActiveBg.backgroundPress
+    }, inverseSurface12 = {
+      color: surface12.background,
+      colorHover: surface12.backgroundHover,
+      colorPress: surface12.backgroundPress,
+      colorFocus: surface12.backgroundFocus,
+      background: base.color,
+      backgroundHover: base.colorHover,
+      backgroundPress: base.colorPress,
+      backgroundFocus: base.colorFocus,
+      borderColor: base.color - 2,
+      borderColorHover: base.color - 3,
+      borderColorFocus: base.color - 4,
+      borderColorPress: base.color - 5
+    }, inverseActive = {
+      ...inverseSurface12,
+      background: base.color - 2,
+      backgroundHover: base.colorHover - 2,
+      backgroundPress: base.colorPress - 2,
+      backgroundFocus: base.colorFocus - 2,
+      borderColor: base.color - 2 - 2,
+      borderColorHover: base.color - 3 - 2,
+      borderColorFocus: base.color - 4 - 2,
+      borderColorPress: base.color - 5 - 2
+    }, alt1 = {
+      color: base.color - 1,
+      colorHover: base.colorHover - 1,
+      colorPress: base.colorPress - 1,
+      colorFocus: base.colorFocus - 1
+    }, alt2 = {
+      color: base.color - 2,
+      colorHover: base.colorHover - 2,
+      colorPress: base.colorPress - 2,
+      colorFocus: base.colorFocus - 2
+    };
+    return {
+      base,
+      alt1,
+      alt2,
+      surface1: surface12,
+      surface2: surface22,
+      surface3: surface32,
+      inverseSurface1: inverseSurface12,
+      inverseActive,
+      surfaceActive
+    };
+  }, "getBaseTemplates"), lightTemplates = getBaseTemplates("light"), darkTemplates = getBaseTemplates("dark");
+  return {
+    ...objectFromEntries2(objectKeys(lightTemplates).map((name) => [`light_${name}`, lightTemplates[name]])),
+    ...objectFromEntries2(objectKeys(darkTemplates).map((name) => [`dark_${name}`, darkTemplates[name]]))
+  };
+}, "getTemplates");
+var defaultTemplates = getTemplates();
+var shadows = {
+  light: {
+    shadowColor: lightShadowColorStrong,
+    shadowColorHover: lightShadowColorStrong,
+    shadowColorPress: lightShadowColor,
+    shadowColorFocus: lightShadowColor
+  },
+  dark: {
+    shadowColor: darkShadowColorStrong,
+    shadowColorHover: darkShadowColorStrong,
+    shadowColorPress: darkShadowColor,
+    shadowColorFocus: darkShadowColor
+  }
+};
+var nonInherited = {
+  light: {
+    ...lightColors,
+    ...shadows.light
+  },
+  dark: {
+    ...darkColors,
+    ...shadows.dark
+  }
+};
+var overlayThemeDefinitions = [{
+  parent: "light",
+  theme: {
+    background: "rgba(0,0,0,0.5)"
+  }
+}, {
+  parent: "dark",
+  theme: {
+    background: "rgba(0,0,0,0.8)"
+  }
+}];
+var inverseSurface1 = [{
+  parent: "active",
+  template: "inverseActive"
+}, {
+  parent: "",
+  template: "inverseSurface1"
+}];
+var surface1 = [{
+  parent: "active",
+  template: "surfaceActive"
+}, {
+  parent: "",
+  template: "surface1"
+}];
+var surface2 = [{
+  parent: "active",
+  template: "surfaceActive"
+}, {
+  parent: "",
+  template: "surface2"
+}];
+var surface3 = [{
+  parent: "active",
+  template: "surfaceActive"
+}, {
+  parent: "",
+  template: "surface3"
+}];
+var defaultComponentThemes = {
+  ListItem: {
+    template: "surface1"
+  },
+  SelectTrigger: surface1,
+  Card: surface1,
+  Button: surface3,
+  Checkbox: surface2,
+  Switch: surface2,
+  SwitchThumb: inverseSurface1,
+  TooltipContent: surface2,
+  Progress: {
+    template: "surface1"
+  },
+  RadioGroupItem: surface2,
+  TooltipArrow: {
+    template: "surface1"
+  },
+  SliderTrackActive: {
+    template: "surface3"
+  },
+  SliderTrack: {
+    template: "surface1"
+  },
+  SliderThumb: inverseSurface1,
+  Tooltip: inverseSurface1,
+  ProgressIndicator: inverseSurface1,
+  SheetOverlay: overlayThemeDefinitions,
+  DialogOverlay: overlayThemeDefinitions,
+  ModalOverlay: overlayThemeDefinitions,
+  Input: surface1,
+  TextArea: surface1
+};
+var defaultSubThemes = {
+  alt1: {
+    template: "alt1"
+  },
+  alt2: {
+    template: "alt2"
+  },
+  active: {
+    template: "surface3"
+  },
+  surface1: {
+    template: "surface1"
+  },
+  surface2: {
+    template: "surface2"
+  },
+  surface3: {
+    template: "surface3"
+  },
+  surface4: {
+    template: "surfaceActive"
+  }
+};
+var themeBuilder = createThemeBuilder().addPalettes(defaultPalettes).addTemplates(defaultTemplates).addThemes({
+  light: {
+    template: "base",
+    palette: "light",
+    nonInheritedValues: nonInherited.light
+  },
+  dark: {
+    template: "base",
+    palette: "dark",
+    nonInheritedValues: nonInherited.dark
+  }
+}).addChildThemes({
+  orange: {
+    palette: "orange",
+    template: "base"
+  },
+  yellow: {
+    palette: "yellow",
+    template: "base"
+  },
+  green: {
+    palette: "green",
+    template: "base"
+  },
+  blue: {
+    palette: "blue",
+    template: "base"
+  },
+  purple: {
+    palette: "purple",
+    template: "base"
+  },
+  pink: {
+    palette: "pink",
+    template: "base"
+  },
+  red: {
+    palette: "red",
+    template: "base"
+  },
+  gray: {
+    palette: "gray",
+    template: "base"
+  }
+}).addChildThemes(defaultSubThemes).addComponentThemes(defaultComponentThemes, {
+  avoidNestingWithin: ["alt1", "alt2", "surface1", "surface2", "surface3", "surface4"]
+});
+var themesIn = themeBuilder.build();
+var themes = themesIn;
+var size = {
+  $0: 0,
+  "$0.25": 2,
+  "$0.5": 4,
+  "$0.75": 8,
+  $1: 20,
+  "$1.5": 24,
+  $2: 28,
+  "$2.5": 32,
+  $3: 36,
+  "$3.5": 40,
+  $4: 44,
+  $true: 44,
+  "$4.5": 48,
+  $5: 52,
+  $6: 64,
+  $7: 74,
+  $8: 84,
+  $9: 94,
+  $10: 104,
+  $11: 124,
+  $12: 144,
+  $13: 164,
+  $14: 184,
+  $15: 204,
+  $16: 224,
+  $17: 224,
+  $18: 244,
+  $19: 264,
+  $20: 284
+};
+var spaces = Object.entries(size).map(([k, v]) => [k, sizeToSpace(v)]);
+var spacesNegative = spaces.slice(1).map(([k, v]) => [`-${k.slice(1)}`, -v]);
+var space = {
+  ...Object.fromEntries(spaces),
+  ...Object.fromEntries(spacesNegative)
+};
+var zIndex = {
+  0: 0,
+  1: 100,
+  2: 200,
+  3: 300,
+  4: 400,
+  5: 500
+};
+var radius = {
+  0: 0,
+  1: 3,
+  2: 5,
+  3: 7,
+  4: 9,
+  true: 9,
+  5: 10,
+  6: 16,
+  7: 19,
+  8: 22,
+  9: 26,
+  10: 34,
+  11: 42,
+  12: 50
+};
+var tokens = (0, import_web.createTokens)({
+  color,
+  radius,
+  zIndex,
+  space,
+  size
+});
+function postfixObjKeys(obj, postfix) {
+  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [`${k}${postfix}`, v]));
+}
+__name(postfixObjKeys, "postfixObjKeys");
+function sizeToSpace(v) {
+  return v === 0 ? 0 : v === 2 ? 0.5 : v === 4 ? 1 : v === 8 ? 1.5 : v <= 16 ? Math.round(v * 0.333) : Math.floor(v * 0.7 - 12);
+}
+__name(sizeToSpace, "sizeToSpace");
+function objectFromEntries2(arr) {
+  return Object.fromEntries(arr);
+}
+__name(objectFromEntries2, "objectFromEntries");
+function objectKeys(obj) {
+  return Object.keys(obj);
+}
+__name(objectKeys, "objectKeys");
+
+// node_modules/@tamagui/animations-css/dist/esm/createAnimations.mjs
+var import_react2 = __toESM(require("react"), 1);
+init_esm();
+var import_web2 = require("@tamagui/core");
+init_esm2();
+function createAnimations(animations) {
+  const reactionListeners = /* @__PURE__ */ new WeakMap();
+  return {
+    animations,
+    usePresence,
+    ResetPresence,
+    supportsCSSVars: true,
+    useAnimatedNumber(initial) {
+      const [val, setVal] = import_react2.default.useState(initial);
+      return {
+        getInstance() {
+          return setVal;
+        },
+        getValue() {
+          return val;
+        },
+        setValue(next, config2, onFinish) {
+          setVal(next);
+          const listeners = reactionListeners.get(setVal);
+          listeners && listeners.forEach((cb) => cb(next)), onFinish == null ? void 0 : onFinish();
+        },
+        stop() {
+        }
+      };
+    },
+    useAnimatedNumberReaction({
+      value
+    }, onValue) {
+      import_react2.default.useEffect(() => {
+        const instance = value.getInstance();
+        let queue = reactionListeners.get(instance);
+        if (!queue) {
+          const next = /* @__PURE__ */ new Set();
+          reactionListeners.set(instance, next), queue = next;
+        }
+        return queue.add(onValue), () => {
+          queue == null ? void 0 : queue.delete(onValue);
+        };
+      }, []);
+    },
+    useAnimatedNumberStyle(val, getStyle) {
+      return getStyle(val.getValue());
+    },
+    useAnimations: /* @__PURE__ */ __name(({
+      props,
+      presence,
+      style,
+      componentState,
+      stateRef
+    }) => {
+      const isEntering = !!componentState.unmounted, isExiting = (presence == null ? void 0 : presence[0]) === false, sendExitComplete = presence == null ? void 0 : presence[1], [animationKey, animationConfig] = Array.isArray(props.animation) ? props.animation : [props.animation], animation = animations[animationKey], keys = props.animateOnly ?? ["all"];
+      return useIsomorphicLayoutEffect(() => {
+        const host = stateRef.current.host;
+        if (!sendExitComplete || !isExiting || !host) return;
+        const node = host, onFinishAnimation = /* @__PURE__ */ __name(() => {
+          sendExitComplete == null ? void 0 : sendExitComplete();
+        }, "onFinishAnimation");
+        return node.addEventListener("transitionend", onFinishAnimation), node.addEventListener("transitioncancel", onFinishAnimation), () => {
+          node.removeEventListener("transitionend", onFinishAnimation), node.removeEventListener("transitioncancel", onFinishAnimation);
+        };
+      }, [sendExitComplete, isExiting]), animation && (Array.isArray(style.transform) && (style.transform = (0, import_web2.transformsToString)(style.transform)), style.transition = keys.map((key) => {
+        const override = animations[animationConfig == null ? void 0 : animationConfig[key]] ?? animation;
+        return `${key} ${override}`;
+      }).join(", ")), process.env.NODE_ENV === "development" && props.debug === "verbose" && console.info("CSS animation", {
+        props,
+        animations,
+        animation,
+        animationKey,
+        style,
+        isEntering,
+        isExiting
+      }), animation ? {
+        style,
+        className: isEntering ? "t_unmounted" : ""
+      } : null;
+    }, "useAnimations")
+  };
+}
+__name(createAnimations, "createAnimations");
+
+// node_modules/@tamagui/config/dist/esm/animationsCSS.mjs
+var smoothBezier = "cubic-bezier(0.215, 0.610, 0.355, 1.000)";
+var animationsCSS = createAnimations({
+  "75ms": "ease-in 75ms",
+  "100ms": "ease-in 100ms",
+  "200ms": "ease-in 200ms",
+  bouncy: "ease-in 200ms",
+  superBouncy: "ease-in 500ms",
+  lazy: "ease-in 1000ms",
+  medium: "ease-in 300ms",
+  slow: "ease-in 500ms",
+  quick: `${smoothBezier} 400ms`,
+  quicker: `${smoothBezier} 300ms`,
+  quickest: `${smoothBezier} 200ms`,
+  tooltip: "ease-in 400ms"
+});
+
+// node_modules/@tamagui/font-inter/dist/esm/index.mjs
+var import_core = require("@tamagui/core");
+var createInterFont = /* @__PURE__ */ __name((font = {}, {
+  sizeLineHeight = /* @__PURE__ */ __name((size6) => size6 + 10, "sizeLineHeight"),
+  sizeSize = /* @__PURE__ */ __name((size6) => size6 * 1, "sizeSize")
+} = {}) => {
+  const size6 = Object.fromEntries(Object.entries({
+    ...defaultSizes,
+    ...font.size
+  }).map(([k, v]) => [k, sizeSize(+v)]));
+  return (0, import_core.createFont)({
+    family: import_core.isWeb ? 'Inter, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' : "Inter",
+    lineHeight: Object.fromEntries(Object.entries(size6).map(([k, v]) => [k, sizeLineHeight((0, import_core.getVariableValue)(v))])),
+    weight: {
+      4: "300"
+    },
+    letterSpacing: {
+      4: 0
+    },
+    ...font,
+    size: size6
+  });
+}, "createInterFont");
+var defaultSizes = {
+  1: 11,
+  2: 12,
+  3: 13,
+  4: 14,
+  true: 14,
+  5: 16,
+  6: 18,
+  7: 20,
+  8: 23,
+  9: 30,
+  10: 46,
+  11: 55,
+  12: 62,
+  13: 72,
+  14: 92,
+  15: 114,
+  16: 134
+};
+
+// node_modules/@tamagui/font-silkscreen/dist/esm/index.mjs
+var import_core2 = require("@tamagui/core");
+var createSilkscreenFont = /* @__PURE__ */ __name((font = {}) => (0, import_core2.createFont)({
+  family: import_core2.isWeb ? "Silkscreen, Fira Code, Monaco, Consolas, Ubuntu Mono, monospace" : "Silkscreen",
+  size: size2,
+  lineHeight: Object.fromEntries(Object.entries(font.size || size2).map(([k, v]) => [k, typeof v == "number" ? Math.round(v * 1.2 + 6) : v])),
+  weight: {
+    4: "300"
+  },
+  letterSpacing: {
+    4: 1,
+    5: 3,
+    6: 3,
+    9: -2,
+    10: -3,
+    12: -4
+  },
+  ...font
+}), "createSilkscreenFont");
+var size2 = {
+  1: 11,
+  2: 12,
+  3: 13,
+  4: 14,
+  5: 15,
+  6: 16,
+  7: 18,
+  8: 21,
+  9: 28,
+  10: 42,
+  11: 52,
+  12: 62,
+  13: 72,
+  14: 92,
+  15: 114,
+  16: 124
+};
+
+// node_modules/@tamagui/config/dist/esm/createGenericFont.mjs
+var import_web3 = require("@tamagui/core");
+var genericFontSizes = {
+  1: 10,
+  2: 11,
+  3: 12,
+  4: 14,
+  5: 15,
+  6: 16,
+  7: 20,
+  8: 22,
+  9: 30,
+  10: 42,
+  11: 52,
+  12: 62,
+  13: 72,
+  14: 92,
+  15: 114,
+  16: 124
+};
+function createGenericFont(family, font = {}, {
+  sizeLineHeight = /* @__PURE__ */ __name((val) => val * 1.35, "sizeLineHeight")
+} = {}) {
+  const size6 = font.size || genericFontSizes;
+  return (0, import_web3.createFont)({
+    family,
+    size: size6,
+    lineHeight: Object.fromEntries(Object.entries(size6).map(([k, v]) => [k, sizeLineHeight(+v)])),
+    weight: {
+      0: "300"
+    },
+    letterSpacing: {
+      4: 0
+    },
+    ...font
+  });
+}
+__name(createGenericFont, "createGenericFont");
+
+// node_modules/@tamagui/config/dist/esm/fonts.mjs
+var silkscreenFont = createSilkscreenFont();
+var headingFont = createInterFont({
+  size: {
+    5: 13,
+    6: 15,
+    9: 32,
+    10: 44
+  },
+  transform: {
+    6: "uppercase",
+    7: "none"
+  },
+  weight: {
+    6: "400",
+    7: "700"
+  },
+  color: {
+    6: "$colorFocus",
+    7: "$color"
+  },
+  letterSpacing: {
+    5: 2,
+    6: 1,
+    7: 0,
+    8: 0,
+    9: -1,
+    10: -1.5,
+    12: -2,
+    14: -3,
+    15: -4
+  },
+  // for native
+  face: {
+    700: {
+      normal: "InterBold"
+    },
+    800: {
+      normal: "InterBold"
+    },
+    900: {
+      normal: "InterBold"
+    }
+  }
+}, {
+  sizeLineHeight: /* @__PURE__ */ __name((size6) => Math.round(size6 * 1.1 + (size6 < 30 ? 10 : 5)), "sizeLineHeight")
+});
+var bodyFont = createInterFont({
+  weight: {
+    1: "400",
+    7: "600"
+  }
+}, {
+  sizeSize: /* @__PURE__ */ __name((size6) => Math.round(size6), "sizeSize"),
+  sizeLineHeight: /* @__PURE__ */ __name((size6) => Math.round(size6 * 1.1 + (size6 >= 12 ? 8 : 4)), "sizeLineHeight")
+});
+var monoFont = createGenericFont('"ui-monospace", "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace', {
+  weight: {
+    1: "500"
+  },
+  size: {
+    1: 11,
+    2: 12,
+    3: 13,
+    4: 14,
+    5: 16,
+    6: 18,
+    7: 20,
+    8: 22,
+    9: 30,
+    10: 42,
+    11: 52,
+    12: 62,
+    13: 72,
+    14: 92,
+    15: 114,
+    16: 124
+  }
+}, {
+  sizeLineHeight: /* @__PURE__ */ __name((x) => x * 1.5, "sizeLineHeight")
+});
+var fonts = {
+  // noto: notoFont as any,
+  heading: headingFont,
+  body: bodyFont,
+  mono: monoFont,
+  silkscreen: silkscreenFont
+};
+
+// node_modules/@tamagui/react-native-media-driver/dist/esm/createMedia.mjs
+var import_web4 = require("@tamagui/core");
+
+// node_modules/@tamagui/react-native-media-driver/dist/esm/matchMedia.mjs
+var matchMedia = globalThis.matchMedia;
+
+// node_modules/@tamagui/react-native-media-driver/dist/esm/createMedia.mjs
+function createMedia(media2) {
+  return (0, import_web4.setupMatchMedia)(matchMedia), media2;
+}
+__name(createMedia, "createMedia");
+
+// node_modules/@tamagui/config/dist/esm/media.mjs
+var media = createMedia({
+  // for site
+  xl: {
+    maxWidth: 1650
+  },
+  lg: {
+    maxWidth: 1280
+  },
+  md: {
+    maxWidth: 1020
+  },
+  sm: {
+    maxWidth: 800
+  },
+  xs: {
+    maxWidth: 660
+  },
+  xxs: {
+    maxWidth: 390
+  },
+  gtXs: {
+    minWidth: 661
+  },
+  gtSm: {
+    minWidth: 801
+  },
+  gtMd: {
+    minWidth: 1021
+  },
+  gtLg: {
+    minWidth: 1281
+  },
+  gtXl: {
+    minWidth: 1651
+  }
+});
+var mediaQueryDefaultActive = {
+  xl: true,
+  lg: true,
+  md: true,
+  sm: true,
+  xs: true,
+  // false
+  xxs: false
+};
+
+// node_modules/@tamagui/config/dist/esm/v3.mjs
+globalThis.global ||= globalThis;
+var selectionStyles = /* @__PURE__ */ __name((theme) => theme.color5 ? {
+  backgroundColor: theme.color5,
+  color: theme.color11
+} : null, "selectionStyles");
+var themes2 = process.env.TAMAGUI_OPTIMIZE_THEMES === "true" ? {} : themes;
+var config = {
+  animations: animationsCSS,
+  themes: themes2,
+  media,
+  shorthands,
+  tokens,
+  fonts,
+  selectionStyles,
+  settings: {
+    mediaQueryDefaultActive,
+    defaultFont: "body",
+    fastSchemeChange: true,
+    shouldAddPrefersColorThemes: true,
+    themeClassNameOnRoot: true
+  }
+};
+
 // node_modules/tamagui/dist/esm/index.mjs
 var esm_exports2 = {};
 __export(esm_exports2, {
@@ -26996,8 +28650,8 @@ __export(esm_exports2, {
   CheckboxIndicatorFrame: () => CheckboxIndicatorFrame,
   CheckboxStyledContext: () => CheckboxStyledContext,
   Circle: () => Circle,
-  ComponentContext: () => import_core61.ComponentContext,
-  Configuration: () => import_core61.Configuration,
+  ComponentContext: () => import_core59.ComponentContext,
+  Configuration: () => import_core59.Configuration,
   Dialog: () => Dialog,
   DialogClose: () => DialogClose,
   DialogContent: () => DialogContent,
@@ -27012,7 +28666,7 @@ __export(esm_exports2, {
   DialogWarningProvider: () => DialogWarningProvider,
   EnsureFlexed: () => EnsureFlexed,
   Fieldset: () => Fieldset,
-  FontLanguage: () => import_core61.FontLanguage,
+  FontLanguage: () => import_core59.FontLanguage,
   Footer: () => Footer,
   Form: () => Form2,
   FormFrame: () => FormFrame,
@@ -27031,7 +28685,7 @@ __export(esm_exports2, {
   Handle: () => Handle,
   Header: () => Header,
   Heading: () => Heading,
-  INITIAL_STATE: () => INITIAL_STATE4,
+  INITIAL_STATE: () => INITIAL_STATE,
   Image: () => Image,
   Input: () => Input,
   InputFrame: () => InputFrame,
@@ -27061,10 +28715,10 @@ __export(esm_exports2, {
   PopperContentFrame: () => PopperContentFrame,
   PopperContext: () => PopperContext,
   PopperProvider: () => PopperProvider,
-  Portal: () => Portal4,
-  PortalHost: () => PortalHost4,
-  PortalItem: () => PortalItem4,
-  PortalProvider: () => PortalProvider5,
+  Portal: () => Portal,
+  PortalHost: () => PortalHost,
+  PortalItem: () => PortalItem,
+  PortalProvider: () => PortalProvider,
   PresenceChild: () => PresenceChild,
   PresenceContext: () => PresenceContext,
   Progress: () => Progress,
@@ -27104,10 +28758,10 @@ __export(esm_exports2, {
   SliderTrackActive: () => SliderTrackActive,
   SliderTrackActiveFrame: () => SliderTrackActiveFrame,
   SliderTrackFrame: () => SliderTrackFrame,
-  Spacer: () => import_core61.Spacer,
+  Spacer: () => import_core59.Spacer,
   Spinner: () => Spinner,
   Square: () => Square,
-  Stack: () => import_core61.Stack,
+  Stack: () => import_core59.Stack,
   StyleObjectIdentifier: () => StyleObjectIdentifier,
   StyleObjectProperty: () => StyleObjectProperty,
   StyleObjectPseudo: () => StyleObjectPseudo,
@@ -27123,7 +28777,7 @@ __export(esm_exports2, {
   Text: () => Text4,
   TextArea: () => TextArea,
   TextAreaFrame: () => TextAreaFrame,
-  Theme: () => import_core61.Theme,
+  Theme: () => import_core59.Theme,
   ThemeableStack: () => ThemeableStack,
   Thumb: () => Thumb,
   ToggleGroup: () => ToggleGroup,
@@ -27131,8 +28785,8 @@ __export(esm_exports2, {
   TooltipGroup: () => TooltipGroup,
   TooltipSimple: () => TooltipSimple,
   Track: () => Track,
-  Unspaced: () => import_core61.Unspaced,
-  View: () => import_core61.View,
+  Unspaced: () => import_core59.Unspaced,
+  View: () => import_core59.View,
   VisuallyHidden: () => VisuallyHidden,
   XGroup: () => XGroup,
   XStack: () => XStack,
@@ -27149,11 +28803,11 @@ __export(esm_exports2, {
   createAlertDialogScope: () => createAlertDialogScope,
   createAvatarScope: () => createAvatarScope,
   createCheckbox: () => createCheckbox,
-  createComponent: () => import_core61.createComponent,
+  createComponent: () => import_core59.createComponent,
   createContext: () => createContext3,
   createContextScope: () => createContextScope,
   createDialogScope: () => createDialogScope,
-  createFont: () => import_core61.createFont,
+  createFont: () => import_core59.createFont,
   createMedia: () => createMedia,
   createProgressScope: () => createProgressScope,
   createRadioGroup: () => createRadioGroup,
@@ -27163,59 +28817,59 @@ __export(esm_exports2, {
   createSelectScope: () => createSelectScope,
   createSheet: () => createSheet,
   createSheetScope: () => createSheetScope,
-  createShorthands: () => import_core61.createShorthands,
-  createStyledContext: () => import_core61.createStyledContext,
+  createShorthands: () => import_core59.createShorthands,
+  createStyledContext: () => import_core59.createStyledContext,
   createSwitch: () => createSwitch,
   createTamagui: () => createTamagui,
-  createTheme: () => import_core61.createTheme,
-  createTokens: () => import_core61.createTokens,
-  createVariable: () => import_core61.createVariable,
+  createTheme: () => import_core59.createTheme,
+  createTokens: () => import_core59.createTokens,
+  createVariable: () => import_core59.createVariable,
   debounce: () => debounce,
   defaultStyles: () => defaultStyles,
   fullscreenStyle: () => fullscreenStyle,
-  getConfig: () => import_core61.getConfig,
+  getConfig: () => import_core59.getConfig,
   getFontSize: () => getFontSize,
   getFontSizeToken: () => getFontSizeToken,
   getFontSizeVariable: () => getFontSizeVariable,
-  getMedia: () => import_core61.getMedia,
+  getMedia: () => import_core59.getMedia,
   getNativeSheet: () => getNativeSheet,
   getShapeSize: () => getShapeSize,
-  getStylesAtomic: () => import_core61.getStylesAtomic,
-  getThemes: () => import_core61.getThemes,
-  getToken: () => import_core61.getToken,
-  getTokenValue: () => import_core61.getTokenValue,
-  getTokens: () => import_core61.getTokens,
-  getVariable: () => import_core61.getVariable,
-  getVariableName: () => import_core61.getVariableName,
-  getVariableValue: () => import_core61.getVariableValue,
-  insertFont: () => import_core61.insertFont,
-  isChrome: () => import_core61.isChrome,
-  isClient: () => import_core61.isClient,
+  getStylesAtomic: () => import_core59.getStylesAtomic,
+  getThemes: () => import_core59.getThemes,
+  getToken: () => import_core59.getToken,
+  getTokenValue: () => import_core59.getTokenValue,
+  getTokens: () => import_core59.getTokens,
+  getVariable: () => import_core59.getVariable,
+  getVariableName: () => import_core59.getVariableName,
+  getVariableValue: () => import_core59.getVariableValue,
+  insertFont: () => import_core59.insertFont,
+  isChrome: () => import_core59.isChrome,
+  isClient: () => import_core59.isClient,
   isPresent: () => isPresent,
-  isServer: () => import_core61.isServer,
+  isServer: () => import_core59.isServer,
   isServerSide: () => isServerSide,
-  isTamaguiComponent: () => import_core61.isTamaguiComponent,
-  isTamaguiElement: () => import_core61.isTamaguiElement,
-  isTouchable: () => import_core61.isTouchable,
-  isVariable: () => import_core61.isVariable,
-  isWeb: () => import_core61.isWeb,
-  isWebTouchable: () => import_core61.isWebTouchable,
-  matchMedia: () => import_core61.matchMedia,
-  mediaObjectToString: () => import_core61.mediaObjectToString,
-  mediaQueryConfig: () => import_core61.mediaQueryConfig,
-  mediaState: () => import_core61.mediaState,
+  isTamaguiComponent: () => import_core59.isTamaguiComponent,
+  isTamaguiElement: () => import_core59.isTamaguiElement,
+  isTouchable: () => import_core59.isTouchable,
+  isVariable: () => import_core59.isVariable,
+  isWeb: () => import_core59.isWeb,
+  isWebTouchable: () => import_core59.isWebTouchable,
+  matchMedia: () => import_core59.matchMedia,
+  mediaObjectToString: () => import_core59.mediaObjectToString,
+  mediaQueryConfig: () => import_core59.mediaQueryConfig,
+  mediaState: () => import_core59.mediaState,
   mutateThemes: () => mutateThemes,
   prevent: () => prevent,
   replaceTheme: () => replaceTheme,
-  setConfig: () => import_core61.setConfig,
+  setConfig: () => import_core59.setConfig,
   setRef: () => setRef,
-  setupDev: () => import_core61.setupDev,
+  setupDev: () => import_core59.setupDev,
   setupNativeSheet: () => setupNativeSheet,
   setupPopper: () => setupPopper,
-  setupReactNative: () => import_core61.setupReactNative,
+  setupReactNative: () => import_core59.setupReactNative,
   shouldRenderNativePlatform: () => shouldRenderNativePlatform,
   simpleHash: () => simpleHash,
-  spacedChildren: () => import_core61.spacedChildren,
+  spacedChildren: () => import_core59.spacedChildren,
   stylePropsAll: () => stylePropsAll,
   stylePropsFont: () => stylePropsFont,
   stylePropsText: () => stylePropsText,
@@ -27223,78 +28877,78 @@ __export(esm_exports2, {
   stylePropsTransform: () => stylePropsTransform,
   stylePropsUnitless: () => stylePropsUnitless,
   stylePropsView: () => stylePropsView,
-  styled: () => import_core61.styled,
-  themeable: () => import_core61.themeable,
+  styled: () => import_core59.styled,
+  themeable: () => import_core59.themeable,
   themeableVariants: () => themeableVariants,
   tokenCategories: () => tokenCategories,
   updateTheme: () => updateTheme,
   useAdaptParent: () => useAdaptParent,
   useButton: () => useButton,
   useComposedRefs: () => useComposedRefs,
-  useConfiguration: () => import_core61.useConfiguration,
+  useConfiguration: () => import_core59.useConfiguration,
   useControllableState: () => useControllableState,
   useCurrentColor: () => useCurrentColor,
   useDebounce: () => useDebounce,
   useDebounceValue: () => useDebounceValue,
-  useDidFinishSSR: () => import_core61.useDidFinishSSR,
-  useEvent: () => import_core61.useEvent,
+  useDidFinishSSR: () => import_core59.useDidFinishSSR,
+  useEvent: () => import_core59.useEvent,
   useFloatingContext: () => useFloatingContext,
   useForceUpdate: () => useForceUpdate,
   useFormContext: () => useFormContext,
-  useGet: () => import_core61.useGet,
+  useGet: () => import_core59.useGet,
   useGetThemedIcon: () => useGetThemedIcon,
   useGroupItem: () => useGroupItem,
   useInputProps: () => useInputProps,
   useIsPresent: () => useIsPresent,
-  useIsTouchDevice: () => import_core61.useIsTouchDevice,
-  useIsomorphicLayoutEffect: () => import_core61.useIsomorphicLayoutEffect,
+  useIsTouchDevice: () => import_core59.useIsTouchDevice,
+  useIsomorphicLayoutEffect: () => import_core59.useIsomorphicLayoutEffect,
   useLabelContext: () => useLabelContext,
   useListItem: () => useListItem,
-  useMedia: () => import_core61.useMedia,
+  useMedia: () => import_core59.useMedia,
   usePopoverContext: () => usePopoverContext,
   usePopperContext: () => usePopperContext,
-  usePortal: () => usePortal4,
+  usePortal: () => usePortal,
   usePresence: () => usePresence,
-  useProps: () => import_core61.useProps,
-  usePropsAndStyle: () => import_core61.usePropsAndStyle,
+  useProps: () => import_core59.useProps,
+  usePropsAndStyle: () => import_core59.usePropsAndStyle,
   useSelectContext: () => useSelectContext,
   useSelectItemParentContext: () => useSelectItemParentContext,
   useSheet: () => useSheet,
   useSheetController: () => useSheetController,
   useSheetOffscreenSize: () => useSheetOffscreenSize,
   useSheetOpenState: () => useSheetOpenState,
-  useStyle: () => import_core61.useStyle,
+  useStyle: () => import_core59.useStyle,
   useTabsContext: () => useTabsContext,
-  useTheme: () => import_core61.useTheme,
-  useThemeName: () => import_core61.useThemeName,
+  useTheme: () => import_core59.useTheme,
+  useThemeName: () => import_core59.useThemeName,
   useWindowDimensions: () => useWindowDimensions,
   validPseudoKeys: () => validPseudoKeys,
   validStyles: () => validStyles,
-  variableToString: () => import_core61.variableToString,
-  withStaticProperties: () => import_core61.withStaticProperties,
+  variableToString: () => import_core59.variableToString,
+  withStaticProperties: () => import_core59.withStaticProperties,
   wrapChildrenInText: () => wrapChildrenInText
 });
 __reExport(esm_exports2, __toESM(require_cjs15(), 1));
 
 // node_modules/@tamagui/adapt/dist/esm/Adapt.mjs
-var import_react8 = __toESM(require("react"), 1);
-init_esm6();
-var import_core = require("@tamagui/core");
+var import_react9 = __toESM(require("react"), 1);
+init_esm();
+var import_core3 = require("@tamagui/core");
 init_esm7();
 var import_jsx_runtime5 = require("react/jsx-runtime");
-var AdaptParentContext = import_react8.default.createContext(null);
+var AdaptParentContext = import_react9.default.createContext(null);
 var AdaptContents = /* @__PURE__ */ __name((props) => {
-  const context = import_react8.default.useContext(AdaptParentContext);
+  const context = import_react9.default.useContext(AdaptParentContext);
   if (!(context == null ? void 0 : context.Contents)) throw new Error(process.env.NODE_ENV === "production" ? "tamagui.dev/docs/intro/errors#warning-002" : "You're rendering a Tamagui <Adapt /> component without nesting it inside a parent that is able to adapt.");
-  return import_react8.default.createElement(context.Contents, props);
+  return import_react9.default.createElement(context.Contents, props);
 }, "AdaptContents");
 AdaptContents.shouldForwardSpace = true;
 var useAdaptParent = /* @__PURE__ */ __name(({
   Contents
 }) => {
-  const [when, setWhen] = import_react8.default.useState(null);
+  const [when, setWhen] = import_react9.default.useState(null);
   return {
-    AdaptProvider: import_react8.default.useMemo(() => {
+    AdaptProvider: import_react9.default.useMemo(() => {
       const context = {
         Contents,
         setWhen
@@ -27316,24 +28970,24 @@ var Adapt = withStaticProperties(function({
   when,
   children
 }) {
-  const context = import_react8.default.useContext(AdaptParentContext), media = (0, import_core.useMedia)();
+  const context = import_react9.default.useContext(AdaptParentContext), media2 = (0, import_core3.useMedia)();
   let enabled = false;
   return typeof when == "function" ? enabled = when({
-    media
-  }) : (enabled = !platform2, platform2 === "touch" && (enabled = isTouchable), platform2 === "native" && (enabled = !isWeb), platform2 === "web" && (enabled = isWeb), platform2 === "ios" && (enabled = isIos), platform2 === "android" && (enabled = isAndroid), when && !media[when] && (enabled = false)), useIsomorphicLayoutEffect(() => {
+    media: media2
+  }) : (enabled = !platform2, platform2 === "touch" && (enabled = isTouchable), platform2 === "native" && (enabled = !isWeb), platform2 === "web" && (enabled = isWeb), platform2 === "ios" && (enabled = isIos), platform2 === "android" && (enabled = isAndroid), when && !media2[when] && (enabled = false)), useIsomorphicLayoutEffect(() => {
     if (enabled) return context == null ? void 0 : context.setWhen(when || enabled), () => {
       context == null ? void 0 : context.setWhen(null);
     };
   }, [when, context, enabled]), enabled ? typeof children == "function" ? children({
     enabled,
-    media
+    media: media2
   }) : children : null;
 }, {
   Contents: AdaptContents
 });
 
 // node_modules/@tamagui/compose-refs/dist/esm/compose-refs.mjs
-var React13 = __toESM(require("react"), 1);
+var React14 = __toESM(require("react"), 1);
 function setRef(ref, value) {
   typeof ref == "function" ? ref(value) : ref && (ref.current = value);
 }
@@ -27343,44 +28997,44 @@ function composeRefs(...refs) {
 }
 __name(composeRefs, "composeRefs");
 function useComposedRefs(...refs) {
-  return React13.useCallback(composeRefs(...refs), refs);
+  return React14.useCallback(composeRefs(...refs), refs);
 }
 __name(useComposedRefs, "useComposedRefs");
 
 // node_modules/@tamagui/alert-dialog/dist/esm/AlertDialog.mjs
-init_esm6();
-var import_core15 = require("@tamagui/core");
+init_esm();
+var import_core16 = require("@tamagui/core");
 
 // node_modules/@tamagui/create-context/dist/esm/create-context.mjs
-var React14 = __toESM(require("react"), 1);
+var React15 = __toESM(require("react"), 1);
 var import_jsx_runtime6 = require("react/jsx-runtime");
 function createContext3(rootComponentName, defaultContext) {
-  const Context = React14.createContext(defaultContext);
+  const Context = React15.createContext(defaultContext);
   function Provider(props) {
     const {
       children,
       ...context
-    } = props, value = React14.useMemo(() => context, Object.values(context));
+    } = props, value = React15.useMemo(() => context, Object.values(context));
     return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Context.Provider, {
       value,
       children
     });
   }
   __name(Provider, "Provider");
-  function useContext18(consumerName) {
-    const context = React14.useContext(Context);
+  function useContext14(consumerName) {
+    const context = React15.useContext(Context);
     if (context) return context;
     if (defaultContext !== void 0) return defaultContext;
     throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
   }
-  __name(useContext18, "useContext");
-  return Provider.displayName = `${rootComponentName}Provider`, [Provider, useContext18];
+  __name(useContext14, "useContext");
+  return Provider.displayName = `${rootComponentName}Provider`, [Provider, useContext14];
 }
 __name(createContext3, "createContext");
 function createContextScope(scopeName, createContextScopeDeps = []) {
   let defaultContexts = [];
   function createContext22(rootComponentName, defaultContext) {
-    const BaseContext = React14.createContext(defaultContext), index3 = defaultContexts.length;
+    const BaseContext = React15.createContext(defaultContext), index3 = defaultContexts.length;
     defaultContexts = [...defaultContexts, defaultContext];
     function Provider(props) {
       var _a;
@@ -27388,31 +29042,31 @@ function createContextScope(scopeName, createContextScopeDeps = []) {
         scope,
         children,
         ...context
-      } = props, Context = ((_a = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a[index3]) || BaseContext, value = React14.useMemo(() => context, Object.values(context));
+      } = props, Context = ((_a = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a[index3]) || BaseContext, value = React15.useMemo(() => context, Object.values(context));
       return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(Context.Provider, {
         value,
         children
       });
     }
     __name(Provider, "Provider");
-    function useContext18(consumerName, scope, options) {
+    function useContext14(consumerName, scope, options) {
       var _a;
-      const Context = ((_a = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a[index3]) || BaseContext, context = React14.useContext(Context);
+      const Context = ((_a = scope == null ? void 0 : scope[scopeName]) == null ? void 0 : _a[index3]) || BaseContext, context = React15.useContext(Context);
       if (context) return context;
       if (defaultContext !== void 0) return defaultContext;
       const missingContextMessage = `\`${consumerName}\` must be used within \`${rootComponentName}\``;
       if (options == null ? void 0 : options.fallback) return (options == null ? void 0 : options.warn) !== false && console.warn(missingContextMessage), options.fallback;
       throw new Error(missingContextMessage);
     }
-    __name(useContext18, "useContext");
-    return Provider.displayName = `${rootComponentName}Provider`, [Provider, useContext18];
+    __name(useContext14, "useContext");
+    return Provider.displayName = `${rootComponentName}Provider`, [Provider, useContext14];
   }
   __name(createContext22, "createContext2");
   const createScope = /* @__PURE__ */ __name(() => {
-    const scopeContexts = defaultContexts.map((defaultContext) => React14.createContext(defaultContext));
+    const scopeContexts = defaultContexts.map((defaultContext) => React15.createContext(defaultContext));
     return function(scope) {
       const contexts = (scope == null ? void 0 : scope[scopeName]) || scopeContexts;
-      return React14.useMemo(() => ({
+      return React15.useMemo(() => ({
         [`__scope${scopeName}`]: {
           ...scope,
           [scopeName]: contexts
@@ -27442,7 +29096,7 @@ function composeContextScopes(...scopes) {
           ...currentScope
         };
       }, {});
-      return React14.useMemo(() => ({
+      return React15.useMemo(() => ({
         [`__scope${baseScope.scopeName}`]: nextScopes
       }), [nextScopes]);
     };
@@ -27452,28 +29106,28 @@ function composeContextScopes(...scopes) {
 __name(composeContextScopes, "composeContextScopes");
 
 // node_modules/@tamagui/dialog/dist/esm/Dialog.mjs
-init_esm4();
+init_esm5();
 
 // node_modules/@tamagui/aria-hidden/dist/esm/AriaHidden.mjs
 var import_aria_hidden = __toESM(require_es5(), 1);
 
 // node_modules/@tamagui/dialog/dist/esm/Dialog.mjs
-init_esm6();
-var import_core14 = require("@tamagui/core");
+init_esm();
+var import_core15 = require("@tamagui/core");
 
 // node_modules/@tamagui/dismissable/dist/esm/Dismissable.mjs
 init_esm7();
 
 // node_modules/@tamagui/use-escape-keydown/dist/esm/index.mjs
-var import_react9 = __toESM(require("react"), 1);
+var import_react10 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/use-callback-ref/dist/esm/index.mjs
-var React15 = __toESM(require("react"), 1);
+var React16 = __toESM(require("react"), 1);
 function useCallbackRef(callback) {
-  const callbackRef = React15.useRef(callback);
-  return React15.useEffect(() => {
+  const callbackRef = React16.useRef(callback);
+  return React16.useEffect(() => {
     callbackRef.current = callback;
-  }), React15.useMemo(() => (...args) => {
+  }), React16.useMemo(() => (...args) => {
     var _a;
     return (_a = callbackRef.current) == null ? void 0 : _a.call(callbackRef, ...args);
   }, []);
@@ -27483,7 +29137,7 @@ __name(useCallbackRef, "useCallbackRef");
 // node_modules/@tamagui/use-escape-keydown/dist/esm/index.mjs
 function useEscapeKeydown(onEscapeKeyDownProp, ownerDocument = globalThis == null ? void 0 : globalThis.document) {
   const onEscapeKeyDown = useCallbackRef(onEscapeKeyDownProp);
-  import_react9.default.useEffect(() => {
+  import_react10.default.useEffect(() => {
     const handleKeyDown = /* @__PURE__ */ __name((event) => {
       event.key === "Escape" && onEscapeKeyDown(event);
     }, "handleKeyDown");
@@ -27496,7 +29150,7 @@ __name(useEscapeKeydown, "useEscapeKeydown");
 
 // node_modules/@tamagui/dismissable/dist/esm/Dismissable.mjs
 init_esm8();
-var React17 = __toESM(require("react"), 1);
+var React18 = __toESM(require("react"), 1);
 var ReactDOM = __toESM(require("react-dom"), 1);
 var import_jsx_runtime7 = require("react/jsx-runtime");
 function dispatchDiscreteCustomEvent(target, event) {
@@ -27508,12 +29162,12 @@ var CONTEXT_UPDATE = "dismissable.update";
 var POINTER_DOWN_OUTSIDE = "dismissable.pointerDownOutside";
 var FOCUS_OUTSIDE = "dismissable.focusOutside";
 var originalBodyPointerEvents;
-var DismissableContext = React17.createContext({
+var DismissableContext = React18.createContext({
   layers: /* @__PURE__ */ new Set(),
   layersWithOutsidePointerEventsDisabled: /* @__PURE__ */ new Set(),
   branches: /* @__PURE__ */ new Set()
 });
-var Dismissable = React17.forwardRef((props, forwardedRef) => {
+var Dismissable = React18.forwardRef((props, forwardedRef) => {
   const {
     disableOutsidePointerEvents = false,
     forceUnmount,
@@ -27523,7 +29177,7 @@ var Dismissable = React17.forwardRef((props, forwardedRef) => {
     onInteractOutside,
     onDismiss,
     ...layerProps
-  } = props, context = React17.useContext(DismissableContext), [node, setNode] = React17.useState(null), [, force] = React17.useState({}), composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2)), layers = Array.from(context.layers), [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1), highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled), index3 = node ? layers.indexOf(node) : -1, isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0, isPointerEventsEnabled = index3 >= highestLayerWithOutsidePointerEventsDisabledIndex, pointerDownOutside = usePointerDownOutside((event) => {
+  } = props, context = React18.useContext(DismissableContext), [node, setNode] = React18.useState(null), [, force] = React18.useState({}), composedRefs = useComposedRefs(forwardedRef, (node2) => setNode(node2)), layers = Array.from(context.layers), [highestLayerWithOutsidePointerEventsDisabled] = [...context.layersWithOutsidePointerEventsDisabled].slice(-1), highestLayerWithOutsidePointerEventsDisabledIndex = layers.indexOf(highestLayerWithOutsidePointerEventsDisabled), index3 = node ? layers.indexOf(node) : -1, isBodyPointerEventsDisabled = context.layersWithOutsidePointerEventsDisabled.size > 0, isPointerEventsEnabled = index3 >= highestLayerWithOutsidePointerEventsDisabledIndex, pointerDownOutside = usePointerDownOutside((event) => {
     const target = event.target, isPointerDownOnBranch = [...context.branches].some((branch) => branch.contains(target));
     !isPointerEventsEnabled || isPointerDownOnBranch || (onPointerDownOutside == null ? void 0 : onPointerDownOutside(event), onInteractOutside == null ? void 0 : onInteractOutside(event), event.defaultPrevented || (onDismiss == null ? void 0 : onDismiss()));
   }), focusOutside = useFocusOutside((event) => {
@@ -27532,15 +29186,15 @@ var Dismissable = React17.forwardRef((props, forwardedRef) => {
   });
   return useEscapeKeydown((event) => {
     index3 === context.layers.size - 1 && (onEscapeKeyDown == null ? void 0 : onEscapeKeyDown(event), !event.defaultPrevented && onDismiss && (event.preventDefault(), onDismiss()));
-  }), React17.useEffect(() => {
+  }), React18.useEffect(() => {
     if (node) return disableOutsidePointerEvents && (context.layersWithOutsidePointerEventsDisabled.size === 0 && (originalBodyPointerEvents = document.body.style.pointerEvents, document.body.style.pointerEvents = "none"), context.layersWithOutsidePointerEventsDisabled.add(node)), context.layers.add(node), dispatchUpdate(), () => {
       disableOutsidePointerEvents && context.layersWithOutsidePointerEventsDisabled.size === 1 && (document.body.style.pointerEvents = originalBodyPointerEvents);
     };
-  }, [node, disableOutsidePointerEvents, context]), React17.useEffect(() => {
+  }, [node, disableOutsidePointerEvents, context]), React18.useEffect(() => {
     if (!forceUnmount) return () => {
       node && (context.layers.delete(node), context.layersWithOutsidePointerEventsDisabled.delete(node), dispatchUpdate());
     };
-  }, [node, context, forceUnmount]), React17.useEffect(() => {
+  }, [node, context, forceUnmount]), React18.useEffect(() => {
     const handleUpdate = /* @__PURE__ */ __name(() => {
       force({});
     }, "handleUpdate");
@@ -27561,9 +29215,9 @@ var Dismissable = React17.forwardRef((props, forwardedRef) => {
 });
 Dismissable.displayName = DISMISSABLE_LAYER_NAME;
 var BRANCH_NAME = "DismissableBranch";
-var DismissableBranch = React17.forwardRef((props, forwardedRef) => {
-  const context = React17.useContext(DismissableContext), ref = React17.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref);
-  return React17.useEffect(() => {
+var DismissableBranch = React18.forwardRef((props, forwardedRef) => {
+  const context = React18.useContext(DismissableContext), ref = React18.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref);
+  return React18.useEffect(() => {
     const node = ref.current;
     if (node) return context.branches.add(node), () => {
       context.branches.delete(node);
@@ -27578,9 +29232,9 @@ var DismissableBranch = React17.forwardRef((props, forwardedRef) => {
 });
 DismissableBranch.displayName = BRANCH_NAME;
 function usePointerDownOutside(onPointerDownOutside) {
-  const handlePointerDownOutside = useEvent(onPointerDownOutside), isPointerInsideReactTreeRef = React17.useRef(false), handleClickRef = React17.useRef(() => {
+  const handlePointerDownOutside = useEvent(onPointerDownOutside), isPointerInsideReactTreeRef = React18.useRef(false), handleClickRef = React18.useRef(() => {
   });
-  return React17.useEffect(() => {
+  return React18.useEffect(() => {
     const handlePointerDown = /* @__PURE__ */ __name((event) => {
       if (event.target && !isPointerInsideReactTreeRef.current) {
         let handleAndDispatchPointerDownOutsideEvent = /* @__PURE__ */ __name(function() {
@@ -27611,8 +29265,8 @@ function usePointerDownOutside(onPointerDownOutside) {
 }
 __name(usePointerDownOutside, "usePointerDownOutside");
 function useFocusOutside(onFocusOutside) {
-  const handleFocusOutside = useEvent(onFocusOutside), isFocusInsideReactTreeRef = React17.useRef(false);
-  return React17.useEffect(() => {
+  const handleFocusOutside = useEvent(onFocusOutside), isFocusInsideReactTreeRef = React18.useRef(false);
+  return React18.useEffect(() => {
     const handleFocus = /* @__PURE__ */ __name((event) => {
       event.target && !isFocusInsideReactTreeRef.current && handleAndDispatchCustomEvent(FOCUS_OUTSIDE, handleFocusOutside, {
         originalEvent: event
@@ -27653,7 +29307,7 @@ __name(handleAndDispatchCustomEvent, "handleAndDispatchCustomEvent");
 // node_modules/@tamagui/focus-scope/dist/esm/FocusScope.mjs
 init_esm8();
 init_esm9();
-var React18 = __toESM(require("react"), 1);
+var React19 = __toESM(require("react"), 1);
 var import_jsx_runtime8 = require("react/jsx-runtime");
 var AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount";
 var AUTOFOCUS_ON_UNMOUNT = "focusScope.autoFocusOnUnmount";
@@ -27661,11 +29315,11 @@ var EVENT_OPTIONS = {
   bubbles: false,
   cancelable: true
 };
-var FocusScope = React18.forwardRef(function(props, forwardedRef) {
+var FocusScope = React19.forwardRef(function(props, forwardedRef) {
   const childProps = useFocusScope(props, forwardedRef);
   return typeof props.children == "function" ? /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(import_jsx_runtime8.Fragment, {
     children: props.children(childProps)
-  }) : React18.cloneElement(React18.Children.only(props.children), childProps);
+  }) : React19.cloneElement(React19.Children.only(props.children), childProps);
 });
 function useFocusScope(props, forwardedRef) {
   const {
@@ -27677,11 +29331,11 @@ function useFocusScope(props, forwardedRef) {
     forceUnmount,
     children,
     ...scopeProps
-  } = props, [container, setContainer] = React18.useState(null), onMountAutoFocus = useEvent(onMountAutoFocusProp), onUnmountAutoFocus = useEvent(onUnmountAutoFocusProp), lastFocusedElementRef = React18.useRef(null), composedRefs = useComposedRefs(forwardedRef, (node) => {
+  } = props, [container, setContainer] = React19.useState(null), onMountAutoFocus = useEvent(onMountAutoFocusProp), onUnmountAutoFocus = useEvent(onUnmountAutoFocusProp), lastFocusedElementRef = React19.useRef(null), composedRefs = useComposedRefs(forwardedRef, (node) => {
     startTransition(() => {
       setContainer(node);
     });
-  }), focusScope = React18.useRef({
+  }), focusScope = React19.useRef({
     paused: false,
     pause() {
       this.paused = true;
@@ -27690,7 +29344,7 @@ function useFocusScope(props, forwardedRef) {
       this.paused = false;
     }
   }).current;
-  React18.useEffect(() => {
+  React19.useEffect(() => {
     if (!enabled || !trapped) return;
     const controller = new AbortController();
     function handleFocusIn(event) {
@@ -27716,7 +29370,7 @@ function useFocusScope(props, forwardedRef) {
     return document.addEventListener("focusin", handleFocusIn), document.addEventListener("focusout", handleFocusOut), () => {
       controller.abort(), document.removeEventListener("focusin", handleFocusIn), document.removeEventListener("focusout", handleFocusOut);
     };
-  }, [trapped, forceUnmount, container, focusScope.paused]), React18.useEffect(() => {
+  }, [trapped, forceUnmount, container, focusScope.paused]), React19.useEffect(() => {
     if (!enabled || !container || forceUnmount) return;
     focusScopesStack.add(focusScope);
     const previouslyFocusedElement = document.activeElement;
@@ -27737,7 +29391,7 @@ function useFocusScope(props, forwardedRef) {
       }), container.removeEventListener(AUTOFOCUS_ON_UNMOUNT, onUnmountAutoFocus), focusScopesStack.remove(focusScope);
     };
   }, [enabled, container, forceUnmount, onMountAutoFocus, onUnmountAutoFocus, focusScope]);
-  const handleKeyDown = React18.useCallback((event) => {
+  const handleKeyDown = React19.useCallback((event) => {
     if (!trapped || !loop || focusScope.paused) return;
     const isTabKey = event.key === "Tab" && !event.altKey && !event.ctrlKey && !event.metaKey, focusedElement = document.activeElement;
     if (isTabKey && focusedElement) {
@@ -27848,19 +29502,19 @@ if (typeof globalThis["__DEV__"] === "undefined") {
   globalThis["__DEV__"] = process.env.NODE_ENV === "development";
 }
 
-// node_modules/@tamagui/dialog/node_modules/@tamagui/portal/dist/esm/Portal.mjs
-init_esm6();
+// node_modules/@tamagui/portal/dist/esm/Portal.mjs
+init_esm();
 
 // node_modules/@tamagui/stacks/dist/esm/Stacks.mjs
-var import_core3 = require("@tamagui/core");
+var import_core5 = require("@tamagui/core");
 
 // node_modules/@tamagui/stacks/dist/esm/getElevation.mjs
-var import_core2 = require("@tamagui/core");
-var getElevation = /* @__PURE__ */ __name((size5, extras) => {
-  if (!size5) return;
+var import_core4 = require("@tamagui/core");
+var getElevation = /* @__PURE__ */ __name((size6, extras) => {
+  if (!size6) return;
   const {
     tokens: tokens2
-  } = extras, token = tokens2.size[size5], sizeNum = (0, import_core2.isVariable)(token) ? +token.val : size5;
+  } = extras, token = tokens2.size[size6], sizeNum = (0, import_core4.isVariable)(token) ? +token.val : size6;
   return getSizedElevation(sizeNum, extras);
 }, "getElevation");
 var getSizedElevation = /* @__PURE__ */ __name((val, {
@@ -27869,7 +29523,7 @@ var getSizedElevation = /* @__PURE__ */ __name((val, {
 }) => {
   let num = 0;
   if (val === true) {
-    const val2 = (0, import_core2.getVariableValue)(tokens2.size.true);
+    const val2 = (0, import_core4.getVariableValue)(tokens2.size.true);
     typeof val2 == "number" ? num = val2 : num = 10;
   } else num = +val;
   if (num === 0) return;
@@ -27881,7 +29535,7 @@ var getSizedElevation = /* @__PURE__ */ __name((val, {
       height,
       width: 0
     },
-    ...import_core2.isAndroid ? {
+    ...import_core4.isAndroid ? {
       elevationAndroid: 2 * height
     } : {}
   };
@@ -27911,17 +29565,17 @@ var variants = {
   },
   inset: getInset
 };
-var YStack = (0, import_core3.styled)(import_core3.View, {
+var YStack = (0, import_core5.styled)(import_core5.View, {
   flexDirection: "column",
   variants
 });
 YStack.displayName = "YStack";
-var XStack = (0, import_core3.styled)(import_core3.View, {
+var XStack = (0, import_core5.styled)(import_core5.View, {
   flexDirection: "row",
   variants
 });
 XStack.displayName = "XStack";
-var ZStack = (0, import_core3.styled)(YStack, {
+var ZStack = (0, import_core5.styled)(YStack, {
   position: "relative"
 }, {
   neverFlatten: true,
@@ -27930,15 +29584,15 @@ var ZStack = (0, import_core3.styled)(YStack, {
 ZStack.displayName = "ZStack";
 
 // node_modules/@tamagui/stacks/dist/esm/SizableStack.mjs
-var import_core4 = require("@tamagui/core");
+var import_core6 = require("@tamagui/core");
 
 // node_modules/@tamagui/get-token/dist/esm/index.mjs
-var import_web2 = require("@tamagui/core");
+var import_web6 = require("@tamagui/core");
 var defaultOptions = {
   shift: 0,
   bounds: [0]
 };
-var getSize = /* @__PURE__ */ __name((size5, options) => getTokenRelative("size", size5, options), "getSize");
+var getSize = /* @__PURE__ */ __name((size6, options) => getTokenRelative("size", size6, options), "getSize");
 var getSpace = /* @__PURE__ */ __name((space2, options) => getTokenRelative("space", space2, options), "getSpace");
 var cacheVariables = {};
 var cacheWholeVariables = {};
@@ -27946,7 +29600,7 @@ var cacheKeys = {};
 var cacheWholeKeys = {};
 var stepTokenUpOrDown = /* @__PURE__ */ __name((type, current, options = defaultOptions) => {
   var _a, _b;
-  const tokens2 = (0, import_web2.getTokens)({
+  const tokens2 = (0, import_web6.getTokens)({
     prefixed: true
   })[type];
   if (!(type in cacheVariables)) {
@@ -27958,7 +29612,7 @@ var stepTokenUpOrDown = /* @__PURE__ */ __name((type, current, options = default
   }
   const isString = typeof current == "string", tokensOrdered = (options.excludeHalfSteps ? isString ? cacheWholeKeys : cacheWholeVariables : isString ? cacheKeys : cacheVariables)[type], min2 = ((_a = options.bounds) == null ? void 0 : _a[0]) ?? 0, max2 = ((_b = options.bounds) == null ? void 0 : _b[1]) ?? tokensOrdered.length - 1, currentIndex = tokensOrdered.indexOf(current);
   let shift4 = options.shift || 0;
-  shift4 && (current === "$true" || (0, import_web2.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
+  shift4 && (current === "$true" || (0, import_web6.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
   const index3 = Math.min(max2, Math.max(min2, currentIndex + shift4)), found = tokensOrdered[index3];
   return (typeof found == "string" ? tokens2[found] : found) || tokens2.$true;
 }, "stepTokenUpOrDown");
@@ -28041,15 +29695,15 @@ var circular = {
     tokens: tokens2
   }) => {
     if (!("size" in props)) return circularStyle;
-    const size5 = typeof props.size == "number" ? props.size : tokens2.size[props.size];
+    const size6 = typeof props.size == "number" ? props.size : tokens2.size[props.size];
     return {
       ...circularStyle,
-      width: size5,
-      height: size5,
-      maxWidth: size5,
-      maxHeight: size5,
-      minWidth: size5,
-      minHeight: size5
+      width: size6,
+      height: size6,
+      maxWidth: size6,
+      maxHeight: size6,
+      minWidth: size6,
+      minHeight: size6
     };
   }, "true")
 };
@@ -28083,7 +29737,7 @@ var focusTheme = {
 };
 
 // node_modules/@tamagui/stacks/dist/esm/SizableStack.mjs
-var SizableStack = (0, import_core4.styled)(XStack, {
+var SizableStack = (0, import_core6.styled)(XStack, {
   name: "SizableStack",
   variants: {
     unstyled: {
@@ -28108,7 +29762,7 @@ var SizableStack = (0, import_core4.styled)(XStack, {
 });
 
 // node_modules/@tamagui/stacks/dist/esm/ThemeableStack.mjs
-var import_core5 = require("@tamagui/core");
+var import_core7 = require("@tamagui/core");
 var chromelessStyle = {
   backgroundColor: "transparent",
   borderColor: "transparent",
@@ -28146,19 +29800,19 @@ var themeableVariants = {
     }
   }
 };
-var ThemeableStack = (0, import_core5.styled)(YStack, {
+var ThemeableStack = (0, import_core7.styled)(YStack, {
   variants: themeableVariants
 });
 
 // node_modules/@tamagui/stacks/dist/esm/NestingContext.mjs
-var import_react10 = __toESM(require("react"), 1);
-var ButtonNestingContext = import_react10.default.createContext(false);
+var import_react11 = __toESM(require("react"), 1);
+var ButtonNestingContext = import_react11.default.createContext(false);
 
-// node_modules/@tamagui/dialog/node_modules/@tamagui/portal/dist/esm/Portal.mjs
-var React20 = __toESM(require("react"), 1);
+// node_modules/@tamagui/portal/dist/esm/Portal.mjs
+var React21 = __toESM(require("react"), 1);
 var import_react_dom = require("react-dom");
 var import_jsx_runtime9 = require("react/jsx-runtime");
-var Portal = React20.memo(({
+var Portal = React21.memo(({
   host = ((_a) => (_a = globalThis.document) == null ? void 0 : _a.body)(),
   ...props
 }) => isServer ? null : (0, import_react_dom.createPortal)(/* @__PURE__ */ (0, import_jsx_runtime9.jsx)(YStack, {
@@ -28171,12 +29825,13 @@ var Portal = React20.memo(({
   ...props
 }), host));
 
-// node_modules/@tamagui/dialog/node_modules/@tamagui/portal/dist/esm/GorhomPortal.mjs
-init_esm6();
-var import_core6 = require("@tamagui/core");
-var import_react11 = __toESM(require("react"), 1);
+// node_modules/@tamagui/portal/dist/esm/GorhomPortal.mjs
+init_esm();
+var import_core8 = require("@tamagui/core");
+var import_react12 = __toESM(require("react"), 1);
 init_esm9();
 var import_jsx_runtime10 = require("react/jsx-runtime");
+var ACTIONS = /* @__PURE__ */ ((ACTIONS2) => (ACTIONS2[ACTIONS2.REGISTER_HOST = 0] = "REGISTER_HOST", ACTIONS2[ACTIONS2.DEREGISTER_HOST = 1] = "DEREGISTER_HOST", ACTIONS2[ACTIONS2.ADD_UPDATE_PORTAL = 2] = "ADD_UPDATE_PORTAL", ACTIONS2[ACTIONS2.REMOVE_PORTAL = 3] = "REMOVE_PORTAL", ACTIONS2))(ACTIONS || {});
 var INITIAL_STATE = {};
 var registerHost = /* @__PURE__ */ __name((state, hostName) => (hostName in state || (state[hostName] = []), state), "registerHost");
 var deregisterHost = /* @__PURE__ */ __name((state, hostName) => (delete state[hostName], state), "deregisterHost");
@@ -28218,34 +29873,34 @@ var reducer = /* @__PURE__ */ __name((state, action) => {
       return state;
   }
 }, "reducer");
-var PortalStateContext = (0, import_react11.createContext)(null);
-var PortalDispatchContext = (0, import_react11.createContext)(null);
+var PortalStateContext = (0, import_react12.createContext)(null);
+var PortalDispatchContext = (0, import_react12.createContext)(null);
 var usePortalState = /* @__PURE__ */ __name((hostName) => {
-  const state = (0, import_react11.useContext)(PortalStateContext);
+  const state = (0, import_react12.useContext)(PortalStateContext);
   if (state === null) throw new Error("'PortalStateContext' cannot be null, please add 'PortalProvider' to the root component.");
   return state[hostName] || [];
 }, "usePortalState");
 var usePortal = /* @__PURE__ */ __name((hostName = "root") => {
-  const dispatch = (0, import_react11.useContext)(PortalDispatchContext);
+  const dispatch = (0, import_react12.useContext)(PortalDispatchContext);
   if (dispatch === null) throw new Error("'PortalDispatchContext' cannot be null, please add 'PortalProvider' to the root component.");
-  const registerHost22 = (0, import_react11.useCallback)(() => {
+  const registerHost2 = (0, import_react12.useCallback)(() => {
     dispatch({
       type: 0,
       hostName
     });
-  }, []), deregisterHost22 = (0, import_react11.useCallback)(() => {
+  }, []), deregisterHost2 = (0, import_react12.useCallback)(() => {
     dispatch({
       type: 1,
       hostName
     });
-  }, []), addUpdatePortal22 = (0, import_react11.useCallback)((name, node) => {
+  }, []), addUpdatePortal2 = (0, import_react12.useCallback)((name, node) => {
     dispatch({
       type: 2,
       hostName,
       portalName: name,
       node
     });
-  }, []), removePortal22 = (0, import_react11.useCallback)((name) => {
+  }, []), removePortal2 = (0, import_react12.useCallback)((name) => {
     dispatch({
       type: 3,
       hostName,
@@ -28253,11 +29908,11 @@ var usePortal = /* @__PURE__ */ __name((hostName = "root") => {
     });
   }, []);
   return {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22,
-    addPortal: addUpdatePortal22,
-    updatePortal: addUpdatePortal22,
-    removePortal: removePortal22
+    registerHost: registerHost2,
+    deregisterHost: deregisterHost2,
+    addPortal: addUpdatePortal2,
+    updatePortal: addUpdatePortal2,
+    removePortal: removePortal2
   };
 }, "usePortal");
 var PortalProviderComponent = /* @__PURE__ */ __name(({
@@ -28265,7 +29920,7 @@ var PortalProviderComponent = /* @__PURE__ */ __name(({
   shouldAddRootHost = true,
   children
 }) => {
-  const [state, dispatch] = (0, import_react11.useReducer)(reducer, INITIAL_STATE), transitionDispatch = (0, import_react11.useMemo)(() => (value) => {
+  const [state, dispatch] = (0, import_react12.useReducer)(reducer, INITIAL_STATE), transitionDispatch = (0, import_react12.useMemo)(() => (value) => {
     startTransition(() => {
       dispatch(value);
     });
@@ -28280,7 +29935,7 @@ var PortalProviderComponent = /* @__PURE__ */ __name(({
     })
   });
 }, "PortalProviderComponent");
-var PortalProvider = (0, import_react11.memo)(PortalProviderComponent);
+var PortalProvider = (0, import_react12.memo)(PortalProviderComponent);
 PortalProvider.displayName = "PortalProvider";
 var defaultRenderer = /* @__PURE__ */ __name((children) => /* @__PURE__ */ (0, import_jsx_runtime10.jsx)(import_jsx_runtime10.Fragment, {
   children
@@ -28291,22 +29946,22 @@ var PortalHostComponent = /* @__PURE__ */ __name((props) => {
     forwardProps,
     render = defaultRenderer
   } = props, state = usePortalState(name), {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22
+    registerHost: registerHost2,
+    deregisterHost: deregisterHost2
   } = usePortal(props.name);
-  return (0, import_react11.useEffect)(() => {
-    if (!(typeof window > "u")) return registerHost22(), () => {
-      deregisterHost22();
+  return (0, import_react12.useEffect)(() => {
+    if (!(typeof window > "u")) return registerHost2(), () => {
+      deregisterHost2();
     };
   }, []), render(forwardProps ? state.map((item) => {
     let next = item.node;
-    return forwardProps ? import_react11.default.Children.map(next, (child) => import_react11.default.isValidElement(child) ? import_react11.default.cloneElement(child, {
+    return forwardProps ? import_react12.default.Children.map(next, (child) => import_react12.default.isValidElement(child) ? import_react12.default.cloneElement(child, {
       key: child.key,
       ...forwardProps
     }) : child) : next;
   }) : state.map((item) => item.node));
 }, "PortalHostComponent");
-var PortalHost = (0, import_react11.memo)(PortalHostComponent);
+var PortalHost = (0, import_react12.memo)(PortalHostComponent);
 PortalHost.displayName = "PortalHost";
 var PortalComponent = /* @__PURE__ */ __name((props) => {
   const {
@@ -28317,35 +29972,35 @@ var PortalComponent = /* @__PURE__ */ __name((props) => {
     handleOnUpdate: _providedHandleOnUpdate,
     children
   } = props, {
-    addPortal: addUpdatePortal22,
-    removePortal: removePortal22
-  } = usePortal(hostName), id = (0, import_react11.useId)(), name = _providedName || id, handleOnMount = (0, import_core6.useEvent)(() => {
-    _providedHandleOnMount ? _providedHandleOnMount(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  }), handleOnUnmount = (0, import_core6.useEvent)(() => {
-    _providedHandleOnUnmount ? _providedHandleOnUnmount(() => removePortal22(name)) : removePortal22(name);
-  }), handleOnUpdate = (0, import_core6.useEvent)(() => {
-    _providedHandleOnUpdate ? _providedHandleOnUpdate(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
+    addPortal: addUpdatePortal2,
+    removePortal: removePortal2
+  } = usePortal(hostName), id = (0, import_react12.useId)(), name = _providedName || id, handleOnMount = (0, import_core8.useEvent)(() => {
+    _providedHandleOnMount ? _providedHandleOnMount(() => addUpdatePortal2(name, children)) : addUpdatePortal2(name, children);
+  }), handleOnUnmount = (0, import_core8.useEvent)(() => {
+    _providedHandleOnUnmount ? _providedHandleOnUnmount(() => removePortal2(name)) : removePortal2(name);
+  }), handleOnUpdate = (0, import_core8.useEvent)(() => {
+    _providedHandleOnUpdate ? _providedHandleOnUpdate(() => addUpdatePortal2(name, children)) : addUpdatePortal2(name, children);
   });
   return useIsomorphicLayoutEffect(() => (handleOnMount(), () => {
     handleOnUnmount();
-  }), []), (0, import_react11.useEffect)(() => {
+  }), []), (0, import_react12.useEffect)(() => {
     handleOnUpdate();
   }, [children]), null;
 }, "PortalComponent");
-var PortalItem = (0, import_react11.memo)(PortalComponent);
+var PortalItem = (0, import_react12.memo)(PortalComponent);
 PortalItem.displayName = "Portal";
 
 // node_modules/@tamagui/remove-scroll/dist/esm/RemoveScroll.mjs
-var import_react12 = __toESM(require("react"), 1);
+var import_react13 = __toESM(require("react"), 1);
 var import_react_remove_scroll = __toESM(require_es57(), 1);
 var import_jsx_runtime11 = require("react/jsx-runtime");
-var RemoveScroll = import_react12.default.memo((props) => props.children ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react_remove_scroll.RemoveScroll, {
+var RemoveScroll = import_react13.default.memo((props) => props.children ? /* @__PURE__ */ (0, import_jsx_runtime11.jsx)(import_react_remove_scroll.RemoveScroll, {
   ...props
 }) : null);
 var classNames = import_react_remove_scroll.RemoveScroll.classNames;
 
 // node_modules/@tamagui/sheet/dist/esm/Sheet.mjs
-var import_core11 = require("@tamagui/core");
+var import_core12 = require("@tamagui/core");
 
 // node_modules/@tamagui/sheet/dist/esm/constants.mjs
 var SHEET_NAME = "Sheet";
@@ -28353,19 +30008,19 @@ var SHEET_HANDLE_NAME = "SheetHandle";
 var SHEET_OVERLAY_NAME = "SheetOverlay";
 
 // node_modules/@tamagui/sheet/dist/esm/createSheet.mjs
-init_esm6();
-var import_core10 = require("@tamagui/core");
+init_esm();
+var import_core11 = require("@tamagui/core");
 init_esm7();
 
 // node_modules/@tamagui/use-did-finish-ssr/dist/esm/index.mjs
-var React23 = __toESM(require("react"), 1);
+var React24 = __toESM(require("react"), 1);
 var emptyFn = /* @__PURE__ */ __name(() => {
 }, "emptyFn");
 var emptyFnFn = /* @__PURE__ */ __name(() => emptyFn, "emptyFnFn");
 function useDidFinishSSR(value, options) {
-  if (options == null ? void 0 : options.sync) return React23.useSyncExternalStore(emptyFnFn, () => value ?? true, () => false);
-  const [cur, setCur] = React23.useState(value);
-  return React23.useEffect(() => {
+  if (options == null ? void 0 : options.sync) return React24.useSyncExternalStore(emptyFnFn, () => value ?? true, () => false);
+  const [cur, setCur] = React24.useState(value);
+  return React24.useEffect(() => {
     setCur(value ?? true);
   }, []), cur ?? false;
 }
@@ -28380,193 +30035,9 @@ var [createSheetContext, createSheetScope] = createContextScope(SHEET_NAME);
 var [SheetProvider, useSheetContext] = createSheetContext(SHEET_NAME, {});
 
 // node_modules/@tamagui/sheet/dist/esm/SheetImplementationCustom.mjs
-init_esm4();
-init_esm6();
-var import_core9 = require("@tamagui/core");
-
-// node_modules/@tamagui/sheet/node_modules/@tamagui/portal/dist/esm/Portal.mjs
-init_esm6();
-var React24 = __toESM(require("react"), 1);
-var import_react_dom2 = require("react-dom");
-var import_jsx_runtime12 = require("react/jsx-runtime");
-var Portal2 = React24.memo(({
-  host = ((_a) => (_a = globalThis.document) == null ? void 0 : _a.body)(),
-  ...props
-}) => isServer ? null : (0, import_react_dom2.createPortal)(/* @__PURE__ */ (0, import_jsx_runtime12.jsx)(YStack, {
-  contain: "strict",
-  fullscreen: true,
-  position: "fixed",
-  maxWidth: "100vw",
-  maxHeight: "100vh",
-  pointerEvents: "none",
-  ...props
-}), host));
-
-// node_modules/@tamagui/sheet/node_modules/@tamagui/portal/dist/esm/GorhomPortal.mjs
-init_esm6();
-var import_core7 = require("@tamagui/core");
-var import_react13 = __toESM(require("react"), 1);
-init_esm9();
-var import_jsx_runtime13 = require("react/jsx-runtime");
-var INITIAL_STATE2 = {};
-var registerHost2 = /* @__PURE__ */ __name((state, hostName) => (hostName in state || (state[hostName] = []), state), "registerHost");
-var deregisterHost2 = /* @__PURE__ */ __name((state, hostName) => (delete state[hostName], state), "deregisterHost");
-var addUpdatePortal2 = /* @__PURE__ */ __name((state, hostName, portalName, node) => {
-  hostName in state || (state = registerHost2(state, hostName));
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 ? state[hostName][index3].node = node : state[hostName].push({
-    name: portalName,
-    node
-  }), state;
-}, "addUpdatePortal");
-var removePortal2 = /* @__PURE__ */ __name((state, hostName, portalName) => {
-  if (!(hostName in state)) return console.info(`Failed to remove portal '${portalName}', '${hostName}' was not registered!`), state;
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 && state[hostName].splice(index3, 1), state;
-}, "removePortal");
-var reducer2 = /* @__PURE__ */ __name((state, action) => {
-  const {
-    type
-  } = action;
-  switch (type) {
-    case 0:
-      return registerHost2({
-        ...state
-      }, action.hostName);
-    case 1:
-      return deregisterHost2({
-        ...state
-      }, action.hostName);
-    case 2:
-      return addUpdatePortal2({
-        ...state
-      }, action.hostName, action.portalName, action.node);
-    case 3:
-      return removePortal2({
-        ...state
-      }, action.hostName, action.portalName);
-    default:
-      return state;
-  }
-}, "reducer");
-var PortalStateContext2 = (0, import_react13.createContext)(null);
-var PortalDispatchContext2 = (0, import_react13.createContext)(null);
-var usePortalState2 = /* @__PURE__ */ __name((hostName) => {
-  const state = (0, import_react13.useContext)(PortalStateContext2);
-  if (state === null) throw new Error("'PortalStateContext' cannot be null, please add 'PortalProvider' to the root component.");
-  return state[hostName] || [];
-}, "usePortalState");
-var usePortal2 = /* @__PURE__ */ __name((hostName = "root") => {
-  const dispatch = (0, import_react13.useContext)(PortalDispatchContext2);
-  if (dispatch === null) throw new Error("'PortalDispatchContext' cannot be null, please add 'PortalProvider' to the root component.");
-  const registerHost22 = (0, import_react13.useCallback)(() => {
-    dispatch({
-      type: 0,
-      hostName
-    });
-  }, []), deregisterHost22 = (0, import_react13.useCallback)(() => {
-    dispatch({
-      type: 1,
-      hostName
-    });
-  }, []), addUpdatePortal22 = (0, import_react13.useCallback)((name, node) => {
-    dispatch({
-      type: 2,
-      hostName,
-      portalName: name,
-      node
-    });
-  }, []), removePortal22 = (0, import_react13.useCallback)((name) => {
-    dispatch({
-      type: 3,
-      hostName,
-      portalName: name
-    });
-  }, []);
-  return {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22,
-    addPortal: addUpdatePortal22,
-    updatePortal: addUpdatePortal22,
-    removePortal: removePortal22
-  };
-}, "usePortal");
-var PortalProviderComponent2 = /* @__PURE__ */ __name(({
-  rootHostName = "root",
-  shouldAddRootHost = true,
-  children
-}) => {
-  const [state, dispatch] = (0, import_react13.useReducer)(reducer2, INITIAL_STATE2), transitionDispatch = (0, import_react13.useMemo)(() => (value) => {
-    startTransition(() => {
-      dispatch(value);
-    });
-  }, [dispatch]);
-  return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PortalDispatchContext2.Provider, {
-    value: transitionDispatch,
-    children: /* @__PURE__ */ (0, import_jsx_runtime13.jsxs)(PortalStateContext2.Provider, {
-      value: state,
-      children: [children, shouldAddRootHost && /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(PortalHost2, {
-        name: rootHostName
-      })]
-    })
-  });
-}, "PortalProviderComponent");
-var PortalProvider2 = (0, import_react13.memo)(PortalProviderComponent2);
-PortalProvider2.displayName = "PortalProvider";
-var defaultRenderer2 = /* @__PURE__ */ __name((children) => /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(import_jsx_runtime13.Fragment, {
-  children
-}), "defaultRenderer");
-var PortalHostComponent2 = /* @__PURE__ */ __name((props) => {
-  const {
-    name,
-    forwardProps,
-    render = defaultRenderer2
-  } = props, state = usePortalState2(name), {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22
-  } = usePortal2(props.name);
-  return (0, import_react13.useEffect)(() => {
-    if (!(typeof window > "u")) return registerHost22(), () => {
-      deregisterHost22();
-    };
-  }, []), render(forwardProps ? state.map((item) => {
-    let next = item.node;
-    return forwardProps ? import_react13.default.Children.map(next, (child) => import_react13.default.isValidElement(child) ? import_react13.default.cloneElement(child, {
-      key: child.key,
-      ...forwardProps
-    }) : child) : next;
-  }) : state.map((item) => item.node));
-}, "PortalHostComponent");
-var PortalHost2 = (0, import_react13.memo)(PortalHostComponent2);
-PortalHost2.displayName = "PortalHost";
-var PortalComponent2 = /* @__PURE__ */ __name((props) => {
-  const {
-    name: _providedName,
-    hostName,
-    handleOnMount: _providedHandleOnMount,
-    handleOnUnmount: _providedHandleOnUnmount,
-    handleOnUpdate: _providedHandleOnUpdate,
-    children
-  } = props, {
-    addPortal: addUpdatePortal22,
-    removePortal: removePortal22
-  } = usePortal2(hostName), id = (0, import_react13.useId)(), name = _providedName || id, handleOnMount = (0, import_core7.useEvent)(() => {
-    _providedHandleOnMount ? _providedHandleOnMount(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  }), handleOnUnmount = (0, import_core7.useEvent)(() => {
-    _providedHandleOnUnmount ? _providedHandleOnUnmount(() => removePortal22(name)) : removePortal22(name);
-  }), handleOnUpdate = (0, import_core7.useEvent)(() => {
-    _providedHandleOnUpdate ? _providedHandleOnUpdate(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  });
-  return useIsomorphicLayoutEffect(() => (handleOnMount(), () => {
-    handleOnUnmount();
-  }), []), (0, import_react13.useEffect)(() => {
-    handleOnUpdate();
-  }, [children]), null;
-}, "PortalComponent");
-var PortalItem2 = (0, import_react13.memo)(PortalComponent2);
-PortalItem2.displayName = "Portal";
-
-// node_modules/@tamagui/sheet/dist/esm/SheetImplementationCustom.mjs
+init_esm5();
+init_esm();
+var import_core10 = require("@tamagui/core");
 var import_react17 = __toESM(require("react"), 1);
 var import_react_native_web = __toESM(require_cjs16(), 1);
 
@@ -28628,8 +30099,8 @@ var useSheetOpenState = /* @__PURE__ */ __name((props) => {
 
 // node_modules/@tamagui/sheet/dist/esm/useSheetProviderProps.mjs
 var import_react16 = __toESM(require("react"), 1);
-var import_core8 = require("@tamagui/core");
-init_esm2();
+var import_core9 = require("@tamagui/core");
+init_esm4();
 init_esm10();
 function useSheetProviderProps(props, state, options = {}) {
   const handleRef = import_react16.default.useRef(null), contentRef = import_react16.default.useRef(null), [frameSize, setFrameSize] = import_react16.default.useState(0), [maxContentSize, setMaxContentSize] = import_react16.default.useState(0), snapPointsMode = props.snapPointsMode ?? "percent", snapPointsProp = props.snapPoints ?? (snapPointsMode === "percent" ? [80] : snapPointsMode === "constant" ? [256] : ["fit"]), hasFit = snapPointsProp[0] === "fit", snapPoints = import_react16.default.useMemo(() => props.dismissOnSnapToBottom ? [...snapPointsProp, 0] : snapPointsProp, [JSON.stringify(snapPointsProp), props.dismissOnSnapToBottom]), [position_, setPositionImmediate] = useControllableState({
@@ -28660,7 +30131,7 @@ function useSheetProviderProps(props, state, options = {}) {
   }, [setPosition, shouldSetPositionOpen]);
   const {
     animationDriver
-  } = (0, import_core8.useConfiguration)();
+  } = (0, import_core9.useConfiguration)();
   if (!animationDriver) throw new Error(process.env.NODE_ENV === "production" ? "\u274C 008" : "Must set animations in tamagui.config.ts");
   const scrollBridge = useConstant(() => ({
     enabled: false,
@@ -28704,7 +30175,7 @@ function useSheetProviderProps(props, state, options = {}) {
 __name(useSheetProviderProps, "useSheetProviderProps");
 
 // node_modules/@tamagui/sheet/dist/esm/SheetImplementationCustom.mjs
-var import_jsx_runtime14 = require("react/jsx-runtime");
+var import_jsx_runtime12 = require("react/jsx-runtime");
 var hiddenSize = 10000.1;
 var sheetHiddenStyleSheet = null;
 var relativeDimensionTo = isWeb ? "window" : "screen";
@@ -28739,18 +30210,18 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
   } = state, sheetRef = import_react17.default.useRef(null), ref = useComposedRefs(forwardedRef, sheetRef), animationConfig = (() => {
     const [animationProp, animationPropConfig] = animation ? Array.isArray(animation) ? animation : [animation] : [];
     return animationConfigProp ?? (animationProp ? {
-      ...(0, import_core9.getConfig)().animations.animations[animationProp],
+      ...(0, import_core10.getConfig)().animations.animations[animationProp],
       ...animationPropConfig
     } : null);
   })(), [isShowingInnerSheet, setIsShowingInnerSheet] = import_react17.default.useState(false), shouldHideParentSheet = !isWeb && modal && isShowingInnerSheet, parentSheetContext = import_react17.default.useContext(SheetInsideSheetContext), onInnerSheet = import_react17.default.useCallback((hasChild) => {
     setIsShowingInnerSheet(hasChild);
   }, []), positions = import_react17.default.useMemo(() => snapPoints.map((point) => getYPositions(snapPointsMode, point, screenSize, frameSize)), [screenSize, frameSize, snapPoints, snapPointsMode]), {
     animationDriver
-  } = (0, import_core9.useConfiguration)(), {
+  } = (0, import_core10.useConfiguration)(), {
     useAnimatedNumber,
     useAnimatedNumberStyle,
     useAnimatedNumberReaction
-  } = animationDriver, AnimatedView = animationDriver.View ?? import_core9.Stack;
+  } = animationDriver, AnimatedView = animationDriver.View ?? import_core10.Stack;
   useIsomorphicLayoutEffect(() => {
     if (parentSheetContext && open) return parentSheetContext(true), () => {
       parentSheetContext(false);
@@ -28769,7 +30240,7 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
     animatedNumber.stop(), scrollBridge.onFinishAnimate && (scrollBridge.onFinishAnimate(), scrollBridge.onFinishAnimate = void 0);
   }
   __name(stopSpring, "stopSpring");
-  const hasntMeasured = at.current === hiddenSize, animateTo = (0, import_core9.useEvent)((position2) => {
+  const hasntMeasured = at.current === hiddenSize, animateTo = (0, import_core10.useEvent)((position2) => {
     if (frameSize === 0) return;
     let toValue = isHidden2 || position2 === -1 ? screenSize : positions[position2];
     if (at.current !== toValue) {
@@ -28799,7 +30270,7 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
   }, [hasntMeasured, screenSize]), useIsomorphicLayoutEffect(() => {
     !frameSize || !screenSize || isHidden2 || hasntMeasured && !open || animateTo(position);
   }, [isHidden2, frameSize, screenSize, open, position]);
-  const disableDrag = props.disableDrag ?? (controller == null ? void 0 : controller.disableDrag), themeName = (0, import_core9.useThemeName)(), [isDragging, setIsDragging] = import_react17.default.useState(false), panResponder = import_react17.default.useMemo(() => {
+  const disableDrag = props.disableDrag ?? (controller == null ? void 0 : controller.disableDrag), themeName = (0, import_core10.useThemeName)(), [isDragging, setIsDragging] = import_react17.default.useState(false), panResponder = import_react17.default.useMemo(() => {
     if (disableDrag || !frameSize || isShowingInnerSheet) return;
     const minY = positions[0];
     scrollBridge.paneMinY = minY;
@@ -28902,16 +30373,16 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
       };
     }
   }, [open]);
-  const forcedContentHeight = hasFit ? void 0 : snapPointsMode === "percent" ? `${maxSnapPoint}${isWeb ? "dvh" : "%"}` : maxSnapPoint, contents = /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(ParentSheetContext.Provider, {
+  const forcedContentHeight = hasFit ? void 0 : snapPointsMode === "percent" ? `${maxSnapPoint}${isWeb ? "dvh" : "%"}` : maxSnapPoint, contents = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(ParentSheetContext.Provider, {
     value: nextParentContext,
-    children: /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(SheetProvider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime12.jsxs)(SheetProvider, {
       ...providerProps,
-      children: [/* @__PURE__ */ (0, import_jsx_runtime14.jsx)(AnimatePresence, {
+      children: [/* @__PURE__ */ (0, import_jsx_runtime12.jsx)(AnimatePresence, {
         custom: {
           open
         },
         children: shouldHideParentSheet || !open ? null : overlayComponent
-      }), snapPointsMode !== "percent" && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_react_native_web.View, {
+      }), snapPointsMode !== "percent" && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_react_native_web.View, {
         style: {
           opacity: 0,
           position: "absolute",
@@ -28922,7 +30393,7 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
           pointerEvents: "none"
         },
         onLayout: handleMaxContentViewLayout
-      }), /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(AnimatedView, {
+      }), /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(AnimatedView, {
         ref,
         ...panResponder == null ? void 0 : panResponder.panHandlers,
         onLayout: handleAnimationViewLayout,
@@ -28947,21 +30418,21 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
     })
   }), adaptContext = import_react17.default.useContext(AdaptParentContext), shouldMountChildren = !!(opacity || !unmountChildrenWhenHidden);
   if (modal) {
-    const modalContents = /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Portal2, {
+    const modalContents = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Portal, {
       zIndex: zIndex2,
       ...portalProps,
-      children: shouldMountChildren && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(ContainerComponent, {
-        children: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_core9.Theme, {
+      children: shouldMountChildren && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(ContainerComponent, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_core10.Theme, {
           forceClassName: true,
           name: themeName,
-          children: /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(AdaptParentContext.Provider, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(AdaptParentContext.Provider, {
             value: adaptContext,
             children: contents
           })
         })
       })
     });
-    return isWeb ? modalContents : /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(SheetInsideSheetContext.Provider, {
+    return isWeb ? modalContents : /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(SheetInsideSheetContext.Provider, {
       value: onInnerSheet,
       children: modalContents
     });
@@ -28990,9 +30461,9 @@ __name(getYPositions, "getYPositions");
 var import_react18 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/scroll-view/dist/esm/ScrollView.mjs
-var import_web3 = require("@tamagui/core");
+var import_web7 = require("@tamagui/core");
 var import_react_native_web2 = __toESM(require_cjs16(), 1);
-var ScrollView = (0, import_web3.styled)(import_react_native_web2.ScrollView, {
+var ScrollView = (0, import_web7.styled)(import_react_native_web2.ScrollView, {
   name: "ScrollView",
   scrollEnabled: true,
   variants: {
@@ -29007,7 +30478,7 @@ var ScrollView = (0, import_web3.styled)(import_react_native_web2.ScrollView, {
 });
 
 // node_modules/@tamagui/sheet/dist/esm/SheetScrollView.mjs
-var import_jsx_runtime15 = require("react/jsx-runtime");
+var import_jsx_runtime13 = require("react/jsx-runtime");
 var SHEET_SCROLL_VIEW_NAME = "SheetScrollView";
 var SheetScrollView = import_react18.default.forwardRef(({
   __scopeSheet,
@@ -29037,7 +30508,7 @@ var SheetScrollView = import_react18.default.forwardRef(({
       vy
     });
   }, "release");
-  return /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(ScrollView, {
+  return /* @__PURE__ */ (0, import_jsx_runtime13.jsx)(ScrollView, {
     ref: composeRefs(scrollRef, ref),
     flex: 1,
     scrollEventThrottle: 8,
@@ -29080,7 +30551,7 @@ var useSheetOffscreenSize = /* @__PURE__ */ __name(({
 }, "useSheetOffscreenSize");
 
 // node_modules/@tamagui/sheet/dist/esm/createSheet.mjs
-var import_jsx_runtime16 = require("react/jsx-runtime");
+var import_jsx_runtime14 = require("react/jsx-runtime");
 function createSheet({
   Handle: Handle2,
   Frame: Frame2,
@@ -29093,7 +30564,7 @@ function createSheet({
     const context = useSheetContext(SHEET_HANDLE_NAME, __scopeSheet), composedRef = useComposedRefs(context.handleRef, forwardedRef);
     return context.onlyShowFrame ? null : (
       // @ts-ignore
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Handle2, {
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Handle2, {
         ref: composedRef,
         onPress: /* @__PURE__ */ __name(() => {
           const max2 = context.snapPoints.length + (context.dismissOnSnapToBottom ? -1 : 0), nextPos = (context.position + 1) % max2;
@@ -29109,7 +30580,7 @@ function createSheet({
       ...props
     } = propsIn, context = useSheetContext(SHEET_OVERLAY_NAME, __scopeSheet), element = (0, import_react19.useMemo)(() => (
       // @ts-ignore
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Overlay2, {
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Overlay2, {
         ...props,
         onPress: composeEventHandlers(props.onPress, context.dismissOnOverlayPress ? () => {
           context.setOpen(false);
@@ -29135,21 +30606,21 @@ function createSheet({
       open
     } = context, composedContentRef = useComposedRefs(forwardedRef, contentRef), offscreenSize = useSheetOffscreenSize(context), sheetContents = (0, import_react19.useMemo)(() => (
       // @ts-ignore
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(Frame2, {
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(Frame2, {
         ref: composedContentRef,
         flex: hasFit ? 0 : 1,
         height: hasFit ? void 0 : frameSize,
         pointerEvents: open ? "auto" : "none",
         ...props,
-        children: [children, adjustPaddingForOffscreenContent && /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_core10.Stack, {
+        children: [children, adjustPaddingForOffscreenContent && /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(import_core11.Stack, {
           "data-sheet-offscreen-pad": true,
           height: offscreenSize,
           width: "100%"
         })]
       })
     ), [open, props, frameSize, offscreenSize, adjustPaddingForOffscreenContent, hasFit]);
-    return /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(import_jsx_runtime16.Fragment, {
-      children: [/* @__PURE__ */ (0, import_jsx_runtime16.jsx)(RemoveScroll, {
+    return /* @__PURE__ */ (0, import_jsx_runtime14.jsxs)(import_jsx_runtime14.Fragment, {
+      children: [/* @__PURE__ */ (0, import_jsx_runtime14.jsx)(RemoveScroll, {
         forwardProps: true,
         enabled: removeScrollEnabled,
         allowPinchZoom: true,
@@ -29157,7 +30628,7 @@ function createSheet({
         removeScrollBar: false,
         children: sheetContents
       }), !disableHideBottomOverflow && // @ts-ignore
-      /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Frame2, {
+      /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(Frame2, {
         ...props,
         componentName: "SheetCover",
         children: null,
@@ -29177,7 +30648,7 @@ function createSheet({
       isShowingNonSheet
     } = useSheetController();
     let SheetImplementation = SheetImplementationCustom;
-    return props.native && import_react_native_web3.Platform.OS, isShowingNonSheet || !hydrated ? null : /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(SheetImplementation, {
+    return props.native && import_react_native_web3.Platform.OS, isShowingNonSheet || !hydrated ? null : /* @__PURE__ */ (0, import_jsx_runtime14.jsx)(SheetImplementation, {
       ref,
       ...props
     });
@@ -29195,7 +30666,7 @@ function createSheet({
 __name(createSheet, "createSheet");
 
 // node_modules/@tamagui/sheet/dist/esm/Sheet.mjs
-var Handle = (0, import_core11.styled)(XStack, {
+var Handle = (0, import_core12.styled)(XStack, {
   name: SHEET_HANDLE_NAME,
   variants: {
     open: {
@@ -29226,7 +30697,7 @@ var Handle = (0, import_core11.styled)(XStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var Overlay = (0, import_core11.styled)(ThemeableStack, {
+var Overlay = (0, import_core12.styled)(ThemeableStack, {
   name: SHEET_OVERLAY_NAME,
   variants: {
     open: {
@@ -29253,7 +30724,7 @@ var Overlay = (0, import_core11.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var Frame = (0, import_core11.styled)(YStack, {
+var Frame = (0, import_core12.styled)(YStack, {
   name: SHEET_NAME,
   variants: {
     unstyled: {
@@ -29285,20 +30756,20 @@ var useSheet = /* @__PURE__ */ __name(() => useSheetContext("", void 0), "useShe
 
 // node_modules/@tamagui/sheet/dist/esm/SheetController.mjs
 var import_react20 = __toESM(require("react"), 1);
-var import_core12 = require("@tamagui/core");
-var import_jsx_runtime17 = require("react/jsx-runtime");
+var import_core13 = require("@tamagui/core");
+var import_jsx_runtime15 = require("react/jsx-runtime");
 var SheetController = /* @__PURE__ */ __name(({
   children,
   onOpenChange: onOpenChangeProp,
   ...value
 }) => {
-  const onOpenChange = (0, import_core12.useEvent)(onOpenChangeProp), memoValue = import_react20.default.useMemo(() => ({
+  const onOpenChange = (0, import_core13.useEvent)(onOpenChangeProp), memoValue = import_react20.default.useMemo(() => ({
     open: value.open,
     hidden: value.hidden,
     disableDrag: value.disableDrag,
     onOpenChange
   }), [onOpenChange, value.open, value.hidden, value.disableDrag]);
-  return /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(SheetControllerContext.Provider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime15.jsx)(SheetControllerContext.Provider, {
     value: memoValue,
     children
   });
@@ -29307,7 +30778,7 @@ var SheetController = /* @__PURE__ */ __name(({
 // node_modules/@tamagui/sheet/dist/esm/nativeSheet.mjs
 var import_react21 = require("react");
 var import_react_native_web4 = __toESM(require_cjs16(), 1);
-var import_jsx_runtime18 = require("react/jsx-runtime");
+var import_jsx_runtime16 = require("react/jsx-runtime");
 var nativeSheets = {
   ios: null
 };
@@ -29324,20 +30795,20 @@ function setupNativeSheet(platform2, Implementation) {
     return (0, import_react21.useEffect)(() => {
       var _a;
       (_a = ref.current) == null ? void 0 : _a.setVisibility(open);
-    }, [open]), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(import_jsx_runtime18.Fragment, {
-      children: /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(SheetProvider, {
+    }, [open]), /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_jsx_runtime16.Fragment, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime16.jsxs)(SheetProvider, {
         ...providerProps,
         onlyShowFrame: true,
-        children: [/* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Implementation, {
+        children: [/* @__PURE__ */ (0, import_jsx_runtime16.jsx)(Implementation, {
           ref,
           onModalDismiss: /* @__PURE__ */ __name(() => setOpen(false), "onModalDismiss"),
-          children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(import_react_native_web4.View, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(import_react_native_web4.View, {
             style: {
               flex: 1
             },
             children: props.children
           })
-        }), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(YStack, {
+        }), /* @__PURE__ */ (0, import_jsx_runtime16.jsx)(YStack, {
           position: "absolute",
           opacity: 0,
           pointerEvents: "none",
@@ -29352,8 +30823,8 @@ function setupNativeSheet(platform2, Implementation) {
 __name(setupNativeSheet, "setupNativeSheet");
 
 // node_modules/@tamagui/get-font-sized/dist/esm/index.mjs
-init_esm6();
-var import_core13 = require("@tamagui/core");
+init_esm();
+var import_core14 = require("@tamagui/core");
 var getFontSized = /* @__PURE__ */ __name((sizeTokenIn = "$true", {
   font,
   fontFamily,
@@ -29373,7 +30844,7 @@ var getFontSized = /* @__PURE__ */ __name((sizeTokenIn = "$true", {
 var cache2 = /* @__PURE__ */ new WeakMap();
 function getDefaultSizeToken(font) {
   if (typeof font == "object" && cache2.has(font)) return cache2.get(font);
-  const sizeTokens = "$true" in font.size ? font.size : (0, import_core13.getTokens)().size, sizeDefault = sizeTokens.$true, sizeDefaultSpecific = sizeDefault ? Object.keys(sizeTokens).find((x) => x !== "$true" && sizeTokens[x].val === sizeDefault.val) : null;
+  const sizeTokens = "$true" in font.size ? font.size : (0, import_core14.getTokens)().size, sizeDefault = sizeTokens.$true, sizeDefaultSpecific = sizeDefault ? Object.keys(sizeTokens).find((x) => x !== "$true" && sizeTokens[x].val === sizeDefault.val) : null;
   return !sizeDefault || !sizeDefaultSpecific ? (process.env.NODE_ENV === "development" && console.warn(`No default size is set in your tokens for the "true" key, fonts will be inconsistent.
 
       Fix this by having consistent tokens across fonts and sizes and setting a true key for your size tokens, or
@@ -29382,8 +30853,8 @@ function getDefaultSizeToken(font) {
 __name(getDefaultSizeToken, "getDefaultSizeToken");
 
 // node_modules/@tamagui/text/dist/esm/SizableText.mjs
-var import_web4 = require("@tamagui/core");
-var SizableText = (0, import_web4.styled)(import_web4.Text, {
+var import_web8 = require("@tamagui/core");
+var SizableText = (0, import_web8.styled)(import_web8.Text, {
   name: "SizableText",
   fontFamily: "$body",
   variants: {
@@ -29401,14 +30872,14 @@ var SizableText = (0, import_web4.styled)(import_web4.Text, {
 });
 SizableText.staticConfig.variants.fontFamily = {
   "...": /* @__PURE__ */ __name((_val, extras) => {
-    const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size5 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
-    return getFontSized(size5, extras);
+    const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size6 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
+    return getFontSized(size6, extras);
   }, "...")
 };
 
 // node_modules/@tamagui/text/dist/esm/Paragraph.mjs
-var import_web5 = require("@tamagui/core");
-var Paragraph = (0, import_web5.styled)(SizableText, {
+var import_web9 = require("@tamagui/core");
+var Paragraph = (0, import_web9.styled)(SizableText, {
   name: "Paragraph",
   tag: "p",
   userSelect: "auto",
@@ -29418,8 +30889,8 @@ var Paragraph = (0, import_web5.styled)(SizableText, {
 });
 
 // node_modules/@tamagui/text/dist/esm/Headings.mjs
-var import_web6 = require("@tamagui/core");
-var Heading = (0, import_web6.styled)(Paragraph, {
+var import_web10 = require("@tamagui/core");
+var Heading = (0, import_web10.styled)(Paragraph, {
   tag: "span",
   name: "Heading",
   accessibilityRole: "header",
@@ -29427,32 +30898,32 @@ var Heading = (0, import_web6.styled)(Paragraph, {
   size: "$8",
   margin: 0
 });
-var H1 = (0, import_web6.styled)(Heading, {
+var H1 = (0, import_web10.styled)(Heading, {
   name: "H1",
   tag: "h1",
   size: "$10"
 });
-var H2 = (0, import_web6.styled)(Heading, {
+var H2 = (0, import_web10.styled)(Heading, {
   name: "H2",
   tag: "h2",
   size: "$9"
 });
-var H3 = (0, import_web6.styled)(Heading, {
+var H3 = (0, import_web10.styled)(Heading, {
   name: "H3",
   tag: "h3",
   size: "$8"
 });
-var H4 = (0, import_web6.styled)(Heading, {
+var H4 = (0, import_web10.styled)(Heading, {
   name: "H4",
   tag: "h4",
   size: "$7"
 });
-var H5 = (0, import_web6.styled)(Heading, {
+var H5 = (0, import_web10.styled)(Heading, {
   name: "H5",
   tag: "h5",
   size: "$6"
 });
-var H6 = (0, import_web6.styled)(Heading, {
+var H6 = (0, import_web10.styled)(Heading, {
   name: "H6",
   tag: "h6",
   size: "$5"
@@ -29460,12 +30931,12 @@ var H6 = (0, import_web6.styled)(Heading, {
 
 // node_modules/@tamagui/text/dist/esm/wrapChildrenInText.mjs
 var import_react22 = __toESM(require("react"), 1);
-var import_jsx_runtime19 = require("react/jsx-runtime");
+var import_jsx_runtime17 = require("react/jsx-runtime");
 function wrapChildrenInText(TextComponent, propsIn, extraProps) {
   const {
     children,
     textProps,
-    size: size5,
+    size: size6,
     noTextWrap,
     color: color2,
     fontFamily,
@@ -29480,9 +30951,9 @@ function wrapChildrenInText(TextComponent, propsIn, extraProps) {
   const props = {
     ...extraProps
   };
-  return color2 && (props.color = color2), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size5 && (props.size = size5), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react22.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? (
+  return color2 && (props.color = color2), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size6 && (props.size = size6), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react22.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? (
     // so "data-disable-theme" is a hack to fix themeInverse, don't ask me why
-    /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(TextComponent, {
+    /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(TextComponent, {
       ...props,
       ...textProps,
       children: child
@@ -29493,23 +30964,23 @@ __name(wrapChildrenInText, "wrapChildrenInText");
 
 // node_modules/@tamagui/dialog/dist/esm/Dialog.mjs
 init_esm10();
-var React33 = __toESM(require("react"), 1);
-var import_jsx_runtime20 = require("react/jsx-runtime");
+var React32 = __toESM(require("react"), 1);
+var import_jsx_runtime18 = require("react/jsx-runtime");
 var DIALOG_NAME = "Dialog";
 var [createDialogContext, createDialogScope] = createContextScope(DIALOG_NAME);
 var [DialogProvider, useDialogContext] = createDialogContext(DIALOG_NAME);
 var TRIGGER_NAME2 = "DialogTrigger";
-var DialogTriggerFrame = (0, import_core14.styled)(import_core14.View, {
+var DialogTriggerFrame = (0, import_core15.styled)(import_core15.View, {
   name: TRIGGER_NAME2
 });
 var DialogTrigger = DialogTriggerFrame.styleable(function(props, forwardedRef) {
   const {
     __scopeDialog,
     ...triggerProps
-  } = props, isInsideButton = React33.useContext(ButtonNestingContext), context = useDialogContext(TRIGGER_NAME2, __scopeDialog), composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(ButtonNestingContext.Provider, {
+  } = props, isInsideButton = React32.useContext(ButtonNestingContext), context = useDialogContext(TRIGGER_NAME2, __scopeDialog), composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(ButtonNestingContext.Provider, {
     value: true,
-    children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogTriggerFrame, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogTriggerFrame, {
       tag: isInsideButton ? "span" : "button",
       "aria-haspopup": "dialog",
       "aria-expanded": context.open,
@@ -29522,10 +30993,10 @@ var DialogTrigger = DialogTriggerFrame.styleable(function(props, forwardedRef) {
   });
 });
 var PORTAL_NAME = "DialogPortal";
-var [PortalProvider3, usePortalContext] = createDialogContext(PORTAL_NAME, {
+var [PortalProvider2, usePortalContext] = createDialogContext(PORTAL_NAME, {
   forceMount: void 0
 });
-var DialogPortalFrame = (0, import_core14.styled)(YStack, {
+var DialogPortalFrame = (0, import_core15.styled)(YStack, {
   pointerEvents: "none",
   variants: {
     unstyled: {
@@ -29546,10 +31017,10 @@ var DialogPortalFrame = (0, import_core14.styled)(YStack, {
   }
 });
 var DialogPortalItem = /* @__PURE__ */ __name((props) => {
-  const themeName = (0, import_core14.useThemeName)(), context = useDialogContext(PORTAL_NAME, props.__scopeDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(PortalItem, {
+  const themeName = (0, import_core15.useThemeName)(), context = useDialogContext(PORTAL_NAME, props.__scopeDialog);
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(PortalItem, {
     hostName: props.hostName,
-    children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogPortalItemContent, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogPortalItemContent, {
       ...props,
       themeName,
       context
@@ -29567,15 +31038,15 @@ function DialogPortalItemContent(props) {
     separator
   } = props;
   let childrenSpaced = children;
-  return (space2 || separator) && (childrenSpaced = (0, import_core14.spacedChildren)({
+  return (space2 || separator) && (childrenSpaced = (0, import_core15.spacedChildren)({
     children,
     separator,
     space: space2,
     direction: spaceDirection
-  })), /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogProvider, {
+  })), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogProvider, {
     scope: __scopeDialog,
     ...context,
-    children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(import_core14.Theme, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(import_core15.Theme, {
       name: themeName,
       children: childrenSpaced
     })
@@ -29588,32 +31059,32 @@ var DialogPortal = /* @__PURE__ */ __name((props) => {
     forceMount,
     children,
     ...frameProps
-  } = props, context = useDialogContext(PORTAL_NAME, __scopeDialog), isShowing = forceMount || context.open, [isFullyHidden, setIsFullyHidden] = React33.useState(!isShowing);
+  } = props, context = useDialogContext(PORTAL_NAME, __scopeDialog), isShowing = forceMount || context.open, [isFullyHidden, setIsFullyHidden] = React32.useState(!isShowing);
   isShowing && isFullyHidden && setIsFullyHidden(false);
-  const handleExitComplete = React33.useCallback(() => {
+  const handleExitComplete = React32.useCallback(() => {
     setIsFullyHidden(true);
-  }, []), contents = /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(AnimatePresence, {
+  }, []), contents = /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(AnimatePresence, {
     onExitComplete: handleExitComplete,
     children: isShowing ? children : null
   });
   if (useShowDialogSheet(context)) return children;
   if (context.modal) {
     if (isFullyHidden) return null;
-    const framedContents = /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(PortalProvider3, {
+    const framedContents = /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(PortalProvider2, {
       scope: __scopeDialog,
       forceMount,
-      children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogPortalFrame, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogPortalFrame, {
         pointerEvents: isShowing ? "auto" : "none",
         ...frameProps,
         children: contents
       })
     });
-    return isWeb ? /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Portal, {
+    return isWeb ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Portal, {
       zIndex: props.zIndex ?? 1e5,
-      children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(PassthroughTheme, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(PassthroughTheme, {
         children: framedContents
       })
-    }) : /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogPortalItem, {
+    }) : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogPortalItem, {
       __scopeDialog,
       children: framedContents
     });
@@ -29623,18 +31094,18 @@ var DialogPortal = /* @__PURE__ */ __name((props) => {
 var PassthroughTheme = /* @__PURE__ */ __name(({
   children
 }) => {
-  const themeName = (0, import_core14.useThemeName)();
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(import_core14.Theme, {
+  const themeName = (0, import_core15.useThemeName)();
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(import_core15.Theme, {
     name: themeName,
     forceClassName: true,
     children
   });
 }, "PassthroughTheme");
 var OVERLAY_NAME = "DialogOverlay";
-var DialogOverlayFrame = (0, import_core14.styled)(Overlay, {
+var DialogOverlayFrame = (0, import_core15.styled)(Overlay, {
   name: OVERLAY_NAME
 });
-var DialogOverlay = DialogOverlayFrame.extractable(React33.forwardRef(function({
+var DialogOverlay = DialogOverlayFrame.extractable(React32.forwardRef(function({
   __scopeDialog,
   ...props
 }, forwardedRef) {
@@ -29642,7 +31113,7 @@ var DialogOverlay = DialogOverlayFrame.extractable(React33.forwardRef(function({
     forceMount = portalContext.forceMount,
     ...overlayProps
   } = props, context = useDialogContext(OVERLAY_NAME, __scopeDialog), showSheet = useShowDialogSheet(context);
-  return !forceMount && (!context.modal || showSheet) ? null : /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogOverlayFrame, {
+  return !forceMount && (!context.modal || showSheet) ? null : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogOverlayFrame, {
     "data-state": getState2(context.open),
     pointerEvents: context.open ? "auto" : "none",
     ...overlayProps,
@@ -29650,7 +31121,7 @@ var DialogOverlay = DialogOverlayFrame.extractable(React33.forwardRef(function({
   });
 }));
 var CONTENT_NAME2 = "DialogContent";
-var DialogContentFrame = (0, import_core14.styled)(ThemeableStack, {
+var DialogContentFrame = (0, import_core15.styled)(ThemeableStack, {
   name: CONTENT_NAME2,
   tag: "dialog",
   variants: {
@@ -29673,46 +31144,46 @@ var DialogContentFrame = (0, import_core14.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var DialogContent = DialogContentFrame.extractable(React33.forwardRef(function({
+var DialogContent = DialogContentFrame.extractable(React32.forwardRef(function({
   __scopeDialog,
   ...props
 }, forwardedRef) {
   const portalContext = usePortalContext(CONTENT_NAME2, __scopeDialog), {
     forceMount = portalContext.forceMount,
     ...contentProps
-  } = props, context = useDialogContext(CONTENT_NAME2, __scopeDialog), contents = context.modal ? /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogContentModal, {
+  } = props, context = useDialogContext(CONTENT_NAME2, __scopeDialog), contents = context.modal ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogContentModal, {
     context,
     ...contentProps,
     ref: forwardedRef
-  }) : /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogContentNonModal, {
+  }) : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogContentNonModal, {
     context,
     ...contentProps,
     ref: forwardedRef
   });
-  return !isWeb || context.disableRemoveScroll ? contents : /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(RemoveScroll, {
+  return !isWeb || context.disableRemoveScroll ? contents : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(RemoveScroll, {
     forwardProps: true,
     enabled: context.open,
     allowPinchZoom: context.allowPinchZoom,
     shards: [context.contentRef],
     removeScrollBar: false,
-    children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)("div", {
+    children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)("div", {
       "data-remove-scroll-container": true,
       className: "_dsp_contents",
       children: contents
     })
   });
 }));
-var DialogContentModal = React33.forwardRef(({
+var DialogContentModal = React32.forwardRef(({
   children,
   context,
   ...props
 }, forwardedRef) => {
-  const contentRef = React33.useRef(null), composedRefs = useComposedRefs(forwardedRef, context.contentRef, contentRef);
-  return isWeb && React33.useEffect(() => {
+  const contentRef = React32.useRef(null), composedRefs = useComposedRefs(forwardedRef, context.contentRef, contentRef);
+  return isWeb && React32.useEffect(() => {
     if (!context.open) return;
     const content = contentRef.current;
     if (content) return (0, import_aria_hidden.hideOthers)(content);
-  }, [context.open]), /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogContentImpl, {
+  }, [context.open]), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogContentImpl, {
     ...props,
     context,
     ref: composedRefs,
@@ -29733,9 +31204,9 @@ var DialogContentModal = React33.forwardRef(({
     children
   });
 });
-var DialogContentNonModal = React33.forwardRef((props, forwardedRef) => {
-  const hasInteractedOutsideRef = React33.useRef(false);
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogContentImpl, {
+var DialogContentNonModal = React32.forwardRef((props, forwardedRef) => {
+  const hasInteractedOutsideRef = React32.useRef(false);
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogContentImpl, {
     ...props,
     ref: forwardedRef,
     trapFocus: false,
@@ -29753,7 +31224,7 @@ var DialogContentNonModal = React33.forwardRef((props, forwardedRef) => {
     }, "onInteractOutside")
   });
 });
-var DialogContentImpl = React33.forwardRef((props, forwardedRef) => {
+var DialogContentImpl = React32.forwardRef((props, forwardedRef) => {
   const {
     __scopeDialog,
     trapFocus,
@@ -29766,18 +31237,18 @@ var DialogContentImpl = React33.forwardRef((props, forwardedRef) => {
     onInteractOutside,
     context,
     ...contentProps
-  } = props, contentRef = React33.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), showSheet = useShowDialogSheet(context), contents = /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogContentFrame, {
+  } = props, contentRef = React32.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), showSheet = useShowDialogSheet(context), contents = /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogContentFrame, {
     id: context.contentId,
     "aria-describedby": context.descriptionId,
     "aria-labelledby": context.titleId,
     "data-state": getState2(context.open),
     ...contentProps
   });
-  return showSheet ? /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogPortalItem, {
+  return showSheet ? /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogPortalItem, {
     hostName: getSheetContentsName(context),
     children: contentProps.children
-  }) : isWeb ? /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, {
-    children: [/* @__PURE__ */ (0, import_jsx_runtime20.jsx)(Dismissable, {
+  }) : isWeb ? /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, {
+    children: [/* @__PURE__ */ (0, import_jsx_runtime18.jsx)(Dismissable, {
       disableOutsidePointerEvents: context.open && disableOutsidePointerEvents,
       forceUnmount: !context.open,
       onEscapeKeyDown,
@@ -29786,7 +31257,7 @@ var DialogContentImpl = React33.forwardRef((props, forwardedRef) => {
       onInteractOutside,
       ref: composedRefs,
       onDismiss: /* @__PURE__ */ __name(() => context.onOpenChange(false), "onDismiss"),
-      children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(FocusScope, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(FocusScope, {
         loop: true,
         enabled: context.open,
         trapped: trapFocus,
@@ -29795,17 +31266,17 @@ var DialogContentImpl = React33.forwardRef((props, forwardedRef) => {
         onUnmountAutoFocus: onCloseAutoFocus,
         children: contents
       })
-    }), process.env.NODE_ENV === "development" && /* @__PURE__ */ (0, import_jsx_runtime20.jsxs)(import_jsx_runtime20.Fragment, {
-      children: [/* @__PURE__ */ (0, import_jsx_runtime20.jsx)(TitleWarning, {
+    }), process.env.NODE_ENV === "development" && /* @__PURE__ */ (0, import_jsx_runtime18.jsxs)(import_jsx_runtime18.Fragment, {
+      children: [/* @__PURE__ */ (0, import_jsx_runtime18.jsx)(TitleWarning, {
         titleId: context.titleId
-      }), /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DescriptionWarning, {
+      }), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DescriptionWarning, {
         contentRef,
         descriptionId: context.descriptionId
       })]
     })]
   }) : contents;
 });
-var DialogTitleFrame = (0, import_core14.styled)(H2, {
+var DialogTitleFrame = (0, import_core15.styled)(H2, {
   name: "DialogTitle"
 });
 var DialogTitle = DialogTitleFrame.styleable(function(props, forwardedRef) {
@@ -29813,13 +31284,13 @@ var DialogTitle = DialogTitleFrame.styleable(function(props, forwardedRef) {
     __scopeDialog,
     ...titleProps
   } = props, context = useDialogContext("DialogTitle", __scopeDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogTitleFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogTitleFrame, {
     id: context.titleId,
     ...titleProps,
     ref: forwardedRef
   });
 });
-var DialogDescriptionFrame = (0, import_core14.styled)(Paragraph, {
+var DialogDescriptionFrame = (0, import_core15.styled)(Paragraph, {
   name: "DialogDescription"
 });
 var DESCRIPTION_NAME = "DialogDescription";
@@ -29828,14 +31299,14 @@ var DialogDescription = DialogDescriptionFrame.styleable(function(props, forward
     __scopeDialog,
     ...descriptionProps
   } = props, context = useDialogContext(DESCRIPTION_NAME, __scopeDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogDescriptionFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogDescriptionFrame, {
     id: context.descriptionId,
     ...descriptionProps,
     ref: forwardedRef
   });
 });
 var CLOSE_NAME = "DialogClose";
-var DialogCloseFrame = (0, import_core14.styled)(import_core14.View, {
+var DialogCloseFrame = (0, import_core15.styled)(import_core15.View, {
   name: CLOSE_NAME,
   tag: "button"
 });
@@ -29847,8 +31318,8 @@ var DialogClose = DialogCloseFrame.styleable((props, forwardedRef) => {
   } = props, context = useDialogContext(CLOSE_NAME, __scopeDialog, {
     warn: false,
     fallback: {}
-  }), isSheet = useShowDialogSheet(context), isInsideButton = React33.useContext(ButtonNestingContext);
-  return isSheet && !displayWhenAdapted ? null : /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogCloseFrame, {
+  }), isSheet = useShowDialogSheet(context), isInsideButton = React32.useContext(ButtonNestingContext);
+  return isSheet && !displayWhenAdapted ? null : /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogCloseFrame, {
     accessibilityLabel: "Dialog Close",
     tag: isInsideButton ? "span" : "button",
     ...closeProps,
@@ -29875,7 +31346,7 @@ var TitleWarning = /* @__PURE__ */ __name(({
     const titleWarningContext = useWarningContext(TITLE_WARNING_NAME), MESSAGE = `\`${titleWarningContext.contentName}\` requires a \`${titleWarningContext.titleName}\` for the component to be accessible for screen reader users.
 
 If you want to hide the \`${titleWarningContext.titleName}\`, you can wrap it with our VisuallyHidden component.`;
-    React33.useEffect(() => {
+    React32.useEffect(() => {
       isWeb && titleId && (document.getElementById(titleId) || console.warn(MESSAGE));
     }, [MESSAGE, titleId]);
   }
@@ -29888,7 +31359,7 @@ var DescriptionWarning = /* @__PURE__ */ __name(({
 }) => {
   if (process.env.NODE_ENV === "development") {
     const MESSAGE = `Warning: Missing \`Description\` or \`aria-describedby={undefined}\` for {${useWarningContext(DESCRIPTION_WARNING_NAME).contentName}}.`;
-    React33.useEffect(() => {
+    React32.useEffect(() => {
       if (!isWeb) return;
       const contentNode = contentRef.current;
       if (!(contentNode instanceof HTMLElement)) return;
@@ -29898,7 +31369,7 @@ var DescriptionWarning = /* @__PURE__ */ __name(({
   }
   return null;
 }, "DescriptionWarning");
-var Dialog = withStaticProperties(React33.forwardRef(function(props, ref) {
+var Dialog = withStaticProperties(React32.forwardRef(function(props, ref) {
   const {
     __scopeDialog,
     children,
@@ -29908,14 +31379,14 @@ var Dialog = withStaticProperties(React33.forwardRef(function(props, ref) {
     modal = true,
     allowPinchZoom = false,
     disableRemoveScroll = false
-  } = props, baseId = React33.useId(), scopeId = `scope-${baseId}`, contentId = `content-${baseId}`, titleId = `title-${baseId}`, descriptionId = `description-${baseId}`, scopeKey = __scopeDialog ? Object.keys(__scopeDialog)[0] : scopeId, sheetContentsName = getSheetContentsName({
+  } = props, baseId = React32.useId(), scopeId = `scope-${baseId}`, contentId = `content-${baseId}`, titleId = `title-${baseId}`, descriptionId = `description-${baseId}`, scopeKey = __scopeDialog ? Object.keys(__scopeDialog)[0] : scopeId, sheetContentsName = getSheetContentsName({
     scopeKey,
     contentId
-  }), triggerRef = React33.useRef(null), contentRef = React33.useRef(null), [open, setOpen] = useControllableState({
+  }), triggerRef = React32.useRef(null), contentRef = React32.useRef(null), [open, setOpen] = useControllableState({
     prop: openProp,
     defaultProp: defaultOpen,
     onChange: onOpenChange
-  }), onOpenToggle = React33.useCallback(() => {
+  }), onOpenToggle = React32.useCallback(() => {
     setOpen((prevOpen) => !prevOpen);
   }, [setOpen]), context = {
     scope: __scopeDialog,
@@ -29934,19 +31405,19 @@ var Dialog = withStaticProperties(React33.forwardRef(function(props, ref) {
     when,
     AdaptProvider
   } = useAdaptParent({
-    Contents: React33.useCallback((props2) => /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(PortalHost, {
+    Contents: React32.useCallback((props2) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(PortalHost, {
       forwardProps: props2,
       name: sheetContentsName
     }), [sheetContentsName])
   });
-  return React33.useImperativeHandle(ref, () => ({
+  return React32.useImperativeHandle(ref, () => ({
     open: setOpen
-  }), [setOpen]), /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(AdaptProvider, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogProvider, {
+  }), [setOpen]), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(AdaptProvider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogProvider, {
       ...context,
       sheetBreakpoint: when,
       disableRemoveScroll,
-      children: /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(DialogSheetController, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogSheetController, {
         onOpenChange: setOpen,
         __scopeDialog,
         children
@@ -29967,7 +31438,7 @@ var Dialog = withStaticProperties(React33.forwardRef(function(props, ref) {
 var DialogSheetContents = /* @__PURE__ */ __name(({
   name,
   ...props
-}) => /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(PortalHost, {
+}) => /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(PortalHost, {
   forwardProps: props,
   name
 }), "DialogSheetContents");
@@ -29976,8 +31447,8 @@ var getSheetContentsName = /* @__PURE__ */ __name(({
   contentId
 }) => `${scopeKey || contentId}SheetContents`, "getSheetContentsName");
 var DialogSheetController = /* @__PURE__ */ __name((props) => {
-  const context = useDialogContext("DialogSheetController", props.__scopeDialog), showSheet = useShowDialogSheet(context), breakpointActive = useSheetBreakpointActive(context), getShowSheet = (0, import_core14.useGet)(showSheet);
-  return /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(SheetController, {
+  const context = useDialogContext("DialogSheetController", props.__scopeDialog), showSheet = useShowDialogSheet(context), breakpointActive = useSheetBreakpointActive(context), getShowSheet = (0, import_core15.useGet)(showSheet);
+  return /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(SheetController, {
     onOpenChange: /* @__PURE__ */ __name((val) => {
       var _a;
       getShowSheet() && ((_a = props.onOpenChange) == null ? void 0 : _a.call(props, val));
@@ -29988,8 +31459,8 @@ var DialogSheetController = /* @__PURE__ */ __name((props) => {
   });
 }, "DialogSheetController");
 var useSheetBreakpointActive = /* @__PURE__ */ __name((context) => {
-  const media = (0, import_core14.useMedia)();
-  return context.sheetBreakpoint ? context.sheetBreakpoint === true ? true : media[context.sheetBreakpoint] : false;
+  const media2 = (0, import_core15.useMedia)();
+  return context.sheetBreakpoint ? context.sheetBreakpoint === true ? true : media2[context.sheetBreakpoint] : false;
 }, "useSheetBreakpointActive");
 var useShowDialogSheet = /* @__PURE__ */ __name((context) => {
   const breakpointActive = useSheetBreakpointActive(context);
@@ -29998,16 +31469,16 @@ var useShowDialogSheet = /* @__PURE__ */ __name((context) => {
 
 // node_modules/@tamagui/alert-dialog/dist/esm/AlertDialog.mjs
 init_esm7();
-var React34 = __toESM(require("react"), 1);
-var import_jsx_runtime21 = require("react/jsx-runtime");
+var React33 = __toESM(require("react"), 1);
+var import_jsx_runtime19 = require("react/jsx-runtime");
 var ROOT_NAME = "AlertDialog";
 var [createAlertDialogContext, createAlertDialogScope] = createContextScope(ROOT_NAME, [createDialogScope]);
 var useDialogScope = createDialogScope();
 var TRIGGER_NAME3 = "AlertDialogTrigger";
-var NativeAlertDialogTriggerFrame = (0, import_core15.styled)(import_core15.View, {
+var NativeAlertDialogTriggerFrame = (0, import_core16.styled)(import_core16.View, {
   name: TRIGGER_NAME3
 });
-var AlertDialogTrigger = React34.forwardRef((props, forwardedRef) => {
+var AlertDialogTrigger = React33.forwardRef((props, forwardedRef) => {
   if (props.__native) {
     const {
       __native,
@@ -30015,7 +31486,7 @@ var AlertDialogTrigger = React34.forwardRef((props, forwardedRef) => {
       __onPress,
       ...rest
     } = props;
-    return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(NativeAlertDialogTriggerFrame, {
+    return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(NativeAlertDialogTriggerFrame, {
       ...rest,
       onPress: composeEventHandlers(onPress, __onPress)
     });
@@ -30024,7 +31495,7 @@ var AlertDialogTrigger = React34.forwardRef((props, forwardedRef) => {
     __scopeAlertDialog,
     ...triggerProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogTrigger, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogTrigger, {
     ...dialogScope,
     ...triggerProps,
     ref: forwardedRef
@@ -30037,22 +31508,22 @@ var AlertDialogPortal = /* @__PURE__ */ __name((props) => {
     __scopeAlertDialog,
     ...portalProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogPortal, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogPortal, {
     ...dialogScope,
     ...portalProps
   });
 }, "AlertDialogPortal");
 AlertDialogPortal.displayName = PORTAL_NAME2;
 var OVERLAY_NAME2 = "AlertDialogOverlay";
-var AlertDialogOverlayFrame = (0, import_core15.styled)(DialogOverlayFrame, {
+var AlertDialogOverlayFrame = (0, import_core16.styled)(DialogOverlayFrame, {
   name: OVERLAY_NAME2
 });
-var AlertDialogOverlay = AlertDialogOverlayFrame.extractable(React34.forwardRef((props, forwardedRef) => {
+var AlertDialogOverlay = AlertDialogOverlayFrame.extractable(React33.forwardRef((props, forwardedRef) => {
   const {
     __scopeAlertDialog,
     ...overlayProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogOverlay, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogOverlay, {
     ...dialogScope,
     ...overlayProps,
     ref: forwardedRef
@@ -30061,20 +31532,20 @@ var AlertDialogOverlay = AlertDialogOverlayFrame.extractable(React34.forwardRef(
 AlertDialogOverlay.displayName = OVERLAY_NAME2;
 var CONTENT_NAME3 = "AlertDialogContent";
 var [AlertDialogContentProvider, useAlertDialogContentContext] = createAlertDialogContext(CONTENT_NAME3);
-var AlertDialogContent = React34.forwardRef((props, forwardedRef) => {
+var AlertDialogContent = React33.forwardRef((props, forwardedRef) => {
   const {
     __scopeAlertDialog,
     children,
     ...contentProps
-  } = props, dialogScope = useDialogScope(__scopeAlertDialog), contentRef = React34.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), cancelRef = React34.useRef(null);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogWarningProvider, {
+  } = props, dialogScope = useDialogScope(__scopeAlertDialog), contentRef = React33.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), cancelRef = React33.useRef(null);
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogWarningProvider, {
     contentName: CONTENT_NAME3,
     titleName: TITLE_NAME,
     docsSlug: "alert-dialog",
-    children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AlertDialogContentProvider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(AlertDialogContentProvider, {
       scope: __scopeAlertDialog,
       cancelRef,
-      children: /* @__PURE__ */ (0, import_jsx_runtime21.jsxs)(DialogContent, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime19.jsxs)(DialogContent, {
         role: "alertdialog",
         ...dialogScope,
         ...contentProps,
@@ -30087,9 +31558,9 @@ var AlertDialogContent = React34.forwardRef((props, forwardedRef) => {
         }),
         onPointerDownOutside: /* @__PURE__ */ __name((event) => event.preventDefault(), "onPointerDownOutside"),
         onInteractOutside: /* @__PURE__ */ __name((event) => event.preventDefault(), "onInteractOutside"),
-        children: [/* @__PURE__ */ (0, import_jsx_runtime21.jsx)(import_core15.Slottable, {
+        children: [/* @__PURE__ */ (0, import_jsx_runtime19.jsx)(import_core16.Slottable, {
           children
-        }), process.env.NODE_ENV === "development" && /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DescriptionWarning2, {
+        }), process.env.NODE_ENV === "development" && /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DescriptionWarning2, {
           contentRef
         })]
       })
@@ -30098,12 +31569,12 @@ var AlertDialogContent = React34.forwardRef((props, forwardedRef) => {
 });
 AlertDialogContent.displayName = CONTENT_NAME3;
 var TITLE_NAME = "AlertDialogTitle";
-var AlertDialogTitle = React34.forwardRef((props, forwardedRef) => {
+var AlertDialogTitle = React33.forwardRef((props, forwardedRef) => {
   const {
     __scopeAlertDialog,
     ...titleProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogTitle, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogTitle, {
     ...dialogScope,
     ...titleProps,
     ref: forwardedRef
@@ -30111,12 +31582,12 @@ var AlertDialogTitle = React34.forwardRef((props, forwardedRef) => {
 });
 AlertDialogTitle.displayName = TITLE_NAME;
 var DESCRIPTION_NAME2 = "AlertDialogDescription";
-var AlertDialogDescription = React34.forwardRef((props, forwardedRef) => {
+var AlertDialogDescription = React33.forwardRef((props, forwardedRef) => {
   const {
     __scopeAlertDialog,
     ...descriptionProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogDescription, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogDescription, {
     ...dialogScope,
     ...descriptionProps,
     ref: forwardedRef
@@ -30124,12 +31595,12 @@ var AlertDialogDescription = React34.forwardRef((props, forwardedRef) => {
 });
 AlertDialogDescription.displayName = DESCRIPTION_NAME2;
 var ACTION_NAME = "AlertDialogAction";
-var AlertDialogAction = React34.forwardRef((props, forwardedRef) => {
+var AlertDialogAction = React33.forwardRef((props, forwardedRef) => {
   const {
     __scopeAlertDialog,
     ...actionProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogClose, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogClose, {
     ...dialogScope,
     ...actionProps,
     ref: forwardedRef
@@ -30137,14 +31608,14 @@ var AlertDialogAction = React34.forwardRef((props, forwardedRef) => {
 });
 AlertDialogAction.displayName = ACTION_NAME;
 var CANCEL_NAME = "AlertDialogCancel";
-var AlertDialogCancel = React34.forwardRef((props, forwardedRef) => {
+var AlertDialogCancel = React33.forwardRef((props, forwardedRef) => {
   const {
     __scopeAlertDialog,
     ...cancelProps
   } = props, {
     cancelRef
   } = useAlertDialogContentContext(CANCEL_NAME, __scopeAlertDialog), dialogScope = useDialogScope(__scopeAlertDialog), ref = useComposedRefs(forwardedRef, cancelRef);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(DialogClose, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(DialogClose, {
     ...dialogScope,
     ...cancelProps,
     ref
@@ -30153,7 +31624,7 @@ var AlertDialogCancel = React34.forwardRef((props, forwardedRef) => {
 AlertDialogCancel.displayName = CANCEL_NAME;
 var DescriptionWarning2 = /* @__PURE__ */ __name(({
   contentRef
-}) => (process.env.NODE_ENV === "development" && React34.useEffect(() => {
+}) => (process.env.NODE_ENV === "development" && React33.useEffect(() => {
   var _a;
   if (!isWeb) return;
   document.getElementById(
@@ -30173,7 +31644,7 @@ var AlertDialogInner = /* @__PURE__ */ __name((props) => {
     native,
     ...alertDialogProps
   } = props, dialogScope = useDialogScope(__scopeAlertDialog);
-  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Dialog, {
+  return /* @__PURE__ */ (0, import_jsx_runtime19.jsx)(Dialog, {
     ...dialogScope,
     ...alertDialogProps,
     modal: true
@@ -30192,24 +31663,24 @@ var AlertDialog = withStaticProperties(AlertDialogInner, {
 AlertDialog.displayName = ROOT_NAME;
 
 // node_modules/tamagui/dist/esm/index.mjs
-init_esm4();
+init_esm5();
 
 // node_modules/@tamagui/avatar/dist/esm/Avatar.mjs
-var import_core17 = require("@tamagui/core");
+var import_core18 = require("@tamagui/core");
 init_esm7();
 
 // node_modules/@tamagui/image/dist/esm/Image.mjs
 var import_react23 = __toESM(require("react"), 1);
-init_esm6();
-var import_core16 = require("@tamagui/core");
+init_esm();
+var import_core17 = require("@tamagui/core");
 var import_react_native_web5 = __toESM(require_cjs16(), 1);
-var import_jsx_runtime22 = require("react/jsx-runtime");
-var StyledImage = (0, import_core16.styled)(import_react_native_web5.Image, {
+var import_jsx_runtime20 = require("react/jsx-runtime");
+var StyledImage = (0, import_core17.styled)(import_react_native_web5.Image, {
   name: "Image"
 });
 var hasWarned = false;
 var Image = StyledImage.styleable((inProps, ref) => {
-  const [props, style] = (0, import_core16.usePropsAndStyle)(inProps), {
+  const [props, style] = (0, import_core17.usePropsAndStyle)(inProps), {
     src,
     source,
     objectFit,
@@ -30235,7 +31706,7 @@ var Image = StyledImage.styleable((inProps, ref) => {
     }
     __name(run, "run");
     run();
-  }, [src]), finalSource.default && (finalSource = finalSource.default)), /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(import_react_native_web5.Image, {
+  }, [src]), finalSource.default && (finalSource = finalSource.default)), /* @__PURE__ */ (0, import_jsx_runtime20.jsx)(import_react_native_web5.Image, {
     resizeMode: objectFit,
     ref,
     source: finalSource,
@@ -30251,13 +31722,13 @@ Image.abortPrefetch = import_react_native_web5.Image.abortPrefetch;
 Image.queryCache = import_react_native_web5.Image.queryCache;
 
 // node_modules/@tamagui/shapes/dist/esm/Square.mjs
-var import_web7 = require("@tamagui/core");
+var import_web11 = require("@tamagui/core");
 
 // node_modules/@tamagui/shapes/dist/esm/getShapeSize.mjs
-var getShapeSize = /* @__PURE__ */ __name((size5, {
+var getShapeSize = /* @__PURE__ */ __name((size6, {
   tokens: tokens2
 }) => {
-  const width = tokens2.size[size5] ?? size5, height = tokens2.size[size5] ?? size5;
+  const width = tokens2.size[size6] ?? size6, height = tokens2.size[size6] ?? size6;
   return {
     width,
     height,
@@ -30269,7 +31740,7 @@ var getShapeSize = /* @__PURE__ */ __name((size5, {
 }, "getShapeSize");
 
 // node_modules/@tamagui/shapes/dist/esm/Square.mjs
-var Square = (0, import_web7.styled)(ThemeableStack, {
+var Square = (0, import_web11.styled)(ThemeableStack, {
   name: "Square",
   alignItems: "center",
   justifyContent: "center",
@@ -30282,20 +31753,20 @@ var Square = (0, import_web7.styled)(ThemeableStack, {
 });
 
 // node_modules/@tamagui/shapes/dist/esm/Circle.mjs
-var import_web8 = require("@tamagui/core");
-var Circle = (0, import_web8.styled)(Square, {
+var import_web12 = require("@tamagui/core");
+var Circle = (0, import_web12.styled)(Square, {
   name: "Circle",
   circular: true
 });
 
 // node_modules/@tamagui/avatar/dist/esm/Avatar.mjs
-var React36 = __toESM(require("react"), 1);
-var import_jsx_runtime23 = require("react/jsx-runtime");
+var React35 = __toESM(require("react"), 1);
+var import_jsx_runtime21 = require("react/jsx-runtime");
 var AVATAR_NAME = "Avatar";
 var [createAvatarContext, createAvatarScope] = createContextScope(AVATAR_NAME);
 var [AvatarProvider, useAvatarContext] = createAvatarContext(AVATAR_NAME);
 var IMAGE_NAME = "AvatarImage";
-var AvatarImage = React36.forwardRef((props, forwardedRef) => {
+var AvatarImage = React35.forwardRef((props, forwardedRef) => {
   var _a;
   const {
     __scopeAvatar,
@@ -30303,21 +31774,21 @@ var AvatarImage = React36.forwardRef((props, forwardedRef) => {
     onLoadingStatusChange = /* @__PURE__ */ __name(() => {
     }, "onLoadingStatusChange"),
     ...imageProps
-  } = props, context = useAvatarContext(IMAGE_NAME, __scopeAvatar), [status, setStatus] = React36.useState("idle"), shapeSize = (0, import_core17.getVariableValue)((_a = getShapeSize(
+  } = props, context = useAvatarContext(IMAGE_NAME, __scopeAvatar), [status, setStatus] = React35.useState("idle"), shapeSize = (0, import_core18.getVariableValue)((_a = getShapeSize(
     context.size,
     // @ts-expect-error
     {
-      tokens: (0, import_core17.getTokens)()
+      tokens: (0, import_core18.getTokens)()
     }
   )) == null ? void 0 : _a.width);
-  return React36.useEffect(() => {
+  return React35.useEffect(() => {
     setStatus("idle");
-  }, [JSON.stringify(src)]), React36.useEffect(() => {
+  }, [JSON.stringify(src)]), React35.useEffect(() => {
     onLoadingStatusChange(status), context.onImageLoadingStatusChange(status);
-  }, [status]), /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(YStack, {
+  }, [status]), /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(YStack, {
     fullscreen: true,
     zIndex: 1,
-    children: /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(Image, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(Image, {
       fullscreen: true,
       ...typeof shapeSize == "number" && !Number.isNaN(shapeSize) && {
         width: shapeSize,
@@ -30337,47 +31808,47 @@ var AvatarImage = React36.forwardRef((props, forwardedRef) => {
 });
 AvatarImage.displayName = IMAGE_NAME;
 var FALLBACK_NAME = "AvatarFallback";
-var AvatarFallbackFrame = (0, import_core17.styled)(YStack, {
+var AvatarFallbackFrame = (0, import_core18.styled)(YStack, {
   name: FALLBACK_NAME,
   position: "absolute",
   fullscreen: true,
   zIndex: 0
 });
-var AvatarFallback = AvatarFallbackFrame.extractable(React36.forwardRef((props, forwardedRef) => {
+var AvatarFallback = AvatarFallbackFrame.extractable(React35.forwardRef((props, forwardedRef) => {
   const {
     __scopeAvatar,
     delayMs,
     ...fallbackProps
-  } = props, context = useAvatarContext(FALLBACK_NAME, __scopeAvatar), [canRender, setCanRender] = React36.useState(delayMs === void 0);
-  return React36.useEffect(() => {
+  } = props, context = useAvatarContext(FALLBACK_NAME, __scopeAvatar), [canRender, setCanRender] = React35.useState(delayMs === void 0);
+  return React35.useEffect(() => {
     if (delayMs !== void 0) {
       const timerId = setTimeout(() => setCanRender(true), delayMs);
       return () => clearTimeout(timerId);
     }
-  }, [delayMs]), canRender && context.imageLoadingStatus !== "loaded" ? /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(AvatarFallbackFrame, {
+  }, [delayMs]), canRender && context.imageLoadingStatus !== "loaded" ? /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AvatarFallbackFrame, {
     ...fallbackProps,
     ref: forwardedRef
   }) : null;
 }));
 AvatarFallback.displayName = FALLBACK_NAME;
-var AvatarFrame = (0, import_core17.styled)(Square, {
+var AvatarFrame = (0, import_core18.styled)(Square, {
   name: AVATAR_NAME,
   position: "relative",
   overflow: "hidden"
 });
-var Avatar = withStaticProperties(React36.forwardRef((props, forwardedRef) => {
+var Avatar = withStaticProperties(React35.forwardRef((props, forwardedRef) => {
   const {
     __scopeAvatar,
-    size: size5 = "$true",
+    size: size6 = "$true",
     ...avatarProps
-  } = props, [imageLoadingStatus, setImageLoadingStatus] = React36.useState("idle");
-  return /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(AvatarProvider, {
-    size: size5,
+  } = props, [imageLoadingStatus, setImageLoadingStatus] = React35.useState("idle");
+  return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AvatarProvider, {
+    size: size6,
     scope: __scopeAvatar,
     imageLoadingStatus,
     onImageLoadingStatusChange: setImageLoadingStatus,
-    children: /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(AvatarFrame, {
-      size: size5,
+    children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AvatarFrame, {
+      size: size6,
       ...avatarProps,
       ref: forwardedRef
     })
@@ -30389,27 +31860,27 @@ var Avatar = withStaticProperties(React36.forwardRef((props, forwardedRef) => {
 Avatar.displayName = AVATAR_NAME;
 
 // node_modules/@tamagui/font-size/dist/esm/getFontSize.mjs
-var import_core18 = require("@tamagui/core");
+var import_core19 = require("@tamagui/core");
 var getFontSize = /* @__PURE__ */ __name((inSize, opts) => {
   const res = getFontSizeVariable(inSize, opts);
-  return (0, import_core18.isVariable)(res) ? +res.val : res ? +res : 16;
+  return (0, import_core19.isVariable)(res) ? +res.val : res ? +res : 16;
 }, "getFontSize");
 var getFontSizeVariable = /* @__PURE__ */ __name((inSize, opts) => {
   var _a;
   const token = getFontSizeToken(inSize, opts);
   if (!token) return inSize;
-  const conf = (0, import_core18.getConfig)();
+  const conf = (0, import_core19.getConfig)();
   return (_a = conf.fontsParsed[(opts == null ? void 0 : opts.font) || conf.defaultFontToken]) == null ? void 0 : _a.size[token];
 }, "getFontSizeVariable");
 var getFontSizeToken = /* @__PURE__ */ __name((inSize, opts) => {
   var _a;
   if (typeof inSize == "number") return null;
-  const relativeSize = (opts == null ? void 0 : opts.relativeSize) || 0, conf = (0, import_core18.getConfig)(), fontSize = ((_a = conf.fontsParsed[(opts == null ? void 0 : opts.font) || conf.defaultFontToken]) == null ? void 0 : _a.size) || // fallback to size tokens
-  conf.tokensParsed.size, size5 = (inSize === "$true" && !("$true" in fontSize) ? "$4" : inSize) ?? ("$true" in fontSize ? "$true" : "$4"), sizeTokens = Object.keys(fontSize);
-  let foundIndex = sizeTokens.indexOf(size5);
-  foundIndex === -1 && size5.endsWith(".5") && (foundIndex = sizeTokens.indexOf(size5.replace(".5", ""))), process.env.NODE_ENV === "development" && foundIndex === -1 && console.warn("No font size found", size5, opts, "in size tokens", sizeTokens);
+  const relativeSize = (opts == null ? void 0 : opts.relativeSize) || 0, conf = (0, import_core19.getConfig)(), fontSize = ((_a = conf.fontsParsed[(opts == null ? void 0 : opts.font) || conf.defaultFontToken]) == null ? void 0 : _a.size) || // fallback to size tokens
+  conf.tokensParsed.size, size6 = (inSize === "$true" && !("$true" in fontSize) ? "$4" : inSize) ?? ("$true" in fontSize ? "$true" : "$4"), sizeTokens = Object.keys(fontSize);
+  let foundIndex = sizeTokens.indexOf(size6);
+  foundIndex === -1 && size6.endsWith(".5") && (foundIndex = sizeTokens.indexOf(size6.replace(".5", ""))), process.env.NODE_ENV === "development" && foundIndex === -1 && console.warn("No font size found", size6, opts, "in size tokens", sizeTokens);
   const tokenIndex = Math.min(Math.max(0, foundIndex + relativeSize), sizeTokens.length - 1);
-  return sizeTokens[tokenIndex] ?? size5;
+  return sizeTokens[tokenIndex] ?? size6;
 }, "getFontSizeToken");
 
 // node_modules/@tamagui/button/dist/esm/Button.mjs
@@ -30422,11 +31893,11 @@ init_esm7();
 var prevent = /* @__PURE__ */ __name((e) => [e.preventDefault(), e.stopPropagation()], "prevent");
 
 // node_modules/@tamagui/helpers-tamagui/dist/esm/useCurrentColor.mjs
-var import_web9 = require("@tamagui/core");
+var import_web13 = require("@tamagui/core");
 var useCurrentColor = /* @__PURE__ */ __name((colorProp) => {
   var _a, _b;
-  const theme = (0, import_web9.useTheme)();
-  return (0, import_web9.getVariable)(
+  const theme = (0, import_web13.useTheme)();
+  return (0, import_web13.getVariable)(
     // TODO can remove 'web' here, will return DynamicColor for iOS for ListItem icons, which is supported in newer react-native-svg versions
     colorProp || ((_a = theme[colorProp]) == null ? void 0 : _a.get("web")) || ((_b = theme.color) == null ? void 0 : _b.get("web"))
   );
@@ -30445,10 +31916,10 @@ var useGetThemedIcon = /* @__PURE__ */ __name((props) => {
 }, "useGetThemedIcon");
 
 // node_modules/@tamagui/button/dist/esm/Button.mjs
-var import_web10 = require("@tamagui/core");
+var import_web14 = require("@tamagui/core");
 var import_react25 = require("react");
-var import_jsx_runtime24 = require("react/jsx-runtime");
-var ButtonContext = (0, import_web10.createStyledContext)({
+var import_jsx_runtime22 = require("react/jsx-runtime");
+var ButtonContext = (0, import_web14.createStyledContext)({
   // keeping these here means they work with styled() passing down color to text
   color: void 0,
   ellipse: void 0,
@@ -30463,7 +31934,7 @@ var ButtonContext = (0, import_web10.createStyledContext)({
   variant: void 0
 });
 var BUTTON_NAME = "Button";
-var ButtonFrame = (0, import_web10.styled)(ThemeableStack, {
+var ButtonFrame = (0, import_web14.styled)(ThemeableStack, {
   name: BUTTON_NAME,
   tag: "button",
   context: ButtonContext,
@@ -30523,7 +31994,7 @@ var ButtonFrame = (0, import_web10.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var ButtonText = (0, import_web10.styled)(SizableText, {
+var ButtonText = (0, import_web14.styled)(SizableText, {
   name: "Button",
   context: ButtonContext,
   variants: {
@@ -30548,9 +32019,9 @@ var ButtonIcon = /* @__PURE__ */ __name((props) => {
     children,
     scaleIcon = 1
   } = props, {
-    size: size5,
+    size: size6,
     color: color2
-  } = (0, import_react25.useContext)(ButtonContext), iconSize = (typeof size5 == "number" ? size5 * 0.5 : getFontSize(size5)) * scaleIcon;
+  } = (0, import_react25.useContext)(ButtonContext), iconSize = (typeof size6 == "number" ? size6 * 0.5 : getFontSize(size6)) * scaleIcon;
   return useGetThemedIcon({
     size: iconSize,
     color: color2
@@ -30560,7 +32031,7 @@ var ButtonComponent = ButtonFrame.styleable(function(props, ref) {
   const {
     props: buttonProps
   } = useButton(props);
-  return /* @__PURE__ */ (0, import_jsx_runtime24.jsx)(ButtonFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(ButtonFrame, {
     ...buttonProps,
     ref
   });
@@ -30591,7 +32062,7 @@ function useButton({
 } = {
   Text: Button2.Text
 }) {
-  const isNested = (0, import_react25.useContext)(ButtonNestingContext), propsActive = (0, import_web10.useProps)(propsIn, {
+  const isNested = (0, import_react25.useContext)(ButtonNestingContext), propsActive = (0, import_web14.useProps)(propsIn, {
     noNormalize: true,
     noExpand: true
   }), {
@@ -30612,12 +32083,12 @@ function useButton({
     ellipse,
     maxFontSizeMultiplier,
     ...restProps
-  } = propsActive, size5 = propsActive.size || (propsActive.unstyled ? void 0 : "$true"), color2 = propsActive.color, iconSize = (typeof size5 == "number" ? size5 * 0.5 : getFontSize(size5, {
+  } = propsActive, size6 = propsActive.size || (propsActive.unstyled ? void 0 : "$true"), color2 = propsActive.color, iconSize = (typeof size6 == "number" ? size6 * 0.5 : getFontSize(size6, {
     font: (fontFamily == null ? void 0 : fontFamily[0]) === "$" ? fontFamily : void 0
   })) * scaleIcon, getThemedIcon = useGetThemedIcon({
     size: iconSize,
     color: color2
-  }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), spaceSize = space2 ?? (0, import_web10.getVariableValue)(iconSize) * scaleSpace, contents = noTextWrap ? [propsIn.children] : wrapChildrenInText(Text5, {
+  }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), spaceSize = space2 ?? (0, import_web14.getVariableValue)(iconSize) * scaleSpace, contents = noTextWrap ? [propsIn.children] : wrapChildrenInText(Text5, {
     children: propsIn.children,
     fontFamily,
     fontSize,
@@ -30629,8 +32100,8 @@ function useButton({
     maxFontSizeMultiplier
   }, Text5 === ButtonText && propsActive.unstyled !== true ? {
     unstyled: process.env.TAMAGUI_HEADLESS === "1",
-    size: size5
-  } : void 0), inner2 = (0, import_web10.spacedChildren)({
+    size: size6
+  } : void 0), inner2 = (0, import_web14.spacedChildren)({
     // a bit arbitrary but scaling to font size is necessary so long as button does
     space: spaceSize,
     spaceFlex,
@@ -30641,7 +32112,7 @@ function useButton({
     // so even if icons are undefined we still pass them
     children: [themedIcon, ...contents, themedIconAfter]
   }), props = {
-    size: size5,
+    size: size6,
     ...propsIn.disabled && {
       // in rnw - false still has keyboard tabIndex, undefined = not actually focusable
       focusable: void 0,
@@ -30657,7 +32128,7 @@ function useButton({
       propsActive.accessibilityRole === "link" || propsActive.role === "link" ? "a" : "button"
     )),
     ...restProps,
-    children: /* @__PURE__ */ (0, import_jsx_runtime24.jsx)(ButtonNestingContext.Provider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime22.jsx)(ButtonNestingContext.Provider, {
       value: true,
       children: inner2
     }),
@@ -30673,11 +32144,11 @@ function useButton({
 __name(useButton, "useButton");
 
 // node_modules/@tamagui/card/dist/esm/Card.mjs
-var import_web11 = require("@tamagui/core");
-var CardContext = (0, import_web11.createStyledContext)({
+var import_web15 = require("@tamagui/core");
+var CardContext = (0, import_web15.createStyledContext)({
   size: "$true"
 });
-var CardFrame = (0, import_web11.styled)(ThemeableStack, {
+var CardFrame = (0, import_web15.styled)(ThemeableStack, {
   name: "Card",
   context: CardContext,
   variants: {
@@ -30700,7 +32171,7 @@ var CardFrame = (0, import_web11.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var CardHeader = (0, import_web11.styled)(ThemeableStack, {
+var CardHeader = (0, import_web15.styled)(ThemeableStack, {
   name: "CardHeader",
   context: CardContext,
   variants: {
@@ -30723,7 +32194,7 @@ var CardHeader = (0, import_web11.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var CardFooter = (0, import_web11.styled)(CardHeader, {
+var CardFooter = (0, import_web15.styled)(CardHeader, {
   name: "CardFooter",
   variants: {
     unstyled: {
@@ -30739,7 +32210,7 @@ var CardFooter = (0, import_web11.styled)(CardHeader, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var CardBackground = (0, import_web11.styled)(ThemeableStack, {
+var CardBackground = (0, import_web15.styled)(ThemeableStack, {
   name: "CardBackground",
   variants: {
     unstyled: {
@@ -30756,25 +32227,25 @@ var CardBackground = (0, import_web11.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var Card = (0, import_web11.withStaticProperties)(CardFrame, {
+var Card = (0, import_web15.withStaticProperties)(CardFrame, {
   Header: CardHeader,
   Footer: CardFooter,
   Background: CardBackground
 });
 
 // node_modules/@tamagui/checkbox/dist/esm/Checkbox.mjs
-var import_core20 = require("@tamagui/core");
+var import_core21 = require("@tamagui/core");
 
 // node_modules/@tamagui/checkbox/dist/esm/CheckboxStyledContext.mjs
-var import_core19 = require("@tamagui/core");
-var CheckboxStyledContext = (0, import_core19.createStyledContext)({
+var import_core20 = require("@tamagui/core");
+var CheckboxStyledContext = (0, import_core20.createStyledContext)({
   size: "$true",
   scaleIcon: 1
 });
 
 // node_modules/@tamagui/checkbox/dist/esm/Checkbox.mjs
 var INDICATOR_NAME = "CheckboxIndicator";
-var CheckboxIndicatorFrame = (0, import_core20.styled)(ThemeableStack, {
+var CheckboxIndicatorFrame = (0, import_core21.styled)(ThemeableStack, {
   // use Checkbox for easier themes
   name: INDICATOR_NAME,
   context: CheckboxStyledContext,
@@ -30788,7 +32259,7 @@ var CheckboxIndicatorFrame = (0, import_core20.styled)(ThemeableStack, {
   }
 });
 var CHECKBOX_NAME = "Checkbox";
-var CheckboxFrame = (0, import_core20.styled)(ThemeableStack, {
+var CheckboxFrame = (0, import_core21.styled)(ThemeableStack, {
   name: CHECKBOX_NAME,
   tag: "button",
   context: CheckboxStyledContext,
@@ -30836,7 +32307,7 @@ var CheckboxFrame = (0, import_core20.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val) => ({
-        borderRadius: (0, import_core20.getVariableValue)(getSize(val)) / 8
+        borderRadius: (0, import_core21.getVariableValue)(getSize(val)) / 8
       }), "...size")
     }
   },
@@ -30849,11 +32320,11 @@ var CheckboxFrame = (0, import_core20.styled)(ThemeableStack, {
 var import_react28 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/checkbox-headless/dist/esm/useCheckbox.mjs
-init_esm6();
+init_esm();
 init_esm7();
 
 // node_modules/@tamagui/label/dist/esm/Label.mjs
-init_esm6();
+init_esm();
 
 // node_modules/@tamagui/focusable/dist/esm/registerFocusable.mjs
 var registerFocusable = /* @__PURE__ */ __name((id, input) => () => {
@@ -30862,7 +32333,7 @@ var focusFocusable = /* @__PURE__ */ __name((id) => {
 }, "focusFocusable");
 
 // node_modules/@tamagui/focusable/dist/esm/focusableInputHOC.mjs
-var import_web12 = require("@tamagui/core");
+var import_web16 = require("@tamagui/core");
 var import_react26 = __toESM(require("react"), 1);
 function useFocusable({
   isInput,
@@ -30891,7 +32362,7 @@ function useFocusable({
     (_a = unregisterFocusable.current) == null ? void 0 : _a.call(unregisterFocusable);
   }, []), {
     ref: combinedRefs,
-    onChangeText: (0, import_web12.useEvent)((value2) => {
+    onChangeText: (0, import_web16.useEvent)((value2) => {
       inputValue.current = value2, onChangeText == null ? void 0 : onChangeText(value2);
     })
   };
@@ -30899,9 +32370,9 @@ function useFocusable({
 __name(useFocusable, "useFocusable");
 
 // node_modules/@tamagui/label/dist/esm/Label.mjs
-var import_web13 = require("@tamagui/core");
-var React39 = __toESM(require("react"), 1);
-var import_jsx_runtime25 = require("react/jsx-runtime");
+var import_web17 = require("@tamagui/core");
+var React38 = __toESM(require("react"), 1);
+var import_jsx_runtime23 = require("react/jsx-runtime");
 var NAME = "Label";
 var [LabelProvider, useLabelContextImpl] = createContext3(NAME, {
   id: void 0,
@@ -30909,7 +32380,7 @@ var [LabelProvider, useLabelContextImpl] = createContext3(NAME, {
     current: null
   }
 });
-var LabelFrame = (0, import_web13.styled)(SizableText, {
+var LabelFrame = (0, import_web17.styled)(SizableText, {
   name: "Label",
   tag: "label",
   variants: {
@@ -30942,13 +32413,13 @@ var LabelFrame = (0, import_web13.styled)(SizableText, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var LabelComponent = React39.forwardRef((props, forwardedRef) => {
+var LabelComponent = React38.forwardRef((props, forwardedRef) => {
   const {
     htmlFor,
     id: idProp,
     ...labelProps
-  } = props, controlRef = React39.useRef(null), ref = React39.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), backupId = React39.useId(), id = idProp ?? backupId;
-  return isWeb && React39.useEffect(() => {
+  } = props, controlRef = React38.useRef(null), ref = React38.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), backupId = React38.useId(), id = idProp ?? backupId;
+  return isWeb && React38.useEffect(() => {
     if (htmlFor) {
       const element = document.getElementById(htmlFor);
       if (ref.current && element) {
@@ -30961,10 +32432,10 @@ var LabelComponent = React39.forwardRef((props, forwardedRef) => {
         };
       }
     }
-  }, [id, htmlFor]), /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(LabelProvider, {
+  }, [id, htmlFor]), /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(LabelProvider, {
     id,
     controlRef,
-    children: /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(LabelFrame, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime23.jsx)(LabelFrame, {
       id,
       htmlFor,
       ...labelProps,
@@ -30985,14 +32456,14 @@ var LabelComponent = React39.forwardRef((props, forwardedRef) => {
   });
 });
 LabelComponent.displayName = NAME;
-var Label = LabelFrame.extractable((0, import_web13.themeable)(LabelComponent), {
+var Label = LabelFrame.extractable((0, import_web17.themeable)(LabelComponent), {
   neverFlatten: true
 });
 var useLabelContext = /* @__PURE__ */ __name((element) => {
   const context = useLabelContextImpl("LabelConsumer"), {
     controlRef
   } = context;
-  return React39.useEffect(() => {
+  return React38.useEffect(() => {
     element && (controlRef.current = element);
   }, [element, controlRef]), context.id;
 }, "useLabelContext");
@@ -31001,18 +32472,18 @@ var useLabelContext = /* @__PURE__ */ __name((element) => {
 var import_react27 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/use-previous/dist/esm/index.mjs
-var React40 = __toESM(require("react"), 1);
+var React39 = __toESM(require("react"), 1);
 function usePrevious(value) {
-  const ref = React40.useRef({
+  const ref = React39.useRef({
     value,
     previous: value
   });
-  return React40.useMemo(() => (ref.current.value !== value && (ref.current.previous = ref.current.value, ref.current.value = value), ref.current.previous), [value]);
+  return React39.useMemo(() => (ref.current.value !== value && (ref.current.previous = ref.current.value, ref.current.value = value), ref.current.previous), [value]);
 }
 __name(usePrevious, "usePrevious");
 
 // node_modules/@tamagui/checkbox-headless/dist/esm/BubbleInput.mjs
-var React41 = __toESM(require("react"), 1);
+var React40 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/checkbox-headless/dist/esm/utils.mjs
 function isIndeterminate(checked) {
@@ -31025,7 +32496,7 @@ function getState3(checked) {
 __name(getState3, "getState");
 
 // node_modules/@tamagui/checkbox-headless/dist/esm/BubbleInput.mjs
-var import_jsx_runtime26 = require("react/jsx-runtime");
+var import_jsx_runtime24 = require("react/jsx-runtime");
 var BubbleInput = /* @__PURE__ */ __name((props) => {
   const {
     checked,
@@ -31033,8 +32504,8 @@ var BubbleInput = /* @__PURE__ */ __name((props) => {
     control,
     isHidden: isHidden2,
     ...inputProps
-  } = props, ref = React41.useRef(null), prevChecked = usePrevious(checked);
-  return React41.useEffect(() => {
+  } = props, ref = React40.useRef(null), prevChecked = usePrevious(checked);
+  return React40.useEffect(() => {
     const input = ref.current, inputProto = window.HTMLInputElement.prototype, setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
     if (prevChecked !== checked && setChecked) {
       const event = new Event("click", {
@@ -31042,7 +32513,7 @@ var BubbleInput = /* @__PURE__ */ __name((props) => {
       });
       input.indeterminate = isIndeterminate(checked), setChecked.call(input, isIndeterminate(checked) ? false : checked), input.dispatchEvent(event);
     }
-  }, [prevChecked, checked, bubbles]), /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("input", {
+  }, [prevChecked, checked, bubbles]), /* @__PURE__ */ (0, import_jsx_runtime24.jsx)("input", {
     type: "checkbox",
     defaultChecked: isIndeterminate(checked) ? false : checked,
     ...inputProps,
@@ -31066,7 +32537,7 @@ var BubbleInput = /* @__PURE__ */ __name((props) => {
 }, "BubbleInput");
 
 // node_modules/@tamagui/checkbox-headless/dist/esm/useCheckbox.mjs
-var import_jsx_runtime27 = require("react/jsx-runtime");
+var import_jsx_runtime25 = require("react/jsx-runtime");
 function useCheckbox(props, [checked, setChecked], ref) {
   const {
     labelledBy: ariaLabelledby,
@@ -31078,7 +32549,7 @@ function useCheckbox(props, [checked, setChecked], ref) {
     ...checkboxProps
   } = props, [button, setButton] = import_react27.default.useState(null), composedRefs = useComposedRefs(ref, (node) => setButton(node)), hasConsumerStoppedPropagationRef = import_react27.default.useRef(false), isFormControl = isWeb ? button ? !!button.closest("form") : true : false, labelId = useLabelContext(button), labelledBy = ariaLabelledby || labelId;
   return {
-    bubbleInput: isWeb && isFormControl ? /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(BubbleInput, {
+    bubbleInput: isWeb && isFormControl ? /* @__PURE__ */ (0, import_jsx_runtime25.jsx)(BubbleInput, {
       isHidden: true,
       control: button,
       bubbles: !hasConsumerStoppedPropagationRef.current,
@@ -31113,9 +32584,9 @@ function useCheckbox(props, [checked, setChecked], ref) {
 __name(useCheckbox, "useCheckbox");
 
 // node_modules/@tamagui/checkbox/dist/esm/createCheckbox.mjs
-var import_core21 = require("@tamagui/core");
+var import_core22 = require("@tamagui/core");
 init_esm10();
-var import_jsx_runtime28 = require("react/jsx-runtime");
+var import_jsx_runtime26 = require("react/jsx-runtime");
 var CheckboxContext = import_react28.default.createContext({
   checked: false,
   disabled: false
@@ -31141,11 +32612,11 @@ function createCheckbox(createProps) {
       native,
       unstyled = false,
       ...props
-    } = _props, propsActive = (0, import_core21.useProps)(props), styledContext = import_react28.default.useContext(CheckboxStyledContext);
-    let adjustedSize = 0, size5 = 0;
-    unstyled || (adjustedSize = (0, import_core21.getVariableValue)(getSize(propsActive.size ?? (styledContext == null ? void 0 : styledContext.size) ?? "$true", {
+    } = _props, propsActive = (0, import_core22.useProps)(props), styledContext = import_react28.default.useContext(CheckboxStyledContext);
+    let adjustedSize = 0, size6 = 0;
+    unstyled || (adjustedSize = (0, import_core22.getVariableValue)(getSize(propsActive.size ?? (styledContext == null ? void 0 : styledContext.size) ?? "$true", {
       shift: sizeAdjust
-    })), size5 = scaleSize ? Math.round(adjustedSize * scaleSize) : adjustedSize);
+    })), size6 = scaleSize ? Math.round(adjustedSize * scaleSize) : adjustedSize);
     const [checked = false, setChecked] = useControllableState({
       prop: checkedProp,
       defaultProp: defaultChecked,
@@ -31160,7 +32631,7 @@ function createCheckbox(createProps) {
       [checked, setChecked],
       forwardedRef
     );
-    return (0, import_core21.shouldRenderNativePlatform)(native) === "web" ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)("input", {
+    return (0, import_core22.shouldRenderNativePlatform)(native) === "web" ? /* @__PURE__ */ (0, import_jsx_runtime26.jsx)("input", {
       type: "checkbox",
       defaultChecked: isIndeterminate(checked) ? false : checked,
       tabIndex: -1,
@@ -31172,24 +32643,24 @@ function createCheckbox(createProps) {
         ...checkboxProps.style
         // TODO: any
       }
-    }) : /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(CheckboxContext.Provider, {
+    }) : /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(CheckboxContext.Provider, {
       value: {
         checked,
         disabled: checkboxProps.disabled
       },
-      children: /* @__PURE__ */ (0, import_jsx_runtime28.jsxs)(CheckboxStyledContext.Provider, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime26.jsxs)(CheckboxStyledContext.Provider, {
         size: propsActive.size ?? (styledContext == null ? void 0 : styledContext.size) ?? "$true",
         scaleIcon: scaleIcon ?? (styledContext == null ? void 0 : styledContext.scaleIcon) ?? 1,
-        children: [/* @__PURE__ */ (0, import_jsx_runtime28.jsx)(Frame2, {
+        children: [/* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Frame2, {
           ...!unstyled && {
-            width: size5,
-            height: size5
+            width: size6,
+            height: size6
           },
           tag: "button",
           ref: checkboxRef,
           unstyled,
           ...unstyled === false && {
-            size: size5,
+            size: size6,
             theme: checked ? "active" : null
           },
           checked,
@@ -31210,21 +32681,21 @@ function createCheckbox(createProps) {
     } = props, styledContext = import_react28.default.useContext(CheckboxStyledContext);
     let children = childrenProp;
     if (!unstyled) {
-      const iconSize = (typeof styledContext.size == "number" ? styledContext.size * 0.65 : getFontSize(styledContext.size)) * styledContext.scaleIcon, theme = (0, import_core21.useTheme)(), getThemedIcon = useGetThemedIcon({
+      const iconSize = (typeof styledContext.size == "number" ? styledContext.size * 0.65 : getFontSize(styledContext.size)) * styledContext.scaleIcon, theme = (0, import_core22.useTheme)(), getThemedIcon = useGetThemedIcon({
         size: iconSize,
         color: theme.color
       });
       children = import_react28.default.Children.toArray(childrenProp).map((child) => disablePassStyles || !import_react28.default.isValidElement(child) ? child : getThemedIcon(child));
     }
     const context = import_react28.default.useContext(CheckboxContext);
-    return forceMount || isIndeterminate(context.checked) || context.checked === true ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(Indicator, {
+    return forceMount || isIndeterminate(context.checked) || context.checked === true ? /* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Indicator, {
       pointerEvents: "none",
       ...indicatorProps,
       ref: forwardedRef,
       children
     }) : null;
   });
-  return (0, import_core21.withStaticProperties)(FrameComponent, {
+  return (0, import_core22.withStaticProperties)(FrameComponent, {
     Indicator: IndicatorComponent
   });
 }
@@ -31237,18 +32708,18 @@ var Checkbox = createCheckbox({
 });
 
 // node_modules/@tamagui/form/dist/esm/Form.mjs
-var import_core22 = require("@tamagui/core");
+var import_core23 = require("@tamagui/core");
 init_esm7();
-var import_jsx_runtime29 = require("react/jsx-runtime");
+var import_jsx_runtime27 = require("react/jsx-runtime");
 var FORM_NAME = "Form";
-var FormFrame = (0, import_core22.styled)(import_core22.Stack, {
+var FormFrame = (0, import_core23.styled)(import_core23.Stack, {
   name: FORM_NAME,
   tag: "form"
 });
 var [createFormContext] = createContextScope(FORM_NAME);
 var [FormProvider, useFormContext] = createFormContext(FORM_NAME);
 var TRIGGER_NAME4 = "FormTrigger";
-var FormTriggerFrame = (0, import_core22.styled)(import_core22.View, {
+var FormTriggerFrame = (0, import_core23.styled)(import_core23.View, {
   name: TRIGGER_NAME4
 });
 var FormTrigger = FormTriggerFrame.styleable((props, forwardedRef) => {
@@ -31258,7 +32729,7 @@ var FormTrigger = FormTriggerFrame.styleable((props, forwardedRef) => {
     onPress,
     ...triggerProps
   } = props, context = useFormContext(TRIGGER_NAME4, __scopeForm);
-  return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(FormTriggerFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(FormTriggerFrame, {
     tag: "button",
     ...triggerProps,
     ref: forwardedRef,
@@ -31270,10 +32741,10 @@ var FormComponent = FormFrame.extractable(function({
   onSubmit,
   ...props
 }) {
-  return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(FormProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(FormProvider, {
     scope: props.__scopeForm,
     onSubmit,
-    children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(FormFrame, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime27.jsx)(FormFrame, {
       ...props,
       onSubmit: /* @__PURE__ */ __name((e) => e.preventDefault(), "onSubmit")
     })
@@ -31284,20 +32755,20 @@ var Form2 = withStaticProperties(FormComponent, {
 });
 
 // node_modules/@tamagui/group/dist/esm/Group.mjs
-var import_core23 = require("@tamagui/core");
+var import_core24 = require("@tamagui/core");
 init_esm7();
 init_esm10();
 var import_react29 = __toESM(require("react"), 1);
 var import_react_native_web6 = __toESM(require_cjs16(), 1);
 
 // node_modules/@tamagui/group/dist/esm/useIndexedChildren.mjs
-var React44 = __toESM(require("react"), 1);
-var import_jsx_runtime30 = require("react/jsx-runtime");
-var MaxIndexContext = React44.createContext([]);
-var IndexContext = React44.createContext(null);
+var React43 = __toESM(require("react"), 1);
+var import_jsx_runtime28 = require("react/jsx-runtime");
+var MaxIndexContext = React43.createContext([]);
+var IndexContext = React43.createContext(null);
 function useIndex() {
-  const maxIndexPath = React44.useContext(MaxIndexContext), indexPathString = React44.useContext(IndexContext);
-  return React44.useMemo(() => {
+  const maxIndexPath = React43.useContext(MaxIndexContext), indexPathString = React43.useContext(IndexContext);
+  return React43.useMemo(() => {
     if (indexPathString === null) return null;
     const indexPath = parseIndexPath(indexPathString), maxIndex = maxIndexPath[maxIndexPath.length - 1], index3 = indexPath[indexPath.length - 1];
     return {
@@ -31315,10 +32786,10 @@ function useIndex() {
 }
 __name(useIndex, "useIndex");
 function useIndexedChildren(children) {
-  const parentMaxIndexPath = React44.useContext(MaxIndexContext), indexPathString = React44.useContext(IndexContext), childrenCount = React44.Children.count(children), maxIndexPath = React44.useMemo(() => parentMaxIndexPath.concat(childrenCount - 1), [childrenCount]);
-  return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(MaxIndexContext.Provider, {
+  const parentMaxIndexPath = React43.useContext(MaxIndexContext), indexPathString = React43.useContext(IndexContext), childrenCount = React43.Children.count(children), maxIndexPath = React43.useMemo(() => parentMaxIndexPath.concat(childrenCount - 1), [childrenCount]);
+  return /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(MaxIndexContext.Provider, {
     value: maxIndexPath,
-    children: React44.Children.map(children, (child, index3) => React44.isValidElement(child) ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(IndexContext.Provider, {
+    children: React43.Children.map(children, (child, index3) => React43.isValidElement(child) ? /* @__PURE__ */ (0, import_jsx_runtime28.jsx)(IndexContext.Provider, {
       value: indexPathString ? `${indexPathString}.${index3.toString()}` : index3.toString(),
       children: child
     }, child.key) : child)
@@ -31331,11 +32802,11 @@ function parseIndexPath(indexPathString) {
 __name(parseIndexPath, "parseIndexPath");
 
 // node_modules/@tamagui/group/dist/esm/Group.mjs
-var import_jsx_runtime31 = require("react/jsx-runtime");
+var import_jsx_runtime29 = require("react/jsx-runtime");
 var GROUP_NAME = "Group";
 var [createGroupContext, createGroupScope] = createContextScope(GROUP_NAME);
 var [GroupProvider, useGroupContext] = createGroupContext(GROUP_NAME);
-var GroupFrame = (0, import_core23.styled)(ThemeableStack, {
+var GroupFrame = (0, import_core24.styled)(ThemeableStack, {
   name: "GroupFrame",
   variants: {
     unstyled: {
@@ -31355,11 +32826,11 @@ var GroupFrame = (0, import_core23.styled)(ThemeableStack, {
 });
 function createGroup(verticalDefault) {
   return withStaticProperties(GroupFrame.styleable((props, ref) => {
-    const activeProps = (0, import_core23.useProps)(props), {
+    const activeProps = (0, import_core24.useProps)(props), {
       __scopeGroup,
       children: childrenProp,
       space: space2,
-      size: size5 = "$true",
+      size: size6 = "$true",
       spaceDirection,
       separator,
       scrollable,
@@ -31372,7 +32843,7 @@ function createGroup(verticalDefault) {
       ...restProps
     } = activeProps, vertical = orientation === "vertical", [itemChildrenCount, setItemChildrenCount] = useControllableState({
       defaultProp: forceUseItem ? 1 : 0
-    }), isUsingItems = itemChildrenCount > 0, radius2 = borderRadius ?? (size5 ? (0, import_core23.getVariableValue)((0, import_core23.getTokens)().radius[size5]) - 1 : void 0), disablePassBorderRadius = disablePassBorderRadiusProp ?? !(radius2 !== void 0), childrenArray = import_react29.default.Children.toArray(childrenProp), children = isUsingItems ? import_react29.default.Children.toArray(childrenProp).filter(import_react29.default.isValidElement) : childrenArray.map((child, i) => {
+    }), isUsingItems = itemChildrenCount > 0, radius2 = borderRadius ?? (size6 ? (0, import_core24.getVariableValue)((0, import_core24.getTokens)().radius[size6]) - 1 : void 0), disablePassBorderRadius = disablePassBorderRadiusProp ?? !(radius2 !== void 0), childrenArray = import_react29.default.Children.toArray(childrenProp), children = isUsingItems ? import_react29.default.Children.toArray(childrenProp).filter(import_react29.default.isValidElement) : childrenArray.map((child, i) => {
       if (!import_react29.default.isValidElement(child) || child.type === import_react29.default.Fragment) return child;
       const disabled = child.props.disabled ?? disabledProp, isFirst = i === 0, isLast = i === childrenArray.length - 1, radiusStyles = disablePassBorderRadius === true ? null : getBorderRadius({
         isFirst,
@@ -31382,18 +32853,18 @@ function createGroup(verticalDefault) {
         disable: disablePassBorderRadius
       }), props2 = {
         disabled,
-        ...(0, import_core23.isTamaguiElement)(child) ? radiusStyles : {
+        ...(0, import_core24.isTamaguiElement)(child) ? radiusStyles : {
           style: radiusStyles
         }
       };
       return cloneElementWithPropOrder(child, props2);
-    }), indexedChildren = useIndexedChildren((0, import_core23.spacedChildren)({
+    }), indexedChildren = useIndexedChildren((0, import_core24.spacedChildren)({
       direction: spaceDirection,
       separator,
       space: space2,
       children
     })), onItemMount = import_react29.default.useCallback(() => setItemChildrenCount((prev) => prev + 1), []), onItemUnmount = import_react29.default.useCallback(() => setItemChildrenCount((prev) => prev - 1), []);
-    return /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(GroupProvider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(GroupProvider, {
       disablePassBorderRadius,
       vertical: orientation === "vertical",
       radius: radius2,
@@ -31401,9 +32872,9 @@ function createGroup(verticalDefault) {
       onItemMount,
       onItemUnmount,
       scope: __scopeGroup,
-      children: /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(GroupFrame, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(GroupFrame, {
         ref,
-        size: size5,
+        size: size6,
         flexDirection: orientation === "horizontal" ? "row" : "column",
         borderRadius,
         ...restProps,
@@ -31427,7 +32898,7 @@ var GroupItem = import_react29.default.forwardRef((props, _ref) => {
   } = props, groupItemProps = useGroupItem({
     disabled: import_react29.default.isValidElement(children) ? children.props.disabled : void 0
   }, forcePlacement, __scopeGroup);
-  return !import_react29.default.isValidElement(children) || children.type === import_react29.default.Fragment ? children : (0, import_core23.isTamaguiElement)(children) ? import_react29.default.cloneElement(children, groupItemProps) : import_react29.default.cloneElement(children, {
+  return !import_react29.default.isValidElement(children) || children.type === import_react29.default.Fragment ? children : (0, import_core24.isTamaguiElement)(children) ? import_react29.default.cloneElement(children, groupItemProps) : import_react29.default.cloneElement(children, {
     style: {
       // @ts-ignore
       ...(_a = children.props) == null ? void 0 : _a.style,
@@ -31466,7 +32937,7 @@ var wrapScroll = /* @__PURE__ */ __name(({
   scrollable,
   orientation,
   showScrollIndicator = false
-}, children) => scrollable ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(import_react_native_web6.ScrollView, {
+}, children) => scrollable ? /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(import_react_native_web6.ScrollView, {
   ...orientation === "vertical" && {
     showsVerticalScrollIndicator: showScrollIndicator
   },
@@ -31489,62 +32960,50 @@ var getBorderRadius = /* @__PURE__ */ __name(({
   borderBottomRightRadius: isLast && disable !== "bottom" && disable !== "end" ? radius2 : 0
 }), "getBorderRadius");
 var cloneElementWithPropOrder = /* @__PURE__ */ __name((child, props) => {
-  const next = (0, import_core23.mergeProps)(child.props, props, (0, import_core23.getConfig)().shorthands);
+  const next = (0, import_core24.mergeProps)(child.props, props, (0, import_core24.getConfig)().shorthands);
   return import_react29.default.cloneElement({
     ...child,
     props: null
   }, next);
 }, "cloneElementWithPropOrder");
 
-// node_modules/@tamagui/react-native-media-driver/dist/esm/createMedia.mjs
-var import_web14 = require("@tamagui/core");
-
-// node_modules/@tamagui/react-native-media-driver/dist/esm/matchMedia.mjs
-var matchMedia = globalThis.matchMedia;
-
-// node_modules/@tamagui/react-native-media-driver/dist/esm/createMedia.mjs
-function createMedia(media) {
-  return (0, import_web14.setupMatchMedia)(matchMedia), media;
-}
-__name(createMedia, "createMedia");
-
 // node_modules/@tamagui/elements/dist/esm/index.mjs
-var import_core24 = require("@tamagui/core");
-var Section = (0, import_core24.styled)(import_core24.View, {
+var import_core25 = require("@tamagui/core");
+var Section = (0, import_core25.styled)(import_core25.View, {
   name: "Section",
   tag: "section",
   flexDirection: "column",
   accessibilityRole: "summary"
 });
-var Article = (0, import_core24.styled)(import_core24.View, {
+var Article = (0, import_core25.styled)(import_core25.View, {
   name: "Article",
   tag: "article",
   flexDirection: "column"
 });
-var Main = (0, import_core24.styled)(import_core24.View, {
+var Main = (0, import_core25.styled)(import_core25.View, {
   name: "Main",
   tag: "main",
   flexDirection: "column"
 });
-var Header = (0, import_core24.styled)(import_core24.View, {
+var Header = (0, import_core25.styled)(import_core25.View, {
   name: "Header",
   tag: "header",
   accessibilityRole: "header",
   flexDirection: "column"
 });
-var Aside = (0, import_core24.styled)(import_core24.View, {
+var Aside = (0, import_core25.styled)(import_core25.View, {
   name: "Aside",
   tag: "aside",
   flexDirection: "column"
   // accessibilityRole: 'complementary',
 });
-var Footer = (0, import_core24.styled)(import_core24.View, {
+var Footer = (0, import_core25.styled)(import_core25.View, {
   name: "Footer",
   tag: "footer",
   flexDirection: "column"
   // accessibilityRole: 'contentinfo',
 });
-var Nav = (0, import_core24.styled)(import_core24.View, {
+var Nav = (0, import_core25.styled)(import_core25.View, {
   name: "Nav",
   tag: "nav",
   flexDirection: "column"
@@ -31553,10 +33012,10 @@ var Nav = (0, import_core24.styled)(import_core24.View, {
 
 // node_modules/@tamagui/list-item/dist/esm/ListItem.mjs
 init_esm7();
-var import_web15 = require("@tamagui/core");
-var import_jsx_runtime32 = require("react/jsx-runtime");
+var import_web18 = require("@tamagui/core");
+var import_jsx_runtime30 = require("react/jsx-runtime");
 var NAME2 = "ListItem";
-var ListItemFrame = (0, import_web15.styled)(ThemeableStack, {
+var ListItemFrame = (0, import_web18.styled)(ThemeableStack, {
   name: NAME2,
   tag: "li",
   variants: {
@@ -31605,7 +33064,7 @@ var ListItemFrame = (0, import_web15.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var ListItemText = (0, import_web15.styled)(SizableText, {
+var ListItemText = (0, import_web18.styled)(SizableText, {
   name: "ListItemText",
   variants: {
     unstyled: {
@@ -31623,7 +33082,7 @@ var ListItemText = (0, import_web15.styled)(SizableText, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var ListItemSubtitle = (0, import_web15.styled)(ListItemText, {
+var ListItemSubtitle = (0, import_web18.styled)(ListItemText, {
   name: "ListItemSubtitle",
   variants: {
     unstyled: {
@@ -31647,7 +33106,7 @@ var ListItemSubtitle = (0, import_web15.styled)(ListItemText, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var ListItemTitle = (0, import_web15.styled)(ListItemText, {
+var ListItemTitle = (0, import_web18.styled)(ListItemText, {
   name: "ListItemTitle"
 });
 var useListItem = /* @__PURE__ */ __name((propsIn, {
@@ -31659,7 +33118,7 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
   Subtitle: ListItemSubtitle,
   Title: ListItemTitle
 }) => {
-  const props = (0, import_web15.useProps)(propsIn, {
+  const props = (0, import_web18.useProps)(propsIn, {
     resolveValues: "none"
   }), {
     children,
@@ -31692,36 +33151,36 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
     textAlign,
     ellipse,
     children
-  }, size5 = props.size || "$true", iconSize = getFontSize(size5) * scaleIcon, getThemedIcon = useGetThemedIcon({
+  }, size6 = props.size || "$true", iconSize = getFontSize(size6) * scaleIcon, getThemedIcon = useGetThemedIcon({
     size: iconSize,
     color: color2
-  }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), sizeToken = (0, import_web15.getTokens)().space[props.space] ?? iconSize, spaceSize = (0, import_web15.getVariableValue)(sizeToken) * scaleSpace, contents = wrapChildrenInText(Text5, textProps);
+  }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), sizeToken = (0, import_web18.getTokens)().space[props.space] ?? iconSize, spaceSize = (0, import_web18.getVariableValue)(sizeToken) * scaleSpace, contents = wrapChildrenInText(Text5, textProps);
   return {
     props: {
       ...rest,
-      children: /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, {
-        children: [themedIcon ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, {
-          children: [themedIcon, /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(import_web15.Spacer, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, {
+        children: [themedIcon ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, {
+          children: [themedIcon, /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_web18.Spacer, {
             size: spaceSize
           })]
-        }) : null, title || subTitle ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(YStack, {
+        }) : null, title || subTitle ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(YStack, {
           flex: 1,
-          children: [noTextWrap === "all" ? title : /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Title, {
-            size: size5,
+          children: [noTextWrap === "all" ? title : /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Title, {
+            size: size6,
             children: title
-          }), subTitle ? /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(import_jsx_runtime32.Fragment, {
+          }), subTitle ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_jsx_runtime30.Fragment, {
             children: typeof subTitle == "string" && noTextWrap !== "all" ? (
               // TODO can use theme but we need to standardize to alt themes
               // or standardize on subtle colors in themes
-              /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(Subtitle, {
+              /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Subtitle, {
                 unstyled,
-                size: size5,
+                size: size6,
                 children: subTitle
               })
             ) : subTitle
           }) : null, contents]
-        }) : contents, themedIconAfter ? /* @__PURE__ */ (0, import_jsx_runtime32.jsxs)(import_jsx_runtime32.Fragment, {
-          children: [/* @__PURE__ */ (0, import_jsx_runtime32.jsx)(import_web15.Spacer, {
+        }) : contents, themedIconAfter ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(import_jsx_runtime30.Fragment, {
+          children: [/* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_web18.Spacer, {
             size: spaceSize
           }), themedIconAfter]
         }) : null]
@@ -31733,7 +33192,7 @@ var ListItemComponent = ListItemFrame.styleable(function(props, ref) {
   const {
     props: listItemProps
   } = useListItem(props);
-  return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(ListItemFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(ListItemFrame, {
     ref,
     ...listItemProps
   });
@@ -31744,14 +33203,14 @@ var ListItem2 = withStaticProperties(ListItemComponent, {
 });
 
 // node_modules/@tamagui/animate/dist/esm/Animate.mjs
-init_esm4();
-var import_jsx_runtime33 = require("react/jsx-runtime");
+init_esm5();
+var import_jsx_runtime31 = require("react/jsx-runtime");
 function Animate({
   children,
   type,
   ...props
 }) {
-  return type === "presence" ? props.keepChildrenMounted ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PresenceChild, {
+  return type === "presence" ? props.keepChildrenMounted ? /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(PresenceChild, {
     initial: props.initial ? void 0 : false,
     onExitComplete: props.onExitComplete,
     enterVariant: props.enterVariant,
@@ -31761,18 +33220,18 @@ function Animate({
     isPresent: props.present,
     custom: props.custom,
     children
-  }) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(AnimatePresence, {
+  }) : /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(AnimatePresence, {
     ...props,
     children: props.present ? children : null
-  }) : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_jsx_runtime33.Fragment, {
+  }) : /* @__PURE__ */ (0, import_jsx_runtime31.jsx)(import_jsx_runtime31.Fragment, {
     children
   });
 }
 __name(Animate, "Animate");
 
 // node_modules/@tamagui/popover/dist/esm/Popover.mjs
-init_esm4();
-init_esm6();
+init_esm5();
+init_esm();
 var import_core28 = require("@tamagui/core");
 
 // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
@@ -31980,13 +33439,13 @@ function computeCoordsFromPlacement(_ref, placement, rtl) {
   return coords;
 }
 __name(computeCoordsFromPlacement, "computeCoordsFromPlacement");
-var computePosition = /* @__PURE__ */ __name(async (reference, floating, config) => {
+var computePosition = /* @__PURE__ */ __name(async (reference, floating, config2) => {
   const {
     placement = "bottom",
     strategy = "absolute",
     middleware = [],
     platform: platform2
-  } = config;
+  } = config2;
   const validMiddleware = middleware.filter(Boolean);
   const rtl = await (platform2.isRTL == null ? void 0 : platform2.isRTL(floating));
   let rects = await platform2.getElementRects({
@@ -32432,7 +33891,7 @@ var shift = /* @__PURE__ */ __name(function(options) {
     }
   };
 }, "shift");
-var size = /* @__PURE__ */ __name(function(options) {
+var size3 = /* @__PURE__ */ __name(function(options) {
   if (options === void 0) {
     options = {};
   }
@@ -33308,7 +34767,7 @@ var detectOverflow2 = detectOverflow;
 var offset2 = offset;
 var shift2 = shift;
 var flip2 = flip;
-var size2 = size;
+var size4 = size3;
 var arrow2 = arrow;
 var computePosition2 = /* @__PURE__ */ __name((reference, floating, options) => {
   const cache3 = /* @__PURE__ */ new Map();
@@ -33327,7 +34786,7 @@ var computePosition2 = /* @__PURE__ */ __name((reference, floating, options) => 
 }, "computePosition");
 
 // node_modules/@floating-ui/react-dom/dist/floating-ui.react-dom.mjs
-var React46 = __toESM(require("react"), 1);
+var React45 = __toESM(require("react"), 1);
 var import_react30 = require("react");
 var ReactDOM2 = __toESM(require("react-dom"), 1);
 var isClient2 = typeof document !== "undefined";
@@ -33396,7 +34855,7 @@ function roundByDPR(element, value) {
 }
 __name(roundByDPR, "roundByDPR");
 function useLatestRef(value) {
-  const ref = React46.useRef(value);
+  const ref = React45.useRef(value);
   index(() => {
     ref.current = value;
   });
@@ -33420,7 +34879,7 @@ function useFloating(options) {
     whileElementsMounted,
     open
   } = options;
-  const [data, setData] = React46.useState({
+  const [data, setData] = React45.useState({
     x: 0,
     y: 0,
     strategy,
@@ -33428,19 +34887,19 @@ function useFloating(options) {
     middlewareData: {},
     isPositioned: false
   });
-  const [latestMiddleware, setLatestMiddleware] = React46.useState(middleware);
+  const [latestMiddleware, setLatestMiddleware] = React45.useState(middleware);
   if (!deepEqual(latestMiddleware, middleware)) {
     setLatestMiddleware(middleware);
   }
-  const [_reference, _setReference] = React46.useState(null);
-  const [_floating, _setFloating] = React46.useState(null);
-  const setReference = React46.useCallback((node) => {
+  const [_reference, _setReference] = React45.useState(null);
+  const [_floating, _setFloating] = React45.useState(null);
+  const setReference = React45.useCallback((node) => {
     if (node !== referenceRef.current) {
       referenceRef.current = node;
       _setReference(node);
     }
   }, []);
-  const setFloating = React46.useCallback((node) => {
+  const setFloating = React45.useCallback((node) => {
     if (node !== floatingRef.current) {
       floatingRef.current = node;
       _setFloating(node);
@@ -33448,26 +34907,26 @@ function useFloating(options) {
   }, []);
   const referenceEl = externalReference || _reference;
   const floatingEl = externalFloating || _floating;
-  const referenceRef = React46.useRef(null);
-  const floatingRef = React46.useRef(null);
-  const dataRef = React46.useRef(data);
+  const referenceRef = React45.useRef(null);
+  const floatingRef = React45.useRef(null);
+  const dataRef = React45.useRef(data);
   const hasWhileElementsMounted = whileElementsMounted != null;
   const whileElementsMountedRef = useLatestRef(whileElementsMounted);
   const platformRef = useLatestRef(platform2);
   const openRef = useLatestRef(open);
-  const update = React46.useCallback(() => {
+  const update = React45.useCallback(() => {
     if (!referenceRef.current || !floatingRef.current) {
       return;
     }
-    const config = {
+    const config2 = {
       placement,
       strategy,
       middleware: latestMiddleware
     };
     if (platformRef.current) {
-      config.platform = platformRef.current;
+      config2.platform = platformRef.current;
     }
-    computePosition2(referenceRef.current, floatingRef.current, config).then((data2) => {
+    computePosition2(referenceRef.current, floatingRef.current, config2).then((data2) => {
       const fullData = {
         ...data2,
         // The floating element's position may be recomputed while it's closed
@@ -33493,7 +34952,7 @@ function useFloating(options) {
       }));
     }
   }, [open]);
-  const isMountedRef = React46.useRef(false);
+  const isMountedRef = React45.useRef(false);
   index(() => {
     isMountedRef.current = true;
     return () => {
@@ -33510,17 +34969,17 @@ function useFloating(options) {
       update();
     }
   }, [referenceEl, floatingEl, update, whileElementsMountedRef, hasWhileElementsMounted]);
-  const refs = React46.useMemo(() => ({
+  const refs = React45.useMemo(() => ({
     reference: referenceRef,
     floating: floatingRef,
     setReference,
     setFloating
   }), [setReference, setFloating]);
-  const elements = React46.useMemo(() => ({
+  const elements = React45.useMemo(() => ({
     reference: referenceEl,
     floating: floatingEl
   }), [referenceEl, floatingEl]);
-  const floatingStyles = React46.useMemo(() => {
+  const floatingStyles = React45.useMemo(() => {
     const initialStyles = {
       position: strategy,
       left: 0,
@@ -33546,7 +35005,7 @@ function useFloating(options) {
       top: y
     };
   }, [strategy, transform, elements.floating, data.x, data.y]);
-  return React46.useMemo(() => ({
+  return React45.useMemo(() => ({
     ...data,
     update,
     refs,
@@ -33599,8 +35058,8 @@ var flip3 = /* @__PURE__ */ __name((options, deps) => ({
   ...flip2(options),
   options: [options, deps]
 }), "flip");
-var size3 = /* @__PURE__ */ __name((options, deps) => ({
-  ...size2(options),
+var size5 = /* @__PURE__ */ __name((options, deps) => ({
+  ...size4(options),
   options: [options, deps]
 }), "size");
 var arrow3 = /* @__PURE__ */ __name((options, deps) => ({
@@ -33620,13 +35079,13 @@ var useFloating2 = /* @__PURE__ */ __name((props) => {
 init_esm7();
 
 // node_modules/@tamagui/popper/dist/esm/Popper.mjs
-init_esm6();
-var import_core26 = require("@tamagui/core");
+init_esm();
+var import_core27 = require("@tamagui/core");
 init_esm9();
-var React48 = __toESM(require("react"), 1);
+var React47 = __toESM(require("react"), 1);
 var import_react_native = require("@tamagui/react-native-web-lite");
-var import_jsx_runtime34 = require("react/jsx-runtime");
-var PopperContext = (0, import_core26.createStyledContext)({});
+var import_jsx_runtime32 = require("react/jsx-runtime");
+var PopperContext = (0, import_core27.createStyledContext)({});
 var {
   useStyledContext: usePopperContext,
   Provider: PopperProvider
@@ -33641,7 +35100,7 @@ function Popper(props) {
   var _a;
   const {
     children,
-    size: size5,
+    size: size6,
     strategy = "absolute",
     placement = "bottom",
     stayInFrame,
@@ -33649,7 +35108,7 @@ function Popper(props) {
     offset: offset4,
     disableRTL,
     __scopePopper
-  } = props, [arrowEl, setArrow] = React48.useState(null), [arrowSize, setArrowSize] = React48.useState(0), offsetOptions = offset4 ?? arrowSize, floating = useFloating2({
+  } = props, [arrowEl, setArrow] = React47.useState(null), [arrowSize, setArrowSize] = React47.useState(0), offsetOptions = offset4 ?? arrowSize, floating = useFloating2({
     strategy,
     placement,
     sameScrollView: false,
@@ -33673,7 +35132,7 @@ function Popper(props) {
     if (open && refs.reference.current && refs.floating.current) return floating.update(), autoUpdate(refs.reference.current, refs.floating.current, floating.update);
   }, [open, floating.update, refs.floating, refs.reference]);
   const popperContext = {
-    size: size5,
+    size: size6,
     arrowRef: setArrow,
     arrowStyle: middlewareData.arrow,
     onArrowSize: setArrowSize,
@@ -33681,13 +35140,13 @@ function Popper(props) {
     hasFloating: (_a = middlewareData.checkFloating) == null ? void 0 : _a.hasFloating,
     ...floating
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(PopperProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PopperProvider, {
     ...popperContext,
     children
   });
 }
 __name(Popper, "Popper");
-var PopperAnchor = YStack.extractable(React48.forwardRef(function(props, forwardedRef) {
+var PopperAnchor = YStack.extractable(React47.forwardRef(function(props, forwardedRef) {
   const {
     virtualRef,
     __scopePopper,
@@ -33695,19 +35154,19 @@ var PopperAnchor = YStack.extractable(React48.forwardRef(function(props, forward
   } = props, {
     getReferenceProps,
     refs
-  } = usePopperContext(__scopePopper), ref = React48.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref, refs.setReference);
-  React48.useEffect(() => {
+  } = usePopperContext(__scopePopper), ref = React47.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref, refs.setReference);
+  React47.useEffect(() => {
     virtualRef && refs.setReference(virtualRef.current);
   }, [virtualRef]);
   const stackProps = {
     ref: composedRefs,
     ...anchorProps
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(import_core26.View, {
+  return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(import_core27.View, {
     ...getReferenceProps ? getReferenceProps(stackProps) : stackProps
   });
 }));
-var PopperContentFrame = (0, import_core26.styled)(ThemeableStack, {
+var PopperContentFrame = (0, import_core27.styled)(ThemeableStack, {
   name: "PopperContent",
   variants: {
     unstyled: {
@@ -33731,7 +35190,7 @@ var PopperContentFrame = (0, import_core26.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var PopperContent = React48.forwardRef(function(props, forwardedRef) {
+var PopperContent = React47.forwardRef(function(props, forwardedRef) {
   const {
     __scopePopper,
     enableAnimationForPositionChange,
@@ -33743,30 +35202,30 @@ var PopperContent = React48.forwardRef(function(props, forwardedRef) {
     x,
     y,
     getFloatingProps,
-    size: size5,
+    size: size6,
     update,
     floatingStyles,
     hasFloating
   } = usePopperContext(__scopePopper), contentRefs = useComposedRefs(refs.setFloating, forwardedRef);
   let finalHasFloatingValue = false;
   if (isAndroid) {
-    const initialRender = React48.useRef(true), finalHasFloating = React48.useRef(false);
+    const initialRender = React47.useRef(true), finalHasFloating = React47.useRef(false);
     hasFloating === false && (initialRender.current = false), initialRender.current || (finalHasFloating.current = hasFloating), finalHasFloatingValue = finalHasFloating.current;
   }
-  const contents = React48.useMemo(() => /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(PopperContentFrame, {
+  const contents = React47.useMemo(() => /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PopperContentFrame, {
     "data-placement": placement,
     "data-strategy": strategy,
     contain: "layout",
-    size: size5,
+    size: size6,
     ...rest
-  }, "popper-content-frame"), [placement, strategy, props]), [needsMeasure, setNeedsMeasure] = React48.useState(true);
-  React48.useEffect(() => {
+  }, "popper-content-frame"), [placement, strategy, props]), [needsMeasure, setNeedsMeasure] = React47.useState(true);
+  React47.useEffect(() => {
     enableAnimationForPositionChange && (x || y) && setNeedsMeasure(false);
   }, [enableAnimationForPositionChange, x, y]);
   let show = true;
   if (isAndroid) {
-    const [show_, setShow] = React48.useState(false);
-    show = show_, React48.useEffect(() => {
+    const [show_, setShow] = React47.useState(false);
+    show = show_, React47.useEffect(() => {
       finalHasFloatingValue && setShow(true);
     }, [finalHasFloatingValue, x, y]);
   }
@@ -33785,12 +35244,12 @@ var PopperContent = React48.forwardRef(function(props, forwardedRef) {
       animatePresence: false
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(import_core26.Stack, {
+  return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(import_core27.Stack, {
     ...getFloatingProps ? getFloatingProps(frameProps) : frameProps,
     children: contents
   });
 });
-var PopperArrowFrame = (0, import_core26.styled)(YStack, {
+var PopperArrowFrame = (0, import_core27.styled)(YStack, {
   name: "PopperArrow",
   variants: {
     unstyled: {
@@ -33805,7 +35264,7 @@ var PopperArrowFrame = (0, import_core26.styled)(YStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var PopperArrowOuterFrame = (0, import_core26.styled)(YStack, {
+var PopperArrowOuterFrame = (0, import_core27.styled)(YStack, {
   name: "PopperArrowOuter",
   variants: {
     unstyled: {
@@ -33834,36 +35293,36 @@ var PopperArrow = PopperArrowFrame.styleable(function(propsIn, forwardedRef) {
   const {
     __scopePopper,
     ...rest
-  } = propsIn, props = (0, import_core26.useProps)(rest), {
+  } = propsIn, props = (0, import_core27.useProps)(rest), {
     offset: offset4,
     size: sizeProp,
     borderWidth = 0,
     ...arrowProps
-  } = props, context = usePopperContext(__scopePopper), sizeVal = typeof sizeProp == "number" ? sizeProp : (0, import_core26.getVariableValue)(getSpace(sizeProp ?? context.size, {
+  } = props, context = usePopperContext(__scopePopper), sizeVal = typeof sizeProp == "number" ? sizeProp : (0, import_core27.getVariableValue)(getSpace(sizeProp ?? context.size, {
     shift: -2,
     bounds: [2]
-  })), size5 = Math.max(0, +sizeVal), {
+  })), size6 = Math.max(0, +sizeVal), {
     placement
   } = context, refs = useComposedRefs(context.arrowRef, forwardedRef), x = ((_a = context.arrowStyle) == null ? void 0 : _a.x) || 0, y = ((_b = context.arrowStyle) == null ? void 0 : _b.y) || 0, primaryPlacement = placement ? placement.split("-")[0] : "top", arrowStyle = {
     x,
     y,
-    width: size5,
-    height: size5
+    width: size6,
+    height: size6
   }, innerArrowStyle = {}, isVertical = primaryPlacement === "bottom" || primaryPlacement === "top";
   if (primaryPlacement) {
-    arrowStyle[isVertical ? "width" : "height"] = size5 * 2;
+    arrowStyle[isVertical ? "width" : "height"] = size6 * 2;
     const oppSide = opposites[primaryPlacement];
-    oppSide && (arrowStyle[oppSide] = -size5, innerArrowStyle[oppSide] = size5 / 2), (oppSide === "top" || oppSide === "bottom") && (arrowStyle.left = 0), (oppSide === "left" || oppSide === "right") && (arrowStyle.top = 0), useIsomorphicLayoutEffect(() => {
+    oppSide && (arrowStyle[oppSide] = -size6, innerArrowStyle[oppSide] = size6 / 2), (oppSide === "top" || oppSide === "bottom") && (arrowStyle.left = 0), (oppSide === "left" || oppSide === "right") && (arrowStyle.top = 0), useIsomorphicLayoutEffect(() => {
       var _a2;
-      (_a2 = context.onArrowSize) == null ? void 0 : _a2.call(context, size5);
-    }, [size5, context.onArrowSize]);
+      (_a2 = context.onArrowSize) == null ? void 0 : _a2.call(context, size6);
+    }, [size6, context.onArrowSize]);
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(PopperArrowOuterFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PopperArrowOuterFrame, {
     ref: refs,
     ...arrowStyle,
-    children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(PopperArrowFrame, {
-      width: size5,
-      height: size5,
+    children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PopperArrowFrame, {
+      width: size6,
+      height: size6,
       ...arrowProps,
       ...innerArrowStyle,
       rotate: "45deg",
@@ -33887,199 +35346,17 @@ var PopperArrow = PopperArrowFrame.styleable(function(propsIn, forwardedRef) {
   });
 });
 
-// node_modules/@tamagui/popover/node_modules/@tamagui/portal/dist/esm/Portal.mjs
-init_esm6();
-var React49 = __toESM(require("react"), 1);
-var import_react_dom3 = require("react-dom");
-var import_jsx_runtime35 = require("react/jsx-runtime");
-var Portal3 = React49.memo(({
-  host = ((_a) => (_a = globalThis.document) == null ? void 0 : _a.body)(),
-  ...props
-}) => isServer ? null : (0, import_react_dom3.createPortal)(/* @__PURE__ */ (0, import_jsx_runtime35.jsx)(YStack, {
-  contain: "strict",
-  fullscreen: true,
-  position: "fixed",
-  maxWidth: "100vw",
-  maxHeight: "100vh",
-  pointerEvents: "none",
-  ...props
-}), host));
-
-// node_modules/@tamagui/popover/node_modules/@tamagui/portal/dist/esm/GorhomPortal.mjs
-init_esm6();
-var import_core27 = require("@tamagui/core");
-var import_react32 = __toESM(require("react"), 1);
-init_esm9();
-var import_jsx_runtime36 = require("react/jsx-runtime");
-var INITIAL_STATE3 = {};
-var registerHost3 = /* @__PURE__ */ __name((state, hostName) => (hostName in state || (state[hostName] = []), state), "registerHost");
-var deregisterHost3 = /* @__PURE__ */ __name((state, hostName) => (delete state[hostName], state), "deregisterHost");
-var addUpdatePortal3 = /* @__PURE__ */ __name((state, hostName, portalName, node) => {
-  hostName in state || (state = registerHost3(state, hostName));
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 ? state[hostName][index3].node = node : state[hostName].push({
-    name: portalName,
-    node
-  }), state;
-}, "addUpdatePortal");
-var removePortal3 = /* @__PURE__ */ __name((state, hostName, portalName) => {
-  if (!(hostName in state)) return console.info(`Failed to remove portal '${portalName}', '${hostName}' was not registered!`), state;
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 && state[hostName].splice(index3, 1), state;
-}, "removePortal");
-var reducer3 = /* @__PURE__ */ __name((state, action) => {
-  const {
-    type
-  } = action;
-  switch (type) {
-    case 0:
-      return registerHost3({
-        ...state
-      }, action.hostName);
-    case 1:
-      return deregisterHost3({
-        ...state
-      }, action.hostName);
-    case 2:
-      return addUpdatePortal3({
-        ...state
-      }, action.hostName, action.portalName, action.node);
-    case 3:
-      return removePortal3({
-        ...state
-      }, action.hostName, action.portalName);
-    default:
-      return state;
-  }
-}, "reducer");
-var PortalStateContext3 = (0, import_react32.createContext)(null);
-var PortalDispatchContext3 = (0, import_react32.createContext)(null);
-var usePortalState3 = /* @__PURE__ */ __name((hostName) => {
-  const state = (0, import_react32.useContext)(PortalStateContext3);
-  if (state === null) throw new Error("'PortalStateContext' cannot be null, please add 'PortalProvider' to the root component.");
-  return state[hostName] || [];
-}, "usePortalState");
-var usePortal3 = /* @__PURE__ */ __name((hostName = "root") => {
-  const dispatch = (0, import_react32.useContext)(PortalDispatchContext3);
-  if (dispatch === null) throw new Error("'PortalDispatchContext' cannot be null, please add 'PortalProvider' to the root component.");
-  const registerHost22 = (0, import_react32.useCallback)(() => {
-    dispatch({
-      type: 0,
-      hostName
-    });
-  }, []), deregisterHost22 = (0, import_react32.useCallback)(() => {
-    dispatch({
-      type: 1,
-      hostName
-    });
-  }, []), addUpdatePortal22 = (0, import_react32.useCallback)((name, node) => {
-    dispatch({
-      type: 2,
-      hostName,
-      portalName: name,
-      node
-    });
-  }, []), removePortal22 = (0, import_react32.useCallback)((name) => {
-    dispatch({
-      type: 3,
-      hostName,
-      portalName: name
-    });
-  }, []);
-  return {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22,
-    addPortal: addUpdatePortal22,
-    updatePortal: addUpdatePortal22,
-    removePortal: removePortal22
-  };
-}, "usePortal");
-var PortalProviderComponent3 = /* @__PURE__ */ __name(({
-  rootHostName = "root",
-  shouldAddRootHost = true,
-  children
-}) => {
-  const [state, dispatch] = (0, import_react32.useReducer)(reducer3, INITIAL_STATE3), transitionDispatch = (0, import_react32.useMemo)(() => (value) => {
-    startTransition(() => {
-      dispatch(value);
-    });
-  }, [dispatch]);
-  return /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(PortalDispatchContext3.Provider, {
-    value: transitionDispatch,
-    children: /* @__PURE__ */ (0, import_jsx_runtime36.jsxs)(PortalStateContext3.Provider, {
-      value: state,
-      children: [children, shouldAddRootHost && /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(PortalHost3, {
-        name: rootHostName
-      })]
-    })
-  });
-}, "PortalProviderComponent");
-var PortalProvider4 = (0, import_react32.memo)(PortalProviderComponent3);
-PortalProvider4.displayName = "PortalProvider";
-var defaultRenderer3 = /* @__PURE__ */ __name((children) => /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(import_jsx_runtime36.Fragment, {
-  children
-}), "defaultRenderer");
-var PortalHostComponent3 = /* @__PURE__ */ __name((props) => {
-  const {
-    name,
-    forwardProps,
-    render = defaultRenderer3
-  } = props, state = usePortalState3(name), {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22
-  } = usePortal3(props.name);
-  return (0, import_react32.useEffect)(() => {
-    if (!(typeof window > "u")) return registerHost22(), () => {
-      deregisterHost22();
-    };
-  }, []), render(forwardProps ? state.map((item) => {
-    let next = item.node;
-    return forwardProps ? import_react32.default.Children.map(next, (child) => import_react32.default.isValidElement(child) ? import_react32.default.cloneElement(child, {
-      key: child.key,
-      ...forwardProps
-    }) : child) : next;
-  }) : state.map((item) => item.node));
-}, "PortalHostComponent");
-var PortalHost3 = (0, import_react32.memo)(PortalHostComponent3);
-PortalHost3.displayName = "PortalHost";
-var PortalComponent3 = /* @__PURE__ */ __name((props) => {
-  const {
-    name: _providedName,
-    hostName,
-    handleOnMount: _providedHandleOnMount,
-    handleOnUnmount: _providedHandleOnUnmount,
-    handleOnUpdate: _providedHandleOnUpdate,
-    children
-  } = props, {
-    addPortal: addUpdatePortal22,
-    removePortal: removePortal22
-  } = usePortal3(hostName), id = (0, import_react32.useId)(), name = _providedName || id, handleOnMount = (0, import_core27.useEvent)(() => {
-    _providedHandleOnMount ? _providedHandleOnMount(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  }), handleOnUnmount = (0, import_core27.useEvent)(() => {
-    _providedHandleOnUnmount ? _providedHandleOnUnmount(() => removePortal22(name)) : removePortal22(name);
-  }), handleOnUpdate = (0, import_core27.useEvent)(() => {
-    _providedHandleOnUpdate ? _providedHandleOnUpdate(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  });
-  return useIsomorphicLayoutEffect(() => (handleOnMount(), () => {
-    handleOnUnmount();
-  }), []), (0, import_react32.useEffect)(() => {
-    handleOnUpdate();
-  }, [children]), null;
-}, "PortalComponent");
-var PortalItem3 = (0, import_react32.memo)(PortalComponent3);
-PortalItem3.displayName = "Portal";
-
 // node_modules/@tamagui/popover/dist/esm/Popover.mjs
 init_esm10();
-var React53 = __toESM(require("react"), 1);
+var React50 = __toESM(require("react"), 1);
 var import_react_native_web7 = __toESM(require_cjs16(), 1);
 
 // node_modules/@tamagui/popover/dist/esm/useFloatingContext.mjs
-var import_react34 = __toESM(require("react"), 1);
+var import_react33 = __toESM(require("react"), 1);
 
 // node_modules/@floating-ui/react/dist/floating-ui.react.mjs
-var React51 = __toESM(require("react"), 1);
-var import_react33 = require("react");
+var React48 = __toESM(require("react"), 1);
+var import_react32 = require("react");
 
 // node_modules/@floating-ui/react/dist/floating-ui.react.utils.mjs
 function activeElement(doc) {
@@ -34224,12 +35501,12 @@ __name(isTypeableCombobox, "isTypeableCombobox");
 var import_tabbable = __toESM(require_dist(), 1);
 var ReactDOM3 = __toESM(require("react-dom"), 1);
 var SafeReact = {
-  ...React51
+  ...React48
 };
 var useInsertionEffect = SafeReact.useInsertionEffect;
 var useSafeInsertionEffect = useInsertionEffect || ((fn) => fn());
 function useEffectEvent(callback) {
-  const ref = React51.useRef(() => {
+  const ref = React48.useRef(() => {
     if (process.env.NODE_ENV !== "production") {
       throw new Error("Cannot call an event handler while rendering.");
     }
@@ -34237,7 +35514,7 @@ function useEffectEvent(callback) {
   useSafeInsertionEffect(() => {
     ref.current = callback;
   });
-  return React51.useCallback(function() {
+  return React48.useCallback(function() {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
@@ -34485,7 +35762,7 @@ function isDisabled(list, index3, disabledIndices) {
   return element == null || element.hasAttribute("disabled") || element.getAttribute("aria-disabled") === "true";
 }
 __name(isDisabled, "isDisabled");
-var index2 = typeof document !== "undefined" ? import_react33.useLayoutEffect : import_react33.useEffect;
+var index2 = typeof document !== "undefined" ? import_react32.useLayoutEffect : import_react32.useEffect;
 var horizontalKeys = [ARROW_LEFT, ARROW_RIGHT];
 var verticalKeys = [ARROW_UP, ARROW_DOWN];
 var allKeys = [...horizontalKeys, ...verticalKeys];
@@ -34512,20 +35789,20 @@ var genId = /* @__PURE__ */ __name(() => (
   "floating-ui-" + Math.random().toString(36).slice(2, 6) + count++
 ), "genId");
 function useFloatingId() {
-  const [id, setId] = React51.useState(() => serverHandoffComplete ? genId() : void 0);
+  const [id, setId] = React48.useState(() => serverHandoffComplete ? genId() : void 0);
   index2(() => {
     if (id == null) {
       setId(genId());
     }
   }, []);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     serverHandoffComplete = true;
   }, []);
   return id;
 }
 __name(useFloatingId, "useFloatingId");
 var useReactId = SafeReact.useId;
-var useId8 = useReactId || useFloatingId;
+var useId6 = useReactId || useFloatingId;
 var devMessageSet;
 if (process.env.NODE_ENV !== "production") {
   devMessageSet = /* @__PURE__ */ new Set();
@@ -34573,19 +35850,19 @@ function createPubSub() {
   };
 }
 __name(createPubSub, "createPubSub");
-var FloatingNodeContext = /* @__PURE__ */ React51.createContext(null);
-var FloatingTreeContext = /* @__PURE__ */ React51.createContext(null);
+var FloatingNodeContext = /* @__PURE__ */ React48.createContext(null);
+var FloatingTreeContext = /* @__PURE__ */ React48.createContext(null);
 var useFloatingParentNodeId = /* @__PURE__ */ __name(() => {
   var _React$useContext;
-  return ((_React$useContext = React51.useContext(FloatingNodeContext)) == null ? void 0 : _React$useContext.id) || null;
+  return ((_React$useContext = React48.useContext(FloatingNodeContext)) == null ? void 0 : _React$useContext.id) || null;
 }, "useFloatingParentNodeId");
-var useFloatingTree = /* @__PURE__ */ __name(() => React51.useContext(FloatingTreeContext), "useFloatingTree");
+var useFloatingTree = /* @__PURE__ */ __name(() => React48.useContext(FloatingTreeContext), "useFloatingTree");
 function createAttribute(name) {
   return "data-floating-ui-" + name;
 }
 __name(createAttribute, "createAttribute");
 function useLatestRef2(value) {
-  const ref = (0, import_react33.useRef)(value);
+  const ref = (0, import_react32.useRef)(value);
   index2(() => {
     ref.current = value;
   });
@@ -34627,21 +35904,21 @@ function useHover(context, props) {
   const handleCloseRef = useLatestRef2(handleClose);
   const delayRef = useLatestRef2(delay);
   const openRef = useLatestRef2(open);
-  const pointerTypeRef = React51.useRef();
-  const timeoutRef = React51.useRef(-1);
-  const handlerRef = React51.useRef();
-  const restTimeoutRef = React51.useRef(-1);
-  const blockMouseMoveRef = React51.useRef(true);
-  const performedPointerEventsMutationRef = React51.useRef(false);
-  const unbindMouseMoveRef = React51.useRef(() => {
+  const pointerTypeRef = React48.useRef();
+  const timeoutRef = React48.useRef(-1);
+  const handlerRef = React48.useRef();
+  const restTimeoutRef = React48.useRef(-1);
+  const blockMouseMoveRef = React48.useRef(true);
+  const performedPointerEventsMutationRef = React48.useRef(false);
+  const unbindMouseMoveRef = React48.useRef(() => {
   });
-  const restTimeoutPendingRef = React51.useRef(false);
-  const isHoverOpen = React51.useCallback(() => {
+  const restTimeoutPendingRef = React48.useRef(false);
+  const isHoverOpen = React48.useCallback(() => {
     var _dataRef$current$open;
     const type = (_dataRef$current$open = dataRef.current.openEvent) == null ? void 0 : _dataRef$current$open.type;
     return (type == null ? void 0 : type.includes("mouse")) && type !== "mousedown";
   }, [dataRef]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!enabled) return;
     function onOpenChange2(_ref) {
       let {
@@ -34660,7 +35937,7 @@ function useHover(context, props) {
       events.off("openchange", onOpenChange2);
     };
   }, [enabled, events]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!enabled) return;
     if (!handleCloseRef.current) return;
     if (!open) return;
@@ -34676,7 +35953,7 @@ function useHover(context, props) {
       html.removeEventListener("mouseleave", onLeave);
     };
   }, [elements.floating, open, onOpenChange, enabled, handleCloseRef, isHoverOpen]);
-  const closeWithDelay = React51.useCallback(function(event, runElseBranch, reason) {
+  const closeWithDelay = React48.useCallback(function(event, runElseBranch, reason) {
     if (runElseBranch === void 0) {
       runElseBranch = true;
     }
@@ -34707,7 +35984,7 @@ function useHover(context, props) {
   const isClickLikeOpenEvent = useEffectEvent(() => {
     return dataRef.current.openEvent ? ["click", "mousedown"].includes(dataRef.current.openEvent.type) : false;
   });
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!enabled) return;
     function onMouseEnter(event) {
       clearTimeout(timeoutRef.current);
@@ -34835,7 +36112,7 @@ function useHover(context, props) {
       clearPointerEvents();
     }
   }, [open, cleanupMouseMoveHandler, clearPointerEvents]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     return () => {
       cleanupMouseMoveHandler();
       clearTimeout(timeoutRef.current);
@@ -34843,7 +36120,7 @@ function useHover(context, props) {
       clearPointerEvents();
     };
   }, [enabled, elements.domReference, cleanupMouseMoveHandler, clearPointerEvents]);
-  const reference = React51.useMemo(() => {
+  const reference = React48.useMemo(() => {
     function setPointerRef(event) {
       pointerTypeRef.current = event.pointerType;
     }
@@ -34880,7 +36157,7 @@ function useHover(context, props) {
       }
     };
   }, [mouseOnly, onOpenChange, open, openRef, restMs]);
-  const floating = React51.useMemo(() => ({
+  const floating = React48.useMemo(() => ({
     onMouseEnter() {
       clearTimeout(timeoutRef.current);
     },
@@ -34890,7 +36167,7 @@ function useHover(context, props) {
       }
     }
   }), [closeWithDelay, isClickLikeOpenEvent]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference,
     floating
   } : {}, [enabled, reference, floating]);
@@ -34898,7 +36175,7 @@ function useHover(context, props) {
 __name(useHover, "useHover");
 var NOOP = /* @__PURE__ */ __name(() => {
 }, "NOOP");
-var FloatingDelayGroupContext = /* @__PURE__ */ React51.createContext({
+var FloatingDelayGroupContext = /* @__PURE__ */ React48.createContext({
   delay: 0,
   initialDelay: 0,
   timeoutMs: 0,
@@ -34907,14 +36184,14 @@ var FloatingDelayGroupContext = /* @__PURE__ */ React51.createContext({
   setState: NOOP,
   isInstantPhase: false
 });
-var useDelayGroupContext = /* @__PURE__ */ __name(() => React51.useContext(FloatingDelayGroupContext), "useDelayGroupContext");
+var useDelayGroupContext = /* @__PURE__ */ __name(() => React48.useContext(FloatingDelayGroupContext), "useDelayGroupContext");
 function FloatingDelayGroup(props) {
   const {
     children,
     delay,
     timeoutMs = 0
   } = props;
-  const [state, setState] = React51.useReducer((prev, next) => ({
+  const [state, setState] = React48.useReducer((prev, next) => ({
     ...prev,
     ...next
   }), {
@@ -34924,8 +36201,8 @@ function FloatingDelayGroup(props) {
     currentId: null,
     isInstantPhase: false
   });
-  const initialCurrentIdRef = React51.useRef(null);
-  const setCurrentId = React51.useCallback((currentId) => {
+  const initialCurrentIdRef = React48.useRef(null);
+  const setCurrentId = React48.useCallback((currentId) => {
     setState({
       currentId
     });
@@ -34948,8 +36225,8 @@ function FloatingDelayGroup(props) {
       initialCurrentIdRef.current = null;
     }
   }, [state.currentId, state.isInstantPhase]);
-  return /* @__PURE__ */ React51.createElement(FloatingDelayGroupContext.Provider, {
-    value: React51.useMemo(() => ({
+  return /* @__PURE__ */ React48.createElement(FloatingDelayGroupContext.Provider, {
+    value: React48.useMemo(() => ({
       ...state,
       setState,
       setCurrentId
@@ -35273,8 +36550,8 @@ function setActiveElementOnTab(event) {
   }
 }
 __name(setActiveElementOnTab, "setActiveElementOnTab");
-var FocusGuard = /* @__PURE__ */ React51.forwardRef(/* @__PURE__ */ __name(function FocusGuard2(props, ref) {
-  const [role, setRole] = React51.useState();
+var FocusGuard = /* @__PURE__ */ React48.forwardRef(/* @__PURE__ */ __name(function FocusGuard2(props, ref) {
+  const [role, setRole] = React48.useState();
   index2(() => {
     if (isSafari()) {
       setRole("button");
@@ -35293,9 +36570,9 @@ var FocusGuard = /* @__PURE__ */ React51.forwardRef(/* @__PURE__ */ __name(funct
     [createAttribute("focus-guard")]: "",
     style: HIDDEN_STYLES
   };
-  return /* @__PURE__ */ React51.createElement("span", _extends({}, props, restProps));
+  return /* @__PURE__ */ React48.createElement("span", _extends({}, props, restProps));
 }, "FocusGuard"));
-var PortalContext = /* @__PURE__ */ React51.createContext(null);
+var PortalContext = /* @__PURE__ */ React48.createContext(null);
 var attr = /* @__PURE__ */ createAttribute("portal");
 function useFloatingPortalNode(props) {
   if (props === void 0) {
@@ -35305,10 +36582,10 @@ function useFloatingPortalNode(props) {
     id,
     root
   } = props;
-  const uniqueId = useId8();
+  const uniqueId = useId6();
   const portalContext = usePortalContext2();
-  const [portalNode, setPortalNode] = React51.useState(null);
-  const portalNodeRef = React51.useRef(null);
+  const [portalNode, setPortalNode] = React48.useState(null);
+  const portalNodeRef = React48.useRef(null);
   index2(() => {
     return () => {
       portalNode == null || portalNode.remove();
@@ -35364,11 +36641,11 @@ function FloatingPortal(props) {
     id,
     root
   });
-  const [focusManagerState, setFocusManagerState] = React51.useState(null);
-  const beforeOutsideRef = React51.useRef(null);
-  const afterOutsideRef = React51.useRef(null);
-  const beforeInsideRef = React51.useRef(null);
-  const afterInsideRef = React51.useRef(null);
+  const [focusManagerState, setFocusManagerState] = React48.useState(null);
+  const beforeOutsideRef = React48.useRef(null);
+  const afterOutsideRef = React48.useRef(null);
+  const beforeInsideRef = React48.useRef(null);
+  const afterInsideRef = React48.useRef(null);
   const modal = focusManagerState == null ? void 0 : focusManagerState.modal;
   const open = focusManagerState == null ? void 0 : focusManagerState.open;
   const shouldRenderGuards = (
@@ -35378,7 +36655,7 @@ function FloatingPortal(props) {
     !focusManagerState.modal && // Don't render if unmount is transitioning.
     focusManagerState.open && preserveTabOrder && !!(root || portalNode)
   );
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!portalNode || !preserveTabOrder || modal) {
       return;
     }
@@ -35397,13 +36674,13 @@ function FloatingPortal(props) {
       portalNode.removeEventListener("focusout", onFocus, true);
     };
   }, [portalNode, preserveTabOrder, modal]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!portalNode) return;
     if (open) return;
     enableFocusInside(portalNode);
   }, [open, portalNode]);
-  return /* @__PURE__ */ React51.createElement(PortalContext.Provider, {
-    value: React51.useMemo(() => ({
+  return /* @__PURE__ */ React48.createElement(PortalContext.Provider, {
+    value: React48.useMemo(() => ({
       preserveTabOrder,
       beforeOutsideRef,
       afterOutsideRef,
@@ -35412,7 +36689,7 @@ function FloatingPortal(props) {
       portalNode,
       setFocusManagerState
     }), [preserveTabOrder, portalNode])
-  }, shouldRenderGuards && portalNode && /* @__PURE__ */ React51.createElement(FocusGuard, {
+  }, shouldRenderGuards && portalNode && /* @__PURE__ */ React48.createElement(FocusGuard, {
     "data-type": "outside",
     ref: beforeOutsideRef,
     onFocus: /* @__PURE__ */ __name((event) => {
@@ -35424,10 +36701,10 @@ function FloatingPortal(props) {
         prevTabbable == null || prevTabbable.focus();
       }
     }, "onFocus")
-  }), shouldRenderGuards && portalNode && /* @__PURE__ */ React51.createElement("span", {
+  }), shouldRenderGuards && portalNode && /* @__PURE__ */ React48.createElement("span", {
     "aria-owns": portalNode.id,
     style: HIDDEN_STYLES
-  }), portalNode && /* @__PURE__ */ ReactDOM3.createPortal(children, portalNode), shouldRenderGuards && portalNode && /* @__PURE__ */ React51.createElement(FocusGuard, {
+  }), portalNode && /* @__PURE__ */ ReactDOM3.createPortal(children, portalNode), shouldRenderGuards && portalNode && /* @__PURE__ */ React48.createElement(FocusGuard, {
     "data-type": "outside",
     ref: afterOutsideRef,
     onFocus: /* @__PURE__ */ __name((event) => {
@@ -35443,7 +36720,7 @@ function FloatingPortal(props) {
   }));
 }
 __name(FloatingPortal, "FloatingPortal");
-var usePortalContext2 = /* @__PURE__ */ __name(() => React51.useContext(PortalContext), "usePortalContext");
+var usePortalContext2 = /* @__PURE__ */ __name(() => React48.useContext(PortalContext), "usePortalContext");
 var FOCUSABLE_ATTRIBUTE = "data-floating-ui-focusable";
 function getFloatingFocusElement(floatingElement) {
   if (!floatingElement) {
@@ -35474,8 +36751,8 @@ function getPreviouslyFocusedElement() {
   return previouslyFocusedElements.slice().reverse().find((el) => el.isConnected);
 }
 __name(getPreviouslyFocusedElement, "getPreviouslyFocusedElement");
-var VisuallyHiddenDismiss = /* @__PURE__ */ React51.forwardRef(/* @__PURE__ */ __name(function VisuallyHiddenDismiss2(props, ref) {
-  return /* @__PURE__ */ React51.createElement("button", _extends({}, props, {
+var VisuallyHiddenDismiss = /* @__PURE__ */ React48.forwardRef(/* @__PURE__ */ __name(function VisuallyHiddenDismiss2(props, ref) {
+  return /* @__PURE__ */ React48.createElement("button", _extends({}, props, {
     type: "button",
     ref,
     tabIndex: -1,
@@ -35517,11 +36794,11 @@ function FloatingFocusManager(props) {
   const returnFocusRef = useLatestRef2(returnFocus);
   const tree = useFloatingTree();
   const portalContext = usePortalContext2();
-  const startDismissButtonRef = React51.useRef(null);
-  const endDismissButtonRef = React51.useRef(null);
-  const preventReturnFocusRef = React51.useRef(false);
-  const isPointerDownRef = React51.useRef(false);
-  const tabbableIndexRef = React51.useRef(-1);
+  const startDismissButtonRef = React48.useRef(null);
+  const endDismissButtonRef = React48.useRef(null);
+  const preventReturnFocusRef = React48.useRef(false);
+  const isPointerDownRef = React48.useRef(false);
+  const tabbableIndexRef = React48.useRef(-1);
   const isInsidePortal = portalContext != null;
   const floatingFocusElement = getFloatingFocusElement(floating);
   const getTabbableContent = useEffectEvent(function(container) {
@@ -35542,7 +36819,7 @@ function FloatingFocusManager(props) {
       return content;
     }).filter(Boolean).flat();
   });
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (disabled) return;
     if (!modal) return;
     function onKeyDown(event) {
@@ -35573,7 +36850,7 @@ function FloatingFocusManager(props) {
       doc.removeEventListener("keydown", onKeyDown);
     };
   }, [disabled, domReference, floatingFocusElement, modal, orderRef, isUntrappedTypeableCombobox, getTabbableContent, getTabbableElements]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (disabled) return;
     if (!floating) return;
     function handleFocusIn(event) {
@@ -35590,7 +36867,7 @@ function FloatingFocusManager(props) {
       floating.removeEventListener("focusin", handleFocusIn);
     };
   }, [disabled, floating, getTabbableContent]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (disabled) return;
     if (!closeOnFocusOut) return;
     function handlePointerDown() {
@@ -35640,7 +36917,7 @@ function FloatingFocusManager(props) {
       };
     }
   }, [disabled, domReference, floating, floatingFocusElement, modal, nodeId, tree, portalContext, onOpenChange, closeOnFocusOut, restoreFocus, getTabbableContent, isUntrappedTypeableCombobox]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     var _portalContext$portal;
     if (disabled) return;
     const portalNodes = Array.from((portalContext == null || (_portalContext$portal = portalContext.portalNode) == null ? void 0 : _portalContext$portal.querySelectorAll("[" + createAttribute("portal") + "]")) || []);
@@ -35744,7 +37021,7 @@ function FloatingFocusManager(props) {
       });
     };
   }, [disabled, floating, floatingFocusElement, returnFocusRef, dataRef, refs, events, tree, nodeId, isInsidePortal, domReference]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     queueMicrotask(() => {
       preventReturnFocusRef.current = false;
     });
@@ -35799,14 +37076,14 @@ function FloatingFocusManager(props) {
     if (disabled || !visuallyHiddenDismiss || !modal) {
       return null;
     }
-    return /* @__PURE__ */ React51.createElement(VisuallyHiddenDismiss, {
+    return /* @__PURE__ */ React48.createElement(VisuallyHiddenDismiss, {
       ref: location === "start" ? startDismissButtonRef : endDismissButtonRef,
       onClick: /* @__PURE__ */ __name((event) => onOpenChange(false, event.nativeEvent), "onClick")
     }, typeof visuallyHiddenDismiss === "string" ? visuallyHiddenDismiss : "Dismiss");
   }
   __name(renderDismissButton, "renderDismissButton");
   const shouldRenderGuards = !disabled && guards && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
-  return /* @__PURE__ */ React51.createElement(React51.Fragment, null, shouldRenderGuards && /* @__PURE__ */ React51.createElement(FocusGuard, {
+  return /* @__PURE__ */ React48.createElement(React48.Fragment, null, shouldRenderGuards && /* @__PURE__ */ React48.createElement(FocusGuard, {
     "data-type": "inside",
     ref: portalContext == null ? void 0 : portalContext.beforeInsideRef,
     onFocus: /* @__PURE__ */ __name((event) => {
@@ -35824,7 +37101,7 @@ function FloatingFocusManager(props) {
         }
       }
     }, "onFocus")
-  }), !isUntrappedTypeableCombobox && renderDismissButton("start"), children, renderDismissButton("end"), shouldRenderGuards && /* @__PURE__ */ React51.createElement(FocusGuard, {
+  }), !isUntrappedTypeableCombobox && renderDismissButton("start"), children, renderDismissButton("end"), shouldRenderGuards && /* @__PURE__ */ React48.createElement(FocusGuard, {
     "data-type": "inside",
     ref: portalContext == null ? void 0 : portalContext.afterInsideRef,
     onFocus: /* @__PURE__ */ __name((event) => {
@@ -35889,7 +37166,7 @@ function enableScrollLock() {
 __name(enableScrollLock, "enableScrollLock");
 var cleanup = /* @__PURE__ */ __name(() => {
 }, "cleanup");
-var FloatingOverlay = /* @__PURE__ */ React51.forwardRef(/* @__PURE__ */ __name(function FloatingOverlay2(props, ref) {
+var FloatingOverlay = /* @__PURE__ */ React48.forwardRef(/* @__PURE__ */ __name(function FloatingOverlay2(props, ref) {
   const {
     lockScroll = false,
     ...rest
@@ -35907,7 +37184,7 @@ var FloatingOverlay = /* @__PURE__ */ React51.forwardRef(/* @__PURE__ */ __name(
       }
     };
   }, [lockScroll]);
-  return /* @__PURE__ */ React51.createElement("div", _extends({
+  return /* @__PURE__ */ React48.createElement("div", _extends({
     ref
   }, rest, {
     style: {
@@ -35949,9 +37226,9 @@ function useClick(context, props) {
     keyboardHandlers = true,
     stickIfOpen = true
   } = props;
-  const pointerTypeRef = React51.useRef();
-  const didKeyDownRef = React51.useRef(false);
-  const reference = React51.useMemo(() => ({
+  const pointerTypeRef = React48.useRef();
+  const didKeyDownRef = React48.useRef(false);
+  const reference = React48.useMemo(() => ({
     onPointerDown(event) {
       pointerTypeRef.current = event.pointerType;
     },
@@ -36011,7 +37288,7 @@ function useClick(context, props) {
       }
     }
   }), [dataRef, domReference, eventOption, ignoreMouse, keyboardHandlers, onOpenChange, open, stickIfOpen, toggle]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference
   } : {}, [enabled, reference]);
 }
@@ -36057,8 +37334,8 @@ function useDismiss(context, props) {
   const tree = useFloatingTree();
   const outsidePressFn = useEffectEvent(typeof unstable_outsidePress === "function" ? unstable_outsidePress : () => false);
   const outsidePress = typeof unstable_outsidePress === "function" ? outsidePressFn : unstable_outsidePress;
-  const insideReactTreeRef = React51.useRef(false);
-  const endedOrStartedInsideRef = React51.useRef(false);
+  const insideReactTreeRef = React48.useRef(false);
+  const endedOrStartedInsideRef = React48.useRef(false);
   const {
     escapeKey: escapeKeyBubbles,
     outsidePress: outsidePressBubbles
@@ -36067,7 +37344,7 @@ function useDismiss(context, props) {
     escapeKey: escapeKeyCapture,
     outsidePress: outsidePressCapture
   } = normalizeProp(capture);
-  const isComposingRef = React51.useRef(false);
+  const isComposingRef = React48.useRef(false);
   const closeOnEscapeKeyDown = useEffectEvent((event) => {
     var _dataRef$current$floa;
     if (!open || !enabled || !escapeKey || event.key !== "Escape") {
@@ -36184,7 +37461,7 @@ function useDismiss(context, props) {
     }, "callback");
     (_getTarget4 = getTarget(event)) == null || _getTarget4.addEventListener(outsidePressEvent, callback);
   });
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!open || !enabled) {
       return;
     }
@@ -36252,10 +37529,10 @@ function useDismiss(context, props) {
       window.clearTimeout(compositionTimeout);
     };
   }, [dataRef, elements, escapeKey, outsidePress, outsidePressEvent, open, onOpenChange, ancestorScroll, enabled, escapeKeyBubbles, outsidePressBubbles, closeOnEscapeKeyDown, escapeKeyCapture, closeOnEscapeKeyDownCapture, closeOnPressOutside, outsidePressCapture, closeOnPressOutsideCapture]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     insideReactTreeRef.current = false;
   }, [outsidePress, outsidePressEvent]);
-  const reference = React51.useMemo(() => ({
+  const reference = React48.useMemo(() => ({
     onKeyDown: closeOnEscapeKeyDown,
     [bubbleHandlerKeys[referencePressEvent]]: (event) => {
       if (referencePress) {
@@ -36263,7 +37540,7 @@ function useDismiss(context, props) {
       }
     }
   }), [closeOnEscapeKeyDown, onOpenChange, referencePress, referencePressEvent]);
-  const floating = React51.useMemo(() => ({
+  const floating = React48.useMemo(() => ({
     onKeyDown: closeOnEscapeKeyDown,
     onMouseDown() {
       endedOrStartedInsideRef.current = true;
@@ -36275,7 +37552,7 @@ function useDismiss(context, props) {
       insideReactTreeRef.current = true;
     }
   }), [closeOnEscapeKeyDown, outsidePressEvent]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference,
     floating
   } : {}, [enabled, reference, floating]);
@@ -36287,9 +37564,9 @@ function useFloatingRootContext(options) {
     onOpenChange: onOpenChangeProp,
     elements: elementsProp
   } = options;
-  const floatingId = useId8();
-  const dataRef = React51.useRef({});
-  const [events] = React51.useState(() => createPubSub());
+  const floatingId = useId6();
+  const dataRef = React48.useRef({});
+  const [events] = React48.useState(() => createPubSub());
   const nested = useFloatingParentNodeId() != null;
   if (process.env.NODE_ENV !== "production") {
     const optionDomReference = elementsProp.reference;
@@ -36297,7 +37574,7 @@ function useFloatingRootContext(options) {
       error("Cannot pass a virtual element to the `elements.reference` option,", "as it must be a real DOM element. Use `refs.setPositionReference()`", "instead.");
     }
   }
-  const [positionReference, setPositionReference] = React51.useState(elementsProp.reference);
+  const [positionReference, setPositionReference] = React48.useState(elementsProp.reference);
   const onOpenChange = useEffectEvent((open2, event, reason) => {
     dataRef.current.openEvent = open2 ? event : void 0;
     events.emit("openchange", {
@@ -36308,15 +37585,15 @@ function useFloatingRootContext(options) {
     });
     onOpenChangeProp == null || onOpenChangeProp(open2, event, reason);
   });
-  const refs = React51.useMemo(() => ({
+  const refs = React48.useMemo(() => ({
     setPositionReference
   }), []);
-  const elements = React51.useMemo(() => ({
+  const elements = React48.useMemo(() => ({
     reference: positionReference || elementsProp.reference || null,
     floating: elementsProp.floating || null,
     domReference: elementsProp.reference
   }), [positionReference, elementsProp.reference, elementsProp.floating]);
-  return React51.useMemo(() => ({
+  return React48.useMemo(() => ({
     dataRef,
     open,
     onOpenChange,
@@ -36344,11 +37621,11 @@ function useFloating3(options) {
   });
   const rootContext = options.rootContext || internalRootContext;
   const computedElements = rootContext.elements;
-  const [_domReference, setDomReference] = React51.useState(null);
-  const [positionReference, _setPositionReference] = React51.useState(null);
+  const [_domReference, setDomReference] = React48.useState(null);
+  const [positionReference, _setPositionReference] = React48.useState(null);
   const optionDomReference = computedElements == null ? void 0 : computedElements.domReference;
   const domReference = optionDomReference || _domReference;
-  const domReferenceRef = React51.useRef(null);
+  const domReferenceRef = React48.useRef(null);
   const tree = useFloatingTree();
   index2(() => {
     if (domReference) {
@@ -36364,7 +37641,7 @@ function useFloating3(options) {
       }
     }
   });
-  const setPositionReference = React51.useCallback((node) => {
+  const setPositionReference = React48.useCallback((node) => {
     const computedPositionReference = isElement(node) ? {
       getBoundingClientRect: /* @__PURE__ */ __name(() => node.getBoundingClientRect(), "getBoundingClientRect"),
       contextElement: node
@@ -36372,7 +37649,7 @@ function useFloating3(options) {
     _setPositionReference(computedPositionReference);
     position.refs.setReference(computedPositionReference);
   }, [position.refs]);
-  const setReference = React51.useCallback((node) => {
+  const setReference = React48.useCallback((node) => {
     if (isElement(node) || node === null) {
       domReferenceRef.current = node;
       setDomReference(node);
@@ -36384,17 +37661,17 @@ function useFloating3(options) {
       position.refs.setReference(node);
     }
   }, [position.refs]);
-  const refs = React51.useMemo(() => ({
+  const refs = React48.useMemo(() => ({
     ...position.refs,
     setReference,
     setPositionReference,
     domReference: domReferenceRef
   }), [position.refs, setReference, setPositionReference]);
-  const elements = React51.useMemo(() => ({
+  const elements = React48.useMemo(() => ({
     ...position.elements,
     domReference
   }), [position.elements, domReference]);
-  const context = React51.useMemo(() => ({
+  const context = React48.useMemo(() => ({
     ...position,
     ...rootContext,
     refs,
@@ -36408,7 +37685,7 @@ function useFloating3(options) {
       node.context = context;
     }
   });
-  return React51.useMemo(() => ({
+  return React48.useMemo(() => ({
     ...position,
     context,
     refs,
@@ -36431,10 +37708,10 @@ function useFocus(context, props) {
     enabled = true,
     visibleOnly = true
   } = props;
-  const blockFocusRef = React51.useRef(false);
-  const timeoutRef = React51.useRef();
-  const keyboardModalityRef = React51.useRef(true);
-  React51.useEffect(() => {
+  const blockFocusRef = React48.useRef(false);
+  const timeoutRef = React48.useRef();
+  const keyboardModalityRef = React48.useRef(true);
+  React48.useEffect(() => {
     if (!enabled) return;
     const win = getWindow(elements.domReference);
     function onBlur() {
@@ -36454,7 +37731,7 @@ function useFocus(context, props) {
       win.removeEventListener("keydown", onKeyDown, true);
     };
   }, [elements.domReference, open, enabled]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     if (!enabled) return;
     function onOpenChange2(_ref) {
       let {
@@ -36470,12 +37747,12 @@ function useFocus(context, props) {
       events.off("openchange", onOpenChange2);
     };
   }, [events, enabled]);
-  React51.useEffect(() => {
+  React48.useEffect(() => {
     return () => {
       clearTimeout(timeoutRef.current);
     };
   }, []);
-  const reference = React51.useMemo(() => ({
+  const reference = React48.useMemo(() => ({
     onPointerDown(event) {
       if (isVirtualPointerEvent(event.nativeEvent)) return;
       keyboardModalityRef.current = false;
@@ -36514,7 +37791,7 @@ function useFocus(context, props) {
       });
     }
   }), [dataRef, elements.domReference, onOpenChange, visibleOnly]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference
   } : {}, [enabled, reference]);
 }
@@ -36585,22 +37862,22 @@ function useInteractions(propsList) {
   const referenceDeps = propsList.map((key) => key == null ? void 0 : key.reference);
   const floatingDeps = propsList.map((key) => key == null ? void 0 : key.floating);
   const itemDeps = propsList.map((key) => key == null ? void 0 : key.item);
-  const getReferenceProps = React51.useCallback(
+  const getReferenceProps = React48.useCallback(
     (userProps) => mergeProps2(userProps, propsList, "reference"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     referenceDeps
   );
-  const getFloatingProps = React51.useCallback(
+  const getFloatingProps = React48.useCallback(
     (userProps) => mergeProps2(userProps, propsList, "floating"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     floatingDeps
   );
-  const getItemProps = React51.useCallback(
+  const getItemProps = React48.useCallback(
     (userProps) => mergeProps2(userProps, propsList, "item"),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     itemDeps
   );
-  return React51.useMemo(() => ({
+  return React48.useMemo(() => ({
     getReferenceProps,
     getFloatingProps,
     getItemProps
@@ -36691,21 +37968,21 @@ function useListNavigation(context, props) {
   const tree = useFloatingTree();
   const onNavigate = useEffectEvent(unstable_onNavigate);
   const typeableComboboxReference = isTypeableCombobox(elements.domReference);
-  const focusItemOnOpenRef = React51.useRef(focusItemOnOpen);
-  const indexRef = React51.useRef(selectedIndex != null ? selectedIndex : -1);
-  const keyRef = React51.useRef(null);
-  const isPointerModalityRef = React51.useRef(true);
-  const previousOnNavigateRef = React51.useRef(onNavigate);
-  const previousMountedRef = React51.useRef(!!elements.floating);
-  const previousOpenRef = React51.useRef(open);
-  const forceSyncFocus = React51.useRef(false);
-  const forceScrollIntoViewRef = React51.useRef(false);
+  const focusItemOnOpenRef = React48.useRef(focusItemOnOpen);
+  const indexRef = React48.useRef(selectedIndex != null ? selectedIndex : -1);
+  const keyRef = React48.useRef(null);
+  const isPointerModalityRef = React48.useRef(true);
+  const previousOnNavigateRef = React48.useRef(onNavigate);
+  const previousMountedRef = React48.useRef(!!elements.floating);
+  const previousOpenRef = React48.useRef(open);
+  const forceSyncFocus = React48.useRef(false);
+  const forceScrollIntoViewRef = React48.useRef(false);
   const disabledIndicesRef = useLatestRef2(disabledIndices);
   const latestOpenRef = useLatestRef2(open);
   const scrollItemIntoViewRef = useLatestRef2(scrollItemIntoView);
   const selectedIndexRef = useLatestRef2(selectedIndex);
-  const [activeId, setActiveId] = React51.useState();
-  const [virtualId, setVirtualId] = React51.useState();
+  const [activeId, setActiveId] = React48.useState();
+  const [virtualId, setVirtualId] = React48.useState();
   const focusItem = useEffectEvent(function(listRef2, indexRef2, forceScrollIntoView) {
     if (forceScrollIntoView === void 0) {
       forceScrollIntoView = false;
@@ -36855,7 +38132,7 @@ function useListNavigation(context, props) {
     previousOpenRef.current = open;
   }, [open]);
   const hasActiveIndex = activeIndex != null;
-  const item = React51.useMemo(() => {
+  const item = React48.useMemo(() => {
     function syncCurrentTarget(currentTarget) {
       if (!open) return;
       const index3 = listRef.current.indexOf(currentTarget);
@@ -37027,12 +38304,12 @@ function useListNavigation(context, props) {
       }
     }
   });
-  const ariaActiveDescendantProp = React51.useMemo(() => {
+  const ariaActiveDescendantProp = React48.useMemo(() => {
     return virtual && open && hasActiveIndex && {
       "aria-activedescendant": virtualId || activeId
     };
   }, [virtual, open, hasActiveIndex, virtualId, activeId]);
-  const floating = React51.useMemo(() => {
+  const floating = React48.useMemo(() => {
     return {
       "aria-orientation": orientation === "both" ? void 0 : orientation,
       ...!isTypeableCombobox(elements.domReference) && ariaActiveDescendantProp,
@@ -37042,7 +38319,7 @@ function useListNavigation(context, props) {
       }
     };
   }, [ariaActiveDescendantProp, commonOnKeyDown, elements.domReference, orientation]);
-  const reference = React51.useMemo(() => {
+  const reference = React48.useMemo(() => {
     function checkVirtualMouse(event) {
       if (focusItemOnOpen === "auto" && isVirtualClick(event.nativeEvent)) {
         focusItemOnOpenRef.current = true;
@@ -37139,7 +38416,7 @@ function useListNavigation(context, props) {
       onClick: checkVirtualMouse
     };
   }, [activeId, ariaActiveDescendantProp, commonOnKeyDown, disabledIndicesRef, focusItemOnOpen, listRef, nested, onNavigate, onOpenChange, open, openOnArrowKeyDown, orientation, rtl, selectedIndex, tree, virtual, virtualItemRef]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference,
     floating,
     item
@@ -37161,10 +38438,10 @@ function useRole(context, props) {
     role = "dialog"
   } = props;
   const ariaRole = (_componentRoleToAriaR = componentRoleToAriaRoleMap.get(role)) != null ? _componentRoleToAriaR : role;
-  const referenceId = useId8();
+  const referenceId = useId6();
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
-  const reference = React51.useMemo(() => {
+  const reference = React48.useMemo(() => {
     if (ariaRole === "tooltip" || role === "label") {
       return {
         ["aria-" + (role === "label" ? "labelledby" : "describedby")]: open ? floatingId : void 0
@@ -37191,7 +38468,7 @@ function useRole(context, props) {
       }
     };
   }, [ariaRole, floatingId, isNested, open, referenceId, role]);
-  const floating = React51.useMemo(() => {
+  const floating = React48.useMemo(() => {
     const floatingProps = {
       id: floatingId,
       ...ariaRole && {
@@ -37208,7 +38485,7 @@ function useRole(context, props) {
       }
     };
   }, [ariaRole, floatingId, referenceId, role]);
-  const item = React51.useCallback((_ref) => {
+  const item = React48.useCallback((_ref) => {
     let {
       active,
       selected
@@ -37236,7 +38513,7 @@ function useRole(context, props) {
     }
     return {};
   }, [floatingId, role]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference,
     floating,
     item
@@ -37260,10 +38537,10 @@ function useTypeahead(context, props) {
     ignoreKeys = [],
     selectedIndex = null
   } = props;
-  const timeoutIdRef = React51.useRef();
-  const stringRef = React51.useRef("");
-  const prevIndexRef = React51.useRef((_ref = selectedIndex != null ? selectedIndex : activeIndex) != null ? _ref : -1);
-  const matchIndexRef = React51.useRef(null);
+  const timeoutIdRef = React48.useRef();
+  const stringRef = React48.useRef("");
+  const prevIndexRef = React48.useRef((_ref = selectedIndex != null ? selectedIndex : activeIndex) != null ? _ref : -1);
+  const matchIndexRef = React48.useRef(null);
   const onMatch = useEffectEvent(unstable_onMatch);
   const onTypingChange = useEffectEvent(unstable_onTypingChange);
   const findMatchRef = useLatestRef2(findMatch);
@@ -37342,10 +38619,10 @@ function useTypeahead(context, props) {
       setTypingChange(false);
     }
   });
-  const reference = React51.useMemo(() => ({
+  const reference = React48.useMemo(() => ({
     onKeyDown
   }), [onKeyDown]);
-  const floating = React51.useMemo(() => {
+  const floating = React48.useMemo(() => {
     return {
       onKeyDown,
       onKeyUp(event) {
@@ -37355,7 +38632,7 @@ function useTypeahead(context, props) {
       }
     };
   }, [onKeyDown, setTypingChange]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     reference,
     floating
   } : {}, [enabled, reference, floating]);
@@ -37452,10 +38729,10 @@ function useInnerOffset(context, props) {
     onChange: unstable_onChange
   } = props;
   const onChange = useEffectEvent(unstable_onChange);
-  const controlledScrollingRef = React51.useRef(false);
-  const prevScrollTopRef = React51.useRef(null);
-  const initialOverflowRef = React51.useRef(null);
-  React51.useEffect(() => {
+  const controlledScrollingRef = React48.useRef(false);
+  const prevScrollTopRef = React48.useRef(null);
+  const initialOverflowRef = React48.useRef(null);
+  React48.useEffect(() => {
     if (!enabled) return;
     function onWheel(e) {
       if (e.ctrlKey || !el || overflowRef.current == null) {
@@ -37498,7 +38775,7 @@ function useInnerOffset(context, props) {
       };
     }
   }, [enabled, open, elements.floating, overflowRef, scrollRef, onChange]);
-  const floating = React51.useMemo(() => ({
+  const floating = React48.useMemo(() => ({
     onKeyDown() {
       controlledScrollingRef.current = true;
     },
@@ -37524,7 +38801,7 @@ function useInnerOffset(context, props) {
       });
     }
   }), [elements.floating, onChange, overflowRef, scrollRef]);
-  return React51.useMemo(() => enabled ? {
+  return React48.useMemo(() => enabled ? {
     floating
   } : {}, [enabled, floating]);
 }
@@ -37728,7 +39005,7 @@ var useFloatingContext = /* @__PURE__ */ __name(({
   disable,
   disableFocus,
   hoverable
-}) => import_react34.default.useCallback((props) => {
+}) => import_react33.default.useCallback((props) => {
   const floating = useFloating3({
     ...props,
     open,
@@ -37766,11 +39043,11 @@ var useFloatingContext = /* @__PURE__ */ __name(({
 }, [open, setOpen, disable, disableFocus, hoverable]), "useFloatingContext");
 
 // node_modules/@tamagui/popover/dist/esm/Popover.mjs
-var import_jsx_runtime37 = require("react/jsx-runtime");
+var import_jsx_runtime33 = require("react/jsx-runtime");
 var POPOVER_SCOPE = "PopoverScope";
 var PopoverContext = (0, import_core28.createStyledContext)({});
 var usePopoverContext = PopoverContext.useStyledContext;
-var PopoverAnchor = React53.forwardRef(function(props, forwardedRef) {
+var PopoverAnchor = React50.forwardRef(function(props, forwardedRef) {
   const {
     __scopePopover,
     ...rest
@@ -37778,19 +39055,19 @@ var PopoverAnchor = React53.forwardRef(function(props, forwardedRef) {
     onCustomAnchorAdd,
     onCustomAnchorRemove
   } = context || {};
-  return React53.useEffect(() => (onCustomAnchorAdd(), () => onCustomAnchorRemove()), [onCustomAnchorAdd, onCustomAnchorRemove]), /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperAnchor, {
+  return React50.useEffect(() => (onCustomAnchorAdd(), () => onCustomAnchorRemove()), [onCustomAnchorAdd, onCustomAnchorRemove]), /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperAnchor, {
     __scopePopper: __scopePopover || POPOVER_SCOPE,
     ...rest,
     ref: forwardedRef
   });
 });
-var PopoverTrigger = React53.forwardRef(function(props, forwardedRef) {
+var PopoverTrigger = React50.forwardRef(function(props, forwardedRef) {
   const {
     __scopePopover,
     ...rest
   } = props, context = usePopoverContext(__scopePopover), anchorTo = context.anchorTo, composedTriggerRef = useComposedRefs(forwardedRef, context.triggerRef);
   if (!props.children) return null;
-  const trigger = /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(import_core28.View, {
+  const trigger = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_core28.View, {
     "aria-expanded": context.open,
     "data-state": getState4(context.open),
     ...rest,
@@ -37807,19 +39084,19 @@ var PopoverTrigger = React53.forwardRef(function(props, forwardedRef) {
         }
       }
     };
-    return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperAnchor, {
+    return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperAnchor, {
       virtualRef,
       __scopePopper: __scopePopover || POPOVER_SCOPE,
       children: trigger
     });
   }
-  return context.hasCustomAnchor ? trigger : /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperAnchor, {
+  return context.hasCustomAnchor ? trigger : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperAnchor, {
     __scopePopper: __scopePopover || POPOVER_SCOPE,
     asChild: true,
     children: trigger
   });
 });
-var PopoverContent = PopperContentFrame.extractable(React53.forwardRef(function(props, forwardedRef) {
+var PopoverContent = PopperContentFrame.extractable(React50.forwardRef(function(props, forwardedRef) {
   const {
     allowPinchZoom,
     trapFocus,
@@ -37827,17 +39104,17 @@ var PopoverContent = PopperContentFrame.extractable(React53.forwardRef(function(
     zIndex: zIndex2,
     __scopePopover,
     ...contentImplProps
-  } = props, context = usePopoverContext(__scopePopover), contentRef = React53.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), isRightClickOutsideRef = React53.useRef(false), [isFullyHidden, setIsFullyHidden] = React53.useState(!context.open);
-  return context.open && isFullyHidden && setIsFullyHidden(false), React53.useEffect(() => {
+  } = props, context = usePopoverContext(__scopePopover), contentRef = React50.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), isRightClickOutsideRef = React50.useRef(false), [isFullyHidden, setIsFullyHidden] = React50.useState(!context.open);
+  return context.open && isFullyHidden && setIsFullyHidden(false), React50.useEffect(() => {
     if (!context.open) return;
     const content = contentRef.current;
     if (content) return (0, import_aria_hidden.hideOthers)(content);
-  }, [context.open]), !context.keepChildrenMounted && isFullyHidden ? null : /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopoverContentPortal, {
+  }, [context.open]), !context.keepChildrenMounted && isFullyHidden ? null : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverContentPortal, {
     __scopePopover,
     zIndex: props.zIndex,
-    children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(import_core28.Stack, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(import_core28.Stack, {
       pointerEvents: context.open ? "auto" : "none",
-      children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopoverContentImpl, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverContentImpl, {
         ...contentImplProps,
         disableRemoveScroll,
         ref: composedRefs,
@@ -37863,10 +39140,10 @@ var PopoverContent = PopperContentFrame.extractable(React53.forwardRef(function(
   });
 }));
 function PopoverRepropagateContext(props) {
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperContext.Provider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperContext.Provider, {
     scope: props.scope,
     ...props.popperContext,
-    children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopoverContext.Provider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverContext.Provider, {
       ...props.context,
       children: props.children
     })
@@ -37878,17 +39155,17 @@ function PopoverContentPortal(props) {
     __scopePopover
   } = props, zIndex2 = props.zIndex ?? 15e4, context = usePopoverContext(__scopePopover), popperContext = usePopperContext(__scopePopover || POPOVER_SCOPE), themeName = (0, import_core28.useThemeName)();
   let contents = props.children;
-  return (import_react_native_web7.Platform.OS === "android" || import_react_native_web7.Platform.OS === "ios") && (contents = /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopoverRepropagateContext, {
+  return (import_react_native_web7.Platform.OS === "android" || import_react_native_web7.Platform.OS === "ios") && (contents = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverRepropagateContext, {
     scope: __scopePopover || POPOVER_SCOPE,
     popperContext,
     context,
     children: props.children
-  })), /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Portal3, {
+  })), /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Portal, {
     zIndex: zIndex2,
-    children: /* @__PURE__ */ (0, import_jsx_runtime37.jsxs)(import_core28.Theme, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_core28.Theme, {
       forceClassName: true,
       name: themeName,
-      children: [!!context.open && !context.breakpointActive && /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(YStack, {
+      children: [!!context.open && !context.breakpointActive && /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(YStack, {
         fullscreen: true,
         onPress: composeEventHandlers(props.onPress, context.onOpenToggle)
       }), contents]
@@ -37896,7 +39173,7 @@ function PopoverContentPortal(props) {
   });
 }
 __name(PopoverContentPortal, "PopoverContentPortal");
-var PopoverContentImpl = React53.forwardRef(function(props, forwardedRef) {
+var PopoverContentImpl = React50.forwardRef(function(props, forwardedRef) {
   const {
     trapFocus,
     __scopePopover,
@@ -37916,47 +39193,47 @@ var PopoverContentImpl = React53.forwardRef(function(props, forwardedRef) {
   } = props, context = usePopoverContext(__scopePopover), {
     open,
     keepChildrenMounted
-  } = context, popperContext = usePopperContext(__scopePopover || POPOVER_SCOPE), handleExitComplete = React53.useCallback(() => {
+  } = context, popperContext = usePopperContext(__scopePopover || POPOVER_SCOPE), handleExitComplete = React50.useCallback(() => {
     setIsFullyHidden == null ? void 0 : setIsFullyHidden(true);
   }, [setIsFullyHidden]);
   if (context.breakpointActive) {
-    const childrenWithoutScrollView = React53.Children.toArray(children).map((child) => React53.isValidElement(child) && child.type === import_react_native_web7.ScrollView ? child.props.children : child);
-    let content = /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(ResetPresence, {
+    const childrenWithoutScrollView = React50.Children.toArray(children).map((child) => React50.isValidElement(child) && child.type === import_react_native_web7.ScrollView ? child.props.children : child);
+    let content = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ResetPresence, {
       children: childrenWithoutScrollView
     });
-    return (import_react_native_web7.Platform.OS === "android" || import_react_native_web7.Platform.OS === "ios") && (content = /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperContext.Provider, {
+    return (import_react_native_web7.Platform.OS === "android" || import_react_native_web7.Platform.OS === "ios") && (content = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperContext.Provider, {
       scope: __scopePopover || POPOVER_SCOPE,
       ...popperContext,
       children: childrenWithoutScrollView
-    })), /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PortalItem3, {
+    })), /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PortalItem, {
       hostName: `${context.id}PopoverContents`,
       children: content
     });
   }
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Animate, {
+  return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Animate, {
     type: "presence",
     present: !!open,
     keepChildrenMounted,
     onExitComplete: handleExitComplete,
-    children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperContent, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperContent, {
       __scopePopper: __scopePopover || POPOVER_SCOPE,
       "data-state": getState4(open),
       id: context.contentId,
       ref: forwardedRef,
       ...contentProps,
-      children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(RemoveScroll, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(RemoveScroll, {
         enabled: disableRemoveScroll ? false : open,
         allowPinchZoom: true,
         removeScrollBar: false,
         style: dspContentsStyle,
-        children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(ResetPresence, {
-          children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(FocusScope, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(ResetPresence, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(FocusScope, {
             loop: true,
             enabled: disableFocusScope ? false : open,
             trapped: trapFocus,
             onMountAutoFocus: onOpenAutoFocus,
             onUnmountAutoFocus: onCloseAutoFocus,
-            children: isWeb ? /* @__PURE__ */ (0, import_jsx_runtime37.jsx)("div", {
+            children: isWeb ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)("div", {
               style: dspContentsStyle,
               children
             }) : children
@@ -37969,12 +39246,12 @@ var PopoverContentImpl = React53.forwardRef(function(props, forwardedRef) {
 var dspContentsStyle = {
   display: "contents"
 };
-var PopoverClose = React53.forwardRef(function(props, forwardedRef) {
+var PopoverClose = React50.forwardRef(function(props, forwardedRef) {
   const {
     __scopePopover,
     ...rest
   } = props, context = usePopoverContext(__scopePopover);
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(YStack, {
+  return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(YStack, {
     ...rest,
     ref: forwardedRef,
     componentName: "PopoverClose",
@@ -37986,14 +39263,14 @@ var PopoverArrow = PopperArrow.styleable(function(props, forwardedRef) {
     __scopePopover,
     ...rest
   } = props, context = usePopoverContext(__scopePopover);
-  return useSheetBreakpointActive2(context.sheetBreakpoint) ? null : /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopperArrow, {
+  return useSheetBreakpointActive2(context.sheetBreakpoint) ? null : /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopperArrow, {
     __scopePopper: __scopePopover || POPOVER_SCOPE,
     componentName: "PopoverArrow",
     ...rest,
     ref: forwardedRef
   });
 });
-var Popover = withStaticProperties(React53.forwardRef((props, forwardedRef) => {
+var Popover = withStaticProperties(React50.forwardRef((props, forwardedRef) => {
   const {
     children,
     open: openProp,
@@ -38004,14 +39281,14 @@ var Popover = withStaticProperties(React53.forwardRef((props, forwardedRef) => {
     hoverable,
     disableFocus,
     ...restProps
-  } = props, id = React53.useId(), {
+  } = props, id = React50.useId(), {
     when,
     AdaptProvider
   } = useAdaptParent({
-    Contents: React53.useCallback(() => /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PortalHost3, {
+    Contents: React50.useCallback(() => /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PortalHost, {
       name: `${id}PopoverContents`
     }), [])
-  }), sheetBreakpoint = when, triggerRef = React53.useRef(null), [hasCustomAnchor, setHasCustomAnchor] = React53.useState(false), viaRef = React53.useRef(), [open, setOpen] = useControllableState({
+  }), sheetBreakpoint = when, triggerRef = React50.useRef(null), [hasCustomAnchor, setHasCustomAnchor] = React50.useState(false), viaRef = React50.useRef(), [open, setOpen] = useControllableState({
     prop: openProp,
     defaultProp: defaultOpen || false,
     onChange: /* @__PURE__ */ __name((val) => {
@@ -38025,8 +39302,8 @@ var Popover = withStaticProperties(React53.forwardRef((props, forwardedRef) => {
     disable: sheetActive,
     hoverable,
     disableFocus
-  }), [anchorTo, setAnchorToRaw] = React53.useState(), setAnchorTo = (0, import_core28.createShallowSetState)(setAnchorToRaw);
-  React53.useImperativeHandle(forwardedRef, () => ({
+  }), [anchorTo, setAnchorToRaw] = React50.useState(), setAnchorTo = (0, import_core28.createShallowSetState)(setAnchorToRaw);
+  React50.useImperativeHandle(forwardedRef, () => ({
     anchorTo: setAnchorTo,
     toggle: /* @__PURE__ */ __name(() => setOpen((prev) => !prev), "toggle"),
     open: /* @__PURE__ */ __name(() => setOpen(true), "open"),
@@ -38036,7 +39313,7 @@ var Popover = withStaticProperties(React53.forwardRef((props, forwardedRef) => {
   const popoverContext = {
     id,
     sheetBreakpoint,
-    contentId: React53.useId(),
+    contentId: React50.useId(),
     triggerRef,
     open,
     breakpointActive: sheetActive,
@@ -38046,24 +39323,24 @@ var Popover = withStaticProperties(React53.forwardRef((props, forwardedRef) => {
     }),
     hasCustomAnchor,
     anchorTo,
-    onCustomAnchorAdd: React53.useCallback(() => setHasCustomAnchor(true), []),
-    onCustomAnchorRemove: React53.useCallback(() => setHasCustomAnchor(false), []),
+    onCustomAnchorAdd: React50.useCallback(() => setHasCustomAnchor(true), []),
+    onCustomAnchorRemove: React50.useCallback(() => setHasCustomAnchor(false), []),
     keepChildrenMounted
-  }, contents = /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(Popper, {
+  }, contents = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Popper, {
     __scopePopper: __scopePopover || POPOVER_SCOPE,
     stayInFrame: true,
     ...restProps,
-    children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopoverContext.Provider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverContext.Provider, {
       scope: __scopePopover,
       ...popoverContext,
-      children: /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(PopoverSheetController, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverSheetController, {
         onOpenChange: setOpen,
         children
       })
     })
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(AdaptProvider, {
-    children: isWeb ? /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(FloatingOverrideContext.Provider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(AdaptProvider, {
+    children: isWeb ? /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(FloatingOverrideContext.Provider, {
       value: floatingContext,
       children: contents
     }) : contents
@@ -38087,7 +39364,7 @@ var PopoverSheetController = /* @__PURE__ */ __name(({
   ...props
 }) => {
   const context = usePopoverContext(__scopePopover), showSheet = useShowPopoverSheet(context), breakpointActive = context.breakpointActive, getShowSheet = (0, import_core28.useGet)(showSheet);
-  return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(SheetController, {
+  return /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(SheetController, {
     onOpenChange: /* @__PURE__ */ __name((val) => {
       var _a;
       getShowSheet() && ((_a = props.onOpenChange) == null ? void 0 : _a.call(props, val));
@@ -38098,207 +39375,24 @@ var PopoverSheetController = /* @__PURE__ */ __name(({
   });
 }, "PopoverSheetController");
 var useSheetBreakpointActive2 = /* @__PURE__ */ __name((breakpoint) => {
-  const media = (0, import_core28.useMedia)();
-  return typeof breakpoint == "boolean" || !breakpoint ? !!breakpoint : media[breakpoint];
+  const media2 = (0, import_core28.useMedia)();
+  return typeof breakpoint == "boolean" || !breakpoint ? !!breakpoint : media2[breakpoint];
 }, "useSheetBreakpointActive");
 var useShowPopoverSheet = /* @__PURE__ */ __name((context) => {
   const breakpointActive = useSheetBreakpointActive2(context.sheetBreakpoint);
   return context.open === false ? false : breakpointActive;
 }, "useShowPopoverSheet");
 
-// node_modules/tamagui/node_modules/@tamagui/portal/dist/esm/Portal.mjs
-init_esm6();
-var React54 = __toESM(require("react"), 1);
-var import_react_dom6 = require("react-dom");
-var import_jsx_runtime38 = require("react/jsx-runtime");
-var Portal4 = React54.memo(({
-  host = ((_a) => (_a = globalThis.document) == null ? void 0 : _a.body)(),
-  ...props
-}) => isServer ? null : (0, import_react_dom6.createPortal)(/* @__PURE__ */ (0, import_jsx_runtime38.jsx)(YStack, {
-  contain: "strict",
-  fullscreen: true,
-  position: "fixed",
-  maxWidth: "100vw",
-  maxHeight: "100vh",
-  pointerEvents: "none",
-  ...props
-}), host));
-
-// node_modules/tamagui/node_modules/@tamagui/portal/dist/esm/GorhomPortal.mjs
-init_esm6();
-var import_core29 = require("@tamagui/core");
-var import_react36 = __toESM(require("react"), 1);
-init_esm9();
-var import_jsx_runtime39 = require("react/jsx-runtime");
-var ACTIONS = /* @__PURE__ */ ((ACTIONS2) => (ACTIONS2[ACTIONS2.REGISTER_HOST = 0] = "REGISTER_HOST", ACTIONS2[ACTIONS2.DEREGISTER_HOST = 1] = "DEREGISTER_HOST", ACTIONS2[ACTIONS2.ADD_UPDATE_PORTAL = 2] = "ADD_UPDATE_PORTAL", ACTIONS2[ACTIONS2.REMOVE_PORTAL = 3] = "REMOVE_PORTAL", ACTIONS2))(ACTIONS || {});
-var INITIAL_STATE4 = {};
-var registerHost4 = /* @__PURE__ */ __name((state, hostName) => (hostName in state || (state[hostName] = []), state), "registerHost");
-var deregisterHost4 = /* @__PURE__ */ __name((state, hostName) => (delete state[hostName], state), "deregisterHost");
-var addUpdatePortal4 = /* @__PURE__ */ __name((state, hostName, portalName, node) => {
-  hostName in state || (state = registerHost4(state, hostName));
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 ? state[hostName][index3].node = node : state[hostName].push({
-    name: portalName,
-    node
-  }), state;
-}, "addUpdatePortal");
-var removePortal4 = /* @__PURE__ */ __name((state, hostName, portalName) => {
-  if (!(hostName in state)) return console.info(`Failed to remove portal '${portalName}', '${hostName}' was not registered!`), state;
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 && state[hostName].splice(index3, 1), state;
-}, "removePortal");
-var reducer4 = /* @__PURE__ */ __name((state, action) => {
-  const {
-    type
-  } = action;
-  switch (type) {
-    case 0:
-      return registerHost4({
-        ...state
-      }, action.hostName);
-    case 1:
-      return deregisterHost4({
-        ...state
-      }, action.hostName);
-    case 2:
-      return addUpdatePortal4({
-        ...state
-      }, action.hostName, action.portalName, action.node);
-    case 3:
-      return removePortal4({
-        ...state
-      }, action.hostName, action.portalName);
-    default:
-      return state;
-  }
-}, "reducer");
-var PortalStateContext4 = (0, import_react36.createContext)(null);
-var PortalDispatchContext4 = (0, import_react36.createContext)(null);
-var usePortalState4 = /* @__PURE__ */ __name((hostName) => {
-  const state = (0, import_react36.useContext)(PortalStateContext4);
-  if (state === null) throw new Error("'PortalStateContext' cannot be null, please add 'PortalProvider' to the root component.");
-  return state[hostName] || [];
-}, "usePortalState");
-var usePortal4 = /* @__PURE__ */ __name((hostName = "root") => {
-  const dispatch = (0, import_react36.useContext)(PortalDispatchContext4);
-  if (dispatch === null) throw new Error("'PortalDispatchContext' cannot be null, please add 'PortalProvider' to the root component.");
-  const registerHost22 = (0, import_react36.useCallback)(() => {
-    dispatch({
-      type: 0,
-      hostName
-    });
-  }, []), deregisterHost22 = (0, import_react36.useCallback)(() => {
-    dispatch({
-      type: 1,
-      hostName
-    });
-  }, []), addUpdatePortal22 = (0, import_react36.useCallback)((name, node) => {
-    dispatch({
-      type: 2,
-      hostName,
-      portalName: name,
-      node
-    });
-  }, []), removePortal22 = (0, import_react36.useCallback)((name) => {
-    dispatch({
-      type: 3,
-      hostName,
-      portalName: name
-    });
-  }, []);
-  return {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22,
-    addPortal: addUpdatePortal22,
-    updatePortal: addUpdatePortal22,
-    removePortal: removePortal22
-  };
-}, "usePortal");
-var PortalProviderComponent4 = /* @__PURE__ */ __name(({
-  rootHostName = "root",
-  shouldAddRootHost = true,
-  children
-}) => {
-  const [state, dispatch] = (0, import_react36.useReducer)(reducer4, INITIAL_STATE4), transitionDispatch = (0, import_react36.useMemo)(() => (value) => {
-    startTransition(() => {
-      dispatch(value);
-    });
-  }, [dispatch]);
-  return /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(PortalDispatchContext4.Provider, {
-    value: transitionDispatch,
-    children: /* @__PURE__ */ (0, import_jsx_runtime39.jsxs)(PortalStateContext4.Provider, {
-      value: state,
-      children: [children, shouldAddRootHost && /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(PortalHost4, {
-        name: rootHostName
-      })]
-    })
-  });
-}, "PortalProviderComponent");
-var PortalProvider5 = (0, import_react36.memo)(PortalProviderComponent4);
-PortalProvider5.displayName = "PortalProvider";
-var defaultRenderer4 = /* @__PURE__ */ __name((children) => /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_jsx_runtime39.Fragment, {
-  children
-}), "defaultRenderer");
-var PortalHostComponent4 = /* @__PURE__ */ __name((props) => {
-  const {
-    name,
-    forwardProps,
-    render = defaultRenderer4
-  } = props, state = usePortalState4(name), {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22
-  } = usePortal4(props.name);
-  return (0, import_react36.useEffect)(() => {
-    if (!(typeof window > "u")) return registerHost22(), () => {
-      deregisterHost22();
-    };
-  }, []), render(forwardProps ? state.map((item) => {
-    let next = item.node;
-    return forwardProps ? import_react36.default.Children.map(next, (child) => import_react36.default.isValidElement(child) ? import_react36.default.cloneElement(child, {
-      key: child.key,
-      ...forwardProps
-    }) : child) : next;
-  }) : state.map((item) => item.node));
-}, "PortalHostComponent");
-var PortalHost4 = (0, import_react36.memo)(PortalHostComponent4);
-PortalHost4.displayName = "PortalHost";
-var PortalComponent4 = /* @__PURE__ */ __name((props) => {
-  const {
-    name: _providedName,
-    hostName,
-    handleOnMount: _providedHandleOnMount,
-    handleOnUnmount: _providedHandleOnUnmount,
-    handleOnUpdate: _providedHandleOnUpdate,
-    children
-  } = props, {
-    addPortal: addUpdatePortal22,
-    removePortal: removePortal22
-  } = usePortal4(hostName), id = (0, import_react36.useId)(), name = _providedName || id, handleOnMount = (0, import_core29.useEvent)(() => {
-    _providedHandleOnMount ? _providedHandleOnMount(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  }), handleOnUnmount = (0, import_core29.useEvent)(() => {
-    _providedHandleOnUnmount ? _providedHandleOnUnmount(() => removePortal22(name)) : removePortal22(name);
-  }), handleOnUpdate = (0, import_core29.useEvent)(() => {
-    _providedHandleOnUpdate ? _providedHandleOnUpdate(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  });
-  return useIsomorphicLayoutEffect(() => (handleOnMount(), () => {
-    handleOnUnmount();
-  }), []), (0, import_react36.useEffect)(() => {
-    handleOnUpdate();
-  }, [children]), null;
-}, "PortalComponent");
-var PortalItem4 = (0, import_react36.memo)(PortalComponent4);
-PortalItem4.displayName = "Portal";
-
 // node_modules/@tamagui/progress/dist/esm/Progress.mjs
-var import_core30 = require("@tamagui/core");
+var import_core29 = require("@tamagui/core");
 init_esm7();
-var React56 = __toESM(require("react"), 1);
-var import_jsx_runtime40 = require("react/jsx-runtime");
+var React51 = __toESM(require("react"), 1);
+var import_jsx_runtime34 = require("react/jsx-runtime");
 var PROGRESS_NAME = "Progress";
 var [createProgressContext, createProgressScope] = createContextScope(PROGRESS_NAME);
 var [ProgressProvider, useProgressContext] = createProgressContext(PROGRESS_NAME);
 var INDICATOR_NAME2 = "ProgressIndicator";
-var ProgressIndicatorFrame = (0, import_core30.styled)(ThemeableStack, {
+var ProgressIndicatorFrame = (0, import_core29.styled)(ThemeableStack, {
   name: INDICATOR_NAME2,
   variants: {
     unstyled: {
@@ -38319,7 +39413,7 @@ var ProgressIndicator = ProgressIndicatorFrame.styleable(function(props, forward
     animation,
     ...indicatorProps
   } = props, context = useProgressContext(INDICATOR_NAME2, __scopeProgress), pct = context.max - (context.value ?? 0), x = -(context.width === 0 ? 300 : context.width) * (pct / 100);
-  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ProgressIndicatorFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ProgressIndicatorFrame, {
     "data-state": getProgressState(context.value, context.max),
     "data-value": context.value ?? void 0,
     "data-max": context.max,
@@ -38355,7 +39449,7 @@ function isValidValueNumber(value, max2) {
 }
 __name(isValidValueNumber, "isValidValueNumber");
 var DEFAULT_MAX = 100;
-var ProgressFrame = (0, import_core30.styled)(ThemeableStack, {
+var ProgressFrame = (0, import_core29.styled)(ThemeableStack, {
   name: "Progress",
   variants: {
     unstyled: {
@@ -38367,10 +39461,10 @@ var ProgressFrame = (0, import_core30.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val) => {
-        const size5 = Math.round((0, import_core30.getVariableValue)(getSize(val)) * 0.25);
+        const size6 = Math.round((0, import_core29.getVariableValue)(getSize(val)) * 0.25);
         return {
-          height: size5,
-          minWidth: (0, import_core30.getVariableValue)(size5) * 20,
+          height: size6,
+          minWidth: (0, import_core29.getVariableValue)(size6) * 20,
           width: "100%"
         };
       }, "...size")
@@ -38387,15 +39481,15 @@ var Progress = withStaticProperties(ProgressFrame.styleable(function(props, forw
     value: valueProp,
     max: maxProp,
     getValueLabel = defaultGetValueLabel,
-    size: size5 = "$true",
+    size: size6 = "$true",
     ...progressProps
-  } = props, max2 = isValidMaxNumber(maxProp) ? maxProp : DEFAULT_MAX, value = isValidValueNumber(valueProp, max2) ? valueProp : null, valueLabel = isNumber(value) ? getValueLabel(value, max2) : void 0, [width, setWidth] = React56.useState(0);
-  return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ProgressProvider, {
+  } = props, max2 = isValidMaxNumber(maxProp) ? maxProp : DEFAULT_MAX, value = isValidValueNumber(valueProp, max2) ? valueProp : null, valueLabel = isNumber(value) ? getValueLabel(value, max2) : void 0, [width, setWidth] = React51.useState(0);
+  return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ProgressProvider, {
     scope: __scopeProgress,
     value,
     max: max2,
     width,
-    children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(ProgressFrame, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ProgressFrame, {
       "aria-valuemax": max2,
       "aria-valuemin": 0,
       "aria-valuenow": isNumber(value) ? value : void 0,
@@ -38405,7 +39499,7 @@ var Progress = withStaticProperties(ProgressFrame.styleable(function(props, forw
       "data-value": value ?? void 0,
       "data-max": max2,
       ...progressProps.unstyled !== true && {
-        size: size5
+        size: size6
       },
       ...progressProps,
       onLayout: /* @__PURE__ */ __name((e) => {
@@ -38420,9 +39514,9 @@ var Progress = withStaticProperties(ProgressFrame.styleable(function(props, forw
 });
 
 // node_modules/@tamagui/radio-group/dist/esm/RadioGroup.mjs
-var import_core31 = require("@tamagui/core");
+var import_core30 = require("@tamagui/core");
 var RADIO_GROUP_ITEM_NAME = "RadioGroupItem";
-var RadioGroupItemFrame = (0, import_core31.styled)(ThemeableStack, {
+var RadioGroupItemFrame = (0, import_core30.styled)(ThemeableStack, {
   name: RADIO_GROUP_ITEM_NAME,
   tag: "button",
   variants: {
@@ -38477,10 +39571,10 @@ var RadioGroupItemFrame = (0, import_core31.styled)(ThemeableStack, {
       "...size": /* @__PURE__ */ __name((value, {
         props
       }) => {
-        const size5 = Math.floor((0, import_core31.getVariableValue)(getSize(value)) * (props.scaleSize ?? 0.5));
+        const size6 = Math.floor((0, import_core30.getVariableValue)(getSize(value)) * (props.scaleSize ?? 0.5));
         return {
-          width: size5,
-          height: size5
+          width: size6,
+          height: size6
         };
       }, "...size")
     }
@@ -38490,7 +39584,7 @@ var RadioGroupItemFrame = (0, import_core31.styled)(ThemeableStack, {
   }
 });
 var RADIO_GROUP_INDICATOR_NAME = "RadioGroupIndicator";
-var RadioGroupIndicatorFrame = (0, import_core31.styled)(ThemeableStack, {
+var RadioGroupIndicatorFrame = (0, import_core30.styled)(ThemeableStack, {
   name: RADIO_GROUP_INDICATOR_NAME,
   variants: {
     unstyled: {
@@ -38508,7 +39602,7 @@ var RadioGroupIndicatorFrame = (0, import_core31.styled)(ThemeableStack, {
   }
 });
 var RADIO_GROUP_NAME = "RadioGroup";
-var RadioGroupFrame = (0, import_core31.styled)(ThemeableStack, {
+var RadioGroupFrame = (0, import_core30.styled)(ThemeableStack, {
   name: RADIO_GROUP_NAME,
   variants: {
     orientation: {
@@ -38525,18 +39619,18 @@ var RadioGroupFrame = (0, import_core31.styled)(ThemeableStack, {
 });
 
 // node_modules/@tamagui/radio-group/dist/esm/createRadioGroup.mjs
-var import_react40 = __toESM(require("react"), 1);
-var import_core34 = require("@tamagui/core");
+var import_react38 = __toESM(require("react"), 1);
+var import_core33 = require("@tamagui/core");
 
 // node_modules/@tamagui/radio-headless/dist/esm/useRadioGroup.mjs
-init_esm6();
+init_esm();
 init_esm7();
 init_esm10();
-var import_react38 = require("react");
+var import_react36 = require("react");
 
 // node_modules/@tamagui/radio-headless/dist/esm/BubbleInput.mjs
-var import_react37 = __toESM(require("react"), 1);
-var import_jsx_runtime41 = require("react/jsx-runtime");
+var import_react35 = __toESM(require("react"), 1);
+var import_jsx_runtime35 = require("react/jsx-runtime");
 var BubbleInput2 = /* @__PURE__ */ __name((props) => {
   const {
     checked,
@@ -38545,8 +39639,8 @@ var BubbleInput2 = /* @__PURE__ */ __name((props) => {
     isHidden: isHidden2,
     accentColor,
     ...inputProps
-  } = props, ref = import_react37.default.useRef(null), prevChecked = usePrevious(checked);
-  return import_react37.default.useEffect(() => {
+  } = props, ref = import_react35.default.useRef(null), prevChecked = usePrevious(checked);
+  return import_react35.default.useEffect(() => {
     const input = ref.current, inputProto = window.HTMLInputElement.prototype, setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
     if (prevChecked !== checked && setChecked) {
       const event = new Event("click", {
@@ -38554,7 +39648,7 @@ var BubbleInput2 = /* @__PURE__ */ __name((props) => {
       });
       setChecked.call(input, checked), input.dispatchEvent(event);
     }
-  }, [prevChecked, checked, bubbles]), /* @__PURE__ */ (0, import_jsx_runtime41.jsx)("input", {
+  }, [prevChecked, checked, bubbles]), /* @__PURE__ */ (0, import_jsx_runtime35.jsx)("input", {
     type: "radio",
     defaultChecked: checked,
     ...inputProps,
@@ -38584,7 +39678,7 @@ function getState5(checked) {
 __name(getState5, "getState");
 
 // node_modules/@tamagui/radio-headless/dist/esm/useRadioGroup.mjs
-var import_jsx_runtime42 = require("react/jsx-runtime");
+var import_jsx_runtime36 = require("react/jsx-runtime");
 function useRadioGroup(params) {
   const {
     value: valueProp,
@@ -38644,8 +39738,8 @@ var useRadioGroupItem = /* @__PURE__ */ __name((params) => {
     name,
     native,
     accentColor
-  } = (0, import_react38.useContext)(radioGroupContext), [button, setButton] = (0, import_react38.useState)(null), hasConsumerStoppedPropagationRef = (0, import_react38.useRef)(false), ref = (0, import_react38.useRef)(null), composedRefs = useComposedRefs(refProp, (node) => setButton(node), ref), isArrowKeyPressedRef = (0, import_react38.useRef)(false), isFormControl = isWeb ? button ? !!button.closest("form") : true : false, checked = groupValue === value, labelId = useLabelContext(button), labelledBy = ariaLabelledby || labelId;
-  (0, import_react38.useEffect)(() => {
+  } = (0, import_react36.useContext)(radioGroupContext), [button, setButton] = (0, import_react36.useState)(null), hasConsumerStoppedPropagationRef = (0, import_react36.useRef)(false), ref = (0, import_react36.useRef)(null), composedRefs = useComposedRefs(refProp, (node) => setButton(node), ref), isArrowKeyPressedRef = (0, import_react36.useRef)(false), isFormControl = isWeb ? button ? !!button.closest("form") : true : false, checked = groupValue === value, labelId = useLabelContext(button), labelledBy = ariaLabelledby || labelId;
+  (0, import_react36.useEffect)(() => {
     if (isWeb) {
       const handleKeyDown = /* @__PURE__ */ __name((event) => {
         ARROW_KEYS.includes(event.key) && (isArrowKeyPressedRef.current = true);
@@ -38664,7 +39758,7 @@ var useRadioGroupItem = /* @__PURE__ */ __name((params) => {
     },
     checked,
     isFormControl,
-    bubbleInput: /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(BubbleInput2, {
+    bubbleInput: /* @__PURE__ */ (0, import_jsx_runtime36.jsx)(BubbleInput2, {
       isHidden: !native,
       control: button,
       bubbles: !hasConsumerStoppedPropagationRef.current,
@@ -38720,7 +39814,7 @@ function useRadioGroupItemIndicator(params) {
     ...rest
   } = params, {
     checked
-  } = (0, import_react38.useContext)(radioGroupItemContext);
+  } = (0, import_react36.useContext)(radioGroupItemContext);
   return {
     checked,
     "data-state": getState5(checked),
@@ -38731,15 +39825,15 @@ function useRadioGroupItemIndicator(params) {
 __name(useRadioGroupItemIndicator, "useRadioGroupItemIndicator");
 
 // node_modules/@tamagui/collection/dist/esm/Collection.mjs
-init_esm6();
-var import_core32 = require("@tamagui/core");
-var import_react39 = __toESM(require("react"), 1);
-var import_jsx_runtime43 = require("react/jsx-runtime");
+init_esm();
+var import_core31 = require("@tamagui/core");
+var import_react37 = __toESM(require("react"), 1);
+var import_jsx_runtime37 = require("react/jsx-runtime");
 function createCollection(name) {
   const {
     Provider: CollectionProviderImpl,
     useStyledContext: useCollectionContext
-  } = (0, import_core32.createStyledContext)({
+  } = (0, import_core31.createStyledContext)({
     collectionRef: {
       current: null
     },
@@ -38748,8 +39842,8 @@ function createCollection(name) {
     const {
       __scopeCollection,
       children
-    } = props, ref = import_react39.default.useRef(null), itemMap = import_react39.default.useRef(/* @__PURE__ */ new Map()).current;
-    return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(CollectionProviderImpl, {
+    } = props, ref = import_react37.default.useRef(null), itemMap = import_react37.default.useRef(/* @__PURE__ */ new Map()).current;
+    return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(CollectionProviderImpl, {
       scope: __scopeCollection,
       itemMap,
       collectionRef: ref,
@@ -38757,27 +39851,27 @@ function createCollection(name) {
     });
   }, "CollectionProvider");
   CollectionProvider.displayName = "CollectionProvider";
-  const COLLECTION_SLOT_NAME = name + "CollectionSlot", CollectionSlot = import_react39.default.forwardRef((props, forwardedRef) => {
+  const COLLECTION_SLOT_NAME = name + "CollectionSlot", CollectionSlot = import_react37.default.forwardRef((props, forwardedRef) => {
     const {
       __scopeCollection,
       children
     } = props, context = useCollectionContext(__scopeCollection), composedRefs = useComposedRefs(forwardedRef, context.collectionRef);
-    return /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(import_core32.Slot, {
+    return /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(import_core31.Slot, {
       ref: composedRefs,
       children
     });
   });
   CollectionSlot.displayName = COLLECTION_SLOT_NAME;
-  const ITEM_SLOT_NAME = name + "CollectionItemSlot", ITEM_DATA_ATTR = "data-collection-item", CollectionItemSlot = import_react39.default.forwardRef((props, forwardedRef) => {
+  const ITEM_SLOT_NAME = name + "CollectionItemSlot", ITEM_DATA_ATTR = "data-collection-item", CollectionItemSlot = import_react37.default.forwardRef((props, forwardedRef) => {
     const {
       __scopeCollection,
       children,
       ...itemData
-    } = props, ref = import_react39.default.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), context = useCollectionContext(__scopeCollection);
-    return import_react39.default.useEffect(() => (context.itemMap.set(ref, {
+    } = props, ref = import_react37.default.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), context = useCollectionContext(__scopeCollection);
+    return import_react37.default.useEffect(() => (context.itemMap.set(ref, {
       ref,
       ...itemData
-    }), () => void context.itemMap.delete(ref))), /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(import_core32.Slot, {
+    }), () => void context.itemMap.delete(ref))), /* @__PURE__ */ (0, import_jsx_runtime37.jsx)(import_core31.Slot, {
       [ITEM_DATA_ATTR]: "",
       ref: composedRefs,
       children
@@ -38786,7 +39880,7 @@ function createCollection(name) {
   CollectionItemSlot.displayName = ITEM_SLOT_NAME;
   function useCollection2(__scopeCollection) {
     const context = useCollectionContext(__scopeCollection);
-    return import_react39.default.useCallback(() => {
+    return import_react37.default.useCallback(() => {
       if (!isWeb) return [];
       const collectionNode = context.collectionRef.current;
       if (!collectionNode) return [];
@@ -38804,30 +39898,30 @@ function createCollection(name) {
 __name(createCollection, "createCollection");
 
 // node_modules/@tamagui/roving-focus/dist/esm/RovingFocusGroup.mjs
-init_esm6();
-var import_core33 = require("@tamagui/core");
+init_esm();
+var import_core32 = require("@tamagui/core");
 init_esm7();
 init_esm10();
 
 // node_modules/@tamagui/use-direction/dist/esm/useDirection.mjs
-var React59 = __toESM(require("react"), 1);
-var import_jsx_runtime44 = require("react/jsx-runtime");
-var DirectionContext = React59.createContext(void 0);
+var React54 = __toESM(require("react"), 1);
+var import_jsx_runtime38 = require("react/jsx-runtime");
+var DirectionContext = React54.createContext(void 0);
 function useDirection(localDir) {
-  const globalDir = React59.useContext(DirectionContext);
+  const globalDir = React54.useContext(DirectionContext);
   return localDir || globalDir || "ltr";
 }
 __name(useDirection, "useDirection");
 
 // node_modules/@tamagui/roving-focus/dist/esm/RovingFocusGroup.mjs
-var React60 = __toESM(require("react"), 1);
-var import_jsx_runtime45 = require("react/jsx-runtime");
+var React55 = __toESM(require("react"), 1);
+var import_jsx_runtime39 = require("react/jsx-runtime");
 var ENTRY_FOCUS = "rovingFocusGroup.onEntryFocus";
 var EVENT_OPTIONS2 = {
   bubbles: false,
   cancelable: true
 };
-var RovingFocusGroupImpl = React60.forwardRef((props, forwardedRef) => {
+var RovingFocusGroupImpl = React55.forwardRef((props, forwardedRef) => {
   const {
     __scopeRovingFocusGroup,
     orientation,
@@ -38838,25 +39932,25 @@ var RovingFocusGroupImpl = React60.forwardRef((props, forwardedRef) => {
     onCurrentTabStopIdChange,
     onEntryFocus,
     ...groupProps
-  } = props, ref = React60.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), direction = useDirection(dir), [currentTabStopId = null, setCurrentTabStopId] = useControllableState({
+  } = props, ref = React55.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), direction = useDirection(dir), [currentTabStopId = null, setCurrentTabStopId] = useControllableState({
     prop: currentTabStopIdProp,
     defaultProp: defaultCurrentTabStopId ?? null,
     onChange: onCurrentTabStopIdChange
-  }), [isTabbingBackOut, setIsTabbingBackOut] = React60.useState(false), handleEntryFocus = (0, import_core33.useEvent)(onEntryFocus), getItems = useCollection(__scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT), isClickFocusRef = React60.useRef(false), [focusableItemsCount, setFocusableItemsCount] = React60.useState(0);
-  return React60.useEffect(() => {
+  }), [isTabbingBackOut, setIsTabbingBackOut] = React55.useState(false), handleEntryFocus = (0, import_core32.useEvent)(onEntryFocus), getItems = useCollection(__scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT), isClickFocusRef = React55.useRef(false), [focusableItemsCount, setFocusableItemsCount] = React55.useState(0);
+  return React55.useEffect(() => {
     const node = ref.current;
     if (node) return node.addEventListener(ENTRY_FOCUS, handleEntryFocus), () => node.removeEventListener(ENTRY_FOCUS, handleEntryFocus);
-  }, [handleEntryFocus]), /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(RovingFocusProvider, {
+  }, [handleEntryFocus]), /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(RovingFocusProvider, {
     scope: __scopeRovingFocusGroup,
     orientation,
     dir: direction,
     loop,
     currentTabStopId,
-    onItemFocus: React60.useCallback((tabStopId) => setCurrentTabStopId(tabStopId), [setCurrentTabStopId]),
-    onItemShiftTab: React60.useCallback(() => setIsTabbingBackOut(true), []),
-    onFocusableItemAdd: React60.useCallback(() => setFocusableItemsCount((prevCount) => prevCount + 1), []),
-    onFocusableItemRemove: React60.useCallback(() => setFocusableItemsCount((prevCount) => prevCount - 1), []),
-    children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_core33.Stack, {
+    onItemFocus: React55.useCallback((tabStopId) => setCurrentTabStopId(tabStopId), [setCurrentTabStopId]),
+    onItemShiftTab: React55.useCallback(() => setIsTabbingBackOut(true), []),
+    onFocusableItemAdd: React55.useCallback(() => setFocusableItemsCount((prevCount) => prevCount + 1), []),
+    onFocusableItemRemove: React55.useCallback(() => setFocusableItemsCount((prevCount) => prevCount - 1), []),
+    children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_core32.Stack, {
       tabIndex: isTabbingBackOut || focusableItemsCount === 0 ? -1 : 0,
       "data-orientation": orientation,
       ...groupProps,
@@ -38883,25 +39977,25 @@ var RovingFocusGroupImpl = React60.forwardRef((props, forwardedRef) => {
   });
 });
 var ITEM_NAME = "RovingFocusGroupItem";
-var RovingFocusGroupItem = React60.forwardRef((props, forwardedRef) => {
+var RovingFocusGroupItem = React55.forwardRef((props, forwardedRef) => {
   const {
     __scopeRovingFocusGroup,
     focusable = true,
     active = false,
     tabStopId,
     ...itemProps
-  } = props, autoId = React60.useId(), id = tabStopId || autoId, context = useRovingFocusContext(__scopeRovingFocusGroup), isCurrentTabStop = context.currentTabStopId === id, getItems = useCollection(__scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT), {
+  } = props, autoId = React55.useId(), id = tabStopId || autoId, context = useRovingFocusContext(__scopeRovingFocusGroup), isCurrentTabStop = context.currentTabStopId === id, getItems = useCollection(__scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT), {
     onFocusableItemAdd,
     onFocusableItemRemove
   } = context;
-  return React60.useEffect(() => {
+  return React55.useEffect(() => {
     if (focusable) return onFocusableItemAdd(), () => onFocusableItemRemove();
-  }, [focusable, onFocusableItemAdd, onFocusableItemRemove]), /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Collection.ItemSlot, {
+  }, [focusable, onFocusableItemAdd, onFocusableItemRemove]), /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Collection.ItemSlot, {
     __scopeCollection: __scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT,
     id,
     focusable,
     active,
-    children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_core33.Stack, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(import_core32.Stack, {
       tabIndex: isCurrentTabStop ? 0 : -1,
       "data-orientation": context.orientation,
       ...itemProps,
@@ -38940,13 +40034,13 @@ var [Collection, useCollection] = createCollection(GROUP_NAME2);
 var {
   Provider: RovingFocusProvider,
   useStyledContext: useRovingFocusContext
-} = (0, import_core33.createStyledContext)();
+} = (0, import_core32.createStyledContext)();
 var ROVING_FOCUS_GROUP_CONTEXT = "RovingFocusGroupContext";
-var RovingFocusGroup = withStaticProperties(React60.forwardRef((props, forwardedRef) => /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Collection.Provider, {
+var RovingFocusGroup = withStaticProperties(React55.forwardRef((props, forwardedRef) => /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Collection.Provider, {
   __scopeCollection: props.__scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT,
-  children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(Collection.Slot, {
+  children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(Collection.Slot, {
     __scopeCollection: props.__scopeRovingFocusGroup || ROVING_FOCUS_GROUP_CONTEXT,
-    children: /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(RovingFocusGroupImpl, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime39.jsx)(RovingFocusGroupImpl, {
       ...props,
       ref: forwardedRef
     })
@@ -38985,12 +40079,12 @@ function wrapArray(array, startIndex) {
 __name(wrapArray, "wrapArray");
 
 // node_modules/@tamagui/radio-group/dist/esm/createRadioGroup.mjs
-var import_jsx_runtime46 = require("react/jsx-runtime");
+var import_jsx_runtime40 = require("react/jsx-runtime");
 var ensureContext2 = /* @__PURE__ */ __name((x) => {
   x.context || (x.context = RadioGroupContext);
 }, "ensureContext");
-var RadioGroupContext = import_react40.default.createContext({});
-var RadioGroupItemContext = import_react40.default.createContext({
+var RadioGroupContext = import_react38.default.createContext({});
+var RadioGroupItemContext = import_react38.default.createContext({
   checked: false,
   disabled: false
 });
@@ -39029,11 +40123,11 @@ function createRadioGroup(createProps) {
       native,
       accentColor
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RadioGroupContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RadioGroupContext.Provider, {
       value: providerValue,
-      children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RovingFocusGroup, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RovingFocusGroup, {
         ...rovingFocusGroupAttrs,
-        children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RadioGroupFrame, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RadioGroupFrame, {
           ...frameAttrs,
           ref,
           ...rest
@@ -39066,12 +40160,12 @@ function createRadioGroup(createProps) {
       onPress,
       onKeyDown
     });
-    return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RadioGroupItemContext.Provider, {
+    return /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RadioGroupItemContext.Provider, {
       value: providerValue,
-      children: import_core34.isWeb && native ? bubbleInput : /* @__PURE__ */ (0, import_jsx_runtime46.jsxs)(import_jsx_runtime46.Fragment, {
-        children: [/* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RovingFocusGroup.Item, {
+      children: import_core33.isWeb && native ? bubbleInput : /* @__PURE__ */ (0, import_jsx_runtime40.jsxs)(import_jsx_runtime40.Fragment, {
+        children: [/* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RovingFocusGroup.Item, {
           ...rovingFocusGroupAttrs,
-          children: /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(RadioGroupItemFrame, {
+          children: /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(RadioGroupItemFrame, {
             ...frameAttrs,
             ref,
             ...rest
@@ -39093,14 +40187,14 @@ function createRadioGroup(createProps) {
       radioGroupItemContext: RadioGroupItemContext,
       disabled
     });
-    return forceMount || checked ? /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(Indicator, {
+    return forceMount || checked ? /* @__PURE__ */ (0, import_jsx_runtime40.jsx)(Indicator, {
       ...useIndicatorRest,
       ref: forwardedRef,
       ...indicatorProps
     }) : null;
   });
   RadioIndicator.displayName = "RadioIndicator";
-  const RadioGroup2 = (0, import_core34.withStaticProperties)(RadioGroupImp, {
+  const RadioGroup2 = (0, import_core33.withStaticProperties)(RadioGroupImp, {
     Item: RadioGroupItemImp,
     Indicator: RadioIndicator
   });
@@ -39109,8 +40203,8 @@ function createRadioGroup(createProps) {
 __name(createRadioGroup, "createRadioGroup");
 
 // node_modules/@tamagui/radio-group/dist/esm/RadioGroupStyledContext.mjs
-var import_core35 = require("@tamagui/core");
-var RadioGroupStyledContext = (0, import_core35.createStyledContext)({
+var import_core34 = require("@tamagui/core");
+var RadioGroupStyledContext = (0, import_core34.createStyledContext)({
   size: "$true",
   scaleIcon: 1
 });
@@ -39123,196 +40217,14 @@ var RadioGroup = createRadioGroup({
 });
 
 // node_modules/@tamagui/select/dist/esm/Select.mjs
-init_esm6();
-var import_core44 = require("@tamagui/core");
+init_esm();
+var import_core42 = require("@tamagui/core");
 init_esm7();
 
-// node_modules/@tamagui/select/node_modules/@tamagui/portal/dist/esm/Portal.mjs
-init_esm6();
-var React62 = __toESM(require("react"), 1);
-var import_react_dom7 = require("react-dom");
-var import_jsx_runtime47 = require("react/jsx-runtime");
-var Portal5 = React62.memo(({
-  host = ((_a) => (_a = globalThis.document) == null ? void 0 : _a.body)(),
-  ...props
-}) => isServer ? null : (0, import_react_dom7.createPortal)(/* @__PURE__ */ (0, import_jsx_runtime47.jsx)(YStack, {
-  contain: "strict",
-  fullscreen: true,
-  position: "fixed",
-  maxWidth: "100vw",
-  maxHeight: "100vh",
-  pointerEvents: "none",
-  ...props
-}), host));
-
-// node_modules/@tamagui/select/node_modules/@tamagui/portal/dist/esm/GorhomPortal.mjs
-init_esm6();
-var import_core36 = require("@tamagui/core");
-var import_react41 = __toESM(require("react"), 1);
-init_esm9();
-var import_jsx_runtime48 = require("react/jsx-runtime");
-var INITIAL_STATE5 = {};
-var registerHost5 = /* @__PURE__ */ __name((state, hostName) => (hostName in state || (state[hostName] = []), state), "registerHost");
-var deregisterHost5 = /* @__PURE__ */ __name((state, hostName) => (delete state[hostName], state), "deregisterHost");
-var addUpdatePortal5 = /* @__PURE__ */ __name((state, hostName, portalName, node) => {
-  hostName in state || (state = registerHost5(state, hostName));
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 ? state[hostName][index3].node = node : state[hostName].push({
-    name: portalName,
-    node
-  }), state;
-}, "addUpdatePortal");
-var removePortal5 = /* @__PURE__ */ __name((state, hostName, portalName) => {
-  if (!(hostName in state)) return console.info(`Failed to remove portal '${portalName}', '${hostName}' was not registered!`), state;
-  const index3 = state[hostName].findIndex((item) => item.name === portalName);
-  return index3 !== -1 && state[hostName].splice(index3, 1), state;
-}, "removePortal");
-var reducer5 = /* @__PURE__ */ __name((state, action) => {
-  const {
-    type
-  } = action;
-  switch (type) {
-    case 0:
-      return registerHost5({
-        ...state
-      }, action.hostName);
-    case 1:
-      return deregisterHost5({
-        ...state
-      }, action.hostName);
-    case 2:
-      return addUpdatePortal5({
-        ...state
-      }, action.hostName, action.portalName, action.node);
-    case 3:
-      return removePortal5({
-        ...state
-      }, action.hostName, action.portalName);
-    default:
-      return state;
-  }
-}, "reducer");
-var PortalStateContext5 = (0, import_react41.createContext)(null);
-var PortalDispatchContext5 = (0, import_react41.createContext)(null);
-var usePortalState5 = /* @__PURE__ */ __name((hostName) => {
-  const state = (0, import_react41.useContext)(PortalStateContext5);
-  if (state === null) throw new Error("'PortalStateContext' cannot be null, please add 'PortalProvider' to the root component.");
-  return state[hostName] || [];
-}, "usePortalState");
-var usePortal5 = /* @__PURE__ */ __name((hostName = "root") => {
-  const dispatch = (0, import_react41.useContext)(PortalDispatchContext5);
-  if (dispatch === null) throw new Error("'PortalDispatchContext' cannot be null, please add 'PortalProvider' to the root component.");
-  const registerHost22 = (0, import_react41.useCallback)(() => {
-    dispatch({
-      type: 0,
-      hostName
-    });
-  }, []), deregisterHost22 = (0, import_react41.useCallback)(() => {
-    dispatch({
-      type: 1,
-      hostName
-    });
-  }, []), addUpdatePortal22 = (0, import_react41.useCallback)((name, node) => {
-    dispatch({
-      type: 2,
-      hostName,
-      portalName: name,
-      node
-    });
-  }, []), removePortal22 = (0, import_react41.useCallback)((name) => {
-    dispatch({
-      type: 3,
-      hostName,
-      portalName: name
-    });
-  }, []);
-  return {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22,
-    addPortal: addUpdatePortal22,
-    updatePortal: addUpdatePortal22,
-    removePortal: removePortal22
-  };
-}, "usePortal");
-var PortalProviderComponent5 = /* @__PURE__ */ __name(({
-  rootHostName = "root",
-  shouldAddRootHost = true,
-  children
-}) => {
-  const [state, dispatch] = (0, import_react41.useReducer)(reducer5, INITIAL_STATE5), transitionDispatch = (0, import_react41.useMemo)(() => (value) => {
-    startTransition(() => {
-      dispatch(value);
-    });
-  }, [dispatch]);
-  return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(PortalDispatchContext5.Provider, {
-    value: transitionDispatch,
-    children: /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)(PortalStateContext5.Provider, {
-      value: state,
-      children: [children, shouldAddRootHost && /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(PortalHost5, {
-        name: rootHostName
-      })]
-    })
-  });
-}, "PortalProviderComponent");
-var PortalProvider6 = (0, import_react41.memo)(PortalProviderComponent5);
-PortalProvider6.displayName = "PortalProvider";
-var defaultRenderer5 = /* @__PURE__ */ __name((children) => /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(import_jsx_runtime48.Fragment, {
-  children
-}), "defaultRenderer");
-var PortalHostComponent5 = /* @__PURE__ */ __name((props) => {
-  const {
-    name,
-    forwardProps,
-    render = defaultRenderer5
-  } = props, state = usePortalState5(name), {
-    registerHost: registerHost22,
-    deregisterHost: deregisterHost22
-  } = usePortal5(props.name);
-  return (0, import_react41.useEffect)(() => {
-    if (!(typeof window > "u")) return registerHost22(), () => {
-      deregisterHost22();
-    };
-  }, []), render(forwardProps ? state.map((item) => {
-    let next = item.node;
-    return forwardProps ? import_react41.default.Children.map(next, (child) => import_react41.default.isValidElement(child) ? import_react41.default.cloneElement(child, {
-      key: child.key,
-      ...forwardProps
-    }) : child) : next;
-  }) : state.map((item) => item.node));
-}, "PortalHostComponent");
-var PortalHost5 = (0, import_react41.memo)(PortalHostComponent5);
-PortalHost5.displayName = "PortalHost";
-var PortalComponent5 = /* @__PURE__ */ __name((props) => {
-  const {
-    name: _providedName,
-    hostName,
-    handleOnMount: _providedHandleOnMount,
-    handleOnUnmount: _providedHandleOnUnmount,
-    handleOnUpdate: _providedHandleOnUpdate,
-    children
-  } = props, {
-    addPortal: addUpdatePortal22,
-    removePortal: removePortal22
-  } = usePortal5(hostName), id = (0, import_react41.useId)(), name = _providedName || id, handleOnMount = (0, import_core36.useEvent)(() => {
-    _providedHandleOnMount ? _providedHandleOnMount(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  }), handleOnUnmount = (0, import_core36.useEvent)(() => {
-    _providedHandleOnUnmount ? _providedHandleOnUnmount(() => removePortal22(name)) : removePortal22(name);
-  }), handleOnUpdate = (0, import_core36.useEvent)(() => {
-    _providedHandleOnUpdate ? _providedHandleOnUpdate(() => addUpdatePortal22(name, children)) : addUpdatePortal22(name, children);
-  });
-  return useIsomorphicLayoutEffect(() => (handleOnMount(), () => {
-    handleOnUnmount();
-  }), []), (0, import_react41.useEffect)(() => {
-    handleOnUpdate();
-  }, [children]), null;
-}, "PortalComponent");
-var PortalItem5 = (0, import_react41.memo)(PortalComponent5);
-PortalItem5.displayName = "Portal";
-
 // node_modules/@tamagui/separator/dist/esm/Separator.mjs
-init_esm6();
-var import_core37 = require("@tamagui/core");
-var Separator = (0, import_core37.styled)(import_core37.Stack, {
+init_esm();
+var import_core35 = require("@tamagui/core");
+var Separator = (0, import_core35.styled)(import_core35.Stack, {
   name: "Separator",
   borderColor: "$borderColor",
   flexShrink: 0,
@@ -39343,10 +40255,10 @@ var Separator = (0, import_core37.styled)(import_core37.Stack, {
 
 // node_modules/@tamagui/select/dist/esm/Select.mjs
 init_esm10();
-var React71 = __toESM(require("react"), 1);
+var React64 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/use-debounce/dist/esm/index.mjs
-var React64 = __toESM(require("react"), 1);
+var React57 = __toESM(require("react"), 1);
 function debounce(func, wait, leading) {
   let timeout, isCancelled = false;
   function debounced() {
@@ -39366,16 +40278,16 @@ var defaultOpts = {
   leading: false
 };
 function useDebounce(fn, wait, options = defaultOpts, mountArgs = [fn]) {
-  const dbEffect = React64.useRef(null);
-  return React64.useEffect(() => () => {
+  const dbEffect = React57.useRef(null);
+  return React57.useEffect(() => () => {
     var _a;
     (_a = dbEffect.current) == null ? void 0 : _a.cancel();
-  }, []), React64.useMemo(() => (dbEffect.current = debounce(fn, wait, options.leading), dbEffect.current), [options.leading, ...mountArgs]);
+  }, []), React57.useMemo(() => (dbEffect.current = debounce(fn, wait, options.leading), dbEffect.current), [options.leading, ...mountArgs]);
 }
 __name(useDebounce, "useDebounce");
 function useDebounceValue(val, amt = 0) {
-  const [state, setState] = React64.useState(val);
-  return React64.useEffect(() => {
+  const [state, setState] = React57.useState(val);
+  return React57.useEffect(() => {
     const tm = setTimeout(() => {
       setState((prev) => prev === val ? prev : val);
     }, amt);
@@ -39392,7 +40304,7 @@ var SCROLL_ARROW_THRESHOLD = 8;
 var VIEWPORT_NAME = "SelectViewport";
 
 // node_modules/@tamagui/select/dist/esm/context.mjs
-var import_jsx_runtime49 = require("react/jsx-runtime");
+var import_jsx_runtime41 = require("react/jsx-runtime");
 var [createSelectContext, createSelectScope] = createContextScope(SELECT_NAME);
 var [SelectProvider, useSelectContext] = createSelectContext(SELECT_NAME);
 var [createSelectItemParentContext, createSelectItemParentScope] = createContextScope(SELECT_NAME);
@@ -39402,11 +40314,11 @@ var ForwardSelectContext = /* @__PURE__ */ __name(({
   context,
   itemContext,
   children
-}) => /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectProvider, {
+}) => /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectProvider, {
   isInSheet: true,
   scope: __scopeSelect,
   ...context,
-  children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectItemParentProvider, {
+  children: /* @__PURE__ */ (0, import_jsx_runtime41.jsx)(SelectItemParentProvider, {
     scope: __scopeSelect,
     ...itemContext,
     children
@@ -39414,14 +40326,14 @@ var ForwardSelectContext = /* @__PURE__ */ __name(({
 }), "ForwardSelectContext");
 
 // node_modules/@tamagui/select/dist/esm/SelectContent.mjs
-var import_react42 = __toESM(require("react"), 1);
-var import_core39 = require("@tamagui/core");
+var import_react39 = __toESM(require("react"), 1);
+var import_core37 = require("@tamagui/core");
 
 // node_modules/@tamagui/select/dist/esm/useSelectBreakpointActive.mjs
-var import_core38 = require("@tamagui/core");
+var import_core36 = require("@tamagui/core");
 var useSelectBreakpointActive = /* @__PURE__ */ __name((sheetBreakpoint) => {
-  const media = (0, import_core38.useMedia)();
-  return sheetBreakpoint ? sheetBreakpoint === true ? true : sheetBreakpoint ? media[sheetBreakpoint] : false : false;
+  const media2 = (0, import_core36.useMedia)();
+  return sheetBreakpoint ? sheetBreakpoint === true ? true : sheetBreakpoint ? media2[sheetBreakpoint] : false : false;
 }, "useSelectBreakpointActive");
 var useShowSelectSheet = /* @__PURE__ */ __name((context) => {
   const breakpointActive = useSelectBreakpointActive(context.sheetBreakpoint);
@@ -39429,7 +40341,7 @@ var useShowSelectSheet = /* @__PURE__ */ __name((context) => {
 }, "useShowSelectSheet");
 
 // node_modules/@tamagui/select/dist/esm/SelectContent.mjs
-var import_jsx_runtime50 = require("react/jsx-runtime");
+var import_jsx_runtime42 = require("react/jsx-runtime");
 var CONTENT_NAME4 = "SelectContent";
 var SelectContent = /* @__PURE__ */ __name(({
   children,
@@ -39437,23 +40349,23 @@ var SelectContent = /* @__PURE__ */ __name(({
   zIndex: zIndex2 = 1e3,
   ...focusScopeProps
 }) => {
-  const context = useSelectContext(CONTENT_NAME4, __scopeSelect), itemParentContext = useSelectItemParentContext(CONTENT_NAME4, __scopeSelect), themeName = (0, import_core39.useThemeName)(), showSheet = useShowSelectSheet(context), contents = /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(import_core39.Theme, {
+  const context = useSelectContext(CONTENT_NAME4, __scopeSelect), itemParentContext = useSelectItemParentContext(CONTENT_NAME4, __scopeSelect), themeName = (0, import_core37.useThemeName)(), showSheet = useShowSelectSheet(context), contents = /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(import_core37.Theme, {
     forceClassName: true,
     name: themeName,
     children
-  }), touch = (0, import_core39.useIsTouchDevice)(), overlayStyle = import_react42.default.useMemo(() => ({
+  }), touch = (0, import_core37.useIsTouchDevice)(), overlayStyle = import_react39.default.useMemo(() => ({
     zIndex: zIndex2,
     pointerEvents: context.open ? "auto" : "none"
   }), [context.open]);
-  return itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(import_jsx_runtime50.Fragment, {
+  return itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(import_jsx_runtime42.Fragment, {
     children
-  }) : showSheet ? context.open ? /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(import_jsx_runtime50.Fragment, {
+  }) : showSheet ? context.open ? /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(import_jsx_runtime42.Fragment, {
     children: contents
-  }) : null : /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(FloatingPortal, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(FloatingOverlay, {
+  }) : null : /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(FloatingPortal, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(FloatingOverlay, {
       style: overlayStyle,
       lockScroll: !context.disablePreventBodyScroll && !!context.open && !touch,
-      children: /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(FocusScope, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(FocusScope, {
         loop: true,
         enabled: !!context.open,
         trapped: true,
@@ -39465,11 +40377,11 @@ var SelectContent = /* @__PURE__ */ __name(({
 }, "SelectContent");
 
 // node_modules/@tamagui/select/dist/esm/SelectImpl.mjs
-init_esm6();
-var import_core40 = require("@tamagui/core");
-var React66 = __toESM(require("react"), 1);
-var import_react_dom8 = require("react-dom");
-var import_jsx_runtime51 = require("react/jsx-runtime");
+init_esm();
+var import_core38 = require("@tamagui/core");
+var React59 = __toESM(require("react"), 1);
+var import_react_dom4 = require("react-dom");
+var import_jsx_runtime43 = require("react/jsx-runtime");
 var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
   const {
     __scopeSelect,
@@ -39485,10 +40397,10 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
   } = selectContext, {
     setOpen,
     setSelectedIndex
-  } = selectItemParentContext, [scrollTop, setScrollTop] = React66.useState(0), touch = (0, import_core40.useIsTouchDevice)(), listItemsRef = React66.useRef([]), overflowRef = React66.useRef(null), upArrowRef = React66.useRef(null), downArrowRef = React66.useRef(null), allowSelectRef = React66.useRef(false), allowMouseUpRef = React66.useRef(true), selectTimeoutRef = React66.useRef(), state = React66.useRef({
+  } = selectItemParentContext, [scrollTop, setScrollTop] = React59.useState(0), touch = (0, import_core38.useIsTouchDevice)(), listItemsRef = React59.useRef([]), overflowRef = React59.useRef(null), upArrowRef = React59.useRef(null), downArrowRef = React59.useRef(null), allowSelectRef = React59.useRef(false), allowMouseUpRef = React59.useRef(true), selectTimeoutRef = React59.useRef(), state = React59.useRef({
     isMouseOutside: false,
     isTyping: false
-  }), [controlledScrolling, setControlledScrolling] = React66.useState(false), [fallback, setFallback] = React66.useState(false), [innerOffset, setInnerOffset] = React66.useState(0), [blockSelection, setBlockSelection] = React66.useState(false), floatingStyle = React66.useRef({});
+  }), [controlledScrolling, setControlledScrolling] = React59.useState(false), [fallback, setFallback] = React59.useState(false), [innerOffset, setInnerOffset] = React59.useState(0), [blockSelection, setBlockSelection] = React59.useState(false), floatingStyle = React59.useRef({});
   useIsomorphicLayoutEffect(() => {
     queueMicrotask(() => {
       open || (setScrollTop(0), setFallback(false), setActiveIndex(null), setControlledScrolling(false));
@@ -39515,7 +40427,7 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
     placement: "bottom-start",
     whileElementsMounted: autoUpdate,
     // biome-ignore lint/correctness/noConstantCondition: <explanation>
-    middleware: [size3({
+    middleware: [size5({
       apply({
         rects: {
           reference: {
@@ -39541,7 +40453,7 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
     })]
   }), floatingRef = refs.floating, showUpArrow = open && scrollTop > SCROLL_ARROW_THRESHOLD, showDownArrow = open && floatingRef.current && scrollTop < floatingRef.current.scrollHeight - floatingRef.current.clientHeight - SCROLL_ARROW_THRESHOLD, isScrollable = showDownArrow || showUpArrow;
   useIsomorphicLayoutEffect(() => (window.addEventListener("resize", update), open && update(), () => window.removeEventListener("resize", update)), [update, open]);
-  const onMatch = (0, import_core40.useEvent)((index3) => (open ? setActiveIndex : setSelectedIndex)(index3)), interactionsProps = [useClick(context, {
+  const onMatch = (0, import_core38.useEvent)((index3) => (open ? setActiveIndex : setSelectedIndex)(index3)), interactionsProps = [useClick(context, {
     event: "mousedown",
     keyboardHandlers: false
   }), useDismiss(context, {
@@ -39569,8 +40481,8 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
     }, "onTypingChange")
   })], interactions = useInteractions(
     // unfortunately these memos will just always break due to floating-ui context always changing :/
-    React66.useMemo(() => interactionsProps, interactionsProps)
-  ), interactionsContext = React66.useMemo(() => ({
+    React59.useMemo(() => interactionsProps, interactionsProps)
+  ), interactionsContext = React59.useMemo(() => ({
     ...interactions,
     getReferenceProps() {
       return interactions.getReferenceProps({
@@ -39611,7 +40523,7 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
           e.preventDefault();
         },
         onScroll(event) {
-          (0, import_react_dom8.flushSync)(() => {
+          (0, import_react_dom4.flushSync)(() => {
             setScrollTop(event.currentTarget.scrollTop);
           });
         }
@@ -39637,19 +40549,19 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
     if (open) return document.addEventListener("pointerdown", onPointerDown), () => {
       document.removeEventListener("pointerdown", onPointerDown);
     };
-  }, [open, refs, setOpen]), React66.useEffect(() => {
+  }, [open, refs, setOpen]), React59.useEffect(() => {
     var _a, _b;
     open && controlledScrolling && activeIndex != null && ((_a = listItemsRef.current[activeIndex]) == null ? void 0 : _a.scrollIntoView({
       block: "nearest"
     })), setScrollTop(((_b = refs.floating.current) == null ? void 0 : _b.scrollTop) ?? 0);
-  }, [open, refs, controlledScrolling, activeIndex]), React66.useEffect(() => {
+  }, [open, refs, controlledScrolling, activeIndex]), React59.useEffect(() => {
     var _a;
     open && fallback && selectedIndex != null && ((_a = listItemsRef.current[selectedIndex]) == null ? void 0 : _a.scrollIntoView({
       block: "nearest"
     }));
   }, [open, fallback, selectedIndex]), useIsomorphicLayoutEffect(() => {
     refs.floating.current && fallback && (refs.floating.current.style.maxHeight = "");
-  }, [refs, fallback]), /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SelectProvider, {
+  }, [refs, fallback]), /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(SelectProvider, {
     scope: __scopeSelect,
     ...selectContext,
     setScrollTop,
@@ -39664,7 +40576,7 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
     upArrowRef,
     downArrowRef,
     update,
-    children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SelectItemParentProvider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime43.jsx)(SelectItemParentProvider, {
       scope: __scopeSelect,
       ...selectItemParentContext,
       allowMouseUpRef,
@@ -39679,9 +40591,9 @@ var SelectInlineImpl = /* @__PURE__ */ __name((props) => {
 }, "SelectInlineImpl");
 
 // node_modules/@tamagui/select/dist/esm/SelectItem.mjs
-init_esm6();
-var React67 = __toESM(require("react"), 1);
-var import_jsx_runtime52 = require("react/jsx-runtime");
+init_esm();
+var React60 = __toESM(require("react"), 1);
+var import_jsx_runtime44 = require("react/jsx-runtime");
 var ITEM_NAME2 = "SelectItem";
 var [SelectItemContextProvider, useSelectItemContext] = createSelectContext(ITEM_NAME2);
 var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
@@ -39713,17 +40625,17 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
     dataRef,
     interactions,
     shouldRenderWebNative,
-    size: size5,
+    size: size6,
     onActiveChange,
     initialValue: initialValue2
-  } = context, [isSelected, setSelected] = React67.useState(initialValue2 === value);
-  React67.useEffect(() => activeIndexSubscribe((i) => {
+  } = context, [isSelected, setSelected] = React60.useState(initialValue2 === value);
+  React60.useEffect(() => activeIndexSubscribe((i) => {
     var _a;
     index3 === i && (onActiveChange(value, index3), (_a = listRef == null ? void 0 : listRef.current[index3]) == null ? void 0 : _a.focus());
-  }), [index3]), React67.useEffect(() => valueSubscribe((val) => {
+  }), [index3]), React60.useEffect(() => valueSubscribe((val) => {
     setSelected(val === value);
   }), [value]);
-  const textId = React67.useId(), composedRefs = useComposedRefs(forwardedRef, (node) => {
+  const textId = React60.useId(), composedRefs = useComposedRefs(forwardedRef, (node) => {
     isWeb && node instanceof HTMLElement && listRef && (listRef.current[index3] = node);
   });
   useIsomorphicLayoutEffect(() => {
@@ -39733,7 +40645,7 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
     setSelectedIndex(index3), onChange(value), setOpen(false);
   }
   __name(handleSelect, "handleSelect");
-  const selectItemProps = React67.useMemo(() => interactions ? interactions.getItemProps({
+  const selectItemProps = React60.useMemo(() => interactions ? interactions.getItemProps({
     onTouchMove() {
       allowSelectRef.current = true, allowMouseUpRef.current = false;
     },
@@ -39754,15 +40666,15 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
   }) : {
     onPress: handleSelect
   }, [handleSelect]);
-  return /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(SelectItemContextProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(SelectItemContextProvider, {
     scope: __scopeSelect,
     value,
     textId: textId || "",
     isSelected,
-    children: shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("option", {
+    children: shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime44.jsx)("option", {
       value,
       children: props.children
-    }) : /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(ListItemFrame, {
+    }) : /* @__PURE__ */ (0, import_jsx_runtime44.jsx)(ListItemFrame, {
       tag: "div",
       componentName: ITEM_NAME2,
       ref: composedRefs,
@@ -39778,7 +40690,7 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
         hoverTheme: true,
         focusTheme: true,
         cursor: "default",
-        size: size5,
+        size: size6,
         outlineOffset: -0.5,
         focusVisibleStyle: {
           outlineColor: "$outlineColor",
@@ -39795,11 +40707,11 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
 });
 
 // node_modules/@tamagui/select/dist/esm/SelectItemText.mjs
-var import_core41 = require("@tamagui/core");
-var React68 = __toESM(require("react"), 1);
-var import_jsx_runtime53 = require("react/jsx-runtime");
+var import_core39 = require("@tamagui/core");
+var React61 = __toESM(require("react"), 1);
+var import_jsx_runtime45 = require("react/jsx-runtime");
 var ITEM_TEXT_NAME = "SelectItemText";
-var SelectItemTextFrame = (0, import_core41.styled)(SizableText, {
+var SelectItemTextFrame = (0, import_core39.styled)(SizableText, {
   name: ITEM_TEXT_NAME,
   variants: {
     unstyled: {
@@ -39819,30 +40731,30 @@ var SelectItemText = SelectItemTextFrame.styleable(function(props, forwardedRef)
     __scopeSelect,
     className,
     ...itemTextProps
-  } = props, context = useSelectContext(ITEM_TEXT_NAME, __scopeSelect), itemParentContext = useSelectItemParentContext(ITEM_TEXT_NAME, __scopeSelect), ref = React68.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), itemContext = useSelectItemContext(ITEM_TEXT_NAME, __scopeSelect), contents = React68.useRef();
-  return contents.current = /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(SelectItemTextFrame, {
+  } = props, context = useSelectContext(ITEM_TEXT_NAME, __scopeSelect), itemParentContext = useSelectItemParentContext(ITEM_TEXT_NAME, __scopeSelect), ref = React61.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), itemContext = useSelectItemContext(ITEM_TEXT_NAME, __scopeSelect), contents = React61.useRef();
+  return contents.current = /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(SelectItemTextFrame, {
     className,
     size: itemParentContext.size,
     id: itemContext.textId,
     ...itemTextProps,
     ref: composedRefs
-  }), React68.useEffect(() => {
+  }), React61.useEffect(() => {
     itemParentContext.initialValue === itemContext.value && !context.selectedIndex && context.setSelectedItem(contents.current);
-  }, []), React68.useEffect(() => itemParentContext.valueSubscribe((val) => {
+  }, []), React61.useEffect(() => itemParentContext.valueSubscribe((val) => {
     val === itemContext.value && context.setSelectedItem(contents.current);
-  }), [itemContext.value]), itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(import_jsx_runtime53.Fragment, {
+  }), [itemContext.value]), itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_jsx_runtime45.Fragment, {
     children: props.children
-  }) : /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(import_jsx_runtime53.Fragment, {
+  }) : /* @__PURE__ */ (0, import_jsx_runtime45.jsx)(import_jsx_runtime45.Fragment, {
     children: contents.current
   });
 });
 
 // node_modules/@tamagui/select/dist/esm/SelectScrollButton.mjs
-var React69 = __toESM(require("react"), 1);
-var import_react_dom9 = require("react-dom");
-var import_jsx_runtime54 = require("react/jsx-runtime");
+var React62 = __toESM(require("react"), 1);
+var import_react_dom5 = require("react-dom");
+var import_jsx_runtime46 = require("react/jsx-runtime");
 var SCROLL_UP_BUTTON_NAME = "SelectScrollUpButton";
-var SelectScrollUpButton = React69.forwardRef((props, forwardedRef) => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(SelectScrollButtonImpl, {
+var SelectScrollUpButton = React62.forwardRef((props, forwardedRef) => /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(SelectScrollButtonImpl, {
   componentName: SCROLL_UP_BUTTON_NAME,
   ...props,
   dir: "up",
@@ -39850,14 +40762,14 @@ var SelectScrollUpButton = React69.forwardRef((props, forwardedRef) => /* @__PUR
 }));
 SelectScrollUpButton.displayName = SCROLL_UP_BUTTON_NAME;
 var SCROLL_DOWN_BUTTON_NAME = "SelectScrollDownButton";
-var SelectScrollDownButton = React69.forwardRef((props, forwardedRef) => /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(SelectScrollButtonImpl, {
+var SelectScrollDownButton = React62.forwardRef((props, forwardedRef) => /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(SelectScrollButtonImpl, {
   componentName: SCROLL_DOWN_BUTTON_NAME,
   ...props,
   dir: "down",
   ref: forwardedRef
 }));
 SelectScrollDownButton.displayName = SCROLL_DOWN_BUTTON_NAME;
-var SelectScrollButtonImpl = React69.memo(React69.forwardRef((props, forwardedRef) => {
+var SelectScrollButtonImpl = React62.memo(React62.forwardRef((props, forwardedRef) => {
   var _a, _b;
   const {
     __scopeSelect,
@@ -39871,7 +40783,7 @@ var SelectScrollButtonImpl = React69.memo(React69.forwardRef((props, forwardedRe
     setScrollTop,
     setInnerOffset,
     ...context
-  } = useSelectContext(componentName, __scopeSelect), floatingRef = (_a = context.floatingContext) == null ? void 0 : _a.refs.floating, statusRef = React69.useRef("idle"), isVisible = context[dir === "down" ? "canScrollDown" : "canScrollUp"], frameRef = React69.useRef(), {
+  } = useSelectContext(componentName, __scopeSelect), floatingRef = (_a = context.floatingContext) == null ? void 0 : _a.refs.floating, statusRef = React62.useRef("idle"), isVisible = context[dir === "down" ? "canScrollDown" : "canScrollUp"], frameRef = React62.useRef(), {
     x,
     y,
     refs,
@@ -39893,12 +40805,12 @@ var SelectScrollButtonImpl = React69.memo(React69.forwardRef((props, forwardedRe
   if (!isVisible) return null;
   const onScroll = /* @__PURE__ */ __name((amount) => {
     const floating = floatingRef;
-    floating && (fallback ? floating.current && (floating.current.scrollTop -= amount, (0, import_react_dom9.flushSync)(() => {
+    floating && (fallback ? floating.current && (floating.current.scrollTop -= amount, (0, import_react_dom5.flushSync)(() => {
       var _a2;
       return setScrollTop(((_a2 = floating.current) == null ? void 0 : _a2.scrollTop) ?? 0);
-    })) : (0, import_react_dom9.flushSync)(() => setInnerOffset((value) => value - amount)));
+    })) : (0, import_react_dom5.flushSync)(() => setInnerOffset((value) => value - amount)));
   }, "onScroll");
-  return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(YStack, {
+  return /* @__PURE__ */ (0, import_jsx_runtime46.jsx)(YStack, {
     ref: composedRef,
     componentName,
     "aria-hidden": true,
@@ -39930,12 +40842,12 @@ var SelectScrollButtonImpl = React69.memo(React69.forwardRef((props, forwardedRe
 }));
 
 // node_modules/@tamagui/select/dist/esm/SelectTrigger.mjs
-var import_core42 = require("@tamagui/core");
-var React70 = __toESM(require("react"), 1);
-var import_jsx_runtime55 = require("react/jsx-runtime");
+var import_core40 = require("@tamagui/core");
+var React63 = __toESM(require("react"), 1);
+var import_jsx_runtime47 = require("react/jsx-runtime");
 var TRIGGER_NAME5 = "SelectTrigger";
-var isPointerCoarse = import_core42.isWeb && import_core42.isClient ? window.matchMedia("(pointer:coarse)").matches : true;
-var SelectTrigger = React70.forwardRef(function(props, forwardedRef) {
+var isPointerCoarse = import_core40.isWeb && import_core40.isClient ? window.matchMedia("(pointer:coarse)").matches : true;
+var SelectTrigger = React63.forwardRef(function(props, forwardedRef) {
   var _a;
   const {
     __scopeSelect,
@@ -39943,7 +40855,7 @@ var SelectTrigger = React70.forwardRef(function(props, forwardedRef) {
     unstyled = false,
     ...triggerProps
   } = props, context = useSelectContext(TRIGGER_NAME5, __scopeSelect), itemParentContext = useSelectItemParentContext(TRIGGER_NAME5, __scopeSelect), composedRefs = useComposedRefs(forwardedRef, (_a = context.floatingContext) == null ? void 0 : _a.refs.setReference);
-  return itemParentContext.shouldRenderWebNative ? null : /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(ListItem2, {
+  return itemParentContext.shouldRenderWebNative ? null : /* @__PURE__ */ (0, import_jsx_runtime47.jsx)(ListItem2, {
     componentName: TRIGGER_NAME5,
     unstyled,
     tag: "button",
@@ -39991,11 +40903,11 @@ var SelectTrigger = React70.forwardRef(function(props, forwardedRef) {
 });
 
 // node_modules/@tamagui/select/dist/esm/SelectViewport.mjs
-init_esm4();
-init_esm6();
-var import_core43 = require("@tamagui/core");
-var import_jsx_runtime56 = require("react/jsx-runtime");
-var SelectViewportFrame = (0, import_core43.styled)(ThemeableStack, {
+init_esm5();
+init_esm();
+var import_core41 = require("@tamagui/core");
+var import_jsx_runtime48 = require("react/jsx-runtime");
+var SelectViewportFrame = (0, import_core41.styled)(ThemeableStack, {
   name: VIEWPORT_NAME,
   variants: {
     unstyled: {
@@ -40030,12 +40942,12 @@ var SelectViewport = SelectViewportFrame.styleable(function(props, forwardedRef)
   } = props, context = useSelectContext(VIEWPORT_NAME, __scopeSelect), itemContext = useSelectItemParentContext(VIEWPORT_NAME, __scopeSelect), breakpointActive = useSelectBreakpointActive(context.sheetBreakpoint);
   if (useIsomorphicLayoutEffect(() => {
     context.update && context.update();
-  }, [breakpointActive]), itemContext.shouldRenderWebNative) return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(import_jsx_runtime56.Fragment, {
+  }, [breakpointActive]), itemContext.shouldRenderWebNative) return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(import_jsx_runtime48.Fragment, {
     children
   });
-  if (breakpointActive || !isWeb) return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(PortalItem5, {
+  if (breakpointActive || !isWeb) return /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(PortalItem, {
     hostName: `${context.scopeKey}SheetContents`,
-    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ForwardSelectContext, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(ForwardSelectContext, {
       __scopeSelect,
       itemContext,
       context,
@@ -40049,16 +40961,16 @@ var SelectViewport = SelectViewportFrame.styleable(function(props, forwardedRef)
     className,
     ...floatingProps
   } = itemContext.interactions.getFloatingProps(), composedRefs = composeRefs(forwardedRef, (_a = context.floatingContext) == null ? void 0 : _a.refs.setFloating);
-  return /* @__PURE__ */ (0, import_jsx_runtime56.jsxs)(import_jsx_runtime56.Fragment, {
-    children: [!disableScroll && !props.unstyled && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("style", {
+  return /* @__PURE__ */ (0, import_jsx_runtime48.jsxs)(import_jsx_runtime48.Fragment, {
+    children: [!disableScroll && !props.unstyled && /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("style", {
       dangerouslySetInnerHTML: {
         __html: selectViewportCSS
       }
-    }), /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(AnimatePresence, {
-      children: context.open ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(FloatingFocusManager, {
+    }), /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(AnimatePresence, {
+      children: context.open ? /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(FloatingFocusManager, {
         context: context.floatingContext,
         modal: false,
-        children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(SelectViewportFrame, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime48.jsx)(SelectViewportFrame, {
           size: itemContext.size,
           role: "presentation",
           ...viewportProps,
@@ -40071,7 +40983,7 @@ var SelectViewport = SelectViewportFrame.styleable(function(props, forwardedRef)
           children
         }, "select-viewport")
       }) : null
-    }), !context.open && /* @__PURE__ */ (0, import_jsx_runtime56.jsx)("div", {
+    }), !context.open && /* @__PURE__ */ (0, import_jsx_runtime48.jsx)("div", {
       style: {
         display: "none"
       },
@@ -40092,9 +41004,9 @@ var selectViewportCSS = `
 `;
 
 // node_modules/@tamagui/select/dist/esm/Select.mjs
-var import_jsx_runtime57 = require("react/jsx-runtime");
+var import_jsx_runtime49 = require("react/jsx-runtime");
 var VALUE_NAME = "SelectValue";
-var SelectValueFrame = (0, import_core44.styled)(SizableText, {
+var SelectValueFrame = (0, import_core42.styled)(SizableText, {
   name: VALUE_NAME,
   userSelect: "none"
 });
@@ -40105,7 +41017,7 @@ var SelectValue = SelectValueFrame.styleable(function({
   ...props
 }, forwardedRef) {
   const context = useSelectContext(VALUE_NAME, __scopeSelect), itemParentContext = useSelectItemParentContext(VALUE_NAME, __scopeSelect), composedRefs = useComposedRefs(forwardedRef, context.onValueNodeChange), children = childrenProp ?? context.selectedItem, selectValueChildren = context.value == null || context.value === "" ? placeholder ?? children : children;
-  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectValueFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectValueFrame, {
     ...!props.unstyled && {
       size: itemParentContext.size,
       ellipse: true,
@@ -40119,7 +41031,7 @@ var SelectValue = SelectValueFrame.styleable(function({
   });
 });
 function unwrapSelectItem(selectValueChildren) {
-  return React71.Children.map(selectValueChildren, (child) => {
+  return React64.Children.map(selectValueChildren, (child) => {
     var _a, _b, _c;
     if (child) {
       if (((_b = (_a = child.type) == null ? void 0 : _a.staticConfig) == null ? void 0 : _b.componentName) === ITEM_TEXT_NAME) return child.props.children;
@@ -40129,24 +41041,24 @@ function unwrapSelectItem(selectValueChildren) {
   });
 }
 __name(unwrapSelectItem, "unwrapSelectItem");
-var SelectIcon = (0, import_core44.styled)(XStack, {
+var SelectIcon = (0, import_core42.styled)(XStack, {
   name: "SelectIcon",
   // @ts-ignore
   "aria-hidden": true,
-  children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Paragraph, {
+  children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(Paragraph, {
     children: "\u25BC"
   })
 });
 var ITEM_INDICATOR_NAME = "SelectItemIndicator";
-var SelectItemIndicatorFrame = (0, import_core44.styled)(XStack, {
+var SelectItemIndicatorFrame = (0, import_core42.styled)(XStack, {
   name: ITEM_TEXT_NAME
 });
-var SelectItemIndicator = React71.forwardRef((props, forwardedRef) => {
+var SelectItemIndicator = React64.forwardRef((props, forwardedRef) => {
   const {
     __scopeSelect,
     ...itemIndicatorProps
   } = props, context = useSelectItemParentContext(ITEM_INDICATOR_NAME, __scopeSelect), itemContext = useSelectItemContext(ITEM_INDICATOR_NAME, __scopeSelect);
-  return context.shouldRenderWebNative ? null : itemContext.isSelected ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectItemIndicatorFrame, {
+  return context.shouldRenderWebNative ? null : itemContext.isSelected ? /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectItemIndicatorFrame, {
     "aria-hidden": true,
     ...itemIndicatorProps,
     ref: forwardedRef
@@ -40155,11 +41067,11 @@ var SelectItemIndicator = React71.forwardRef((props, forwardedRef) => {
 SelectItemIndicator.displayName = ITEM_INDICATOR_NAME;
 var GROUP_NAME3 = "SelectGroup";
 var [SelectGroupContextProvider, useSelectGroupContext] = createSelectContext(GROUP_NAME3);
-var SelectGroupFrame = (0, import_core44.styled)(YStack, {
+var SelectGroupFrame = (0, import_core42.styled)(YStack, {
   name: GROUP_NAME3,
   width: "100%"
 });
-var NativeSelectTextFrame = (0, import_core44.styled)(SizableText, {
+var NativeSelectTextFrame = (0, import_core42.styled)(SizableText, {
   tag: "select",
   backgroundColor: "$background",
   borderColor: "$borderColor",
@@ -40167,7 +41079,7 @@ var NativeSelectTextFrame = (0, import_core44.styled)(SizableText, {
     backgroundColor: "$backgroundHover"
   }
 });
-var NativeSelectFrame = (0, import_core44.styled)(ThemeableStack, {
+var NativeSelectFrame = (0, import_core42.styled)(ThemeableStack, {
   name: "NativeSelect",
   bordered: true,
   userSelect: "none",
@@ -40178,7 +41090,7 @@ var NativeSelectFrame = (0, import_core44.styled)(ThemeableStack, {
       "...size": /* @__PURE__ */ __name((val, extras) => {
         const {
           tokens: tokens2
-        } = extras, paddingHorizontal = (0, import_core44.getVariableValue)(tokens2.space[val]);
+        } = extras, paddingHorizontal = (0, import_core42.getVariableValue)(tokens2.space[val]);
         return {
           borderRadius: tokens2.radius[val] ?? val,
           minHeight: tokens2.size[val],
@@ -40195,20 +41107,20 @@ var NativeSelectFrame = (0, import_core44.styled)(ThemeableStack, {
     size: "$2"
   }
 });
-var SelectGroup = React71.forwardRef((props, forwardedRef) => {
+var SelectGroup = React64.forwardRef((props, forwardedRef) => {
   const {
     __scopeSelect,
     ...groupProps
-  } = props, groupId = React71.useId(), context = useSelectContext(GROUP_NAME3, __scopeSelect), itemParentContext = useSelectItemParentContext(GROUP_NAME3, __scopeSelect), size5 = itemParentContext.size ?? "$true", nativeSelectRef = React71.useRef(null), content = itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(NativeSelectFrame, {
+  } = props, groupId = React64.useId(), context = useSelectContext(GROUP_NAME3, __scopeSelect), itemParentContext = useSelectItemParentContext(GROUP_NAME3, __scopeSelect), size6 = itemParentContext.size ?? "$true", nativeSelectRef = React64.useRef(null), content = itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(NativeSelectFrame, {
     asChild: true,
-    size: size5,
+    size: size6,
     value: context.value,
     id: itemParentContext.id,
-    children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(NativeSelectTextFrame, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(NativeSelectTextFrame, {
       onChange: /* @__PURE__ */ __name((event) => {
         itemParentContext.onChange(event.currentTarget.value);
       }, "onChange"),
-      size: size5,
+      size: size6,
       ref: nativeSelectRef,
       style: {
         color: "var(--color)",
@@ -40217,13 +41129,13 @@ var SelectGroup = React71.forwardRef((props, forwardedRef) => {
       },
       children: props.children
     })
-  }) : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectGroupFrame, {
+  }) : /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectGroupFrame, {
     role: "group",
     "aria-labelledby": groupId,
     ...groupProps,
     ref: forwardedRef
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectGroupContextProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectGroupContextProvider, {
     scope: __scopeSelect,
     id: groupId || "",
     children: content
@@ -40231,12 +41143,12 @@ var SelectGroup = React71.forwardRef((props, forwardedRef) => {
 });
 SelectGroup.displayName = GROUP_NAME3;
 var LABEL_NAME = "SelectLabel";
-var SelectLabel = React71.forwardRef((props, forwardedRef) => {
+var SelectLabel = React64.forwardRef((props, forwardedRef) => {
   const {
     __scopeSelect,
     ...labelProps
   } = props, context = useSelectItemParentContext(LABEL_NAME, __scopeSelect), groupContext = useSelectGroupContext(LABEL_NAME, __scopeSelect);
-  return context.shouldRenderWebNative ? null : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(ListItem2, {
+  return context.shouldRenderWebNative ? null : /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(ListItem2, {
     tag: "div",
     componentName: LABEL_NAME,
     fontWeight: "800",
@@ -40247,12 +41159,12 @@ var SelectLabel = React71.forwardRef((props, forwardedRef) => {
   });
 });
 SelectLabel.displayName = LABEL_NAME;
-var SelectSeparator = (0, import_core44.styled)(Separator, {
+var SelectSeparator = (0, import_core42.styled)(Separator, {
   name: "SelectSeparator"
 });
 var SelectSheetController = /* @__PURE__ */ __name((props) => {
-  const context = useSelectContext("SelectSheetController", props.__scopeSelect), showSheet = useShowSelectSheet(context), breakpointActive = useSelectBreakpointActive(context.sheetBreakpoint), getShowSheet = (0, import_core44.useGet)(showSheet);
-  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SheetController, {
+  const context = useSelectContext("SelectSheetController", props.__scopeSelect), showSheet = useShowSelectSheet(context), breakpointActive = useSelectBreakpointActive(context.sheetBreakpoint), getShowSheet = (0, import_core42.useGet)(showSheet);
+  return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SheetController, {
     onOpenChange: /* @__PURE__ */ __name((val) => {
       getShowSheet() && props.onOpenChange(val);
     }, "onOpenChange"),
@@ -40261,7 +41173,7 @@ var SelectSheetController = /* @__PURE__ */ __name((props) => {
     children: props.children
   });
 }, "SelectSheetController");
-var SelectSheetImpl = /* @__PURE__ */ __name((props) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(import_jsx_runtime57.Fragment, {
+var SelectSheetImpl = /* @__PURE__ */ __name((props) => /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(import_jsx_runtime49.Fragment, {
   children: props.children
 }), "SelectSheetImpl");
 var Select = withStaticProperties((props) => {
@@ -40280,14 +41192,14 @@ var Select = withStaticProperties((props) => {
     onActiveChange,
     dir,
     id
-  } = props, internalId = React71.useId(), scopeKey = __scopeSelect ? Object.keys(__scopeSelect)[0] ?? internalId : internalId, {
+  } = props, internalId = React64.useId(), scopeKey = __scopeSelect ? Object.keys(__scopeSelect)[0] ?? internalId : internalId, {
     when,
     AdaptProvider
   } = useAdaptParent({
-    Contents: React71.useCallback(() => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PortalHost5, {
+    Contents: React64.useCallback(() => /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(PortalHost, {
       name: `${scopeKey}SheetContents`
     }), [scopeKey])
-  }), sheetBreakpoint = when, SelectImpl = useSelectBreakpointActive(sheetBreakpoint) || !isWeb ? SelectSheetImpl : SelectInlineImpl, forceUpdate = React71.useReducer(() => ({}), {})[1], [selectedItem, setSelectedItem] = React71.useState(null), [open, setOpen] = useControllableState({
+  }), sheetBreakpoint = when, SelectImpl = useSelectBreakpointActive(sheetBreakpoint) || !isWeb ? SelectSheetImpl : SelectInlineImpl, forceUpdate = React64.useReducer(() => ({}), {})[1], [selectedItem, setSelectedItem] = React64.useState(null), [open, setOpen] = useControllableState({
     prop: openProp,
     defaultProp: defaultOpen || false,
     onChange: onOpenChange
@@ -40297,39 +41209,39 @@ var Select = withStaticProperties((props) => {
     onChange: onValueChange,
     transition: true
   });
-  React71.useEffect(() => {
+  React64.useEffect(() => {
     open && emitValue(value);
-  }, [open]), React71.useEffect(() => {
+  }, [open]), React64.useEffect(() => {
     emitValue(value);
   }, [value]);
-  const [activeIndex, setActiveIndex] = React71.useState(0), [emitValue, valueSubscribe] = useEmitter(), [emitActiveIndex, activeIndexSubscribe] = useEmitter(), selectedIndexRef = React71.useRef(null), activeIndexRef = React71.useRef(null), listContentRef = React71.useRef([]), [selectedIndex, setSelectedIndex] = React71.useState(0), [valueNode, setValueNode] = React71.useState(null);
+  const [activeIndex, setActiveIndex] = React64.useState(0), [emitValue, valueSubscribe] = useEmitter(), [emitActiveIndex, activeIndexSubscribe] = useEmitter(), selectedIndexRef = React64.useRef(null), activeIndexRef = React64.useRef(null), listContentRef = React64.useRef([]), [selectedIndex, setSelectedIndex] = React64.useState(0), [valueNode, setValueNode] = React64.useState(null);
   useIsomorphicLayoutEffect(() => {
     selectedIndexRef.current = selectedIndex, activeIndexRef.current = activeIndex;
   });
   const shouldRenderWebNative = isWeb && (native === true || native === "web" || Array.isArray(native) && native.includes("web")), setActiveIndexDebounced = useDebounce((index3) => {
     setActiveIndex((prev) => prev !== index3 ? (typeof index3 == "number" && emitActiveIndex(index3), index3) : prev);
   }, 1, {}, []);
-  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(AdaptProvider, {
-    children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectItemParentProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(AdaptProvider, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectItemParentProvider, {
       scope: __scopeSelect,
-      initialValue: React71.useMemo(() => value, [open]),
+      initialValue: React64.useMemo(() => value, [open]),
       size: sizeProp,
       activeIndexSubscribe,
       valueSubscribe,
       setOpen,
       id,
-      onChange: React71.useCallback((val) => {
+      onChange: React64.useCallback((val) => {
         setValue(val), emitValue(val);
       }, []),
-      onActiveChange: (0, import_core44.useEvent)((...args) => {
+      onActiveChange: (0, import_core42.useEvent)((...args) => {
         onActiveChange == null ? void 0 : onActiveChange(...args);
       }),
       setSelectedIndex,
-      setValueAtIndex: React71.useCallback((index3, value2) => {
+      setValueAtIndex: React64.useCallback((index3, value2) => {
         listContentRef.current[index3] = value2;
       }, []),
       shouldRenderWebNative,
-      children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectProvider, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectProvider, {
         scope: __scopeSelect,
         disablePreventBodyScroll,
         dir,
@@ -40348,10 +41260,10 @@ var Select = withStaticProperties((props) => {
         value,
         open,
         native,
-        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectSheetController, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectSheetController, {
           onOpenChange: setOpen,
           __scopeSelect,
-          children: shouldRenderWebNative ? children : /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(SelectImpl, {
+          children: shouldRenderWebNative ? children : /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(SelectImpl, {
             activeIndexRef,
             listContentRef,
             selectedIndexRef,
@@ -40381,11 +41293,11 @@ var Select = withStaticProperties((props) => {
   Sheet: Sheet.Controlled
 });
 function useEmitter() {
-  const listeners = React71.useRef();
+  const listeners = React64.useRef();
   listeners.current || (listeners.current = /* @__PURE__ */ new Set());
   const emit = /* @__PURE__ */ __name((value) => {
     listeners.current.forEach((l) => l(value));
-  }, "emit"), subscribe2 = React71.useCallback((listener) => (listeners.current.add(listener), () => {
+  }, "emit"), subscribe2 = React64.useCallback((listener) => (listeners.current.add(listener), () => {
     listeners.current.delete(listener);
   }), []);
   return [emit, subscribe2];
@@ -40394,12 +41306,12 @@ __name(useEmitter, "useEmitter");
 Select.displayName = SELECT_NAME;
 
 // node_modules/@tamagui/slider/dist/esm/Slider.mjs
-init_esm6();
-var import_core46 = require("@tamagui/core");
+init_esm();
+var import_core44 = require("@tamagui/core");
 init_esm7();
 init_esm7();
 init_esm10();
-var React73 = __toESM(require("react"), 1);
+var React66 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/slider/dist/esm/constants.mjs
 var SLIDER_NAME = "Slider";
@@ -40476,12 +41388,12 @@ function roundValue(value, decimalCount) {
 __name(roundValue, "roundValue");
 
 // node_modules/@tamagui/slider/dist/esm/SliderImpl.mjs
-init_esm6();
-var import_core45 = require("@tamagui/core");
+init_esm();
+var import_core43 = require("@tamagui/core");
 init_esm7();
-var React72 = __toESM(require("react"), 1);
-var import_jsx_runtime58 = require("react/jsx-runtime");
-var SliderFrame = (0, import_core45.styled)(YStack, {
+var React65 = __toESM(require("react"), 1);
+var import_jsx_runtime50 = require("react/jsx-runtime");
+var SliderFrame = (0, import_core43.styled)(YStack, {
   position: "relative",
   variants: {
     orientation: {
@@ -40490,20 +41402,20 @@ var SliderFrame = (0, import_core45.styled)(YStack, {
     },
     size: /* @__PURE__ */ __name((val, extras) => {
       if (!val) return;
-      const orientation = extras.props.orientation, size5 = Math.round((0, import_core45.getVariableValue)(getSize(val)) / 6);
+      const orientation = extras.props.orientation, size6 = Math.round((0, import_core43.getVariableValue)(getSize(val)) / 6);
       return orientation === "horizontal" ? {
-        height: size5,
-        borderRadius: size5,
+        height: size6,
+        borderRadius: size6,
         justifyContent: "center"
       } : {
-        width: size5,
-        borderRadius: size5,
+        width: size6,
+        borderRadius: size6,
         alignItems: "center"
       };
     }, "size")
   }
 });
-var SliderImpl = React72.forwardRef((props, forwardedRef) => {
+var SliderImpl = React65.forwardRef((props, forwardedRef) => {
   const {
     __scopeSlider,
     onSlideStart,
@@ -40514,7 +41426,7 @@ var SliderImpl = React72.forwardRef((props, forwardedRef) => {
     onStepKeyDown,
     ...sliderProps
   } = props, context = useSliderContext(SLIDER_NAME, __scopeSlider);
-  return /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(SliderFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime50.jsx)(SliderFrame, {
     size: "$4",
     ...sliderProps,
     "data-orientation": sliderProps.orientation,
@@ -40544,7 +41456,7 @@ var SliderImpl = React72.forwardRef((props, forwardedRef) => {
 });
 
 // node_modules/@tamagui/slider/dist/esm/Slider.mjs
-var import_jsx_runtime59 = require("react/jsx-runtime");
+var import_jsx_runtime51 = require("react/jsx-runtime");
 var activeSliderMeasureListeners = /* @__PURE__ */ new Set();
 isWeb && isClient && (process.env.TAMAGUI_DISABLE_SLIDER_INTERVAL || (setInterval == null ? void 0 : setInterval(
   () => {
@@ -40553,7 +41465,7 @@ isWeb && isClient && (process.env.TAMAGUI_DISABLE_SLIDER_INTERVAL || (setInterva
   // really doesn't need to be super often
   1e3
 )));
-var SliderHorizontal = React73.forwardRef((props, forwardedRef) => {
+var SliderHorizontal = React66.forwardRef((props, forwardedRef) => {
   const {
     min: min2,
     max: max2,
@@ -40563,10 +41475,10 @@ var SliderHorizontal = React73.forwardRef((props, forwardedRef) => {
     onStepKeyDown,
     onSlideEnd,
     ...sliderProps
-  } = props, direction = useDirection(dir), isDirectionLTR = direction === "ltr", sliderRef = React73.useRef(null), [state, setState_] = React73.useState(() => ({
+  } = props, direction = useDirection(dir), isDirectionLTR = direction === "ltr", sliderRef = React66.useRef(null), [state, setState_] = React66.useState(() => ({
     size: 0,
     offset: 0
-  })), setState = (0, import_core46.createShallowSetState)(setState_);
+  })), setState = (0, import_core44.createShallowSetState)(setState_);
   function getValueFromPointer(pointerPosition) {
     const input = [0, state.size];
     return linearScale(input, isDirectionLTR ? [min2, max2] : [max2, min2])(pointerPosition);
@@ -40581,7 +41493,7 @@ var SliderHorizontal = React73.forwardRef((props, forwardedRef) => {
       });
     });
   }, "measure");
-  return isClient && (useOnDebouncedWindowResize(measure), React73.useEffect(() => {
+  return isClient && (useOnDebouncedWindowResize(measure), React66.useEffect(() => {
     const node = sliderRef.current;
     if (!node) return;
     let measureTm;
@@ -40600,14 +41512,14 @@ var SliderHorizontal = React73.forwardRef((props, forwardedRef) => {
     return io.observe(node), () => {
       activeSliderMeasureListeners.delete(debouncedMeasure), io.disconnect();
     };
-  }, [])), /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderOrientationProvider, {
+  }, [])), /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderOrientationProvider, {
     scope: props.__scopeSlider,
     startEdge: isDirectionLTR ? "left" : "right",
     endEdge: isDirectionLTR ? "right" : "left",
     direction: isDirectionLTR ? 1 : -1,
     sizeProp: "width",
     size: state.size,
-    children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderImpl, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderImpl, {
       ref: composeRefs(forwardedRef, sliderRef),
       dir: direction,
       ...sliderProps,
@@ -40636,7 +41548,7 @@ var SliderHorizontal = React73.forwardRef((props, forwardedRef) => {
   });
 });
 function useOnDebouncedWindowResize(callback, amt = 200) {
-  React73.useEffect(() => {
+  React66.useEffect(() => {
     let last;
     const onResize = /* @__PURE__ */ __name(() => {
       clearTimeout(last), last = setTimeout(callback, amt);
@@ -40647,7 +41559,7 @@ function useOnDebouncedWindowResize(callback, amt = 200) {
   }, []);
 }
 __name(useOnDebouncedWindowResize, "useOnDebouncedWindowResize");
-var SliderVertical = React73.forwardRef((props, forwardedRef) => {
+var SliderVertical = React66.forwardRef((props, forwardedRef) => {
   const {
     min: min2,
     max: max2,
@@ -40656,10 +41568,10 @@ var SliderVertical = React73.forwardRef((props, forwardedRef) => {
     onStepKeyDown,
     onSlideEnd,
     ...sliderProps
-  } = props, [state, setState_] = React73.useState(() => ({
+  } = props, [state, setState_] = React66.useState(() => ({
     size: 0,
     offset: 0
-  })), setState = (0, import_core46.createShallowSetState)(setState_), sliderRef = React73.useRef(null);
+  })), setState = (0, import_core44.createShallowSetState)(setState_), sliderRef = React66.useRef(null);
   function getValueFromPointer(pointerPosition) {
     const input = [0, state.size];
     return linearScale(input, [max2, min2])(pointerPosition);
@@ -40674,14 +41586,14 @@ var SliderVertical = React73.forwardRef((props, forwardedRef) => {
       });
     });
   }, "measure");
-  return isClient && useOnDebouncedWindowResize(measure), /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderOrientationProvider, {
+  return isClient && useOnDebouncedWindowResize(measure), /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderOrientationProvider, {
     scope: props.__scopeSlider,
     startEdge: "bottom",
     endEdge: "top",
     sizeProp: "height",
     size: state.size,
     direction: 1,
-    children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderImpl, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderImpl, {
       ref: composeRefs(forwardedRef, sliderRef),
       ...sliderProps,
       orientation: "vertical",
@@ -40709,7 +41621,7 @@ var SliderVertical = React73.forwardRef((props, forwardedRef) => {
   });
 });
 var TRACK_NAME = "SliderTrack";
-var SliderTrackFrame = (0, import_core46.styled)(SliderFrame, {
+var SliderTrackFrame = (0, import_core44.styled)(SliderFrame, {
   name: "SliderTrack",
   variants: {
     unstyled: {
@@ -40727,12 +41639,12 @@ var SliderTrackFrame = (0, import_core46.styled)(SliderFrame, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var SliderTrack = React73.forwardRef((props, forwardedRef) => {
+var SliderTrack = React66.forwardRef((props, forwardedRef) => {
   const {
     __scopeSlider,
     ...trackProps
   } = props, context = useSliderContext(TRACK_NAME, __scopeSlider);
-  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderTrackFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderTrackFrame, {
     "data-disabled": context.disabled ? "" : void 0,
     "data-orientation": context.orientation,
     orientation: context.orientation,
@@ -40743,17 +41655,17 @@ var SliderTrack = React73.forwardRef((props, forwardedRef) => {
 });
 SliderTrack.displayName = TRACK_NAME;
 var RANGE_NAME = "SliderTrackActive";
-var SliderTrackActiveFrame = (0, import_core46.styled)(SliderFrame, {
+var SliderTrackActiveFrame = (0, import_core44.styled)(SliderFrame, {
   name: "SliderTrackActive",
   backgroundColor: "$background",
   position: "absolute"
 });
-var SliderTrackActive = React73.forwardRef((props, forwardedRef) => {
+var SliderTrackActive = React66.forwardRef((props, forwardedRef) => {
   const {
     __scopeSlider,
     ...rangeProps
-  } = props, context = useSliderContext(RANGE_NAME, __scopeSlider), orientation = useSliderOrientationContext(RANGE_NAME, __scopeSlider), ref = React73.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), valuesCount = context.values.length, percentages = context.values.map((value) => convertValueToPercentage(value, context.min, context.max)), offsetStart = valuesCount > 1 ? Math.min(...percentages) : 0, offsetEnd = 100 - Math.max(...percentages);
-  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderTrackActiveFrame, {
+  } = props, context = useSliderContext(RANGE_NAME, __scopeSlider), orientation = useSliderOrientationContext(RANGE_NAME, __scopeSlider), ref = React66.useRef(null), composedRefs = useComposedRefs(forwardedRef, ref), valuesCount = context.values.length, percentages = context.values.map((value) => convertValueToPercentage(value, context.min, context.max)), offsetStart = valuesCount > 1 ? Math.min(...percentages) : 0, offsetEnd = 100 - Math.max(...percentages);
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderTrackActiveFrame, {
     orientation: context.orientation,
     "data-orientation": context.orientation,
     "data-disabled": context.disabled ? "" : void 0,
@@ -40774,17 +41686,17 @@ var SliderTrackActive = React73.forwardRef((props, forwardedRef) => {
 SliderTrackActive.displayName = RANGE_NAME;
 var THUMB_NAME = "SliderThumb";
 var getThumbSize = /* @__PURE__ */ __name((val) => {
-  const tokens2 = (0, import_core46.getTokens)(), size5 = typeof val == "number" ? val : getSize(tokens2.size[val], {
+  const tokens2 = (0, import_core44.getTokens)(), size6 = typeof val == "number" ? val : getSize(tokens2.size[val], {
     shift: -1
   });
   return {
-    width: size5,
-    height: size5,
-    minWidth: size5,
-    minHeight: size5
+    width: size6,
+    height: size6,
+    minWidth: size6,
+    minHeight: size6
   };
 }, "getThumbSize");
-var SliderThumbFrame = (0, import_core46.styled)(ThemeableStack, {
+var SliderThumbFrame = (0, import_core44.styled)(ThemeableStack, {
   name: "SliderThumb",
   variants: {
     size: {
@@ -40806,36 +41718,36 @@ var SliderThumbFrame = (0, import_core46.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var SliderThumb = React73.memo(SliderThumbFrame.styleable(function(props, forwardedRef) {
+var SliderThumb = React66.memo(SliderThumbFrame.styleable(function(props, forwardedRef) {
   const {
     __scopeSlider,
     index: index3,
     size: sizeProp,
     ...thumbProps
-  } = props, context = useSliderContext(THUMB_NAME, __scopeSlider), orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider), [thumb, setThumb] = React73.useState(null), composedRefs = useComposedRefs(forwardedRef, setThumb), value = context.values[index3], percent = value === void 0 ? 0 : convertValueToPercentage(value, context.min, context.max), label = getLabel(index3, context.values.length), sizeIn = sizeProp ?? context.size ?? "$true", [size5, setSize] = React73.useState(() => (0, import_core46.getVariableValue)(getThumbSize(sizeIn).width)), thumbInBoundsOffset = size5 ? getThumbInBoundsOffset(size5, percent, orientation.direction) : 0;
-  React73.useEffect(() => {
+  } = props, context = useSliderContext(THUMB_NAME, __scopeSlider), orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider), [thumb, setThumb] = React66.useState(null), composedRefs = useComposedRefs(forwardedRef, setThumb), value = context.values[index3], percent = value === void 0 ? 0 : convertValueToPercentage(value, context.min, context.max), label = getLabel(index3, context.values.length), sizeIn = sizeProp ?? context.size ?? "$true", [size6, setSize] = React66.useState(() => (0, import_core44.getVariableValue)(getThumbSize(sizeIn).width)), thumbInBoundsOffset = size6 ? getThumbInBoundsOffset(size6, percent, orientation.direction) : 0;
+  React66.useEffect(() => {
     if (thumb) return context.thumbs.set(thumb, index3), () => {
       context.thumbs.delete(thumb);
     };
   }, [thumb, context.thumbs, index3]);
   const positionalStyles = context.orientation === "horizontal" ? {
-    x: thumbInBoundsOffset - size5 / 2,
-    y: -size5 / 2,
+    x: thumbInBoundsOffset - size6 / 2,
+    y: -size6 / 2,
     top: "50%",
-    ...size5 === 0 && {
+    ...size6 === 0 && {
       top: "auto",
       bottom: "auto"
     }
   } : {
-    x: -size5 / 2,
-    y: size5 / 2,
+    x: -size6 / 2,
+    y: size6 / 2,
     left: "50%",
-    ...size5 === 0 && {
+    ...size6 === 0 && {
       left: "auto",
       right: "auto"
     }
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderThumbFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderThumbFrame, {
     ref: composedRefs,
     role: "slider",
     "aria-label": props["aria-label"] || label,
@@ -40859,7 +41771,7 @@ var SliderThumb = React73.memo(SliderThumbFrame.styleable(function(props, forwar
     })
   });
 }));
-var SliderComponent = React73.forwardRef((props, forwardedRef) => {
+var SliderComponent = React66.forwardRef((props, forwardedRef) => {
   const {
     name,
     min: min2 = 0,
@@ -40877,7 +41789,7 @@ var SliderComponent = React73.forwardRef((props, forwardedRef) => {
     onSlideMove,
     onSlideStart,
     ...sliderProps
-  } = props, sliderRef = React73.useRef(null), composedRefs = useComposedRefs(sliderRef, forwardedRef), thumbRefs = React73.useRef(/* @__PURE__ */ new Map()), valueIndexToChangeRef = React73.useRef(0), isHorizontal = orientation === "horizontal", [values = [], setValues] = useControllableState({
+  } = props, sliderRef = React66.useRef(null), composedRefs = useComposedRefs(sliderRef, forwardedRef), thumbRefs = React66.useRef(/* @__PURE__ */ new Map()), valueIndexToChangeRef = React66.useRef(0), isHorizontal = orientation === "horizontal", [values = [], setValues] = useControllableState({
     prop: value,
     defaultProp: defaultValue2,
     transition: true,
@@ -40885,7 +41797,7 @@ var SliderComponent = React73.forwardRef((props, forwardedRef) => {
       updateThumbFocus(valueIndexToChangeRef.current), onValueChange(value2);
     }, "onChange")
   });
-  isWeb && React73.useEffect(() => {
+  isWeb && React66.useEffect(() => {
     const node = sliderRef.current;
     if (!node) return;
     const preventDefault = /* @__PURE__ */ __name((e) => {
@@ -40917,7 +41829,7 @@ var SliderComponent = React73.forwardRef((props, forwardedRef) => {
   }
   __name(updateValues, "updateValues");
   const SliderOriented = isHorizontal ? SliderHorizontal : SliderVertical;
-  return /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderProvider, {
     scope: props.__scopeSlider,
     disabled,
     min: min2,
@@ -40927,7 +41839,7 @@ var SliderComponent = React73.forwardRef((props, forwardedRef) => {
     values,
     orientation,
     size: sizeProp,
-    children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(SliderOriented, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime51.jsx)(SliderOriented, {
       "aria-disabled": disabled,
       "data-disabled": disabled ? "" : void 0,
       ...sliderProps,
@@ -40968,13 +41880,13 @@ var Range = SliderTrackActive;
 var Thumb = SliderThumb;
 
 // node_modules/@tamagui/switch/dist/esm/createSwitch.mjs
-var import_core49 = require("@tamagui/core");
+var import_core47 = require("@tamagui/core");
 
 // node_modules/@tamagui/switch-headless/dist/esm/useSwitch.mjs
-init_esm6();
+init_esm();
 init_esm7();
-var React74 = __toESM(require("react"), 1);
-var import_jsx_runtime60 = require("react/jsx-runtime");
+var React67 = __toESM(require("react"), 1);
+var import_jsx_runtime52 = require("react/jsx-runtime");
 function getState6(checked) {
   return checked ? "checked" : "unchecked";
 }
@@ -40985,8 +41897,8 @@ var BubbleInput3 = /* @__PURE__ */ __name((props) => {
     checked,
     bubbles = true,
     ...inputProps
-  } = props, ref = React74.useRef(null), prevChecked = usePrevious(checked);
-  return React74.useEffect(() => {
+  } = props, ref = React67.useRef(null), prevChecked = usePrevious(checked);
+  return React67.useEffect(() => {
     const input = ref.current, inputProto = window.HTMLInputElement.prototype, setChecked = Object.getOwnPropertyDescriptor(inputProto, "checked").set;
     if (prevChecked !== checked && setChecked) {
       const event = new Event("click", {
@@ -40995,7 +41907,7 @@ var BubbleInput3 = /* @__PURE__ */ __name((props) => {
       setChecked.call(input, checked), input.dispatchEvent(event);
     }
   }, [prevChecked, checked, bubbles]), // @ts-ignore
-  /* @__PURE__ */ (0, import_jsx_runtime60.jsx)("input", {
+  /* @__PURE__ */ (0, import_jsx_runtime52.jsx)("input", {
     type: "checkbox",
     "aria-hidden": true,
     defaultChecked: checked,
@@ -41017,7 +41929,7 @@ function useSwitch(props, [checked, setChecked], ref) {
     name,
     value,
     required
-  } = props, hasConsumerStoppedPropagationRef = React74.useRef(false), [button, setButton] = React74.useState(null), composedRefs = useComposedRefs(ref, setButton), isFormControl = isWeb ? button ? !!button.closest("form") : true : false, labelId = useLabelContext(button), ariaLabelledBy = props["aria-labelledby"] || props.labeledBy || labelId;
+  } = props, hasConsumerStoppedPropagationRef = React67.useRef(false), [button, setButton] = React67.useState(null), composedRefs = useComposedRefs(ref, setButton), isFormControl = isWeb ? button ? !!button.closest("form") : true : false, labelId = useLabelContext(button), ariaLabelledBy = props["aria-labelledby"] || props.labeledBy || labelId;
   return {
     switchProps: {
       role: "switch",
@@ -41038,7 +41950,7 @@ function useSwitch(props, [checked, setChecked], ref) {
     /**
      * insert as a sibling of your switch (should not be inside the switch)
      */
-    bubbleInput: isWeb && isFormControl ? /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(BubbleInput3, {
+    bubbleInput: isWeb && isFormControl ? /* @__PURE__ */ (0, import_jsx_runtime52.jsx)(BubbleInput3, {
       control: button,
       bubbles: !hasConsumerStoppedPropagationRef.current,
       name,
@@ -41056,19 +41968,19 @@ __name(useSwitch, "useSwitch");
 
 // node_modules/@tamagui/switch/dist/esm/createSwitch.mjs
 init_esm10();
-var React75 = __toESM(require("react"), 1);
+var React68 = __toESM(require("react"), 1);
 var import_react_native_web8 = __toESM(require_cjs16(), 1);
 
 // node_modules/@tamagui/switch/dist/esm/StyledContext.mjs
-var import_core47 = require("@tamagui/core");
-var SwitchStyledContext = (0, import_core47.createStyledContext)({
+var import_core45 = require("@tamagui/core");
+var SwitchStyledContext = (0, import_core45.createStyledContext)({
   size: void 0,
   unstyled: process.env.TAMAGUI_HEADLESS === "1"
 });
 
 // node_modules/@tamagui/switch/dist/esm/Switch.mjs
-var import_core48 = require("@tamagui/core");
-var SwitchThumb = (0, import_core48.styled)(ThemeableStack, {
+var import_core46 = require("@tamagui/core");
+var SwitchThumb = (0, import_core46.styled)(ThemeableStack, {
   name: "SwitchThumb",
   variants: {
     unstyled: {
@@ -41083,10 +41995,10 @@ var SwitchThumb = (0, import_core48.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val) => {
-        const size5 = getSwitchHeight(val);
+        const size6 = getSwitchHeight(val);
         return {
-          height: size5,
-          width: size5
+          height: size6,
+          width: size6
         };
       }, "...size")
     }
@@ -41095,9 +42007,9 @@ var SwitchThumb = (0, import_core48.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var getSwitchHeight = /* @__PURE__ */ __name((val) => Math.round((0, import_core48.getVariableValue)(getSize(val)) * 0.65), "getSwitchHeight");
+var getSwitchHeight = /* @__PURE__ */ __name((val) => Math.round((0, import_core46.getVariableValue)(getSize(val)) * 0.65), "getSwitchHeight");
 var getSwitchWidth = /* @__PURE__ */ __name((val) => getSwitchHeight(val) * 2, "getSwitchWidth");
-var SwitchFrame = (0, import_core48.styled)(YStack, {
+var SwitchFrame = (0, import_core46.styled)(YStack, {
   name: "Switch",
   tag: "button",
   tabIndex: 0,
@@ -41135,8 +42047,8 @@ var SwitchFrame = (0, import_core48.styled)(YStack, {
 });
 
 // node_modules/@tamagui/switch/dist/esm/createSwitch.mjs
-var import_jsx_runtime61 = require("react/jsx-runtime");
-var SwitchContext = React75.createContext({
+var import_jsx_runtime53 = require("react/jsx-runtime");
+var SwitchContext = React68.createContext({
   checked: false,
   disabled: false,
   frameWidth: 0
@@ -41154,26 +42066,26 @@ function createSwitch(createProps) {
       unstyled: unstyledProp,
       nativeID,
       ...thumbProps
-    } = props, context = React75.useContext(SwitchContext), {
+    } = props, context = React68.useContext(SwitchContext), {
       checked,
       disabled,
       frameWidth
     } = context, styledContext = SwitchStyledContext.useStyledContext(), {
       unstyled: unstyledContext,
       size: sizeContext
-    } = styledContext, unstyled = process.env.TAMAGUI_HEADLESS === "1" ? true : unstyledProp ?? unstyledContext ?? false, size5 = sizeProp ?? sizeContext ?? "$true", initialChecked = React75.useRef(checked).current, [thumbWidth, setThumbWidth] = React75.useState(0), distance = frameWidth - thumbWidth, x = initialChecked ? checked ? 0 : -distance : checked ? distance : 0;
-    return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(Thumb2, {
+    } = styledContext, unstyled = process.env.TAMAGUI_HEADLESS === "1" ? true : unstyledProp ?? unstyledContext ?? false, size6 = sizeProp ?? sizeContext ?? "$true", initialChecked = React68.useRef(checked).current, [thumbWidth, setThumbWidth] = React68.useState(0), distance = frameWidth - thumbWidth, x = initialChecked ? checked ? 0 : -distance : checked ? distance : 0;
+    return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(Thumb2, {
       ref: forwardedRef,
       unstyled,
       ...unstyled === false && {
-        size: size5,
+        size: size6,
         ...!disableActiveTheme && {
           theme: checked ? "active" : null
         }
       },
       alignSelf: initialChecked ? "flex-end" : "flex-start",
       x,
-      onLayout: (0, import_core49.composeEventHandlers)(props.onLayout, (e) => setThumbWidth(e.nativeEvent.layout.width)),
+      onLayout: (0, import_core47.composeEventHandlers)(props.onLayout, (e) => setThumbWidth(e.nativeEvent.layout.width)),
       checked,
       disabled,
       ...thumbProps
@@ -41191,7 +42103,7 @@ function createSwitch(createProps) {
       defaultProp: defaultChecked || false,
       onChange: onCheckedChange,
       transition: true
-    }), styledContext = React75.useContext(SwitchStyledContext.context), [frameWidth, setFrameWidth] = React75.useState(0), propsActive = (0, import_core49.useProps)(props, {
+    }), styledContext = React68.useContext(SwitchStyledContext.context), [frameWidth, setFrameWidth] = React68.useState(0), propsActive = (0, import_core47.useProps)(props, {
       noNormalize: true,
       noExpand: true,
       resolveValues: "none",
@@ -41208,21 +42120,21 @@ function createSwitch(createProps) {
       }, propsActive),
       [checked, setChecked],
       forwardedRef
-    ), renderNative = (0, import_core49.shouldRenderNativePlatform)(native);
-    return renderNative === "android" || renderNative === "ios" ? /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(import_react_native_web8.Switch, {
+    ), renderNative = (0, import_core47.shouldRenderNativePlatform)(native);
+    return renderNative === "android" || renderNative === "ios" ? /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(import_react_native_web8.Switch, {
       value: checked,
       onValueChange: setChecked,
       ...nativeProps
-    }) : /* @__PURE__ */ (0, import_jsx_runtime61.jsxs)(SwitchContext.Provider, {
+    }) : /* @__PURE__ */ (0, import_jsx_runtime53.jsxs)(SwitchContext.Provider, {
       value: {
         checked,
         disabled: switchProps.disabled,
         frameWidth
       },
-      children: [/* @__PURE__ */ (0, import_jsx_runtime61.jsx)(Frame2, {
+      children: [/* @__PURE__ */ (0, import_jsx_runtime53.jsx)(Frame2, {
         ref: switchRef,
         tag: "button",
-        ...import_core49.isWeb && {
+        ...import_core47.isWeb && {
           type: "button"
         },
         ...switchProps,
@@ -41232,7 +42144,7 @@ function createSwitch(createProps) {
         },
         checked,
         disabled: switchProps.disabled,
-        children: /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(import_core49.Stack, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(import_core47.Stack, {
           alignSelf: "stretch",
           flex: 1,
           onLayout: /* @__PURE__ */ __name((e) => {
@@ -41245,7 +42157,7 @@ function createSwitch(createProps) {
   }, {
     disableTheme: true
   });
-  return (0, import_core49.withStaticProperties)(SwitchComponent, {
+  return (0, import_core47.withStaticProperties)(SwitchComponent, {
     Thumb: SwitchThumbComponent
   });
 }
@@ -41258,28 +42170,28 @@ var Switch = createSwitch({
 });
 
 // node_modules/@tamagui/tabs/dist/esm/Tabs.mjs
-init_esm6();
+init_esm();
 init_esm7();
 init_esm10();
-var import_web16 = require("@tamagui/core");
-var React76 = __toESM(require("react"), 1);
-var import_jsx_runtime62 = require("react/jsx-runtime");
+var import_web19 = require("@tamagui/core");
+var React69 = __toESM(require("react"), 1);
+var import_jsx_runtime54 = require("react/jsx-runtime");
 var TABS_CONTEXT = "TabsContext";
 var TAB_LIST_NAME = "TabsList";
-var TabsList = React76.forwardRef((props, forwardedRef) => {
+var TabsList = React69.forwardRef((props, forwardedRef) => {
   const {
     __scopeTabs,
     loop = true,
     children,
     ...listProps
   } = props, context = useTabsContext(__scopeTabs);
-  return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(RovingFocusGroup, {
+  return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(RovingFocusGroup, {
     __scopeRovingFocusGroup: __scopeTabs || TABS_CONTEXT,
     orientation: context.orientation,
     dir: context.dir,
     loop,
     asChild: true,
-    children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(Group, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(Group, {
       role: "tablist",
       componentName: TAB_LIST_NAME,
       "aria-orientation": context.orientation,
@@ -41292,7 +42204,7 @@ var TabsList = React76.forwardRef((props, forwardedRef) => {
 });
 TabsList.displayName = TAB_LIST_NAME;
 var TRIGGER_NAME6 = "TabsTrigger";
-var TabsTriggerFrame = (0, import_web16.styled)(ThemeableStack, {
+var TabsTriggerFrame = (0, import_web19.styled)(ThemeableStack, {
   name: TRIGGER_NAME6,
   tag: "button",
   justifyContent: "center",
@@ -41347,10 +42259,10 @@ var TabsTrigger = TabsTriggerFrame.styleable((props, forwardedRef) => {
     onInteraction,
     disableActiveTheme,
     ...triggerProps
-  } = props, context = useTabsContext(__scopeTabs), triggerId = makeTriggerId(context.baseId, value), contentId = makeContentId(context.baseId, value), isSelected = value === context.value, [layout, setLayout] = React76.useState(null), triggerRef = React76.useRef(null), groupItemProps = useGroupItem({
+  } = props, context = useTabsContext(__scopeTabs), triggerId = makeTriggerId(context.baseId, value), contentId = makeContentId(context.baseId, value), isSelected = value === context.value, [layout, setLayout] = React69.useState(null), triggerRef = React69.useRef(null), groupItemProps = useGroupItem({
     disabled: !!disabled
   });
-  return React76.useEffect(() => (context.registerTrigger(), () => context.unregisterTrigger()), []), React76.useEffect(() => {
+  return React69.useEffect(() => (context.registerTrigger(), () => context.unregisterTrigger()), []), React69.useEffect(() => {
     if (!triggerRef.current || !isWeb) return;
     function getTriggerSize() {
       triggerRef.current && setLayout({
@@ -41366,16 +42278,16 @@ var TabsTrigger = TabsTriggerFrame.styleable((props, forwardedRef) => {
     return observer.observe(triggerRef.current), () => {
       triggerRef.current && observer.unobserve(triggerRef.current);
     };
-  }, [context.triggersCount]), React76.useEffect(() => {
+  }, [context.triggersCount]), React69.useEffect(() => {
     isSelected && layout && (onInteraction == null ? void 0 : onInteraction("select", layout));
-  }, [isSelected, value, layout]), /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(import_web16.Theme, {
+  }, [isSelected, value, layout]), /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(import_web19.Theme, {
     name: isSelected && !disableActiveTheme ? "active" : null,
-    children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(RovingFocusGroup.Item, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(RovingFocusGroup.Item, {
       __scopeRovingFocusGroup: __scopeTabs || TABS_CONTEXT,
       asChild: true,
       focusable: !disabled,
       active: isSelected,
-      children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(TabsTriggerFrame, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(TabsTriggerFrame, {
         onLayout: /* @__PURE__ */ __name((event) => {
           isWeb || setLayout(event.nativeEvent.layout);
         }, "onLayout"),
@@ -41422,7 +42334,7 @@ var TabsTrigger = TabsTriggerFrame.styleable((props, forwardedRef) => {
 });
 TabsTrigger.displayName = TRIGGER_NAME6;
 var CONTENT_NAME5 = "TabsContent";
-var TabsContentFrame = (0, import_web16.styled)(ThemeableStack, {
+var TabsContentFrame = (0, import_web19.styled)(ThemeableStack, {
   name: CONTENT_NAME5
 });
 var TabsContent = TabsContentFrame.styleable(function(props, forwardedRef) {
@@ -41433,7 +42345,7 @@ var TabsContent = TabsContentFrame.styleable(function(props, forwardedRef) {
     children,
     ...contentProps
   } = props, context = useTabsContext(__scopeTabs), isSelected = value === context.value, show = forceMount || isSelected, triggerId = makeTriggerId(context.baseId, value), contentId = makeContentId(context.baseId, value);
-  return show ? /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(TabsContentFrame, {
+  return show ? /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(TabsContentFrame, {
     "data-state": isSelected ? "active" : "inactive",
     "data-orientation": context.orientation,
     role: "tabpanel",
@@ -41450,8 +42362,8 @@ var TABS_NAME = "Tabs";
 var {
   Provider: TabsProvider,
   useStyledContext: useTabsContext
-} = (0, import_web16.createStyledContext)();
-var TabsFrame = (0, import_web16.styled)(SizableStack, {
+} = (0, import_web19.createStyledContext)();
+var TabsFrame = (0, import_web19.styled)(SizableStack, {
   name: TABS_NAME
 });
 var TabsComponent = TabsFrame.styleable((props, forwardedRef) => {
@@ -41463,26 +42375,26 @@ var TabsComponent = TabsFrame.styleable((props, forwardedRef) => {
     orientation = "horizontal",
     dir,
     activationMode = "automatic",
-    size: size5 = "$true",
+    size: size6 = "$true",
     ...tabsProps
   } = props, direction = useDirection(dir), [value, setValue] = useControllableState({
     prop: valueProp,
     onChange: onValueChange,
     defaultProp: defaultValue2 ?? ""
-  }), [triggersCount, setTriggersCount] = React76.useState(0), registerTrigger = (0, import_web16.useEvent)(() => setTriggersCount((v) => v + 1)), unregisterTrigger = (0, import_web16.useEvent)(() => setTriggersCount((v) => v - 1));
-  return /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(TabsProvider, {
+  }), [triggersCount, setTriggersCount] = React69.useState(0), registerTrigger = (0, import_web19.useEvent)(() => setTriggersCount((v) => v + 1)), unregisterTrigger = (0, import_web19.useEvent)(() => setTriggersCount((v) => v - 1));
+  return /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(TabsProvider, {
     scope: __scopeTabs,
-    baseId: React76.useId(),
+    baseId: React69.useId(),
     value,
     onChange: setValue,
     orientation,
     dir: direction,
     activationMode,
-    size: size5,
+    size: size6,
     registerTrigger,
     triggersCount,
     unregisterTrigger,
-    children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(TabsFrame, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime54.jsx)(TabsFrame, {
       direction,
       "data-orientation": orientation,
       ...tabsProps,
@@ -41510,17 +42422,17 @@ function makeContentId(baseId, value) {
 __name(makeContentId, "makeContentId");
 
 // node_modules/@tamagui/theme/dist/esm/_mutateTheme.js
-init_esm6();
-var import_web17 = require("@tamagui/core");
+init_esm();
+var import_web20 = require("@tamagui/core");
 init_esm9();
 function mutateThemes({
-  themes,
+  themes: themes3,
   batch,
   insertCSS = true,
   ...props
 }) {
   const allThemesProxied = {}, allThemesRaw = {};
-  for (const { name, theme } of themes) {
+  for (const { name, theme } of themes3) {
     const res = _mutateTheme({
       ...props,
       name,
@@ -41550,23 +42462,23 @@ function _mutateTheme(props) {
     process.env.NODE_ENV === "development" && console.warn("Theme mutation is not supported on server side");
     return;
   }
-  const config = (0, import_web17.getConfig)(), { name: themeName, theme: themeIn, insertCSS, mutationType } = props;
+  const config2 = (0, import_web20.getConfig)(), { name: themeName, theme: themeIn, insertCSS, mutationType } = props;
   if (process.env.NODE_ENV === "development") {
-    if (!config)
+    if (!config2)
       throw new Error("No config");
-    const theme2 = config.themes[props.name];
+    const theme2 = config2.themes[props.name];
     if (mutationType !== "add" && !theme2)
       throw new Error(
         `${mutationType === "replace" ? "Replace" : "Update"} theme failed! Theme ${props.name} does not exist`
       );
   }
   const theme = {
-    ...mutationType === "update" ? config.themes[themeName] ?? {} : {},
+    ...mutationType === "update" ? config2.themes[themeName] ?? {} : {},
     ...themeIn
   };
   for (const key in theme)
-    (0, import_web17.ensureThemeVariable)(theme, key);
-  const themeProxied = (0, import_web17.proxyThemeToParents)(themeName, theme), response = {
+    (0, import_web20.ensureThemeVariable)(theme, key);
+  const themeProxied = (0, import_web20.proxyThemeToParents)(themeName, theme), response = {
     themeRaw: theme,
     theme: themeProxied,
     cssRules: []
@@ -41577,12 +42489,12 @@ function _mutateTheme(props) {
 }
 __name(_mutateTheme, "_mutateTheme");
 function updateThemeConfig(themeName, theme) {
-  const config = (0, import_web17.getConfig)();
-  config.themes[themeName] = theme, (0, import_web17.updateConfig)("themes", config.themes);
+  const config2 = (0, import_web20.getConfig)();
+  config2.themes[themeName] = theme, (0, import_web20.updateConfig)("themes", config2.themes);
 }
 __name(updateThemeConfig, "updateThemeConfig");
 function notifyThemeManagersOfUpdate(themeName, theme) {
-  import_web17.activeThemeManagers.forEach((manager) => {
+  import_web20.activeThemeManagers.forEach((manager) => {
     manager.state.name === themeName && manager.updateStateFromProps(
       {
         name: themeName,
@@ -41593,12 +42505,12 @@ function notifyThemeManagersOfUpdate(themeName, theme) {
   });
 }
 __name(notifyThemeManagersOfUpdate, "notifyThemeManagersOfUpdate");
-function insertThemeCSS(themes, batch = false) {
-  const config = (0, import_web17.getConfig)();
+function insertThemeCSS(themes3, batch = false) {
+  const config2 = (0, import_web20.getConfig)();
   let cssRules = [];
-  for (const themeName in themes) {
-    const theme = themes[themeName], rules = (0, import_web17.getThemeCSSRules)({
-      config,
+  for (const themeName in themes3) {
+    const theme = themes3[themeName], rules = (0, import_web20.getThemeCSSRules)({
+      config: config2,
       themeName,
       names: [themeName],
       hasDarkLight: true,
@@ -41607,7 +42519,7 @@ function insertThemeCSS(themes, batch = false) {
     cssRules = [...cssRules, ...rules], batch || updateStyle(`t_theme_style_${themeName}`, rules);
   }
   if (batch) {
-    const id = (0, import_web17.simpleHash)(typeof batch == "string" ? batch : Object.keys(themes).join(""));
+    const id = (0, import_web20.simpleHash)(typeof batch == "string" ? batch : Object.keys(themes3).join(""));
     updateStyle(`t_theme_style_${id}`, cssRules);
   }
   return cssRules;
@@ -41646,20 +42558,20 @@ function replaceTheme({
 __name(replaceTheme, "replaceTheme");
 
 // node_modules/@tamagui/toggle-group/dist/esm/ToggleGroup.mjs
-init_esm6();
+init_esm();
 init_esm7();
 init_esm10();
-var import_web19 = require("@tamagui/core");
-var import_react47 = __toESM(require("react"), 1);
+var import_web22 = require("@tamagui/core");
+var import_react44 = __toESM(require("react"), 1);
 
 // node_modules/@tamagui/toggle-group/dist/esm/Toggle.mjs
 init_esm7();
 init_esm10();
-var import_web18 = require("@tamagui/core");
-var React77 = __toESM(require("react"), 1);
-var import_jsx_runtime63 = require("react/jsx-runtime");
+var import_web21 = require("@tamagui/core");
+var React70 = __toESM(require("react"), 1);
+var import_jsx_runtime55 = require("react/jsx-runtime");
 var NAME3 = "Toggle";
-var ToggleFrame = (0, import_web18.styled)(ThemeableStack, {
+var ToggleFrame = (0, import_web21.styled)(ThemeableStack, {
   name: NAME3,
   tag: "button",
   variants: {
@@ -41716,7 +42628,7 @@ var ToggleFrame = (0, import_web18.styled)(ThemeableStack, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var Toggle = React77.forwardRef(function(props, forwardedRef) {
+var Toggle = React70.forwardRef(function(props, forwardedRef) {
   const {
     pressed: pressedProp,
     defaultPressed = false,
@@ -41727,7 +42639,7 @@ var Toggle = React77.forwardRef(function(props, forwardedRef) {
     onChange: onPressedChange,
     defaultProp: defaultPressed
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(ToggleFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime55.jsx)(ToggleFrame, {
     ...!props.unstyled && {
       theme: pressed ? "active" : null,
       themeShallow: true
@@ -41745,47 +42657,47 @@ var Toggle = React77.forwardRef(function(props, forwardedRef) {
 });
 
 // node_modules/@tamagui/toggle-group/dist/esm/ToggleGroup.mjs
-var import_jsx_runtime64 = require("react/jsx-runtime");
+var import_jsx_runtime56 = require("react/jsx-runtime");
 var TOGGLE_GROUP_NAME = "ToggleGroup";
 var TOGGLE_GROUP_ITEM_NAME = "ToggleGroupItem";
 var TOGGLE_GROUP_CONTEXT = "ToggleGroup";
 var {
   Provider: ToggleGroupItemProvider,
   useStyledContext: useToggleGroupItemContext
-} = (0, import_web19.createStyledContext)();
+} = (0, import_web22.createStyledContext)();
 var {
   Provider: ToggleGroupContext,
   useStyledContext: useToggleGroupContext
-} = (0, import_web19.createStyledContext)();
-var ToggleGroupItem = ToggleFrame.extractable(import_react47.default.forwardRef((props, forwardedRef) => {
+} = (0, import_web22.createStyledContext)();
+var ToggleGroupItem = ToggleFrame.extractable(import_react44.default.forwardRef((props, forwardedRef) => {
   const {
     disablePassStyles,
     ...rest
   } = props, valueContext = useToggleGroupValueContext(props.__scopeToggleGroup), context = useToggleGroupContext(props.__scopeToggleGroup), pressed = valueContext == null ? void 0 : valueContext.value.includes(props.value), disabled = context.disabled || props.disabled || false, groupItemProps = useGroupItem({
     disabled
-  }), size5 = props.size ?? context.size, sizeProps = props.unstyled ? {} : {
+  }), size6 = props.size ?? context.size, sizeProps = props.unstyled ? {} : {
     width: void 0,
     height: void 0,
-    padding: (0, import_web19.getVariableValue)(size5) * 0.6
-  }, iconSize = (typeof size5 == "number" ? size5 * 0.7 : getFontSize(size5)) * 1.2, theme = (0, import_web19.useTheme)(), getThemedIcon = useGetThemedIcon({
+    padding: (0, import_web22.getVariableValue)(size6) * 0.6
+  }, iconSize = (typeof size6 == "number" ? size6 * 0.7 : getFontSize(size6)) * 1.2, theme = (0, import_web22.useTheme)(), getThemedIcon = useGetThemedIcon({
     size: iconSize,
     color: theme.color
-  }), children = import_react47.default.Children.toArray(props.children).map((child) => props.disablePassStyles || !import_react47.default.isValidElement(child) ? child : getThemedIcon(child)), commonProps = {
+  }), children = import_react44.default.Children.toArray(props.children).map((child) => props.disablePassStyles || !import_react44.default.isValidElement(child) ? child : getThemedIcon(child)), commonProps = {
     pressed,
     disabled,
     ...sizeProps,
     ...rest,
     children
-  }, inner2 = /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupItemImpl, {
+  }, inner2 = /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupItemImpl, {
     ...commonProps,
     ref: forwardedRef,
     focusable: !disabled,
     disabled,
     ...groupItemProps
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupItemProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupItemProvider, {
     scope: props.__scopeToggleGroup,
-    children: context.rovingFocus ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(RovingFocusGroup.Item, {
+    children: context.rovingFocus ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RovingFocusGroup.Item, {
       asChild: "except-style",
       __scopeRovingFocusGroup: props.__scopeToggleGroup || TOGGLE_GROUP_CONTEXT,
       focusable: !disabled,
@@ -41795,7 +42707,7 @@ var ToggleGroupItem = ToggleFrame.extractable(import_react47.default.forwardRef(
   });
 }));
 ToggleGroupItem.displayName = TOGGLE_GROUP_ITEM_NAME;
-var ToggleGroupItemImpl = import_react47.default.forwardRef((props, forwardedRef) => {
+var ToggleGroupItemImpl = import_react44.default.forwardRef((props, forwardedRef) => {
   const {
     __scopeToggleGroup,
     value,
@@ -41803,7 +42715,7 @@ var ToggleGroupItemImpl = import_react47.default.forwardRef((props, forwardedRef
   } = props, valueContext = useToggleGroupValueContext(__scopeToggleGroup), singleProps = {
     "aria-pressed": void 0
   }, typeProps = valueContext.type === "single" ? singleProps : void 0;
-  return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(Toggle, {
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(Toggle, {
     ...typeProps,
     ...itemProps,
     ref: forwardedRef,
@@ -41812,23 +42724,23 @@ var ToggleGroupItemImpl = import_react47.default.forwardRef((props, forwardedRef
     }, "onPressedChange")
   });
 });
-var ToggleGroup = withStaticProperties(import_react47.default.forwardRef((props, forwardedRef) => {
+var ToggleGroup = withStaticProperties(import_react44.default.forwardRef((props, forwardedRef) => {
   const {
     type,
     ...toggleGroupProps
   } = props;
-  if (isWeb || import_react47.default.useEffect(() => {
+  if (isWeb || import_react44.default.useEffect(() => {
     if (props.id) return registerFocusable(props.id, {
       // TODO: would be nice to focus on the first child later - could be done with reforest
       // for now leaving it empty
       focus: /* @__PURE__ */ __name(() => {
       }, "focus")
     });
-  }, [props.id]), type === "single") return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupImplSingle, {
+  }, [props.id]), type === "single") return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupImplSingle, {
     ...toggleGroupProps,
     ref: forwardedRef
   });
-  if (type === "multiple") return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupImplMultiple, {
+  if (type === "multiple") return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupImplMultiple, {
     ...toggleGroupProps,
     ref: forwardedRef
   });
@@ -41840,8 +42752,8 @@ ToggleGroup.displayName = TOGGLE_GROUP_NAME;
 var {
   Provider: ToggleGroupValueProvider,
   useStyledContext: useToggleGroupValueContext
-} = (0, import_web19.createStyledContext)();
-var ToggleGroupImplSingle = import_react47.default.forwardRef((props, forwardedRef) => {
+} = (0, import_web22.createStyledContext)();
+var ToggleGroupImplSingle = import_react44.default.forwardRef((props, forwardedRef) => {
   const {
     value: valueProp,
     defaultValue: defaultValue2,
@@ -41854,20 +42766,20 @@ var ToggleGroupImplSingle = import_react47.default.forwardRef((props, forwardedR
     defaultProp: defaultValue2,
     onChange: onValueChange
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupValueProvider, {
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupValueProvider, {
     scope: props.__scopeToggleGroup,
     type: "single",
     value: value ? [value] : [],
     defaultValue: value,
     onItemActivate: setValue,
-    onItemDeactivate: import_react47.default.useCallback(() => disableDeactivation ? null : setValue(""), [setValue, disableDeactivation]),
-    children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupImpl, {
+    onItemDeactivate: import_react44.default.useCallback(() => disableDeactivation ? null : setValue(""), [setValue, disableDeactivation]),
+    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupImpl, {
       ...toggleGroupSingleProps,
       ref: forwardedRef
     })
   });
 });
-var ToggleGroupImplMultiple = import_react47.default.forwardRef((props, forwardedRef) => {
+var ToggleGroupImplMultiple = import_react44.default.forwardRef((props, forwardedRef) => {
   const {
     value: valueProp,
     defaultValue: defaultValue2,
@@ -41879,22 +42791,22 @@ var ToggleGroupImplMultiple = import_react47.default.forwardRef((props, forwarde
     prop: valueProp,
     defaultProp: defaultValue2,
     onChange: onValueChange
-  }), handleButtonActivate = import_react47.default.useCallback((itemValue) => setValue((prevValue = []) => [...prevValue, itemValue]), [setValue]), handleButtonDeactivate = import_react47.default.useCallback((itemValue) => setValue((prevValue = []) => prevValue.filter((value2) => value2 !== itemValue)), [setValue]);
-  return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupValueProvider, {
+  }), handleButtonActivate = import_react44.default.useCallback((itemValue) => setValue((prevValue = []) => [...prevValue, itemValue]), [setValue]), handleButtonDeactivate = import_react44.default.useCallback((itemValue) => setValue((prevValue = []) => prevValue.filter((value2) => value2 !== itemValue)), [setValue]);
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupValueProvider, {
     scope: props.__scopeToggleGroup,
     type: "multiple",
     value,
     defaultValue: value,
     onItemActivate: handleButtonActivate,
     onItemDeactivate: handleButtonDeactivate,
-    children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupImpl, {
+    children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupImpl, {
       ...toggleGroupMultipleProps,
       ref: forwardedRef
     })
   });
 });
 ToggleGroup.displayName = TOGGLE_GROUP_NAME;
-var ToggleGroupImplElementFrame = (0, import_web19.styled)(Group, {
+var ToggleGroupImplElementFrame = (0, import_web22.styled)(Group, {
   name: TOGGLE_GROUP_NAME,
   variants: {
     unstyled: {
@@ -41917,7 +42829,7 @@ var ToggleGroupImplElementFrame = (0, import_web19.styled)(Group, {
     unstyled: process.env.TAMAGUI_HEADLESS === "1"
   }
 });
-var ToggleGroupImpl = ToggleGroupImplElementFrame.extractable(import_react47.default.forwardRef((props, forwardedRef) => {
+var ToggleGroupImpl = ToggleGroupImplElementFrame.extractable(import_react44.default.forwardRef((props, forwardedRef) => {
   const {
     __scopeToggleGroup,
     disabled = false,
@@ -41933,21 +42845,21 @@ var ToggleGroupImpl = ToggleGroupImplElementFrame.extractable(import_react47.def
     role: "group",
     dir: direction,
     ...toggleGroupProps
-  }, adjustedSize = (0, import_web19.getVariableValue)(getSize(sizeProp, {
+  }, adjustedSize = (0, import_web22.getVariableValue)(getSize(sizeProp, {
     shift: sizeAdjust
-  })), size5 = Math.round(adjustedSize * 0.45);
-  return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupContext, {
+  })), size6 = Math.round(adjustedSize * 0.45);
+  return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupContext, {
     scope: __scopeToggleGroup,
     rovingFocus,
     disabled,
-    size: size5,
-    children: rovingFocus ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(RovingFocusGroup, {
+    size: size6,
+    children: rovingFocus ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RovingFocusGroup, {
       asChild: "except-style",
       __scopeRovingFocusGroup: __scopeToggleGroup || TOGGLE_GROUP_CONTEXT,
       orientation,
       dir: direction,
       loop,
-      children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupImplElementFrame, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupImplElementFrame, {
         "aria-orientation": orientation,
         orientation,
         axis: orientation,
@@ -41956,7 +42868,7 @@ var ToggleGroupImpl = ToggleGroupImplElementFrame.extractable(import_react47.def
         unstyled,
         ...commonProps
       })
-    }) : /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(ToggleGroupImplElementFrame, {
+    }) : /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupImplElementFrame, {
       "aria-orientation": orientation,
       ref: forwardedRef,
       orientation,
@@ -41968,20 +42880,20 @@ var ToggleGroupImpl = ToggleGroupImplElementFrame.extractable(import_react47.def
 }));
 
 // node_modules/@tamagui/tooltip/dist/esm/Tooltip.mjs
-var import_core50 = require("@tamagui/core");
+var import_core48 = require("@tamagui/core");
 init_esm7();
 init_esm10();
-var React79 = __toESM(require("react"), 1);
-var import_jsx_runtime65 = require("react/jsx-runtime");
+var React72 = __toESM(require("react"), 1);
+var import_jsx_runtime57 = require("react/jsx-runtime");
 var TOOLTIP_SCOPE = "tooltip";
-var TooltipContent = PopperContentFrame.extractable(React79.forwardRef(({
+var TooltipContent = PopperContentFrame.extractable(React72.forwardRef(({
   __scopeTooltip,
   ...props
 }, ref) => {
-  const preventAnimation = React79.useContext(PreventTooltipAnimationContext), popper = usePopperContext(__scopeTooltip || TOOLTIP_SCOPE), padding = props.unstyled ? void 0 : props.padding ?? props.size ?? popper.size ?? getSize("$true", {
+  const preventAnimation = React72.useContext(PreventTooltipAnimationContext), popper = usePopperContext(__scopeTooltip || TOOLTIP_SCOPE), padding = props.unstyled ? void 0 : props.padding ?? props.size ?? popper.size ?? getSize("$true", {
     shift: -2
   });
-  return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PopoverContent, {
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PopoverContent, {
     __scopePopover: __scopeTooltip || TOOLTIP_SCOPE,
     componentName: "Tooltip",
     disableRemoveScroll: true,
@@ -41996,33 +42908,33 @@ var TooltipContent = PopperContentFrame.extractable(React79.forwardRef(({
     }
   });
 }));
-var TooltipArrow = React79.forwardRef((props, ref) => {
+var TooltipArrow = React72.forwardRef((props, ref) => {
   const {
     __scopeTooltip,
     ...rest
   } = props;
-  return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PopoverArrow, {
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PopoverArrow, {
     __scopePopper: __scopeTooltip || TOOLTIP_SCOPE,
     componentName: "Tooltip",
     ref,
     ...rest
   });
 });
-var PreventTooltipAnimationContext = React79.createContext(false);
+var PreventTooltipAnimationContext = React72.createContext(false);
 var TooltipGroup = /* @__PURE__ */ __name(({
   children,
   delay,
   preventAnimation = false,
   timeoutMs
-}) => /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PreventTooltipAnimationContext.Provider, {
+}) => /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PreventTooltipAnimationContext.Provider, {
   value: preventAnimation,
-  children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(FloatingDelayGroup, {
+  children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(FloatingDelayGroup, {
     timeoutMs,
-    delay: React79.useMemo(() => delay, [JSON.stringify(delay)]),
+    delay: React72.useMemo(() => delay, [JSON.stringify(delay)]),
     children
   })
 }), "TooltipGroup");
-var TooltipComponent = React79.forwardRef(function(props, ref) {
+var TooltipComponent = React72.forwardRef(function(props, ref) {
   const {
     children,
     delay: delayProp,
@@ -42033,17 +42945,17 @@ var TooltipComponent = React79.forwardRef(function(props, ref) {
     disableAutoCloseOnScroll,
     __scopeTooltip,
     ...restProps
-  } = props, triggerRef = React79.useRef(null), [hasCustomAnchor, setHasCustomAnchor] = React79.useState(false), {
+  } = props, triggerRef = React72.useRef(null), [hasCustomAnchor, setHasCustomAnchor] = React72.useState(false), {
     delay: delayGroup,
     setCurrentId
   } = useDelayGroupContext(), delay = delayProp ?? delayGroup, [open, setOpen] = useControllableState({
     prop: openProp,
     defaultProp: false,
     onChange: onOpenChangeProp
-  }), id = props.groupId, onOpenChange = (0, import_core50.useEvent)((open2) => {
+  }), id = props.groupId, onOpenChange = (0, import_core48.useEvent)((open2) => {
     open2 && setCurrentId(id), setOpen(open2);
   });
-  React79.useEffect(() => {
+  React72.useEffect(() => {
     if (!open || disableAutoCloseOnScroll || typeof document > "u") return;
     const openIt = /* @__PURE__ */ __name(() => {
       setOpen(false);
@@ -42076,21 +42988,21 @@ var TooltipComponent = React79.forwardRef(function(props, ref) {
       getReferenceProps,
       getFloatingProps
     };
-  }, "useFloatingFn"), useFloatingContext2 = React79.useCallback(useFloatingFn, [id, delay, open, restMs, focus2 ? JSON.stringify(focus2) : 0]), onCustomAnchorAdd = React79.useCallback(() => setHasCustomAnchor(true), []), onCustomAnchorRemove = React79.useCallback(() => setHasCustomAnchor(false), []), contentId = React79.useId(), smallerSize = props.unstyled ? null : getSize("$true", {
+  }, "useFloatingFn"), useFloatingContext2 = React72.useCallback(useFloatingFn, [id, delay, open, restMs, focus2 ? JSON.stringify(focus2) : 0]), onCustomAnchorAdd = React72.useCallback(() => setHasCustomAnchor(true), []), onCustomAnchorRemove = React72.useCallback(() => setHasCustomAnchor(false), []), contentId = React72.useId(), smallerSize = props.unstyled ? null : getSize("$true", {
     shift: -2,
     bounds: [0]
   });
   return (
     // TODO: FloatingOverrideContext might also need to be scoped
-    /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(FloatingOverrideContext.Provider, {
+    /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(FloatingOverrideContext.Provider, {
       value: useFloatingContext2,
-      children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(Popper, {
+      children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(Popper, {
         __scopePopper: __scopeTooltip || TOOLTIP_SCOPE,
         size: smallerSize == null ? void 0 : smallerSize.key,
         allowFlip: true,
         stayInFrame: true,
         ...restProps,
-        children: /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PopoverContext.Provider, {
+        children: /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PopoverContext.Provider, {
           contentId,
           triggerRef,
           sheetBreakpoint: false,
@@ -42107,23 +43019,23 @@ var TooltipComponent = React79.forwardRef(function(props, ref) {
     })
   );
 });
-var TooltipTrigger = React79.forwardRef(function(props, ref) {
+var TooltipTrigger = React72.forwardRef(function(props, ref) {
   const {
     __scopeTooltip,
     ...rest
   } = props;
-  return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PopoverTrigger, {
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PopoverTrigger, {
     ...rest,
     __scopePopover: __scopeTooltip || TOOLTIP_SCOPE,
     ref
   });
 });
-var TooltipAnchor = React79.forwardRef(function(props, ref) {
+var TooltipAnchor = React72.forwardRef(function(props, ref) {
   const {
     __scopeTooltip,
     ...rest
   } = props;
-  return /* @__PURE__ */ (0, import_jsx_runtime65.jsx)(PopoverAnchor, {
+  return /* @__PURE__ */ (0, import_jsx_runtime57.jsx)(PopoverAnchor, {
     ...rest,
     __scopePopover: __scopeTooltip || TOOLTIP_SCOPE,
     ref
@@ -42139,17 +43051,17 @@ var voidFn = /* @__PURE__ */ __name(() => {
 }, "voidFn");
 
 // node_modules/@tamagui/tooltip/dist/esm/TooltipSimple.mjs
-var React80 = __toESM(require("react"), 1);
-var import_jsx_runtime66 = require("react/jsx-runtime");
-var TooltipSimple = React80.forwardRef(({
+var React73 = __toESM(require("react"), 1);
+var import_jsx_runtime58 = require("react/jsx-runtime");
+var TooltipSimple = React73.forwardRef(({
   label,
   children,
   contentProps,
   disabled,
   ...tooltipProps
 }, ref) => {
-  const child = React80.Children.only(children);
-  return /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(Tooltip2, {
+  const child = React73.Children.only(children);
+  return /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Tooltip2, {
     disableRTL: true,
     offset: 15,
     restMs: 40,
@@ -42158,15 +43070,15 @@ var TooltipSimple = React80.forwardRef(({
     ...disabled ? {
       open: false
     } : null,
-    children: [/* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Tooltip2.Trigger, {
+    children: [/* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Tooltip2.Trigger, {
       ...typeof label == "string" && {
         "aria-label": label
       },
       asChild: "except-style",
-      children: ref && React80.isValidElement(child) ? React80.cloneElement(child, {
+      children: ref && React73.isValidElement(child) ? React73.cloneElement(child, {
         ref
       }) : child
-    }), /* @__PURE__ */ (0, import_jsx_runtime66.jsxs)(Tooltip2.Content, {
+    }), /* @__PURE__ */ (0, import_jsx_runtime58.jsxs)(Tooltip2.Content, {
       zIndex: 1e9,
       enterStyle: {
         x: 0,
@@ -42195,7 +43107,7 @@ var TooltipSimple = React80.forwardRef(({
         }
       }],
       ...contentProps,
-      children: [/* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Tooltip2.Arrow, {}), /* @__PURE__ */ (0, import_jsx_runtime66.jsx)(Paragraph, {
+      children: [/* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Tooltip2.Arrow, {}), /* @__PURE__ */ (0, import_jsx_runtime58.jsx)(Paragraph, {
         size: "$3",
         children: label
       })]
@@ -42205,11 +43117,11 @@ var TooltipSimple = React80.forwardRef(({
 
 // node_modules/tamagui/dist/esm/index.mjs
 init_esm10();
-init_esm();
+init_esm3();
 
 // node_modules/@tamagui/use-window-dimensions/dist/esm/index.mjs
-var import_react49 = __toESM(require("react"), 1);
-init_esm6();
+var import_react46 = __toESM(require("react"), 1);
+init_esm();
 var import_react_native_web9 = __toESM(require_cjs16(), 1);
 var initialValue = {
   height: 800,
@@ -42230,13 +43142,13 @@ __name(subscribe, "subscribe");
 function useWindowDimensions({
   serverValue = initialValue
 } = {}) {
-  return import_react49.default.useSyncExternalStore(subscribe, () => import_react_native_web9.Dimensions.get("window"), () => isWeb ? serverValue : import_react_native_web9.Dimensions.get("window"));
+  return import_react46.default.useSyncExternalStore(subscribe, () => import_react_native_web9.Dimensions.get("window"), () => isWeb ? serverValue : import_react_native_web9.Dimensions.get("window"));
 }
 __name(useWindowDimensions, "useWindowDimensions");
 
 // node_modules/@tamagui/visually-hidden/dist/esm/VisuallyHidden.mjs
-var import_web20 = require("@tamagui/core");
-var VisuallyHidden = (0, import_web20.styled)(import_web20.Text, {
+var import_web23 = require("@tamagui/core");
+var VisuallyHidden = (0, import_web23.styled)(import_web23.Text, {
   position: "absolute",
   width: 1,
   height: 1,
@@ -42270,9 +43182,9 @@ var VisuallyHidden = (0, import_web20.styled)(import_web20.Text, {
 VisuallyHidden.isVisuallyHidden = true;
 
 // node_modules/tamagui/dist/esm/createTamagui.mjs
-var import_core51 = require("@tamagui/core");
-var createTamagui = process.env.NODE_ENV !== "development" ? import_core51.createTamagui : (conf) => {
-  const sizeTokenKeys = ["$true"], hasKeys = /* @__PURE__ */ __name((expectedKeys, obj) => expectedKeys.every((k) => typeof obj[k] < "u"), "hasKeys"), tamaguiConfig2 = (0, import_core51.createTamagui)(conf);
+var import_core49 = require("@tamagui/core");
+var createTamagui = process.env.NODE_ENV !== "development" ? import_core49.createTamagui : (conf) => {
+  const sizeTokenKeys = ["$true"], hasKeys = /* @__PURE__ */ __name((expectedKeys, obj) => expectedKeys.every((k) => typeof obj[k] < "u"), "hasKeys"), tamaguiConfig2 = (0, import_core49.createTamagui)(conf);
   for (const name of ["size", "space"]) {
     const tokenSet = tamaguiConfig2.tokensParsed[name];
     if (!tokenSet) throw new Error(`Expected tokens for "${name}" in ${Object.keys(tamaguiConfig2.tokensParsed).join(", ")}`);
@@ -42313,25 +43225,25 @@ Expected a subset of: ${expected.join(", ")}
 };
 
 // node_modules/tamagui/dist/esm/views/TamaguiProvider.mjs
-var import_core52 = require("@tamagui/core");
-var import_jsx_runtime67 = require("react/jsx-runtime");
+var import_core50 = require("@tamagui/core");
+var import_jsx_runtime59 = require("react/jsx-runtime");
 var TamaguiProvider = /* @__PURE__ */ __name(({
   children,
   ...props
-}) => /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(import_core52.TamaguiProvider, {
+}) => /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(import_core50.TamaguiProvider, {
   ...props,
-  children: /* @__PURE__ */ (0, import_jsx_runtime67.jsx)(PortalProvider5, {
+  children: /* @__PURE__ */ (0, import_jsx_runtime59.jsx)(PortalProvider, {
     shouldAddRootHost: true,
     children
   })
 }), "TamaguiProvider");
 
 // node_modules/tamagui/dist/esm/views/Anchor.mjs
-init_esm6();
-var import_core53 = require("@tamagui/core");
+init_esm();
+var import_core51 = require("@tamagui/core");
 var import_react_native_web10 = __toESM(require_cjs16(), 1);
-var import_jsx_runtime68 = require("react/jsx-runtime");
-var AnchorFrame = (0, import_core53.styled)(SizableText, {
+var import_jsx_runtime60 = require("react/jsx-runtime");
+var AnchorFrame = (0, import_core51.styled)(SizableText, {
   name: "Anchor",
   tag: "a",
   accessibilityRole: "link"
@@ -42340,7 +43252,7 @@ var Anchor = AnchorFrame.styleable(({
   href,
   target,
   ...props
-}, ref) => /* @__PURE__ */ (0, import_jsx_runtime68.jsx)(AnchorFrame, {
+}, ref) => /* @__PURE__ */ (0, import_jsx_runtime60.jsx)(AnchorFrame, {
   ...props,
   ...isWeb ? {
     href,
@@ -42355,8 +43267,8 @@ var Anchor = AnchorFrame.styleable(({
 }));
 
 // node_modules/tamagui/dist/esm/views/EnsureFlexed.mjs
-var import_core54 = require("@tamagui/core");
-var EnsureFlexed = (0, import_core54.styled)(import_core54.Text, {
+var import_core52 = require("@tamagui/core");
+var EnsureFlexed = (0, import_core52.styled)(import_core52.Text, {
   opacity: 0,
   lineHeight: 0,
   height: 0,
@@ -42368,8 +43280,8 @@ var EnsureFlexed = (0, import_core54.styled)(import_core54.Text, {
 EnsureFlexed.isVisuallyHidden = true;
 
 // node_modules/tamagui/dist/esm/views/Fieldset.mjs
-var import_core55 = require("@tamagui/core");
-var Fieldset = (0, import_core55.styled)(YStack, {
+var import_core53 = require("@tamagui/core");
+var Fieldset = (0, import_core53.styled)(YStack, {
   name: "Fieldset",
   tag: "fieldset",
   variants: {
@@ -42383,20 +43295,20 @@ var Fieldset = (0, import_core55.styled)(YStack, {
 });
 
 // node_modules/tamagui/dist/esm/views/Input.mjs
-var import_react50 = __toESM(require("react"), 1);
-init_esm6();
-var import_core57 = require("@tamagui/core");
+var import_react47 = __toESM(require("react"), 1);
+init_esm();
+var import_core55 = require("@tamagui/core");
 var import_react_native_web11 = __toESM(require_cjs16(), 1);
 
 // node_modules/tamagui/dist/esm/helpers/inputHelpers.mjs
-var import_core56 = require("@tamagui/core");
+var import_core54 = require("@tamagui/core");
 var inputSizeVariant = /* @__PURE__ */ __name((val = "$true", extras) => {
   if (extras.props.multiline || extras.props.numberOfLines > 1) return textAreaSizeVariant(val, extras);
   const buttonStyles = getButtonSized(val, extras), paddingHorizontal = getSpace(val, {
     shift: -1,
     bounds: [2]
   }), fontStyle = getFontSized(val, extras);
-  return !import_core56.isWeb && fontStyle && delete fontStyle.lineHeight, {
+  return !import_core54.isWeb && fontStyle && delete fontStyle.lineHeight, {
     ...fontStyle,
     ...buttonStyles,
     paddingHorizontal
@@ -42405,7 +43317,7 @@ var inputSizeVariant = /* @__PURE__ */ __name((val = "$true", extras) => {
 var textAreaSizeVariant = /* @__PURE__ */ __name((val = "$true", extras) => {
   const {
     props
-  } = extras, buttonStyles = getButtonSized(val, extras), fontStyle = getFontSized(val, extras), lines = props.rows ?? props.numberOfLines, height = typeof lines == "number" ? lines * (0, import_core56.getVariableValue)(fontStyle.lineHeight) : "auto", paddingVertical = getSpace(val, {
+  } = extras, buttonStyles = getButtonSized(val, extras), fontStyle = getFontSized(val, extras), lines = props.rows ?? props.numberOfLines, height = typeof lines == "number" ? lines * (0, import_core54.getVariableValue)(fontStyle.lineHeight) : "auto", paddingVertical = getSpace(val, {
     shift: -2,
     bounds: [2]
   }), paddingHorizontal = getSpace(val, {
@@ -42422,7 +43334,7 @@ var textAreaSizeVariant = /* @__PURE__ */ __name((val = "$true", extras) => {
 }, "textAreaSizeVariant");
 
 // node_modules/tamagui/dist/esm/views/Input.mjs
-var import_jsx_runtime69 = require("react/jsx-runtime");
+var import_jsx_runtime61 = require("react/jsx-runtime");
 var defaultStyles = {
   size: "$true",
   fontFamily: "$body",
@@ -42450,7 +43362,7 @@ var defaultStyles = {
     outlineStyle: "solid"
   }
 };
-var InputFrame = (0, import_core57.styled)(import_react_native_web11.TextInput, {
+var InputFrame = (0, import_core55.styled)(import_react_native_web11.TextInput, {
   name: "Input",
   variants: {
     unstyled: {
@@ -42474,14 +43386,14 @@ var InputFrame = (0, import_core57.styled)(import_react_native_web11.TextInput, 
   }
 });
 var Input = InputFrame.styleable((propsIn, forwardedRef) => {
-  const ref = import_react50.default.useRef(null), composedRefs = (0, import_core57.useComposedRefs)(forwardedRef, ref), props = useInputProps(propsIn, composedRefs);
-  return /* @__PURE__ */ (0, import_jsx_runtime69.jsx)(InputFrame, {
+  const ref = import_react47.default.useRef(null), composedRefs = (0, import_core55.useComposedRefs)(forwardedRef, ref), props = useInputProps(propsIn, composedRefs);
+  return /* @__PURE__ */ (0, import_jsx_runtime61.jsx)(InputFrame, {
     ...props
   });
 });
 function useInputProps(props, ref) {
   var _a, _b;
-  const theme = (0, import_core57.useTheme)(), {
+  const theme = (0, import_core55.useTheme)(), {
     onChangeText,
     ref: combinedRef
   } = useFocusable({
@@ -42501,22 +43413,22 @@ function useInputProps(props, ref) {
 __name(useInputProps, "useInputProps");
 
 // node_modules/tamagui/dist/esm/views/Spinner.mjs
-var import_core58 = require("@tamagui/core");
-var React83 = __toESM(require("react"), 1);
+var import_core56 = require("@tamagui/core");
+var React76 = __toESM(require("react"), 1);
 var import_react_native_web12 = __toESM(require_cjs16(), 1);
-var import_jsx_runtime70 = require("react/jsx-runtime");
-var Spinner = YStack.extractable((0, import_core58.themeable)(React83.forwardRef((props, ref) => {
+var import_jsx_runtime62 = require("react/jsx-runtime");
+var Spinner = YStack.extractable((0, import_core56.themeable)(React76.forwardRef((props, ref) => {
   const {
-    size: size5,
+    size: size6,
     color: colorProp,
     ...stackProps
-  } = props, theme = (0, import_core58.useTheme)();
+  } = props, theme = (0, import_core56.useTheme)();
   let color2 = colorProp;
-  return color2 && color2[0] === "$" && (color2 = (0, import_core58.variableToString)(theme[color2])), /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(YStack, {
+  return color2 && color2[0] === "$" && (color2 = (0, import_core56.variableToString)(theme[color2])), /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(YStack, {
     ref,
     ...stackProps,
-    children: /* @__PURE__ */ (0, import_jsx_runtime70.jsx)(import_react_native_web12.ActivityIndicator, {
-      size: size5,
+    children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(import_react_native_web12.ActivityIndicator, {
+      size: size6,
       color: color2
     })
   });
@@ -42525,11 +43437,11 @@ var Spinner = YStack.extractable((0, import_core58.themeable)(React83.forwardRef
 }));
 
 // node_modules/tamagui/dist/esm/views/TextArea.mjs
-var import_react51 = __toESM(require("react"), 1);
-init_esm6();
-var import_core59 = require("@tamagui/core");
-var import_jsx_runtime71 = require("react/jsx-runtime");
-var TextAreaFrame = (0, import_core59.styled)(InputFrame, {
+var import_react48 = __toESM(require("react"), 1);
+init_esm();
+var import_core57 = require("@tamagui/core");
+var import_jsx_runtime63 = require("react/jsx-runtime");
+var TextAreaFrame = (0, import_core57.styled)(InputFrame, {
   name: "TextArea",
   multiline: true,
   // this attribute fixes firefox newline issue
@@ -42550,19 +43462,19 @@ var TextAreaFrame = (0, import_core59.styled)(InputFrame, {
   }
 });
 var TextArea = TextAreaFrame.styleable((propsIn, forwardedRef) => {
-  const ref = import_react51.default.useRef(null), composedRefs = (0, import_core59.useComposedRefs)(forwardedRef, ref), props = useInputProps(propsIn, composedRefs), linesProp = {
+  const ref = import_react48.default.useRef(null), composedRefs = (0, import_core57.useComposedRefs)(forwardedRef, ref), props = useInputProps(propsIn, composedRefs), linesProp = {
     // web uses rows now, but native not caught up :/
     [isWeb ? "rows" : "numberOfLines"]: propsIn.unstyled ? void 0 : 4
   };
-  return /* @__PURE__ */ (0, import_jsx_runtime71.jsx)(TextAreaFrame, {
+  return /* @__PURE__ */ (0, import_jsx_runtime63.jsx)(TextAreaFrame, {
     ...linesProp,
     ...props
   });
 });
 
 // node_modules/tamagui/dist/esm/views/Text.mjs
-var import_core60 = require("@tamagui/core");
-var Text4 = (0, import_core60.styled)(import_core60.Text, {
+var import_core58 = require("@tamagui/core");
+var Text4 = (0, import_core58.styled)(import_core58.Text, {
   variants: {
     unstyled: {
       false: {
@@ -42576,3814 +43488,30 @@ var Text4 = (0, import_core60.styled)(import_core60.Text, {
 });
 
 // node_modules/tamagui/dist/esm/index.mjs
-var import_core61 = require("@tamagui/core");
-
-// node_modules/@tamagui/themes/dist/esm/generated-new.mjs
-var generated_new_exports = {};
-__export(generated_new_exports, {
-  dark: () => dark,
-  dark_Button: () => dark_Button,
-  dark_Card: () => dark_Card,
-  dark_Checkbox: () => dark_Checkbox,
-  dark_DialogOverlay: () => dark_DialogOverlay,
-  dark_DrawerFrame: () => dark_DrawerFrame,
-  dark_Input: () => dark_Input,
-  dark_ListItem: () => dark_ListItem,
-  dark_ModalOverlay: () => dark_ModalOverlay,
-  dark_Progress: () => dark_Progress,
-  dark_ProgressIndicator: () => dark_ProgressIndicator,
-  dark_RadioGroupItem: () => dark_RadioGroupItem,
-  dark_SheetOverlay: () => dark_SheetOverlay,
-  dark_SliderThumb: () => dark_SliderThumb,
-  dark_SliderTrack: () => dark_SliderTrack,
-  dark_SliderTrackActive: () => dark_SliderTrackActive,
-  dark_Switch: () => dark_Switch,
-  dark_SwitchThumb: () => dark_SwitchThumb,
-  dark_TextArea: () => dark_TextArea,
-  dark_Tooltip: () => dark_Tooltip,
-  dark_TooltipArrow: () => dark_TooltipArrow,
-  dark_TooltipContent: () => dark_TooltipContent,
-  dark_active: () => dark_active,
-  dark_active_Button: () => dark_active_Button,
-  dark_active_Card: () => dark_active_Card,
-  dark_active_Checkbox: () => dark_active_Checkbox,
-  dark_active_DialogOverlay: () => dark_active_DialogOverlay,
-  dark_active_DrawerFrame: () => dark_active_DrawerFrame,
-  dark_active_Input: () => dark_active_Input,
-  dark_active_ListItem: () => dark_active_ListItem,
-  dark_active_ModalOverlay: () => dark_active_ModalOverlay,
-  dark_active_Progress: () => dark_active_Progress,
-  dark_active_ProgressIndicator: () => dark_active_ProgressIndicator,
-  dark_active_RadioGroupItem: () => dark_active_RadioGroupItem,
-  dark_active_SheetOverlay: () => dark_active_SheetOverlay,
-  dark_active_SliderThumb: () => dark_active_SliderThumb,
-  dark_active_SliderTrack: () => dark_active_SliderTrack,
-  dark_active_SliderTrackActive: () => dark_active_SliderTrackActive,
-  dark_active_Switch: () => dark_active_Switch,
-  dark_active_SwitchThumb: () => dark_active_SwitchThumb,
-  dark_active_TextArea: () => dark_active_TextArea,
-  dark_active_Tooltip: () => dark_active_Tooltip,
-  dark_active_TooltipArrow: () => dark_active_TooltipArrow,
-  dark_active_TooltipContent: () => dark_active_TooltipContent,
-  dark_alt1: () => dark_alt1,
-  dark_alt1_Button: () => dark_alt1_Button,
-  dark_alt1_Card: () => dark_alt1_Card,
-  dark_alt1_Checkbox: () => dark_alt1_Checkbox,
-  dark_alt1_DialogOverlay: () => dark_alt1_DialogOverlay,
-  dark_alt1_DrawerFrame: () => dark_alt1_DrawerFrame,
-  dark_alt1_Input: () => dark_alt1_Input,
-  dark_alt1_ListItem: () => dark_alt1_ListItem,
-  dark_alt1_ModalOverlay: () => dark_alt1_ModalOverlay,
-  dark_alt1_Progress: () => dark_alt1_Progress,
-  dark_alt1_ProgressIndicator: () => dark_alt1_ProgressIndicator,
-  dark_alt1_RadioGroupItem: () => dark_alt1_RadioGroupItem,
-  dark_alt1_SheetOverlay: () => dark_alt1_SheetOverlay,
-  dark_alt1_SliderThumb: () => dark_alt1_SliderThumb,
-  dark_alt1_SliderTrack: () => dark_alt1_SliderTrack,
-  dark_alt1_SliderTrackActive: () => dark_alt1_SliderTrackActive,
-  dark_alt1_Switch: () => dark_alt1_Switch,
-  dark_alt1_SwitchThumb: () => dark_alt1_SwitchThumb,
-  dark_alt1_TextArea: () => dark_alt1_TextArea,
-  dark_alt1_Tooltip: () => dark_alt1_Tooltip,
-  dark_alt1_TooltipArrow: () => dark_alt1_TooltipArrow,
-  dark_alt1_TooltipContent: () => dark_alt1_TooltipContent,
-  dark_alt2: () => dark_alt2,
-  dark_alt2_Button: () => dark_alt2_Button,
-  dark_alt2_Card: () => dark_alt2_Card,
-  dark_alt2_Checkbox: () => dark_alt2_Checkbox,
-  dark_alt2_DialogOverlay: () => dark_alt2_DialogOverlay,
-  dark_alt2_DrawerFrame: () => dark_alt2_DrawerFrame,
-  dark_alt2_Input: () => dark_alt2_Input,
-  dark_alt2_ListItem: () => dark_alt2_ListItem,
-  dark_alt2_ModalOverlay: () => dark_alt2_ModalOverlay,
-  dark_alt2_Progress: () => dark_alt2_Progress,
-  dark_alt2_ProgressIndicator: () => dark_alt2_ProgressIndicator,
-  dark_alt2_RadioGroupItem: () => dark_alt2_RadioGroupItem,
-  dark_alt2_SheetOverlay: () => dark_alt2_SheetOverlay,
-  dark_alt2_SliderThumb: () => dark_alt2_SliderThumb,
-  dark_alt2_SliderTrack: () => dark_alt2_SliderTrack,
-  dark_alt2_SliderTrackActive: () => dark_alt2_SliderTrackActive,
-  dark_alt2_Switch: () => dark_alt2_Switch,
-  dark_alt2_SwitchThumb: () => dark_alt2_SwitchThumb,
-  dark_alt2_TextArea: () => dark_alt2_TextArea,
-  dark_alt2_Tooltip: () => dark_alt2_Tooltip,
-  dark_alt2_TooltipArrow: () => dark_alt2_TooltipArrow,
-  dark_alt2_TooltipContent: () => dark_alt2_TooltipContent,
-  dark_blue: () => dark_blue,
-  dark_blue_Button: () => dark_blue_Button,
-  dark_blue_Card: () => dark_blue_Card,
-  dark_blue_Checkbox: () => dark_blue_Checkbox,
-  dark_blue_DialogOverlay: () => dark_blue_DialogOverlay,
-  dark_blue_DrawerFrame: () => dark_blue_DrawerFrame,
-  dark_blue_Input: () => dark_blue_Input,
-  dark_blue_ListItem: () => dark_blue_ListItem,
-  dark_blue_ModalOverlay: () => dark_blue_ModalOverlay,
-  dark_blue_Progress: () => dark_blue_Progress,
-  dark_blue_ProgressIndicator: () => dark_blue_ProgressIndicator,
-  dark_blue_RadioGroupItem: () => dark_blue_RadioGroupItem,
-  dark_blue_SheetOverlay: () => dark_blue_SheetOverlay,
-  dark_blue_SliderThumb: () => dark_blue_SliderThumb,
-  dark_blue_SliderTrack: () => dark_blue_SliderTrack,
-  dark_blue_SliderTrackActive: () => dark_blue_SliderTrackActive,
-  dark_blue_Switch: () => dark_blue_Switch,
-  dark_blue_SwitchThumb: () => dark_blue_SwitchThumb,
-  dark_blue_TextArea: () => dark_blue_TextArea,
-  dark_blue_Tooltip: () => dark_blue_Tooltip,
-  dark_blue_TooltipArrow: () => dark_blue_TooltipArrow,
-  dark_blue_TooltipContent: () => dark_blue_TooltipContent,
-  dark_blue_active: () => dark_blue_active,
-  dark_blue_active_Button: () => dark_blue_active_Button,
-  dark_blue_active_Card: () => dark_blue_active_Card,
-  dark_blue_active_Checkbox: () => dark_blue_active_Checkbox,
-  dark_blue_active_DialogOverlay: () => dark_blue_active_DialogOverlay,
-  dark_blue_active_DrawerFrame: () => dark_blue_active_DrawerFrame,
-  dark_blue_active_Input: () => dark_blue_active_Input,
-  dark_blue_active_ListItem: () => dark_blue_active_ListItem,
-  dark_blue_active_ModalOverlay: () => dark_blue_active_ModalOverlay,
-  dark_blue_active_Progress: () => dark_blue_active_Progress,
-  dark_blue_active_ProgressIndicator: () => dark_blue_active_ProgressIndicator,
-  dark_blue_active_RadioGroupItem: () => dark_blue_active_RadioGroupItem,
-  dark_blue_active_SheetOverlay: () => dark_blue_active_SheetOverlay,
-  dark_blue_active_SliderThumb: () => dark_blue_active_SliderThumb,
-  dark_blue_active_SliderTrack: () => dark_blue_active_SliderTrack,
-  dark_blue_active_SliderTrackActive: () => dark_blue_active_SliderTrackActive,
-  dark_blue_active_Switch: () => dark_blue_active_Switch,
-  dark_blue_active_SwitchThumb: () => dark_blue_active_SwitchThumb,
-  dark_blue_active_TextArea: () => dark_blue_active_TextArea,
-  dark_blue_active_Tooltip: () => dark_blue_active_Tooltip,
-  dark_blue_active_TooltipArrow: () => dark_blue_active_TooltipArrow,
-  dark_blue_active_TooltipContent: () => dark_blue_active_TooltipContent,
-  dark_blue_alt1: () => dark_blue_alt1,
-  dark_blue_alt1_Button: () => dark_blue_alt1_Button,
-  dark_blue_alt1_Card: () => dark_blue_alt1_Card,
-  dark_blue_alt1_Checkbox: () => dark_blue_alt1_Checkbox,
-  dark_blue_alt1_DialogOverlay: () => dark_blue_alt1_DialogOverlay,
-  dark_blue_alt1_DrawerFrame: () => dark_blue_alt1_DrawerFrame,
-  dark_blue_alt1_Input: () => dark_blue_alt1_Input,
-  dark_blue_alt1_ListItem: () => dark_blue_alt1_ListItem,
-  dark_blue_alt1_ModalOverlay: () => dark_blue_alt1_ModalOverlay,
-  dark_blue_alt1_Progress: () => dark_blue_alt1_Progress,
-  dark_blue_alt1_ProgressIndicator: () => dark_blue_alt1_ProgressIndicator,
-  dark_blue_alt1_RadioGroupItem: () => dark_blue_alt1_RadioGroupItem,
-  dark_blue_alt1_SheetOverlay: () => dark_blue_alt1_SheetOverlay,
-  dark_blue_alt1_SliderThumb: () => dark_blue_alt1_SliderThumb,
-  dark_blue_alt1_SliderTrack: () => dark_blue_alt1_SliderTrack,
-  dark_blue_alt1_SliderTrackActive: () => dark_blue_alt1_SliderTrackActive,
-  dark_blue_alt1_Switch: () => dark_blue_alt1_Switch,
-  dark_blue_alt1_SwitchThumb: () => dark_blue_alt1_SwitchThumb,
-  dark_blue_alt1_TextArea: () => dark_blue_alt1_TextArea,
-  dark_blue_alt1_Tooltip: () => dark_blue_alt1_Tooltip,
-  dark_blue_alt1_TooltipArrow: () => dark_blue_alt1_TooltipArrow,
-  dark_blue_alt1_TooltipContent: () => dark_blue_alt1_TooltipContent,
-  dark_blue_alt2: () => dark_blue_alt2,
-  dark_blue_alt2_Button: () => dark_blue_alt2_Button,
-  dark_blue_alt2_Card: () => dark_blue_alt2_Card,
-  dark_blue_alt2_Checkbox: () => dark_blue_alt2_Checkbox,
-  dark_blue_alt2_DialogOverlay: () => dark_blue_alt2_DialogOverlay,
-  dark_blue_alt2_DrawerFrame: () => dark_blue_alt2_DrawerFrame,
-  dark_blue_alt2_Input: () => dark_blue_alt2_Input,
-  dark_blue_alt2_ListItem: () => dark_blue_alt2_ListItem,
-  dark_blue_alt2_ModalOverlay: () => dark_blue_alt2_ModalOverlay,
-  dark_blue_alt2_Progress: () => dark_blue_alt2_Progress,
-  dark_blue_alt2_ProgressIndicator: () => dark_blue_alt2_ProgressIndicator,
-  dark_blue_alt2_RadioGroupItem: () => dark_blue_alt2_RadioGroupItem,
-  dark_blue_alt2_SheetOverlay: () => dark_blue_alt2_SheetOverlay,
-  dark_blue_alt2_SliderThumb: () => dark_blue_alt2_SliderThumb,
-  dark_blue_alt2_SliderTrack: () => dark_blue_alt2_SliderTrack,
-  dark_blue_alt2_SliderTrackActive: () => dark_blue_alt2_SliderTrackActive,
-  dark_blue_alt2_Switch: () => dark_blue_alt2_Switch,
-  dark_blue_alt2_SwitchThumb: () => dark_blue_alt2_SwitchThumb,
-  dark_blue_alt2_TextArea: () => dark_blue_alt2_TextArea,
-  dark_blue_alt2_Tooltip: () => dark_blue_alt2_Tooltip,
-  dark_blue_alt2_TooltipArrow: () => dark_blue_alt2_TooltipArrow,
-  dark_blue_alt2_TooltipContent: () => dark_blue_alt2_TooltipContent,
-  dark_green: () => dark_green,
-  dark_green_Button: () => dark_green_Button,
-  dark_green_Card: () => dark_green_Card,
-  dark_green_Checkbox: () => dark_green_Checkbox,
-  dark_green_DialogOverlay: () => dark_green_DialogOverlay,
-  dark_green_DrawerFrame: () => dark_green_DrawerFrame,
-  dark_green_Input: () => dark_green_Input,
-  dark_green_ListItem: () => dark_green_ListItem,
-  dark_green_ModalOverlay: () => dark_green_ModalOverlay,
-  dark_green_Progress: () => dark_green_Progress,
-  dark_green_ProgressIndicator: () => dark_green_ProgressIndicator,
-  dark_green_RadioGroupItem: () => dark_green_RadioGroupItem,
-  dark_green_SheetOverlay: () => dark_green_SheetOverlay,
-  dark_green_SliderThumb: () => dark_green_SliderThumb,
-  dark_green_SliderTrack: () => dark_green_SliderTrack,
-  dark_green_SliderTrackActive: () => dark_green_SliderTrackActive,
-  dark_green_Switch: () => dark_green_Switch,
-  dark_green_SwitchThumb: () => dark_green_SwitchThumb,
-  dark_green_TextArea: () => dark_green_TextArea,
-  dark_green_Tooltip: () => dark_green_Tooltip,
-  dark_green_TooltipArrow: () => dark_green_TooltipArrow,
-  dark_green_TooltipContent: () => dark_green_TooltipContent,
-  dark_green_active: () => dark_green_active,
-  dark_green_active_Button: () => dark_green_active_Button,
-  dark_green_active_Card: () => dark_green_active_Card,
-  dark_green_active_Checkbox: () => dark_green_active_Checkbox,
-  dark_green_active_DialogOverlay: () => dark_green_active_DialogOverlay,
-  dark_green_active_DrawerFrame: () => dark_green_active_DrawerFrame,
-  dark_green_active_Input: () => dark_green_active_Input,
-  dark_green_active_ListItem: () => dark_green_active_ListItem,
-  dark_green_active_ModalOverlay: () => dark_green_active_ModalOverlay,
-  dark_green_active_Progress: () => dark_green_active_Progress,
-  dark_green_active_ProgressIndicator: () => dark_green_active_ProgressIndicator,
-  dark_green_active_RadioGroupItem: () => dark_green_active_RadioGroupItem,
-  dark_green_active_SheetOverlay: () => dark_green_active_SheetOverlay,
-  dark_green_active_SliderThumb: () => dark_green_active_SliderThumb,
-  dark_green_active_SliderTrack: () => dark_green_active_SliderTrack,
-  dark_green_active_SliderTrackActive: () => dark_green_active_SliderTrackActive,
-  dark_green_active_Switch: () => dark_green_active_Switch,
-  dark_green_active_SwitchThumb: () => dark_green_active_SwitchThumb,
-  dark_green_active_TextArea: () => dark_green_active_TextArea,
-  dark_green_active_Tooltip: () => dark_green_active_Tooltip,
-  dark_green_active_TooltipArrow: () => dark_green_active_TooltipArrow,
-  dark_green_active_TooltipContent: () => dark_green_active_TooltipContent,
-  dark_green_alt1: () => dark_green_alt1,
-  dark_green_alt1_Button: () => dark_green_alt1_Button,
-  dark_green_alt1_Card: () => dark_green_alt1_Card,
-  dark_green_alt1_Checkbox: () => dark_green_alt1_Checkbox,
-  dark_green_alt1_DialogOverlay: () => dark_green_alt1_DialogOverlay,
-  dark_green_alt1_DrawerFrame: () => dark_green_alt1_DrawerFrame,
-  dark_green_alt1_Input: () => dark_green_alt1_Input,
-  dark_green_alt1_ListItem: () => dark_green_alt1_ListItem,
-  dark_green_alt1_ModalOverlay: () => dark_green_alt1_ModalOverlay,
-  dark_green_alt1_Progress: () => dark_green_alt1_Progress,
-  dark_green_alt1_ProgressIndicator: () => dark_green_alt1_ProgressIndicator,
-  dark_green_alt1_RadioGroupItem: () => dark_green_alt1_RadioGroupItem,
-  dark_green_alt1_SheetOverlay: () => dark_green_alt1_SheetOverlay,
-  dark_green_alt1_SliderThumb: () => dark_green_alt1_SliderThumb,
-  dark_green_alt1_SliderTrack: () => dark_green_alt1_SliderTrack,
-  dark_green_alt1_SliderTrackActive: () => dark_green_alt1_SliderTrackActive,
-  dark_green_alt1_Switch: () => dark_green_alt1_Switch,
-  dark_green_alt1_SwitchThumb: () => dark_green_alt1_SwitchThumb,
-  dark_green_alt1_TextArea: () => dark_green_alt1_TextArea,
-  dark_green_alt1_Tooltip: () => dark_green_alt1_Tooltip,
-  dark_green_alt1_TooltipArrow: () => dark_green_alt1_TooltipArrow,
-  dark_green_alt1_TooltipContent: () => dark_green_alt1_TooltipContent,
-  dark_green_alt2: () => dark_green_alt2,
-  dark_green_alt2_Button: () => dark_green_alt2_Button,
-  dark_green_alt2_Card: () => dark_green_alt2_Card,
-  dark_green_alt2_Checkbox: () => dark_green_alt2_Checkbox,
-  dark_green_alt2_DialogOverlay: () => dark_green_alt2_DialogOverlay,
-  dark_green_alt2_DrawerFrame: () => dark_green_alt2_DrawerFrame,
-  dark_green_alt2_Input: () => dark_green_alt2_Input,
-  dark_green_alt2_ListItem: () => dark_green_alt2_ListItem,
-  dark_green_alt2_ModalOverlay: () => dark_green_alt2_ModalOverlay,
-  dark_green_alt2_Progress: () => dark_green_alt2_Progress,
-  dark_green_alt2_ProgressIndicator: () => dark_green_alt2_ProgressIndicator,
-  dark_green_alt2_RadioGroupItem: () => dark_green_alt2_RadioGroupItem,
-  dark_green_alt2_SheetOverlay: () => dark_green_alt2_SheetOverlay,
-  dark_green_alt2_SliderThumb: () => dark_green_alt2_SliderThumb,
-  dark_green_alt2_SliderTrack: () => dark_green_alt2_SliderTrack,
-  dark_green_alt2_SliderTrackActive: () => dark_green_alt2_SliderTrackActive,
-  dark_green_alt2_Switch: () => dark_green_alt2_Switch,
-  dark_green_alt2_SwitchThumb: () => dark_green_alt2_SwitchThumb,
-  dark_green_alt2_TextArea: () => dark_green_alt2_TextArea,
-  dark_green_alt2_Tooltip: () => dark_green_alt2_Tooltip,
-  dark_green_alt2_TooltipArrow: () => dark_green_alt2_TooltipArrow,
-  dark_green_alt2_TooltipContent: () => dark_green_alt2_TooltipContent,
-  dark_orange: () => dark_orange,
-  dark_orange_Button: () => dark_orange_Button,
-  dark_orange_Card: () => dark_orange_Card,
-  dark_orange_Checkbox: () => dark_orange_Checkbox,
-  dark_orange_DialogOverlay: () => dark_orange_DialogOverlay,
-  dark_orange_DrawerFrame: () => dark_orange_DrawerFrame,
-  dark_orange_Input: () => dark_orange_Input,
-  dark_orange_ListItem: () => dark_orange_ListItem,
-  dark_orange_ModalOverlay: () => dark_orange_ModalOverlay,
-  dark_orange_Progress: () => dark_orange_Progress,
-  dark_orange_ProgressIndicator: () => dark_orange_ProgressIndicator,
-  dark_orange_RadioGroupItem: () => dark_orange_RadioGroupItem,
-  dark_orange_SheetOverlay: () => dark_orange_SheetOverlay,
-  dark_orange_SliderThumb: () => dark_orange_SliderThumb,
-  dark_orange_SliderTrack: () => dark_orange_SliderTrack,
-  dark_orange_SliderTrackActive: () => dark_orange_SliderTrackActive,
-  dark_orange_Switch: () => dark_orange_Switch,
-  dark_orange_SwitchThumb: () => dark_orange_SwitchThumb,
-  dark_orange_TextArea: () => dark_orange_TextArea,
-  dark_orange_Tooltip: () => dark_orange_Tooltip,
-  dark_orange_TooltipArrow: () => dark_orange_TooltipArrow,
-  dark_orange_TooltipContent: () => dark_orange_TooltipContent,
-  dark_orange_active: () => dark_orange_active,
-  dark_orange_active_Button: () => dark_orange_active_Button,
-  dark_orange_active_Card: () => dark_orange_active_Card,
-  dark_orange_active_Checkbox: () => dark_orange_active_Checkbox,
-  dark_orange_active_DialogOverlay: () => dark_orange_active_DialogOverlay,
-  dark_orange_active_DrawerFrame: () => dark_orange_active_DrawerFrame,
-  dark_orange_active_Input: () => dark_orange_active_Input,
-  dark_orange_active_ListItem: () => dark_orange_active_ListItem,
-  dark_orange_active_ModalOverlay: () => dark_orange_active_ModalOverlay,
-  dark_orange_active_Progress: () => dark_orange_active_Progress,
-  dark_orange_active_ProgressIndicator: () => dark_orange_active_ProgressIndicator,
-  dark_orange_active_RadioGroupItem: () => dark_orange_active_RadioGroupItem,
-  dark_orange_active_SheetOverlay: () => dark_orange_active_SheetOverlay,
-  dark_orange_active_SliderThumb: () => dark_orange_active_SliderThumb,
-  dark_orange_active_SliderTrack: () => dark_orange_active_SliderTrack,
-  dark_orange_active_SliderTrackActive: () => dark_orange_active_SliderTrackActive,
-  dark_orange_active_Switch: () => dark_orange_active_Switch,
-  dark_orange_active_SwitchThumb: () => dark_orange_active_SwitchThumb,
-  dark_orange_active_TextArea: () => dark_orange_active_TextArea,
-  dark_orange_active_Tooltip: () => dark_orange_active_Tooltip,
-  dark_orange_active_TooltipArrow: () => dark_orange_active_TooltipArrow,
-  dark_orange_active_TooltipContent: () => dark_orange_active_TooltipContent,
-  dark_orange_alt1: () => dark_orange_alt1,
-  dark_orange_alt1_Button: () => dark_orange_alt1_Button,
-  dark_orange_alt1_Card: () => dark_orange_alt1_Card,
-  dark_orange_alt1_Checkbox: () => dark_orange_alt1_Checkbox,
-  dark_orange_alt1_DialogOverlay: () => dark_orange_alt1_DialogOverlay,
-  dark_orange_alt1_DrawerFrame: () => dark_orange_alt1_DrawerFrame,
-  dark_orange_alt1_Input: () => dark_orange_alt1_Input,
-  dark_orange_alt1_ListItem: () => dark_orange_alt1_ListItem,
-  dark_orange_alt1_ModalOverlay: () => dark_orange_alt1_ModalOverlay,
-  dark_orange_alt1_Progress: () => dark_orange_alt1_Progress,
-  dark_orange_alt1_ProgressIndicator: () => dark_orange_alt1_ProgressIndicator,
-  dark_orange_alt1_RadioGroupItem: () => dark_orange_alt1_RadioGroupItem,
-  dark_orange_alt1_SheetOverlay: () => dark_orange_alt1_SheetOverlay,
-  dark_orange_alt1_SliderThumb: () => dark_orange_alt1_SliderThumb,
-  dark_orange_alt1_SliderTrack: () => dark_orange_alt1_SliderTrack,
-  dark_orange_alt1_SliderTrackActive: () => dark_orange_alt1_SliderTrackActive,
-  dark_orange_alt1_Switch: () => dark_orange_alt1_Switch,
-  dark_orange_alt1_SwitchThumb: () => dark_orange_alt1_SwitchThumb,
-  dark_orange_alt1_TextArea: () => dark_orange_alt1_TextArea,
-  dark_orange_alt1_Tooltip: () => dark_orange_alt1_Tooltip,
-  dark_orange_alt1_TooltipArrow: () => dark_orange_alt1_TooltipArrow,
-  dark_orange_alt1_TooltipContent: () => dark_orange_alt1_TooltipContent,
-  dark_orange_alt2: () => dark_orange_alt2,
-  dark_orange_alt2_Button: () => dark_orange_alt2_Button,
-  dark_orange_alt2_Card: () => dark_orange_alt2_Card,
-  dark_orange_alt2_Checkbox: () => dark_orange_alt2_Checkbox,
-  dark_orange_alt2_DialogOverlay: () => dark_orange_alt2_DialogOverlay,
-  dark_orange_alt2_DrawerFrame: () => dark_orange_alt2_DrawerFrame,
-  dark_orange_alt2_Input: () => dark_orange_alt2_Input,
-  dark_orange_alt2_ListItem: () => dark_orange_alt2_ListItem,
-  dark_orange_alt2_ModalOverlay: () => dark_orange_alt2_ModalOverlay,
-  dark_orange_alt2_Progress: () => dark_orange_alt2_Progress,
-  dark_orange_alt2_ProgressIndicator: () => dark_orange_alt2_ProgressIndicator,
-  dark_orange_alt2_RadioGroupItem: () => dark_orange_alt2_RadioGroupItem,
-  dark_orange_alt2_SheetOverlay: () => dark_orange_alt2_SheetOverlay,
-  dark_orange_alt2_SliderThumb: () => dark_orange_alt2_SliderThumb,
-  dark_orange_alt2_SliderTrack: () => dark_orange_alt2_SliderTrack,
-  dark_orange_alt2_SliderTrackActive: () => dark_orange_alt2_SliderTrackActive,
-  dark_orange_alt2_Switch: () => dark_orange_alt2_Switch,
-  dark_orange_alt2_SwitchThumb: () => dark_orange_alt2_SwitchThumb,
-  dark_orange_alt2_TextArea: () => dark_orange_alt2_TextArea,
-  dark_orange_alt2_Tooltip: () => dark_orange_alt2_Tooltip,
-  dark_orange_alt2_TooltipArrow: () => dark_orange_alt2_TooltipArrow,
-  dark_orange_alt2_TooltipContent: () => dark_orange_alt2_TooltipContent,
-  dark_pink: () => dark_pink,
-  dark_pink_Button: () => dark_pink_Button,
-  dark_pink_Card: () => dark_pink_Card,
-  dark_pink_Checkbox: () => dark_pink_Checkbox,
-  dark_pink_DialogOverlay: () => dark_pink_DialogOverlay,
-  dark_pink_DrawerFrame: () => dark_pink_DrawerFrame,
-  dark_pink_Input: () => dark_pink_Input,
-  dark_pink_ListItem: () => dark_pink_ListItem,
-  dark_pink_ModalOverlay: () => dark_pink_ModalOverlay,
-  dark_pink_Progress: () => dark_pink_Progress,
-  dark_pink_ProgressIndicator: () => dark_pink_ProgressIndicator,
-  dark_pink_RadioGroupItem: () => dark_pink_RadioGroupItem,
-  dark_pink_SheetOverlay: () => dark_pink_SheetOverlay,
-  dark_pink_SliderThumb: () => dark_pink_SliderThumb,
-  dark_pink_SliderTrack: () => dark_pink_SliderTrack,
-  dark_pink_SliderTrackActive: () => dark_pink_SliderTrackActive,
-  dark_pink_Switch: () => dark_pink_Switch,
-  dark_pink_SwitchThumb: () => dark_pink_SwitchThumb,
-  dark_pink_TextArea: () => dark_pink_TextArea,
-  dark_pink_Tooltip: () => dark_pink_Tooltip,
-  dark_pink_TooltipArrow: () => dark_pink_TooltipArrow,
-  dark_pink_TooltipContent: () => dark_pink_TooltipContent,
-  dark_pink_active: () => dark_pink_active,
-  dark_pink_active_Button: () => dark_pink_active_Button,
-  dark_pink_active_Card: () => dark_pink_active_Card,
-  dark_pink_active_Checkbox: () => dark_pink_active_Checkbox,
-  dark_pink_active_DialogOverlay: () => dark_pink_active_DialogOverlay,
-  dark_pink_active_DrawerFrame: () => dark_pink_active_DrawerFrame,
-  dark_pink_active_Input: () => dark_pink_active_Input,
-  dark_pink_active_ListItem: () => dark_pink_active_ListItem,
-  dark_pink_active_ModalOverlay: () => dark_pink_active_ModalOverlay,
-  dark_pink_active_Progress: () => dark_pink_active_Progress,
-  dark_pink_active_ProgressIndicator: () => dark_pink_active_ProgressIndicator,
-  dark_pink_active_RadioGroupItem: () => dark_pink_active_RadioGroupItem,
-  dark_pink_active_SheetOverlay: () => dark_pink_active_SheetOverlay,
-  dark_pink_active_SliderThumb: () => dark_pink_active_SliderThumb,
-  dark_pink_active_SliderTrack: () => dark_pink_active_SliderTrack,
-  dark_pink_active_SliderTrackActive: () => dark_pink_active_SliderTrackActive,
-  dark_pink_active_Switch: () => dark_pink_active_Switch,
-  dark_pink_active_SwitchThumb: () => dark_pink_active_SwitchThumb,
-  dark_pink_active_TextArea: () => dark_pink_active_TextArea,
-  dark_pink_active_Tooltip: () => dark_pink_active_Tooltip,
-  dark_pink_active_TooltipArrow: () => dark_pink_active_TooltipArrow,
-  dark_pink_active_TooltipContent: () => dark_pink_active_TooltipContent,
-  dark_pink_alt1: () => dark_pink_alt1,
-  dark_pink_alt1_Button: () => dark_pink_alt1_Button,
-  dark_pink_alt1_Card: () => dark_pink_alt1_Card,
-  dark_pink_alt1_Checkbox: () => dark_pink_alt1_Checkbox,
-  dark_pink_alt1_DialogOverlay: () => dark_pink_alt1_DialogOverlay,
-  dark_pink_alt1_DrawerFrame: () => dark_pink_alt1_DrawerFrame,
-  dark_pink_alt1_Input: () => dark_pink_alt1_Input,
-  dark_pink_alt1_ListItem: () => dark_pink_alt1_ListItem,
-  dark_pink_alt1_ModalOverlay: () => dark_pink_alt1_ModalOverlay,
-  dark_pink_alt1_Progress: () => dark_pink_alt1_Progress,
-  dark_pink_alt1_ProgressIndicator: () => dark_pink_alt1_ProgressIndicator,
-  dark_pink_alt1_RadioGroupItem: () => dark_pink_alt1_RadioGroupItem,
-  dark_pink_alt1_SheetOverlay: () => dark_pink_alt1_SheetOverlay,
-  dark_pink_alt1_SliderThumb: () => dark_pink_alt1_SliderThumb,
-  dark_pink_alt1_SliderTrack: () => dark_pink_alt1_SliderTrack,
-  dark_pink_alt1_SliderTrackActive: () => dark_pink_alt1_SliderTrackActive,
-  dark_pink_alt1_Switch: () => dark_pink_alt1_Switch,
-  dark_pink_alt1_SwitchThumb: () => dark_pink_alt1_SwitchThumb,
-  dark_pink_alt1_TextArea: () => dark_pink_alt1_TextArea,
-  dark_pink_alt1_Tooltip: () => dark_pink_alt1_Tooltip,
-  dark_pink_alt1_TooltipArrow: () => dark_pink_alt1_TooltipArrow,
-  dark_pink_alt1_TooltipContent: () => dark_pink_alt1_TooltipContent,
-  dark_pink_alt2: () => dark_pink_alt2,
-  dark_pink_alt2_Button: () => dark_pink_alt2_Button,
-  dark_pink_alt2_Card: () => dark_pink_alt2_Card,
-  dark_pink_alt2_Checkbox: () => dark_pink_alt2_Checkbox,
-  dark_pink_alt2_DialogOverlay: () => dark_pink_alt2_DialogOverlay,
-  dark_pink_alt2_DrawerFrame: () => dark_pink_alt2_DrawerFrame,
-  dark_pink_alt2_Input: () => dark_pink_alt2_Input,
-  dark_pink_alt2_ListItem: () => dark_pink_alt2_ListItem,
-  dark_pink_alt2_ModalOverlay: () => dark_pink_alt2_ModalOverlay,
-  dark_pink_alt2_Progress: () => dark_pink_alt2_Progress,
-  dark_pink_alt2_ProgressIndicator: () => dark_pink_alt2_ProgressIndicator,
-  dark_pink_alt2_RadioGroupItem: () => dark_pink_alt2_RadioGroupItem,
-  dark_pink_alt2_SheetOverlay: () => dark_pink_alt2_SheetOverlay,
-  dark_pink_alt2_SliderThumb: () => dark_pink_alt2_SliderThumb,
-  dark_pink_alt2_SliderTrack: () => dark_pink_alt2_SliderTrack,
-  dark_pink_alt2_SliderTrackActive: () => dark_pink_alt2_SliderTrackActive,
-  dark_pink_alt2_Switch: () => dark_pink_alt2_Switch,
-  dark_pink_alt2_SwitchThumb: () => dark_pink_alt2_SwitchThumb,
-  dark_pink_alt2_TextArea: () => dark_pink_alt2_TextArea,
-  dark_pink_alt2_Tooltip: () => dark_pink_alt2_Tooltip,
-  dark_pink_alt2_TooltipArrow: () => dark_pink_alt2_TooltipArrow,
-  dark_pink_alt2_TooltipContent: () => dark_pink_alt2_TooltipContent,
-  dark_purple: () => dark_purple,
-  dark_purple_Button: () => dark_purple_Button,
-  dark_purple_Card: () => dark_purple_Card,
-  dark_purple_Checkbox: () => dark_purple_Checkbox,
-  dark_purple_DialogOverlay: () => dark_purple_DialogOverlay,
-  dark_purple_DrawerFrame: () => dark_purple_DrawerFrame,
-  dark_purple_Input: () => dark_purple_Input,
-  dark_purple_ListItem: () => dark_purple_ListItem,
-  dark_purple_ModalOverlay: () => dark_purple_ModalOverlay,
-  dark_purple_Progress: () => dark_purple_Progress,
-  dark_purple_ProgressIndicator: () => dark_purple_ProgressIndicator,
-  dark_purple_RadioGroupItem: () => dark_purple_RadioGroupItem,
-  dark_purple_SheetOverlay: () => dark_purple_SheetOverlay,
-  dark_purple_SliderThumb: () => dark_purple_SliderThumb,
-  dark_purple_SliderTrack: () => dark_purple_SliderTrack,
-  dark_purple_SliderTrackActive: () => dark_purple_SliderTrackActive,
-  dark_purple_Switch: () => dark_purple_Switch,
-  dark_purple_SwitchThumb: () => dark_purple_SwitchThumb,
-  dark_purple_TextArea: () => dark_purple_TextArea,
-  dark_purple_Tooltip: () => dark_purple_Tooltip,
-  dark_purple_TooltipArrow: () => dark_purple_TooltipArrow,
-  dark_purple_TooltipContent: () => dark_purple_TooltipContent,
-  dark_purple_active: () => dark_purple_active,
-  dark_purple_active_Button: () => dark_purple_active_Button,
-  dark_purple_active_Card: () => dark_purple_active_Card,
-  dark_purple_active_Checkbox: () => dark_purple_active_Checkbox,
-  dark_purple_active_DialogOverlay: () => dark_purple_active_DialogOverlay,
-  dark_purple_active_DrawerFrame: () => dark_purple_active_DrawerFrame,
-  dark_purple_active_Input: () => dark_purple_active_Input,
-  dark_purple_active_ListItem: () => dark_purple_active_ListItem,
-  dark_purple_active_ModalOverlay: () => dark_purple_active_ModalOverlay,
-  dark_purple_active_Progress: () => dark_purple_active_Progress,
-  dark_purple_active_ProgressIndicator: () => dark_purple_active_ProgressIndicator,
-  dark_purple_active_RadioGroupItem: () => dark_purple_active_RadioGroupItem,
-  dark_purple_active_SheetOverlay: () => dark_purple_active_SheetOverlay,
-  dark_purple_active_SliderThumb: () => dark_purple_active_SliderThumb,
-  dark_purple_active_SliderTrack: () => dark_purple_active_SliderTrack,
-  dark_purple_active_SliderTrackActive: () => dark_purple_active_SliderTrackActive,
-  dark_purple_active_Switch: () => dark_purple_active_Switch,
-  dark_purple_active_SwitchThumb: () => dark_purple_active_SwitchThumb,
-  dark_purple_active_TextArea: () => dark_purple_active_TextArea,
-  dark_purple_active_Tooltip: () => dark_purple_active_Tooltip,
-  dark_purple_active_TooltipArrow: () => dark_purple_active_TooltipArrow,
-  dark_purple_active_TooltipContent: () => dark_purple_active_TooltipContent,
-  dark_purple_alt1: () => dark_purple_alt1,
-  dark_purple_alt1_Button: () => dark_purple_alt1_Button,
-  dark_purple_alt1_Card: () => dark_purple_alt1_Card,
-  dark_purple_alt1_Checkbox: () => dark_purple_alt1_Checkbox,
-  dark_purple_alt1_DialogOverlay: () => dark_purple_alt1_DialogOverlay,
-  dark_purple_alt1_DrawerFrame: () => dark_purple_alt1_DrawerFrame,
-  dark_purple_alt1_Input: () => dark_purple_alt1_Input,
-  dark_purple_alt1_ListItem: () => dark_purple_alt1_ListItem,
-  dark_purple_alt1_ModalOverlay: () => dark_purple_alt1_ModalOverlay,
-  dark_purple_alt1_Progress: () => dark_purple_alt1_Progress,
-  dark_purple_alt1_ProgressIndicator: () => dark_purple_alt1_ProgressIndicator,
-  dark_purple_alt1_RadioGroupItem: () => dark_purple_alt1_RadioGroupItem,
-  dark_purple_alt1_SheetOverlay: () => dark_purple_alt1_SheetOverlay,
-  dark_purple_alt1_SliderThumb: () => dark_purple_alt1_SliderThumb,
-  dark_purple_alt1_SliderTrack: () => dark_purple_alt1_SliderTrack,
-  dark_purple_alt1_SliderTrackActive: () => dark_purple_alt1_SliderTrackActive,
-  dark_purple_alt1_Switch: () => dark_purple_alt1_Switch,
-  dark_purple_alt1_SwitchThumb: () => dark_purple_alt1_SwitchThumb,
-  dark_purple_alt1_TextArea: () => dark_purple_alt1_TextArea,
-  dark_purple_alt1_Tooltip: () => dark_purple_alt1_Tooltip,
-  dark_purple_alt1_TooltipArrow: () => dark_purple_alt1_TooltipArrow,
-  dark_purple_alt1_TooltipContent: () => dark_purple_alt1_TooltipContent,
-  dark_purple_alt2: () => dark_purple_alt2,
-  dark_purple_alt2_Button: () => dark_purple_alt2_Button,
-  dark_purple_alt2_Card: () => dark_purple_alt2_Card,
-  dark_purple_alt2_Checkbox: () => dark_purple_alt2_Checkbox,
-  dark_purple_alt2_DialogOverlay: () => dark_purple_alt2_DialogOverlay,
-  dark_purple_alt2_DrawerFrame: () => dark_purple_alt2_DrawerFrame,
-  dark_purple_alt2_Input: () => dark_purple_alt2_Input,
-  dark_purple_alt2_ListItem: () => dark_purple_alt2_ListItem,
-  dark_purple_alt2_ModalOverlay: () => dark_purple_alt2_ModalOverlay,
-  dark_purple_alt2_Progress: () => dark_purple_alt2_Progress,
-  dark_purple_alt2_ProgressIndicator: () => dark_purple_alt2_ProgressIndicator,
-  dark_purple_alt2_RadioGroupItem: () => dark_purple_alt2_RadioGroupItem,
-  dark_purple_alt2_SheetOverlay: () => dark_purple_alt2_SheetOverlay,
-  dark_purple_alt2_SliderThumb: () => dark_purple_alt2_SliderThumb,
-  dark_purple_alt2_SliderTrack: () => dark_purple_alt2_SliderTrack,
-  dark_purple_alt2_SliderTrackActive: () => dark_purple_alt2_SliderTrackActive,
-  dark_purple_alt2_Switch: () => dark_purple_alt2_Switch,
-  dark_purple_alt2_SwitchThumb: () => dark_purple_alt2_SwitchThumb,
-  dark_purple_alt2_TextArea: () => dark_purple_alt2_TextArea,
-  dark_purple_alt2_Tooltip: () => dark_purple_alt2_Tooltip,
-  dark_purple_alt2_TooltipArrow: () => dark_purple_alt2_TooltipArrow,
-  dark_purple_alt2_TooltipContent: () => dark_purple_alt2_TooltipContent,
-  dark_red: () => dark_red,
-  dark_red_Button: () => dark_red_Button,
-  dark_red_Card: () => dark_red_Card,
-  dark_red_Checkbox: () => dark_red_Checkbox,
-  dark_red_DialogOverlay: () => dark_red_DialogOverlay,
-  dark_red_DrawerFrame: () => dark_red_DrawerFrame,
-  dark_red_Input: () => dark_red_Input,
-  dark_red_ListItem: () => dark_red_ListItem,
-  dark_red_ModalOverlay: () => dark_red_ModalOverlay,
-  dark_red_Progress: () => dark_red_Progress,
-  dark_red_ProgressIndicator: () => dark_red_ProgressIndicator,
-  dark_red_RadioGroupItem: () => dark_red_RadioGroupItem,
-  dark_red_SheetOverlay: () => dark_red_SheetOverlay,
-  dark_red_SliderThumb: () => dark_red_SliderThumb,
-  dark_red_SliderTrack: () => dark_red_SliderTrack,
-  dark_red_SliderTrackActive: () => dark_red_SliderTrackActive,
-  dark_red_Switch: () => dark_red_Switch,
-  dark_red_SwitchThumb: () => dark_red_SwitchThumb,
-  dark_red_TextArea: () => dark_red_TextArea,
-  dark_red_Tooltip: () => dark_red_Tooltip,
-  dark_red_TooltipArrow: () => dark_red_TooltipArrow,
-  dark_red_TooltipContent: () => dark_red_TooltipContent,
-  dark_red_active: () => dark_red_active,
-  dark_red_active_Button: () => dark_red_active_Button,
-  dark_red_active_Card: () => dark_red_active_Card,
-  dark_red_active_Checkbox: () => dark_red_active_Checkbox,
-  dark_red_active_DialogOverlay: () => dark_red_active_DialogOverlay,
-  dark_red_active_DrawerFrame: () => dark_red_active_DrawerFrame,
-  dark_red_active_Input: () => dark_red_active_Input,
-  dark_red_active_ListItem: () => dark_red_active_ListItem,
-  dark_red_active_ModalOverlay: () => dark_red_active_ModalOverlay,
-  dark_red_active_Progress: () => dark_red_active_Progress,
-  dark_red_active_ProgressIndicator: () => dark_red_active_ProgressIndicator,
-  dark_red_active_RadioGroupItem: () => dark_red_active_RadioGroupItem,
-  dark_red_active_SheetOverlay: () => dark_red_active_SheetOverlay,
-  dark_red_active_SliderThumb: () => dark_red_active_SliderThumb,
-  dark_red_active_SliderTrack: () => dark_red_active_SliderTrack,
-  dark_red_active_SliderTrackActive: () => dark_red_active_SliderTrackActive,
-  dark_red_active_Switch: () => dark_red_active_Switch,
-  dark_red_active_SwitchThumb: () => dark_red_active_SwitchThumb,
-  dark_red_active_TextArea: () => dark_red_active_TextArea,
-  dark_red_active_Tooltip: () => dark_red_active_Tooltip,
-  dark_red_active_TooltipArrow: () => dark_red_active_TooltipArrow,
-  dark_red_active_TooltipContent: () => dark_red_active_TooltipContent,
-  dark_red_alt1: () => dark_red_alt1,
-  dark_red_alt1_Button: () => dark_red_alt1_Button,
-  dark_red_alt1_Card: () => dark_red_alt1_Card,
-  dark_red_alt1_Checkbox: () => dark_red_alt1_Checkbox,
-  dark_red_alt1_DialogOverlay: () => dark_red_alt1_DialogOverlay,
-  dark_red_alt1_DrawerFrame: () => dark_red_alt1_DrawerFrame,
-  dark_red_alt1_Input: () => dark_red_alt1_Input,
-  dark_red_alt1_ListItem: () => dark_red_alt1_ListItem,
-  dark_red_alt1_ModalOverlay: () => dark_red_alt1_ModalOverlay,
-  dark_red_alt1_Progress: () => dark_red_alt1_Progress,
-  dark_red_alt1_ProgressIndicator: () => dark_red_alt1_ProgressIndicator,
-  dark_red_alt1_RadioGroupItem: () => dark_red_alt1_RadioGroupItem,
-  dark_red_alt1_SheetOverlay: () => dark_red_alt1_SheetOverlay,
-  dark_red_alt1_SliderThumb: () => dark_red_alt1_SliderThumb,
-  dark_red_alt1_SliderTrack: () => dark_red_alt1_SliderTrack,
-  dark_red_alt1_SliderTrackActive: () => dark_red_alt1_SliderTrackActive,
-  dark_red_alt1_Switch: () => dark_red_alt1_Switch,
-  dark_red_alt1_SwitchThumb: () => dark_red_alt1_SwitchThumb,
-  dark_red_alt1_TextArea: () => dark_red_alt1_TextArea,
-  dark_red_alt1_Tooltip: () => dark_red_alt1_Tooltip,
-  dark_red_alt1_TooltipArrow: () => dark_red_alt1_TooltipArrow,
-  dark_red_alt1_TooltipContent: () => dark_red_alt1_TooltipContent,
-  dark_red_alt2: () => dark_red_alt2,
-  dark_red_alt2_Button: () => dark_red_alt2_Button,
-  dark_red_alt2_Card: () => dark_red_alt2_Card,
-  dark_red_alt2_Checkbox: () => dark_red_alt2_Checkbox,
-  dark_red_alt2_DialogOverlay: () => dark_red_alt2_DialogOverlay,
-  dark_red_alt2_DrawerFrame: () => dark_red_alt2_DrawerFrame,
-  dark_red_alt2_Input: () => dark_red_alt2_Input,
-  dark_red_alt2_ListItem: () => dark_red_alt2_ListItem,
-  dark_red_alt2_ModalOverlay: () => dark_red_alt2_ModalOverlay,
-  dark_red_alt2_Progress: () => dark_red_alt2_Progress,
-  dark_red_alt2_ProgressIndicator: () => dark_red_alt2_ProgressIndicator,
-  dark_red_alt2_RadioGroupItem: () => dark_red_alt2_RadioGroupItem,
-  dark_red_alt2_SheetOverlay: () => dark_red_alt2_SheetOverlay,
-  dark_red_alt2_SliderThumb: () => dark_red_alt2_SliderThumb,
-  dark_red_alt2_SliderTrack: () => dark_red_alt2_SliderTrack,
-  dark_red_alt2_SliderTrackActive: () => dark_red_alt2_SliderTrackActive,
-  dark_red_alt2_Switch: () => dark_red_alt2_Switch,
-  dark_red_alt2_SwitchThumb: () => dark_red_alt2_SwitchThumb,
-  dark_red_alt2_TextArea: () => dark_red_alt2_TextArea,
-  dark_red_alt2_Tooltip: () => dark_red_alt2_Tooltip,
-  dark_red_alt2_TooltipArrow: () => dark_red_alt2_TooltipArrow,
-  dark_red_alt2_TooltipContent: () => dark_red_alt2_TooltipContent,
-  dark_yellow: () => dark_yellow,
-  dark_yellow_Button: () => dark_yellow_Button,
-  dark_yellow_Card: () => dark_yellow_Card,
-  dark_yellow_Checkbox: () => dark_yellow_Checkbox,
-  dark_yellow_DialogOverlay: () => dark_yellow_DialogOverlay,
-  dark_yellow_DrawerFrame: () => dark_yellow_DrawerFrame,
-  dark_yellow_Input: () => dark_yellow_Input,
-  dark_yellow_ListItem: () => dark_yellow_ListItem,
-  dark_yellow_ModalOverlay: () => dark_yellow_ModalOverlay,
-  dark_yellow_Progress: () => dark_yellow_Progress,
-  dark_yellow_ProgressIndicator: () => dark_yellow_ProgressIndicator,
-  dark_yellow_RadioGroupItem: () => dark_yellow_RadioGroupItem,
-  dark_yellow_SheetOverlay: () => dark_yellow_SheetOverlay,
-  dark_yellow_SliderThumb: () => dark_yellow_SliderThumb,
-  dark_yellow_SliderTrack: () => dark_yellow_SliderTrack,
-  dark_yellow_SliderTrackActive: () => dark_yellow_SliderTrackActive,
-  dark_yellow_Switch: () => dark_yellow_Switch,
-  dark_yellow_SwitchThumb: () => dark_yellow_SwitchThumb,
-  dark_yellow_TextArea: () => dark_yellow_TextArea,
-  dark_yellow_Tooltip: () => dark_yellow_Tooltip,
-  dark_yellow_TooltipArrow: () => dark_yellow_TooltipArrow,
-  dark_yellow_TooltipContent: () => dark_yellow_TooltipContent,
-  dark_yellow_active: () => dark_yellow_active,
-  dark_yellow_active_Button: () => dark_yellow_active_Button,
-  dark_yellow_active_Card: () => dark_yellow_active_Card,
-  dark_yellow_active_Checkbox: () => dark_yellow_active_Checkbox,
-  dark_yellow_active_DialogOverlay: () => dark_yellow_active_DialogOverlay,
-  dark_yellow_active_DrawerFrame: () => dark_yellow_active_DrawerFrame,
-  dark_yellow_active_Input: () => dark_yellow_active_Input,
-  dark_yellow_active_ListItem: () => dark_yellow_active_ListItem,
-  dark_yellow_active_ModalOverlay: () => dark_yellow_active_ModalOverlay,
-  dark_yellow_active_Progress: () => dark_yellow_active_Progress,
-  dark_yellow_active_ProgressIndicator: () => dark_yellow_active_ProgressIndicator,
-  dark_yellow_active_RadioGroupItem: () => dark_yellow_active_RadioGroupItem,
-  dark_yellow_active_SheetOverlay: () => dark_yellow_active_SheetOverlay,
-  dark_yellow_active_SliderThumb: () => dark_yellow_active_SliderThumb,
-  dark_yellow_active_SliderTrack: () => dark_yellow_active_SliderTrack,
-  dark_yellow_active_SliderTrackActive: () => dark_yellow_active_SliderTrackActive,
-  dark_yellow_active_Switch: () => dark_yellow_active_Switch,
-  dark_yellow_active_SwitchThumb: () => dark_yellow_active_SwitchThumb,
-  dark_yellow_active_TextArea: () => dark_yellow_active_TextArea,
-  dark_yellow_active_Tooltip: () => dark_yellow_active_Tooltip,
-  dark_yellow_active_TooltipArrow: () => dark_yellow_active_TooltipArrow,
-  dark_yellow_active_TooltipContent: () => dark_yellow_active_TooltipContent,
-  dark_yellow_alt1: () => dark_yellow_alt1,
-  dark_yellow_alt1_Button: () => dark_yellow_alt1_Button,
-  dark_yellow_alt1_Card: () => dark_yellow_alt1_Card,
-  dark_yellow_alt1_Checkbox: () => dark_yellow_alt1_Checkbox,
-  dark_yellow_alt1_DialogOverlay: () => dark_yellow_alt1_DialogOverlay,
-  dark_yellow_alt1_DrawerFrame: () => dark_yellow_alt1_DrawerFrame,
-  dark_yellow_alt1_Input: () => dark_yellow_alt1_Input,
-  dark_yellow_alt1_ListItem: () => dark_yellow_alt1_ListItem,
-  dark_yellow_alt1_ModalOverlay: () => dark_yellow_alt1_ModalOverlay,
-  dark_yellow_alt1_Progress: () => dark_yellow_alt1_Progress,
-  dark_yellow_alt1_ProgressIndicator: () => dark_yellow_alt1_ProgressIndicator,
-  dark_yellow_alt1_RadioGroupItem: () => dark_yellow_alt1_RadioGroupItem,
-  dark_yellow_alt1_SheetOverlay: () => dark_yellow_alt1_SheetOverlay,
-  dark_yellow_alt1_SliderThumb: () => dark_yellow_alt1_SliderThumb,
-  dark_yellow_alt1_SliderTrack: () => dark_yellow_alt1_SliderTrack,
-  dark_yellow_alt1_SliderTrackActive: () => dark_yellow_alt1_SliderTrackActive,
-  dark_yellow_alt1_Switch: () => dark_yellow_alt1_Switch,
-  dark_yellow_alt1_SwitchThumb: () => dark_yellow_alt1_SwitchThumb,
-  dark_yellow_alt1_TextArea: () => dark_yellow_alt1_TextArea,
-  dark_yellow_alt1_Tooltip: () => dark_yellow_alt1_Tooltip,
-  dark_yellow_alt1_TooltipArrow: () => dark_yellow_alt1_TooltipArrow,
-  dark_yellow_alt1_TooltipContent: () => dark_yellow_alt1_TooltipContent,
-  dark_yellow_alt2: () => dark_yellow_alt2,
-  dark_yellow_alt2_Button: () => dark_yellow_alt2_Button,
-  dark_yellow_alt2_Card: () => dark_yellow_alt2_Card,
-  dark_yellow_alt2_Checkbox: () => dark_yellow_alt2_Checkbox,
-  dark_yellow_alt2_DialogOverlay: () => dark_yellow_alt2_DialogOverlay,
-  dark_yellow_alt2_DrawerFrame: () => dark_yellow_alt2_DrawerFrame,
-  dark_yellow_alt2_Input: () => dark_yellow_alt2_Input,
-  dark_yellow_alt2_ListItem: () => dark_yellow_alt2_ListItem,
-  dark_yellow_alt2_ModalOverlay: () => dark_yellow_alt2_ModalOverlay,
-  dark_yellow_alt2_Progress: () => dark_yellow_alt2_Progress,
-  dark_yellow_alt2_ProgressIndicator: () => dark_yellow_alt2_ProgressIndicator,
-  dark_yellow_alt2_RadioGroupItem: () => dark_yellow_alt2_RadioGroupItem,
-  dark_yellow_alt2_SheetOverlay: () => dark_yellow_alt2_SheetOverlay,
-  dark_yellow_alt2_SliderThumb: () => dark_yellow_alt2_SliderThumb,
-  dark_yellow_alt2_SliderTrack: () => dark_yellow_alt2_SliderTrack,
-  dark_yellow_alt2_SliderTrackActive: () => dark_yellow_alt2_SliderTrackActive,
-  dark_yellow_alt2_Switch: () => dark_yellow_alt2_Switch,
-  dark_yellow_alt2_SwitchThumb: () => dark_yellow_alt2_SwitchThumb,
-  dark_yellow_alt2_TextArea: () => dark_yellow_alt2_TextArea,
-  dark_yellow_alt2_Tooltip: () => dark_yellow_alt2_Tooltip,
-  dark_yellow_alt2_TooltipArrow: () => dark_yellow_alt2_TooltipArrow,
-  dark_yellow_alt2_TooltipContent: () => dark_yellow_alt2_TooltipContent,
-  light: () => light,
-  light_Button: () => light_Button,
-  light_Card: () => light_Card,
-  light_Checkbox: () => light_Checkbox,
-  light_DialogOverlay: () => light_DialogOverlay,
-  light_DrawerFrame: () => light_DrawerFrame,
-  light_Input: () => light_Input,
-  light_ListItem: () => light_ListItem,
-  light_ModalOverlay: () => light_ModalOverlay,
-  light_Progress: () => light_Progress,
-  light_ProgressIndicator: () => light_ProgressIndicator,
-  light_RadioGroupItem: () => light_RadioGroupItem,
-  light_SheetOverlay: () => light_SheetOverlay,
-  light_SliderThumb: () => light_SliderThumb,
-  light_SliderTrack: () => light_SliderTrack,
-  light_SliderTrackActive: () => light_SliderTrackActive,
-  light_Switch: () => light_Switch,
-  light_SwitchThumb: () => light_SwitchThumb,
-  light_TextArea: () => light_TextArea,
-  light_Tooltip: () => light_Tooltip,
-  light_TooltipArrow: () => light_TooltipArrow,
-  light_TooltipContent: () => light_TooltipContent,
-  light_active: () => light_active,
-  light_active_Button: () => light_active_Button,
-  light_active_Card: () => light_active_Card,
-  light_active_Checkbox: () => light_active_Checkbox,
-  light_active_DialogOverlay: () => light_active_DialogOverlay,
-  light_active_DrawerFrame: () => light_active_DrawerFrame,
-  light_active_Input: () => light_active_Input,
-  light_active_ListItem: () => light_active_ListItem,
-  light_active_ModalOverlay: () => light_active_ModalOverlay,
-  light_active_Progress: () => light_active_Progress,
-  light_active_ProgressIndicator: () => light_active_ProgressIndicator,
-  light_active_RadioGroupItem: () => light_active_RadioGroupItem,
-  light_active_SheetOverlay: () => light_active_SheetOverlay,
-  light_active_SliderThumb: () => light_active_SliderThumb,
-  light_active_SliderTrack: () => light_active_SliderTrack,
-  light_active_SliderTrackActive: () => light_active_SliderTrackActive,
-  light_active_Switch: () => light_active_Switch,
-  light_active_SwitchThumb: () => light_active_SwitchThumb,
-  light_active_TextArea: () => light_active_TextArea,
-  light_active_Tooltip: () => light_active_Tooltip,
-  light_active_TooltipArrow: () => light_active_TooltipArrow,
-  light_active_TooltipContent: () => light_active_TooltipContent,
-  light_alt1: () => light_alt1,
-  light_alt1_Button: () => light_alt1_Button,
-  light_alt1_Card: () => light_alt1_Card,
-  light_alt1_Checkbox: () => light_alt1_Checkbox,
-  light_alt1_DialogOverlay: () => light_alt1_DialogOverlay,
-  light_alt1_DrawerFrame: () => light_alt1_DrawerFrame,
-  light_alt1_Input: () => light_alt1_Input,
-  light_alt1_ListItem: () => light_alt1_ListItem,
-  light_alt1_ModalOverlay: () => light_alt1_ModalOverlay,
-  light_alt1_Progress: () => light_alt1_Progress,
-  light_alt1_ProgressIndicator: () => light_alt1_ProgressIndicator,
-  light_alt1_RadioGroupItem: () => light_alt1_RadioGroupItem,
-  light_alt1_SheetOverlay: () => light_alt1_SheetOverlay,
-  light_alt1_SliderThumb: () => light_alt1_SliderThumb,
-  light_alt1_SliderTrack: () => light_alt1_SliderTrack,
-  light_alt1_SliderTrackActive: () => light_alt1_SliderTrackActive,
-  light_alt1_Switch: () => light_alt1_Switch,
-  light_alt1_SwitchThumb: () => light_alt1_SwitchThumb,
-  light_alt1_TextArea: () => light_alt1_TextArea,
-  light_alt1_Tooltip: () => light_alt1_Tooltip,
-  light_alt1_TooltipArrow: () => light_alt1_TooltipArrow,
-  light_alt1_TooltipContent: () => light_alt1_TooltipContent,
-  light_alt2: () => light_alt2,
-  light_alt2_Button: () => light_alt2_Button,
-  light_alt2_Card: () => light_alt2_Card,
-  light_alt2_Checkbox: () => light_alt2_Checkbox,
-  light_alt2_DialogOverlay: () => light_alt2_DialogOverlay,
-  light_alt2_DrawerFrame: () => light_alt2_DrawerFrame,
-  light_alt2_Input: () => light_alt2_Input,
-  light_alt2_ListItem: () => light_alt2_ListItem,
-  light_alt2_ModalOverlay: () => light_alt2_ModalOverlay,
-  light_alt2_Progress: () => light_alt2_Progress,
-  light_alt2_ProgressIndicator: () => light_alt2_ProgressIndicator,
-  light_alt2_RadioGroupItem: () => light_alt2_RadioGroupItem,
-  light_alt2_SheetOverlay: () => light_alt2_SheetOverlay,
-  light_alt2_SliderThumb: () => light_alt2_SliderThumb,
-  light_alt2_SliderTrack: () => light_alt2_SliderTrack,
-  light_alt2_SliderTrackActive: () => light_alt2_SliderTrackActive,
-  light_alt2_Switch: () => light_alt2_Switch,
-  light_alt2_SwitchThumb: () => light_alt2_SwitchThumb,
-  light_alt2_TextArea: () => light_alt2_TextArea,
-  light_alt2_Tooltip: () => light_alt2_Tooltip,
-  light_alt2_TooltipArrow: () => light_alt2_TooltipArrow,
-  light_alt2_TooltipContent: () => light_alt2_TooltipContent,
-  light_blue: () => light_blue,
-  light_blue_Button: () => light_blue_Button,
-  light_blue_Card: () => light_blue_Card,
-  light_blue_Checkbox: () => light_blue_Checkbox,
-  light_blue_DialogOverlay: () => light_blue_DialogOverlay,
-  light_blue_DrawerFrame: () => light_blue_DrawerFrame,
-  light_blue_Input: () => light_blue_Input,
-  light_blue_ListItem: () => light_blue_ListItem,
-  light_blue_ModalOverlay: () => light_blue_ModalOverlay,
-  light_blue_Progress: () => light_blue_Progress,
-  light_blue_ProgressIndicator: () => light_blue_ProgressIndicator,
-  light_blue_RadioGroupItem: () => light_blue_RadioGroupItem,
-  light_blue_SheetOverlay: () => light_blue_SheetOverlay,
-  light_blue_SliderThumb: () => light_blue_SliderThumb,
-  light_blue_SliderTrack: () => light_blue_SliderTrack,
-  light_blue_SliderTrackActive: () => light_blue_SliderTrackActive,
-  light_blue_Switch: () => light_blue_Switch,
-  light_blue_SwitchThumb: () => light_blue_SwitchThumb,
-  light_blue_TextArea: () => light_blue_TextArea,
-  light_blue_Tooltip: () => light_blue_Tooltip,
-  light_blue_TooltipArrow: () => light_blue_TooltipArrow,
-  light_blue_TooltipContent: () => light_blue_TooltipContent,
-  light_blue_active: () => light_blue_active,
-  light_blue_active_Button: () => light_blue_active_Button,
-  light_blue_active_Card: () => light_blue_active_Card,
-  light_blue_active_Checkbox: () => light_blue_active_Checkbox,
-  light_blue_active_DialogOverlay: () => light_blue_active_DialogOverlay,
-  light_blue_active_DrawerFrame: () => light_blue_active_DrawerFrame,
-  light_blue_active_Input: () => light_blue_active_Input,
-  light_blue_active_ListItem: () => light_blue_active_ListItem,
-  light_blue_active_ModalOverlay: () => light_blue_active_ModalOverlay,
-  light_blue_active_Progress: () => light_blue_active_Progress,
-  light_blue_active_ProgressIndicator: () => light_blue_active_ProgressIndicator,
-  light_blue_active_RadioGroupItem: () => light_blue_active_RadioGroupItem,
-  light_blue_active_SheetOverlay: () => light_blue_active_SheetOverlay,
-  light_blue_active_SliderThumb: () => light_blue_active_SliderThumb,
-  light_blue_active_SliderTrack: () => light_blue_active_SliderTrack,
-  light_blue_active_SliderTrackActive: () => light_blue_active_SliderTrackActive,
-  light_blue_active_Switch: () => light_blue_active_Switch,
-  light_blue_active_SwitchThumb: () => light_blue_active_SwitchThumb,
-  light_blue_active_TextArea: () => light_blue_active_TextArea,
-  light_blue_active_Tooltip: () => light_blue_active_Tooltip,
-  light_blue_active_TooltipArrow: () => light_blue_active_TooltipArrow,
-  light_blue_active_TooltipContent: () => light_blue_active_TooltipContent,
-  light_blue_alt1: () => light_blue_alt1,
-  light_blue_alt1_Button: () => light_blue_alt1_Button,
-  light_blue_alt1_Card: () => light_blue_alt1_Card,
-  light_blue_alt1_Checkbox: () => light_blue_alt1_Checkbox,
-  light_blue_alt1_DialogOverlay: () => light_blue_alt1_DialogOverlay,
-  light_blue_alt1_DrawerFrame: () => light_blue_alt1_DrawerFrame,
-  light_blue_alt1_Input: () => light_blue_alt1_Input,
-  light_blue_alt1_ListItem: () => light_blue_alt1_ListItem,
-  light_blue_alt1_ModalOverlay: () => light_blue_alt1_ModalOverlay,
-  light_blue_alt1_Progress: () => light_blue_alt1_Progress,
-  light_blue_alt1_ProgressIndicator: () => light_blue_alt1_ProgressIndicator,
-  light_blue_alt1_RadioGroupItem: () => light_blue_alt1_RadioGroupItem,
-  light_blue_alt1_SheetOverlay: () => light_blue_alt1_SheetOverlay,
-  light_blue_alt1_SliderThumb: () => light_blue_alt1_SliderThumb,
-  light_blue_alt1_SliderTrack: () => light_blue_alt1_SliderTrack,
-  light_blue_alt1_SliderTrackActive: () => light_blue_alt1_SliderTrackActive,
-  light_blue_alt1_Switch: () => light_blue_alt1_Switch,
-  light_blue_alt1_SwitchThumb: () => light_blue_alt1_SwitchThumb,
-  light_blue_alt1_TextArea: () => light_blue_alt1_TextArea,
-  light_blue_alt1_Tooltip: () => light_blue_alt1_Tooltip,
-  light_blue_alt1_TooltipArrow: () => light_blue_alt1_TooltipArrow,
-  light_blue_alt1_TooltipContent: () => light_blue_alt1_TooltipContent,
-  light_blue_alt2: () => light_blue_alt2,
-  light_blue_alt2_Button: () => light_blue_alt2_Button,
-  light_blue_alt2_Card: () => light_blue_alt2_Card,
-  light_blue_alt2_Checkbox: () => light_blue_alt2_Checkbox,
-  light_blue_alt2_DialogOverlay: () => light_blue_alt2_DialogOverlay,
-  light_blue_alt2_DrawerFrame: () => light_blue_alt2_DrawerFrame,
-  light_blue_alt2_Input: () => light_blue_alt2_Input,
-  light_blue_alt2_ListItem: () => light_blue_alt2_ListItem,
-  light_blue_alt2_ModalOverlay: () => light_blue_alt2_ModalOverlay,
-  light_blue_alt2_Progress: () => light_blue_alt2_Progress,
-  light_blue_alt2_ProgressIndicator: () => light_blue_alt2_ProgressIndicator,
-  light_blue_alt2_RadioGroupItem: () => light_blue_alt2_RadioGroupItem,
-  light_blue_alt2_SheetOverlay: () => light_blue_alt2_SheetOverlay,
-  light_blue_alt2_SliderThumb: () => light_blue_alt2_SliderThumb,
-  light_blue_alt2_SliderTrack: () => light_blue_alt2_SliderTrack,
-  light_blue_alt2_SliderTrackActive: () => light_blue_alt2_SliderTrackActive,
-  light_blue_alt2_Switch: () => light_blue_alt2_Switch,
-  light_blue_alt2_SwitchThumb: () => light_blue_alt2_SwitchThumb,
-  light_blue_alt2_TextArea: () => light_blue_alt2_TextArea,
-  light_blue_alt2_Tooltip: () => light_blue_alt2_Tooltip,
-  light_blue_alt2_TooltipArrow: () => light_blue_alt2_TooltipArrow,
-  light_blue_alt2_TooltipContent: () => light_blue_alt2_TooltipContent,
-  light_green: () => light_green,
-  light_green_Button: () => light_green_Button,
-  light_green_Card: () => light_green_Card,
-  light_green_Checkbox: () => light_green_Checkbox,
-  light_green_DialogOverlay: () => light_green_DialogOverlay,
-  light_green_DrawerFrame: () => light_green_DrawerFrame,
-  light_green_Input: () => light_green_Input,
-  light_green_ListItem: () => light_green_ListItem,
-  light_green_ModalOverlay: () => light_green_ModalOverlay,
-  light_green_Progress: () => light_green_Progress,
-  light_green_ProgressIndicator: () => light_green_ProgressIndicator,
-  light_green_RadioGroupItem: () => light_green_RadioGroupItem,
-  light_green_SheetOverlay: () => light_green_SheetOverlay,
-  light_green_SliderThumb: () => light_green_SliderThumb,
-  light_green_SliderTrack: () => light_green_SliderTrack,
-  light_green_SliderTrackActive: () => light_green_SliderTrackActive,
-  light_green_Switch: () => light_green_Switch,
-  light_green_SwitchThumb: () => light_green_SwitchThumb,
-  light_green_TextArea: () => light_green_TextArea,
-  light_green_Tooltip: () => light_green_Tooltip,
-  light_green_TooltipArrow: () => light_green_TooltipArrow,
-  light_green_TooltipContent: () => light_green_TooltipContent,
-  light_green_active: () => light_green_active,
-  light_green_active_Button: () => light_green_active_Button,
-  light_green_active_Card: () => light_green_active_Card,
-  light_green_active_Checkbox: () => light_green_active_Checkbox,
-  light_green_active_DialogOverlay: () => light_green_active_DialogOverlay,
-  light_green_active_DrawerFrame: () => light_green_active_DrawerFrame,
-  light_green_active_Input: () => light_green_active_Input,
-  light_green_active_ListItem: () => light_green_active_ListItem,
-  light_green_active_ModalOverlay: () => light_green_active_ModalOverlay,
-  light_green_active_Progress: () => light_green_active_Progress,
-  light_green_active_ProgressIndicator: () => light_green_active_ProgressIndicator,
-  light_green_active_RadioGroupItem: () => light_green_active_RadioGroupItem,
-  light_green_active_SheetOverlay: () => light_green_active_SheetOverlay,
-  light_green_active_SliderThumb: () => light_green_active_SliderThumb,
-  light_green_active_SliderTrack: () => light_green_active_SliderTrack,
-  light_green_active_SliderTrackActive: () => light_green_active_SliderTrackActive,
-  light_green_active_Switch: () => light_green_active_Switch,
-  light_green_active_SwitchThumb: () => light_green_active_SwitchThumb,
-  light_green_active_TextArea: () => light_green_active_TextArea,
-  light_green_active_Tooltip: () => light_green_active_Tooltip,
-  light_green_active_TooltipArrow: () => light_green_active_TooltipArrow,
-  light_green_active_TooltipContent: () => light_green_active_TooltipContent,
-  light_green_alt1: () => light_green_alt1,
-  light_green_alt1_Button: () => light_green_alt1_Button,
-  light_green_alt1_Card: () => light_green_alt1_Card,
-  light_green_alt1_Checkbox: () => light_green_alt1_Checkbox,
-  light_green_alt1_DialogOverlay: () => light_green_alt1_DialogOverlay,
-  light_green_alt1_DrawerFrame: () => light_green_alt1_DrawerFrame,
-  light_green_alt1_Input: () => light_green_alt1_Input,
-  light_green_alt1_ListItem: () => light_green_alt1_ListItem,
-  light_green_alt1_ModalOverlay: () => light_green_alt1_ModalOverlay,
-  light_green_alt1_Progress: () => light_green_alt1_Progress,
-  light_green_alt1_ProgressIndicator: () => light_green_alt1_ProgressIndicator,
-  light_green_alt1_RadioGroupItem: () => light_green_alt1_RadioGroupItem,
-  light_green_alt1_SheetOverlay: () => light_green_alt1_SheetOverlay,
-  light_green_alt1_SliderThumb: () => light_green_alt1_SliderThumb,
-  light_green_alt1_SliderTrack: () => light_green_alt1_SliderTrack,
-  light_green_alt1_SliderTrackActive: () => light_green_alt1_SliderTrackActive,
-  light_green_alt1_Switch: () => light_green_alt1_Switch,
-  light_green_alt1_SwitchThumb: () => light_green_alt1_SwitchThumb,
-  light_green_alt1_TextArea: () => light_green_alt1_TextArea,
-  light_green_alt1_Tooltip: () => light_green_alt1_Tooltip,
-  light_green_alt1_TooltipArrow: () => light_green_alt1_TooltipArrow,
-  light_green_alt1_TooltipContent: () => light_green_alt1_TooltipContent,
-  light_green_alt2: () => light_green_alt2,
-  light_green_alt2_Button: () => light_green_alt2_Button,
-  light_green_alt2_Card: () => light_green_alt2_Card,
-  light_green_alt2_Checkbox: () => light_green_alt2_Checkbox,
-  light_green_alt2_DialogOverlay: () => light_green_alt2_DialogOverlay,
-  light_green_alt2_DrawerFrame: () => light_green_alt2_DrawerFrame,
-  light_green_alt2_Input: () => light_green_alt2_Input,
-  light_green_alt2_ListItem: () => light_green_alt2_ListItem,
-  light_green_alt2_ModalOverlay: () => light_green_alt2_ModalOverlay,
-  light_green_alt2_Progress: () => light_green_alt2_Progress,
-  light_green_alt2_ProgressIndicator: () => light_green_alt2_ProgressIndicator,
-  light_green_alt2_RadioGroupItem: () => light_green_alt2_RadioGroupItem,
-  light_green_alt2_SheetOverlay: () => light_green_alt2_SheetOverlay,
-  light_green_alt2_SliderThumb: () => light_green_alt2_SliderThumb,
-  light_green_alt2_SliderTrack: () => light_green_alt2_SliderTrack,
-  light_green_alt2_SliderTrackActive: () => light_green_alt2_SliderTrackActive,
-  light_green_alt2_Switch: () => light_green_alt2_Switch,
-  light_green_alt2_SwitchThumb: () => light_green_alt2_SwitchThumb,
-  light_green_alt2_TextArea: () => light_green_alt2_TextArea,
-  light_green_alt2_Tooltip: () => light_green_alt2_Tooltip,
-  light_green_alt2_TooltipArrow: () => light_green_alt2_TooltipArrow,
-  light_green_alt2_TooltipContent: () => light_green_alt2_TooltipContent,
-  light_orange: () => light_orange,
-  light_orange_Button: () => light_orange_Button,
-  light_orange_Card: () => light_orange_Card,
-  light_orange_Checkbox: () => light_orange_Checkbox,
-  light_orange_DialogOverlay: () => light_orange_DialogOverlay,
-  light_orange_DrawerFrame: () => light_orange_DrawerFrame,
-  light_orange_Input: () => light_orange_Input,
-  light_orange_ListItem: () => light_orange_ListItem,
-  light_orange_ModalOverlay: () => light_orange_ModalOverlay,
-  light_orange_Progress: () => light_orange_Progress,
-  light_orange_ProgressIndicator: () => light_orange_ProgressIndicator,
-  light_orange_RadioGroupItem: () => light_orange_RadioGroupItem,
-  light_orange_SheetOverlay: () => light_orange_SheetOverlay,
-  light_orange_SliderThumb: () => light_orange_SliderThumb,
-  light_orange_SliderTrack: () => light_orange_SliderTrack,
-  light_orange_SliderTrackActive: () => light_orange_SliderTrackActive,
-  light_orange_Switch: () => light_orange_Switch,
-  light_orange_SwitchThumb: () => light_orange_SwitchThumb,
-  light_orange_TextArea: () => light_orange_TextArea,
-  light_orange_Tooltip: () => light_orange_Tooltip,
-  light_orange_TooltipArrow: () => light_orange_TooltipArrow,
-  light_orange_TooltipContent: () => light_orange_TooltipContent,
-  light_orange_active: () => light_orange_active,
-  light_orange_active_Button: () => light_orange_active_Button,
-  light_orange_active_Card: () => light_orange_active_Card,
-  light_orange_active_Checkbox: () => light_orange_active_Checkbox,
-  light_orange_active_DialogOverlay: () => light_orange_active_DialogOverlay,
-  light_orange_active_DrawerFrame: () => light_orange_active_DrawerFrame,
-  light_orange_active_Input: () => light_orange_active_Input,
-  light_orange_active_ListItem: () => light_orange_active_ListItem,
-  light_orange_active_ModalOverlay: () => light_orange_active_ModalOverlay,
-  light_orange_active_Progress: () => light_orange_active_Progress,
-  light_orange_active_ProgressIndicator: () => light_orange_active_ProgressIndicator,
-  light_orange_active_RadioGroupItem: () => light_orange_active_RadioGroupItem,
-  light_orange_active_SheetOverlay: () => light_orange_active_SheetOverlay,
-  light_orange_active_SliderThumb: () => light_orange_active_SliderThumb,
-  light_orange_active_SliderTrack: () => light_orange_active_SliderTrack,
-  light_orange_active_SliderTrackActive: () => light_orange_active_SliderTrackActive,
-  light_orange_active_Switch: () => light_orange_active_Switch,
-  light_orange_active_SwitchThumb: () => light_orange_active_SwitchThumb,
-  light_orange_active_TextArea: () => light_orange_active_TextArea,
-  light_orange_active_Tooltip: () => light_orange_active_Tooltip,
-  light_orange_active_TooltipArrow: () => light_orange_active_TooltipArrow,
-  light_orange_active_TooltipContent: () => light_orange_active_TooltipContent,
-  light_orange_alt1: () => light_orange_alt1,
-  light_orange_alt1_Button: () => light_orange_alt1_Button,
-  light_orange_alt1_Card: () => light_orange_alt1_Card,
-  light_orange_alt1_Checkbox: () => light_orange_alt1_Checkbox,
-  light_orange_alt1_DialogOverlay: () => light_orange_alt1_DialogOverlay,
-  light_orange_alt1_DrawerFrame: () => light_orange_alt1_DrawerFrame,
-  light_orange_alt1_Input: () => light_orange_alt1_Input,
-  light_orange_alt1_ListItem: () => light_orange_alt1_ListItem,
-  light_orange_alt1_ModalOverlay: () => light_orange_alt1_ModalOverlay,
-  light_orange_alt1_Progress: () => light_orange_alt1_Progress,
-  light_orange_alt1_ProgressIndicator: () => light_orange_alt1_ProgressIndicator,
-  light_orange_alt1_RadioGroupItem: () => light_orange_alt1_RadioGroupItem,
-  light_orange_alt1_SheetOverlay: () => light_orange_alt1_SheetOverlay,
-  light_orange_alt1_SliderThumb: () => light_orange_alt1_SliderThumb,
-  light_orange_alt1_SliderTrack: () => light_orange_alt1_SliderTrack,
-  light_orange_alt1_SliderTrackActive: () => light_orange_alt1_SliderTrackActive,
-  light_orange_alt1_Switch: () => light_orange_alt1_Switch,
-  light_orange_alt1_SwitchThumb: () => light_orange_alt1_SwitchThumb,
-  light_orange_alt1_TextArea: () => light_orange_alt1_TextArea,
-  light_orange_alt1_Tooltip: () => light_orange_alt1_Tooltip,
-  light_orange_alt1_TooltipArrow: () => light_orange_alt1_TooltipArrow,
-  light_orange_alt1_TooltipContent: () => light_orange_alt1_TooltipContent,
-  light_orange_alt2: () => light_orange_alt2,
-  light_orange_alt2_Button: () => light_orange_alt2_Button,
-  light_orange_alt2_Card: () => light_orange_alt2_Card,
-  light_orange_alt2_Checkbox: () => light_orange_alt2_Checkbox,
-  light_orange_alt2_DialogOverlay: () => light_orange_alt2_DialogOverlay,
-  light_orange_alt2_DrawerFrame: () => light_orange_alt2_DrawerFrame,
-  light_orange_alt2_Input: () => light_orange_alt2_Input,
-  light_orange_alt2_ListItem: () => light_orange_alt2_ListItem,
-  light_orange_alt2_ModalOverlay: () => light_orange_alt2_ModalOverlay,
-  light_orange_alt2_Progress: () => light_orange_alt2_Progress,
-  light_orange_alt2_ProgressIndicator: () => light_orange_alt2_ProgressIndicator,
-  light_orange_alt2_RadioGroupItem: () => light_orange_alt2_RadioGroupItem,
-  light_orange_alt2_SheetOverlay: () => light_orange_alt2_SheetOverlay,
-  light_orange_alt2_SliderThumb: () => light_orange_alt2_SliderThumb,
-  light_orange_alt2_SliderTrack: () => light_orange_alt2_SliderTrack,
-  light_orange_alt2_SliderTrackActive: () => light_orange_alt2_SliderTrackActive,
-  light_orange_alt2_Switch: () => light_orange_alt2_Switch,
-  light_orange_alt2_SwitchThumb: () => light_orange_alt2_SwitchThumb,
-  light_orange_alt2_TextArea: () => light_orange_alt2_TextArea,
-  light_orange_alt2_Tooltip: () => light_orange_alt2_Tooltip,
-  light_orange_alt2_TooltipArrow: () => light_orange_alt2_TooltipArrow,
-  light_orange_alt2_TooltipContent: () => light_orange_alt2_TooltipContent,
-  light_pink: () => light_pink,
-  light_pink_Button: () => light_pink_Button,
-  light_pink_Card: () => light_pink_Card,
-  light_pink_Checkbox: () => light_pink_Checkbox,
-  light_pink_DialogOverlay: () => light_pink_DialogOverlay,
-  light_pink_DrawerFrame: () => light_pink_DrawerFrame,
-  light_pink_Input: () => light_pink_Input,
-  light_pink_ListItem: () => light_pink_ListItem,
-  light_pink_ModalOverlay: () => light_pink_ModalOverlay,
-  light_pink_Progress: () => light_pink_Progress,
-  light_pink_ProgressIndicator: () => light_pink_ProgressIndicator,
-  light_pink_RadioGroupItem: () => light_pink_RadioGroupItem,
-  light_pink_SheetOverlay: () => light_pink_SheetOverlay,
-  light_pink_SliderThumb: () => light_pink_SliderThumb,
-  light_pink_SliderTrack: () => light_pink_SliderTrack,
-  light_pink_SliderTrackActive: () => light_pink_SliderTrackActive,
-  light_pink_Switch: () => light_pink_Switch,
-  light_pink_SwitchThumb: () => light_pink_SwitchThumb,
-  light_pink_TextArea: () => light_pink_TextArea,
-  light_pink_Tooltip: () => light_pink_Tooltip,
-  light_pink_TooltipArrow: () => light_pink_TooltipArrow,
-  light_pink_TooltipContent: () => light_pink_TooltipContent,
-  light_pink_active: () => light_pink_active,
-  light_pink_active_Button: () => light_pink_active_Button,
-  light_pink_active_Card: () => light_pink_active_Card,
-  light_pink_active_Checkbox: () => light_pink_active_Checkbox,
-  light_pink_active_DialogOverlay: () => light_pink_active_DialogOverlay,
-  light_pink_active_DrawerFrame: () => light_pink_active_DrawerFrame,
-  light_pink_active_Input: () => light_pink_active_Input,
-  light_pink_active_ListItem: () => light_pink_active_ListItem,
-  light_pink_active_ModalOverlay: () => light_pink_active_ModalOverlay,
-  light_pink_active_Progress: () => light_pink_active_Progress,
-  light_pink_active_ProgressIndicator: () => light_pink_active_ProgressIndicator,
-  light_pink_active_RadioGroupItem: () => light_pink_active_RadioGroupItem,
-  light_pink_active_SheetOverlay: () => light_pink_active_SheetOverlay,
-  light_pink_active_SliderThumb: () => light_pink_active_SliderThumb,
-  light_pink_active_SliderTrack: () => light_pink_active_SliderTrack,
-  light_pink_active_SliderTrackActive: () => light_pink_active_SliderTrackActive,
-  light_pink_active_Switch: () => light_pink_active_Switch,
-  light_pink_active_SwitchThumb: () => light_pink_active_SwitchThumb,
-  light_pink_active_TextArea: () => light_pink_active_TextArea,
-  light_pink_active_Tooltip: () => light_pink_active_Tooltip,
-  light_pink_active_TooltipArrow: () => light_pink_active_TooltipArrow,
-  light_pink_active_TooltipContent: () => light_pink_active_TooltipContent,
-  light_pink_alt1: () => light_pink_alt1,
-  light_pink_alt1_Button: () => light_pink_alt1_Button,
-  light_pink_alt1_Card: () => light_pink_alt1_Card,
-  light_pink_alt1_Checkbox: () => light_pink_alt1_Checkbox,
-  light_pink_alt1_DialogOverlay: () => light_pink_alt1_DialogOverlay,
-  light_pink_alt1_DrawerFrame: () => light_pink_alt1_DrawerFrame,
-  light_pink_alt1_Input: () => light_pink_alt1_Input,
-  light_pink_alt1_ListItem: () => light_pink_alt1_ListItem,
-  light_pink_alt1_ModalOverlay: () => light_pink_alt1_ModalOverlay,
-  light_pink_alt1_Progress: () => light_pink_alt1_Progress,
-  light_pink_alt1_ProgressIndicator: () => light_pink_alt1_ProgressIndicator,
-  light_pink_alt1_RadioGroupItem: () => light_pink_alt1_RadioGroupItem,
-  light_pink_alt1_SheetOverlay: () => light_pink_alt1_SheetOverlay,
-  light_pink_alt1_SliderThumb: () => light_pink_alt1_SliderThumb,
-  light_pink_alt1_SliderTrack: () => light_pink_alt1_SliderTrack,
-  light_pink_alt1_SliderTrackActive: () => light_pink_alt1_SliderTrackActive,
-  light_pink_alt1_Switch: () => light_pink_alt1_Switch,
-  light_pink_alt1_SwitchThumb: () => light_pink_alt1_SwitchThumb,
-  light_pink_alt1_TextArea: () => light_pink_alt1_TextArea,
-  light_pink_alt1_Tooltip: () => light_pink_alt1_Tooltip,
-  light_pink_alt1_TooltipArrow: () => light_pink_alt1_TooltipArrow,
-  light_pink_alt1_TooltipContent: () => light_pink_alt1_TooltipContent,
-  light_pink_alt2: () => light_pink_alt2,
-  light_pink_alt2_Button: () => light_pink_alt2_Button,
-  light_pink_alt2_Card: () => light_pink_alt2_Card,
-  light_pink_alt2_Checkbox: () => light_pink_alt2_Checkbox,
-  light_pink_alt2_DialogOverlay: () => light_pink_alt2_DialogOverlay,
-  light_pink_alt2_DrawerFrame: () => light_pink_alt2_DrawerFrame,
-  light_pink_alt2_Input: () => light_pink_alt2_Input,
-  light_pink_alt2_ListItem: () => light_pink_alt2_ListItem,
-  light_pink_alt2_ModalOverlay: () => light_pink_alt2_ModalOverlay,
-  light_pink_alt2_Progress: () => light_pink_alt2_Progress,
-  light_pink_alt2_ProgressIndicator: () => light_pink_alt2_ProgressIndicator,
-  light_pink_alt2_RadioGroupItem: () => light_pink_alt2_RadioGroupItem,
-  light_pink_alt2_SheetOverlay: () => light_pink_alt2_SheetOverlay,
-  light_pink_alt2_SliderThumb: () => light_pink_alt2_SliderThumb,
-  light_pink_alt2_SliderTrack: () => light_pink_alt2_SliderTrack,
-  light_pink_alt2_SliderTrackActive: () => light_pink_alt2_SliderTrackActive,
-  light_pink_alt2_Switch: () => light_pink_alt2_Switch,
-  light_pink_alt2_SwitchThumb: () => light_pink_alt2_SwitchThumb,
-  light_pink_alt2_TextArea: () => light_pink_alt2_TextArea,
-  light_pink_alt2_Tooltip: () => light_pink_alt2_Tooltip,
-  light_pink_alt2_TooltipArrow: () => light_pink_alt2_TooltipArrow,
-  light_pink_alt2_TooltipContent: () => light_pink_alt2_TooltipContent,
-  light_purple: () => light_purple,
-  light_purple_Button: () => light_purple_Button,
-  light_purple_Card: () => light_purple_Card,
-  light_purple_Checkbox: () => light_purple_Checkbox,
-  light_purple_DialogOverlay: () => light_purple_DialogOverlay,
-  light_purple_DrawerFrame: () => light_purple_DrawerFrame,
-  light_purple_Input: () => light_purple_Input,
-  light_purple_ListItem: () => light_purple_ListItem,
-  light_purple_ModalOverlay: () => light_purple_ModalOverlay,
-  light_purple_Progress: () => light_purple_Progress,
-  light_purple_ProgressIndicator: () => light_purple_ProgressIndicator,
-  light_purple_RadioGroupItem: () => light_purple_RadioGroupItem,
-  light_purple_SheetOverlay: () => light_purple_SheetOverlay,
-  light_purple_SliderThumb: () => light_purple_SliderThumb,
-  light_purple_SliderTrack: () => light_purple_SliderTrack,
-  light_purple_SliderTrackActive: () => light_purple_SliderTrackActive,
-  light_purple_Switch: () => light_purple_Switch,
-  light_purple_SwitchThumb: () => light_purple_SwitchThumb,
-  light_purple_TextArea: () => light_purple_TextArea,
-  light_purple_Tooltip: () => light_purple_Tooltip,
-  light_purple_TooltipArrow: () => light_purple_TooltipArrow,
-  light_purple_TooltipContent: () => light_purple_TooltipContent,
-  light_purple_active: () => light_purple_active,
-  light_purple_active_Button: () => light_purple_active_Button,
-  light_purple_active_Card: () => light_purple_active_Card,
-  light_purple_active_Checkbox: () => light_purple_active_Checkbox,
-  light_purple_active_DialogOverlay: () => light_purple_active_DialogOverlay,
-  light_purple_active_DrawerFrame: () => light_purple_active_DrawerFrame,
-  light_purple_active_Input: () => light_purple_active_Input,
-  light_purple_active_ListItem: () => light_purple_active_ListItem,
-  light_purple_active_ModalOverlay: () => light_purple_active_ModalOverlay,
-  light_purple_active_Progress: () => light_purple_active_Progress,
-  light_purple_active_ProgressIndicator: () => light_purple_active_ProgressIndicator,
-  light_purple_active_RadioGroupItem: () => light_purple_active_RadioGroupItem,
-  light_purple_active_SheetOverlay: () => light_purple_active_SheetOverlay,
-  light_purple_active_SliderThumb: () => light_purple_active_SliderThumb,
-  light_purple_active_SliderTrack: () => light_purple_active_SliderTrack,
-  light_purple_active_SliderTrackActive: () => light_purple_active_SliderTrackActive,
-  light_purple_active_Switch: () => light_purple_active_Switch,
-  light_purple_active_SwitchThumb: () => light_purple_active_SwitchThumb,
-  light_purple_active_TextArea: () => light_purple_active_TextArea,
-  light_purple_active_Tooltip: () => light_purple_active_Tooltip,
-  light_purple_active_TooltipArrow: () => light_purple_active_TooltipArrow,
-  light_purple_active_TooltipContent: () => light_purple_active_TooltipContent,
-  light_purple_alt1: () => light_purple_alt1,
-  light_purple_alt1_Button: () => light_purple_alt1_Button,
-  light_purple_alt1_Card: () => light_purple_alt1_Card,
-  light_purple_alt1_Checkbox: () => light_purple_alt1_Checkbox,
-  light_purple_alt1_DialogOverlay: () => light_purple_alt1_DialogOverlay,
-  light_purple_alt1_DrawerFrame: () => light_purple_alt1_DrawerFrame,
-  light_purple_alt1_Input: () => light_purple_alt1_Input,
-  light_purple_alt1_ListItem: () => light_purple_alt1_ListItem,
-  light_purple_alt1_ModalOverlay: () => light_purple_alt1_ModalOverlay,
-  light_purple_alt1_Progress: () => light_purple_alt1_Progress,
-  light_purple_alt1_ProgressIndicator: () => light_purple_alt1_ProgressIndicator,
-  light_purple_alt1_RadioGroupItem: () => light_purple_alt1_RadioGroupItem,
-  light_purple_alt1_SheetOverlay: () => light_purple_alt1_SheetOverlay,
-  light_purple_alt1_SliderThumb: () => light_purple_alt1_SliderThumb,
-  light_purple_alt1_SliderTrack: () => light_purple_alt1_SliderTrack,
-  light_purple_alt1_SliderTrackActive: () => light_purple_alt1_SliderTrackActive,
-  light_purple_alt1_Switch: () => light_purple_alt1_Switch,
-  light_purple_alt1_SwitchThumb: () => light_purple_alt1_SwitchThumb,
-  light_purple_alt1_TextArea: () => light_purple_alt1_TextArea,
-  light_purple_alt1_Tooltip: () => light_purple_alt1_Tooltip,
-  light_purple_alt1_TooltipArrow: () => light_purple_alt1_TooltipArrow,
-  light_purple_alt1_TooltipContent: () => light_purple_alt1_TooltipContent,
-  light_purple_alt2: () => light_purple_alt2,
-  light_purple_alt2_Button: () => light_purple_alt2_Button,
-  light_purple_alt2_Card: () => light_purple_alt2_Card,
-  light_purple_alt2_Checkbox: () => light_purple_alt2_Checkbox,
-  light_purple_alt2_DialogOverlay: () => light_purple_alt2_DialogOverlay,
-  light_purple_alt2_DrawerFrame: () => light_purple_alt2_DrawerFrame,
-  light_purple_alt2_Input: () => light_purple_alt2_Input,
-  light_purple_alt2_ListItem: () => light_purple_alt2_ListItem,
-  light_purple_alt2_ModalOverlay: () => light_purple_alt2_ModalOverlay,
-  light_purple_alt2_Progress: () => light_purple_alt2_Progress,
-  light_purple_alt2_ProgressIndicator: () => light_purple_alt2_ProgressIndicator,
-  light_purple_alt2_RadioGroupItem: () => light_purple_alt2_RadioGroupItem,
-  light_purple_alt2_SheetOverlay: () => light_purple_alt2_SheetOverlay,
-  light_purple_alt2_SliderThumb: () => light_purple_alt2_SliderThumb,
-  light_purple_alt2_SliderTrack: () => light_purple_alt2_SliderTrack,
-  light_purple_alt2_SliderTrackActive: () => light_purple_alt2_SliderTrackActive,
-  light_purple_alt2_Switch: () => light_purple_alt2_Switch,
-  light_purple_alt2_SwitchThumb: () => light_purple_alt2_SwitchThumb,
-  light_purple_alt2_TextArea: () => light_purple_alt2_TextArea,
-  light_purple_alt2_Tooltip: () => light_purple_alt2_Tooltip,
-  light_purple_alt2_TooltipArrow: () => light_purple_alt2_TooltipArrow,
-  light_purple_alt2_TooltipContent: () => light_purple_alt2_TooltipContent,
-  light_red: () => light_red,
-  light_red_Button: () => light_red_Button,
-  light_red_Card: () => light_red_Card,
-  light_red_Checkbox: () => light_red_Checkbox,
-  light_red_DialogOverlay: () => light_red_DialogOverlay,
-  light_red_DrawerFrame: () => light_red_DrawerFrame,
-  light_red_Input: () => light_red_Input,
-  light_red_ListItem: () => light_red_ListItem,
-  light_red_ModalOverlay: () => light_red_ModalOverlay,
-  light_red_Progress: () => light_red_Progress,
-  light_red_ProgressIndicator: () => light_red_ProgressIndicator,
-  light_red_RadioGroupItem: () => light_red_RadioGroupItem,
-  light_red_SheetOverlay: () => light_red_SheetOverlay,
-  light_red_SliderThumb: () => light_red_SliderThumb,
-  light_red_SliderTrack: () => light_red_SliderTrack,
-  light_red_SliderTrackActive: () => light_red_SliderTrackActive,
-  light_red_Switch: () => light_red_Switch,
-  light_red_SwitchThumb: () => light_red_SwitchThumb,
-  light_red_TextArea: () => light_red_TextArea,
-  light_red_Tooltip: () => light_red_Tooltip,
-  light_red_TooltipArrow: () => light_red_TooltipArrow,
-  light_red_TooltipContent: () => light_red_TooltipContent,
-  light_red_active: () => light_red_active,
-  light_red_active_Button: () => light_red_active_Button,
-  light_red_active_Card: () => light_red_active_Card,
-  light_red_active_Checkbox: () => light_red_active_Checkbox,
-  light_red_active_DialogOverlay: () => light_red_active_DialogOverlay,
-  light_red_active_DrawerFrame: () => light_red_active_DrawerFrame,
-  light_red_active_Input: () => light_red_active_Input,
-  light_red_active_ListItem: () => light_red_active_ListItem,
-  light_red_active_ModalOverlay: () => light_red_active_ModalOverlay,
-  light_red_active_Progress: () => light_red_active_Progress,
-  light_red_active_ProgressIndicator: () => light_red_active_ProgressIndicator,
-  light_red_active_RadioGroupItem: () => light_red_active_RadioGroupItem,
-  light_red_active_SheetOverlay: () => light_red_active_SheetOverlay,
-  light_red_active_SliderThumb: () => light_red_active_SliderThumb,
-  light_red_active_SliderTrack: () => light_red_active_SliderTrack,
-  light_red_active_SliderTrackActive: () => light_red_active_SliderTrackActive,
-  light_red_active_Switch: () => light_red_active_Switch,
-  light_red_active_SwitchThumb: () => light_red_active_SwitchThumb,
-  light_red_active_TextArea: () => light_red_active_TextArea,
-  light_red_active_Tooltip: () => light_red_active_Tooltip,
-  light_red_active_TooltipArrow: () => light_red_active_TooltipArrow,
-  light_red_active_TooltipContent: () => light_red_active_TooltipContent,
-  light_red_alt1: () => light_red_alt1,
-  light_red_alt1_Button: () => light_red_alt1_Button,
-  light_red_alt1_Card: () => light_red_alt1_Card,
-  light_red_alt1_Checkbox: () => light_red_alt1_Checkbox,
-  light_red_alt1_DialogOverlay: () => light_red_alt1_DialogOverlay,
-  light_red_alt1_DrawerFrame: () => light_red_alt1_DrawerFrame,
-  light_red_alt1_Input: () => light_red_alt1_Input,
-  light_red_alt1_ListItem: () => light_red_alt1_ListItem,
-  light_red_alt1_ModalOverlay: () => light_red_alt1_ModalOverlay,
-  light_red_alt1_Progress: () => light_red_alt1_Progress,
-  light_red_alt1_ProgressIndicator: () => light_red_alt1_ProgressIndicator,
-  light_red_alt1_RadioGroupItem: () => light_red_alt1_RadioGroupItem,
-  light_red_alt1_SheetOverlay: () => light_red_alt1_SheetOverlay,
-  light_red_alt1_SliderThumb: () => light_red_alt1_SliderThumb,
-  light_red_alt1_SliderTrack: () => light_red_alt1_SliderTrack,
-  light_red_alt1_SliderTrackActive: () => light_red_alt1_SliderTrackActive,
-  light_red_alt1_Switch: () => light_red_alt1_Switch,
-  light_red_alt1_SwitchThumb: () => light_red_alt1_SwitchThumb,
-  light_red_alt1_TextArea: () => light_red_alt1_TextArea,
-  light_red_alt1_Tooltip: () => light_red_alt1_Tooltip,
-  light_red_alt1_TooltipArrow: () => light_red_alt1_TooltipArrow,
-  light_red_alt1_TooltipContent: () => light_red_alt1_TooltipContent,
-  light_red_alt2: () => light_red_alt2,
-  light_red_alt2_Button: () => light_red_alt2_Button,
-  light_red_alt2_Card: () => light_red_alt2_Card,
-  light_red_alt2_Checkbox: () => light_red_alt2_Checkbox,
-  light_red_alt2_DialogOverlay: () => light_red_alt2_DialogOverlay,
-  light_red_alt2_DrawerFrame: () => light_red_alt2_DrawerFrame,
-  light_red_alt2_Input: () => light_red_alt2_Input,
-  light_red_alt2_ListItem: () => light_red_alt2_ListItem,
-  light_red_alt2_ModalOverlay: () => light_red_alt2_ModalOverlay,
-  light_red_alt2_Progress: () => light_red_alt2_Progress,
-  light_red_alt2_ProgressIndicator: () => light_red_alt2_ProgressIndicator,
-  light_red_alt2_RadioGroupItem: () => light_red_alt2_RadioGroupItem,
-  light_red_alt2_SheetOverlay: () => light_red_alt2_SheetOverlay,
-  light_red_alt2_SliderThumb: () => light_red_alt2_SliderThumb,
-  light_red_alt2_SliderTrack: () => light_red_alt2_SliderTrack,
-  light_red_alt2_SliderTrackActive: () => light_red_alt2_SliderTrackActive,
-  light_red_alt2_Switch: () => light_red_alt2_Switch,
-  light_red_alt2_SwitchThumb: () => light_red_alt2_SwitchThumb,
-  light_red_alt2_TextArea: () => light_red_alt2_TextArea,
-  light_red_alt2_Tooltip: () => light_red_alt2_Tooltip,
-  light_red_alt2_TooltipArrow: () => light_red_alt2_TooltipArrow,
-  light_red_alt2_TooltipContent: () => light_red_alt2_TooltipContent,
-  light_yellow: () => light_yellow,
-  light_yellow_Button: () => light_yellow_Button,
-  light_yellow_Card: () => light_yellow_Card,
-  light_yellow_Checkbox: () => light_yellow_Checkbox,
-  light_yellow_DialogOverlay: () => light_yellow_DialogOverlay,
-  light_yellow_DrawerFrame: () => light_yellow_DrawerFrame,
-  light_yellow_Input: () => light_yellow_Input,
-  light_yellow_ListItem: () => light_yellow_ListItem,
-  light_yellow_ModalOverlay: () => light_yellow_ModalOverlay,
-  light_yellow_Progress: () => light_yellow_Progress,
-  light_yellow_ProgressIndicator: () => light_yellow_ProgressIndicator,
-  light_yellow_RadioGroupItem: () => light_yellow_RadioGroupItem,
-  light_yellow_SheetOverlay: () => light_yellow_SheetOverlay,
-  light_yellow_SliderThumb: () => light_yellow_SliderThumb,
-  light_yellow_SliderTrack: () => light_yellow_SliderTrack,
-  light_yellow_SliderTrackActive: () => light_yellow_SliderTrackActive,
-  light_yellow_Switch: () => light_yellow_Switch,
-  light_yellow_SwitchThumb: () => light_yellow_SwitchThumb,
-  light_yellow_TextArea: () => light_yellow_TextArea,
-  light_yellow_Tooltip: () => light_yellow_Tooltip,
-  light_yellow_TooltipArrow: () => light_yellow_TooltipArrow,
-  light_yellow_TooltipContent: () => light_yellow_TooltipContent,
-  light_yellow_active: () => light_yellow_active,
-  light_yellow_active_Button: () => light_yellow_active_Button,
-  light_yellow_active_Card: () => light_yellow_active_Card,
-  light_yellow_active_Checkbox: () => light_yellow_active_Checkbox,
-  light_yellow_active_DialogOverlay: () => light_yellow_active_DialogOverlay,
-  light_yellow_active_DrawerFrame: () => light_yellow_active_DrawerFrame,
-  light_yellow_active_Input: () => light_yellow_active_Input,
-  light_yellow_active_ListItem: () => light_yellow_active_ListItem,
-  light_yellow_active_ModalOverlay: () => light_yellow_active_ModalOverlay,
-  light_yellow_active_Progress: () => light_yellow_active_Progress,
-  light_yellow_active_ProgressIndicator: () => light_yellow_active_ProgressIndicator,
-  light_yellow_active_RadioGroupItem: () => light_yellow_active_RadioGroupItem,
-  light_yellow_active_SheetOverlay: () => light_yellow_active_SheetOverlay,
-  light_yellow_active_SliderThumb: () => light_yellow_active_SliderThumb,
-  light_yellow_active_SliderTrack: () => light_yellow_active_SliderTrack,
-  light_yellow_active_SliderTrackActive: () => light_yellow_active_SliderTrackActive,
-  light_yellow_active_Switch: () => light_yellow_active_Switch,
-  light_yellow_active_SwitchThumb: () => light_yellow_active_SwitchThumb,
-  light_yellow_active_TextArea: () => light_yellow_active_TextArea,
-  light_yellow_active_Tooltip: () => light_yellow_active_Tooltip,
-  light_yellow_active_TooltipArrow: () => light_yellow_active_TooltipArrow,
-  light_yellow_active_TooltipContent: () => light_yellow_active_TooltipContent,
-  light_yellow_alt1: () => light_yellow_alt1,
-  light_yellow_alt1_Button: () => light_yellow_alt1_Button,
-  light_yellow_alt1_Card: () => light_yellow_alt1_Card,
-  light_yellow_alt1_Checkbox: () => light_yellow_alt1_Checkbox,
-  light_yellow_alt1_DialogOverlay: () => light_yellow_alt1_DialogOverlay,
-  light_yellow_alt1_DrawerFrame: () => light_yellow_alt1_DrawerFrame,
-  light_yellow_alt1_Input: () => light_yellow_alt1_Input,
-  light_yellow_alt1_ListItem: () => light_yellow_alt1_ListItem,
-  light_yellow_alt1_ModalOverlay: () => light_yellow_alt1_ModalOverlay,
-  light_yellow_alt1_Progress: () => light_yellow_alt1_Progress,
-  light_yellow_alt1_ProgressIndicator: () => light_yellow_alt1_ProgressIndicator,
-  light_yellow_alt1_RadioGroupItem: () => light_yellow_alt1_RadioGroupItem,
-  light_yellow_alt1_SheetOverlay: () => light_yellow_alt1_SheetOverlay,
-  light_yellow_alt1_SliderThumb: () => light_yellow_alt1_SliderThumb,
-  light_yellow_alt1_SliderTrack: () => light_yellow_alt1_SliderTrack,
-  light_yellow_alt1_SliderTrackActive: () => light_yellow_alt1_SliderTrackActive,
-  light_yellow_alt1_Switch: () => light_yellow_alt1_Switch,
-  light_yellow_alt1_SwitchThumb: () => light_yellow_alt1_SwitchThumb,
-  light_yellow_alt1_TextArea: () => light_yellow_alt1_TextArea,
-  light_yellow_alt1_Tooltip: () => light_yellow_alt1_Tooltip,
-  light_yellow_alt1_TooltipArrow: () => light_yellow_alt1_TooltipArrow,
-  light_yellow_alt1_TooltipContent: () => light_yellow_alt1_TooltipContent,
-  light_yellow_alt2: () => light_yellow_alt2,
-  light_yellow_alt2_Button: () => light_yellow_alt2_Button,
-  light_yellow_alt2_Card: () => light_yellow_alt2_Card,
-  light_yellow_alt2_Checkbox: () => light_yellow_alt2_Checkbox,
-  light_yellow_alt2_DialogOverlay: () => light_yellow_alt2_DialogOverlay,
-  light_yellow_alt2_DrawerFrame: () => light_yellow_alt2_DrawerFrame,
-  light_yellow_alt2_Input: () => light_yellow_alt2_Input,
-  light_yellow_alt2_ListItem: () => light_yellow_alt2_ListItem,
-  light_yellow_alt2_ModalOverlay: () => light_yellow_alt2_ModalOverlay,
-  light_yellow_alt2_Progress: () => light_yellow_alt2_Progress,
-  light_yellow_alt2_ProgressIndicator: () => light_yellow_alt2_ProgressIndicator,
-  light_yellow_alt2_RadioGroupItem: () => light_yellow_alt2_RadioGroupItem,
-  light_yellow_alt2_SheetOverlay: () => light_yellow_alt2_SheetOverlay,
-  light_yellow_alt2_SliderThumb: () => light_yellow_alt2_SliderThumb,
-  light_yellow_alt2_SliderTrack: () => light_yellow_alt2_SliderTrack,
-  light_yellow_alt2_SliderTrackActive: () => light_yellow_alt2_SliderTrackActive,
-  light_yellow_alt2_Switch: () => light_yellow_alt2_Switch,
-  light_yellow_alt2_SwitchThumb: () => light_yellow_alt2_SwitchThumb,
-  light_yellow_alt2_TextArea: () => light_yellow_alt2_TextArea,
-  light_yellow_alt2_Tooltip: () => light_yellow_alt2_Tooltip,
-  light_yellow_alt2_TooltipArrow: () => light_yellow_alt2_TooltipArrow,
-  light_yellow_alt2_TooltipContent: () => light_yellow_alt2_TooltipContent
-});
-function t(a) {
-  let res = {};
-  for (const [ki, vi] of a) res[ks[ki]] = vs[vi];
-  return res;
-}
-__name(t, "t");
-var vs = ["#fff", "#f8f8f8", "hsl(0, 0%, 96.3%)", "hsl(0, 0%, 94.1%)", "hsl(0, 0%, 92.0%)", "hsl(0, 0%, 90.0%)", "hsl(0, 0%, 88.5%)", "hsl(0, 0%, 81.0%)", "hsl(0, 0%, 56.1%)", "hsl(0, 0%, 50.3%)", "hsl(0, 0%, 42.5%)", "hsl(0, 0%, 9.0%)", "rgba(255,255,255,0)", "rgba(10,10,10,0)", "hsl(206, 100%, 99.2%)", "hsl(210, 100%, 98.0%)", "hsl(209, 100%, 96.5%)", "hsl(210, 98.8%, 94.0%)", "hsl(209, 95.0%, 90.1%)", "hsl(209, 81.2%, 84.5%)", "hsl(208, 77.5%, 76.9%)", "hsl(206, 81.9%, 65.3%)", "hsl(206, 100%, 50.0%)", "hsl(208, 100%, 47.3%)", "hsl(211, 100%, 43.2%)", "hsl(211, 100%, 15.0%)", "hsl(0, 0%, 99.0%)", "hsl(0, 0%, 97.3%)", "hsl(0, 0%, 95.1%)", "hsl(0, 0%, 93.0%)", "hsl(0, 0%, 90.9%)", "hsl(0, 0%, 88.7%)", "hsl(0, 0%, 85.8%)", "hsl(0, 0%, 78.0%)", "hsl(0, 0%, 52.3%)", "hsl(0, 0%, 43.5%)", "hsl(136, 50.0%, 98.9%)", "hsl(138, 62.5%, 96.9%)", "hsl(139, 55.2%, 94.5%)", "hsl(140, 48.7%, 91.0%)", "hsl(141, 43.7%, 86.0%)", "hsl(143, 40.3%, 79.0%)", "hsl(146, 38.5%, 69.0%)", "hsl(151, 40.2%, 54.1%)", "hsl(151, 55.0%, 41.5%)", "hsl(152, 57.5%, 37.6%)", "hsl(153, 67.0%, 28.5%)", "hsl(155, 40.0%, 14.0%)", "hsl(24, 70.0%, 99.0%)", "hsl(24, 83.3%, 97.6%)", "hsl(24, 100%, 95.3%)", "hsl(25, 100%, 92.2%)", "hsl(25, 100%, 88.2%)", "hsl(25, 100%, 82.8%)", "hsl(24, 100%, 75.3%)", "hsl(24, 94.5%, 64.3%)", "hsl(24, 94.0%, 50.0%)", "hsl(24, 100%, 46.5%)", "hsl(24, 100%, 37.0%)", "hsl(15, 60.0%, 17.0%)", "hsl(322, 100%, 99.4%)", "hsl(323, 100%, 98.4%)", "hsl(323, 86.3%, 96.5%)", "hsl(323, 78.7%, 94.2%)", "hsl(323, 72.2%, 91.1%)", "hsl(323, 66.3%, 86.6%)", "hsl(323, 62.0%, 80.1%)", "hsl(323, 60.3%, 72.4%)", "hsl(322, 65.0%, 54.5%)", "hsl(322, 63.9%, 50.7%)", "hsl(322, 75.0%, 46.0%)", "hsl(320, 70.0%, 13.5%)", "hsl(280, 65.0%, 99.4%)", "hsl(276, 100%, 99.0%)", "hsl(276, 83.1%, 97.0%)", "hsl(275, 76.4%, 94.7%)", "hsl(275, 70.8%, 91.8%)", "hsl(274, 65.4%, 87.8%)", "hsl(273, 61.0%, 81.7%)", "hsl(272, 60.0%, 73.5%)", "hsl(272, 51.0%, 54.0%)", "hsl(272, 46.8%, 50.3%)", "hsl(272, 50.0%, 45.8%)", "hsl(272, 66.0%, 16.0%)", "hsl(359, 100%, 99.4%)", "hsl(359, 100%, 98.6%)", "hsl(360, 100%, 96.8%)", "hsl(360, 97.9%, 94.8%)", "hsl(360, 90.2%, 91.9%)", "hsl(360, 81.7%, 87.8%)", "hsl(359, 74.2%, 81.7%)", "hsl(359, 69.5%, 74.3%)", "hsl(358, 75.0%, 59.0%)", "hsl(358, 69.4%, 55.2%)", "hsl(358, 65.0%, 48.7%)", "hsl(354, 50.0%, 14.6%)", "hsl(60, 54.0%, 98.5%)", "hsl(52, 100%, 95.5%)", "hsl(55, 100%, 90.9%)", "hsl(54, 100%, 86.6%)", "hsl(52, 97.9%, 82.0%)", "hsl(50, 89.4%, 76.1%)", "hsl(47, 80.4%, 68.0%)", "hsl(48, 100%, 46.1%)", "hsl(53, 92.0%, 50.0%)", "hsl(50, 100%, 48.5%)", "hsl(42, 100%, 29.0%)", "hsl(40, 55.0%, 13.5%)", "rgba(0,0,0,0.085)", "rgba(0,0,0,0.04)", "#050505", "#151515", "#191919", "#232323", "#282828", "#323232", "#424242", "#494949", "#545454", "#626262", "#a5a5a5", "hsl(212, 35.0%, 9.2%)", "hsl(216, 50.0%, 11.8%)", "hsl(214, 59.4%, 15.3%)", "hsl(214, 65.8%, 17.9%)", "hsl(213, 71.2%, 20.2%)", "hsl(212, 77.4%, 23.1%)", "hsl(211, 85.1%, 27.4%)", "hsl(211, 89.7%, 34.1%)", "hsl(209, 100%, 60.6%)", "hsl(210, 100%, 66.1%)", "hsl(206, 98.0%, 95.8%)", "hsl(0, 0%, 8.5%)", "hsl(0, 0%, 11.0%)", "hsl(0, 0%, 13.6%)", "hsl(0, 0%, 15.8%)", "hsl(0, 0%, 17.9%)", "hsl(0, 0%, 20.5%)", "hsl(0, 0%, 24.3%)", "hsl(0, 0%, 31.2%)", "hsl(0, 0%, 43.9%)", "hsl(0, 0%, 49.4%)", "hsl(0, 0%, 62.8%)", "hsl(146, 30.0%, 7.4%)", "hsl(155, 44.2%, 8.4%)", "hsl(155, 46.7%, 10.9%)", "hsl(154, 48.4%, 12.9%)", "hsl(154, 49.7%, 14.9%)", "hsl(154, 50.9%, 17.6%)", "hsl(153, 51.8%, 21.8%)", "hsl(151, 51.7%, 28.4%)", "hsl(151, 49.3%, 46.5%)", "hsl(151, 50.0%, 53.2%)", "hsl(137, 72.0%, 94.0%)", "hsl(30, 70.0%, 7.2%)", "hsl(28, 100%, 8.4%)", "hsl(26, 91.1%, 11.6%)", "hsl(25, 88.3%, 14.1%)", "hsl(24, 87.6%, 16.6%)", "hsl(24, 88.6%, 19.8%)", "hsl(24, 92.4%, 24.0%)", "hsl(25, 100%, 29.0%)", "hsl(24, 100%, 58.5%)", "hsl(24, 100%, 62.2%)", "hsl(24, 97.0%, 93.2%)", "hsl(318, 25.0%, 9.6%)", "hsl(319, 32.2%, 11.6%)", "hsl(319, 41.0%, 16.0%)", "hsl(320, 45.4%, 18.7%)", "hsl(320, 49.0%, 21.1%)", "hsl(321, 53.6%, 24.4%)", "hsl(321, 61.1%, 29.7%)", "hsl(322, 74.9%, 37.5%)", "hsl(323, 72.8%, 59.2%)", "hsl(325, 90.0%, 66.4%)", "hsl(322, 90.0%, 95.8%)", "hsl(284, 20.0%, 9.6%)", "hsl(283, 30.0%, 11.8%)", "hsl(281, 37.5%, 16.5%)", "hsl(280, 41.2%, 20.0%)", "hsl(279, 43.8%, 23.3%)", "hsl(277, 46.4%, 27.5%)", "hsl(275, 49.3%, 34.6%)", "hsl(272, 52.1%, 45.9%)", "hsl(273, 57.3%, 59.1%)", "hsl(275, 80.0%, 71.0%)", "hsl(279, 75.0%, 95.7%)", "hsl(353, 23.0%, 9.8%)", "hsl(357, 34.4%, 12.0%)", "hsl(356, 43.4%, 16.4%)", "hsl(356, 47.6%, 19.2%)", "hsl(356, 51.1%, 21.9%)", "hsl(356, 55.2%, 25.9%)", "hsl(357, 60.2%, 31.8%)", "hsl(358, 65.0%, 40.4%)", "hsl(358, 85.3%, 64.0%)", "hsl(358, 100%, 69.5%)", "hsl(351, 89.0%, 96.0%)", "hsl(45, 100%, 5.5%)", "hsl(46, 100%, 6.7%)", "hsl(45, 100%, 8.7%)", "hsl(45, 100%, 10.4%)", "hsl(47, 100%, 12.1%)", "hsl(49, 100%, 14.3%)", "hsl(49, 90.3%, 18.4%)", "hsl(50, 100%, 22.0%)", "hsl(54, 100%, 68.0%)", "hsl(48, 100%, 47.0%)", "hsl(53, 100%, 91.0%)", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.2)", "hsla(24, 70.0%, 99.0%, 0)", "hsla(15, 60.0%, 17.0%, 0)", "hsla(60, 54.0%, 98.5%, 0)", "hsla(40, 55.0%, 13.5%, 0)", "hsla(136, 50.0%, 98.9%, 0)", "hsla(155, 40.0%, 14.0%, 0)", "hsla(206, 100%, 99.2%, 0)", "hsla(211, 100%, 15.0%, 0)", "hsla(280, 65.0%, 99.4%, 0)", "hsla(272, 66.0%, 16.0%, 0)", "hsla(322, 100%, 99.4%, 0)", "hsla(320, 70.0%, 13.5%, 0)", "hsla(359, 100%, 99.4%, 0)", "hsla(354, 50.0%, 14.6%, 0)", "hsla(30, 70.0%, 7.2%, 0)", "hsla(24, 97.0%, 93.2%, 0)", "hsla(45, 100%, 5.5%, 0)", "hsla(53, 100%, 91.0%, 0)", "hsla(146, 30.0%, 7.4%, 0)", "hsla(137, 72.0%, 94.0%, 0)", "hsla(212, 35.0%, 9.2%, 0)", "hsla(206, 98.0%, 95.8%, 0)", "hsla(284, 20.0%, 9.6%, 0)", "hsla(279, 75.0%, 95.7%, 0)", "hsla(318, 25.0%, 9.6%, 0)", "hsla(322, 90.0%, 95.8%, 0)", "hsla(353, 23.0%, 9.8%, 0)", "hsla(351, 89.0%, 96.0%, 0)", "rgba(0,0,0,0.5)", "rgba(0,0,0,0.9)", "transparent"];
-var ks = ["color1", "color2", "color3", "color4", "color5", "color6", "color7", "color8", "color9", "color10", "color11", "color12", "background", "backgroundHover", "backgroundPress", "backgroundFocus", "backgroundStrong", "backgroundTransparent", "color", "colorHover", "colorPress", "colorFocus", "colorTransparent", "borderColor", "borderColorHover", "borderColorFocus", "borderColorPress", "placeholderColor", "blue1", "blue2", "blue3", "blue4", "blue5", "blue6", "blue7", "blue8", "blue9", "blue10", "blue11", "blue12", "gray1", "gray2", "gray3", "gray4", "gray5", "gray6", "gray7", "gray8", "gray9", "gray10", "gray11", "gray12", "green1", "green2", "green3", "green4", "green5", "green6", "green7", "green8", "green9", "green10", "green11", "green12", "orange1", "orange2", "orange3", "orange4", "orange5", "orange6", "orange7", "orange8", "orange9", "orange10", "orange11", "orange12", "pink1", "pink2", "pink3", "pink4", "pink5", "pink6", "pink7", "pink8", "pink9", "pink10", "pink11", "pink12", "purple1", "purple2", "purple3", "purple4", "purple5", "purple6", "purple7", "purple8", "purple9", "purple10", "purple11", "purple12", "red1", "red2", "red3", "red4", "red5", "red6", "red7", "red8", "red9", "red10", "red11", "red12", "yellow1", "yellow2", "yellow3", "yellow4", "yellow5", "yellow6", "yellow7", "yellow8", "yellow9", "yellow10", "yellow11", "yellow12", "shadowColor", "shadowColorHover", "shadowColorPress", "shadowColorFocus"];
-var n1 = t([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 1], [13, 2], [14, 3], [15, 4], [16, 0], [17, 12], [18, 11], [19, 10], [20, 11], [21, 10], [22, 13], [23, 4], [24, 5], [25, 3], [26, 4], [27, 8], [28, 14], [29, 15], [30, 16], [31, 17], [32, 18], [33, 19], [34, 20], [35, 21], [36, 22], [37, 23], [38, 24], [39, 25], [40, 26], [41, 27], [42, 28], [43, 29], [44, 30], [45, 31], [46, 32], [47, 33], [48, 8], [49, 34], [50, 35], [51, 11], [52, 36], [53, 37], [54, 38], [55, 39], [56, 40], [57, 41], [58, 42], [59, 43], [60, 44], [61, 45], [62, 46], [63, 47], [64, 48], [65, 49], [66, 50], [67, 51], [68, 52], [69, 53], [70, 54], [71, 55], [72, 56], [73, 57], [74, 58], [75, 59], [76, 60], [77, 61], [78, 62], [79, 63], [80, 64], [81, 65], [82, 66], [83, 67], [84, 68], [85, 69], [86, 70], [87, 71], [88, 72], [89, 73], [90, 74], [91, 75], [92, 76], [93, 77], [94, 78], [95, 79], [96, 80], [97, 81], [98, 82], [99, 83], [100, 84], [101, 85], [102, 86], [103, 87], [104, 88], [105, 89], [106, 90], [107, 91], [108, 92], [109, 93], [110, 94], [111, 95], [112, 96], [113, 97], [114, 98], [115, 99], [116, 100], [117, 101], [118, 102], [119, 103], [120, 104], [121, 105], [122, 106], [123, 107], [124, 108], [125, 108], [126, 109], [127, 109]]);
-var light = n1;
-var n2 = t([[0, 110], [1, 111], [2, 112], [3, 113], [4, 114], [5, 115], [6, 116], [7, 117], [8, 118], [9, 119], [10, 120], [11, 0], [12, 111], [13, 112], [14, 113], [15, 114], [16, 110], [17, 13], [18, 0], [19, 120], [20, 0], [21, 120], [22, 12], [23, 114], [24, 115], [25, 113], [26, 114], [27, 118], [28, 121], [29, 122], [30, 123], [31, 124], [32, 125], [33, 126], [34, 127], [35, 128], [36, 22], [37, 129], [38, 130], [39, 131], [40, 132], [41, 133], [42, 134], [43, 135], [44, 136], [45, 137], [46, 138], [47, 139], [48, 140], [49, 141], [50, 142], [51, 29], [52, 143], [53, 144], [54, 145], [55, 146], [56, 147], [57, 148], [58, 149], [59, 150], [60, 44], [61, 151], [62, 152], [63, 153], [64, 154], [65, 155], [66, 156], [67, 157], [68, 158], [69, 159], [70, 160], [71, 161], [72, 56], [73, 162], [74, 163], [75, 164], [76, 165], [77, 166], [78, 167], [79, 168], [80, 169], [81, 170], [82, 171], [83, 172], [84, 68], [85, 173], [86, 174], [87, 175], [88, 176], [89, 177], [90, 178], [91, 179], [92, 180], [93, 181], [94, 182], [95, 183], [96, 80], [97, 184], [98, 185], [99, 186], [100, 187], [101, 188], [102, 189], [103, 190], [104, 191], [105, 192], [106, 193], [107, 194], [108, 92], [109, 195], [110, 196], [111, 197], [112, 198], [113, 199], [114, 200], [115, 201], [116, 202], [117, 203], [118, 204], [119, 205], [120, 104], [121, 206], [122, 207], [123, 208], [124, 209], [125, 209], [126, 210], [127, 210]]);
-var dark = n2;
-var n3 = t([[0, 48], [1, 49], [2, 50], [3, 51], [4, 52], [5, 53], [6, 55], [7, 56], [8, 57], [9, 58], [10, 59], [11, 11], [12, 49], [13, 50], [14, 51], [15, 52], [16, 48], [17, 211], [18, 11], [19, 59], [20, 11], [21, 59], [22, 212], [23, 51], [24, 52], [25, 51], [26, 51], [27, 57]]);
-var light_orange = n3;
-var n4 = t([[0, 96], [1, 97], [2, 98], [3, 99], [4, 100], [5, 101], [6, 103], [7, 104], [8, 105], [9, 106], [10, 107], [11, 11], [12, 97], [13, 98], [14, 99], [15, 100], [16, 96], [17, 213], [18, 11], [19, 107], [20, 11], [21, 107], [22, 214], [23, 99], [24, 100], [25, 99], [26, 99], [27, 105]]);
-var light_yellow = n4;
-var n5 = t([[0, 36], [1, 37], [2, 38], [3, 39], [4, 40], [5, 41], [6, 43], [7, 44], [8, 45], [9, 46], [10, 47], [11, 11], [12, 37], [13, 38], [14, 39], [15, 40], [16, 36], [17, 215], [18, 11], [19, 47], [20, 11], [21, 47], [22, 216], [23, 39], [24, 40], [25, 39], [26, 39], [27, 45]]);
-var light_green = n5;
-var n6 = t([[0, 14], [1, 15], [2, 16], [3, 17], [4, 18], [5, 19], [6, 21], [7, 22], [8, 23], [9, 24], [10, 25], [11, 11], [12, 15], [13, 16], [14, 17], [15, 18], [16, 14], [17, 217], [18, 11], [19, 25], [20, 11], [21, 25], [22, 218], [23, 17], [24, 18], [25, 17], [26, 17], [27, 23]]);
-var light_blue = n6;
-var n7 = t([[0, 72], [1, 73], [2, 74], [3, 75], [4, 76], [5, 77], [6, 79], [7, 80], [8, 81], [9, 82], [10, 83], [11, 11], [12, 73], [13, 74], [14, 75], [15, 76], [16, 72], [17, 219], [18, 11], [19, 83], [20, 11], [21, 83], [22, 220], [23, 75], [24, 76], [25, 75], [26, 75], [27, 81]]);
-var light_purple = n7;
-var n8 = t([[0, 60], [1, 61], [2, 62], [3, 63], [4, 64], [5, 65], [6, 67], [7, 68], [8, 69], [9, 70], [10, 71], [11, 11], [12, 61], [13, 62], [14, 63], [15, 64], [16, 60], [17, 221], [18, 11], [19, 71], [20, 11], [21, 71], [22, 222], [23, 63], [24, 64], [25, 63], [26, 63], [27, 69]]);
-var light_pink = n8;
-var n9 = t([[0, 84], [1, 85], [2, 86], [3, 87], [4, 88], [5, 89], [6, 91], [7, 92], [8, 93], [9, 94], [10, 95], [11, 11], [12, 85], [13, 86], [14, 87], [15, 88], [16, 84], [17, 223], [18, 11], [19, 95], [20, 11], [21, 95], [22, 224], [23, 87], [24, 88], [25, 87], [26, 87], [27, 93]]);
-var light_red = n9;
-var n10 = t([[0, 154], [1, 155], [2, 156], [3, 157], [4, 158], [5, 159], [6, 161], [7, 56], [8, 162], [9, 163], [10, 164], [11, 0], [12, 155], [13, 156], [14, 157], [15, 158], [16, 154], [17, 225], [18, 0], [19, 164], [20, 0], [21, 164], [22, 226], [23, 158], [24, 159], [25, 157], [26, 158], [27, 162]]);
-var dark_orange = n10;
-var n11 = t([[0, 198], [1, 199], [2, 200], [3, 201], [4, 202], [5, 203], [6, 205], [7, 104], [8, 206], [9, 207], [10, 208], [11, 0], [12, 199], [13, 200], [14, 201], [15, 202], [16, 198], [17, 227], [18, 0], [19, 208], [20, 0], [21, 208], [22, 228], [23, 202], [24, 203], [25, 201], [26, 202], [27, 206]]);
-var dark_yellow = n11;
-var n12 = t([[0, 143], [1, 144], [2, 145], [3, 146], [4, 147], [5, 148], [6, 150], [7, 44], [8, 151], [9, 152], [10, 153], [11, 0], [12, 144], [13, 145], [14, 146], [15, 147], [16, 143], [17, 229], [18, 0], [19, 153], [20, 0], [21, 153], [22, 230], [23, 147], [24, 148], [25, 146], [26, 147], [27, 151]]);
-var dark_green = n12;
-var n13 = t([[0, 121], [1, 122], [2, 123], [3, 124], [4, 125], [5, 126], [6, 128], [7, 22], [8, 129], [9, 130], [10, 131], [11, 0], [12, 122], [13, 123], [14, 124], [15, 125], [16, 121], [17, 231], [18, 0], [19, 131], [20, 0], [21, 131], [22, 232], [23, 125], [24, 126], [25, 124], [26, 125], [27, 129]]);
-var dark_blue = n13;
-var n14 = t([[0, 176], [1, 177], [2, 178], [3, 179], [4, 180], [5, 181], [6, 183], [7, 80], [8, 184], [9, 185], [10, 186], [11, 0], [12, 177], [13, 178], [14, 179], [15, 180], [16, 176], [17, 233], [18, 0], [19, 186], [20, 0], [21, 186], [22, 234], [23, 180], [24, 181], [25, 179], [26, 180], [27, 184]]);
-var dark_purple = n14;
-var n15 = t([[0, 165], [1, 166], [2, 167], [3, 168], [4, 169], [5, 170], [6, 172], [7, 68], [8, 173], [9, 174], [10, 175], [11, 0], [12, 166], [13, 167], [14, 168], [15, 169], [16, 165], [17, 235], [18, 0], [19, 175], [20, 0], [21, 175], [22, 236], [23, 169], [24, 170], [25, 168], [26, 169], [27, 173]]);
-var dark_pink = n15;
-var n16 = t([[0, 187], [1, 188], [2, 189], [3, 190], [4, 191], [5, 192], [6, 194], [7, 92], [8, 195], [9, 196], [10, 197], [11, 0], [12, 188], [13, 189], [14, 190], [15, 191], [16, 187], [17, 237], [18, 0], [19, 197], [20, 0], [21, 197], [22, 238], [23, 191], [24, 192], [25, 190], [26, 191], [27, 195]]);
-var dark_red = n16;
-var n17 = t([[12, 239]]);
-var light_SheetOverlay = n17;
-var light_DialogOverlay = n17;
-var light_ModalOverlay = n17;
-var light_orange_SheetOverlay = n17;
-var light_orange_DialogOverlay = n17;
-var light_orange_ModalOverlay = n17;
-var light_yellow_SheetOverlay = n17;
-var light_yellow_DialogOverlay = n17;
-var light_yellow_ModalOverlay = n17;
-var light_green_SheetOverlay = n17;
-var light_green_DialogOverlay = n17;
-var light_green_ModalOverlay = n17;
-var light_blue_SheetOverlay = n17;
-var light_blue_DialogOverlay = n17;
-var light_blue_ModalOverlay = n17;
-var light_purple_SheetOverlay = n17;
-var light_purple_DialogOverlay = n17;
-var light_purple_ModalOverlay = n17;
-var light_pink_SheetOverlay = n17;
-var light_pink_DialogOverlay = n17;
-var light_pink_ModalOverlay = n17;
-var light_red_SheetOverlay = n17;
-var light_red_DialogOverlay = n17;
-var light_red_ModalOverlay = n17;
-var light_alt1_SheetOverlay = n17;
-var light_alt1_DialogOverlay = n17;
-var light_alt1_ModalOverlay = n17;
-var light_alt2_SheetOverlay = n17;
-var light_alt2_DialogOverlay = n17;
-var light_alt2_ModalOverlay = n17;
-var light_active_SheetOverlay = n17;
-var light_active_DialogOverlay = n17;
-var light_active_ModalOverlay = n17;
-var light_orange_alt1_SheetOverlay = n17;
-var light_orange_alt1_DialogOverlay = n17;
-var light_orange_alt1_ModalOverlay = n17;
-var light_orange_alt2_SheetOverlay = n17;
-var light_orange_alt2_DialogOverlay = n17;
-var light_orange_alt2_ModalOverlay = n17;
-var light_orange_active_SheetOverlay = n17;
-var light_orange_active_DialogOverlay = n17;
-var light_orange_active_ModalOverlay = n17;
-var light_yellow_alt1_SheetOverlay = n17;
-var light_yellow_alt1_DialogOverlay = n17;
-var light_yellow_alt1_ModalOverlay = n17;
-var light_yellow_alt2_SheetOverlay = n17;
-var light_yellow_alt2_DialogOverlay = n17;
-var light_yellow_alt2_ModalOverlay = n17;
-var light_yellow_active_SheetOverlay = n17;
-var light_yellow_active_DialogOverlay = n17;
-var light_yellow_active_ModalOverlay = n17;
-var light_green_alt1_SheetOverlay = n17;
-var light_green_alt1_DialogOverlay = n17;
-var light_green_alt1_ModalOverlay = n17;
-var light_green_alt2_SheetOverlay = n17;
-var light_green_alt2_DialogOverlay = n17;
-var light_green_alt2_ModalOverlay = n17;
-var light_green_active_SheetOverlay = n17;
-var light_green_active_DialogOverlay = n17;
-var light_green_active_ModalOverlay = n17;
-var light_blue_alt1_SheetOverlay = n17;
-var light_blue_alt1_DialogOverlay = n17;
-var light_blue_alt1_ModalOverlay = n17;
-var light_blue_alt2_SheetOverlay = n17;
-var light_blue_alt2_DialogOverlay = n17;
-var light_blue_alt2_ModalOverlay = n17;
-var light_blue_active_SheetOverlay = n17;
-var light_blue_active_DialogOverlay = n17;
-var light_blue_active_ModalOverlay = n17;
-var light_purple_alt1_SheetOverlay = n17;
-var light_purple_alt1_DialogOverlay = n17;
-var light_purple_alt1_ModalOverlay = n17;
-var light_purple_alt2_SheetOverlay = n17;
-var light_purple_alt2_DialogOverlay = n17;
-var light_purple_alt2_ModalOverlay = n17;
-var light_purple_active_SheetOverlay = n17;
-var light_purple_active_DialogOverlay = n17;
-var light_purple_active_ModalOverlay = n17;
-var light_pink_alt1_SheetOverlay = n17;
-var light_pink_alt1_DialogOverlay = n17;
-var light_pink_alt1_ModalOverlay = n17;
-var light_pink_alt2_SheetOverlay = n17;
-var light_pink_alt2_DialogOverlay = n17;
-var light_pink_alt2_ModalOverlay = n17;
-var light_pink_active_SheetOverlay = n17;
-var light_pink_active_DialogOverlay = n17;
-var light_pink_active_ModalOverlay = n17;
-var light_red_alt1_SheetOverlay = n17;
-var light_red_alt1_DialogOverlay = n17;
-var light_red_alt1_ModalOverlay = n17;
-var light_red_alt2_SheetOverlay = n17;
-var light_red_alt2_DialogOverlay = n17;
-var light_red_alt2_ModalOverlay = n17;
-var light_red_active_SheetOverlay = n17;
-var light_red_active_DialogOverlay = n17;
-var light_red_active_ModalOverlay = n17;
-var n18 = t([[12, 240]]);
-var dark_SheetOverlay = n18;
-var dark_DialogOverlay = n18;
-var dark_ModalOverlay = n18;
-var dark_orange_SheetOverlay = n18;
-var dark_orange_DialogOverlay = n18;
-var dark_orange_ModalOverlay = n18;
-var dark_yellow_SheetOverlay = n18;
-var dark_yellow_DialogOverlay = n18;
-var dark_yellow_ModalOverlay = n18;
-var dark_green_SheetOverlay = n18;
-var dark_green_DialogOverlay = n18;
-var dark_green_ModalOverlay = n18;
-var dark_blue_SheetOverlay = n18;
-var dark_blue_DialogOverlay = n18;
-var dark_blue_ModalOverlay = n18;
-var dark_purple_SheetOverlay = n18;
-var dark_purple_DialogOverlay = n18;
-var dark_purple_ModalOverlay = n18;
-var dark_pink_SheetOverlay = n18;
-var dark_pink_DialogOverlay = n18;
-var dark_pink_ModalOverlay = n18;
-var dark_red_SheetOverlay = n18;
-var dark_red_DialogOverlay = n18;
-var dark_red_ModalOverlay = n18;
-var dark_alt1_SheetOverlay = n18;
-var dark_alt1_DialogOverlay = n18;
-var dark_alt1_ModalOverlay = n18;
-var dark_alt2_SheetOverlay = n18;
-var dark_alt2_DialogOverlay = n18;
-var dark_alt2_ModalOverlay = n18;
-var dark_active_SheetOverlay = n18;
-var dark_active_DialogOverlay = n18;
-var dark_active_ModalOverlay = n18;
-var dark_orange_alt1_SheetOverlay = n18;
-var dark_orange_alt1_DialogOverlay = n18;
-var dark_orange_alt1_ModalOverlay = n18;
-var dark_orange_alt2_SheetOverlay = n18;
-var dark_orange_alt2_DialogOverlay = n18;
-var dark_orange_alt2_ModalOverlay = n18;
-var dark_orange_active_SheetOverlay = n18;
-var dark_orange_active_DialogOverlay = n18;
-var dark_orange_active_ModalOverlay = n18;
-var dark_yellow_alt1_SheetOverlay = n18;
-var dark_yellow_alt1_DialogOverlay = n18;
-var dark_yellow_alt1_ModalOverlay = n18;
-var dark_yellow_alt2_SheetOverlay = n18;
-var dark_yellow_alt2_DialogOverlay = n18;
-var dark_yellow_alt2_ModalOverlay = n18;
-var dark_yellow_active_SheetOverlay = n18;
-var dark_yellow_active_DialogOverlay = n18;
-var dark_yellow_active_ModalOverlay = n18;
-var dark_green_alt1_SheetOverlay = n18;
-var dark_green_alt1_DialogOverlay = n18;
-var dark_green_alt1_ModalOverlay = n18;
-var dark_green_alt2_SheetOverlay = n18;
-var dark_green_alt2_DialogOverlay = n18;
-var dark_green_alt2_ModalOverlay = n18;
-var dark_green_active_SheetOverlay = n18;
-var dark_green_active_DialogOverlay = n18;
-var dark_green_active_ModalOverlay = n18;
-var dark_blue_alt1_SheetOverlay = n18;
-var dark_blue_alt1_DialogOverlay = n18;
-var dark_blue_alt1_ModalOverlay = n18;
-var dark_blue_alt2_SheetOverlay = n18;
-var dark_blue_alt2_DialogOverlay = n18;
-var dark_blue_alt2_ModalOverlay = n18;
-var dark_blue_active_SheetOverlay = n18;
-var dark_blue_active_DialogOverlay = n18;
-var dark_blue_active_ModalOverlay = n18;
-var dark_purple_alt1_SheetOverlay = n18;
-var dark_purple_alt1_DialogOverlay = n18;
-var dark_purple_alt1_ModalOverlay = n18;
-var dark_purple_alt2_SheetOverlay = n18;
-var dark_purple_alt2_DialogOverlay = n18;
-var dark_purple_alt2_ModalOverlay = n18;
-var dark_purple_active_SheetOverlay = n18;
-var dark_purple_active_DialogOverlay = n18;
-var dark_purple_active_ModalOverlay = n18;
-var dark_pink_alt1_SheetOverlay = n18;
-var dark_pink_alt1_DialogOverlay = n18;
-var dark_pink_alt1_ModalOverlay = n18;
-var dark_pink_alt2_SheetOverlay = n18;
-var dark_pink_alt2_DialogOverlay = n18;
-var dark_pink_alt2_ModalOverlay = n18;
-var dark_pink_active_SheetOverlay = n18;
-var dark_pink_active_DialogOverlay = n18;
-var dark_pink_active_ModalOverlay = n18;
-var dark_red_alt1_SheetOverlay = n18;
-var dark_red_alt1_DialogOverlay = n18;
-var dark_red_alt1_ModalOverlay = n18;
-var dark_red_alt2_SheetOverlay = n18;
-var dark_red_alt2_DialogOverlay = n18;
-var dark_red_alt2_ModalOverlay = n18;
-var dark_red_active_SheetOverlay = n18;
-var dark_red_active_DialogOverlay = n18;
-var dark_red_active_ModalOverlay = n18;
-var n19 = t([[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 11], [12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 10], [19, 9], [20, 10], [21, 9], [22, 11], [23, 5], [24, 6], [25, 4], [26, 5], [27, 7]]);
-var light_alt1 = n19;
-var n20 = t([[0, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7], [6, 8], [7, 9], [8, 10], [9, 11], [10, 11], [11, 11], [12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 9], [19, 8], [20, 9], [21, 8], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_alt2 = n20;
-var n21 = t([[0, 3], [1, 4], [2, 5], [3, 6], [4, 7], [5, 8], [6, 9], [7, 10], [8, 11], [9, 13], [10, 13], [11, 13], [12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [19, 7], [20, 8], [21, 7], [22, 9], [23, 7], [24, 8], [25, 6], [26, 7], [27, 5]]);
-var light_active = n21;
-var n22 = t([[0, 111], [1, 112], [2, 113], [3, 114], [4, 115], [5, 116], [6, 117], [7, 118], [8, 119], [9, 120], [10, 0], [11, 0], [12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 120], [19, 119], [20, 120], [21, 119], [22, 0], [23, 115], [24, 116], [25, 114], [26, 115], [27, 117]]);
-var dark_alt1 = n22;
-var n23 = t([[0, 112], [1, 113], [2, 114], [3, 115], [4, 116], [5, 117], [6, 118], [7, 119], [8, 120], [9, 0], [10, 0], [11, 0], [12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 119], [19, 118], [20, 119], [21, 118], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_alt2 = n23;
-var n24 = t([[0, 113], [1, 114], [2, 115], [3, 116], [4, 117], [5, 118], [6, 119], [7, 120], [8, 0], [9, 12], [10, 12], [11, 12], [12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [19, 117], [20, 118], [21, 117], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_active = n24;
-var n25 = t([[0, 49], [1, 50], [2, 51], [3, 52], [4, 53], [5, 55], [6, 56], [7, 57], [8, 58], [9, 59], [10, 11], [11, 11], [12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 59], [19, 58], [20, 59], [21, 58], [22, 11], [23, 52], [24, 53], [25, 52], [26, 52], [27, 56]]);
-var light_orange_alt1 = n25;
-var n26 = t([[0, 50], [1, 51], [2, 52], [3, 53], [4, 55], [5, 56], [6, 57], [7, 58], [8, 59], [9, 11], [10, 11], [11, 11], [12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 58], [19, 57], [20, 58], [21, 57], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_alt2 = n26;
-var n27 = t([[0, 51], [1, 52], [2, 53], [3, 55], [4, 56], [5, 57], [6, 58], [7, 59], [8, 11], [9, 212], [10, 212], [11, 212], [12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [19, 56], [20, 57], [21, 56], [22, 58], [23, 55], [24, 56], [25, 55], [26, 55], [27, 53]]);
-var light_orange_active = n27;
-var n28 = t([[0, 97], [1, 98], [2, 99], [3, 100], [4, 101], [5, 103], [6, 104], [7, 105], [8, 106], [9, 107], [10, 11], [11, 11], [12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 107], [19, 106], [20, 107], [21, 106], [22, 11], [23, 100], [24, 101], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_alt1 = n28;
-var n29 = t([[0, 98], [1, 99], [2, 100], [3, 101], [4, 103], [5, 104], [6, 105], [7, 106], [8, 107], [9, 11], [10, 11], [11, 11], [12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 106], [19, 105], [20, 106], [21, 105], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_alt2 = n29;
-var n30 = t([[0, 99], [1, 100], [2, 101], [3, 103], [4, 104], [5, 105], [6, 106], [7, 107], [8, 11], [9, 214], [10, 214], [11, 214], [12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [19, 104], [20, 105], [21, 104], [22, 106], [23, 103], [24, 104], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_active = n30;
-var n31 = t([[0, 37], [1, 38], [2, 39], [3, 40], [4, 41], [5, 43], [6, 44], [7, 45], [8, 46], [9, 47], [10, 11], [11, 11], [12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 47], [19, 46], [20, 47], [21, 46], [22, 11], [23, 40], [24, 41], [25, 40], [26, 40], [27, 44]]);
-var light_green_alt1 = n31;
-var n32 = t([[0, 38], [1, 39], [2, 40], [3, 41], [4, 43], [5, 44], [6, 45], [7, 46], [8, 47], [9, 11], [10, 11], [11, 11], [12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 46], [19, 45], [20, 46], [21, 45], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_alt2 = n32;
-var n33 = t([[0, 39], [1, 40], [2, 41], [3, 43], [4, 44], [5, 45], [6, 46], [7, 47], [8, 11], [9, 216], [10, 216], [11, 216], [12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [19, 44], [20, 45], [21, 44], [22, 46], [23, 43], [24, 44], [25, 43], [26, 43], [27, 41]]);
-var light_green_active = n33;
-var n34 = t([[0, 15], [1, 16], [2, 17], [3, 18], [4, 19], [5, 21], [6, 22], [7, 23], [8, 24], [9, 25], [10, 11], [11, 11], [12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 25], [19, 24], [20, 25], [21, 24], [22, 11], [23, 18], [24, 19], [25, 18], [26, 18], [27, 22]]);
-var light_blue_alt1 = n34;
-var n35 = t([[0, 16], [1, 17], [2, 18], [3, 19], [4, 21], [5, 22], [6, 23], [7, 24], [8, 25], [9, 11], [10, 11], [11, 11], [12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 24], [19, 23], [20, 24], [21, 23], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_alt2 = n35;
-var n36 = t([[0, 17], [1, 18], [2, 19], [3, 21], [4, 22], [5, 23], [6, 24], [7, 25], [8, 11], [9, 218], [10, 218], [11, 218], [12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [19, 22], [20, 23], [21, 22], [22, 24], [23, 21], [24, 22], [25, 21], [26, 21], [27, 19]]);
-var light_blue_active = n36;
-var n37 = t([[0, 73], [1, 74], [2, 75], [3, 76], [4, 77], [5, 79], [6, 80], [7, 81], [8, 82], [9, 83], [10, 11], [11, 11], [12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 83], [19, 82], [20, 83], [21, 82], [22, 11], [23, 76], [24, 77], [25, 76], [26, 76], [27, 80]]);
-var light_purple_alt1 = n37;
-var n38 = t([[0, 74], [1, 75], [2, 76], [3, 77], [4, 79], [5, 80], [6, 81], [7, 82], [8, 83], [9, 11], [10, 11], [11, 11], [12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 82], [19, 81], [20, 82], [21, 81], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_alt2 = n38;
-var n39 = t([[0, 75], [1, 76], [2, 77], [3, 79], [4, 80], [5, 81], [6, 82], [7, 83], [8, 11], [9, 220], [10, 220], [11, 220], [12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [19, 80], [20, 81], [21, 80], [22, 82], [23, 79], [24, 80], [25, 79], [26, 79], [27, 77]]);
-var light_purple_active = n39;
-var n40 = t([[0, 61], [1, 62], [2, 63], [3, 64], [4, 65], [5, 67], [6, 68], [7, 69], [8, 70], [9, 71], [10, 11], [11, 11], [12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 71], [19, 70], [20, 71], [21, 70], [22, 11], [23, 64], [24, 65], [25, 64], [26, 64], [27, 68]]);
-var light_pink_alt1 = n40;
-var n41 = t([[0, 62], [1, 63], [2, 64], [3, 65], [4, 67], [5, 68], [6, 69], [7, 70], [8, 71], [9, 11], [10, 11], [11, 11], [12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 70], [19, 69], [20, 70], [21, 69], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_alt2 = n41;
-var n42 = t([[0, 63], [1, 64], [2, 65], [3, 67], [4, 68], [5, 69], [6, 70], [7, 71], [8, 11], [9, 222], [10, 222], [11, 222], [12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [19, 68], [20, 69], [21, 68], [22, 70], [23, 67], [24, 68], [25, 67], [26, 67], [27, 65]]);
-var light_pink_active = n42;
-var n43 = t([[0, 85], [1, 86], [2, 87], [3, 88], [4, 89], [5, 91], [6, 92], [7, 93], [8, 94], [9, 95], [10, 11], [11, 11], [12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 95], [19, 94], [20, 95], [21, 94], [22, 11], [23, 88], [24, 89], [25, 88], [26, 88], [27, 92]]);
-var light_red_alt1 = n43;
-var n44 = t([[0, 86], [1, 87], [2, 88], [3, 89], [4, 91], [5, 92], [6, 93], [7, 94], [8, 95], [9, 11], [10, 11], [11, 11], [12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 94], [19, 93], [20, 94], [21, 93], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_alt2 = n44;
-var n45 = t([[0, 87], [1, 88], [2, 89], [3, 91], [4, 92], [5, 93], [6, 94], [7, 95], [8, 11], [9, 224], [10, 224], [11, 224], [12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [19, 92], [20, 93], [21, 92], [22, 94], [23, 91], [24, 92], [25, 91], [26, 91], [27, 89]]);
-var light_red_active = n45;
-var n46 = t([[0, 155], [1, 156], [2, 157], [3, 158], [4, 159], [5, 161], [6, 56], [7, 162], [8, 163], [9, 164], [10, 0], [11, 0], [12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 164], [19, 163], [20, 164], [21, 163], [22, 0], [23, 159], [24, 161], [25, 158], [26, 159], [27, 56]]);
-var dark_orange_alt1 = n46;
-var n47 = t([[0, 156], [1, 157], [2, 158], [3, 159], [4, 161], [5, 56], [6, 162], [7, 163], [8, 164], [9, 0], [10, 0], [11, 0], [12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 163], [19, 162], [20, 163], [21, 162], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_alt2 = n47;
-var n48 = t([[0, 157], [1, 158], [2, 159], [3, 161], [4, 56], [5, 162], [6, 163], [7, 164], [8, 0], [9, 226], [10, 226], [11, 226], [12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [19, 56], [20, 162], [21, 56], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_active = n48;
-var n49 = t([[0, 199], [1, 200], [2, 201], [3, 202], [4, 203], [5, 205], [6, 104], [7, 206], [8, 207], [9, 208], [10, 0], [11, 0], [12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 208], [19, 207], [20, 208], [21, 207], [22, 0], [23, 203], [24, 205], [25, 202], [26, 203], [27, 104]]);
-var dark_yellow_alt1 = n49;
-var n50 = t([[0, 200], [1, 201], [2, 202], [3, 203], [4, 205], [5, 104], [6, 206], [7, 207], [8, 208], [9, 0], [10, 0], [11, 0], [12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 207], [19, 206], [20, 207], [21, 206], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_alt2 = n50;
-var n51 = t([[0, 201], [1, 202], [2, 203], [3, 205], [4, 104], [5, 206], [6, 207], [7, 208], [8, 0], [9, 228], [10, 228], [11, 228], [12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [19, 104], [20, 206], [21, 104], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_active = n51;
-var n52 = t([[0, 144], [1, 145], [2, 146], [3, 147], [4, 148], [5, 150], [6, 44], [7, 151], [8, 152], [9, 153], [10, 0], [11, 0], [12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 153], [19, 152], [20, 153], [21, 152], [22, 0], [23, 148], [24, 150], [25, 147], [26, 148], [27, 44]]);
-var dark_green_alt1 = n52;
-var n53 = t([[0, 145], [1, 146], [2, 147], [3, 148], [4, 150], [5, 44], [6, 151], [7, 152], [8, 153], [9, 0], [10, 0], [11, 0], [12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 152], [19, 151], [20, 152], [21, 151], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_alt2 = n53;
-var n54 = t([[0, 146], [1, 147], [2, 148], [3, 150], [4, 44], [5, 151], [6, 152], [7, 153], [8, 0], [9, 230], [10, 230], [11, 230], [12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [19, 44], [20, 151], [21, 44], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_active = n54;
-var n55 = t([[0, 122], [1, 123], [2, 124], [3, 125], [4, 126], [5, 128], [6, 22], [7, 129], [8, 130], [9, 131], [10, 0], [11, 0], [12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 131], [19, 130], [20, 131], [21, 130], [22, 0], [23, 126], [24, 128], [25, 125], [26, 126], [27, 22]]);
-var dark_blue_alt1 = n55;
-var n56 = t([[0, 123], [1, 124], [2, 125], [3, 126], [4, 128], [5, 22], [6, 129], [7, 130], [8, 131], [9, 0], [10, 0], [11, 0], [12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 130], [19, 129], [20, 130], [21, 129], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_alt2 = n56;
-var n57 = t([[0, 124], [1, 125], [2, 126], [3, 128], [4, 22], [5, 129], [6, 130], [7, 131], [8, 0], [9, 232], [10, 232], [11, 232], [12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [19, 22], [20, 129], [21, 22], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_active = n57;
-var n58 = t([[0, 177], [1, 178], [2, 179], [3, 180], [4, 181], [5, 183], [6, 80], [7, 184], [8, 185], [9, 186], [10, 0], [11, 0], [12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 186], [19, 185], [20, 186], [21, 185], [22, 0], [23, 181], [24, 183], [25, 180], [26, 181], [27, 80]]);
-var dark_purple_alt1 = n58;
-var n59 = t([[0, 178], [1, 179], [2, 180], [3, 181], [4, 183], [5, 80], [6, 184], [7, 185], [8, 186], [9, 0], [10, 0], [11, 0], [12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 185], [19, 184], [20, 185], [21, 184], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_alt2 = n59;
-var n60 = t([[0, 179], [1, 180], [2, 181], [3, 183], [4, 80], [5, 184], [6, 185], [7, 186], [8, 0], [9, 234], [10, 234], [11, 234], [12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [19, 80], [20, 184], [21, 80], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_active = n60;
-var n61 = t([[0, 166], [1, 167], [2, 168], [3, 169], [4, 170], [5, 172], [6, 68], [7, 173], [8, 174], [9, 175], [10, 0], [11, 0], [12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 175], [19, 174], [20, 175], [21, 174], [22, 0], [23, 170], [24, 172], [25, 169], [26, 170], [27, 68]]);
-var dark_pink_alt1 = n61;
-var n62 = t([[0, 167], [1, 168], [2, 169], [3, 170], [4, 172], [5, 68], [6, 173], [7, 174], [8, 175], [9, 0], [10, 0], [11, 0], [12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 174], [19, 173], [20, 174], [21, 173], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_alt2 = n62;
-var n63 = t([[0, 168], [1, 169], [2, 170], [3, 172], [4, 68], [5, 173], [6, 174], [7, 175], [8, 0], [9, 236], [10, 236], [11, 236], [12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [19, 68], [20, 173], [21, 68], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_active = n63;
-var n64 = t([[0, 188], [1, 189], [2, 190], [3, 191], [4, 192], [5, 194], [6, 92], [7, 195], [8, 196], [9, 197], [10, 0], [11, 0], [12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 197], [19, 196], [20, 197], [21, 196], [22, 0], [23, 192], [24, 194], [25, 191], [26, 192], [27, 92]]);
-var dark_red_alt1 = n64;
-var n65 = t([[0, 189], [1, 190], [2, 191], [3, 192], [4, 194], [5, 92], [6, 195], [7, 196], [8, 197], [9, 0], [10, 0], [11, 0], [12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 196], [19, 195], [20, 196], [21, 195], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_alt2 = n65;
-var n66 = t([[0, 190], [1, 191], [2, 192], [3, 194], [4, 92], [5, 195], [6, 196], [7, 197], [8, 0], [9, 238], [10, 238], [11, 238], [12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [19, 92], [20, 195], [21, 92], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_active = n66;
-var n67 = t([[12, 0], [13, 1], [14, 2], [15, 3], [16, 0], [17, 0], [18, 11], [19, 10], [20, 11], [21, 10], [22, 11], [23, 3], [24, 4], [25, 2], [26, 3], [27, 9]]);
-var light_ListItem = n67;
-var n68 = t([[12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 11], [19, 10], [20, 11], [21, 10], [22, 11], [23, 5], [24, 6], [25, 4], [26, 5], [27, 7]]);
-var light_Card = n68;
-var light_DrawerFrame = n68;
-var light_Progress = n68;
-var light_TooltipArrow = n68;
-var n69 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 11], [19, 10], [20, 11], [21, 10], [22, 10], [23, 241], [24, 241], [25, 5], [26, 6], [27, 6]]);
-var light_Button = n69;
-var n70 = t([[12, 1], [13, 2], [14, 3], [15, 4], [16, 0], [17, 12], [18, 11], [19, 10], [20, 11], [21, 10], [22, 13], [23, 6], [24, 7], [25, 5], [26, 6], [27, 8]]);
-var light_Checkbox = n70;
-var light_RadioGroupItem = n70;
-var light_Input = n70;
-var light_TextArea = n70;
-var n71 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 11], [19, 10], [20, 11], [21, 10], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_Switch = n71;
-var light_TooltipContent = n71;
-var light_SliderTrack = n71;
-var n72 = t([[12, 11], [13, 11], [14, 10], [15, 9], [16, 11], [17, 11], [18, 0], [19, 1], [20, 0], [21, 1], [22, 0], [23, 9], [24, 8], [25, 10], [26, 9], [27, 1]]);
-var light_SwitchThumb = n72;
-var n73 = t([[12, 8], [13, 7], [14, 6], [15, 5], [16, 9], [17, 10], [18, 0], [19, 1], [20, 0], [21, 1], [22, 1], [23, 5], [24, 4], [25, 6], [26, 5], [27, 5]]);
-var light_SliderTrackActive = n73;
-var n74 = t([[12, 10], [13, 9], [14, 8], [15, 7], [16, 11], [17, 13], [18, 0], [19, 1], [20, 0], [21, 1], [22, 12], [23, 7], [24, 6], [25, 8], [26, 7], [27, 3]]);
-var light_SliderThumb = n74;
-var light_Tooltip = n74;
-var light_ProgressIndicator = n74;
-var n75 = t([[12, 111], [13, 112], [14, 113], [15, 114], [16, 110], [17, 13], [18, 0], [19, 120], [20, 0], [21, 120], [22, 12], [23, 114], [24, 115], [25, 113], [26, 114], [27, 118]]);
-var dark_ListItem = n75;
-var n76 = t([[12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 0], [19, 120], [20, 0], [21, 120], [22, 0], [23, 115], [24, 116], [25, 114], [26, 115], [27, 117]]);
-var dark_Card = n76;
-var dark_DrawerFrame = n76;
-var dark_Progress = n76;
-var dark_TooltipArrow = n76;
-var n77 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 0], [19, 120], [20, 0], [21, 120], [22, 120], [23, 241], [24, 241], [25, 115], [26, 116], [27, 116]]);
-var dark_Button = n77;
-var n78 = t([[12, 111], [13, 112], [14, 113], [15, 114], [16, 110], [17, 13], [18, 0], [19, 120], [20, 0], [21, 120], [22, 12], [23, 116], [24, 117], [25, 115], [26, 116], [27, 118]]);
-var dark_Checkbox = n78;
-var dark_RadioGroupItem = n78;
-var dark_Input = n78;
-var dark_TextArea = n78;
-var n79 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 0], [19, 120], [20, 0], [21, 120], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_Switch = n79;
-var dark_TooltipContent = n79;
-var dark_SliderTrack = n79;
-var n80 = t([[12, 0], [13, 0], [14, 120], [15, 119], [16, 0], [17, 0], [18, 110], [19, 111], [20, 110], [21, 111], [22, 110], [23, 119], [24, 118], [25, 120], [26, 119], [27, 111]]);
-var dark_SwitchThumb = n80;
-var n81 = t([[12, 118], [13, 117], [14, 116], [15, 115], [16, 119], [17, 120], [18, 110], [19, 111], [20, 110], [21, 111], [22, 111], [23, 115], [24, 114], [25, 116], [26, 115], [27, 115]]);
-var dark_SliderTrackActive = n81;
-var n82 = t([[12, 120], [13, 119], [14, 118], [15, 117], [16, 0], [17, 12], [18, 110], [19, 111], [20, 110], [21, 111], [22, 13], [23, 117], [24, 116], [25, 118], [26, 117], [27, 113]]);
-var dark_SliderThumb = n82;
-var dark_Tooltip = n82;
-var dark_ProgressIndicator = n82;
-var n83 = t([[12, 48], [13, 49], [14, 50], [15, 51], [16, 48], [17, 48], [18, 11], [19, 59], [20, 11], [21, 59], [22, 11], [23, 50], [24, 51], [25, 50], [26, 50], [27, 58]]);
-var light_orange_ListItem = n83;
-var n84 = t([[12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 11], [19, 59], [20, 11], [21, 59], [22, 11], [23, 52], [24, 53], [25, 52], [26, 52], [27, 56]]);
-var light_orange_Card = n84;
-var light_orange_DrawerFrame = n84;
-var light_orange_Progress = n84;
-var light_orange_TooltipArrow = n84;
-var n85 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 11], [19, 59], [20, 11], [21, 59], [22, 59], [23, 241], [24, 241], [25, 53], [26, 53], [27, 55]]);
-var light_orange_Button = n85;
-var n86 = t([[12, 49], [13, 50], [14, 51], [15, 52], [16, 48], [17, 211], [18, 11], [19, 59], [20, 11], [21, 59], [22, 212], [23, 53], [24, 55], [25, 53], [26, 53], [27, 57]]);
-var light_orange_Checkbox = n86;
-var light_orange_RadioGroupItem = n86;
-var light_orange_Input = n86;
-var light_orange_TextArea = n86;
-var n87 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 11], [19, 59], [20, 11], [21, 59], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_Switch = n87;
-var light_orange_TooltipContent = n87;
-var light_orange_SliderTrack = n87;
-var n88 = t([[12, 11], [13, 11], [14, 59], [15, 58], [16, 11], [17, 11], [18, 48], [19, 49], [20, 48], [21, 49], [22, 48], [23, 59], [24, 58], [25, 59], [26, 59], [27, 49]]);
-var light_orange_SwitchThumb = n88;
-var n89 = t([[12, 57], [13, 56], [14, 55], [15, 53], [16, 58], [17, 59], [18, 48], [19, 49], [20, 48], [21, 49], [22, 49], [23, 55], [24, 53], [25, 55], [26, 55], [27, 53]]);
-var light_orange_SliderTrackActive = n89;
-var n90 = t([[12, 59], [13, 58], [14, 57], [15, 56], [16, 11], [17, 212], [18, 48], [19, 49], [20, 48], [21, 49], [22, 211], [23, 57], [24, 56], [25, 57], [26, 57], [27, 51]]);
-var light_orange_SliderThumb = n90;
-var light_orange_Tooltip = n90;
-var light_orange_ProgressIndicator = n90;
-var n91 = t([[12, 96], [13, 97], [14, 98], [15, 99], [16, 96], [17, 96], [18, 11], [19, 107], [20, 11], [21, 107], [22, 11], [23, 98], [24, 99], [25, 98], [26, 98], [27, 106]]);
-var light_yellow_ListItem = n91;
-var n92 = t([[12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 11], [19, 107], [20, 11], [21, 107], [22, 11], [23, 100], [24, 101], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_Card = n92;
-var light_yellow_DrawerFrame = n92;
-var light_yellow_Progress = n92;
-var light_yellow_TooltipArrow = n92;
-var n93 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 11], [19, 107], [20, 11], [21, 107], [22, 107], [23, 241], [24, 241], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_Button = n93;
-var n94 = t([[12, 97], [13, 98], [14, 99], [15, 100], [16, 96], [17, 213], [18, 11], [19, 107], [20, 11], [21, 107], [22, 214], [23, 101], [24, 103], [25, 101], [26, 101], [27, 105]]);
-var light_yellow_Checkbox = n94;
-var light_yellow_RadioGroupItem = n94;
-var light_yellow_Input = n94;
-var light_yellow_TextArea = n94;
-var n95 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 11], [19, 107], [20, 11], [21, 107], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_Switch = n95;
-var light_yellow_TooltipContent = n95;
-var light_yellow_SliderTrack = n95;
-var n96 = t([[12, 11], [13, 11], [14, 107], [15, 106], [16, 11], [17, 11], [18, 96], [19, 97], [20, 96], [21, 97], [22, 96], [23, 107], [24, 106], [25, 107], [26, 107], [27, 97]]);
-var light_yellow_SwitchThumb = n96;
-var n97 = t([[12, 105], [13, 104], [14, 103], [15, 101], [16, 106], [17, 107], [18, 96], [19, 97], [20, 96], [21, 97], [22, 97], [23, 103], [24, 101], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_SliderTrackActive = n97;
-var n98 = t([[12, 107], [13, 106], [14, 105], [15, 104], [16, 11], [17, 214], [18, 96], [19, 97], [20, 96], [21, 97], [22, 213], [23, 105], [24, 104], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_SliderThumb = n98;
-var light_yellow_Tooltip = n98;
-var light_yellow_ProgressIndicator = n98;
-var n99 = t([[12, 36], [13, 37], [14, 38], [15, 39], [16, 36], [17, 36], [18, 11], [19, 47], [20, 11], [21, 47], [22, 11], [23, 38], [24, 39], [25, 38], [26, 38], [27, 46]]);
-var light_green_ListItem = n99;
-var n100 = t([[12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 11], [19, 47], [20, 11], [21, 47], [22, 11], [23, 40], [24, 41], [25, 40], [26, 40], [27, 44]]);
-var light_green_Card = n100;
-var light_green_DrawerFrame = n100;
-var light_green_Progress = n100;
-var light_green_TooltipArrow = n100;
-var n101 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 11], [19, 47], [20, 11], [21, 47], [22, 47], [23, 241], [24, 241], [25, 41], [26, 41], [27, 43]]);
-var light_green_Button = n101;
-var n102 = t([[12, 37], [13, 38], [14, 39], [15, 40], [16, 36], [17, 215], [18, 11], [19, 47], [20, 11], [21, 47], [22, 216], [23, 41], [24, 43], [25, 41], [26, 41], [27, 45]]);
-var light_green_Checkbox = n102;
-var light_green_RadioGroupItem = n102;
-var light_green_Input = n102;
-var light_green_TextArea = n102;
-var n103 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 11], [19, 47], [20, 11], [21, 47], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_Switch = n103;
-var light_green_TooltipContent = n103;
-var light_green_SliderTrack = n103;
-var n104 = t([[12, 11], [13, 11], [14, 47], [15, 46], [16, 11], [17, 11], [18, 36], [19, 37], [20, 36], [21, 37], [22, 36], [23, 47], [24, 46], [25, 47], [26, 47], [27, 37]]);
-var light_green_SwitchThumb = n104;
-var n105 = t([[12, 45], [13, 44], [14, 43], [15, 41], [16, 46], [17, 47], [18, 36], [19, 37], [20, 36], [21, 37], [22, 37], [23, 43], [24, 41], [25, 43], [26, 43], [27, 41]]);
-var light_green_SliderTrackActive = n105;
-var n106 = t([[12, 47], [13, 46], [14, 45], [15, 44], [16, 11], [17, 216], [18, 36], [19, 37], [20, 36], [21, 37], [22, 215], [23, 45], [24, 44], [25, 45], [26, 45], [27, 39]]);
-var light_green_SliderThumb = n106;
-var light_green_Tooltip = n106;
-var light_green_ProgressIndicator = n106;
-var n107 = t([[12, 14], [13, 15], [14, 16], [15, 17], [16, 14], [17, 14], [18, 11], [19, 25], [20, 11], [21, 25], [22, 11], [23, 16], [24, 17], [25, 16], [26, 16], [27, 24]]);
-var light_blue_ListItem = n107;
-var n108 = t([[12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 11], [19, 25], [20, 11], [21, 25], [22, 11], [23, 18], [24, 19], [25, 18], [26, 18], [27, 22]]);
-var light_blue_Card = n108;
-var light_blue_DrawerFrame = n108;
-var light_blue_Progress = n108;
-var light_blue_TooltipArrow = n108;
-var n109 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 11], [19, 25], [20, 11], [21, 25], [22, 25], [23, 241], [24, 241], [25, 19], [26, 19], [27, 21]]);
-var light_blue_Button = n109;
-var n110 = t([[12, 15], [13, 16], [14, 17], [15, 18], [16, 14], [17, 217], [18, 11], [19, 25], [20, 11], [21, 25], [22, 218], [23, 19], [24, 21], [25, 19], [26, 19], [27, 23]]);
-var light_blue_Checkbox = n110;
-var light_blue_RadioGroupItem = n110;
-var light_blue_Input = n110;
-var light_blue_TextArea = n110;
-var n111 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 11], [19, 25], [20, 11], [21, 25], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_Switch = n111;
-var light_blue_TooltipContent = n111;
-var light_blue_SliderTrack = n111;
-var n112 = t([[12, 11], [13, 11], [14, 25], [15, 24], [16, 11], [17, 11], [18, 14], [19, 15], [20, 14], [21, 15], [22, 14], [23, 25], [24, 24], [25, 25], [26, 25], [27, 15]]);
-var light_blue_SwitchThumb = n112;
-var n113 = t([[12, 23], [13, 22], [14, 21], [15, 19], [16, 24], [17, 25], [18, 14], [19, 15], [20, 14], [21, 15], [22, 15], [23, 21], [24, 19], [25, 21], [26, 21], [27, 19]]);
-var light_blue_SliderTrackActive = n113;
-var n114 = t([[12, 25], [13, 24], [14, 23], [15, 22], [16, 11], [17, 218], [18, 14], [19, 15], [20, 14], [21, 15], [22, 217], [23, 23], [24, 22], [25, 23], [26, 23], [27, 17]]);
-var light_blue_SliderThumb = n114;
-var light_blue_Tooltip = n114;
-var light_blue_ProgressIndicator = n114;
-var n115 = t([[12, 72], [13, 73], [14, 74], [15, 75], [16, 72], [17, 72], [18, 11], [19, 83], [20, 11], [21, 83], [22, 11], [23, 74], [24, 75], [25, 74], [26, 74], [27, 82]]);
-var light_purple_ListItem = n115;
-var n116 = t([[12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 11], [19, 83], [20, 11], [21, 83], [22, 11], [23, 76], [24, 77], [25, 76], [26, 76], [27, 80]]);
-var light_purple_Card = n116;
-var light_purple_DrawerFrame = n116;
-var light_purple_Progress = n116;
-var light_purple_TooltipArrow = n116;
-var n117 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 11], [19, 83], [20, 11], [21, 83], [22, 83], [23, 241], [24, 241], [25, 77], [26, 77], [27, 79]]);
-var light_purple_Button = n117;
-var n118 = t([[12, 73], [13, 74], [14, 75], [15, 76], [16, 72], [17, 219], [18, 11], [19, 83], [20, 11], [21, 83], [22, 220], [23, 77], [24, 79], [25, 77], [26, 77], [27, 81]]);
-var light_purple_Checkbox = n118;
-var light_purple_RadioGroupItem = n118;
-var light_purple_Input = n118;
-var light_purple_TextArea = n118;
-var n119 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 11], [19, 83], [20, 11], [21, 83], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_Switch = n119;
-var light_purple_TooltipContent = n119;
-var light_purple_SliderTrack = n119;
-var n120 = t([[12, 11], [13, 11], [14, 83], [15, 82], [16, 11], [17, 11], [18, 72], [19, 73], [20, 72], [21, 73], [22, 72], [23, 83], [24, 82], [25, 83], [26, 83], [27, 73]]);
-var light_purple_SwitchThumb = n120;
-var n121 = t([[12, 81], [13, 80], [14, 79], [15, 77], [16, 82], [17, 83], [18, 72], [19, 73], [20, 72], [21, 73], [22, 73], [23, 79], [24, 77], [25, 79], [26, 79], [27, 77]]);
-var light_purple_SliderTrackActive = n121;
-var n122 = t([[12, 83], [13, 82], [14, 81], [15, 80], [16, 11], [17, 220], [18, 72], [19, 73], [20, 72], [21, 73], [22, 219], [23, 81], [24, 80], [25, 81], [26, 81], [27, 75]]);
-var light_purple_SliderThumb = n122;
-var light_purple_Tooltip = n122;
-var light_purple_ProgressIndicator = n122;
-var n123 = t([[12, 60], [13, 61], [14, 62], [15, 63], [16, 60], [17, 60], [18, 11], [19, 71], [20, 11], [21, 71], [22, 11], [23, 62], [24, 63], [25, 62], [26, 62], [27, 70]]);
-var light_pink_ListItem = n123;
-var n124 = t([[12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 11], [19, 71], [20, 11], [21, 71], [22, 11], [23, 64], [24, 65], [25, 64], [26, 64], [27, 68]]);
-var light_pink_Card = n124;
-var light_pink_DrawerFrame = n124;
-var light_pink_Progress = n124;
-var light_pink_TooltipArrow = n124;
-var n125 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 11], [19, 71], [20, 11], [21, 71], [22, 71], [23, 241], [24, 241], [25, 65], [26, 65], [27, 67]]);
-var light_pink_Button = n125;
-var n126 = t([[12, 61], [13, 62], [14, 63], [15, 64], [16, 60], [17, 221], [18, 11], [19, 71], [20, 11], [21, 71], [22, 222], [23, 65], [24, 67], [25, 65], [26, 65], [27, 69]]);
-var light_pink_Checkbox = n126;
-var light_pink_RadioGroupItem = n126;
-var light_pink_Input = n126;
-var light_pink_TextArea = n126;
-var n127 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 11], [19, 71], [20, 11], [21, 71], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_Switch = n127;
-var light_pink_TooltipContent = n127;
-var light_pink_SliderTrack = n127;
-var n128 = t([[12, 11], [13, 11], [14, 71], [15, 70], [16, 11], [17, 11], [18, 60], [19, 61], [20, 60], [21, 61], [22, 60], [23, 71], [24, 70], [25, 71], [26, 71], [27, 61]]);
-var light_pink_SwitchThumb = n128;
-var n129 = t([[12, 69], [13, 68], [14, 67], [15, 65], [16, 70], [17, 71], [18, 60], [19, 61], [20, 60], [21, 61], [22, 61], [23, 67], [24, 65], [25, 67], [26, 67], [27, 65]]);
-var light_pink_SliderTrackActive = n129;
-var n130 = t([[12, 71], [13, 70], [14, 69], [15, 68], [16, 11], [17, 222], [18, 60], [19, 61], [20, 60], [21, 61], [22, 221], [23, 69], [24, 68], [25, 69], [26, 69], [27, 63]]);
-var light_pink_SliderThumb = n130;
-var light_pink_Tooltip = n130;
-var light_pink_ProgressIndicator = n130;
-var n131 = t([[12, 84], [13, 85], [14, 86], [15, 87], [16, 84], [17, 84], [18, 11], [19, 95], [20, 11], [21, 95], [22, 11], [23, 86], [24, 87], [25, 86], [26, 86], [27, 94]]);
-var light_red_ListItem = n131;
-var n132 = t([[12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 11], [19, 95], [20, 11], [21, 95], [22, 11], [23, 88], [24, 89], [25, 88], [26, 88], [27, 92]]);
-var light_red_Card = n132;
-var light_red_DrawerFrame = n132;
-var light_red_Progress = n132;
-var light_red_TooltipArrow = n132;
-var n133 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 11], [19, 95], [20, 11], [21, 95], [22, 95], [23, 241], [24, 241], [25, 89], [26, 89], [27, 91]]);
-var light_red_Button = n133;
-var n134 = t([[12, 85], [13, 86], [14, 87], [15, 88], [16, 84], [17, 223], [18, 11], [19, 95], [20, 11], [21, 95], [22, 224], [23, 89], [24, 91], [25, 89], [26, 89], [27, 93]]);
-var light_red_Checkbox = n134;
-var light_red_RadioGroupItem = n134;
-var light_red_Input = n134;
-var light_red_TextArea = n134;
-var n135 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 11], [19, 95], [20, 11], [21, 95], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_Switch = n135;
-var light_red_TooltipContent = n135;
-var light_red_SliderTrack = n135;
-var n136 = t([[12, 11], [13, 11], [14, 95], [15, 94], [16, 11], [17, 11], [18, 84], [19, 85], [20, 84], [21, 85], [22, 84], [23, 95], [24, 94], [25, 95], [26, 95], [27, 85]]);
-var light_red_SwitchThumb = n136;
-var n137 = t([[12, 93], [13, 92], [14, 91], [15, 89], [16, 94], [17, 95], [18, 84], [19, 85], [20, 84], [21, 85], [22, 85], [23, 91], [24, 89], [25, 91], [26, 91], [27, 89]]);
-var light_red_SliderTrackActive = n137;
-var n138 = t([[12, 95], [13, 94], [14, 93], [15, 92], [16, 11], [17, 224], [18, 84], [19, 85], [20, 84], [21, 85], [22, 223], [23, 93], [24, 92], [25, 93], [26, 93], [27, 87]]);
-var light_red_SliderThumb = n138;
-var light_red_Tooltip = n138;
-var light_red_ProgressIndicator = n138;
-var n139 = t([[12, 155], [13, 156], [14, 157], [15, 158], [16, 154], [17, 225], [18, 0], [19, 164], [20, 0], [21, 164], [22, 226], [23, 158], [24, 159], [25, 157], [26, 158], [27, 162]]);
-var dark_orange_ListItem = n139;
-var n140 = t([[12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 0], [19, 164], [20, 0], [21, 164], [22, 0], [23, 159], [24, 161], [25, 158], [26, 159], [27, 56]]);
-var dark_orange_Card = n140;
-var dark_orange_DrawerFrame = n140;
-var dark_orange_Progress = n140;
-var dark_orange_TooltipArrow = n140;
-var n141 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 0], [19, 164], [20, 0], [21, 164], [22, 164], [23, 241], [24, 241], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_Button = n141;
-var n142 = t([[12, 155], [13, 156], [14, 157], [15, 158], [16, 154], [17, 225], [18, 0], [19, 164], [20, 0], [21, 164], [22, 226], [23, 161], [24, 56], [25, 159], [26, 161], [27, 162]]);
-var dark_orange_Checkbox = n142;
-var dark_orange_RadioGroupItem = n142;
-var dark_orange_Input = n142;
-var dark_orange_TextArea = n142;
-var n143 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 0], [19, 164], [20, 0], [21, 164], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_Switch = n143;
-var dark_orange_TooltipContent = n143;
-var dark_orange_SliderTrack = n143;
-var n144 = t([[12, 0], [13, 0], [14, 164], [15, 163], [16, 0], [17, 0], [18, 154], [19, 155], [20, 154], [21, 155], [22, 154], [23, 163], [24, 162], [25, 164], [26, 163], [27, 155]]);
-var dark_orange_SwitchThumb = n144;
-var n145 = t([[12, 162], [13, 56], [14, 161], [15, 159], [16, 163], [17, 164], [18, 154], [19, 155], [20, 154], [21, 155], [22, 155], [23, 159], [24, 158], [25, 161], [26, 159], [27, 159]]);
-var dark_orange_SliderTrackActive = n145;
-var n146 = t([[12, 164], [13, 163], [14, 162], [15, 56], [16, 0], [17, 226], [18, 154], [19, 155], [20, 154], [21, 155], [22, 225], [23, 56], [24, 161], [25, 162], [26, 56], [27, 157]]);
-var dark_orange_SliderThumb = n146;
-var dark_orange_Tooltip = n146;
-var dark_orange_ProgressIndicator = n146;
-var n147 = t([[12, 199], [13, 200], [14, 201], [15, 202], [16, 198], [17, 227], [18, 0], [19, 208], [20, 0], [21, 208], [22, 228], [23, 202], [24, 203], [25, 201], [26, 202], [27, 206]]);
-var dark_yellow_ListItem = n147;
-var n148 = t([[12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 0], [19, 208], [20, 0], [21, 208], [22, 0], [23, 203], [24, 205], [25, 202], [26, 203], [27, 104]]);
-var dark_yellow_Card = n148;
-var dark_yellow_DrawerFrame = n148;
-var dark_yellow_Progress = n148;
-var dark_yellow_TooltipArrow = n148;
-var n149 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 0], [19, 208], [20, 0], [21, 208], [22, 208], [23, 241], [24, 241], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_Button = n149;
-var n150 = t([[12, 199], [13, 200], [14, 201], [15, 202], [16, 198], [17, 227], [18, 0], [19, 208], [20, 0], [21, 208], [22, 228], [23, 205], [24, 104], [25, 203], [26, 205], [27, 206]]);
-var dark_yellow_Checkbox = n150;
-var dark_yellow_RadioGroupItem = n150;
-var dark_yellow_Input = n150;
-var dark_yellow_TextArea = n150;
-var n151 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 0], [19, 208], [20, 0], [21, 208], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_Switch = n151;
-var dark_yellow_TooltipContent = n151;
-var dark_yellow_SliderTrack = n151;
-var n152 = t([[12, 0], [13, 0], [14, 208], [15, 207], [16, 0], [17, 0], [18, 198], [19, 199], [20, 198], [21, 199], [22, 198], [23, 207], [24, 206], [25, 208], [26, 207], [27, 199]]);
-var dark_yellow_SwitchThumb = n152;
-var n153 = t([[12, 206], [13, 104], [14, 205], [15, 203], [16, 207], [17, 208], [18, 198], [19, 199], [20, 198], [21, 199], [22, 199], [23, 203], [24, 202], [25, 205], [26, 203], [27, 203]]);
-var dark_yellow_SliderTrackActive = n153;
-var n154 = t([[12, 208], [13, 207], [14, 206], [15, 104], [16, 0], [17, 228], [18, 198], [19, 199], [20, 198], [21, 199], [22, 227], [23, 104], [24, 205], [25, 206], [26, 104], [27, 201]]);
-var dark_yellow_SliderThumb = n154;
-var dark_yellow_Tooltip = n154;
-var dark_yellow_ProgressIndicator = n154;
-var n155 = t([[12, 144], [13, 145], [14, 146], [15, 147], [16, 143], [17, 229], [18, 0], [19, 153], [20, 0], [21, 153], [22, 230], [23, 147], [24, 148], [25, 146], [26, 147], [27, 151]]);
-var dark_green_ListItem = n155;
-var n156 = t([[12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 0], [19, 153], [20, 0], [21, 153], [22, 0], [23, 148], [24, 150], [25, 147], [26, 148], [27, 44]]);
-var dark_green_Card = n156;
-var dark_green_DrawerFrame = n156;
-var dark_green_Progress = n156;
-var dark_green_TooltipArrow = n156;
-var n157 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 0], [19, 153], [20, 0], [21, 153], [22, 153], [23, 241], [24, 241], [25, 148], [26, 150], [27, 150]]);
-var dark_green_Button = n157;
-var n158 = t([[12, 144], [13, 145], [14, 146], [15, 147], [16, 143], [17, 229], [18, 0], [19, 153], [20, 0], [21, 153], [22, 230], [23, 150], [24, 44], [25, 148], [26, 150], [27, 151]]);
-var dark_green_Checkbox = n158;
-var dark_green_RadioGroupItem = n158;
-var dark_green_Input = n158;
-var dark_green_TextArea = n158;
-var n159 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 0], [19, 153], [20, 0], [21, 153], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_Switch = n159;
-var dark_green_TooltipContent = n159;
-var dark_green_SliderTrack = n159;
-var n160 = t([[12, 0], [13, 0], [14, 153], [15, 152], [16, 0], [17, 0], [18, 143], [19, 144], [20, 143], [21, 144], [22, 143], [23, 152], [24, 151], [25, 153], [26, 152], [27, 144]]);
-var dark_green_SwitchThumb = n160;
-var n161 = t([[12, 151], [13, 44], [14, 150], [15, 148], [16, 152], [17, 153], [18, 143], [19, 144], [20, 143], [21, 144], [22, 144], [23, 148], [24, 147], [25, 150], [26, 148], [27, 148]]);
-var dark_green_SliderTrackActive = n161;
-var n162 = t([[12, 153], [13, 152], [14, 151], [15, 44], [16, 0], [17, 230], [18, 143], [19, 144], [20, 143], [21, 144], [22, 229], [23, 44], [24, 150], [25, 151], [26, 44], [27, 146]]);
-var dark_green_SliderThumb = n162;
-var dark_green_Tooltip = n162;
-var dark_green_ProgressIndicator = n162;
-var n163 = t([[12, 122], [13, 123], [14, 124], [15, 125], [16, 121], [17, 231], [18, 0], [19, 131], [20, 0], [21, 131], [22, 232], [23, 125], [24, 126], [25, 124], [26, 125], [27, 129]]);
-var dark_blue_ListItem = n163;
-var n164 = t([[12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 0], [19, 131], [20, 0], [21, 131], [22, 0], [23, 126], [24, 128], [25, 125], [26, 126], [27, 22]]);
-var dark_blue_Card = n164;
-var dark_blue_DrawerFrame = n164;
-var dark_blue_Progress = n164;
-var dark_blue_TooltipArrow = n164;
-var n165 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 0], [19, 131], [20, 0], [21, 131], [22, 131], [23, 241], [24, 241], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_Button = n165;
-var n166 = t([[12, 122], [13, 123], [14, 124], [15, 125], [16, 121], [17, 231], [18, 0], [19, 131], [20, 0], [21, 131], [22, 232], [23, 128], [24, 22], [25, 126], [26, 128], [27, 129]]);
-var dark_blue_Checkbox = n166;
-var dark_blue_RadioGroupItem = n166;
-var dark_blue_Input = n166;
-var dark_blue_TextArea = n166;
-var n167 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 0], [19, 131], [20, 0], [21, 131], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_Switch = n167;
-var dark_blue_TooltipContent = n167;
-var dark_blue_SliderTrack = n167;
-var n168 = t([[12, 0], [13, 0], [14, 131], [15, 130], [16, 0], [17, 0], [18, 121], [19, 122], [20, 121], [21, 122], [22, 121], [23, 130], [24, 129], [25, 131], [26, 130], [27, 122]]);
-var dark_blue_SwitchThumb = n168;
-var n169 = t([[12, 129], [13, 22], [14, 128], [15, 126], [16, 130], [17, 131], [18, 121], [19, 122], [20, 121], [21, 122], [22, 122], [23, 126], [24, 125], [25, 128], [26, 126], [27, 126]]);
-var dark_blue_SliderTrackActive = n169;
-var n170 = t([[12, 131], [13, 130], [14, 129], [15, 22], [16, 0], [17, 232], [18, 121], [19, 122], [20, 121], [21, 122], [22, 231], [23, 22], [24, 128], [25, 129], [26, 22], [27, 124]]);
-var dark_blue_SliderThumb = n170;
-var dark_blue_Tooltip = n170;
-var dark_blue_ProgressIndicator = n170;
-var n171 = t([[12, 177], [13, 178], [14, 179], [15, 180], [16, 176], [17, 233], [18, 0], [19, 186], [20, 0], [21, 186], [22, 234], [23, 180], [24, 181], [25, 179], [26, 180], [27, 184]]);
-var dark_purple_ListItem = n171;
-var n172 = t([[12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 0], [19, 186], [20, 0], [21, 186], [22, 0], [23, 181], [24, 183], [25, 180], [26, 181], [27, 80]]);
-var dark_purple_Card = n172;
-var dark_purple_DrawerFrame = n172;
-var dark_purple_Progress = n172;
-var dark_purple_TooltipArrow = n172;
-var n173 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 0], [19, 186], [20, 0], [21, 186], [22, 186], [23, 241], [24, 241], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_Button = n173;
-var n174 = t([[12, 177], [13, 178], [14, 179], [15, 180], [16, 176], [17, 233], [18, 0], [19, 186], [20, 0], [21, 186], [22, 234], [23, 183], [24, 80], [25, 181], [26, 183], [27, 184]]);
-var dark_purple_Checkbox = n174;
-var dark_purple_RadioGroupItem = n174;
-var dark_purple_Input = n174;
-var dark_purple_TextArea = n174;
-var n175 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 0], [19, 186], [20, 0], [21, 186], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_Switch = n175;
-var dark_purple_TooltipContent = n175;
-var dark_purple_SliderTrack = n175;
-var n176 = t([[12, 0], [13, 0], [14, 186], [15, 185], [16, 0], [17, 0], [18, 176], [19, 177], [20, 176], [21, 177], [22, 176], [23, 185], [24, 184], [25, 186], [26, 185], [27, 177]]);
-var dark_purple_SwitchThumb = n176;
-var n177 = t([[12, 184], [13, 80], [14, 183], [15, 181], [16, 185], [17, 186], [18, 176], [19, 177], [20, 176], [21, 177], [22, 177], [23, 181], [24, 180], [25, 183], [26, 181], [27, 181]]);
-var dark_purple_SliderTrackActive = n177;
-var n178 = t([[12, 186], [13, 185], [14, 184], [15, 80], [16, 0], [17, 234], [18, 176], [19, 177], [20, 176], [21, 177], [22, 233], [23, 80], [24, 183], [25, 184], [26, 80], [27, 179]]);
-var dark_purple_SliderThumb = n178;
-var dark_purple_Tooltip = n178;
-var dark_purple_ProgressIndicator = n178;
-var n179 = t([[12, 166], [13, 167], [14, 168], [15, 169], [16, 165], [17, 235], [18, 0], [19, 175], [20, 0], [21, 175], [22, 236], [23, 169], [24, 170], [25, 168], [26, 169], [27, 173]]);
-var dark_pink_ListItem = n179;
-var n180 = t([[12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 0], [19, 175], [20, 0], [21, 175], [22, 0], [23, 170], [24, 172], [25, 169], [26, 170], [27, 68]]);
-var dark_pink_Card = n180;
-var dark_pink_DrawerFrame = n180;
-var dark_pink_Progress = n180;
-var dark_pink_TooltipArrow = n180;
-var n181 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 0], [19, 175], [20, 0], [21, 175], [22, 175], [23, 241], [24, 241], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_Button = n181;
-var n182 = t([[12, 166], [13, 167], [14, 168], [15, 169], [16, 165], [17, 235], [18, 0], [19, 175], [20, 0], [21, 175], [22, 236], [23, 172], [24, 68], [25, 170], [26, 172], [27, 173]]);
-var dark_pink_Checkbox = n182;
-var dark_pink_RadioGroupItem = n182;
-var dark_pink_Input = n182;
-var dark_pink_TextArea = n182;
-var n183 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 0], [19, 175], [20, 0], [21, 175], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_Switch = n183;
-var dark_pink_TooltipContent = n183;
-var dark_pink_SliderTrack = n183;
-var n184 = t([[12, 0], [13, 0], [14, 175], [15, 174], [16, 0], [17, 0], [18, 165], [19, 166], [20, 165], [21, 166], [22, 165], [23, 174], [24, 173], [25, 175], [26, 174], [27, 166]]);
-var dark_pink_SwitchThumb = n184;
-var n185 = t([[12, 173], [13, 68], [14, 172], [15, 170], [16, 174], [17, 175], [18, 165], [19, 166], [20, 165], [21, 166], [22, 166], [23, 170], [24, 169], [25, 172], [26, 170], [27, 170]]);
-var dark_pink_SliderTrackActive = n185;
-var n186 = t([[12, 175], [13, 174], [14, 173], [15, 68], [16, 0], [17, 236], [18, 165], [19, 166], [20, 165], [21, 166], [22, 235], [23, 68], [24, 172], [25, 173], [26, 68], [27, 168]]);
-var dark_pink_SliderThumb = n186;
-var dark_pink_Tooltip = n186;
-var dark_pink_ProgressIndicator = n186;
-var n187 = t([[12, 188], [13, 189], [14, 190], [15, 191], [16, 187], [17, 237], [18, 0], [19, 197], [20, 0], [21, 197], [22, 238], [23, 191], [24, 192], [25, 190], [26, 191], [27, 195]]);
-var dark_red_ListItem = n187;
-var n188 = t([[12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 0], [19, 197], [20, 0], [21, 197], [22, 0], [23, 192], [24, 194], [25, 191], [26, 192], [27, 92]]);
-var dark_red_Card = n188;
-var dark_red_DrawerFrame = n188;
-var dark_red_Progress = n188;
-var dark_red_TooltipArrow = n188;
-var n189 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 0], [19, 197], [20, 0], [21, 197], [22, 197], [23, 241], [24, 241], [25, 192], [26, 194], [27, 194]]);
-var dark_red_Button = n189;
-var n190 = t([[12, 188], [13, 189], [14, 190], [15, 191], [16, 187], [17, 237], [18, 0], [19, 197], [20, 0], [21, 197], [22, 238], [23, 194], [24, 92], [25, 192], [26, 194], [27, 195]]);
-var dark_red_Checkbox = n190;
-var dark_red_RadioGroupItem = n190;
-var dark_red_Input = n190;
-var dark_red_TextArea = n190;
-var n191 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 0], [19, 197], [20, 0], [21, 197], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_Switch = n191;
-var dark_red_TooltipContent = n191;
-var dark_red_SliderTrack = n191;
-var n192 = t([[12, 0], [13, 0], [14, 197], [15, 196], [16, 0], [17, 0], [18, 187], [19, 188], [20, 187], [21, 188], [22, 187], [23, 196], [24, 195], [25, 197], [26, 196], [27, 188]]);
-var dark_red_SwitchThumb = n192;
-var n193 = t([[12, 195], [13, 92], [14, 194], [15, 192], [16, 196], [17, 197], [18, 187], [19, 188], [20, 187], [21, 188], [22, 188], [23, 192], [24, 191], [25, 194], [26, 192], [27, 192]]);
-var dark_red_SliderTrackActive = n193;
-var n194 = t([[12, 197], [13, 196], [14, 195], [15, 92], [16, 0], [17, 238], [18, 187], [19, 188], [20, 187], [21, 188], [22, 237], [23, 92], [24, 194], [25, 195], [26, 92], [27, 190]]);
-var dark_red_SliderThumb = n194;
-var dark_red_Tooltip = n194;
-var dark_red_ProgressIndicator = n194;
-var n195 = t([[12, 1], [13, 2], [14, 3], [15, 4], [16, 0], [17, 0], [18, 10], [19, 9], [20, 10], [21, 9], [22, 11], [23, 4], [24, 5], [25, 3], [26, 4], [27, 8]]);
-var light_alt1_ListItem = n195;
-var n196 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 10], [19, 9], [20, 10], [21, 9], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_alt1_Card = n196;
-var light_alt1_DrawerFrame = n196;
-var light_alt1_Progress = n196;
-var light_alt1_TooltipArrow = n196;
-var n197 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [18, 10], [19, 9], [20, 10], [21, 9], [22, 9], [23, 241], [24, 241], [25, 6], [26, 7], [27, 5]]);
-var light_alt1_Button = n197;
-var n198 = t([[12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 10], [19, 9], [20, 10], [21, 9], [22, 11], [23, 7], [24, 8], [25, 6], [26, 7], [27, 7]]);
-var light_alt1_Checkbox = n198;
-var light_alt1_RadioGroupItem = n198;
-var light_alt1_Input = n198;
-var light_alt1_TextArea = n198;
-var n199 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [18, 10], [19, 9], [20, 10], [21, 9], [22, 9], [23, 7], [24, 8], [25, 6], [26, 7], [27, 5]]);
-var light_alt1_Switch = n199;
-var light_alt1_TooltipContent = n199;
-var light_alt1_SliderTrack = n199;
-var n200 = t([[12, 11], [13, 10], [14, 9], [15, 8], [16, 11], [17, 11], [18, 1], [19, 2], [20, 1], [21, 2], [22, 0], [23, 8], [24, 7], [25, 9], [26, 8], [27, 2]]);
-var light_alt1_SwitchThumb = n200;
-var n201 = t([[12, 7], [13, 6], [14, 5], [15, 4], [16, 8], [17, 9], [18, 1], [19, 2], [20, 1], [21, 2], [22, 2], [23, 4], [24, 3], [25, 5], [26, 4], [27, 6]]);
-var light_alt1_SliderTrackActive = n201;
-var n202 = t([[12, 9], [13, 8], [14, 7], [15, 6], [16, 10], [17, 11], [18, 1], [19, 2], [20, 1], [21, 2], [22, 0], [23, 6], [24, 5], [25, 7], [26, 6], [27, 4]]);
-var light_alt1_SliderThumb = n202;
-var light_alt1_Tooltip = n202;
-var light_alt1_ProgressIndicator = n202;
-var n203 = t([[12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 9], [19, 8], [20, 9], [21, 8], [22, 11], [23, 5], [24, 6], [25, 4], [26, 5], [27, 7]]);
-var light_alt2_ListItem = n203;
-var n204 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [18, 9], [19, 8], [20, 9], [21, 8], [22, 9], [23, 7], [24, 8], [25, 6], [26, 7], [27, 5]]);
-var light_alt2_Card = n204;
-var light_alt2_DrawerFrame = n204;
-var light_alt2_Progress = n204;
-var light_alt2_TooltipArrow = n204;
-var n205 = t([[12, 5], [13, 6], [14, 7], [15, 8], [16, 4], [17, 3], [18, 9], [19, 8], [20, 9], [21, 8], [22, 8], [23, 241], [24, 241], [25, 7], [26, 8], [27, 4]]);
-var light_alt2_Button = n205;
-var n206 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 9], [19, 8], [20, 9], [21, 8], [22, 10], [23, 8], [24, 9], [25, 7], [26, 8], [27, 6]]);
-var light_alt2_Checkbox = n206;
-var light_alt2_RadioGroupItem = n206;
-var light_alt2_Input = n206;
-var light_alt2_TextArea = n206;
-var n207 = t([[12, 5], [13, 6], [14, 7], [15, 8], [16, 4], [17, 3], [18, 9], [19, 8], [20, 9], [21, 8], [22, 8], [23, 8], [24, 9], [25, 7], [26, 8], [27, 4]]);
-var light_alt2_Switch = n207;
-var light_alt2_TooltipContent = n207;
-var light_alt2_SliderTrack = n207;
-var n208 = t([[12, 10], [13, 9], [14, 8], [15, 7], [16, 11], [17, 11], [18, 2], [19, 3], [20, 2], [21, 3], [22, 0], [23, 7], [24, 6], [25, 8], [26, 7], [27, 3]]);
-var light_alt2_SwitchThumb = n208;
-var n209 = t([[12, 6], [13, 5], [14, 4], [15, 3], [16, 7], [17, 8], [18, 2], [19, 3], [20, 2], [21, 3], [22, 3], [23, 3], [24, 2], [25, 4], [26, 3], [27, 7]]);
-var light_alt2_SliderTrackActive = n209;
-var n210 = t([[12, 8], [13, 7], [14, 6], [15, 5], [16, 9], [17, 10], [18, 2], [19, 3], [20, 2], [21, 3], [22, 1], [23, 5], [24, 4], [25, 6], [26, 5], [27, 5]]);
-var light_alt2_SliderThumb = n210;
-var light_alt2_Tooltip = n210;
-var light_alt2_ProgressIndicator = n210;
-var n211 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [19, 7], [20, 8], [21, 7], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_active_ListItem = n211;
-var n212 = t([[12, 5], [13, 6], [14, 7], [15, 8], [16, 4], [17, 3], [19, 7], [20, 8], [21, 7], [22, 8], [23, 8], [24, 9], [25, 7], [26, 8], [27, 4]]);
-var light_active_Card = n212;
-var light_active_DrawerFrame = n212;
-var light_active_Progress = n212;
-var light_active_TooltipArrow = n212;
-var n213 = t([[12, 6], [13, 7], [14, 8], [15, 9], [16, 5], [17, 4], [19, 7], [20, 8], [21, 7], [22, 7], [23, 241], [24, 241], [25, 8], [26, 9], [27, 3]]);
-var light_active_Button = n213;
-var n214 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [19, 7], [20, 8], [21, 7], [22, 9], [23, 9], [24, 10], [25, 8], [26, 9], [27, 5]]);
-var light_active_Checkbox = n214;
-var light_active_RadioGroupItem = n214;
-var light_active_Input = n214;
-var light_active_TextArea = n214;
-var n215 = t([[12, 6], [13, 7], [14, 8], [15, 9], [16, 5], [17, 4], [19, 7], [20, 8], [21, 7], [22, 7], [23, 9], [24, 10], [25, 8], [26, 9], [27, 3]]);
-var light_active_Switch = n215;
-var light_active_TooltipContent = n215;
-var light_active_SliderTrack = n215;
-var n216 = t([[12, 9], [13, 8], [14, 7], [15, 6], [16, 10], [17, 11], [19, 4], [20, 3], [21, 4], [22, 0], [23, 6], [24, 5], [25, 7], [26, 6], [27, 4]]);
-var light_active_SwitchThumb = n216;
-var n217 = t([[12, 5], [13, 4], [14, 3], [15, 2], [16, 6], [17, 7], [19, 4], [20, 3], [21, 4], [22, 4], [23, 2], [24, 1], [25, 3], [26, 2], [27, 8]]);
-var light_active_SliderTrackActive = n217;
-var n218 = t([[12, 7], [13, 6], [14, 5], [15, 4], [16, 8], [17, 9], [19, 4], [20, 3], [21, 4], [22, 2], [23, 4], [24, 3], [25, 5], [26, 4], [27, 6]]);
-var light_active_SliderThumb = n218;
-var light_active_Tooltip = n218;
-var light_active_ProgressIndicator = n218;
-var n219 = t([[12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 120], [19, 119], [20, 120], [21, 119], [22, 0], [23, 115], [24, 116], [25, 114], [26, 115], [27, 117]]);
-var dark_alt1_ListItem = n219;
-var n220 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 120], [19, 119], [20, 120], [21, 119], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_alt1_Card = n220;
-var dark_alt1_DrawerFrame = n220;
-var dark_alt1_Progress = n220;
-var dark_alt1_TooltipArrow = n220;
-var n221 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [18, 120], [19, 119], [20, 120], [21, 119], [22, 119], [23, 241], [24, 241], [25, 116], [26, 117], [27, 115]]);
-var dark_alt1_Button = n221;
-var n222 = t([[12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 120], [19, 119], [20, 120], [21, 119], [22, 0], [23, 117], [24, 118], [25, 116], [26, 117], [27, 117]]);
-var dark_alt1_Checkbox = n222;
-var dark_alt1_RadioGroupItem = n222;
-var dark_alt1_Input = n222;
-var dark_alt1_TextArea = n222;
-var n223 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [18, 120], [19, 119], [20, 120], [21, 119], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_alt1_Switch = n223;
-var dark_alt1_TooltipContent = n223;
-var dark_alt1_SliderTrack = n223;
-var n224 = t([[12, 0], [13, 120], [14, 119], [15, 118], [16, 0], [17, 0], [18, 111], [19, 112], [20, 111], [21, 112], [22, 110], [23, 118], [24, 117], [25, 119], [26, 118], [27, 112]]);
-var dark_alt1_SwitchThumb = n224;
-var n225 = t([[12, 117], [13, 116], [14, 115], [15, 114], [16, 118], [17, 119], [18, 111], [19, 112], [20, 111], [21, 112], [22, 112], [23, 114], [24, 113], [25, 115], [26, 114], [27, 116]]);
-var dark_alt1_SliderTrackActive = n225;
-var n226 = t([[12, 119], [13, 118], [14, 117], [15, 116], [16, 120], [17, 0], [18, 111], [19, 112], [20, 111], [21, 112], [22, 110], [23, 116], [24, 115], [25, 117], [26, 116], [27, 114]]);
-var dark_alt1_SliderThumb = n226;
-var dark_alt1_Tooltip = n226;
-var dark_alt1_ProgressIndicator = n226;
-var n227 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 119], [19, 118], [20, 119], [21, 118], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_alt2_ListItem = n227;
-var n228 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [18, 119], [19, 118], [20, 119], [21, 118], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_alt2_Card = n228;
-var dark_alt2_DrawerFrame = n228;
-var dark_alt2_Progress = n228;
-var dark_alt2_TooltipArrow = n228;
-var n229 = t([[12, 115], [13, 116], [14, 117], [15, 118], [16, 114], [17, 113], [18, 119], [19, 118], [20, 119], [21, 118], [22, 118], [23, 241], [24, 241], [25, 117], [26, 118], [27, 114]]);
-var dark_alt2_Button = n229;
-var n230 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 119], [19, 118], [20, 119], [21, 118], [22, 120], [23, 118], [24, 119], [25, 117], [26, 118], [27, 116]]);
-var dark_alt2_Checkbox = n230;
-var dark_alt2_RadioGroupItem = n230;
-var dark_alt2_Input = n230;
-var dark_alt2_TextArea = n230;
-var n231 = t([[12, 115], [13, 116], [14, 117], [15, 118], [16, 114], [17, 113], [18, 119], [19, 118], [20, 119], [21, 118], [22, 118], [23, 118], [24, 119], [25, 117], [26, 118], [27, 114]]);
-var dark_alt2_Switch = n231;
-var dark_alt2_TooltipContent = n231;
-var dark_alt2_SliderTrack = n231;
-var n232 = t([[12, 120], [13, 119], [14, 118], [15, 117], [16, 0], [17, 0], [18, 112], [19, 113], [20, 112], [21, 113], [22, 110], [23, 117], [24, 116], [25, 118], [26, 117], [27, 113]]);
-var dark_alt2_SwitchThumb = n232;
-var n233 = t([[12, 116], [13, 115], [14, 114], [15, 113], [16, 117], [17, 118], [18, 112], [19, 113], [20, 112], [21, 113], [22, 113], [23, 113], [24, 112], [25, 114], [26, 113], [27, 117]]);
-var dark_alt2_SliderTrackActive = n233;
-var n234 = t([[12, 118], [13, 117], [14, 116], [15, 115], [16, 119], [17, 120], [18, 112], [19, 113], [20, 112], [21, 113], [22, 111], [23, 115], [24, 114], [25, 116], [26, 115], [27, 115]]);
-var dark_alt2_SliderThumb = n234;
-var dark_alt2_Tooltip = n234;
-var dark_alt2_ProgressIndicator = n234;
-var n235 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [19, 117], [20, 118], [21, 117], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_active_ListItem = n235;
-var n236 = t([[12, 115], [13, 116], [14, 117], [15, 118], [16, 114], [17, 113], [19, 117], [20, 118], [21, 117], [22, 118], [23, 118], [24, 119], [25, 117], [26, 118], [27, 114]]);
-var dark_active_Card = n236;
-var dark_active_DrawerFrame = n236;
-var dark_active_Progress = n236;
-var dark_active_TooltipArrow = n236;
-var n237 = t([[12, 116], [13, 117], [14, 118], [15, 119], [16, 115], [17, 114], [19, 117], [20, 118], [21, 117], [22, 117], [23, 241], [24, 241], [25, 118], [26, 119], [27, 113]]);
-var dark_active_Button = n237;
-var n238 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [19, 117], [20, 118], [21, 117], [22, 119], [23, 119], [24, 120], [25, 118], [26, 119], [27, 115]]);
-var dark_active_Checkbox = n238;
-var dark_active_RadioGroupItem = n238;
-var dark_active_Input = n238;
-var dark_active_TextArea = n238;
-var n239 = t([[12, 116], [13, 117], [14, 118], [15, 119], [16, 115], [17, 114], [19, 117], [20, 118], [21, 117], [22, 117], [23, 119], [24, 120], [25, 118], [26, 119], [27, 113]]);
-var dark_active_Switch = n239;
-var dark_active_TooltipContent = n239;
-var dark_active_SliderTrack = n239;
-var n240 = t([[12, 119], [13, 118], [14, 117], [15, 116], [16, 120], [17, 0], [19, 114], [20, 113], [21, 114], [22, 110], [23, 116], [24, 115], [25, 117], [26, 116], [27, 114]]);
-var dark_active_SwitchThumb = n240;
-var n241 = t([[12, 115], [13, 114], [14, 113], [15, 112], [16, 116], [17, 117], [19, 114], [20, 113], [21, 114], [22, 114], [23, 112], [24, 111], [25, 113], [26, 112], [27, 118]]);
-var dark_active_SliderTrackActive = n241;
-var n242 = t([[12, 117], [13, 116], [14, 115], [15, 114], [16, 118], [17, 119], [19, 114], [20, 113], [21, 114], [22, 112], [23, 114], [24, 113], [25, 115], [26, 114], [27, 116]]);
-var dark_active_SliderThumb = n242;
-var dark_active_Tooltip = n242;
-var dark_active_ProgressIndicator = n242;
-var n243 = t([[12, 49], [13, 50], [14, 51], [15, 52], [16, 48], [17, 48], [18, 59], [19, 58], [20, 59], [21, 58], [22, 11], [23, 51], [24, 52], [25, 51], [26, 51], [27, 57]]);
-var light_orange_alt1_ListItem = n243;
-var n244 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 59], [19, 58], [20, 59], [21, 58], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_alt1_Card = n244;
-var light_orange_alt1_DrawerFrame = n244;
-var light_orange_alt1_Progress = n244;
-var light_orange_alt1_TooltipArrow = n244;
-var n245 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [18, 59], [19, 58], [20, 59], [21, 58], [22, 58], [23, 241], [24, 241], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt1_Button = n245;
-var n246 = t([[12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 59], [19, 58], [20, 59], [21, 58], [22, 11], [23, 55], [24, 56], [25, 55], [26, 55], [27, 56]]);
-var light_orange_alt1_Checkbox = n246;
-var light_orange_alt1_RadioGroupItem = n246;
-var light_orange_alt1_Input = n246;
-var light_orange_alt1_TextArea = n246;
-var n247 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [18, 59], [19, 58], [20, 59], [21, 58], [22, 58], [23, 55], [24, 56], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt1_Switch = n247;
-var light_orange_alt1_TooltipContent = n247;
-var light_orange_alt1_SliderTrack = n247;
-var n248 = t([[12, 11], [13, 59], [14, 58], [15, 57], [16, 11], [17, 11], [18, 49], [19, 50], [20, 49], [21, 50], [22, 48], [23, 58], [24, 57], [25, 58], [26, 58], [27, 50]]);
-var light_orange_alt1_SwitchThumb = n248;
-var n249 = t([[12, 56], [13, 55], [14, 53], [15, 52], [16, 57], [17, 58], [18, 49], [19, 50], [20, 49], [21, 50], [22, 50], [23, 53], [24, 52], [25, 53], [26, 53], [27, 55]]);
-var light_orange_alt1_SliderTrackActive = n249;
-var n250 = t([[12, 58], [13, 57], [14, 56], [15, 55], [16, 59], [17, 11], [18, 49], [19, 50], [20, 49], [21, 50], [22, 48], [23, 56], [24, 55], [25, 56], [26, 56], [27, 52]]);
-var light_orange_alt1_SliderThumb = n250;
-var light_orange_alt1_Tooltip = n250;
-var light_orange_alt1_ProgressIndicator = n250;
-var n251 = t([[12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 58], [19, 57], [20, 58], [21, 57], [22, 11], [23, 52], [24, 53], [25, 52], [26, 52], [27, 56]]);
-var light_orange_alt2_ListItem = n251;
-var n252 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [18, 58], [19, 57], [20, 58], [21, 57], [22, 58], [23, 55], [24, 56], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt2_Card = n252;
-var light_orange_alt2_DrawerFrame = n252;
-var light_orange_alt2_Progress = n252;
-var light_orange_alt2_TooltipArrow = n252;
-var n253 = t([[12, 53], [13, 55], [14, 56], [15, 57], [16, 52], [17, 51], [18, 58], [19, 57], [20, 58], [21, 57], [22, 57], [23, 241], [24, 241], [25, 56], [26, 56], [27, 52]]);
-var light_orange_alt2_Button = n253;
-var n254 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 58], [19, 57], [20, 58], [21, 57], [22, 59], [23, 56], [24, 57], [25, 56], [26, 56], [27, 55]]);
-var light_orange_alt2_Checkbox = n254;
-var light_orange_alt2_RadioGroupItem = n254;
-var light_orange_alt2_Input = n254;
-var light_orange_alt2_TextArea = n254;
-var n255 = t([[12, 53], [13, 55], [14, 56], [15, 57], [16, 52], [17, 51], [18, 58], [19, 57], [20, 58], [21, 57], [22, 57], [23, 56], [24, 57], [25, 56], [26, 56], [27, 52]]);
-var light_orange_alt2_Switch = n255;
-var light_orange_alt2_TooltipContent = n255;
-var light_orange_alt2_SliderTrack = n255;
-var n256 = t([[12, 59], [13, 58], [14, 57], [15, 56], [16, 11], [17, 11], [18, 50], [19, 51], [20, 50], [21, 51], [22, 48], [23, 57], [24, 56], [25, 57], [26, 57], [27, 51]]);
-var light_orange_alt2_SwitchThumb = n256;
-var n257 = t([[12, 55], [13, 53], [14, 52], [15, 51], [16, 56], [17, 57], [18, 50], [19, 51], [20, 50], [21, 51], [22, 51], [23, 52], [24, 51], [25, 52], [26, 52], [27, 56]]);
-var light_orange_alt2_SliderTrackActive = n257;
-var n258 = t([[12, 57], [13, 56], [14, 55], [15, 53], [16, 58], [17, 59], [18, 50], [19, 51], [20, 50], [21, 51], [22, 49], [23, 55], [24, 53], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt2_SliderThumb = n258;
-var light_orange_alt2_Tooltip = n258;
-var light_orange_alt2_ProgressIndicator = n258;
-var n259 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [19, 56], [20, 57], [21, 56], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_active_ListItem = n259;
-var n260 = t([[12, 53], [13, 55], [14, 56], [15, 57], [16, 52], [17, 51], [19, 56], [20, 57], [21, 56], [22, 57], [23, 56], [24, 57], [25, 56], [26, 56], [27, 52]]);
-var light_orange_active_Card = n260;
-var light_orange_active_DrawerFrame = n260;
-var light_orange_active_Progress = n260;
-var light_orange_active_TooltipArrow = n260;
-var n261 = t([[12, 55], [13, 56], [14, 57], [15, 58], [16, 53], [17, 52], [19, 56], [20, 57], [21, 56], [22, 56], [23, 241], [24, 241], [25, 57], [26, 57], [27, 51]]);
-var light_orange_active_Button = n261;
-var n262 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [19, 56], [20, 57], [21, 56], [22, 58], [23, 57], [24, 58], [25, 57], [26, 57], [27, 53]]);
-var light_orange_active_Checkbox = n262;
-var light_orange_active_RadioGroupItem = n262;
-var light_orange_active_Input = n262;
-var light_orange_active_TextArea = n262;
-var n263 = t([[12, 55], [13, 56], [14, 57], [15, 58], [16, 53], [17, 52], [19, 56], [20, 57], [21, 56], [22, 56], [23, 57], [24, 58], [25, 57], [26, 57], [27, 51]]);
-var light_orange_active_Switch = n263;
-var light_orange_active_TooltipContent = n263;
-var light_orange_active_SliderTrack = n263;
-var n264 = t([[12, 58], [13, 57], [14, 56], [15, 55], [16, 59], [17, 11], [19, 52], [20, 51], [21, 52], [22, 48], [23, 56], [24, 55], [25, 56], [26, 56], [27, 52]]);
-var light_orange_active_SwitchThumb = n264;
-var n265 = t([[12, 53], [13, 52], [14, 51], [15, 50], [16, 55], [17, 56], [19, 52], [20, 51], [21, 52], [22, 52], [23, 51], [24, 50], [25, 51], [26, 51], [27, 57]]);
-var light_orange_active_SliderTrackActive = n265;
-var n266 = t([[12, 56], [13, 55], [14, 53], [15, 52], [16, 57], [17, 58], [19, 52], [20, 51], [21, 52], [22, 50], [23, 53], [24, 52], [25, 53], [26, 53], [27, 55]]);
-var light_orange_active_SliderThumb = n266;
-var light_orange_active_Tooltip = n266;
-var light_orange_active_ProgressIndicator = n266;
-var n267 = t([[12, 97], [13, 98], [14, 99], [15, 100], [16, 96], [17, 96], [18, 107], [19, 106], [20, 107], [21, 106], [22, 11], [23, 99], [24, 100], [25, 99], [26, 99], [27, 105]]);
-var light_yellow_alt1_ListItem = n267;
-var n268 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 107], [19, 106], [20, 107], [21, 106], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_alt1_Card = n268;
-var light_yellow_alt1_DrawerFrame = n268;
-var light_yellow_alt1_Progress = n268;
-var light_yellow_alt1_TooltipArrow = n268;
-var n269 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [18, 107], [19, 106], [20, 107], [21, 106], [22, 106], [23, 241], [24, 241], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt1_Button = n269;
-var n270 = t([[12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 107], [19, 106], [20, 107], [21, 106], [22, 11], [23, 103], [24, 104], [25, 103], [26, 103], [27, 104]]);
-var light_yellow_alt1_Checkbox = n270;
-var light_yellow_alt1_RadioGroupItem = n270;
-var light_yellow_alt1_Input = n270;
-var light_yellow_alt1_TextArea = n270;
-var n271 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [18, 107], [19, 106], [20, 107], [21, 106], [22, 106], [23, 103], [24, 104], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt1_Switch = n271;
-var light_yellow_alt1_TooltipContent = n271;
-var light_yellow_alt1_SliderTrack = n271;
-var n272 = t([[12, 11], [13, 107], [14, 106], [15, 105], [16, 11], [17, 11], [18, 97], [19, 98], [20, 97], [21, 98], [22, 96], [23, 106], [24, 105], [25, 106], [26, 106], [27, 98]]);
-var light_yellow_alt1_SwitchThumb = n272;
-var n273 = t([[12, 104], [13, 103], [14, 101], [15, 100], [16, 105], [17, 106], [18, 97], [19, 98], [20, 97], [21, 98], [22, 98], [23, 101], [24, 100], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_alt1_SliderTrackActive = n273;
-var n274 = t([[12, 106], [13, 105], [14, 104], [15, 103], [16, 107], [17, 11], [18, 97], [19, 98], [20, 97], [21, 98], [22, 96], [23, 104], [24, 103], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_alt1_SliderThumb = n274;
-var light_yellow_alt1_Tooltip = n274;
-var light_yellow_alt1_ProgressIndicator = n274;
-var n275 = t([[12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 106], [19, 105], [20, 106], [21, 105], [22, 11], [23, 100], [24, 101], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_alt2_ListItem = n275;
-var n276 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [18, 106], [19, 105], [20, 106], [21, 105], [22, 106], [23, 103], [24, 104], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt2_Card = n276;
-var light_yellow_alt2_DrawerFrame = n276;
-var light_yellow_alt2_Progress = n276;
-var light_yellow_alt2_TooltipArrow = n276;
-var n277 = t([[12, 101], [13, 103], [14, 104], [15, 105], [16, 100], [17, 99], [18, 106], [19, 105], [20, 106], [21, 105], [22, 105], [23, 241], [24, 241], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_alt2_Button = n277;
-var n278 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 106], [19, 105], [20, 106], [21, 105], [22, 107], [23, 104], [24, 105], [25, 104], [26, 104], [27, 103]]);
-var light_yellow_alt2_Checkbox = n278;
-var light_yellow_alt2_RadioGroupItem = n278;
-var light_yellow_alt2_Input = n278;
-var light_yellow_alt2_TextArea = n278;
-var n279 = t([[12, 101], [13, 103], [14, 104], [15, 105], [16, 100], [17, 99], [18, 106], [19, 105], [20, 106], [21, 105], [22, 105], [23, 104], [24, 105], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_alt2_Switch = n279;
-var light_yellow_alt2_TooltipContent = n279;
-var light_yellow_alt2_SliderTrack = n279;
-var n280 = t([[12, 107], [13, 106], [14, 105], [15, 104], [16, 11], [17, 11], [18, 98], [19, 99], [20, 98], [21, 99], [22, 96], [23, 105], [24, 104], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_alt2_SwitchThumb = n280;
-var n281 = t([[12, 103], [13, 101], [14, 100], [15, 99], [16, 104], [17, 105], [18, 98], [19, 99], [20, 98], [21, 99], [22, 99], [23, 100], [24, 99], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_alt2_SliderTrackActive = n281;
-var n282 = t([[12, 105], [13, 104], [14, 103], [15, 101], [16, 106], [17, 107], [18, 98], [19, 99], [20, 98], [21, 99], [22, 97], [23, 103], [24, 101], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt2_SliderThumb = n282;
-var light_yellow_alt2_Tooltip = n282;
-var light_yellow_alt2_ProgressIndicator = n282;
-var n283 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [19, 104], [20, 105], [21, 104], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_active_ListItem = n283;
-var n284 = t([[12, 101], [13, 103], [14, 104], [15, 105], [16, 100], [17, 99], [19, 104], [20, 105], [21, 104], [22, 105], [23, 104], [24, 105], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_active_Card = n284;
-var light_yellow_active_DrawerFrame = n284;
-var light_yellow_active_Progress = n284;
-var light_yellow_active_TooltipArrow = n284;
-var n285 = t([[12, 103], [13, 104], [14, 105], [15, 106], [16, 101], [17, 100], [19, 104], [20, 105], [21, 104], [22, 104], [23, 241], [24, 241], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_active_Button = n285;
-var n286 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [19, 104], [20, 105], [21, 104], [22, 106], [23, 105], [24, 106], [25, 105], [26, 105], [27, 101]]);
-var light_yellow_active_Checkbox = n286;
-var light_yellow_active_RadioGroupItem = n286;
-var light_yellow_active_Input = n286;
-var light_yellow_active_TextArea = n286;
-var n287 = t([[12, 103], [13, 104], [14, 105], [15, 106], [16, 101], [17, 100], [19, 104], [20, 105], [21, 104], [22, 104], [23, 105], [24, 106], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_active_Switch = n287;
-var light_yellow_active_TooltipContent = n287;
-var light_yellow_active_SliderTrack = n287;
-var n288 = t([[12, 106], [13, 105], [14, 104], [15, 103], [16, 107], [17, 11], [19, 100], [20, 99], [21, 100], [22, 96], [23, 104], [24, 103], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_active_SwitchThumb = n288;
-var n289 = t([[12, 101], [13, 100], [14, 99], [15, 98], [16, 103], [17, 104], [19, 100], [20, 99], [21, 100], [22, 100], [23, 99], [24, 98], [25, 99], [26, 99], [27, 105]]);
-var light_yellow_active_SliderTrackActive = n289;
-var n290 = t([[12, 104], [13, 103], [14, 101], [15, 100], [16, 105], [17, 106], [19, 100], [20, 99], [21, 100], [22, 98], [23, 101], [24, 100], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_active_SliderThumb = n290;
-var light_yellow_active_Tooltip = n290;
-var light_yellow_active_ProgressIndicator = n290;
-var n291 = t([[12, 37], [13, 38], [14, 39], [15, 40], [16, 36], [17, 36], [18, 47], [19, 46], [20, 47], [21, 46], [22, 11], [23, 39], [24, 40], [25, 39], [26, 39], [27, 45]]);
-var light_green_alt1_ListItem = n291;
-var n292 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 47], [19, 46], [20, 47], [21, 46], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_alt1_Card = n292;
-var light_green_alt1_DrawerFrame = n292;
-var light_green_alt1_Progress = n292;
-var light_green_alt1_TooltipArrow = n292;
-var n293 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [18, 47], [19, 46], [20, 47], [21, 46], [22, 46], [23, 241], [24, 241], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt1_Button = n293;
-var n294 = t([[12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 47], [19, 46], [20, 47], [21, 46], [22, 11], [23, 43], [24, 44], [25, 43], [26, 43], [27, 44]]);
-var light_green_alt1_Checkbox = n294;
-var light_green_alt1_RadioGroupItem = n294;
-var light_green_alt1_Input = n294;
-var light_green_alt1_TextArea = n294;
-var n295 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [18, 47], [19, 46], [20, 47], [21, 46], [22, 46], [23, 43], [24, 44], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt1_Switch = n295;
-var light_green_alt1_TooltipContent = n295;
-var light_green_alt1_SliderTrack = n295;
-var n296 = t([[12, 11], [13, 47], [14, 46], [15, 45], [16, 11], [17, 11], [18, 37], [19, 38], [20, 37], [21, 38], [22, 36], [23, 46], [24, 45], [25, 46], [26, 46], [27, 38]]);
-var light_green_alt1_SwitchThumb = n296;
-var n297 = t([[12, 44], [13, 43], [14, 41], [15, 40], [16, 45], [17, 46], [18, 37], [19, 38], [20, 37], [21, 38], [22, 38], [23, 41], [24, 40], [25, 41], [26, 41], [27, 43]]);
-var light_green_alt1_SliderTrackActive = n297;
-var n298 = t([[12, 46], [13, 45], [14, 44], [15, 43], [16, 47], [17, 11], [18, 37], [19, 38], [20, 37], [21, 38], [22, 36], [23, 44], [24, 43], [25, 44], [26, 44], [27, 40]]);
-var light_green_alt1_SliderThumb = n298;
-var light_green_alt1_Tooltip = n298;
-var light_green_alt1_ProgressIndicator = n298;
-var n299 = t([[12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 46], [19, 45], [20, 46], [21, 45], [22, 11], [23, 40], [24, 41], [25, 40], [26, 40], [27, 44]]);
-var light_green_alt2_ListItem = n299;
-var n300 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [18, 46], [19, 45], [20, 46], [21, 45], [22, 46], [23, 43], [24, 44], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt2_Card = n300;
-var light_green_alt2_DrawerFrame = n300;
-var light_green_alt2_Progress = n300;
-var light_green_alt2_TooltipArrow = n300;
-var n301 = t([[12, 41], [13, 43], [14, 44], [15, 45], [16, 40], [17, 39], [18, 46], [19, 45], [20, 46], [21, 45], [22, 45], [23, 241], [24, 241], [25, 44], [26, 44], [27, 40]]);
-var light_green_alt2_Button = n301;
-var n302 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 46], [19, 45], [20, 46], [21, 45], [22, 47], [23, 44], [24, 45], [25, 44], [26, 44], [27, 43]]);
-var light_green_alt2_Checkbox = n302;
-var light_green_alt2_RadioGroupItem = n302;
-var light_green_alt2_Input = n302;
-var light_green_alt2_TextArea = n302;
-var n303 = t([[12, 41], [13, 43], [14, 44], [15, 45], [16, 40], [17, 39], [18, 46], [19, 45], [20, 46], [21, 45], [22, 45], [23, 44], [24, 45], [25, 44], [26, 44], [27, 40]]);
-var light_green_alt2_Switch = n303;
-var light_green_alt2_TooltipContent = n303;
-var light_green_alt2_SliderTrack = n303;
-var n304 = t([[12, 47], [13, 46], [14, 45], [15, 44], [16, 11], [17, 11], [18, 38], [19, 39], [20, 38], [21, 39], [22, 36], [23, 45], [24, 44], [25, 45], [26, 45], [27, 39]]);
-var light_green_alt2_SwitchThumb = n304;
-var n305 = t([[12, 43], [13, 41], [14, 40], [15, 39], [16, 44], [17, 45], [18, 38], [19, 39], [20, 38], [21, 39], [22, 39], [23, 40], [24, 39], [25, 40], [26, 40], [27, 44]]);
-var light_green_alt2_SliderTrackActive = n305;
-var n306 = t([[12, 45], [13, 44], [14, 43], [15, 41], [16, 46], [17, 47], [18, 38], [19, 39], [20, 38], [21, 39], [22, 37], [23, 43], [24, 41], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt2_SliderThumb = n306;
-var light_green_alt2_Tooltip = n306;
-var light_green_alt2_ProgressIndicator = n306;
-var n307 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [19, 44], [20, 45], [21, 44], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_active_ListItem = n307;
-var n308 = t([[12, 41], [13, 43], [14, 44], [15, 45], [16, 40], [17, 39], [19, 44], [20, 45], [21, 44], [22, 45], [23, 44], [24, 45], [25, 44], [26, 44], [27, 40]]);
-var light_green_active_Card = n308;
-var light_green_active_DrawerFrame = n308;
-var light_green_active_Progress = n308;
-var light_green_active_TooltipArrow = n308;
-var n309 = t([[12, 43], [13, 44], [14, 45], [15, 46], [16, 41], [17, 40], [19, 44], [20, 45], [21, 44], [22, 44], [23, 241], [24, 241], [25, 45], [26, 45], [27, 39]]);
-var light_green_active_Button = n309;
-var n310 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [19, 44], [20, 45], [21, 44], [22, 46], [23, 45], [24, 46], [25, 45], [26, 45], [27, 41]]);
-var light_green_active_Checkbox = n310;
-var light_green_active_RadioGroupItem = n310;
-var light_green_active_Input = n310;
-var light_green_active_TextArea = n310;
-var n311 = t([[12, 43], [13, 44], [14, 45], [15, 46], [16, 41], [17, 40], [19, 44], [20, 45], [21, 44], [22, 44], [23, 45], [24, 46], [25, 45], [26, 45], [27, 39]]);
-var light_green_active_Switch = n311;
-var light_green_active_TooltipContent = n311;
-var light_green_active_SliderTrack = n311;
-var n312 = t([[12, 46], [13, 45], [14, 44], [15, 43], [16, 47], [17, 11], [19, 40], [20, 39], [21, 40], [22, 36], [23, 44], [24, 43], [25, 44], [26, 44], [27, 40]]);
-var light_green_active_SwitchThumb = n312;
-var n313 = t([[12, 41], [13, 40], [14, 39], [15, 38], [16, 43], [17, 44], [19, 40], [20, 39], [21, 40], [22, 40], [23, 39], [24, 38], [25, 39], [26, 39], [27, 45]]);
-var light_green_active_SliderTrackActive = n313;
-var n314 = t([[12, 44], [13, 43], [14, 41], [15, 40], [16, 45], [17, 46], [19, 40], [20, 39], [21, 40], [22, 38], [23, 41], [24, 40], [25, 41], [26, 41], [27, 43]]);
-var light_green_active_SliderThumb = n314;
-var light_green_active_Tooltip = n314;
-var light_green_active_ProgressIndicator = n314;
-var n315 = t([[12, 15], [13, 16], [14, 17], [15, 18], [16, 14], [17, 14], [18, 25], [19, 24], [20, 25], [21, 24], [22, 11], [23, 17], [24, 18], [25, 17], [26, 17], [27, 23]]);
-var light_blue_alt1_ListItem = n315;
-var n316 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 25], [19, 24], [20, 25], [21, 24], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_alt1_Card = n316;
-var light_blue_alt1_DrawerFrame = n316;
-var light_blue_alt1_Progress = n316;
-var light_blue_alt1_TooltipArrow = n316;
-var n317 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [18, 25], [19, 24], [20, 25], [21, 24], [22, 24], [23, 241], [24, 241], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt1_Button = n317;
-var n318 = t([[12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 25], [19, 24], [20, 25], [21, 24], [22, 11], [23, 21], [24, 22], [25, 21], [26, 21], [27, 22]]);
-var light_blue_alt1_Checkbox = n318;
-var light_blue_alt1_RadioGroupItem = n318;
-var light_blue_alt1_Input = n318;
-var light_blue_alt1_TextArea = n318;
-var n319 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [18, 25], [19, 24], [20, 25], [21, 24], [22, 24], [23, 21], [24, 22], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt1_Switch = n319;
-var light_blue_alt1_TooltipContent = n319;
-var light_blue_alt1_SliderTrack = n319;
-var n320 = t([[12, 11], [13, 25], [14, 24], [15, 23], [16, 11], [17, 11], [18, 15], [19, 16], [20, 15], [21, 16], [22, 14], [23, 24], [24, 23], [25, 24], [26, 24], [27, 16]]);
-var light_blue_alt1_SwitchThumb = n320;
-var n321 = t([[12, 22], [13, 21], [14, 19], [15, 18], [16, 23], [17, 24], [18, 15], [19, 16], [20, 15], [21, 16], [22, 16], [23, 19], [24, 18], [25, 19], [26, 19], [27, 21]]);
-var light_blue_alt1_SliderTrackActive = n321;
-var n322 = t([[12, 24], [13, 23], [14, 22], [15, 21], [16, 25], [17, 11], [18, 15], [19, 16], [20, 15], [21, 16], [22, 14], [23, 22], [24, 21], [25, 22], [26, 22], [27, 18]]);
-var light_blue_alt1_SliderThumb = n322;
-var light_blue_alt1_Tooltip = n322;
-var light_blue_alt1_ProgressIndicator = n322;
-var n323 = t([[12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 24], [19, 23], [20, 24], [21, 23], [22, 11], [23, 18], [24, 19], [25, 18], [26, 18], [27, 22]]);
-var light_blue_alt2_ListItem = n323;
-var n324 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [18, 24], [19, 23], [20, 24], [21, 23], [22, 24], [23, 21], [24, 22], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt2_Card = n324;
-var light_blue_alt2_DrawerFrame = n324;
-var light_blue_alt2_Progress = n324;
-var light_blue_alt2_TooltipArrow = n324;
-var n325 = t([[12, 19], [13, 21], [14, 22], [15, 23], [16, 18], [17, 17], [18, 24], [19, 23], [20, 24], [21, 23], [22, 23], [23, 241], [24, 241], [25, 22], [26, 22], [27, 18]]);
-var light_blue_alt2_Button = n325;
-var n326 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 24], [19, 23], [20, 24], [21, 23], [22, 25], [23, 22], [24, 23], [25, 22], [26, 22], [27, 21]]);
-var light_blue_alt2_Checkbox = n326;
-var light_blue_alt2_RadioGroupItem = n326;
-var light_blue_alt2_Input = n326;
-var light_blue_alt2_TextArea = n326;
-var n327 = t([[12, 19], [13, 21], [14, 22], [15, 23], [16, 18], [17, 17], [18, 24], [19, 23], [20, 24], [21, 23], [22, 23], [23, 22], [24, 23], [25, 22], [26, 22], [27, 18]]);
-var light_blue_alt2_Switch = n327;
-var light_blue_alt2_TooltipContent = n327;
-var light_blue_alt2_SliderTrack = n327;
-var n328 = t([[12, 25], [13, 24], [14, 23], [15, 22], [16, 11], [17, 11], [18, 16], [19, 17], [20, 16], [21, 17], [22, 14], [23, 23], [24, 22], [25, 23], [26, 23], [27, 17]]);
-var light_blue_alt2_SwitchThumb = n328;
-var n329 = t([[12, 21], [13, 19], [14, 18], [15, 17], [16, 22], [17, 23], [18, 16], [19, 17], [20, 16], [21, 17], [22, 17], [23, 18], [24, 17], [25, 18], [26, 18], [27, 22]]);
-var light_blue_alt2_SliderTrackActive = n329;
-var n330 = t([[12, 23], [13, 22], [14, 21], [15, 19], [16, 24], [17, 25], [18, 16], [19, 17], [20, 16], [21, 17], [22, 15], [23, 21], [24, 19], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt2_SliderThumb = n330;
-var light_blue_alt2_Tooltip = n330;
-var light_blue_alt2_ProgressIndicator = n330;
-var n331 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [19, 22], [20, 23], [21, 22], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_active_ListItem = n331;
-var n332 = t([[12, 19], [13, 21], [14, 22], [15, 23], [16, 18], [17, 17], [19, 22], [20, 23], [21, 22], [22, 23], [23, 22], [24, 23], [25, 22], [26, 22], [27, 18]]);
-var light_blue_active_Card = n332;
-var light_blue_active_DrawerFrame = n332;
-var light_blue_active_Progress = n332;
-var light_blue_active_TooltipArrow = n332;
-var n333 = t([[12, 21], [13, 22], [14, 23], [15, 24], [16, 19], [17, 18], [19, 22], [20, 23], [21, 22], [22, 22], [23, 241], [24, 241], [25, 23], [26, 23], [27, 17]]);
-var light_blue_active_Button = n333;
-var n334 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [19, 22], [20, 23], [21, 22], [22, 24], [23, 23], [24, 24], [25, 23], [26, 23], [27, 19]]);
-var light_blue_active_Checkbox = n334;
-var light_blue_active_RadioGroupItem = n334;
-var light_blue_active_Input = n334;
-var light_blue_active_TextArea = n334;
-var n335 = t([[12, 21], [13, 22], [14, 23], [15, 24], [16, 19], [17, 18], [19, 22], [20, 23], [21, 22], [22, 22], [23, 23], [24, 24], [25, 23], [26, 23], [27, 17]]);
-var light_blue_active_Switch = n335;
-var light_blue_active_TooltipContent = n335;
-var light_blue_active_SliderTrack = n335;
-var n336 = t([[12, 24], [13, 23], [14, 22], [15, 21], [16, 25], [17, 11], [19, 18], [20, 17], [21, 18], [22, 14], [23, 22], [24, 21], [25, 22], [26, 22], [27, 18]]);
-var light_blue_active_SwitchThumb = n336;
-var n337 = t([[12, 19], [13, 18], [14, 17], [15, 16], [16, 21], [17, 22], [19, 18], [20, 17], [21, 18], [22, 18], [23, 17], [24, 16], [25, 17], [26, 17], [27, 23]]);
-var light_blue_active_SliderTrackActive = n337;
-var n338 = t([[12, 22], [13, 21], [14, 19], [15, 18], [16, 23], [17, 24], [19, 18], [20, 17], [21, 18], [22, 16], [23, 19], [24, 18], [25, 19], [26, 19], [27, 21]]);
-var light_blue_active_SliderThumb = n338;
-var light_blue_active_Tooltip = n338;
-var light_blue_active_ProgressIndicator = n338;
-var n339 = t([[12, 73], [13, 74], [14, 75], [15, 76], [16, 72], [17, 72], [18, 83], [19, 82], [20, 83], [21, 82], [22, 11], [23, 75], [24, 76], [25, 75], [26, 75], [27, 81]]);
-var light_purple_alt1_ListItem = n339;
-var n340 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 83], [19, 82], [20, 83], [21, 82], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_alt1_Card = n340;
-var light_purple_alt1_DrawerFrame = n340;
-var light_purple_alt1_Progress = n340;
-var light_purple_alt1_TooltipArrow = n340;
-var n341 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [18, 83], [19, 82], [20, 83], [21, 82], [22, 82], [23, 241], [24, 241], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt1_Button = n341;
-var n342 = t([[12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 83], [19, 82], [20, 83], [21, 82], [22, 11], [23, 79], [24, 80], [25, 79], [26, 79], [27, 80]]);
-var light_purple_alt1_Checkbox = n342;
-var light_purple_alt1_RadioGroupItem = n342;
-var light_purple_alt1_Input = n342;
-var light_purple_alt1_TextArea = n342;
-var n343 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [18, 83], [19, 82], [20, 83], [21, 82], [22, 82], [23, 79], [24, 80], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt1_Switch = n343;
-var light_purple_alt1_TooltipContent = n343;
-var light_purple_alt1_SliderTrack = n343;
-var n344 = t([[12, 11], [13, 83], [14, 82], [15, 81], [16, 11], [17, 11], [18, 73], [19, 74], [20, 73], [21, 74], [22, 72], [23, 82], [24, 81], [25, 82], [26, 82], [27, 74]]);
-var light_purple_alt1_SwitchThumb = n344;
-var n345 = t([[12, 80], [13, 79], [14, 77], [15, 76], [16, 81], [17, 82], [18, 73], [19, 74], [20, 73], [21, 74], [22, 74], [23, 77], [24, 76], [25, 77], [26, 77], [27, 79]]);
-var light_purple_alt1_SliderTrackActive = n345;
-var n346 = t([[12, 82], [13, 81], [14, 80], [15, 79], [16, 83], [17, 11], [18, 73], [19, 74], [20, 73], [21, 74], [22, 72], [23, 80], [24, 79], [25, 80], [26, 80], [27, 76]]);
-var light_purple_alt1_SliderThumb = n346;
-var light_purple_alt1_Tooltip = n346;
-var light_purple_alt1_ProgressIndicator = n346;
-var n347 = t([[12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 82], [19, 81], [20, 82], [21, 81], [22, 11], [23, 76], [24, 77], [25, 76], [26, 76], [27, 80]]);
-var light_purple_alt2_ListItem = n347;
-var n348 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [18, 82], [19, 81], [20, 82], [21, 81], [22, 82], [23, 79], [24, 80], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt2_Card = n348;
-var light_purple_alt2_DrawerFrame = n348;
-var light_purple_alt2_Progress = n348;
-var light_purple_alt2_TooltipArrow = n348;
-var n349 = t([[12, 77], [13, 79], [14, 80], [15, 81], [16, 76], [17, 75], [18, 82], [19, 81], [20, 82], [21, 81], [22, 81], [23, 241], [24, 241], [25, 80], [26, 80], [27, 76]]);
-var light_purple_alt2_Button = n349;
-var n350 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 82], [19, 81], [20, 82], [21, 81], [22, 83], [23, 80], [24, 81], [25, 80], [26, 80], [27, 79]]);
-var light_purple_alt2_Checkbox = n350;
-var light_purple_alt2_RadioGroupItem = n350;
-var light_purple_alt2_Input = n350;
-var light_purple_alt2_TextArea = n350;
-var n351 = t([[12, 77], [13, 79], [14, 80], [15, 81], [16, 76], [17, 75], [18, 82], [19, 81], [20, 82], [21, 81], [22, 81], [23, 80], [24, 81], [25, 80], [26, 80], [27, 76]]);
-var light_purple_alt2_Switch = n351;
-var light_purple_alt2_TooltipContent = n351;
-var light_purple_alt2_SliderTrack = n351;
-var n352 = t([[12, 83], [13, 82], [14, 81], [15, 80], [16, 11], [17, 11], [18, 74], [19, 75], [20, 74], [21, 75], [22, 72], [23, 81], [24, 80], [25, 81], [26, 81], [27, 75]]);
-var light_purple_alt2_SwitchThumb = n352;
-var n353 = t([[12, 79], [13, 77], [14, 76], [15, 75], [16, 80], [17, 81], [18, 74], [19, 75], [20, 74], [21, 75], [22, 75], [23, 76], [24, 75], [25, 76], [26, 76], [27, 80]]);
-var light_purple_alt2_SliderTrackActive = n353;
-var n354 = t([[12, 81], [13, 80], [14, 79], [15, 77], [16, 82], [17, 83], [18, 74], [19, 75], [20, 74], [21, 75], [22, 73], [23, 79], [24, 77], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt2_SliderThumb = n354;
-var light_purple_alt2_Tooltip = n354;
-var light_purple_alt2_ProgressIndicator = n354;
-var n355 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [19, 80], [20, 81], [21, 80], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_active_ListItem = n355;
-var n356 = t([[12, 77], [13, 79], [14, 80], [15, 81], [16, 76], [17, 75], [19, 80], [20, 81], [21, 80], [22, 81], [23, 80], [24, 81], [25, 80], [26, 80], [27, 76]]);
-var light_purple_active_Card = n356;
-var light_purple_active_DrawerFrame = n356;
-var light_purple_active_Progress = n356;
-var light_purple_active_TooltipArrow = n356;
-var n357 = t([[12, 79], [13, 80], [14, 81], [15, 82], [16, 77], [17, 76], [19, 80], [20, 81], [21, 80], [22, 80], [23, 241], [24, 241], [25, 81], [26, 81], [27, 75]]);
-var light_purple_active_Button = n357;
-var n358 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [19, 80], [20, 81], [21, 80], [22, 82], [23, 81], [24, 82], [25, 81], [26, 81], [27, 77]]);
-var light_purple_active_Checkbox = n358;
-var light_purple_active_RadioGroupItem = n358;
-var light_purple_active_Input = n358;
-var light_purple_active_TextArea = n358;
-var n359 = t([[12, 79], [13, 80], [14, 81], [15, 82], [16, 77], [17, 76], [19, 80], [20, 81], [21, 80], [22, 80], [23, 81], [24, 82], [25, 81], [26, 81], [27, 75]]);
-var light_purple_active_Switch = n359;
-var light_purple_active_TooltipContent = n359;
-var light_purple_active_SliderTrack = n359;
-var n360 = t([[12, 82], [13, 81], [14, 80], [15, 79], [16, 83], [17, 11], [19, 76], [20, 75], [21, 76], [22, 72], [23, 80], [24, 79], [25, 80], [26, 80], [27, 76]]);
-var light_purple_active_SwitchThumb = n360;
-var n361 = t([[12, 77], [13, 76], [14, 75], [15, 74], [16, 79], [17, 80], [19, 76], [20, 75], [21, 76], [22, 76], [23, 75], [24, 74], [25, 75], [26, 75], [27, 81]]);
-var light_purple_active_SliderTrackActive = n361;
-var n362 = t([[12, 80], [13, 79], [14, 77], [15, 76], [16, 81], [17, 82], [19, 76], [20, 75], [21, 76], [22, 74], [23, 77], [24, 76], [25, 77], [26, 77], [27, 79]]);
-var light_purple_active_SliderThumb = n362;
-var light_purple_active_Tooltip = n362;
-var light_purple_active_ProgressIndicator = n362;
-var n363 = t([[12, 61], [13, 62], [14, 63], [15, 64], [16, 60], [17, 60], [18, 71], [19, 70], [20, 71], [21, 70], [22, 11], [23, 63], [24, 64], [25, 63], [26, 63], [27, 69]]);
-var light_pink_alt1_ListItem = n363;
-var n364 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 71], [19, 70], [20, 71], [21, 70], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_alt1_Card = n364;
-var light_pink_alt1_DrawerFrame = n364;
-var light_pink_alt1_Progress = n364;
-var light_pink_alt1_TooltipArrow = n364;
-var n365 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [18, 71], [19, 70], [20, 71], [21, 70], [22, 70], [23, 241], [24, 241], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt1_Button = n365;
-var n366 = t([[12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 71], [19, 70], [20, 71], [21, 70], [22, 11], [23, 67], [24, 68], [25, 67], [26, 67], [27, 68]]);
-var light_pink_alt1_Checkbox = n366;
-var light_pink_alt1_RadioGroupItem = n366;
-var light_pink_alt1_Input = n366;
-var light_pink_alt1_TextArea = n366;
-var n367 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [18, 71], [19, 70], [20, 71], [21, 70], [22, 70], [23, 67], [24, 68], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt1_Switch = n367;
-var light_pink_alt1_TooltipContent = n367;
-var light_pink_alt1_SliderTrack = n367;
-var n368 = t([[12, 11], [13, 71], [14, 70], [15, 69], [16, 11], [17, 11], [18, 61], [19, 62], [20, 61], [21, 62], [22, 60], [23, 70], [24, 69], [25, 70], [26, 70], [27, 62]]);
-var light_pink_alt1_SwitchThumb = n368;
-var n369 = t([[12, 68], [13, 67], [14, 65], [15, 64], [16, 69], [17, 70], [18, 61], [19, 62], [20, 61], [21, 62], [22, 62], [23, 65], [24, 64], [25, 65], [26, 65], [27, 67]]);
-var light_pink_alt1_SliderTrackActive = n369;
-var n370 = t([[12, 70], [13, 69], [14, 68], [15, 67], [16, 71], [17, 11], [18, 61], [19, 62], [20, 61], [21, 62], [22, 60], [23, 68], [24, 67], [25, 68], [26, 68], [27, 64]]);
-var light_pink_alt1_SliderThumb = n370;
-var light_pink_alt1_Tooltip = n370;
-var light_pink_alt1_ProgressIndicator = n370;
-var n371 = t([[12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 70], [19, 69], [20, 70], [21, 69], [22, 11], [23, 64], [24, 65], [25, 64], [26, 64], [27, 68]]);
-var light_pink_alt2_ListItem = n371;
-var n372 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [18, 70], [19, 69], [20, 70], [21, 69], [22, 70], [23, 67], [24, 68], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt2_Card = n372;
-var light_pink_alt2_DrawerFrame = n372;
-var light_pink_alt2_Progress = n372;
-var light_pink_alt2_TooltipArrow = n372;
-var n373 = t([[12, 65], [13, 67], [14, 68], [15, 69], [16, 64], [17, 63], [18, 70], [19, 69], [20, 70], [21, 69], [22, 69], [23, 241], [24, 241], [25, 68], [26, 68], [27, 64]]);
-var light_pink_alt2_Button = n373;
-var n374 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 70], [19, 69], [20, 70], [21, 69], [22, 71], [23, 68], [24, 69], [25, 68], [26, 68], [27, 67]]);
-var light_pink_alt2_Checkbox = n374;
-var light_pink_alt2_RadioGroupItem = n374;
-var light_pink_alt2_Input = n374;
-var light_pink_alt2_TextArea = n374;
-var n375 = t([[12, 65], [13, 67], [14, 68], [15, 69], [16, 64], [17, 63], [18, 70], [19, 69], [20, 70], [21, 69], [22, 69], [23, 68], [24, 69], [25, 68], [26, 68], [27, 64]]);
-var light_pink_alt2_Switch = n375;
-var light_pink_alt2_TooltipContent = n375;
-var light_pink_alt2_SliderTrack = n375;
-var n376 = t([[12, 71], [13, 70], [14, 69], [15, 68], [16, 11], [17, 11], [18, 62], [19, 63], [20, 62], [21, 63], [22, 60], [23, 69], [24, 68], [25, 69], [26, 69], [27, 63]]);
-var light_pink_alt2_SwitchThumb = n376;
-var n377 = t([[12, 67], [13, 65], [14, 64], [15, 63], [16, 68], [17, 69], [18, 62], [19, 63], [20, 62], [21, 63], [22, 63], [23, 64], [24, 63], [25, 64], [26, 64], [27, 68]]);
-var light_pink_alt2_SliderTrackActive = n377;
-var n378 = t([[12, 69], [13, 68], [14, 67], [15, 65], [16, 70], [17, 71], [18, 62], [19, 63], [20, 62], [21, 63], [22, 61], [23, 67], [24, 65], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt2_SliderThumb = n378;
-var light_pink_alt2_Tooltip = n378;
-var light_pink_alt2_ProgressIndicator = n378;
-var n379 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [19, 68], [20, 69], [21, 68], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_active_ListItem = n379;
-var n380 = t([[12, 65], [13, 67], [14, 68], [15, 69], [16, 64], [17, 63], [19, 68], [20, 69], [21, 68], [22, 69], [23, 68], [24, 69], [25, 68], [26, 68], [27, 64]]);
-var light_pink_active_Card = n380;
-var light_pink_active_DrawerFrame = n380;
-var light_pink_active_Progress = n380;
-var light_pink_active_TooltipArrow = n380;
-var n381 = t([[12, 67], [13, 68], [14, 69], [15, 70], [16, 65], [17, 64], [19, 68], [20, 69], [21, 68], [22, 68], [23, 241], [24, 241], [25, 69], [26, 69], [27, 63]]);
-var light_pink_active_Button = n381;
-var n382 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [19, 68], [20, 69], [21, 68], [22, 70], [23, 69], [24, 70], [25, 69], [26, 69], [27, 65]]);
-var light_pink_active_Checkbox = n382;
-var light_pink_active_RadioGroupItem = n382;
-var light_pink_active_Input = n382;
-var light_pink_active_TextArea = n382;
-var n383 = t([[12, 67], [13, 68], [14, 69], [15, 70], [16, 65], [17, 64], [19, 68], [20, 69], [21, 68], [22, 68], [23, 69], [24, 70], [25, 69], [26, 69], [27, 63]]);
-var light_pink_active_Switch = n383;
-var light_pink_active_TooltipContent = n383;
-var light_pink_active_SliderTrack = n383;
-var n384 = t([[12, 70], [13, 69], [14, 68], [15, 67], [16, 71], [17, 11], [19, 64], [20, 63], [21, 64], [22, 60], [23, 68], [24, 67], [25, 68], [26, 68], [27, 64]]);
-var light_pink_active_SwitchThumb = n384;
-var n385 = t([[12, 65], [13, 64], [14, 63], [15, 62], [16, 67], [17, 68], [19, 64], [20, 63], [21, 64], [22, 64], [23, 63], [24, 62], [25, 63], [26, 63], [27, 69]]);
-var light_pink_active_SliderTrackActive = n385;
-var n386 = t([[12, 68], [13, 67], [14, 65], [15, 64], [16, 69], [17, 70], [19, 64], [20, 63], [21, 64], [22, 62], [23, 65], [24, 64], [25, 65], [26, 65], [27, 67]]);
-var light_pink_active_SliderThumb = n386;
-var light_pink_active_Tooltip = n386;
-var light_pink_active_ProgressIndicator = n386;
-var n387 = t([[12, 85], [13, 86], [14, 87], [15, 88], [16, 84], [17, 84], [18, 95], [19, 94], [20, 95], [21, 94], [22, 11], [23, 87], [24, 88], [25, 87], [26, 87], [27, 93]]);
-var light_red_alt1_ListItem = n387;
-var n388 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 95], [19, 94], [20, 95], [21, 94], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_alt1_Card = n388;
-var light_red_alt1_DrawerFrame = n388;
-var light_red_alt1_Progress = n388;
-var light_red_alt1_TooltipArrow = n388;
-var n389 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [18, 95], [19, 94], [20, 95], [21, 94], [22, 94], [23, 241], [24, 241], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt1_Button = n389;
-var n390 = t([[12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 95], [19, 94], [20, 95], [21, 94], [22, 11], [23, 91], [24, 92], [25, 91], [26, 91], [27, 92]]);
-var light_red_alt1_Checkbox = n390;
-var light_red_alt1_RadioGroupItem = n390;
-var light_red_alt1_Input = n390;
-var light_red_alt1_TextArea = n390;
-var n391 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [18, 95], [19, 94], [20, 95], [21, 94], [22, 94], [23, 91], [24, 92], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt1_Switch = n391;
-var light_red_alt1_TooltipContent = n391;
-var light_red_alt1_SliderTrack = n391;
-var n392 = t([[12, 11], [13, 95], [14, 94], [15, 93], [16, 11], [17, 11], [18, 85], [19, 86], [20, 85], [21, 86], [22, 84], [23, 94], [24, 93], [25, 94], [26, 94], [27, 86]]);
-var light_red_alt1_SwitchThumb = n392;
-var n393 = t([[12, 92], [13, 91], [14, 89], [15, 88], [16, 93], [17, 94], [18, 85], [19, 86], [20, 85], [21, 86], [22, 86], [23, 89], [24, 88], [25, 89], [26, 89], [27, 91]]);
-var light_red_alt1_SliderTrackActive = n393;
-var n394 = t([[12, 94], [13, 93], [14, 92], [15, 91], [16, 95], [17, 11], [18, 85], [19, 86], [20, 85], [21, 86], [22, 84], [23, 92], [24, 91], [25, 92], [26, 92], [27, 88]]);
-var light_red_alt1_SliderThumb = n394;
-var light_red_alt1_Tooltip = n394;
-var light_red_alt1_ProgressIndicator = n394;
-var n395 = t([[12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 94], [19, 93], [20, 94], [21, 93], [22, 11], [23, 88], [24, 89], [25, 88], [26, 88], [27, 92]]);
-var light_red_alt2_ListItem = n395;
-var n396 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [18, 94], [19, 93], [20, 94], [21, 93], [22, 94], [23, 91], [24, 92], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt2_Card = n396;
-var light_red_alt2_DrawerFrame = n396;
-var light_red_alt2_Progress = n396;
-var light_red_alt2_TooltipArrow = n396;
-var n397 = t([[12, 89], [13, 91], [14, 92], [15, 93], [16, 88], [17, 87], [18, 94], [19, 93], [20, 94], [21, 93], [22, 93], [23, 241], [24, 241], [25, 92], [26, 92], [27, 88]]);
-var light_red_alt2_Button = n397;
-var n398 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 94], [19, 93], [20, 94], [21, 93], [22, 95], [23, 92], [24, 93], [25, 92], [26, 92], [27, 91]]);
-var light_red_alt2_Checkbox = n398;
-var light_red_alt2_RadioGroupItem = n398;
-var light_red_alt2_Input = n398;
-var light_red_alt2_TextArea = n398;
-var n399 = t([[12, 89], [13, 91], [14, 92], [15, 93], [16, 88], [17, 87], [18, 94], [19, 93], [20, 94], [21, 93], [22, 93], [23, 92], [24, 93], [25, 92], [26, 92], [27, 88]]);
-var light_red_alt2_Switch = n399;
-var light_red_alt2_TooltipContent = n399;
-var light_red_alt2_SliderTrack = n399;
-var n400 = t([[12, 95], [13, 94], [14, 93], [15, 92], [16, 11], [17, 11], [18, 86], [19, 87], [20, 86], [21, 87], [22, 84], [23, 93], [24, 92], [25, 93], [26, 93], [27, 87]]);
-var light_red_alt2_SwitchThumb = n400;
-var n401 = t([[12, 91], [13, 89], [14, 88], [15, 87], [16, 92], [17, 93], [18, 86], [19, 87], [20, 86], [21, 87], [22, 87], [23, 88], [24, 87], [25, 88], [26, 88], [27, 92]]);
-var light_red_alt2_SliderTrackActive = n401;
-var n402 = t([[12, 93], [13, 92], [14, 91], [15, 89], [16, 94], [17, 95], [18, 86], [19, 87], [20, 86], [21, 87], [22, 85], [23, 91], [24, 89], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt2_SliderThumb = n402;
-var light_red_alt2_Tooltip = n402;
-var light_red_alt2_ProgressIndicator = n402;
-var n403 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [19, 92], [20, 93], [21, 92], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_active_ListItem = n403;
-var n404 = t([[12, 89], [13, 91], [14, 92], [15, 93], [16, 88], [17, 87], [19, 92], [20, 93], [21, 92], [22, 93], [23, 92], [24, 93], [25, 92], [26, 92], [27, 88]]);
-var light_red_active_Card = n404;
-var light_red_active_DrawerFrame = n404;
-var light_red_active_Progress = n404;
-var light_red_active_TooltipArrow = n404;
-var n405 = t([[12, 91], [13, 92], [14, 93], [15, 94], [16, 89], [17, 88], [19, 92], [20, 93], [21, 92], [22, 92], [23, 241], [24, 241], [25, 93], [26, 93], [27, 87]]);
-var light_red_active_Button = n405;
-var n406 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [19, 92], [20, 93], [21, 92], [22, 94], [23, 93], [24, 94], [25, 93], [26, 93], [27, 89]]);
-var light_red_active_Checkbox = n406;
-var light_red_active_RadioGroupItem = n406;
-var light_red_active_Input = n406;
-var light_red_active_TextArea = n406;
-var n407 = t([[12, 91], [13, 92], [14, 93], [15, 94], [16, 89], [17, 88], [19, 92], [20, 93], [21, 92], [22, 92], [23, 93], [24, 94], [25, 93], [26, 93], [27, 87]]);
-var light_red_active_Switch = n407;
-var light_red_active_TooltipContent = n407;
-var light_red_active_SliderTrack = n407;
-var n408 = t([[12, 94], [13, 93], [14, 92], [15, 91], [16, 95], [17, 11], [19, 88], [20, 87], [21, 88], [22, 84], [23, 92], [24, 91], [25, 92], [26, 92], [27, 88]]);
-var light_red_active_SwitchThumb = n408;
-var n409 = t([[12, 89], [13, 88], [14, 87], [15, 86], [16, 91], [17, 92], [19, 88], [20, 87], [21, 88], [22, 88], [23, 87], [24, 86], [25, 87], [26, 87], [27, 93]]);
-var light_red_active_SliderTrackActive = n409;
-var n410 = t([[12, 92], [13, 91], [14, 89], [15, 88], [16, 93], [17, 94], [19, 88], [20, 87], [21, 88], [22, 86], [23, 89], [24, 88], [25, 89], [26, 89], [27, 91]]);
-var light_red_active_SliderThumb = n410;
-var light_red_active_Tooltip = n410;
-var light_red_active_ProgressIndicator = n410;
-var n411 = t([[12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 164], [19, 163], [20, 164], [21, 163], [22, 0], [23, 159], [24, 161], [25, 158], [26, 159], [27, 56]]);
-var dark_orange_alt1_ListItem = n411;
-var n412 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 164], [19, 163], [20, 164], [21, 163], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_alt1_Card = n412;
-var dark_orange_alt1_DrawerFrame = n412;
-var dark_orange_alt1_Progress = n412;
-var dark_orange_alt1_TooltipArrow = n412;
-var n413 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [18, 164], [19, 163], [20, 164], [21, 163], [22, 163], [23, 241], [24, 241], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_alt1_Button = n413;
-var n414 = t([[12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 164], [19, 163], [20, 164], [21, 163], [22, 0], [23, 56], [24, 162], [25, 161], [26, 56], [27, 56]]);
-var dark_orange_alt1_Checkbox = n414;
-var dark_orange_alt1_RadioGroupItem = n414;
-var dark_orange_alt1_Input = n414;
-var dark_orange_alt1_TextArea = n414;
-var n415 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [18, 164], [19, 163], [20, 164], [21, 163], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_alt1_Switch = n415;
-var dark_orange_alt1_TooltipContent = n415;
-var dark_orange_alt1_SliderTrack = n415;
-var n416 = t([[12, 0], [13, 164], [14, 163], [15, 162], [16, 0], [17, 0], [18, 155], [19, 156], [20, 155], [21, 156], [22, 154], [23, 162], [24, 56], [25, 163], [26, 162], [27, 156]]);
-var dark_orange_alt1_SwitchThumb = n416;
-var n417 = t([[12, 56], [13, 161], [14, 159], [15, 158], [16, 162], [17, 163], [18, 155], [19, 156], [20, 155], [21, 156], [22, 156], [23, 158], [24, 157], [25, 159], [26, 158], [27, 161]]);
-var dark_orange_alt1_SliderTrackActive = n417;
-var n418 = t([[12, 163], [13, 162], [14, 56], [15, 161], [16, 164], [17, 0], [18, 155], [19, 156], [20, 155], [21, 156], [22, 154], [23, 161], [24, 159], [25, 56], [26, 161], [27, 158]]);
-var dark_orange_alt1_SliderThumb = n418;
-var dark_orange_alt1_Tooltip = n418;
-var dark_orange_alt1_ProgressIndicator = n418;
-var n419 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 163], [19, 162], [20, 163], [21, 162], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_alt2_ListItem = n419;
-var n420 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [18, 163], [19, 162], [20, 163], [21, 162], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_alt2_Card = n420;
-var dark_orange_alt2_DrawerFrame = n420;
-var dark_orange_alt2_Progress = n420;
-var dark_orange_alt2_TooltipArrow = n420;
-var n421 = t([[12, 159], [13, 161], [14, 56], [15, 162], [16, 158], [17, 157], [18, 163], [19, 162], [20, 163], [21, 162], [22, 162], [23, 241], [24, 241], [25, 56], [26, 162], [27, 158]]);
-var dark_orange_alt2_Button = n421;
-var n422 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 163], [19, 162], [20, 163], [21, 162], [22, 164], [23, 162], [24, 163], [25, 56], [26, 162], [27, 161]]);
-var dark_orange_alt2_Checkbox = n422;
-var dark_orange_alt2_RadioGroupItem = n422;
-var dark_orange_alt2_Input = n422;
-var dark_orange_alt2_TextArea = n422;
-var n423 = t([[12, 159], [13, 161], [14, 56], [15, 162], [16, 158], [17, 157], [18, 163], [19, 162], [20, 163], [21, 162], [22, 162], [23, 162], [24, 163], [25, 56], [26, 162], [27, 158]]);
-var dark_orange_alt2_Switch = n423;
-var dark_orange_alt2_TooltipContent = n423;
-var dark_orange_alt2_SliderTrack = n423;
-var n424 = t([[12, 164], [13, 163], [14, 162], [15, 56], [16, 0], [17, 0], [18, 156], [19, 157], [20, 156], [21, 157], [22, 154], [23, 56], [24, 161], [25, 162], [26, 56], [27, 157]]);
-var dark_orange_alt2_SwitchThumb = n424;
-var n425 = t([[12, 161], [13, 159], [14, 158], [15, 157], [16, 56], [17, 162], [18, 156], [19, 157], [20, 156], [21, 157], [22, 157], [23, 157], [24, 156], [25, 158], [26, 157], [27, 56]]);
-var dark_orange_alt2_SliderTrackActive = n425;
-var n426 = t([[12, 162], [13, 56], [14, 161], [15, 159], [16, 163], [17, 164], [18, 156], [19, 157], [20, 156], [21, 157], [22, 155], [23, 159], [24, 158], [25, 161], [26, 159], [27, 159]]);
-var dark_orange_alt2_SliderThumb = n426;
-var dark_orange_alt2_Tooltip = n426;
-var dark_orange_alt2_ProgressIndicator = n426;
-var n427 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [19, 56], [20, 162], [21, 56], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_active_ListItem = n427;
-var n428 = t([[12, 159], [13, 161], [14, 56], [15, 162], [16, 158], [17, 157], [19, 56], [20, 162], [21, 56], [22, 162], [23, 162], [24, 163], [25, 56], [26, 162], [27, 158]]);
-var dark_orange_active_Card = n428;
-var dark_orange_active_DrawerFrame = n428;
-var dark_orange_active_Progress = n428;
-var dark_orange_active_TooltipArrow = n428;
-var n429 = t([[12, 161], [13, 56], [14, 162], [15, 163], [16, 159], [17, 158], [19, 56], [20, 162], [21, 56], [22, 56], [23, 241], [24, 241], [25, 162], [26, 163], [27, 157]]);
-var dark_orange_active_Button = n429;
-var n430 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [19, 56], [20, 162], [21, 56], [22, 163], [23, 163], [24, 164], [25, 162], [26, 163], [27, 159]]);
-var dark_orange_active_Checkbox = n430;
-var dark_orange_active_RadioGroupItem = n430;
-var dark_orange_active_Input = n430;
-var dark_orange_active_TextArea = n430;
-var n431 = t([[12, 161], [13, 56], [14, 162], [15, 163], [16, 159], [17, 158], [19, 56], [20, 162], [21, 56], [22, 56], [23, 163], [24, 164], [25, 162], [26, 163], [27, 157]]);
-var dark_orange_active_Switch = n431;
-var dark_orange_active_TooltipContent = n431;
-var dark_orange_active_SliderTrack = n431;
-var n432 = t([[12, 163], [13, 162], [14, 56], [15, 161], [16, 164], [17, 0], [19, 158], [20, 157], [21, 158], [22, 154], [23, 161], [24, 159], [25, 56], [26, 161], [27, 158]]);
-var dark_orange_active_SwitchThumb = n432;
-var n433 = t([[12, 159], [13, 158], [14, 157], [15, 156], [16, 161], [17, 56], [19, 158], [20, 157], [21, 158], [22, 158], [23, 156], [24, 155], [25, 157], [26, 156], [27, 162]]);
-var dark_orange_active_SliderTrackActive = n433;
-var n434 = t([[12, 56], [13, 161], [14, 159], [15, 158], [16, 162], [17, 163], [19, 158], [20, 157], [21, 158], [22, 156], [23, 158], [24, 157], [25, 159], [26, 158], [27, 161]]);
-var dark_orange_active_SliderThumb = n434;
-var dark_orange_active_Tooltip = n434;
-var dark_orange_active_ProgressIndicator = n434;
-var n435 = t([[12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 208], [19, 207], [20, 208], [21, 207], [22, 0], [23, 203], [24, 205], [25, 202], [26, 203], [27, 104]]);
-var dark_yellow_alt1_ListItem = n435;
-var n436 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 208], [19, 207], [20, 208], [21, 207], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_alt1_Card = n436;
-var dark_yellow_alt1_DrawerFrame = n436;
-var dark_yellow_alt1_Progress = n436;
-var dark_yellow_alt1_TooltipArrow = n436;
-var n437 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [18, 208], [19, 207], [20, 208], [21, 207], [22, 207], [23, 241], [24, 241], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_alt1_Button = n437;
-var n438 = t([[12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 208], [19, 207], [20, 208], [21, 207], [22, 0], [23, 104], [24, 206], [25, 205], [26, 104], [27, 104]]);
-var dark_yellow_alt1_Checkbox = n438;
-var dark_yellow_alt1_RadioGroupItem = n438;
-var dark_yellow_alt1_Input = n438;
-var dark_yellow_alt1_TextArea = n438;
-var n439 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [18, 208], [19, 207], [20, 208], [21, 207], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_alt1_Switch = n439;
-var dark_yellow_alt1_TooltipContent = n439;
-var dark_yellow_alt1_SliderTrack = n439;
-var n440 = t([[12, 0], [13, 208], [14, 207], [15, 206], [16, 0], [17, 0], [18, 199], [19, 200], [20, 199], [21, 200], [22, 198], [23, 206], [24, 104], [25, 207], [26, 206], [27, 200]]);
-var dark_yellow_alt1_SwitchThumb = n440;
-var n441 = t([[12, 104], [13, 205], [14, 203], [15, 202], [16, 206], [17, 207], [18, 199], [19, 200], [20, 199], [21, 200], [22, 200], [23, 202], [24, 201], [25, 203], [26, 202], [27, 205]]);
-var dark_yellow_alt1_SliderTrackActive = n441;
-var n442 = t([[12, 207], [13, 206], [14, 104], [15, 205], [16, 208], [17, 0], [18, 199], [19, 200], [20, 199], [21, 200], [22, 198], [23, 205], [24, 203], [25, 104], [26, 205], [27, 202]]);
-var dark_yellow_alt1_SliderThumb = n442;
-var dark_yellow_alt1_Tooltip = n442;
-var dark_yellow_alt1_ProgressIndicator = n442;
-var n443 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 207], [19, 206], [20, 207], [21, 206], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_alt2_ListItem = n443;
-var n444 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [18, 207], [19, 206], [20, 207], [21, 206], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_alt2_Card = n444;
-var dark_yellow_alt2_DrawerFrame = n444;
-var dark_yellow_alt2_Progress = n444;
-var dark_yellow_alt2_TooltipArrow = n444;
-var n445 = t([[12, 203], [13, 205], [14, 104], [15, 206], [16, 202], [17, 201], [18, 207], [19, 206], [20, 207], [21, 206], [22, 206], [23, 241], [24, 241], [25, 104], [26, 206], [27, 202]]);
-var dark_yellow_alt2_Button = n445;
-var n446 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 207], [19, 206], [20, 207], [21, 206], [22, 208], [23, 206], [24, 207], [25, 104], [26, 206], [27, 205]]);
-var dark_yellow_alt2_Checkbox = n446;
-var dark_yellow_alt2_RadioGroupItem = n446;
-var dark_yellow_alt2_Input = n446;
-var dark_yellow_alt2_TextArea = n446;
-var n447 = t([[12, 203], [13, 205], [14, 104], [15, 206], [16, 202], [17, 201], [18, 207], [19, 206], [20, 207], [21, 206], [22, 206], [23, 206], [24, 207], [25, 104], [26, 206], [27, 202]]);
-var dark_yellow_alt2_Switch = n447;
-var dark_yellow_alt2_TooltipContent = n447;
-var dark_yellow_alt2_SliderTrack = n447;
-var n448 = t([[12, 208], [13, 207], [14, 206], [15, 104], [16, 0], [17, 0], [18, 200], [19, 201], [20, 200], [21, 201], [22, 198], [23, 104], [24, 205], [25, 206], [26, 104], [27, 201]]);
-var dark_yellow_alt2_SwitchThumb = n448;
-var n449 = t([[12, 205], [13, 203], [14, 202], [15, 201], [16, 104], [17, 206], [18, 200], [19, 201], [20, 200], [21, 201], [22, 201], [23, 201], [24, 200], [25, 202], [26, 201], [27, 104]]);
-var dark_yellow_alt2_SliderTrackActive = n449;
-var n450 = t([[12, 206], [13, 104], [14, 205], [15, 203], [16, 207], [17, 208], [18, 200], [19, 201], [20, 200], [21, 201], [22, 199], [23, 203], [24, 202], [25, 205], [26, 203], [27, 203]]);
-var dark_yellow_alt2_SliderThumb = n450;
-var dark_yellow_alt2_Tooltip = n450;
-var dark_yellow_alt2_ProgressIndicator = n450;
-var n451 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [19, 104], [20, 206], [21, 104], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_active_ListItem = n451;
-var n452 = t([[12, 203], [13, 205], [14, 104], [15, 206], [16, 202], [17, 201], [19, 104], [20, 206], [21, 104], [22, 206], [23, 206], [24, 207], [25, 104], [26, 206], [27, 202]]);
-var dark_yellow_active_Card = n452;
-var dark_yellow_active_DrawerFrame = n452;
-var dark_yellow_active_Progress = n452;
-var dark_yellow_active_TooltipArrow = n452;
-var n453 = t([[12, 205], [13, 104], [14, 206], [15, 207], [16, 203], [17, 202], [19, 104], [20, 206], [21, 104], [22, 104], [23, 241], [24, 241], [25, 206], [26, 207], [27, 201]]);
-var dark_yellow_active_Button = n453;
-var n454 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [19, 104], [20, 206], [21, 104], [22, 207], [23, 207], [24, 208], [25, 206], [26, 207], [27, 203]]);
-var dark_yellow_active_Checkbox = n454;
-var dark_yellow_active_RadioGroupItem = n454;
-var dark_yellow_active_Input = n454;
-var dark_yellow_active_TextArea = n454;
-var n455 = t([[12, 205], [13, 104], [14, 206], [15, 207], [16, 203], [17, 202], [19, 104], [20, 206], [21, 104], [22, 104], [23, 207], [24, 208], [25, 206], [26, 207], [27, 201]]);
-var dark_yellow_active_Switch = n455;
-var dark_yellow_active_TooltipContent = n455;
-var dark_yellow_active_SliderTrack = n455;
-var n456 = t([[12, 207], [13, 206], [14, 104], [15, 205], [16, 208], [17, 0], [19, 202], [20, 201], [21, 202], [22, 198], [23, 205], [24, 203], [25, 104], [26, 205], [27, 202]]);
-var dark_yellow_active_SwitchThumb = n456;
-var n457 = t([[12, 203], [13, 202], [14, 201], [15, 200], [16, 205], [17, 104], [19, 202], [20, 201], [21, 202], [22, 202], [23, 200], [24, 199], [25, 201], [26, 200], [27, 206]]);
-var dark_yellow_active_SliderTrackActive = n457;
-var n458 = t([[12, 104], [13, 205], [14, 203], [15, 202], [16, 206], [17, 207], [19, 202], [20, 201], [21, 202], [22, 200], [23, 202], [24, 201], [25, 203], [26, 202], [27, 205]]);
-var dark_yellow_active_SliderThumb = n458;
-var dark_yellow_active_Tooltip = n458;
-var dark_yellow_active_ProgressIndicator = n458;
-var n459 = t([[12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 153], [19, 152], [20, 153], [21, 152], [22, 0], [23, 148], [24, 150], [25, 147], [26, 148], [27, 44]]);
-var dark_green_alt1_ListItem = n459;
-var n460 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 153], [19, 152], [20, 153], [21, 152], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_alt1_Card = n460;
-var dark_green_alt1_DrawerFrame = n460;
-var dark_green_alt1_Progress = n460;
-var dark_green_alt1_TooltipArrow = n460;
-var n461 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [18, 153], [19, 152], [20, 153], [21, 152], [22, 152], [23, 241], [24, 241], [25, 150], [26, 44], [27, 148]]);
-var dark_green_alt1_Button = n461;
-var n462 = t([[12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 153], [19, 152], [20, 153], [21, 152], [22, 0], [23, 44], [24, 151], [25, 150], [26, 44], [27, 44]]);
-var dark_green_alt1_Checkbox = n462;
-var dark_green_alt1_RadioGroupItem = n462;
-var dark_green_alt1_Input = n462;
-var dark_green_alt1_TextArea = n462;
-var n463 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [18, 153], [19, 152], [20, 153], [21, 152], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_alt1_Switch = n463;
-var dark_green_alt1_TooltipContent = n463;
-var dark_green_alt1_SliderTrack = n463;
-var n464 = t([[12, 0], [13, 153], [14, 152], [15, 151], [16, 0], [17, 0], [18, 144], [19, 145], [20, 144], [21, 145], [22, 143], [23, 151], [24, 44], [25, 152], [26, 151], [27, 145]]);
-var dark_green_alt1_SwitchThumb = n464;
-var n465 = t([[12, 44], [13, 150], [14, 148], [15, 147], [16, 151], [17, 152], [18, 144], [19, 145], [20, 144], [21, 145], [22, 145], [23, 147], [24, 146], [25, 148], [26, 147], [27, 150]]);
-var dark_green_alt1_SliderTrackActive = n465;
-var n466 = t([[12, 152], [13, 151], [14, 44], [15, 150], [16, 153], [17, 0], [18, 144], [19, 145], [20, 144], [21, 145], [22, 143], [23, 150], [24, 148], [25, 44], [26, 150], [27, 147]]);
-var dark_green_alt1_SliderThumb = n466;
-var dark_green_alt1_Tooltip = n466;
-var dark_green_alt1_ProgressIndicator = n466;
-var n467 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 152], [19, 151], [20, 152], [21, 151], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_alt2_ListItem = n467;
-var n468 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [18, 152], [19, 151], [20, 152], [21, 151], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_alt2_Card = n468;
-var dark_green_alt2_DrawerFrame = n468;
-var dark_green_alt2_Progress = n468;
-var dark_green_alt2_TooltipArrow = n468;
-var n469 = t([[12, 148], [13, 150], [14, 44], [15, 151], [16, 147], [17, 146], [18, 152], [19, 151], [20, 152], [21, 151], [22, 151], [23, 241], [24, 241], [25, 44], [26, 151], [27, 147]]);
-var dark_green_alt2_Button = n469;
-var n470 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 152], [19, 151], [20, 152], [21, 151], [22, 153], [23, 151], [24, 152], [25, 44], [26, 151], [27, 150]]);
-var dark_green_alt2_Checkbox = n470;
-var dark_green_alt2_RadioGroupItem = n470;
-var dark_green_alt2_Input = n470;
-var dark_green_alt2_TextArea = n470;
-var n471 = t([[12, 148], [13, 150], [14, 44], [15, 151], [16, 147], [17, 146], [18, 152], [19, 151], [20, 152], [21, 151], [22, 151], [23, 151], [24, 152], [25, 44], [26, 151], [27, 147]]);
-var dark_green_alt2_Switch = n471;
-var dark_green_alt2_TooltipContent = n471;
-var dark_green_alt2_SliderTrack = n471;
-var n472 = t([[12, 153], [13, 152], [14, 151], [15, 44], [16, 0], [17, 0], [18, 145], [19, 146], [20, 145], [21, 146], [22, 143], [23, 44], [24, 150], [25, 151], [26, 44], [27, 146]]);
-var dark_green_alt2_SwitchThumb = n472;
-var n473 = t([[12, 150], [13, 148], [14, 147], [15, 146], [16, 44], [17, 151], [18, 145], [19, 146], [20, 145], [21, 146], [22, 146], [23, 146], [24, 145], [25, 147], [26, 146], [27, 44]]);
-var dark_green_alt2_SliderTrackActive = n473;
-var n474 = t([[12, 151], [13, 44], [14, 150], [15, 148], [16, 152], [17, 153], [18, 145], [19, 146], [20, 145], [21, 146], [22, 144], [23, 148], [24, 147], [25, 150], [26, 148], [27, 148]]);
-var dark_green_alt2_SliderThumb = n474;
-var dark_green_alt2_Tooltip = n474;
-var dark_green_alt2_ProgressIndicator = n474;
-var n475 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [19, 44], [20, 151], [21, 44], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_active_ListItem = n475;
-var n476 = t([[12, 148], [13, 150], [14, 44], [15, 151], [16, 147], [17, 146], [19, 44], [20, 151], [21, 44], [22, 151], [23, 151], [24, 152], [25, 44], [26, 151], [27, 147]]);
-var dark_green_active_Card = n476;
-var dark_green_active_DrawerFrame = n476;
-var dark_green_active_Progress = n476;
-var dark_green_active_TooltipArrow = n476;
-var n477 = t([[12, 150], [13, 44], [14, 151], [15, 152], [16, 148], [17, 147], [19, 44], [20, 151], [21, 44], [22, 44], [23, 241], [24, 241], [25, 151], [26, 152], [27, 146]]);
-var dark_green_active_Button = n477;
-var n478 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [19, 44], [20, 151], [21, 44], [22, 152], [23, 152], [24, 153], [25, 151], [26, 152], [27, 148]]);
-var dark_green_active_Checkbox = n478;
-var dark_green_active_RadioGroupItem = n478;
-var dark_green_active_Input = n478;
-var dark_green_active_TextArea = n478;
-var n479 = t([[12, 150], [13, 44], [14, 151], [15, 152], [16, 148], [17, 147], [19, 44], [20, 151], [21, 44], [22, 44], [23, 152], [24, 153], [25, 151], [26, 152], [27, 146]]);
-var dark_green_active_Switch = n479;
-var dark_green_active_TooltipContent = n479;
-var dark_green_active_SliderTrack = n479;
-var n480 = t([[12, 152], [13, 151], [14, 44], [15, 150], [16, 153], [17, 0], [19, 147], [20, 146], [21, 147], [22, 143], [23, 150], [24, 148], [25, 44], [26, 150], [27, 147]]);
-var dark_green_active_SwitchThumb = n480;
-var n481 = t([[12, 148], [13, 147], [14, 146], [15, 145], [16, 150], [17, 44], [19, 147], [20, 146], [21, 147], [22, 147], [23, 145], [24, 144], [25, 146], [26, 145], [27, 151]]);
-var dark_green_active_SliderTrackActive = n481;
-var n482 = t([[12, 44], [13, 150], [14, 148], [15, 147], [16, 151], [17, 152], [19, 147], [20, 146], [21, 147], [22, 145], [23, 147], [24, 146], [25, 148], [26, 147], [27, 150]]);
-var dark_green_active_SliderThumb = n482;
-var dark_green_active_Tooltip = n482;
-var dark_green_active_ProgressIndicator = n482;
-var n483 = t([[12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 131], [19, 130], [20, 131], [21, 130], [22, 0], [23, 126], [24, 128], [25, 125], [26, 126], [27, 22]]);
-var dark_blue_alt1_ListItem = n483;
-var n484 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 131], [19, 130], [20, 131], [21, 130], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_alt1_Card = n484;
-var dark_blue_alt1_DrawerFrame = n484;
-var dark_blue_alt1_Progress = n484;
-var dark_blue_alt1_TooltipArrow = n484;
-var n485 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [18, 131], [19, 130], [20, 131], [21, 130], [22, 130], [23, 241], [24, 241], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_alt1_Button = n485;
-var n486 = t([[12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 131], [19, 130], [20, 131], [21, 130], [22, 0], [23, 22], [24, 129], [25, 128], [26, 22], [27, 22]]);
-var dark_blue_alt1_Checkbox = n486;
-var dark_blue_alt1_RadioGroupItem = n486;
-var dark_blue_alt1_Input = n486;
-var dark_blue_alt1_TextArea = n486;
-var n487 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [18, 131], [19, 130], [20, 131], [21, 130], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_alt1_Switch = n487;
-var dark_blue_alt1_TooltipContent = n487;
-var dark_blue_alt1_SliderTrack = n487;
-var n488 = t([[12, 0], [13, 131], [14, 130], [15, 129], [16, 0], [17, 0], [18, 122], [19, 123], [20, 122], [21, 123], [22, 121], [23, 129], [24, 22], [25, 130], [26, 129], [27, 123]]);
-var dark_blue_alt1_SwitchThumb = n488;
-var n489 = t([[12, 22], [13, 128], [14, 126], [15, 125], [16, 129], [17, 130], [18, 122], [19, 123], [20, 122], [21, 123], [22, 123], [23, 125], [24, 124], [25, 126], [26, 125], [27, 128]]);
-var dark_blue_alt1_SliderTrackActive = n489;
-var n490 = t([[12, 130], [13, 129], [14, 22], [15, 128], [16, 131], [17, 0], [18, 122], [19, 123], [20, 122], [21, 123], [22, 121], [23, 128], [24, 126], [25, 22], [26, 128], [27, 125]]);
-var dark_blue_alt1_SliderThumb = n490;
-var dark_blue_alt1_Tooltip = n490;
-var dark_blue_alt1_ProgressIndicator = n490;
-var n491 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 130], [19, 129], [20, 130], [21, 129], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_alt2_ListItem = n491;
-var n492 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [18, 130], [19, 129], [20, 130], [21, 129], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_alt2_Card = n492;
-var dark_blue_alt2_DrawerFrame = n492;
-var dark_blue_alt2_Progress = n492;
-var dark_blue_alt2_TooltipArrow = n492;
-var n493 = t([[12, 126], [13, 128], [14, 22], [15, 129], [16, 125], [17, 124], [18, 130], [19, 129], [20, 130], [21, 129], [22, 129], [23, 241], [24, 241], [25, 22], [26, 129], [27, 125]]);
-var dark_blue_alt2_Button = n493;
-var n494 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 130], [19, 129], [20, 130], [21, 129], [22, 131], [23, 129], [24, 130], [25, 22], [26, 129], [27, 128]]);
-var dark_blue_alt2_Checkbox = n494;
-var dark_blue_alt2_RadioGroupItem = n494;
-var dark_blue_alt2_Input = n494;
-var dark_blue_alt2_TextArea = n494;
-var n495 = t([[12, 126], [13, 128], [14, 22], [15, 129], [16, 125], [17, 124], [18, 130], [19, 129], [20, 130], [21, 129], [22, 129], [23, 129], [24, 130], [25, 22], [26, 129], [27, 125]]);
-var dark_blue_alt2_Switch = n495;
-var dark_blue_alt2_TooltipContent = n495;
-var dark_blue_alt2_SliderTrack = n495;
-var n496 = t([[12, 131], [13, 130], [14, 129], [15, 22], [16, 0], [17, 0], [18, 123], [19, 124], [20, 123], [21, 124], [22, 121], [23, 22], [24, 128], [25, 129], [26, 22], [27, 124]]);
-var dark_blue_alt2_SwitchThumb = n496;
-var n497 = t([[12, 128], [13, 126], [14, 125], [15, 124], [16, 22], [17, 129], [18, 123], [19, 124], [20, 123], [21, 124], [22, 124], [23, 124], [24, 123], [25, 125], [26, 124], [27, 22]]);
-var dark_blue_alt2_SliderTrackActive = n497;
-var n498 = t([[12, 129], [13, 22], [14, 128], [15, 126], [16, 130], [17, 131], [18, 123], [19, 124], [20, 123], [21, 124], [22, 122], [23, 126], [24, 125], [25, 128], [26, 126], [27, 126]]);
-var dark_blue_alt2_SliderThumb = n498;
-var dark_blue_alt2_Tooltip = n498;
-var dark_blue_alt2_ProgressIndicator = n498;
-var n499 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [19, 22], [20, 129], [21, 22], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_active_ListItem = n499;
-var n500 = t([[12, 126], [13, 128], [14, 22], [15, 129], [16, 125], [17, 124], [19, 22], [20, 129], [21, 22], [22, 129], [23, 129], [24, 130], [25, 22], [26, 129], [27, 125]]);
-var dark_blue_active_Card = n500;
-var dark_blue_active_DrawerFrame = n500;
-var dark_blue_active_Progress = n500;
-var dark_blue_active_TooltipArrow = n500;
-var n501 = t([[12, 128], [13, 22], [14, 129], [15, 130], [16, 126], [17, 125], [19, 22], [20, 129], [21, 22], [22, 22], [23, 241], [24, 241], [25, 129], [26, 130], [27, 124]]);
-var dark_blue_active_Button = n501;
-var n502 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [19, 22], [20, 129], [21, 22], [22, 130], [23, 130], [24, 131], [25, 129], [26, 130], [27, 126]]);
-var dark_blue_active_Checkbox = n502;
-var dark_blue_active_RadioGroupItem = n502;
-var dark_blue_active_Input = n502;
-var dark_blue_active_TextArea = n502;
-var n503 = t([[12, 128], [13, 22], [14, 129], [15, 130], [16, 126], [17, 125], [19, 22], [20, 129], [21, 22], [22, 22], [23, 130], [24, 131], [25, 129], [26, 130], [27, 124]]);
-var dark_blue_active_Switch = n503;
-var dark_blue_active_TooltipContent = n503;
-var dark_blue_active_SliderTrack = n503;
-var n504 = t([[12, 130], [13, 129], [14, 22], [15, 128], [16, 131], [17, 0], [19, 125], [20, 124], [21, 125], [22, 121], [23, 128], [24, 126], [25, 22], [26, 128], [27, 125]]);
-var dark_blue_active_SwitchThumb = n504;
-var n505 = t([[12, 126], [13, 125], [14, 124], [15, 123], [16, 128], [17, 22], [19, 125], [20, 124], [21, 125], [22, 125], [23, 123], [24, 122], [25, 124], [26, 123], [27, 129]]);
-var dark_blue_active_SliderTrackActive = n505;
-var n506 = t([[12, 22], [13, 128], [14, 126], [15, 125], [16, 129], [17, 130], [19, 125], [20, 124], [21, 125], [22, 123], [23, 125], [24, 124], [25, 126], [26, 125], [27, 128]]);
-var dark_blue_active_SliderThumb = n506;
-var dark_blue_active_Tooltip = n506;
-var dark_blue_active_ProgressIndicator = n506;
-var n507 = t([[12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 186], [19, 185], [20, 186], [21, 185], [22, 0], [23, 181], [24, 183], [25, 180], [26, 181], [27, 80]]);
-var dark_purple_alt1_ListItem = n507;
-var n508 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 186], [19, 185], [20, 186], [21, 185], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_alt1_Card = n508;
-var dark_purple_alt1_DrawerFrame = n508;
-var dark_purple_alt1_Progress = n508;
-var dark_purple_alt1_TooltipArrow = n508;
-var n509 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [18, 186], [19, 185], [20, 186], [21, 185], [22, 185], [23, 241], [24, 241], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_alt1_Button = n509;
-var n510 = t([[12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 186], [19, 185], [20, 186], [21, 185], [22, 0], [23, 80], [24, 184], [25, 183], [26, 80], [27, 80]]);
-var dark_purple_alt1_Checkbox = n510;
-var dark_purple_alt1_RadioGroupItem = n510;
-var dark_purple_alt1_Input = n510;
-var dark_purple_alt1_TextArea = n510;
-var n511 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [18, 186], [19, 185], [20, 186], [21, 185], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_alt1_Switch = n511;
-var dark_purple_alt1_TooltipContent = n511;
-var dark_purple_alt1_SliderTrack = n511;
-var n512 = t([[12, 0], [13, 186], [14, 185], [15, 184], [16, 0], [17, 0], [18, 177], [19, 178], [20, 177], [21, 178], [22, 176], [23, 184], [24, 80], [25, 185], [26, 184], [27, 178]]);
-var dark_purple_alt1_SwitchThumb = n512;
-var n513 = t([[12, 80], [13, 183], [14, 181], [15, 180], [16, 184], [17, 185], [18, 177], [19, 178], [20, 177], [21, 178], [22, 178], [23, 180], [24, 179], [25, 181], [26, 180], [27, 183]]);
-var dark_purple_alt1_SliderTrackActive = n513;
-var n514 = t([[12, 185], [13, 184], [14, 80], [15, 183], [16, 186], [17, 0], [18, 177], [19, 178], [20, 177], [21, 178], [22, 176], [23, 183], [24, 181], [25, 80], [26, 183], [27, 180]]);
-var dark_purple_alt1_SliderThumb = n514;
-var dark_purple_alt1_Tooltip = n514;
-var dark_purple_alt1_ProgressIndicator = n514;
-var n515 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 185], [19, 184], [20, 185], [21, 184], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_alt2_ListItem = n515;
-var n516 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [18, 185], [19, 184], [20, 185], [21, 184], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_alt2_Card = n516;
-var dark_purple_alt2_DrawerFrame = n516;
-var dark_purple_alt2_Progress = n516;
-var dark_purple_alt2_TooltipArrow = n516;
-var n517 = t([[12, 181], [13, 183], [14, 80], [15, 184], [16, 180], [17, 179], [18, 185], [19, 184], [20, 185], [21, 184], [22, 184], [23, 241], [24, 241], [25, 80], [26, 184], [27, 180]]);
-var dark_purple_alt2_Button = n517;
-var n518 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 185], [19, 184], [20, 185], [21, 184], [22, 186], [23, 184], [24, 185], [25, 80], [26, 184], [27, 183]]);
-var dark_purple_alt2_Checkbox = n518;
-var dark_purple_alt2_RadioGroupItem = n518;
-var dark_purple_alt2_Input = n518;
-var dark_purple_alt2_TextArea = n518;
-var n519 = t([[12, 181], [13, 183], [14, 80], [15, 184], [16, 180], [17, 179], [18, 185], [19, 184], [20, 185], [21, 184], [22, 184], [23, 184], [24, 185], [25, 80], [26, 184], [27, 180]]);
-var dark_purple_alt2_Switch = n519;
-var dark_purple_alt2_TooltipContent = n519;
-var dark_purple_alt2_SliderTrack = n519;
-var n520 = t([[12, 186], [13, 185], [14, 184], [15, 80], [16, 0], [17, 0], [18, 178], [19, 179], [20, 178], [21, 179], [22, 176], [23, 80], [24, 183], [25, 184], [26, 80], [27, 179]]);
-var dark_purple_alt2_SwitchThumb = n520;
-var n521 = t([[12, 183], [13, 181], [14, 180], [15, 179], [16, 80], [17, 184], [18, 178], [19, 179], [20, 178], [21, 179], [22, 179], [23, 179], [24, 178], [25, 180], [26, 179], [27, 80]]);
-var dark_purple_alt2_SliderTrackActive = n521;
-var n522 = t([[12, 184], [13, 80], [14, 183], [15, 181], [16, 185], [17, 186], [18, 178], [19, 179], [20, 178], [21, 179], [22, 177], [23, 181], [24, 180], [25, 183], [26, 181], [27, 181]]);
-var dark_purple_alt2_SliderThumb = n522;
-var dark_purple_alt2_Tooltip = n522;
-var dark_purple_alt2_ProgressIndicator = n522;
-var n523 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [19, 80], [20, 184], [21, 80], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_active_ListItem = n523;
-var n524 = t([[12, 181], [13, 183], [14, 80], [15, 184], [16, 180], [17, 179], [19, 80], [20, 184], [21, 80], [22, 184], [23, 184], [24, 185], [25, 80], [26, 184], [27, 180]]);
-var dark_purple_active_Card = n524;
-var dark_purple_active_DrawerFrame = n524;
-var dark_purple_active_Progress = n524;
-var dark_purple_active_TooltipArrow = n524;
-var n525 = t([[12, 183], [13, 80], [14, 184], [15, 185], [16, 181], [17, 180], [19, 80], [20, 184], [21, 80], [22, 80], [23, 241], [24, 241], [25, 184], [26, 185], [27, 179]]);
-var dark_purple_active_Button = n525;
-var n526 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [19, 80], [20, 184], [21, 80], [22, 185], [23, 185], [24, 186], [25, 184], [26, 185], [27, 181]]);
-var dark_purple_active_Checkbox = n526;
-var dark_purple_active_RadioGroupItem = n526;
-var dark_purple_active_Input = n526;
-var dark_purple_active_TextArea = n526;
-var n527 = t([[12, 183], [13, 80], [14, 184], [15, 185], [16, 181], [17, 180], [19, 80], [20, 184], [21, 80], [22, 80], [23, 185], [24, 186], [25, 184], [26, 185], [27, 179]]);
-var dark_purple_active_Switch = n527;
-var dark_purple_active_TooltipContent = n527;
-var dark_purple_active_SliderTrack = n527;
-var n528 = t([[12, 185], [13, 184], [14, 80], [15, 183], [16, 186], [17, 0], [19, 180], [20, 179], [21, 180], [22, 176], [23, 183], [24, 181], [25, 80], [26, 183], [27, 180]]);
-var dark_purple_active_SwitchThumb = n528;
-var n529 = t([[12, 181], [13, 180], [14, 179], [15, 178], [16, 183], [17, 80], [19, 180], [20, 179], [21, 180], [22, 180], [23, 178], [24, 177], [25, 179], [26, 178], [27, 184]]);
-var dark_purple_active_SliderTrackActive = n529;
-var n530 = t([[12, 80], [13, 183], [14, 181], [15, 180], [16, 184], [17, 185], [19, 180], [20, 179], [21, 180], [22, 178], [23, 180], [24, 179], [25, 181], [26, 180], [27, 183]]);
-var dark_purple_active_SliderThumb = n530;
-var dark_purple_active_Tooltip = n530;
-var dark_purple_active_ProgressIndicator = n530;
-var n531 = t([[12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 175], [19, 174], [20, 175], [21, 174], [22, 0], [23, 170], [24, 172], [25, 169], [26, 170], [27, 68]]);
-var dark_pink_alt1_ListItem = n531;
-var n532 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 175], [19, 174], [20, 175], [21, 174], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_alt1_Card = n532;
-var dark_pink_alt1_DrawerFrame = n532;
-var dark_pink_alt1_Progress = n532;
-var dark_pink_alt1_TooltipArrow = n532;
-var n533 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [18, 175], [19, 174], [20, 175], [21, 174], [22, 174], [23, 241], [24, 241], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_alt1_Button = n533;
-var n534 = t([[12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 175], [19, 174], [20, 175], [21, 174], [22, 0], [23, 68], [24, 173], [25, 172], [26, 68], [27, 68]]);
-var dark_pink_alt1_Checkbox = n534;
-var dark_pink_alt1_RadioGroupItem = n534;
-var dark_pink_alt1_Input = n534;
-var dark_pink_alt1_TextArea = n534;
-var n535 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [18, 175], [19, 174], [20, 175], [21, 174], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_alt1_Switch = n535;
-var dark_pink_alt1_TooltipContent = n535;
-var dark_pink_alt1_SliderTrack = n535;
-var n536 = t([[12, 0], [13, 175], [14, 174], [15, 173], [16, 0], [17, 0], [18, 166], [19, 167], [20, 166], [21, 167], [22, 165], [23, 173], [24, 68], [25, 174], [26, 173], [27, 167]]);
-var dark_pink_alt1_SwitchThumb = n536;
-var n537 = t([[12, 68], [13, 172], [14, 170], [15, 169], [16, 173], [17, 174], [18, 166], [19, 167], [20, 166], [21, 167], [22, 167], [23, 169], [24, 168], [25, 170], [26, 169], [27, 172]]);
-var dark_pink_alt1_SliderTrackActive = n537;
-var n538 = t([[12, 174], [13, 173], [14, 68], [15, 172], [16, 175], [17, 0], [18, 166], [19, 167], [20, 166], [21, 167], [22, 165], [23, 172], [24, 170], [25, 68], [26, 172], [27, 169]]);
-var dark_pink_alt1_SliderThumb = n538;
-var dark_pink_alt1_Tooltip = n538;
-var dark_pink_alt1_ProgressIndicator = n538;
-var n539 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 174], [19, 173], [20, 174], [21, 173], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_alt2_ListItem = n539;
-var n540 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [18, 174], [19, 173], [20, 174], [21, 173], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_alt2_Card = n540;
-var dark_pink_alt2_DrawerFrame = n540;
-var dark_pink_alt2_Progress = n540;
-var dark_pink_alt2_TooltipArrow = n540;
-var n541 = t([[12, 170], [13, 172], [14, 68], [15, 173], [16, 169], [17, 168], [18, 174], [19, 173], [20, 174], [21, 173], [22, 173], [23, 241], [24, 241], [25, 68], [26, 173], [27, 169]]);
-var dark_pink_alt2_Button = n541;
-var n542 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 174], [19, 173], [20, 174], [21, 173], [22, 175], [23, 173], [24, 174], [25, 68], [26, 173], [27, 172]]);
-var dark_pink_alt2_Checkbox = n542;
-var dark_pink_alt2_RadioGroupItem = n542;
-var dark_pink_alt2_Input = n542;
-var dark_pink_alt2_TextArea = n542;
-var n543 = t([[12, 170], [13, 172], [14, 68], [15, 173], [16, 169], [17, 168], [18, 174], [19, 173], [20, 174], [21, 173], [22, 173], [23, 173], [24, 174], [25, 68], [26, 173], [27, 169]]);
-var dark_pink_alt2_Switch = n543;
-var dark_pink_alt2_TooltipContent = n543;
-var dark_pink_alt2_SliderTrack = n543;
-var n544 = t([[12, 175], [13, 174], [14, 173], [15, 68], [16, 0], [17, 0], [18, 167], [19, 168], [20, 167], [21, 168], [22, 165], [23, 68], [24, 172], [25, 173], [26, 68], [27, 168]]);
-var dark_pink_alt2_SwitchThumb = n544;
-var n545 = t([[12, 172], [13, 170], [14, 169], [15, 168], [16, 68], [17, 173], [18, 167], [19, 168], [20, 167], [21, 168], [22, 168], [23, 168], [24, 167], [25, 169], [26, 168], [27, 68]]);
-var dark_pink_alt2_SliderTrackActive = n545;
-var n546 = t([[12, 173], [13, 68], [14, 172], [15, 170], [16, 174], [17, 175], [18, 167], [19, 168], [20, 167], [21, 168], [22, 166], [23, 170], [24, 169], [25, 172], [26, 170], [27, 170]]);
-var dark_pink_alt2_SliderThumb = n546;
-var dark_pink_alt2_Tooltip = n546;
-var dark_pink_alt2_ProgressIndicator = n546;
-var n547 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [19, 68], [20, 173], [21, 68], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_active_ListItem = n547;
-var n548 = t([[12, 170], [13, 172], [14, 68], [15, 173], [16, 169], [17, 168], [19, 68], [20, 173], [21, 68], [22, 173], [23, 173], [24, 174], [25, 68], [26, 173], [27, 169]]);
-var dark_pink_active_Card = n548;
-var dark_pink_active_DrawerFrame = n548;
-var dark_pink_active_Progress = n548;
-var dark_pink_active_TooltipArrow = n548;
-var n549 = t([[12, 172], [13, 68], [14, 173], [15, 174], [16, 170], [17, 169], [19, 68], [20, 173], [21, 68], [22, 68], [23, 241], [24, 241], [25, 173], [26, 174], [27, 168]]);
-var dark_pink_active_Button = n549;
-var n550 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [19, 68], [20, 173], [21, 68], [22, 174], [23, 174], [24, 175], [25, 173], [26, 174], [27, 170]]);
-var dark_pink_active_Checkbox = n550;
-var dark_pink_active_RadioGroupItem = n550;
-var dark_pink_active_Input = n550;
-var dark_pink_active_TextArea = n550;
-var n551 = t([[12, 172], [13, 68], [14, 173], [15, 174], [16, 170], [17, 169], [19, 68], [20, 173], [21, 68], [22, 68], [23, 174], [24, 175], [25, 173], [26, 174], [27, 168]]);
-var dark_pink_active_Switch = n551;
-var dark_pink_active_TooltipContent = n551;
-var dark_pink_active_SliderTrack = n551;
-var n552 = t([[12, 174], [13, 173], [14, 68], [15, 172], [16, 175], [17, 0], [19, 169], [20, 168], [21, 169], [22, 165], [23, 172], [24, 170], [25, 68], [26, 172], [27, 169]]);
-var dark_pink_active_SwitchThumb = n552;
-var n553 = t([[12, 170], [13, 169], [14, 168], [15, 167], [16, 172], [17, 68], [19, 169], [20, 168], [21, 169], [22, 169], [23, 167], [24, 166], [25, 168], [26, 167], [27, 173]]);
-var dark_pink_active_SliderTrackActive = n553;
-var n554 = t([[12, 68], [13, 172], [14, 170], [15, 169], [16, 173], [17, 174], [19, 169], [20, 168], [21, 169], [22, 167], [23, 169], [24, 168], [25, 170], [26, 169], [27, 172]]);
-var dark_pink_active_SliderThumb = n554;
-var dark_pink_active_Tooltip = n554;
-var dark_pink_active_ProgressIndicator = n554;
-var n555 = t([[12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 197], [19, 196], [20, 197], [21, 196], [22, 0], [23, 192], [24, 194], [25, 191], [26, 192], [27, 92]]);
-var dark_red_alt1_ListItem = n555;
-var n556 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 197], [19, 196], [20, 197], [21, 196], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_alt1_Card = n556;
-var dark_red_alt1_DrawerFrame = n556;
-var dark_red_alt1_Progress = n556;
-var dark_red_alt1_TooltipArrow = n556;
-var n557 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [18, 197], [19, 196], [20, 197], [21, 196], [22, 196], [23, 241], [24, 241], [25, 194], [26, 92], [27, 192]]);
-var dark_red_alt1_Button = n557;
-var n558 = t([[12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 197], [19, 196], [20, 197], [21, 196], [22, 0], [23, 92], [24, 195], [25, 194], [26, 92], [27, 92]]);
-var dark_red_alt1_Checkbox = n558;
-var dark_red_alt1_RadioGroupItem = n558;
-var dark_red_alt1_Input = n558;
-var dark_red_alt1_TextArea = n558;
-var n559 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [18, 197], [19, 196], [20, 197], [21, 196], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_alt1_Switch = n559;
-var dark_red_alt1_TooltipContent = n559;
-var dark_red_alt1_SliderTrack = n559;
-var n560 = t([[12, 0], [13, 197], [14, 196], [15, 195], [16, 0], [17, 0], [18, 188], [19, 189], [20, 188], [21, 189], [22, 187], [23, 195], [24, 92], [25, 196], [26, 195], [27, 189]]);
-var dark_red_alt1_SwitchThumb = n560;
-var n561 = t([[12, 92], [13, 194], [14, 192], [15, 191], [16, 195], [17, 196], [18, 188], [19, 189], [20, 188], [21, 189], [22, 189], [23, 191], [24, 190], [25, 192], [26, 191], [27, 194]]);
-var dark_red_alt1_SliderTrackActive = n561;
-var n562 = t([[12, 196], [13, 195], [14, 92], [15, 194], [16, 197], [17, 0], [18, 188], [19, 189], [20, 188], [21, 189], [22, 187], [23, 194], [24, 192], [25, 92], [26, 194], [27, 191]]);
-var dark_red_alt1_SliderThumb = n562;
-var dark_red_alt1_Tooltip = n562;
-var dark_red_alt1_ProgressIndicator = n562;
-var n563 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 196], [19, 195], [20, 196], [21, 195], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_alt2_ListItem = n563;
-var n564 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [18, 196], [19, 195], [20, 196], [21, 195], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_alt2_Card = n564;
-var dark_red_alt2_DrawerFrame = n564;
-var dark_red_alt2_Progress = n564;
-var dark_red_alt2_TooltipArrow = n564;
-var n565 = t([[12, 192], [13, 194], [14, 92], [15, 195], [16, 191], [17, 190], [18, 196], [19, 195], [20, 196], [21, 195], [22, 195], [23, 241], [24, 241], [25, 92], [26, 195], [27, 191]]);
-var dark_red_alt2_Button = n565;
-var n566 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 196], [19, 195], [20, 196], [21, 195], [22, 197], [23, 195], [24, 196], [25, 92], [26, 195], [27, 194]]);
-var dark_red_alt2_Checkbox = n566;
-var dark_red_alt2_RadioGroupItem = n566;
-var dark_red_alt2_Input = n566;
-var dark_red_alt2_TextArea = n566;
-var n567 = t([[12, 192], [13, 194], [14, 92], [15, 195], [16, 191], [17, 190], [18, 196], [19, 195], [20, 196], [21, 195], [22, 195], [23, 195], [24, 196], [25, 92], [26, 195], [27, 191]]);
-var dark_red_alt2_Switch = n567;
-var dark_red_alt2_TooltipContent = n567;
-var dark_red_alt2_SliderTrack = n567;
-var n568 = t([[12, 197], [13, 196], [14, 195], [15, 92], [16, 0], [17, 0], [18, 189], [19, 190], [20, 189], [21, 190], [22, 187], [23, 92], [24, 194], [25, 195], [26, 92], [27, 190]]);
-var dark_red_alt2_SwitchThumb = n568;
-var n569 = t([[12, 194], [13, 192], [14, 191], [15, 190], [16, 92], [17, 195], [18, 189], [19, 190], [20, 189], [21, 190], [22, 190], [23, 190], [24, 189], [25, 191], [26, 190], [27, 92]]);
-var dark_red_alt2_SliderTrackActive = n569;
-var n570 = t([[12, 195], [13, 92], [14, 194], [15, 192], [16, 196], [17, 197], [18, 189], [19, 190], [20, 189], [21, 190], [22, 188], [23, 192], [24, 191], [25, 194], [26, 192], [27, 192]]);
-var dark_red_alt2_SliderThumb = n570;
-var dark_red_alt2_Tooltip = n570;
-var dark_red_alt2_ProgressIndicator = n570;
-var n571 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [19, 92], [20, 195], [21, 92], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_active_ListItem = n571;
-var n572 = t([[12, 192], [13, 194], [14, 92], [15, 195], [16, 191], [17, 190], [19, 92], [20, 195], [21, 92], [22, 195], [23, 195], [24, 196], [25, 92], [26, 195], [27, 191]]);
-var dark_red_active_Card = n572;
-var dark_red_active_DrawerFrame = n572;
-var dark_red_active_Progress = n572;
-var dark_red_active_TooltipArrow = n572;
-var n573 = t([[12, 194], [13, 92], [14, 195], [15, 196], [16, 192], [17, 191], [19, 92], [20, 195], [21, 92], [22, 92], [23, 241], [24, 241], [25, 195], [26, 196], [27, 190]]);
-var dark_red_active_Button = n573;
-var n574 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [19, 92], [20, 195], [21, 92], [22, 196], [23, 196], [24, 197], [25, 195], [26, 196], [27, 192]]);
-var dark_red_active_Checkbox = n574;
-var dark_red_active_RadioGroupItem = n574;
-var dark_red_active_Input = n574;
-var dark_red_active_TextArea = n574;
-var n575 = t([[12, 194], [13, 92], [14, 195], [15, 196], [16, 192], [17, 191], [19, 92], [20, 195], [21, 92], [22, 92], [23, 196], [24, 197], [25, 195], [26, 196], [27, 190]]);
-var dark_red_active_Switch = n575;
-var dark_red_active_TooltipContent = n575;
-var dark_red_active_SliderTrack = n575;
-var n576 = t([[12, 196], [13, 195], [14, 92], [15, 194], [16, 197], [17, 0], [19, 191], [20, 190], [21, 191], [22, 187], [23, 194], [24, 192], [25, 92], [26, 194], [27, 191]]);
-var dark_red_active_SwitchThumb = n576;
-var n577 = t([[12, 192], [13, 191], [14, 190], [15, 189], [16, 194], [17, 92], [19, 191], [20, 190], [21, 191], [22, 191], [23, 189], [24, 188], [25, 190], [26, 189], [27, 195]]);
-var dark_red_active_SliderTrackActive = n577;
-var n578 = t([[12, 92], [13, 194], [14, 192], [15, 191], [16, 195], [17, 196], [19, 191], [20, 190], [21, 191], [22, 189], [23, 191], [24, 190], [25, 192], [26, 191], [27, 194]]);
-var dark_red_active_SliderThumb = n578;
-var dark_red_active_Tooltip = n578;
-var dark_red_active_ProgressIndicator = n578;
-
-// node_modules/@tamagui/colors/dist/esm/dark/blue.mjs
-var blue = {
-  blue1: "hsl(212, 35.0%, 9.2%)",
-  blue2: "hsl(216, 50.0%, 11.8%)",
-  blue3: "hsl(214, 59.4%, 15.3%)",
-  blue4: "hsl(214, 65.8%, 17.9%)",
-  blue5: "hsl(213, 71.2%, 20.2%)",
-  blue6: "hsl(212, 77.4%, 23.1%)",
-  blue7: "hsl(211, 85.1%, 27.4%)",
-  blue8: "hsl(211, 89.7%, 34.1%)",
-  blue9: "hsl(206, 100%, 50.0%)",
-  blue10: "hsl(209, 100%, 60.6%)",
-  blue11: "hsl(210, 100%, 66.1%)",
-  blue12: "hsl(206, 98.0%, 95.8%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/gray.mjs
-var gray = {
-  gray1: "hsl(0, 0%, 8.5%)",
-  gray2: "hsl(0, 0%, 11.0%)",
-  gray3: "hsl(0, 0%, 13.6%)",
-  gray4: "hsl(0, 0%, 15.8%)",
-  gray5: "hsl(0, 0%, 17.9%)",
-  gray6: "hsl(0, 0%, 20.5%)",
-  gray7: "hsl(0, 0%, 24.3%)",
-  gray8: "hsl(0, 0%, 31.2%)",
-  gray9: "hsl(0, 0%, 43.9%)",
-  gray10: "hsl(0, 0%, 49.4%)",
-  gray11: "hsl(0, 0%, 62.8%)",
-  gray12: "hsl(0, 0%, 93.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/green.mjs
-var green = {
-  green1: "hsl(146, 30.0%, 7.4%)",
-  green2: "hsl(155, 44.2%, 8.4%)",
-  green3: "hsl(155, 46.7%, 10.9%)",
-  green4: "hsl(154, 48.4%, 12.9%)",
-  green5: "hsl(154, 49.7%, 14.9%)",
-  green6: "hsl(154, 50.9%, 17.6%)",
-  green7: "hsl(153, 51.8%, 21.8%)",
-  green8: "hsl(151, 51.7%, 28.4%)",
-  green9: "hsl(151, 55.0%, 41.5%)",
-  green10: "hsl(151, 49.3%, 46.5%)",
-  green11: "hsl(151, 50.0%, 53.2%)",
-  green12: "hsl(137, 72.0%, 94.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/orange.mjs
-var orange = {
-  orange1: "hsl(30, 70.0%, 7.2%)",
-  orange2: "hsl(28, 100%, 8.4%)",
-  orange3: "hsl(26, 91.1%, 11.6%)",
-  orange4: "hsl(25, 88.3%, 14.1%)",
-  orange5: "hsl(24, 87.6%, 16.6%)",
-  orange6: "hsl(24, 88.6%, 19.8%)",
-  orange7: "hsl(24, 92.4%, 24.0%)",
-  orange8: "hsl(25, 100%, 29.0%)",
-  orange9: "hsl(24, 94.0%, 50.0%)",
-  orange10: "hsl(24, 100%, 58.5%)",
-  orange11: "hsl(24, 100%, 62.2%)",
-  orange12: "hsl(24, 97.0%, 93.2%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/pink.mjs
-var pink = {
-  pink1: "hsl(318, 25.0%, 9.6%)",
-  pink2: "hsl(319, 32.2%, 11.6%)",
-  pink3: "hsl(319, 41.0%, 16.0%)",
-  pink4: "hsl(320, 45.4%, 18.7%)",
-  pink5: "hsl(320, 49.0%, 21.1%)",
-  pink6: "hsl(321, 53.6%, 24.4%)",
-  pink7: "hsl(321, 61.1%, 29.7%)",
-  pink8: "hsl(322, 74.9%, 37.5%)",
-  pink9: "hsl(322, 65.0%, 54.5%)",
-  pink10: "hsl(323, 72.8%, 59.2%)",
-  pink11: "hsl(325, 90.0%, 66.4%)",
-  pink12: "hsl(322, 90.0%, 95.8%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/purple.mjs
-var purple = {
-  purple1: "hsl(284, 20.0%, 9.6%)",
-  purple2: "hsl(283, 30.0%, 11.8%)",
-  purple3: "hsl(281, 37.5%, 16.5%)",
-  purple4: "hsl(280, 41.2%, 20.0%)",
-  purple5: "hsl(279, 43.8%, 23.3%)",
-  purple6: "hsl(277, 46.4%, 27.5%)",
-  purple7: "hsl(275, 49.3%, 34.6%)",
-  purple8: "hsl(272, 52.1%, 45.9%)",
-  purple9: "hsl(272, 51.0%, 54.0%)",
-  purple10: "hsl(273, 57.3%, 59.1%)",
-  purple11: "hsl(275, 80.0%, 71.0%)",
-  purple12: "hsl(279, 75.0%, 95.7%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/red.mjs
-var red = {
-  red1: "hsl(353, 23.0%, 9.8%)",
-  red2: "hsl(357, 34.4%, 12.0%)",
-  red3: "hsl(356, 43.4%, 16.4%)",
-  red4: "hsl(356, 47.6%, 19.2%)",
-  red5: "hsl(356, 51.1%, 21.9%)",
-  red6: "hsl(356, 55.2%, 25.9%)",
-  red7: "hsl(357, 60.2%, 31.8%)",
-  red8: "hsl(358, 65.0%, 40.4%)",
-  red9: "hsl(358, 75.0%, 59.0%)",
-  red10: "hsl(358, 85.3%, 64.0%)",
-  red11: "hsl(358, 100%, 69.5%)",
-  red12: "hsl(351, 89.0%, 96.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/dark/yellow.mjs
-var yellow = {
-  yellow1: "hsl(45, 100%, 5.5%)",
-  yellow2: "hsl(46, 100%, 6.7%)",
-  yellow3: "hsl(45, 100%, 8.7%)",
-  yellow4: "hsl(45, 100%, 10.4%)",
-  yellow5: "hsl(47, 100%, 12.1%)",
-  yellow6: "hsl(49, 100%, 14.3%)",
-  yellow7: "hsl(49, 90.3%, 18.4%)",
-  yellow8: "hsl(50, 100%, 22.0%)",
-  yellow9: "hsl(53, 92.0%, 50.0%)",
-  yellow10: "hsl(54, 100%, 68.0%)",
-  yellow11: "hsl(48, 100%, 47.0%)",
-  yellow12: "hsl(53, 100%, 91.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/blue.mjs
-var blue2 = {
-  blue1: "hsl(206, 100%, 99.2%)",
-  blue2: "hsl(210, 100%, 98.0%)",
-  blue3: "hsl(209, 100%, 96.5%)",
-  blue4: "hsl(210, 98.8%, 94.0%)",
-  blue5: "hsl(209, 95.0%, 90.1%)",
-  blue6: "hsl(209, 81.2%, 84.5%)",
-  blue7: "hsl(208, 77.5%, 76.9%)",
-  blue8: "hsl(206, 81.9%, 65.3%)",
-  blue9: "hsl(206, 100%, 50.0%)",
-  blue10: "hsl(208, 100%, 47.3%)",
-  blue11: "hsl(211, 100%, 43.2%)",
-  blue12: "hsl(211, 100%, 15.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/gray.mjs
-var gray2 = {
-  gray1: "hsl(0, 0%, 99.0%)",
-  gray2: "hsl(0, 0%, 97.3%)",
-  gray3: "hsl(0, 0%, 95.1%)",
-  gray4: "hsl(0, 0%, 93.0%)",
-  gray5: "hsl(0, 0%, 90.9%)",
-  gray6: "hsl(0, 0%, 88.7%)",
-  gray7: "hsl(0, 0%, 85.8%)",
-  gray8: "hsl(0, 0%, 78.0%)",
-  gray9: "hsl(0, 0%, 56.1%)",
-  gray10: "hsl(0, 0%, 52.3%)",
-  gray11: "hsl(0, 0%, 43.5%)",
-  gray12: "hsl(0, 0%, 9.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/green.mjs
-var green2 = {
-  green1: "hsl(136, 50.0%, 98.9%)",
-  green2: "hsl(138, 62.5%, 96.9%)",
-  green3: "hsl(139, 55.2%, 94.5%)",
-  green4: "hsl(140, 48.7%, 91.0%)",
-  green5: "hsl(141, 43.7%, 86.0%)",
-  green6: "hsl(143, 40.3%, 79.0%)",
-  green7: "hsl(146, 38.5%, 69.0%)",
-  green8: "hsl(151, 40.2%, 54.1%)",
-  green9: "hsl(151, 55.0%, 41.5%)",
-  green10: "hsl(152, 57.5%, 37.6%)",
-  green11: "hsl(153, 67.0%, 28.5%)",
-  green12: "hsl(155, 40.0%, 14.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/orange.mjs
-var orange2 = {
-  orange1: "hsl(24, 70.0%, 99.0%)",
-  orange2: "hsl(24, 83.3%, 97.6%)",
-  orange3: "hsl(24, 100%, 95.3%)",
-  orange4: "hsl(25, 100%, 92.2%)",
-  orange5: "hsl(25, 100%, 88.2%)",
-  orange6: "hsl(25, 100%, 82.8%)",
-  orange7: "hsl(24, 100%, 75.3%)",
-  orange8: "hsl(24, 94.5%, 64.3%)",
-  orange9: "hsl(24, 94.0%, 50.0%)",
-  orange10: "hsl(24, 100%, 46.5%)",
-  orange11: "hsl(24, 100%, 37.0%)",
-  orange12: "hsl(15, 60.0%, 17.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/pink.mjs
-var pink2 = {
-  pink1: "hsl(322, 100%, 99.4%)",
-  pink2: "hsl(323, 100%, 98.4%)",
-  pink3: "hsl(323, 86.3%, 96.5%)",
-  pink4: "hsl(323, 78.7%, 94.2%)",
-  pink5: "hsl(323, 72.2%, 91.1%)",
-  pink6: "hsl(323, 66.3%, 86.6%)",
-  pink7: "hsl(323, 62.0%, 80.1%)",
-  pink8: "hsl(323, 60.3%, 72.4%)",
-  pink9: "hsl(322, 65.0%, 54.5%)",
-  pink10: "hsl(322, 63.9%, 50.7%)",
-  pink11: "hsl(322, 75.0%, 46.0%)",
-  pink12: "hsl(320, 70.0%, 13.5%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/purple.mjs
-var purple2 = {
-  purple1: "hsl(280, 65.0%, 99.4%)",
-  purple2: "hsl(276, 100%, 99.0%)",
-  purple3: "hsl(276, 83.1%, 97.0%)",
-  purple4: "hsl(275, 76.4%, 94.7%)",
-  purple5: "hsl(275, 70.8%, 91.8%)",
-  purple6: "hsl(274, 65.4%, 87.8%)",
-  purple7: "hsl(273, 61.0%, 81.7%)",
-  purple8: "hsl(272, 60.0%, 73.5%)",
-  purple9: "hsl(272, 51.0%, 54.0%)",
-  purple10: "hsl(272, 46.8%, 50.3%)",
-  purple11: "hsl(272, 50.0%, 45.8%)",
-  purple12: "hsl(272, 66.0%, 16.0%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/red.mjs
-var red2 = {
-  red1: "hsl(359, 100%, 99.4%)",
-  red2: "hsl(359, 100%, 98.6%)",
-  red3: "hsl(360, 100%, 96.8%)",
-  red4: "hsl(360, 97.9%, 94.8%)",
-  red5: "hsl(360, 90.2%, 91.9%)",
-  red6: "hsl(360, 81.7%, 87.8%)",
-  red7: "hsl(359, 74.2%, 81.7%)",
-  red8: "hsl(359, 69.5%, 74.3%)",
-  red9: "hsl(358, 75.0%, 59.0%)",
-  red10: "hsl(358, 69.4%, 55.2%)",
-  red11: "hsl(358, 65.0%, 48.7%)",
-  red12: "hsl(354, 50.0%, 14.6%)"
-};
-
-// node_modules/@tamagui/colors/dist/esm/light/yellow.mjs
-var yellow2 = {
-  yellow1: "hsl(60, 54.0%, 98.5%)",
-  yellow2: "hsl(52, 100%, 95.5%)",
-  yellow3: "hsl(55, 100%, 90.9%)",
-  yellow4: "hsl(54, 100%, 86.6%)",
-  yellow5: "hsl(52, 97.9%, 82.0%)",
-  yellow6: "hsl(50, 89.4%, 76.1%)",
-  yellow7: "hsl(47, 80.4%, 68.0%)",
-  yellow8: "hsl(48, 100%, 46.1%)",
-  yellow9: "hsl(53, 92.0%, 50.0%)",
-  yellow10: "hsl(50, 100%, 48.5%)",
-  yellow11: "hsl(42, 100%, 29.0%)",
-  yellow12: "hsl(40, 55.0%, 13.5%)"
-};
-
-// node_modules/@tamagui/themes/dist/esm/tokens.mjs
-var import_web21 = require("@tamagui/core");
-var size4 = {
-  $0: 0,
-  "$0.25": 2,
-  "$0.5": 4,
-  "$0.75": 8,
-  $1: 20,
-  "$1.5": 24,
-  $2: 28,
-  "$2.5": 32,
-  $3: 36,
-  "$3.5": 40,
-  $4: 44,
-  $true: 44,
-  "$4.5": 48,
-  $5: 52,
-  $6: 64,
-  $7: 74,
-  $8: 84,
-  $9: 94,
-  $10: 104,
-  $11: 124,
-  $12: 144,
-  $13: 164,
-  $14: 184,
-  $15: 204,
-  $16: 224,
-  $17: 224,
-  $18: 244,
-  $19: 264,
-  $20: 284
-};
-var spaces = Object.entries(size4).map(([k, v]) => [k, sizeToSpace(v)]);
-function sizeToSpace(v) {
-  return v === 0 ? 0 : v === 2 ? 0.5 : v === 4 ? 1 : v === 8 ? 1.5 : v <= 16 ? Math.round(v * 0.333) : Math.floor(v * 0.7 - 12);
-}
-__name(sizeToSpace, "sizeToSpace");
-var spacesNegative = spaces.slice(1).map(([k, v]) => [`-${k.slice(1)}`, -v]);
-var space = {
-  ...Object.fromEntries(spaces),
-  ...Object.fromEntries(spacesNegative)
-};
-var zIndex = {
-  0: 0,
-  1: 100,
-  2: 200,
-  3: 300,
-  4: 400,
-  5: 500
-};
-var colorTokens = {
-  light: {
-    blue: blue2,
-    gray: gray2,
-    green: green2,
-    orange: orange2,
-    pink: pink2,
-    purple: purple2,
-    red: red2,
-    yellow: yellow2
-  },
-  dark: {
-    blue,
-    gray,
-    green,
-    orange,
-    pink,
-    purple,
-    red,
-    yellow
-  }
-};
-var darkColors = {
-  ...colorTokens.dark.blue,
-  ...colorTokens.dark.gray,
-  ...colorTokens.dark.green,
-  ...colorTokens.dark.orange,
-  ...colorTokens.dark.pink,
-  ...colorTokens.dark.purple,
-  ...colorTokens.dark.red,
-  ...colorTokens.dark.yellow
-};
-var lightColors = {
-  ...colorTokens.light.blue,
-  ...colorTokens.light.gray,
-  ...colorTokens.light.green,
-  ...colorTokens.light.orange,
-  ...colorTokens.light.pink,
-  ...colorTokens.light.purple,
-  ...colorTokens.light.red,
-  ...colorTokens.light.yellow
-};
-var color = {
-  ...postfixObjKeys(lightColors, "Light"),
-  ...postfixObjKeys(darkColors, "Dark")
-};
-function postfixObjKeys(obj, postfix) {
-  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [`${k}${postfix}`, v]));
-}
-__name(postfixObjKeys, "postfixObjKeys");
-var radius = {
-  0: 0,
-  1: 3,
-  2: 5,
-  3: 7,
-  4: 9,
-  true: 9,
-  5: 10,
-  6: 16,
-  7: 19,
-  8: 22,
-  9: 26,
-  10: 34,
-  11: 42,
-  12: 50
-};
-var tokens = (0, import_web21.createTokens)({
-  color,
-  radius,
-  zIndex,
-  space,
-  size: size4
-});
+var import_core59 = require("@tamagui/core");
 
 // tamagui.config.ts
 var tamaguiConfig = createTamagui({
-  themes: generated_new_exports,
-  tokens,
+  //themes,
+  //tokens,
+  ...config,
   components: {
-    Dialog: true,
     Portal: true,
     // 👈 Essencial para o modal funcionar!
+    ...config.components || {}
+    /*  
+    Dialog: true,
     Sheet: true,
-    Button: true,
-    Text: true,
+    Button: false,
+    Text: false,
     Input: true,
     XStack: true,
     YStack: true,
-    Image: true,
-    View: true,
-    Stack: true,
+    Image: false,
+    View: false,
+    Stack: false,
     Adapt: true
+    */
   }
 });
 var tamagui_config_default = tamaguiConfig;

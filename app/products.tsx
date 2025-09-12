@@ -1825,6 +1825,7 @@ export default function Products({ navigation }: HomeScreenProps) {
               await saveCartArray(cart, cartToExclude)
               await Promise.all([clearStorage(), deleteToken()])
               setLoading(false)
+              router.dismissAll()
               router.replace('/')
             }}
             padding={10}
