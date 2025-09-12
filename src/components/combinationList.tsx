@@ -1,17 +1,28 @@
-import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native'
+import {
+  ActivityIndicator,
+  Platform,
+  SectionList,
+  StyleSheet
+} from 'react-native'
 import CustomSubtitle from './subtitle/customSubtitle'
 import { useEffect, useMemo, useState } from 'react'
 import CustomListItem from './list/customListItem'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
-import { SupplierData } from '@/app/QuotationDetailsScreen'
-import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService'
+import { SupplierData } from '@/app/quotationDetailsScreen'
+import {
+  getAllQuotationByRestaurant,
+  QuotationApiResponse
+} from '../services/combinationsService'
 import { getStorage, getToken } from '@/src/utils/utils'
 import { View } from 'tamagui'
 import CustomAlert from './modais/CustomAlert'
 import { useSupplier } from '../contexts/fornecedores.context'
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData'
-import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes'
+import {
+  AvailableSupplier,
+  ChosenSupplierQuote
+} from '../types/suppliersDataTypes'
 import { useCombinacao } from '../contexts/combinacao.context'
 import { useRouter } from 'expo-router'
 
@@ -43,12 +54,17 @@ export type RootStackParamList = {
 }
 
 const CombinationList: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
   const [minecombinations, setMineCombinations] = useState<Combination[]>([])
-  const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([])
+  const [unavailableCombinations, setUnavailableCombinations] = useState<
+    Combination[]
+  >([])
   const [loading, setLoading] = useState<boolean>(false)
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
-  const [combinationData, setCombinationData] = useState<QuotationApiResponse[]>([])
+  const [combinationData, setCombinationData] = useState<
+    QuotationApiResponse[]
+  >([])
 
   const { suppliers, unavailableSupplier } = useSupplier()
   const { modificado } = useCombinacao()
@@ -64,20 +80,26 @@ const CombinationList: React.FC = () => {
         setLoading(true)
         const token = await getToken()
         const cartStoredValue = JSON.parse((await getStorage('cart')) || '[]')
-        const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]')
+        const restaurantStoredValue = JSON.parse(
+          (await getStorage('selectedRestaurant')) || '[]'
+        )
         const selectedRestaurant = { ...restaurantStoredValue.restaurant }
-        const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
-          token,
-          selectedRestaurant,
-          cart: cartStoredValue,
-          prices: allSuppliers
-        })
+        const combinationsData: QuotationApiResponse[] =
+          await getAllQuotationByRestaurant({
+            token,
+            selectedRestaurant,
+            cart: cartStoredValue,
+            prices: allSuppliers
+          })
 
         const totalItens = cartStoredValue?.length || 0
         setCombinationData(combinationsData)
 
         const transformed: Combination[] = combinationsData.map((item) => {
-          const suppliers = item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') || 'N/A'
+          const suppliers =
+            item.resultadoCotacao?.supplier
+              ?.map((c) => c.name.split('-')[0])
+              .join(' + ') || 'N/A'
           const cartItens =
             item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
               return acc + (cesta.cart?.length || 0)
@@ -93,8 +115,12 @@ const CombinationList: React.FC = () => {
           }
         })
 
-        const unavailableCombinationList = transformed.filter((item) => item.totalValue === 0)
-        const availableCombinationList = transformed.filter((item) => item.totalValue !== 0)
+        const unavailableCombinationList = transformed.filter(
+          (item) => item.totalValue === 0
+        )
+        const availableCombinationList = transformed.filter(
+          (item) => item.totalValue !== 0
+        )
 
         setUnavailableCombinations(unavailableCombinationList)
         setMineCombinations(availableCombinationList)
@@ -109,9 +135,14 @@ const CombinationList: React.FC = () => {
   }, [allSuppliers, modificado])
 
   const handleCombinationPress = async (item: Combination) => {
-    const selectedCombination = combinationData.filter((data) => data.id === item.id)
+    const selectedCombination = combinationData.filter(
+      (data) => data.id === item.id
+    )
     const combinationSelected = selectedCombination as ChosenSupplierQuote[]
-    const mergedData: any = mergeSupplierData(combinationSelected, suppliers as AvailableSupplier[])
+    const mergedData: any = mergeSupplierData(
+      combinationSelected,
+      suppliers as AvailableSupplier[]
+    )
 
     const params = {
       combinationId: item.id,
@@ -130,7 +161,8 @@ const CombinationList: React.FC = () => {
   const sections = [
     { title: 'Minhas combinações', data: minecombinations },
     {
-      title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
+      title:
+        unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
       data: unavailableCombinations
     }
   ]
@@ -145,12 +177,32 @@ const CombinationList: React.FC = () => {
 
   return (
     <>
-      <CustomAlert visible={isAlertVisible} title="Ops!" message="Erro ao obter cotações por restaurante, tente novamente mais tarde." onConfirm={() => setIsAlertVisible(false)} width="35%" />
+      <CustomAlert
+        visible={isAlertVisible}
+        title="Ops!"
+        message="Erro ao obter cotações por restaurante, tente novamente mais tarde."
+        onConfirm={() => setIsAlertVisible(false)}
+        width="35%"
+      />
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <CustomListItem id={item.id} combination={item.combination} supplier={item.supplier} delivery={item.delivery} totalValue={item.totalValue} missingItems={item.missingItems} createdAt={item.createdAt} supplierClosed={item.supplierClosed} onPress={() => handleCombinationPress(item)} />}
-        renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>}
+        renderItem={({ item }) => (
+          <CustomListItem
+            id={item.id}
+            combination={item.combination}
+            supplier={item.supplier}
+            delivery={item.delivery}
+            totalValue={item.totalValue}
+            missingItems={item.missingItems}
+            createdAt={item.createdAt}
+            supplierClosed={item.supplierClosed}
+            onPress={() => handleCombinationPress(item)}
+          />
+        )}
+        renderSectionHeader={({ section: { title } }) => (
+          <CustomSubtitle>{title}</CustomSubtitle>
+        )}
         contentContainerStyle={styles.listContentContainer}
         style={[
           styles.container,
