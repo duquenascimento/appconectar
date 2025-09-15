@@ -56,16 +56,22 @@ export function useAuth() {
 
 export function isProtectedRoute(segments: string[]): boolean {
   const protectedRoutes = [
-    'products',
     'cart',
-    'prices',
+    'combination',
+    'confirm',
+    'finalConfirm',
+    'orderConfirmedScreen',
+    'orderDetailsScreen',
     'ordersScreen',
-    'orderDetailsScreen'
+    'preferencesScreen',
+    'prices',
+    'products',
+    'quotationDetailsScreen'
   ]
   return protectedRoutes.includes(segments[0])
 }
 
 export function isPublicRoute(segments: string[]): boolean {
-  const publicRoutes = ['', 'signup', 'forgot-password', 'reset-password']
+  const publicRoutes = ['', 'register', 'forgot-password', 'reset-password']
   return publicRoutes.includes(segments[0])
 }
