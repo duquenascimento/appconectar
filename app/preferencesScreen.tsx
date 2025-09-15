@@ -112,7 +112,7 @@ const PreferencesScreen: React.FC = () => {
     }, [loadCombinations])
   )
 
-  const handleBackPress = () => navigation.goBack()
+  const handleBackPress = () => router.push('prices')
 
   const handleCombinationPress = (id: string) => {
     const combinationResult = combinationsFull.filter((c) => c.id === id)
