@@ -18,7 +18,6 @@ export default function RootLayout() {
 
   const { isAuthenticated } = useAuth()
   const segments = useSegments()
-  const router = useRouter()
 
   useEffect(() => {
     const backAction = () => {

@@ -699,7 +699,7 @@ export default function Cart() {
 
   const MemoizedProductBox = React.memo(ProductBox)
 
-  if (loading) {
+  if (loading || displayedProducts.length === 0) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -727,7 +727,7 @@ export default function Cart() {
               setLoading(true)
               await saveCartArray(cart, cartToExclude)
               // navigation.replace('Products')
-              router.back()
+              router.push('/products')
             }}
             size={25}
             name="chevron-back"

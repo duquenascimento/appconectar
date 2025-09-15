@@ -1506,7 +1506,7 @@ export default function Products() {
     }
   }
 
-  if (loading) {
+  if (loading || !selectedRestaurant) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
