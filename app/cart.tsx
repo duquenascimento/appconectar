@@ -437,23 +437,6 @@ export default function Cart() {
   const router = useRouter()
 
   useEffect(() => {
-    const backAction = () => {
-      setLoading(true)
-      saveCartArray(cart, cartToExclude).then(() => {
-        router.back()
-      })
-      return true
-    }
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    )
-
-    return () => backHandler.remove()
-  }, [router, cart, cartToExclude])
-
-  useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
   }, [cart])
 

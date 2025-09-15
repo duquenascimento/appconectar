@@ -782,43 +782,11 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext()
   const router = useRouter()
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = await getToken()
-      if (!token) {
-        router.replace('/')
-        console.log('No token')
-      }
-    }
-    checkAuth()
-  }, [])
-
-  useEffect(() => {
-    const backAction = () => {
-      if (router.canGoBack()) {
-        router.back()
-      } else {
-        router.replace('/')
-      }
-      return true
-    }
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    )
-
-    return () => backHandler.remove()
-  }, [router])
-
   useFocusEffect(
     useCallback(() => {
-      // Resetar estados quando a tela recebe foco
       setLoading(false)
 
-      return () => {
-        // Cleanup quando a tela perde foco
-      }
+      return () => {}
     }, [])
   )
 
