@@ -98,7 +98,11 @@ export function DialogInstance(props: {
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
         >
-          <Dialog.Title>Agendamento Realizado!</Dialog.Title>
+          {props.erros.length > 0 ? (
+            <Dialog.Title>Algo inesperado aconteceu!</Dialog.Title>
+          ) : (
+            <Dialog.Title>Agendamento Realizado!</Dialog.Title>
+          )}
 
           {props.erros.map((erro) => {
             return <Text key={erro}>- {erro}</Text>
@@ -582,6 +586,7 @@ export default function Confirm() {
         setRegisterInvalid={setBooleanErros}
         erros={showErros}
       />
+
       <DialogInstanceNotification
         openModal={showNotification}
         setRegisterInvalid={setShowNotification}
@@ -1144,7 +1149,12 @@ export default function Confirm() {
           width={170}
           backgroundColor="#04BF7B"
         >
-          <Text fontSize={13} color="white" textAlign='center' style={{ fontSize: 12 }}>
+          <Text
+            fontSize={13}
+            color="white"
+            textAlign="center"
+            style={{ fontSize: 12 }}
+          >
             {isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}
           </Text>
         </Button>

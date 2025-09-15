@@ -489,8 +489,6 @@ export default function Cart() {
           if (result.ok) {
             if (newCart.size < 1) {
               deleteStorage('cart').then()
-
-              //navigation.replace('Products')
               router.push('products')
             }
           }
@@ -726,7 +724,6 @@ export default function Cart() {
             onPress={async () => {
               setLoading(true)
               await saveCartArray(cart, cartToExclude)
-              // navigation.replace('Products')
               router.push('/products')
             }}
             size={25}
@@ -790,7 +787,6 @@ export default function Cart() {
                 setLoading(true)
                 checkAlertItems(products)
                 saveCartArray(cart, cartToExclude).then(() => {
-                  //navigation.replace('Prices')
                   router.push('prices')
                 })
               }}
@@ -901,7 +897,6 @@ export default function Cart() {
                             }
                           )
                           deleteStorage('cart')
-                          //navigation.replace('Products')
                           router.push('products')
                         }}
                       >
