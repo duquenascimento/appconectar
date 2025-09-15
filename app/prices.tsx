@@ -829,7 +829,7 @@ export default function Prices() {
         {tab !== 'onlySupplier' && permissionConectarPlus && (
           <CustomButton
             title="Minhas combinações"
-            onPress={() => router.push('/PreferencesScreen')}
+            onPress={() => router.push('/preferencesScreen')}
           ></CustomButton>
         )}
         <View

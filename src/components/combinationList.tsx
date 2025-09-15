@@ -153,7 +153,7 @@ const CombinationList: React.FC = () => {
     }
 
     router.push({
-      pathname: '/QuotationDetailsScreen',
+      pathname: '/quotationDetailsScreen',
       params
     })
   }
