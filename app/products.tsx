@@ -15,6 +15,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
 import {
   ActivityIndicator,
+  BackHandler,
   FlatList,
   Modal,
   Platform,
@@ -22,7 +23,6 @@ import {
   VirtualizedList
 } from 'react-native'
 import React from 'react'
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { MotiView } from 'moti'
 import { Skeleton } from 'moti/skeleton'
@@ -54,7 +54,8 @@ import { filterCarts } from '../src/utils/filterCarts'
 import { UpdateAppModal } from '@/src/components/UpdateAppModal'
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
-import { useRouter } from 'expo-router'
+import { useFocusEffect, useRouter } from 'expo-router'
+import { useBackHandler } from '@/src/components/hooks/useBackHandler'
 
 export type Product = {
   name: string
@@ -76,10 +77,6 @@ export type Product = {
   secondUnit: number
   thirdUnit: number
   obs: string
-}
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
 }
 
 type RootStackParamList = {
@@ -759,7 +756,7 @@ interface Restaurant {
   registrationReleasedNewApp: boolean
 }
 
-export default function Products({ navigation }: HomeScreenProps) {
+export default function Products() {
   const [currentClass, setCurrentClass] = useState('Favoritos')
   const [productsList, setProductsList] = useState<Product[] | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
@@ -795,6 +792,44 @@ export default function Products({ navigation }: HomeScreenProps) {
     }
     checkAuth()
   }, [])
+
+  useEffect(() => {
+    const backAction = () => {
+      if (router.canGoBack()) {
+        router.back()
+      } else {
+        router.replace('/')
+      }
+      return true
+    }
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    )
+
+    return () => backHandler.remove()
+  }, [router])
+
+  useFocusEffect(
+    useCallback(() => {
+      // Resetar estados quando a tela recebe foco
+      setLoading(false)
+
+      return () => {
+        // Cleanup quando a tela perde foco
+      }
+    }, [])
+  )
+
+  useBackHandler(() => {
+    if (router.canGoBack()) {
+      router.back()
+    } else {
+      router.replace('/')
+    }
+    return true
+  })
 
   useEffect(() => {
     if (Platform.OS === 'web') return
@@ -1518,7 +1553,7 @@ export default function Products({ navigation }: HomeScreenProps) {
         setOpenModal={setShowRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
-        navigation={navigation}
+        // navigation={navigation}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
           const availableRestaurant = restaurantes.find(

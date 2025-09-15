@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 // import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   ActivityIndicator,
+  BackHandler,
   Modal,
   Platform,
   TouchableOpacity,
@@ -15,10 +16,11 @@ import {
   getToken,
   setStorage
 } from '../src/utils/utils'
-import { useRouter } from 'expo-router'
+import { useFocusEffect, useRouter } from 'expo-router'
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
 import { filterCarts } from '../src/utils/filterCarts'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
+import { useBackHandler } from '@/src/components/hooks/useBackHandler'
 
 type RootStackParamList = {
   Home: undefined
@@ -435,8 +437,40 @@ export default function Cart() {
   const router = useRouter()
 
   useEffect(() => {
+    const backAction = () => {
+      setLoading(true)
+      saveCartArray(cart, cartToExclude).then(() => {
+        router.back()
+      })
+      return true
+    }
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    )
+
+    return () => backHandler.remove()
+  }, [router, cart, cartToExclude])
+
+  useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
   }, [cart])
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(false)
+      return () => {}
+    }, [])
+  )
+
+  useBackHandler(() => {
+    setLoading(true)
+    saveCartArray(cart, cartToExclude).then(() => {
+      router.back()
+    })
+    return true
+  })
 
   const flatListRef = useRef<VirtualizedList<Product>>(null)
 
@@ -691,7 +725,12 @@ export default function Cart() {
   }
 
   return (
-    <Stack pt={Platform.OS === 'web' ? 20 : 15} backgroundColor="#F0F2F6" height="100%" position="relative">
+    <Stack
+      pt={Platform.OS === 'web' ? 20 : 15}
+      backgroundColor="#F0F2F6"
+      height="100%"
+      position="relative"
+    >
       <View height={50} flex={1} paddingTop={20}>
         <View
           height={50}
@@ -705,7 +744,7 @@ export default function Cart() {
               setLoading(true)
               await saveCartArray(cart, cartToExclude)
               // navigation.replace('Products')
-              router.push('products')
+              router.back()
             }}
             size={25}
             name="chevron-back"
