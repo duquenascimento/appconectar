@@ -118,9 +118,14 @@ const CombinationList: React.FC = () => {
         const unavailableCombinationList = transformed.filter(
           (item) => item.totalValue === 0
         )
-        const availableCombinationList = transformed.filter(
-          (item) => item.totalValue !== 0
-        )
+        const availableCombinationList = transformed
+          .filter((item) => item.totalValue !== 0)
+          .sort((a, b) => {
+            if (a.missingItems !== b.missingItems) {
+              return (a.missingItems ?? 0) - (b.missingItems ?? 0)
+            }
+            return (a.totalValue ?? 0) - (b.totalValue ?? 0)
+          })
 
         setUnavailableCombinations(unavailableCombinationList)
         setMineCombinations(availableCombinationList)
