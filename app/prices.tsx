@@ -421,17 +421,14 @@ export default function Prices() {
         }
 
         const currentRestaurant = validRestaurant
-
         if (!currentRestaurant) return
 
         setSelectedRestaurant(currentRestaurant)
-        if (currentRestaurant.premium) {
-          const hasPermissionConectarPlus = await loadPermissionConectarPlus(
-            currentRestaurant.externalId
-          )
-          setPermissionConectarPlus(hasPermissionConectarPlus.authorized)
-        }
-        setTab(currentRestaurant.premium ? 'plus' : 'onlySupplier')
+        if (currentRestaurant.conectarPlusAuthorization) {
+        const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId)
+        setPermissionConectarPlus(permissionResult.authorized)
+      }
+        setTab(currentRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier')
         setMinHour(
           currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(
             11,
