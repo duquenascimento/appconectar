@@ -259,6 +259,7 @@ export default function Prices() {
   const [restOpen, setRestOpen] = useState(false)
   const [showNotification, setShowNotification] = useState(false)
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
+  const [isConectarAlertVisible, setIsConectarAlertVisible] = useState(false)
   const [missingFields, setMissingFields] = useState<string[]>([])
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] =
@@ -302,6 +303,12 @@ export default function Prices() {
       fetchData()
     }
   })
+
+  useEffect(() => {
+    if (selectedRestaurant && selectedRestaurant.conectarPlusAuthorization === false) {
+      setIsConectarAlertVisible(true)
+    }
+  }, [selectedRestaurant])
 
   const handleConfirm = () => {
     setFinalCotacao(true)
@@ -2139,6 +2146,7 @@ export default function Prices() {
             </Modal>
           </View>
         )}
+        <CustomAlert visible={isConectarAlertVisible} title="Conéctar+ indisponível!" message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação." onConfirm={() => setIsConectarAlertVisible(false)} />
         <DialogComercialInstance
           openModal={showBlockedModal}
           setOpenModal={setShowBlockedModal}
