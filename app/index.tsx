@@ -26,7 +26,7 @@ import {
 //import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { deleteToken, getToken, setToken } from '../src/utils/utils'
+import { deleteToken, getStorage, getToken, setToken } from '../src/utils/utils'
 import { openURL } from 'expo-linking'
 import { VersionInfo } from '../src/utils/VersionApp'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -396,7 +396,8 @@ export default function Sign() {
       )
 
       if (response.ok) {
-        const role = await AsyncStorage.getItem('role')
+        const role = await getStorage('role')
+        console.log("role", role)
         if (role === 'registering') {
           // navigation.replace('Register')
           router.replace('/register')
