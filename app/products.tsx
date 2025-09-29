@@ -1854,6 +1854,7 @@ export default function Products() {
         cartSize={displayedCartSize}
         isScrolling={isScrolling}
         visibleProducts={displayedProducts}
+        selectedRestaurant={selectedRestaurant}
         onPress={async () => {
           setLoading(true)
           router.push('cart')
