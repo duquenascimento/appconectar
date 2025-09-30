@@ -3,13 +3,12 @@ import { createTamagui } from 'tamagui'
 import { themes, tokens } from '@tamagui/themes'
 
 const tamaguiConfig = createTamagui({
-  //themes,
-  //tokens,
-  ...config,
+  themes,
+  tokens,
   components: {
     Portal: true, // 👈 Essencial para o modal funcionar!
-    ...((config as any).components || {})
-    /*  
+    ...((config as any).components || {}),
+     
     Dialog: true,
     Sheet: true,
     Button: false,
@@ -21,7 +20,7 @@ const tamaguiConfig = createTamagui({
     View: false,
     Stack: false,
     Adapt: true
-    */
+    
   }
 })
 

@@ -37,7 +37,7 @@ export default function RootLayout() {
     (isAuthenticated === false && isProtectedRoute(segments))
   ) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
     )
