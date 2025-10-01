@@ -3,12 +3,12 @@ import { createTamagui } from 'tamagui'
 import { themes, tokens } from '@tamagui/themes'
 
 const tamaguiConfig = createTamagui({
+  ...config,
   themes,
   tokens,
   components: {
-    Portal: true, // 👈 Essencial para o modal funcionar!
+    Portal: true,
     ...((config as any).components || {}),
-     
     Dialog: true,
     Sheet: true,
     Button: false,
@@ -20,14 +20,11 @@ const tamaguiConfig = createTamagui({
     View: false,
     Stack: false,
     Adapt: true
-    
   }
 })
 
 export default tamaguiConfig
-
 export type Conf = typeof tamaguiConfig
-
 declare module 'tamagui' {
   interface TamaguiCustomConfig extends Conf {}
 }
