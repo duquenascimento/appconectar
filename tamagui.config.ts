@@ -1,55 +1,40 @@
-import { Platform } from 'react-native'
-import { config } from '@tamagui/config/v3'
+import { animations, config, fonts, media, mediaQueryDefaultActive, selectionStyles, shorthands, themes, tokens } from '@tamagui/config/v3'
 import { createTamagui } from 'tamagui'
-import { themes, tokens } from '@tamagui/themes'
 
-const tamaguiOptions =
-  Platform.OS === 'ios'
-    ? {
-        themes,
-        tokens,
-        components: {
-          Portal: true,
-          ...((config as any).components || {}),
-          Dialog: true,
-          Sheet: true,
-          Button: false,
-          Text: false,
-          Input: true,
-          XStack: true,
-          YStack: true,
-          Image: false,
-          View: false,
-          Stack: false,
-          Adapt: true
-        }
-      }
-    : {
-        ...config,
-        components: {
-          Portal: true,
-          ...((config as any).components || {})
-          /*
-          Dialog: true,
-          Sheet: true,
-          Button: false,
-          Text: false,
-          Input: true,
-          XStack: true,
-          YStack: true,
-          Image: false,
-          View: false,
-          Stack: false,
-          Adapt: true,
-          */
-        }
-      }
+// Objeto com as propriedades principais do objeto config e as alterações em components
+const tamaguiOptions = {
+  animations,
+  themes,
+  media,
+  shorthands,
+  tokens,
+  fonts,
+  selectionStyles,
+  settings: {
+    mediaQueryDefaultActive,
+  },
+  components: {
+    ...((config as any).components || {}),
+    Portal: true,
+    Dialog: true,
+    Sheet: true,
+    Button: false,
+    Text: false,
+    Input: true,
+    XStack: true,
+    YStack: true,
+    Image: false,
+    View: false,
+    Stack: false,
+    Adapt: true
+  }
+}
 
 const tamaguiConfig = createTamagui(tamaguiOptions)
 
-export default tamaguiConfig
 export type Conf = typeof tamaguiConfig
-
 declare module 'tamagui' {
   interface TamaguiCustomConfig extends Conf {}
 }
+
+export default tamaguiConfig
