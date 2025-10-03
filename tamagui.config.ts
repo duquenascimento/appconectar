@@ -1,20 +1,18 @@
-import { config, mediaQueryDefaultActive, selectionStyles } from '@tamagui/config/v3'
+import { animations, config, fonts, media, mediaQueryDefaultActive, selectionStyles, shorthands, themes, tokens } from '@tamagui/config/v3'
 import { createTamagui } from 'tamagui'
 
-// Objeto com as propriedades principais do objeto config
+// Objeto com as propriedades principais do objeto config e as alterações em components
 const tamaguiOptions = {
-  animations: config.animations,
-  themes: config.themes,
-  tokens: config.tokens,
-  fonts: config.fonts,
-  media: config.media,
-  shorthands: config.shorthands,
+  animations,
+  themes,
+  tokens,
+  fonts,
   selectionStyles,
   settings: {
     mediaQueryDefaultActive,
   },
   components: {
-    ...((config as any).components || {}),
+    ...((config as any).components || {})
   }
 }
 
