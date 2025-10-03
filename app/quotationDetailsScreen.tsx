@@ -237,7 +237,7 @@ export default function QuotationDetailsScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 120, marginTop: 16 }}
         >
-          <YStack gap="$4" px="$4">
+          <YStack gap="$4" paddingHorizontal="$4">
             <CustomInfoCard
               icon="warning"
               description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
@@ -246,32 +246,32 @@ export default function QuotationDetailsScreen() {
             {suppliers.map(({ supplier }) => (
               <YStack
                 key={supplier.externalId}
-                bg="white"
-                br={8}
-                p="$3"
+                backgroundColor="white"
+                borderRadius={8}
+                padding="$3"
                 gap="$3"
                 borderColor="$gray6"
                 borderWidth={1}
               >
-                <XStack ai="center">
+                <XStack alignItems="center">
                   <Image
                     source={{ uri: supplier.image }}
                     width={Platform.OS === 'web' ? 40 : undefined}
                     height={40}
                     borderRadius={20}
                   />
-                  <YStack ml="$3" flex={1}>
+                  <YStack marginLeft="$3" flex={1}>
                     <Text fontSize={16} fontWeight="bold">
                       {supplier.name.replace('Distribuidora', '').trim()}
                     </Text>
-                    <XStack ai="center" gap="$1.5">
+                    <XStack alignItems="center" gap="$1.5">
                       <Icons name="star" color="#F59E0B" size={14} />
                       <Text fontSize={12} color="$gray10">
                         {supplier.star}
                       </Text>
                     </XStack>
                   </YStack>
-                  <YStack ai="flex-end">
+                  <YStack alignItems="flex-end">
                     <Text fontSize={16} fontWeight="bold">
                       {formatCurrency(supplier.discount.orderValueFinish)}
                     </Text>
@@ -284,7 +284,7 @@ export default function QuotationDetailsScreen() {
 
                 <YStack gap="$3">
                   {supplier.discount.product.map((product) => (
-                    <XStack key={product.sku} ai="center" gap="$3">
+                    <XStack key={product.sku} alignItems="center" gap="$3">
                       <Image
                         source={{ uri: product.image[0] }}
                         width={Platform.OS === 'web' ? 40 : undefined}
@@ -302,7 +302,7 @@ export default function QuotationDetailsScreen() {
                           </Text>
                         ) : null}
                       </YStack>
-                      <YStack ai="flex-end">
+                      <YStack alignItems="flex-end">
                         <Text
                           fontWeight="bold"
                           fontSize={14}
@@ -328,14 +328,14 @@ export default function QuotationDetailsScreen() {
 
             {/* Card de totais */}
             <YStack
-              bg="white"
-              br={8}
-              p="$3.5"
+              backgroundColor="white"
+              borderRadius={8}
+              padding="$3.5"
               gap="$2.5"
               borderColor="$gray6"
               borderWidth={1}
             >
-              <XStack jc="space-between" ai="center">
+              <XStack justifyContent="space-between" alignItems="center">
                 <Text fontSize={14} color="$gray11">
                   Subtotal
                 </Text>
@@ -343,7 +343,7 @@ export default function QuotationDetailsScreen() {
                   {formatCurrency(totals.subtotal)}
                 </Text>
               </XStack>
-              <XStack jc="space-between" ai="center">
+              <XStack justifyContent="space-between" alignItems="center">
                 <Text fontSize={14} color="$gray11">
                   Descontos
                 </Text>
@@ -351,8 +351,8 @@ export default function QuotationDetailsScreen() {
                   - {formatCurrency(totals.discount)}
                 </Text>
               </XStack>
-              <Separator my="$1" borderColor="$gray4" />
-              <XStack jc="space-between" ai="center">
+              <Separator marginVertical="$1" borderColor="$gray4" />
+              <XStack justifyContent="space-between" alignItems="center">
                 <Text fontSize={18} fontWeight="bold">
                   Total
                 </Text>
@@ -360,7 +360,7 @@ export default function QuotationDetailsScreen() {
                   {formatCurrency(totals.grandTotal)}
                 </Text>
               </XStack>
-              <Text fontSize={12} color="$gray10" ta="right">
+              <Text fontSize={12} color="$gray10" textAlign="right">
                 {totals.totalItems} item{totals.totalItems !== 1 ? 's' : ''} |{' '}
                 {totals.missingItems} faltante
                 {totals.missingItems !== 1 ? 's' : ''}
@@ -379,13 +379,13 @@ export default function QuotationDetailsScreen() {
 
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View
-          pos="absolute"
+          position="absolute"
           bottom={0}
           left={0}
           right={0}
-          py="$4"
-          px="$4"
-          bg="white"
+          paddingVertical="$4"
+          paddingHorizontal="$4"
+          backgroundColor="white"
           borderTopWidth={1}
           borderTopColor="$gray4"
         >
@@ -397,7 +397,7 @@ export default function QuotationDetailsScreen() {
               gap={10}
               alignSelf="center"
             >
-              <YStack f={1}>
+              <YStack flex={1}>
                 <Button
                   onPress={handleBackPress}
                   hoverStyle={{
@@ -412,7 +412,7 @@ export default function QuotationDetailsScreen() {
                   Voltar
                 </Button>
               </YStack>
-              <YStack f={1}>
+              <YStack flex={1}>
                 <Button
                   onPress={handleConfirm}
                   hoverStyle={{
@@ -436,7 +436,7 @@ export default function QuotationDetailsScreen() {
               gap={10}
               alignSelf="center"
             >
-              <YStack f={1}>
+              <YStack flex={1}>
                 <CustomButton
                   title="Voltar"
                   onPress={handleBackPress}
@@ -444,7 +444,7 @@ export default function QuotationDetailsScreen() {
                   textColor="#FFFFFF"
                 />
               </YStack>
-              <YStack f={1}>
+              <YStack flex={1}>
                 <CustomButton
                   title="Confirmar"
                   onPress={handleConfirm}

@@ -565,15 +565,15 @@ export default function Register() {
           erros={erros}
           cnpj={formik.values.cnpj}
         />
-        <View mb={10} pt={50} alignItems="center" justifyContent="center">
+        <View marginBottom={10} paddingTop={50} alignItems="center" justifyContent="center">
           <Text fontSize={20}>Cadastro</Text>
-          <View pt={20} justifyContent="center" flexDirection="row">
+          <View paddingTop={20} justifyContent="center" flexDirection="row">
             <View alignItems="center">
               <Icons name="disc"></Icons>
               <Text fontSize={10}>Empresa</Text>
             </View>
             <View
-              mt={5}
+              marginTop={5}
               backgroundColor={step > 1 ? 'black' : 'lightgray'}
               width={50}
               height={2}
@@ -588,7 +588,7 @@ export default function Register() {
               </Text>
             </View>
             <View
-              mt={5}
+              marginTop={5}
               backgroundColor={step === 3 ? 'black' : 'lightgray'}
               width={50}
               height={2}
@@ -606,8 +606,8 @@ export default function Register() {
         </View>
         <ScrollView nestedScrollEnabled={true} scrollEnabled={scrollEnabled}>
           {step === 0 ? (
-            <View f={1} mt={20} p={20}>
-              <Text fontSize={12} mb={5} color="gray">
+            <View flex={1} marginTop={20} padding={20}>
+              <Text fontSize={12} marginBottom={5} color="gray">
                 Dados do restaurante
               </Text>
               <View
@@ -615,7 +615,7 @@ export default function Register() {
                 borderColor="lightgray"
                 borderWidth={1}
                 borderRadius={5}
-                p={10}
+                padding={10}
               >
                 <Text>Nome na fachada da rua</Text>
                 <Input
@@ -643,7 +643,7 @@ export default function Register() {
                     </Text>
                   )}
 
-                <Text mt={15}>CNPJ</Text>
+                <Text marginTop={15}>CNPJ</Text>
                 <Input
                   placeholder="00.000.000/0001-00"
                   onChangeText={handleCnpjChange}
@@ -668,13 +668,13 @@ export default function Register() {
               </View>
             </View>
           ) : step === 1 ? (
-            <View f={1} mt={20} p={20}>
+            <View flex={1} marginTop={20} padding={20}>
               <View
                 backgroundColor="white"
                 borderColor="lightgray"
                 borderWidth={1}
                 borderRadius={5}
-                p={10}
+                padding={10}
               >
                 <Text>Nome na fachada da rua</Text>
                 <Input
@@ -685,7 +685,7 @@ export default function Register() {
                   borderRadius={2}
                 />
 
-                <Text mt={15}>CNPJ</Text>
+                <Text marginTop={15}>CNPJ</Text>
                 <Input
                   value={formik.values.cnpj}
                   disabled
@@ -725,7 +725,7 @@ export default function Register() {
                     </Text>
                   )}
 
-                <View mt={15} alignItems="center" flexDirection="row">
+                <View marginTop={15} alignItems="center" flexDirection="row">
                   <Checkbox onPress={handleCheckBox}>
                     {formik.values.noStateNumberId ? (
                       <Icons name="checkmark" />
@@ -739,7 +739,7 @@ export default function Register() {
                 {formik.values.noStateNumberId && (
                   <>
                     <View
-                      mt={15}
+                      marginTop={15}
                       alignItems="center"
                       flexDirection="row"
                       gap={8}
@@ -768,14 +768,14 @@ export default function Register() {
                   </>
                 )}
 
-                <Text mt={15}>Razão Social</Text>
+                <Text marginTop={15}>Razão Social</Text>
                 <Input
                   value={formik.values.legalRestaurantName}
                   disabled
                   opacity={0.5}
                 />
 
-                <Text fontSize={12} mt={10} mb={5} color="gray">
+                <Text fontSize={12} marginTop={10} marginBottom={5} color="gray">
                   Endereço
                 </Text>
                 <View
@@ -783,7 +783,7 @@ export default function Register() {
                   borderColor="lightgray"
                   borderWidth={1}
                   borderRadius={5}
-                  p={10}
+                  padding={10}
                 >
                   <View
                     marginTop={15}
@@ -816,7 +816,7 @@ export default function Register() {
                       {formik.errors.zipcode}
                     </Text>
                   )}
-                  <Text mt={15}>Bairro</Text>
+                  <Text marginTop={15}>Bairro</Text>
                   <Input
                     opacity={0.5}
                     onBlur={() => formik.setFieldTouched('neigh', true)}
@@ -832,7 +832,7 @@ export default function Register() {
                       {formik.errors.neigh}
                     </Text>
                   )}
-                  <Text mt={15}>Logradouro</Text>
+                  <Text marginTop={15}>Logradouro</Text>
                   <Input
                     placeholder="exemplo: Dois Amores"
                     onChangeText={(text) =>
@@ -854,7 +854,7 @@ export default function Register() {
                       {formik.errors.street}
                     </Text>
                   )}
-                  <Text mt={15}>Número</Text>
+                  <Text marginTop={15}>Número</Text>
                   <Input
                     placeholder="Exemplo: 12"
                     onChangeText={(text) =>
@@ -879,7 +879,7 @@ export default function Register() {
                       {formik.errors.localNumber}
                     </Text>
                   )}
-                  <Text mt={15}>Complemento</Text>
+                  <Text marginTop={15}>Complemento</Text>
                   <Input
                     placeholder="Exemplo: Loja A"
                     onChangeText={(text) =>
@@ -982,7 +982,7 @@ export default function Register() {
                     </Text>
                   )}
               </View>
-              <Text mt={10} fontSize={12} mb={5} color="gray">
+              <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
                 Informações financeiras
               </Text>
               <View
@@ -1058,10 +1058,10 @@ export default function Register() {
                     </View>
                   )}
                   <View
-                    mt={formik.errors.paymentWay ? 10 : 60}
+                    marginTop={formik.errors.paymentWay ? 10 : 60}
                     borderColor="lightgray"
                     borderWidth={0.5}
-                    p={5}
+                    padding={5}
                     gap={5}
                     flexDirection="row"
                   >
@@ -1095,7 +1095,7 @@ export default function Register() {
                   >
                     <Input
                       fontSize={14}
-                      f={1}
+                      flex={1}
                       backgroundColor="$colorTransparent"
                       borderWidth="$0"
                       borderRadius={2}
@@ -1144,7 +1144,7 @@ export default function Register() {
                     <Input
                       maxLength={15}
                       fontSize={14}
-                      f={1}
+                      flex={1}
                       backgroundColor="$colorTransparent"
                       borderWidth="$0"
                       borderRadius={2}
@@ -1235,8 +1235,8 @@ export default function Register() {
               </View>
             </View>
           ) : step === 3 ? (
-            <View f={1} p={20} gap={10}>
-              <Text fontSize={12} mb={5} color="gray">
+            <View flex={1} padding={20} gap={10}>
+              <Text fontSize={12} marginBottom={5} color="gray">
                 Entrega
               </Text>
               <View
@@ -1244,12 +1244,12 @@ export default function Register() {
                 borderColor="lightgray"
                 borderWidth={1}
                 borderRadius={5}
-                p={10}
+                padding={10}
               >
                 <View
                   borderColor="lightgray"
                   borderWidth={0.5}
-                  p={5}
+                  padding={5}
                   gap={5}
                   flexDirection="row"
                 >
@@ -1391,7 +1391,7 @@ export default function Register() {
                   </View>
                 </View>
                 <View
-                  mt={formik.errors.maxHour || formik.errors.minHour ? 10 : 65}
+                  marginTop={formik.errors.maxHour || formik.errors.minHour ? 10 : 65}
                   alignItems="center"
                   flexDirection="row"
                 >
@@ -1409,7 +1409,7 @@ export default function Register() {
                     Aceito receber de portas fechadas
                   </Text>
                 </View>
-                <Text mt={15}>Informações adicionais</Text>
+                <Text marginTop={15}>Informações adicionais</Text>
                 <Input
                   onChangeText={(text) => {
                     formik.setFieldValue('deliveryObs', text)
@@ -1422,7 +1422,7 @@ export default function Register() {
                   hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                 ></Input>
               </View>
-              <Text mt={10} fontSize={12} mb={5} color="gray">
+              <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
                 Perfil de compra
               </Text>
               <View
@@ -1430,7 +1430,7 @@ export default function Register() {
                 borderColor="lightgray"
                 borderWidth={1}
                 borderRadius={5}
-                p={10}
+                padding={10}
               >
                 <Text>Quantos dias na semana você costuma pedir?</Text>
                 <View
@@ -1489,7 +1489,7 @@ export default function Register() {
                       </Text>
                     </View>
                   )}
-                <Text mt={formik.errors.weeklyOrderAmount ? 10 : 60}>
+                <Text marginTop={formik.errors.weeklyOrderAmount ? 10 : 60}>
                   Qual o valor médio de um pedido?
                 </Text>
                 <TextInputMask
@@ -1520,7 +1520,7 @@ export default function Register() {
                   </Text>
                 )}
               </View>
-              <Text mt={10} fontSize={12} mb={5} color="gray">
+              <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
                 Código do promotor
               </Text>
               <View
@@ -1528,7 +1528,7 @@ export default function Register() {
                 borderColor="lightgray"
                 borderWidth={1}
                 borderRadius={5}
-                p={10}
+                padding={10}
               >
                 <Input
                   onChangeText={(text) => {
@@ -1555,7 +1555,7 @@ export default function Register() {
           flexDirection="row"
         >
           <Button
-            f={1}
+            flex={1}
             borderColor="lightgray"
             display={'flex'}
             borderWidth={0.5}
@@ -1567,7 +1567,7 @@ export default function Register() {
             <Text>Voltar</Text>
           </Button>
           <Button
-            f={1}
+            flex={1}
             backgroundColor="#04BF7B"
             onPress={() => {
               handleNextBtn()

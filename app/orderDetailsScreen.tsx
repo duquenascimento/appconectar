@@ -27,7 +27,7 @@ export function ModalDocumentsAndInvoices(props: {
   return (
     <Dialog modal open={props.openModal}>
       {/* Modal adaptado para ocupar tela cheia no celular */}
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet
           animationConfig={{
             type: 'spring',
@@ -86,7 +86,7 @@ export function ModalDocumentsAndInvoices(props: {
             padding="$4"
             gap="$4"
           >
-            <Dialog.Title textAlign="center" mx="auto" color="red">
+            <Dialog.Title textAlign="center" marginHorizontal="auto" color="red">
               Documento ainda não disponível
             </Dialog.Title>
             <Dialog.Description textAlign="center">
@@ -250,7 +250,7 @@ export default function OrderDetailsScreen() {
           size={25}
           name="chevron-back"
         ></Icons>
-        <View flex={1} alignItems="center" mb={5}>
+        <View flex={1} alignItems="center" marginBottom={5}>
           <Text>Pedido {order.id}</Text>
           <Text fontSize={10} color="gray">
             Entregue {formatDate(order.deliveryDate)}

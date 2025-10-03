@@ -132,8 +132,8 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(
                             transform: [{ translateY: 0 }],
                         }}
                     >
-                        <View style={{ flexDirection: 'row' }} f={1} alignItems="center" marginTop={10}>
-                            <View flexDirection="row" f={1} gap={8}>
+                        <View style={{ flexDirection: 'row' }} flex={1} alignItems="center" marginTop={10}>
+                            <View flexDirection="row" flex={1} gap={8}>
                                 <Button
                                     onPress={() => {
                                         setQuant(1);
@@ -180,7 +180,7 @@ const ProductBox: React.FC<ProductBoxProps> = React.memo(
                             <View
                                 borderColor="#F0F2F6"
                                 borderWidth={1}
-                                p={3}
+                                padding={3}
                                 borderRadius={18}
                                 flexDirection="row"
                                 justifyContent="flex-end"
@@ -275,7 +275,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) => {
                 />
             </Select.Trigger>
 
-            <Adapt when="sm" platform="touch">
+            <Adapt /* when="sm" */ platform="touch">
                 <Sheet
                     native={!!props.native}
                     modal
@@ -640,7 +640,7 @@ export const Products: React.FC<ProductsProps> = () => {
     }
 
     return (
-        <Stack pt={20} style={{ backgroundColor: '#f9f9f9', height: '100%' }}>
+        <Stack paddingTop={20} style={{ backgroundColor: '#f9f9f9', height: '100%' }}>
             <View style={{ height: 40, flex: 1, paddingTop: 8 }}>
                 <View style={{ alignItems: 'center', paddingLeft: 20, flexDirection: 'row' }}>
                     <Circle height={46} width={46} style={{ padding: 12, backgroundColor: '#F0F2F6' }}>
@@ -692,7 +692,7 @@ export const Products: React.FC<ProductsProps> = () => {
                 <View style={{ backgroundColor: '#F0F2F6', flex: 1, padding: 16, borderTopColor: '#aaa', borderTopWidth: 0.5 }}>
                     {currentClass.toLowerCase() == 'favoritos' && favorites.length < 1 ?
                         <View style={{ flex: 1, paddingTop: 50, alignItems: 'center', flexDirection: 'column' }}>
-                            <Text pl={15} style={{ alignSelf: 'flex-start', fontSize: 14, color: '#A9A9A9', textAlign: 'center' }}>
+                            <Text paddingLeft={15} style={{ alignSelf: 'flex-start', fontSize: 14, color: '#A9A9A9', textAlign: 'center' }}>
                                 Para salvar produtos na lista de favoritos, clique no botão de favoritar
                                 <Text> </Text>
                                 <Icons name="heart-outline" size={20} color="gray" />

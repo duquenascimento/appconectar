@@ -1,4 +1,12 @@
-import { animations, config, fonts, media, mediaQueryDefaultActive, selectionStyles, shorthands, themes, tokens } from '@tamagui/config/v3'
+import { 
+  animations, 
+  config, 
+  fonts, 
+  mediaQueryDefaultActive, 
+  selectionStyles, 
+  themes, 
+  tokens 
+} from '@tamagui/config/v3'
 import { createTamagui } from 'tamagui'
 
 // Objeto com as propriedades principais do objeto config e as alterações em components

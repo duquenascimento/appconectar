@@ -20,12 +20,12 @@ export default function RegisterFinished({ navigation }: HomeScreenProps) {
     <View
       padding={30}
       backgroundColor="#F0F2F6"
-      f={1}
+      flex={1}
       justifyContent="center"
       alignItems="center"
     >
       <Icons size={90} color="#04BF7B" name="checkmark-circle"></Icons>
-      <Text pb={25} fontSize={30}>
+      <Text paddingBottom={25} fontSize={30}>
         Cadastro feito!
       </Text>
       <View padding={15} borderRadius={5} width="80%">

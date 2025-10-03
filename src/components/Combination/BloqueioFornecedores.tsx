@@ -37,12 +37,12 @@ export function BloqueioFornecedoresCampo({ error, onChange }: { error?: string;
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={2000}>
+    <YStack borderWidth={1} borderColor="$gray6" padding="$4" gap={3} borderRadius="$4" zIndex={2000}>
       <TwoButtonCustomAlert visible={showModal} title={'Tem certeza de que quer realizar esta ação?'} message={'Ao fazer isto, os fornecedores selecionados serão removidos'} onConfirm={resetFornecedoresBloqueados} onCancel={() => setShowModal(false)} />
 
       <Text fontWeight="bold">Bloquear fornecedores</Text>
       <CustomSubtitle>Impedir que fornecedores apareçam na combinação</CustomSubtitle>
-      <Separator my="$3" />
+      <Separator marginVertical="$3" />
       <Text>Bloquear fornecedores na combinação?</Text>
       <XStack>
         <CustomRadioButton selected={combinacao.bloquear_fornecedores} onPress={() => updateCampo('bloquear_fornecedores', true)} label="Sim" />

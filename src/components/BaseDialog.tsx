@@ -11,7 +11,7 @@ interface BaseDialogProps {
 export function BaseDialog({ open, title, description, children }: BaseDialogProps) {
   return (
     <Dialog modal open={open}>
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet animation="medium" modal snapPoints={[100]} snapPointsMode="percent" dismissOnSnapToBottom={false} disableDrag zIndex={200000}>
           <Sheet.Frame flex={1} padding="$6" justifyContent="center" alignItems="center">
             <Adapt.Contents />
@@ -34,12 +34,12 @@ export function BaseDialog({ open, title, description, children }: BaseDialogPro
           borderRadius="$8"
           alignItems="center"
         >
-          <Dialog.Title fontSize="$8" fontWeight="700" textAlign="center" mb="$5">
+          <Dialog.Title fontSize="$8" fontWeight="700" textAlign="center" marginBottom="$5">
             {title}
           </Dialog.Title>
 
           {description && (
-            <Dialog.Description textAlign="center" fontSize="$5" mb="$3">
+            <Dialog.Description textAlign="center" fontSize="$5" marginBottom="$3">
               {description}
             </Dialog.Description>
           )}

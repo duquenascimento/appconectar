@@ -293,7 +293,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
-        <Text fontSize={16} mt={5} color="gray" textAlign="center">
+        <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
           Carregando histórico de pedidos. Por favor Aguarde...
         </Text>
       </View>
@@ -447,7 +447,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
               </TouchableOpacity>
 
               <View style={styles.leftColumn}>
-                <Text mb={10} style={styles.orderId}>
+                <Text marginBottom={10} style={styles.orderId}>
                   {item.id}
                 </Text>
                 <Text style={styles.deliveryDate}>
@@ -456,7 +456,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
               </View>
 
               <View style={styles.rightColumn}>
-                <Text mb={10} style={styles.total}>
+                <Text marginBottom={10} style={styles.total}>
                   R$ {item.totalConectar.toFixed(2)}
                 </Text>
                 <Text>{truncatedSupplierName}</Text>

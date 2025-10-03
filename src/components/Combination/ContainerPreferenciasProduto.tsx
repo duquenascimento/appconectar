@@ -74,7 +74,7 @@ export function ContainerPreferenciasProduto({ error, onClearErrors }: { error?:
   }
 
   return (
-    <YStack gap="$4" mt="$4">
+    <YStack gap="$4" marginTop="$4">
       <TwoButtonCustomAlert visible={showModal} title={'Tem certeza de que quer realizar esta ação?'} message={'Ao fazer isto, as preferências de produto serão removidas'} onConfirm={resetPreferencias} onCancel={() => setShowModal(false)} />
 
       <Text fontSize="$6" fontWeight="bold">
@@ -88,7 +88,7 @@ export function ContainerPreferenciasProduto({ error, onClearErrors }: { error?:
       <Separator />
       
       {error && (
-        <Text p={'$1'} color="red">
+        <Text padding={'$1'} color="red">
           {error}
         </Text>
       )}
@@ -96,7 +96,7 @@ export function ContainerPreferenciasProduto({ error, onClearErrors }: { error?:
       {combinacao.definir_preferencia_produto && preferencias.map((_, index) => <PreferenciaProdutoCard key={index} index={index} onRemove={() => removerPreferencia(index)} onMoveUp={() => moverPreferencia(index, index - 1)} onMoveDown={() => moverPreferencia(index, index + 1)} />)}
 
       {combinacao.definir_preferencia_produto && (
-        <Button mt="$2" onPress={adicionarPreferencia} marginTop="$8">
+        <Button marginTop="$8" onPress={adicionarPreferencia} >
           <Icons name="add" size={20} />
           Adicionar Produto
         </Button>

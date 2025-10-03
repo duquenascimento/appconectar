@@ -221,7 +221,7 @@ export const Combination: React.FC = () => {
       <CustomHeader title={id ? `${combinacao.nome}` : 'Nova combinação'} onBackPress={handleGoBack} />
       <CustomAlert visible={isAlertVisible} title={alertTitle} message={alertMessage} onConfirm={handleAlertConfirm} />
       <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
-        <YStack w={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" p="$4" gap={15} mt="$2">
+        <YStack width={Platform.OS === 'web' ? '76%' : '92%'} alignSelf="center" padding="$4" gap={15} marginTop="$2">
           <InputNome error={validationErrors.nome} onChangeText={(text) => updateCampoAndValidate('nome', text)} value={combinacao.nome} />
 
           <DropdownCampo
@@ -246,7 +246,7 @@ export const Combination: React.FC = () => {
         </YStack>
         {Platform.OS === 'web' ? (
           <XStack width={'74%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
-            <YStack f={1}>
+            <YStack flex={1}>
               <Button
                 onPress={() => {
                   if (id) {
@@ -267,7 +267,7 @@ export const Combination: React.FC = () => {
                 {id ? 'Excluir combinação' : 'Cancelar'}
               </Button>
             </YStack>
-            <YStack f={1}>
+            <YStack flex={1}>
               <Button
                 onPress={handleSaveCombination}
                 hoverStyle={{
@@ -284,7 +284,7 @@ export const Combination: React.FC = () => {
           </XStack>
         ) : (
           <XStack width={'88%'} flexDirection="row" justifyContent="center" gap={10} alignSelf="center">
-            <YStack f={1}>
+            <YStack flex={1}>
               <CustomButton
                 title={id ? 'Excluir' : 'Cancelar'}
                 onPress={() => {
@@ -298,7 +298,7 @@ export const Combination: React.FC = () => {
                 textColor="#FFFFFF"
               />
             </YStack>
-            <YStack f={1}>
+            <YStack flex={1}>
               <CustomButton title="Salvar" onPress={handleSaveCombination} backgroundColor="#1DC588" textColor="#FFFFFF" />
             </YStack>
           </XStack>
