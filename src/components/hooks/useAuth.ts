@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSegments } from 'expo-router'
-import { getToken, deleteToken } from '../../utils/utils'
+import { getToken, deleteToken, getStorage } from '../../utils/utils'
 
 export function useAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
@@ -15,12 +15,27 @@ export function useAuth() {
       const authenticated = !!token
       setIsAuthenticated(authenticated)
 
-      if (!authenticated && isProtectedRoute(segments)) {
-        router.replace('/')
-      }
+      if (authenticated) {
+        const role = await getStorage('role')
 
-      if (authenticated && isPublicRoute(segments)) {
-        router.replace('/products')
+        if (isPublicRoute(segments)) {
+          if (role === 'registered') {
+            router.replace('/products')
+          } else if (role === 'registering') {
+            router.replace('/register')
+          }
+          return authenticated
+        }
+
+        if (isProtectedRoute(segments) && role === 'registering') {
+          router.replace('/register')
+          return authenticated
+        }
+
+      } else {
+        if (isProtectedRoute(segments)) {
+          router.replace('/')
+        }
       }
 
       return authenticated
