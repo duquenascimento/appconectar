@@ -79,7 +79,7 @@ ${rest.map((item: any) => `\n- ${item.name}`)}\n\nConsegue me ajudar?`
       {/* Versão Desktop - Botões lado a lado */}
       <XStack
         display="none"
-        $gtSm={{ display: 'flex' }}
+        /* $gtSm={{ display: 'flex' }} */
         justifyContent="center"
         alignSelf="center"
         gap="$4"
@@ -114,7 +114,7 @@ ${rest.map((item: any) => `\n- ${item.name}`)}\n\nConsegue me ajudar?`
       {/* Versão Mobile - Botões em coluna */}
       <YStack
         display="flex"
-        $gtSm={{ display: 'none' }}
+        /* $gtSm={{ display: 'none' }} */
         justifyContent="center"
         alignSelf="center"
         gap="$3"

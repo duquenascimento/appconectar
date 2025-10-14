@@ -17,7 +17,7 @@ export function InputNome({ error, onChangeText, value }: InputNomeProps) {
         borderColor={error ? 'red' : 'lightgray'}
       />
       {error && (
-        <Text p={'$1'} color="red">
+        <Text padding={'$1'} color="red">
           {error}
         </Text>
       )}

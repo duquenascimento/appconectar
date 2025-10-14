@@ -330,7 +330,7 @@ const ProductBox = React.memo(
         >
           <View flexDirection="row" alignItems="center">
             <View
-              p={Platform.OS === 'web' ? 10 : 0}
+              padding={Platform.OS === 'web' ? 10 : 0}
               onPress={(e) => {
                 e.stopPropagation()
                 setImage(image[0])
@@ -349,7 +349,7 @@ const ProductBox = React.memo(
             </View>
           </View>
           <View
-            mr={10}
+            marginRight={10}
             flexDirection="row"
             alignItems="center"
             gap={16}
@@ -371,7 +371,7 @@ const ProductBox = React.memo(
                 gap={8}
                 justifyContent="center"
                 alignItems="center"
-                p={8}
+                padding={8}
                 height={36}
                 width={80}
                 flexDirection="row"
@@ -424,7 +424,7 @@ const ProductBox = React.memo(
                 }
                 alignItems="center"
                 flex={1}
-                mr={Platform.OS === 'web' ? 5 : 5}
+                marginRight={Platform.OS === 'web' ? 5 : 5}
                 flexDirection="row"
                 gap={8}
               >
@@ -534,7 +534,7 @@ const ProductBox = React.memo(
                 alignItems="center"
                 borderColor="#F0F2F6"
                 borderWidth={1}
-                p={4}
+                padding={4}
                 borderRadius={18}
                 flexDirection="row"
                 gap={16}
@@ -661,7 +661,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         />
       </Select.Trigger>
 
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet
           native={!!props.native}
           modal
@@ -1515,7 +1515,7 @@ export default function Products() {
   }
 
   return (
-    <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
+    <Stack paddingTop={20} backgroundColor="#f9f9f9" height="100%" position="relative">
       <DialogComercialInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
@@ -1699,7 +1699,7 @@ export default function Products() {
           !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text
-                pl={15}
+                paddingLeft={15}
                 marginBottom={5}
                 alignSelf="center"
                 fontSize={14}

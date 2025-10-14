@@ -23,7 +23,7 @@ export default function LabelAndBoxContent({
       minHeight={56}
       borderRadius={6}
       alignItems="center"
-      px={6}
+      paddingHorizontal={6}
       flexDirection="row"
       gap={12}
       pointerEvents="box-none"

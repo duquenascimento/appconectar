@@ -1,30 +1,34 @@
-import { config } from '@tamagui/config/v3'
+import { 
+  animations, 
+  config, 
+  fonts, 
+  mediaQueryDefaultActive, 
+  selectionStyles, 
+  themes, 
+  tokens 
+} from '@tamagui/config/v3'
 import { createTamagui } from 'tamagui'
-import { themes, tokens } from '@tamagui/themes'
 
-const tamaguiConfig = createTamagui({
-  ...config,
+// Objeto com as propriedades principais do objeto config e as alterações em components
+const tamaguiOptions = {
+  animations,
   themes,
   tokens,
+  fonts,
+  selectionStyles,
+  settings: {
+    mediaQueryDefaultActive,
+  },
   components: {
-    Portal: true,
-    ...((config as any).components || {}),
-    Dialog: true,
-    Sheet: true,
-    Button: false,
-    Text: false,
-    Input: true,
-    XStack: true,
-    YStack: true,
-    Image: false,
-    View: false,
-    Stack: false,
-    Adapt: true
+    ...((config as any).components || {})
   }
-})
+}
 
-export default tamaguiConfig
+const tamaguiConfig = createTamagui(tamaguiOptions)
+
 export type Conf = typeof tamaguiConfig
 declare module 'tamagui' {
   interface TamaguiCustomConfig extends Conf {}
 }
+
+export default tamaguiConfig

@@ -47,7 +47,7 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         }}
       />
       {error && (
-        <Text p={'$1'} color="red">
+        <Text padding={'$1'} color="red">
           {error}
         </Text>
       )}

@@ -47,7 +47,7 @@ export function DialogInstance(props: {
 }) {
   return (
     <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet
           animationConfig={{
             type: 'spring',
@@ -134,7 +134,7 @@ function DialogInstanceNotification(props: {
 }) {
   return (
     <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet
           animationConfig={{
             type: 'spring',
@@ -569,7 +569,7 @@ export default function Confirm() {
           height={300}
           source={require('../assets/images/korzina.gif')}
         />
-        <Text fontWeight="800" pt={20}>
+        <Text fontWeight="800" paddingTop={20}>
           Estamos confirmando o seu pedido{dots}
         </Text>
       </View>
@@ -580,7 +580,7 @@ export default function Confirm() {
     supplier.supplier.discount.product.length - supplier.supplier.missingItens
   const displayMissingItems = Math.max(0, actualMissingItemsCount)
   return (
-    <Stack backgroundColor="white" pt={20} height="100%" position="relative">
+    <Stack backgroundColor="white" paddingTop={20} height="100%" position="relative">
       <DialogInstance
         openModal={booleanErros}
         setRegisterInvalid={setBooleanErros}
@@ -606,7 +606,7 @@ export default function Confirm() {
       />
       <View backgroundColor="white" flexDirection="row" height={80}>
         <View
-          px={10}
+          paddingHorizontal={10}
           flexDirection="row"
           justifyContent="center"
           alignItems="center"
@@ -626,7 +626,7 @@ export default function Confirm() {
           marginLeft={Platform.OS === 'web' ? '10.5vw' : ''}
           alignSelf="center"
         >
-          <View pl={5} justifyContent="center">
+          <View paddingLeft={5} justifyContent="center">
             <Image
               source={{
                 uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`
@@ -636,11 +636,11 @@ export default function Confirm() {
               borderRadius={50}
             />
           </View>
-          <View ml={10} justifyContent="center">
+          <View marginLeft={10} justifyContent="center">
             <Text fontSize={16}>{supplier?.supplier.name}</Text>
             <View flexDirection="row" alignItems="center">
               <Icons color="orange" name="star"></Icons>
-              <Text color="gray" pl={4}>
+              <Text color="gray" paddingLeft={4}>
                 {supplier?.supplier.star}
               </Text>
             </View>
@@ -649,7 +649,7 @@ export default function Confirm() {
       </View>
 
       <ScrollView backgroundColor="white">
-        <View backgroundColor="white" p={15}>
+        <View backgroundColor="white" padding={15}>
           <View
             alignItems="center"
             marginLeft={Platform.OS === 'web' ? 10 : ''}
@@ -669,8 +669,8 @@ export default function Confirm() {
             {/*// modified add*/}
             <Text
               color="gray"
-              ml={5}
-              mr={10}
+              marginLeft={5}
+              marginRight={10}
               textBreakStrategy="simple"
               fontSize={12}
               width={Platform.OS === 'web' ? '70vw' : '90%'}
@@ -680,7 +680,7 @@ export default function Confirm() {
             </Text>
           </View>
           <View
-            pt={25}
+            paddingTop={25}
             width={Platform.OS === 'web' ? '70vw' : ''}
             alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
           >
@@ -703,7 +703,7 @@ export default function Confirm() {
                 borderBottomWidth={0.5}
               >
                 <View flexDirection="row" alignItems="center">
-                  <View f={1} flexDirection="row" alignItems="center">
+                  <View flex={1} flexDirection="row" alignItems="center">
                     <View padding={5}>
                       <Image
                         source={{ uri: item.image[0], width: 50, height: 50 }}
@@ -732,7 +732,7 @@ export default function Confirm() {
                       flexDirection="row"
                       alignItems="center"
                     >
-                      <Text pr={5} fontSize={12}>
+                      <Text paddingRight={5} fontSize={12}>
                         {item.quant} {item.orderUnit.replace('Unid', 'Un')}
                       </Text>
                       <Text color="gray">
@@ -1011,9 +1011,9 @@ export default function Confirm() {
           </View>
         </View>
       </ScrollView>
-      <View pt={10} px={10}>
+      <View paddingTop={10} paddingHorizontal={10}>
         <Text
-          mx="auto"
+          marginHorizontal="auto"
           color="red"
           fontSize={10}
           textAlign="center"
@@ -1029,7 +1029,7 @@ export default function Confirm() {
         backgroundColor="white"
         gap={10}
         flexDirection="row"
-        p={10}
+        padding={10}
         justifyContent="center"
         alignItems="center"
       >

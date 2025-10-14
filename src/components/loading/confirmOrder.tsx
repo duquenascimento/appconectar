@@ -34,7 +34,7 @@ export function LoadingConfirm({ loading }: LoadingConfirmProps) {
       zIndex={9999}
     >
       <Image width={300} height={300} source={require('../../../assets/images/korzina.gif')} />
-      <Text fontWeight="800" pt={20}>
+      <Text fontWeight="800" paddingTop={20}>
         Estamos confirmando o seu pedido{dots}
       </Text>
     </View>

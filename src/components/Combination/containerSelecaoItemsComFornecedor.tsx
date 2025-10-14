@@ -73,13 +73,13 @@ export function ContainerSelecaoItemsComFornecedor<T extends string>({ label, it
       />
 
       {value.length > 0 && (
-        <XStack flexWrap="wrap" gap="$2" mt="$2">
+        <XStack flexWrap="wrap" gap="$2" marginTop="$2">
           {value
             .filter((v) => items.some((i) => i.value === v)) // mantém só IDs que ainda existem nos items
             .map((v) => {
               const label = items.find((i) => i.value === v)?.label ?? v
               return (
-                <XStack key={v} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
+                <XStack key={v} borderRadius={6} paddingHorizontal="$2" paddingVertical="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
                   <Text>{label}</Text>
                   <Button size="$1" circular backgroundColor="transparent" fontSize={Platform.OS === 'web' ? '22px' : undefined} color={'#777'} onPress={() => removeItem(v)}>
                     ×
@@ -90,7 +90,7 @@ export function ContainerSelecaoItemsComFornecedor<T extends string>({ label, it
         </XStack>
       )}
       {!ignoreValidation && error && (!touched ? true : touched) && (
-        <Text p={'$1'} color="red">
+        <Text padding={'$1'} color="red">
           {error}
         </Text>
       )}

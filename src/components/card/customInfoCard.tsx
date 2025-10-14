@@ -17,7 +17,7 @@ interface InfoCardProps {
 
 const CardContainer = styled(YStack, {
   name: 'CardContainer',
-  bg: 'white',
+  backgroundColor: 'white',
   borderColor: '$gray6',
   borderWidth: 0.5,
   borderRadius: '$2',
