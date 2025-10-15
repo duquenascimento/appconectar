@@ -1,11 +1,11 @@
 import { 
-  animations, 
   config, 
+  animations, 
   fonts, 
+  themes, 
+  tokens, 
   mediaQueryDefaultActive, 
   selectionStyles, 
-  themes, 
-  tokens 
 } from '@tamagui/config/v3'
 import { createTamagui } from 'tamagui'
 
@@ -16,11 +16,15 @@ const tamaguiOptions = {
   tokens,
   fonts,
   selectionStyles,
-  settings: {
-    mediaQueryDefaultActive,
-  },
   components: {
     ...((config as any).components || {})
+  }, 
+  settings: {
+    mediaQueryDefaultActive,
+    defaultFont: '$body',
+    fastSchemeChange: true,
+    shouldAddPrefersColorThemes: true,
+    themeClassNameOnRoot: true,
   }
 }
 
