@@ -77,7 +77,7 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
   }
 
   const handleFornecedorTipo = (value: TipoFornecedor) => {
-    if (combinacao.dividir_em_maximo < 2) { // VALIDAR
+    if (combinacao.dividir_em_maximo < 2) {
       setShowValidationAlert(true)
       return
     }
