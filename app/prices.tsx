@@ -1,106 +1,129 @@
-import { Stack, Text, View, Image, Button, Input, ScrollView } from 'tamagui'
-import Icons from '@expo/vector-icons/Ionicons'
-import { useEffect, useMemo, useState } from 'react'
-import { ActivityIndicator, KeyboardAvoidingView, Modal, Platform, VirtualizedList, Dimensions } from 'react-native'
-import { DateTime } from 'luxon'
-import DropDownPicker from 'react-native-dropdown-picker'
-import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils'
-import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
-import CustomAlert from '../src/components/modais/CustomAlert'
-import { loadPermissionConectarPlus, loadRestaurants } from '../src/services/restaurantService'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { campoString } from '../src/utils/formatCampos'
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
-import CombinationList, { Combination } from '@/src/components/combinationList'
-import CustomButton from '@/src/components/button/customButton'
-import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService'
-import { useSupplier } from '@/src/contexts/fornecedores.context'
-import { useCombinacao } from '@/src/contexts/combinacao.context'
-import { useFocusEffect } from '@react-navigation/native'
-import { useRouter } from 'expo-router'
+import { Stack, Text, View, Image, Button, Input, ScrollView } from 'tamagui';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  VirtualizedList,
+  Dimensions,
+} from 'react-native';
+import { DateTime } from 'luxon';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { loadPermissionConectarPlus, loadRestaurants } from '../src/services/restaurantService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { campoString } from '../src/utils/formatCampos';
+import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
+import CombinationList, { Combination } from '@/src/components/combinationList';
+import CustomButton from '@/src/components/button/customButton';
+import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 export interface Product {
-  price: number
-  priceWithoutTax: number
-  name: string
-  sku: string
-  quant: number
-  orderQuant: number
-  obs: string
-  priceUnique: number
-  priceUniqueWithTaxAndDiscount: number
-  image: string[]
-  orderUnit: string
-  addOrder: number
+  price: number;
+  priceWithoutTax: number;
+  name: string;
+  sku: string;
+  quant: number;
+  orderQuant: number;
+  obs: string;
+  priceUnique: number;
+  priceUniqueWithTaxAndDiscount: number;
+  image: string[];
+  orderUnit: string;
+  addOrder: number;
 }
 
 export interface Discount {
-  orderValue: number
-  discount: number
-  orderWithoutTax: number
-  orderWithTax: number
-  tax: number
-  missingItens: number
-  orderValueFinish: number
-  product: Product[]
-  sku: string
+  orderValue: number;
+  discount: number;
+  orderWithoutTax: number;
+  orderWithTax: number;
+  tax: number;
+  missingItens: number;
+  orderValueFinish: number;
+  product: Product[];
+  sku: string;
 }
 
 export interface Supplier {
-  name: string
-  externalId: string
-  missingItens: number
-  minimumOrder: number
-  hour: string
-  discount: Discount
-  star: string
+  name: string;
+  externalId: string;
+  missingItens: number;
+  minimumOrder: number;
+  hour: string;
+  discount: Discount;
+  star: string;
 }
 
 export interface SupplierData {
-  supplier: Supplier
+  supplier: Supplier;
 }
 
 type SelectItem = {
-  name: string
-  addressInfos: any[]
-  premium: boolean
-  registrationReleasedNewApp: boolean
-}
+  name: string;
+  addressInfos: any[];
+  premium: boolean;
+  registrationReleasedNewApp: boolean;
+};
 
 const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState(getScreenSize())
+  const [screenSize, setScreenSize] = useState(getScreenSize());
 
   useEffect(() => {
     const updateScreenSize = () => {
-      setScreenSize(getScreenSize())
-    }
+      setScreenSize(getScreenSize());
+    };
 
-    const subscription = Dimensions.addEventListener('change', updateScreenSize)
+    const subscription = Dimensions.addEventListener('change', updateScreenSize);
 
-    return () => subscription.remove()
-  }, [])
+    return () => subscription.remove();
+  }, []);
 
-  return screenSize
-}
+  return screenSize;
+};
 
 const getScreenSize = () => {
-  const width = Dimensions.get('window').width
-  return width >= 1024 ? 'lg/xl' : 'sm/md'
-}
+  const width = Dimensions.get('window').width;
+  return width >= 1024 ? 'lg/xl' : 'sm/md';
+};
 
-const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: { supplier: SupplierData; star: string; available: boolean; selectedRestaurant: any; goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void }) => {
+const SupplierBox = ({
+  supplier,
+  available,
+  goToConfirm,
+  selectedRestaurant,
+}: {
+  supplier: SupplierData;
+  star: string;
+  available: boolean;
+  selectedRestaurant: any;
+  goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void;
+}) => {
   const isOpen = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo')
-    const currentHour = Number(`${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`)
-    return Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour && supplier.supplier.missingItens > 0
-  }
+    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
+    const currentHour = Number(
+      `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
+    );
+    return (
+      Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour &&
+      supplier.supplier.missingItens > 0
+    );
+  };
 
   return (
     <View
       opacity={available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
       onPress={() => {
         if (available && supplier.supplier.missingItens > 0) {
-          goToConfirm(supplier, selectedRestaurant)
+          goToConfirm(supplier, selectedRestaurant);
         }
       }}
       flexDirection="row"
@@ -116,7 +139,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
         <View padding={5}>
           <Image
             source={{
-              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`
+              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`,
             }}
             width={50}
             height={50}
@@ -124,9 +147,7 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
           />
         </View>
         <View marginLeft={10} maxWidth="75%" justifyContent="center">
-          <Text flexShrink={16}>
-            {supplier.supplier.name.replace('Distribuidora', '')}
-          </Text>
+          <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star"></Icons>
             <Text paddingLeft={4}>{supplier.supplier.star}</Text>
@@ -139,23 +160,38 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
             R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
           </Text>
           {available ? (
-            <Text color={supplier.supplier.discount.product.length - supplier.supplier.missingItens > 0 ? 'red' : 'black'} fontSize={12}>
-              {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)
+            <Text
+              color={
+                supplier.supplier.discount.product.length - supplier.supplier.missingItens > 0
+                  ? 'red'
+                  : 'black'
+              }
+              fontSize={12}
+            >
+              {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s)
+              faltante(s)
             </Text>
           ) : (
             <>
               <Text color="red" fontSize={12}>
-                {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s) faltante(s)
+                {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s)
+                faltante(s)
               </Text>
-              {isOpen() ? (
+              {isOpen() && !selectedRestaurant.allowClosedSupplier ? (
                 <Text color="red" fontSize={12}>
                   Fechado às {supplier.supplier.hour.substring(0, 5)}
                 </Text>
               ) : (
+                <></>
+              )}
+              {supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+              !selectedRestaurant.allowMinimumOrder ? (
                 <Text color="red" fontSize={12}>
                   Mínimo R$
                   {supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}
                 </Text>
+              ) : (
+                <></>
               )}
             </>
           )}
@@ -169,298 +205,308 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
         {available && <Icons name="chevron-forward" size={24}></Icons>}
       </View>
     </View>
-  )
-}
+  );
+};
 
 export default function Prices() {
-  const [loading, setLoading] = useState<boolean>(true)
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
-  const [showRestInfo, setShowRestInfo] = useState<boolean>(false)
-  const [minhours, setMinhours] = useState<string[]>([])
-  const [maxhours, setMaxhours] = useState<string[]>([])
-  const [minHour, setMinHour] = useState<string>('')
-  const [maxHour, setMaxHour] = useState<string>('')
-  const [editInfos, setEditInfos] = useState<boolean>(false)
-  const [allRestaurants, setAllRestaurants] = useState<SelectItem[]>([])
-  const [city, setCity] = useState<string>()
-  const [zipCode, setZipCode] = useState<string>()
-  const [localType, setLocalType] = useState<string>()
-  const [street, setStreet] = useState<string>()
-  const [localNumber, setLocalNumber] = useState<string>('')
-  const [neighborhood, setNeighborhood] = useState<string>()
-  const [streetComplete, setStreetComplete] = useState<string>('') // para exibir
-  const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>()
-  const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>()
-  const [deliveryInformation, setDeliveryInformation] = useState<string>()
-  const [complement, setComplement] = useState<string>()
-  const [tab, setTab] = useState<string>('onlySupplier')
-  const [finalCotacao, setFinalCotacao] = useState<boolean>(false)
-  const [minHourOpen, setMinHourOpen] = useState(false)
-  const [maxHourOpen, setMaxHourOpen] = useState(false)
-  const [restOpen, setRestOpen] = useState(false)
-  const [showNotification, setShowNotification] = useState(false)
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
-  const [isConectarAlertVisible, setIsConectarAlertVisible] = useState(false)
-  const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false)
-  const [missingFields, setMissingFields] = useState<string[]>([])
-  const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false)
-  const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null) //Escolha temporária do restaurante no dropdown.
-  const [showBlockedModal, setShowBlockedModal] = useState(false)
-  const screemSize = useScreenSize()
-  const [combinations, setCombinations] = useState<Combination[]>([])
-  const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
+  const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
+  const [minhours, setMinhours] = useState<string[]>([]);
+  const [maxhours, setMaxhours] = useState<string[]>([]);
+  const [minHour, setMinHour] = useState<string>('');
+  const [maxHour, setMaxHour] = useState<string>('');
+  const [editInfos, setEditInfos] = useState<boolean>(false);
+  const [allRestaurants, setAllRestaurants] = useState<SelectItem[]>([]);
+  const [city, setCity] = useState<string>();
+  const [zipCode, setZipCode] = useState<string>();
+  const [localType, setLocalType] = useState<string>();
+  const [street, setStreet] = useState<string>();
+  const [localNumber, setLocalNumber] = useState<string>('');
+  const [neighborhood, setNeighborhood] = useState<string>();
+  const [streetComplete, setStreetComplete] = useState<string>(''); // para exibir
+  const [responsibleReceivingName, setResponsibleReceivingName] = useState<string>();
+  const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>();
+  const [deliveryInformation, setDeliveryInformation] = useState<string>();
+  const [complement, setComplement] = useState<string>();
+  const [tab, setTab] = useState<string>('onlySupplier');
+  const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
+  const [minHourOpen, setMinHourOpen] = useState(false);
+  const [maxHourOpen, setMaxHourOpen] = useState(false);
+  const [restOpen, setRestOpen] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+  const [isConectarAlertVisible, setIsConectarAlertVisible] = useState(false);
+  const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
+  const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null); //Escolha temporária do restaurante no dropdown.
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
+  const screemSize = useScreenSize();
+  const [combinations, setCombinations] = useState<Combination[]>([]);
+  const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
 
-  const { modificado, setModificado } = useCombinacao()
-  const router = useRouter()
+  const { modificado, setModificado } = useCombinacao();
+  const router = useRouter();
 
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier()
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
 
   useFocusEffect(() => {
     if (tab === 'plus' && modificado) {
       const fetchData = async () => {
         try {
-          const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant')
+          const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
 
-          if (!storedRestaurant) return
+          if (!storedRestaurant) return;
 
-          const parsed = JSON.parse(storedRestaurant)
-          const restaurantId = parsed?.id
+          const parsed = JSON.parse(storedRestaurant);
+          const restaurantId = parsed?.id;
 
           if (restaurantId) {
-            const combinations = await getAllCombinationsByRestaurant(restaurantId)
-            setCombinations(combinations)
+            const combinations = await getAllCombinationsByRestaurant(restaurantId);
+            setCombinations(combinations);
           }
         } catch (e) {
-          console.error('Erro ao ler selectedRestaurant:', e)
+          console.error('Erro ao ler selectedRestaurant:', e);
         }
-        setModificado(false)
-      }
-      fetchData()
+        setModificado(false);
+      };
+      fetchData();
     }
-  })
+  });
 
   useEffect(() => {
     const handleConectarPlus = async () => {
-      const stored = await getStorage('hasAccessedConectarPlus')
-      const alreadyAccessed = stored === 'true'
-      setHasAccessedConectarPlus(alreadyAccessed)
+      const stored = await getStorage('hasAccessedConectarPlus');
+      const alreadyAccessed = stored === 'true';
+      setHasAccessedConectarPlus(alreadyAccessed);
 
       if (selectedRestaurant?.conectarPlusAuthorization) {
-        await setStorage('hasAccessedConectarPlus', 'true')
-        setHasAccessedConectarPlus(true)
+        await setStorage('hasAccessedConectarPlus', 'true');
+        setHasAccessedConectarPlus(true);
       }
 
-      if (tab === 'plus' && selectedRestaurant?.conectarPlusAuthorization === false && alreadyAccessed) {
-        setIsConectarAlertVisible(true)
+      if (
+        tab === 'plus' &&
+        selectedRestaurant?.conectarPlusAuthorization === false &&
+        alreadyAccessed
+      ) {
+        setIsConectarAlertVisible(true);
       }
-    }
+    };
 
-    handleConectarPlus()
-  }, [selectedRestaurant, tab])
+    handleConectarPlus();
+  }, [selectedRestaurant, tab]);
 
   const handleConfirm = () => {
-    setFinalCotacao(true)
-    clearStorage()
+    setFinalCotacao(true);
+    clearStorage();
     setTimeout(() => {
-      router.push('/products')
-    }, 1000)
-  }
+      router.push('/products');
+    }, 1000);
+  };
 
   useEffect(() => {
     if (minHour) {
-      let [minHourValue, minMinuteValue] = minHour.split(':').map(Number)
-      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour ? maxHour.split(':').map(Number) : [0, 0]
+      let [minHourValue, minMinuteValue] = minHour.split(':').map(Number);
+      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour
+        ? maxHour.split(':').map(Number)
+        : [0, 0];
 
       // Adiciona 1h30m à minHour
-      let hour = minHourValue + 1
-      let minute = minMinuteValue + 30
+      let hour = minHourValue + 1;
+      let minute = minMinuteValue + 30;
       if (minute >= 60) {
-        minute -= 60
-        hour += 1
+        minute -= 60;
+        hour += 1;
       }
 
       // Verifica se o maxHour existente é menor que o novo tempo
-      const newMaxInMinutes = hour * 60 + minute
-      const currentMaxInMinutes = currentMaxHourValue * 60 + currentMaxMinuteValue
+      const newMaxInMinutes = hour * 60 + minute;
+      const currentMaxInMinutes = currentMaxHourValue * 60 + currentMaxMinuteValue;
 
       if (currentMaxInMinutes < newMaxInMinutes) {
         // Atualiza maxHour se o valor atual for menor que o novo calculado
-        const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-        setMaxHour(updatedMaxHour)
+        const updatedMaxHour = `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+        setMaxHour(updatedMaxHour);
       }
 
       // Gera as opções para maxHour
-      const maxOptions = []
-      hour = minHourValue + 1 // Reinicializa o valor de hour para começar a partir do minHour + 1h30m
-      minute = minMinuteValue + 30
+      const maxOptions = [];
+      hour = minHourValue + 1; // Reinicializa o valor de hour para começar a partir do minHour + 1h30m
+      minute = minMinuteValue + 30;
       if (minute >= 60) {
-        minute -= 60
-        hour += 1
+        minute -= 60;
+        hour += 1;
       }
 
       while (hour < 24) {
-        maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`)
-        minute += 30
+        maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+        minute += 30;
         if (minute >= 60) {
-          minute -= 60
-          hour += 1
+          minute -= 60;
+          hour += 1;
         }
       }
 
-      setMaxhours(maxOptions)
+      setMaxhours(maxOptions);
     } else {
-      setMaxhours([])
+      setMaxhours([]);
     }
-  }, [minHour, maxHour])
+  }, [minHour, maxHour]);
 
   const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
     try {
-      setLoading(true)
-      await setStorage('supplierSelected', JSON.stringify(supplier))
-      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }))
-      router.push('/confirm')
+      setLoading(true);
+      await setStorage('supplierSelected', JSON.stringify(supplier));
+      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }));
+      router.push('/confirm');
     } catch (err) {
-      console.error(err)
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getSavedRestaurant = async () => {
     try {
-      const data = await AsyncStorage.getItem('selectedRestaurant')
-      if (!data) return null
+      const data = await AsyncStorage.getItem('selectedRestaurant');
+      if (!data) return null;
 
-      const parsedData = JSON.parse(data)
+      const parsedData = JSON.parse(data);
 
       if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData)
-        return null
+        console.error('Formato inválido:', parsedData);
+        return null;
       }
 
-      return parsedData.restaurant
+      return parsedData.restaurant;
     } catch (error) {
-      console.error('Erro ao parsear dados:', error)
-      return null
+      console.error('Erro ao parsear dados:', error);
+      return null;
     }
-  }
+  };
 
   useEffect(() => {
     const loadPricesAsync = async () => {
       try {
-        const restaurants = await loadRestaurants()
-        const restaurantSelected = await getSavedRestaurant()
+        const restaurants = await loadRestaurants();
+        const restaurantSelected = await getSavedRestaurant();
 
-        setAllRestaurants(restaurants)
+        setAllRestaurants(restaurants);
 
         // Verifica se o restaurante salvo ainda existe na lista
-        const validRestaurant = restaurants.find((r: any) => r.externalId === restaurantSelected?.externalId)
+        const validRestaurant = restaurants.find(
+          (r: any) => r.externalId === restaurantSelected?.externalId,
+        );
 
         if (restaurantSelected?.registrationReleasedNewApp) {
-          setShowBlockedModal(true)
+          setShowBlockedModal(true);
         }
 
-        const currentRestaurant = validRestaurant
-        if (!currentRestaurant) return
+        const currentRestaurant = validRestaurant;
+        if (!currentRestaurant) return;
 
-        setSelectedRestaurant(currentRestaurant)
+        setSelectedRestaurant(currentRestaurant);
         if (currentRestaurant.conectarPlusAuthorization) {
-          const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId)
-          setPermissionConectarPlus(permissionResult.authorized)
+          const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
+          setPermissionConectarPlus(permissionResult.authorized);
         }
-        setTab(currentRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier')
-        setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16))
-        setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16))
+        setTab(currentRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+        setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
+        setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
-        await loadPrices()
-        const hours = []
+        await loadPrices();
+        const hours = [];
         for (let hour = 0; hour < 22; hour++) {
-          hours.push(`${String(hour).padStart(2, '0')}:00`)
-          hours.push(`${String(hour).padStart(2, '0')}:30`)
+          hours.push(`${String(hour).padStart(2, '0')}:00`);
+          hours.push(`${String(hour).padStart(2, '0')}:30`);
         }
-        hours.push('22:00')
-        setMinhours(hours)
+        hours.push('22:00');
+        setMinhours(hours);
       } catch (err) {
-        console.error(err)
+        console.error(err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadPricesAsync()
-  }, [loadPrices])
+    loadPricesAsync();
+  }, [loadPrices]);
 
   const combinedSuppliers = useMemo(() => {
-    const itens: any[] = []
+    const itens: any[] = [];
 
-    const filteredSuppliers = suppliers.filter((item) => item.supplier.hour.substring(0, 5) !== '06:00')
+    const filteredSuppliers = suppliers.filter(
+      (item) => item.supplier.hour.substring(0, 5) !== '06:00',
+    );
 
-    const filteredUnavailableSuppliers = unavailableSupplier
+    const filteredUnavailableSuppliers = unavailableSupplier;
 
-    if (filteredSuppliers.length) itens.push({ initialSeparator: true })
-    itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
+    if (filteredSuppliers.length) itens.push({ initialSeparator: true });
+    itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })));
 
-    if (filteredUnavailableSuppliers.length) itens.push({ separator: true })
+    if (filteredUnavailableSuppliers.length) itens.push({ separator: true });
     itens.push(
       ...filteredUnavailableSuppliers.map((item) => ({
         ...item,
-        available: false
-      }))
-    )
+        available: false,
+      })),
+    );
 
-    return itens
-  }, [suppliers, unavailableSupplier])
+    return itens;
+  }, [suppliers, unavailableSupplier]);
 
   useEffect(() => {
     if (selectedRestaurant) {
-      const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0]
+      const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0];
 
-      setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier')
+      setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier');
 
       if (addressInfo) {
-        setNeighborhood(addressInfo.neighborhood)
-        setCity(addressInfo.city)
-        setLocalType(addressInfo.localType)
-        setLocalNumber(addressInfo.localNumber || '')
-        setResponsibleReceivingName(addressInfo.responsibleReceivingName)
-        setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
-        setZipCode(addressInfo.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
-        setStreet(addressInfo.address)
-        setComplement(addressInfo.complement)
-        setDeliveryInformation(addressInfo.deliveryInformation)
-        setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16))
-        setMinHour(addressInfo.initialDeliveryTime.substring(11, 16))
-        setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
+        setNeighborhood(addressInfo.neighborhood);
+        setCity(addressInfo.city);
+        setLocalType(addressInfo.localType);
+        setLocalNumber(addressInfo.localNumber || '');
+        setResponsibleReceivingName(addressInfo.responsibleReceivingName);
+        setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber);
+        setZipCode(addressInfo.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'));
+        setStreet(addressInfo.address);
+        setComplement(addressInfo.complement);
+        setDeliveryInformation(addressInfo.deliveryInformation);
+        setMaxHour(addressInfo.finalDeliveryTime.substring(11, 16));
+        setMinHour(addressInfo.initialDeliveryTime.substring(11, 16));
+        setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
       } else {
-        console.log('Address info not found for the selected restaurant')
+        console.log('Address info not found for the selected restaurant');
       }
 
-      setLoading(false)
+      setLoading(false);
     }
-  }, [selectedRestaurant])
+  }, [selectedRestaurant]);
 
   useEffect(() => {
-    if (!draftSelectedRestaurant) return
-    const addressInfo = draftSelectedRestaurant.addressInfos[0]
-    if (!addressInfo) return
+    if (!draftSelectedRestaurant) return;
+    const addressInfo = draftSelectedRestaurant.addressInfos[0];
+    if (!addressInfo) return;
 
-    setNeighborhood(addressInfo.neighborhood)
-    setCity(addressInfo.city)
-    setLocalType(addressInfo.localType)
-    setLocalNumber(addressInfo.localNumber || '')
-    setResponsibleReceivingName(addressInfo.responsibleReceivingName)
-    setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber)
-    setZipCode(addressInfo.zipCode?.replace(/\D/g, '')?.replace(/(\d{5})(\d{3})/, '$1-$2'))
-    setStreet(addressInfo.address)
-    setComplement(addressInfo.complement)
-    setDeliveryInformation(addressInfo.deliveryInformation)
-    setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16))
-    setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16))
-    setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim())
-  }, [draftSelectedRestaurant])
+    setNeighborhood(addressInfo.neighborhood);
+    setCity(addressInfo.city);
+    setLocalType(addressInfo.localType);
+    setLocalNumber(addressInfo.localNumber || '');
+    setResponsibleReceivingName(addressInfo.responsibleReceivingName);
+    setResponsibleReceivingPhoneNumber(addressInfo.responsibleReceivingPhoneNumber);
+    setZipCode(addressInfo.zipCode?.replace(/\D/g, '')?.replace(/(\d{5})(\d{3})/, '$1-$2'));
+    setStreet(addressInfo.address);
+    setComplement(addressInfo.complement);
+    setDeliveryInformation(addressInfo.deliveryInformation);
+    setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16));
+    setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16));
+    setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
+  }, [draftSelectedRestaurant]);
 
-  const getItem = (data: SupplierData[], index: number) => data[index]
-  const getItemCount = (data: SupplierData[]) => data.length
+  const getItem = (data: SupplierData[], index: number) => data[index];
+  const getItemCount = (data: SupplierData[]) => data.length;
   const renderItem = ({ item }: { item: any }) => {
     if (item.separator) {
       return (
@@ -473,7 +519,7 @@ export default function Prices() {
         >
           Fornecedores indisponíveis
         </Text>
-      )
+      );
     }
     if (item.initialSeparator) {
       return (
@@ -486,22 +532,39 @@ export default function Prices() {
         >
           Fornecedores disponíveis
         </Text>
-      )
+      );
     }
-    return <SupplierBox supplier={item} star={item.star} available={item.available} selectedRestaurant={selectedRestaurant} goToConfirm={goToConfirm} />
-  }
+    return (
+      <SupplierBox
+        supplier={item}
+        star={item.star}
+        available={item.available}
+        selectedRestaurant={selectedRestaurant}
+        goToConfirm={goToConfirm}
+      />
+    );
+  };
 
-  const fields = [zipCode, localNumber, street, responsibleReceivingName, responsibleReceivingPhoneNumber, localType, city, neighborhood]
+  const fields = [
+    zipCode,
+    localNumber,
+    street,
+    responsibleReceivingName,
+    responsibleReceivingPhoneNumber,
+    localType,
+    city,
+    neighborhood,
+  ];
 
   useEffect(() => {
-    const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null)
+    const allFieldsLoaded = fields.every((field) => field !== undefined && field !== null);
 
     if (allFieldsLoaded && !hasCheckedFields) {
-      const anyFieldEmpty = fields.some((field) => !field)
-      setEditInfos(anyFieldEmpty)
-      setHasCheckedFields(true)
+      const anyFieldEmpty = fields.some((field) => !field);
+      setEditInfos(anyFieldEmpty);
+      setHasCheckedFields(true);
     }
-  }, [hasCheckedFields, ...fields])
+  }, [hasCheckedFields, ...fields]);
 
   const validateFields = () => {
     const fieldLabels: { [key: string]: string } = {
@@ -512,8 +575,8 @@ export default function Prices() {
       responsibleReceivingPhoneNumber: 'Telefone do responsável',
       localType: 'Logradouro',
       city: 'Cidade',
-      neighborhood: 'Bairro'
-    }
+      neighborhood: 'Bairro',
+    };
 
     const fields: Record<string, string | undefined> = {
       zipCode,
@@ -523,20 +586,20 @@ export default function Prices() {
       responsibleReceivingPhoneNumber,
       localType,
       city,
-      neighborhood
-    }
+      neighborhood,
+    };
 
-    const requiredFields = Object.values(fields)
-    const isValid = requiredFields.every((field) => field?.trim())
+    const requiredFields = Object.values(fields);
+    const isValid = requiredFields.every((field) => field?.trim());
 
     if (!isValid) {
-      const emptyFields = Object.keys(fields).filter((key) => !fields[key]?.trim())
-      setMissingFields(emptyFields.map((key) => fieldLabels[key]))
-      setIsAlertVisible(true)
+      const emptyFields = Object.keys(fields).filter((key) => !fields[key]?.trim());
+      setMissingFields(emptyFields.map((key) => fieldLabels[key]));
+      setIsAlertVisible(true);
     }
 
-    return isValid
-  }
+    return isValid;
+  };
 
   if (finalCotacao) {
     return (
@@ -546,7 +609,7 @@ export default function Prices() {
           Cotação solicitada, fique de olho no Whatsapp
         </Text>
       </View>
-    )
+    );
   }
 
   if (loading || loadingSuppliers) {
@@ -563,7 +626,7 @@ export default function Prices() {
           ''
         )}
       </View>
-    )
+    );
   }
 
   return (
@@ -583,7 +646,7 @@ export default function Prices() {
         >
           <Icons
             onPress={() => {
-              router.push('/cart')
+              router.push('/cart');
             }}
             size={25}
             name="chevron-back"
@@ -592,12 +655,19 @@ export default function Prices() {
             Cotações
           </Text>
         </View>
-        <View borderRadius={50} flexDirection="row" justifyContent="space-between" height={50} width={Platform.OS === 'web' ? '70vw' : ''} alignSelf="center">
+        <View
+          borderRadius={50}
+          flexDirection="row"
+          justifyContent="space-between"
+          height={50}
+          width={Platform.OS === 'web' ? '70vw' : ''}
+          alignSelf="center"
+        >
           <View
             disabled={!selectedRestaurant.premium}
             opacity={selectedRestaurant.premium ? 1 : 0.4}
             onPress={() => {
-              setTab('plus')
+              setTab('plus');
             }}
             cursor="pointer"
             hoverStyle={{ opacity: 0.75 }}
@@ -615,7 +685,7 @@ export default function Prices() {
           </View>
           <View
             onPress={() => {
-              setTab('onlySupplier')
+              setTab('onlySupplier');
             }}
             cursor="pointer"
             hoverStyle={{ opacity: 0.75 }}
@@ -623,9 +693,7 @@ export default function Prices() {
             alignItems="center"
             justifyContent="center"
           >
-            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>
-              Por fornecedor
-            </Text>
+            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>Por fornecedor</Text>
             <View
               marginTop={10}
               height={1}
@@ -667,26 +735,29 @@ export default function Prices() {
                 <Button
                   backgroundColor="#04BF7B"
                   onPress={async () => {
-                    if (!validateFields()) return
-                    setLoading(true)
-                    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
+                    if (!validateFields()) return;
+                    setLoading(true);
+                    const result = await fetch(
+                      `${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`,
+                      {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          token: await getToken(),
+                          selectedRestaurant: selectedRestaurant,
+                        }),
                       },
-                      body: JSON.stringify({
-                        token: await getToken(),
-                        selectedRestaurant: selectedRestaurant
-                      })
-                    })
+                    );
 
                     if (result.ok) {
-                      await result.json()
-                      setLoading(false)
-                      setShowNotification(true)
+                      await result.json();
+                      setLoading(false);
+                      setShowNotification(true);
                     } else {
-                      await result.json()
-                      setLoading(false)
+                      await result.json();
+                      setLoading(false);
                     }
                   }}
                 >
@@ -702,20 +773,33 @@ export default function Prices() {
             {tab !== 'onlySupplier' && permissionConectarPlus && <CombinationList />}
           </View>
         </View>
-        {tab !== 'onlySupplier' && permissionConectarPlus && <CustomButton title="Minhas combinações" onPress={() => router.push('/preferencesScreen')}></CustomButton>}
+        {tab !== 'onlySupplier' && permissionConectarPlus && (
+          <CustomButton
+            title="Minhas combinações"
+            onPress={() => router.push('/preferencesScreen')}
+          ></CustomButton>
+        )}
         <View
           onPress={() => {
-            setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood)
-            setCity(selectedRestaurant.addressInfos[0].city)
-            setLocalType(selectedRestaurant.addressInfos[0].localType)
-            setLocalNumber(selectedRestaurant.addressInfos[0].localNumber)
-            setResponsibleReceivingName(selectedRestaurant.addressInfos[0].responsibleReceivingName)
-            setResponsibleReceivingPhoneNumber(selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber)
-            setZipCode(selectedRestaurant.addressInfos[0].zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'))
-            setStreet(selectedRestaurant.addressInfos[0].address)
-            setComplement(selectedRestaurant.addressInfos[0].complement)
-            setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation)
-            setEditInfos(true)
+            setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
+            setCity(selectedRestaurant.addressInfos[0].city);
+            setLocalType(selectedRestaurant.addressInfos[0].localType);
+            setLocalNumber(selectedRestaurant.addressInfos[0].localNumber);
+            setResponsibleReceivingName(
+              selectedRestaurant.addressInfos[0].responsibleReceivingName,
+            );
+            setResponsibleReceivingPhoneNumber(
+              selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+            );
+            setZipCode(
+              selectedRestaurant.addressInfos[0].zipCode
+                .replace(/\D/g, '')
+                .replace(/(\d{5})(\d{3})/, '$1-$2'),
+            );
+            setStreet(selectedRestaurant.addressInfos[0].address);
+            setComplement(selectedRestaurant.addressInfos[0].complement);
+            setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
+            setEditInfos(true);
           }}
           backgroundColor="white"
           paddingBottom={10}
@@ -764,13 +848,14 @@ export default function Prices() {
               <Icons size={20} color="#04BF7B" name="time"></Icons>
               <View marginLeft={20}></View>
               <Text fontSize={12}>
-                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
+                {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} -{' '}
+                {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
               </Text>
             </View>
             <Icons
               size={20}
               onPress={() => {
-                setShowRestInfo(!showRestInfo)
+                setShowRestInfo(!showRestInfo);
               }}
               name={showRestInfo ? 'chevron-up' : 'chevron-down'}
             ></Icons>
@@ -791,12 +876,7 @@ export default function Prices() {
               >
                 <Icons size={20} color="#04BF7B" name="location"></Icons>
                 <View marginLeft={20}></View>
-                <Text
-                  numberOfLines={1}
-                  overflow="scroll"
-                  ellipsizeMode="tail"
-                  fontSize={12}
-                >
+                <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>
                   {selectedRestaurant.addressInfos[0].localType}{' '}
                   {selectedRestaurant.addressInfos[0].address},{' '}
                   {selectedRestaurant.addressInfos[0].localNumber}.{' '}
@@ -819,9 +899,7 @@ export default function Prices() {
               >
                 <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                 <View marginLeft={20}></View>
-                <Text fontSize={12}>
-                  {selectedRestaurant.addressInfos[0].deliveryInformation}
-                </Text>
+                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
               </View>
             </View>
             <View paddingTop={5} flexDirection="row" alignItems="center">
@@ -858,10 +936,7 @@ export default function Prices() {
                 <Icons size={20} color="#04BF7B" name="call"></Icons>
                 <View marginLeft={20}></View>
                 <Text fontSize={12}>
-                  {
-                    selectedRestaurant.addressInfos[0]
-                      .responsibleReceivingPhoneNumber
-                  }
+                  {selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}
                 </Text>
               </View>
             </View>
@@ -874,7 +949,7 @@ export default function Prices() {
                 contentContainerStyle={{
                   flex: 1,
                   justifyContent: 'center',
-                  padding: 20
+                  padding: 20,
                 }}
                 keyboardShouldPersistTaps="handled"
               >
@@ -902,31 +977,37 @@ export default function Prices() {
                         {allRestaurants.length > 0 ? (
                           <DropDownPicker
                             listMode="SCROLLVIEW"
-                            value={draftSelectedRestaurant ? draftSelectedRestaurant.name : selectedRestaurant.name}
+                            value={
+                              draftSelectedRestaurant
+                                ? draftSelectedRestaurant.name
+                                : selectedRestaurant.name
+                            }
                             style={{
                               borderWidth: 1,
                               borderColor: 'lightgray',
                               borderRadius: 5,
                               flex: 1,
-                              marginBottom: Platform.OS === 'web' ? 0 : 35
+                              marginBottom: Platform.OS === 'web' ? 0 : 35,
                             }}
                             setValue={() => {}}
                             items={allRestaurants.map((item) => ({
                               label: item?.name,
-                              value: item?.name
+                              value: item?.name,
                             }))}
                             multiple={false}
                             open={restOpen}
                             setOpen={setRestOpen}
                             placeholder=""
                             onSelectItem={(value) => {
-                              const rest = allRestaurants.find((item) => item?.name === value.value)
+                              const rest = allRestaurants.find(
+                                (item) => item?.name === value.value,
+                              );
                               if (rest) {
                                 if (rest.registrationReleasedNewApp === true) {
-                                  setShowBlockedModal(true)
-                                  return
+                                  setShowBlockedModal(true);
+                                  return;
                                 }
-                                setDraftSelectedRestaurant(rest)
+                                setDraftSelectedRestaurant(rest);
                               }
                             }}
                           ></DropDownPicker>
@@ -952,11 +1033,11 @@ export default function Prices() {
                                 borderWidth: 1,
                                 borderColor: 'lightgray',
                                 borderRadius: 5,
-                                flex: 1
+                                flex: 1,
                               }}
                               setValue={setMinHour}
                               items={minhours.map((item) => {
-                                return { label: item, value: item }
+                                return { label: item, value: item };
                               })}
                               multiple={false}
                               open={minHourOpen}
@@ -976,11 +1057,11 @@ export default function Prices() {
                                 borderWidth: 1,
                                 borderColor: 'lightgray',
                                 borderRadius: 5,
-                                flex: 1
+                                flex: 1,
                               }}
                               setValue={setMaxHour}
                               items={maxhours.map((item) => {
-                                return { label: item, value: item }
+                                return { label: item, value: item };
                               })}
                               multiple={false}
                               open={maxHourOpen}
@@ -995,7 +1076,7 @@ export default function Prices() {
                             style={{
                               flexDirection: 'row',
                               gap: 10,
-                              marginBottom: 5
+                              marginBottom: 5,
                             }}
                           >
                             {/* Campo CEP */}
@@ -1005,7 +1086,7 @@ export default function Prices() {
                                   paddingTop: 10,
                                   paddingLeft: 5,
                                   fontSize: 12,
-                                  color: 'gray'
+                                  color: 'gray',
                                 }}
                               >
                                 Cep
@@ -1016,28 +1097,32 @@ export default function Prices() {
                                 borderColor="lightgray"
                                 borderRadius={5}
                                 onChangeText={async (value) => {
-                                  const cleaned = value.replace(/\D/g, '')
-                                  const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2')
+                                  const cleaned = value.replace(/\D/g, '');
+                                  const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
 
                                   if (formatted.length === 9) {
-                                    setLoading(true)
-                                    const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
-                                    const result = await response.json()
+                                    setLoading(true);
+                                    const response = await fetch(
+                                      `https://viacep.com.br/ws/${cleaned}/json/`,
+                                    );
+                                    const result = await response.json();
                                     if (response.ok && !result.erro) {
-                                      const rawStreet = campoString(result.logradouro)
-                                      const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+                                      const rawStreet = campoString(result.logradouro);
+                                      const [streetType, ...streetNameParts] = rawStreet
+                                        .trim()
+                                        .split(' ');
 
-                                      setCity(campoString(result.localidade))
-                                      setNeighborhood(campoString(result.bairro))
-                                      setLocalType(streetType?.toUpperCase() || '')
-                                      setStreet(streetNameParts.join(' '))
-                                      setStreetComplete(rawStreet)
-                                      setLocalNumber('')
+                                      setCity(campoString(result.localidade));
+                                      setNeighborhood(campoString(result.bairro));
+                                      setLocalType(streetType?.toUpperCase() || '');
+                                      setStreet(streetNameParts.join(' '));
+                                      setStreetComplete(rawStreet);
+                                      setLocalNumber('');
                                     }
-                                    setLoading(false)
+                                    setLoading(false);
                                   }
 
-                                  setZipCode(formatted)
+                                  setZipCode(formatted);
                                 }}
                                 value={zipCode}
                               />
@@ -1058,11 +1143,11 @@ export default function Prices() {
                                   value={city}
                                   focusStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                   hoverStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                 />
                               </KeyboardAvoidingView>
@@ -1085,11 +1170,11 @@ export default function Prices() {
                               value={neighborhood}
                               focusStyle={{
                                 borderColor: '#049A63',
-                                borderWidth: 1
+                                borderWidth: 1,
                               }}
                               hoverStyle={{
                                 borderColor: '#049A63',
-                                borderWidth: 1
+                                borderWidth: 1,
                               }}
                             />
                           </KeyboardAvoidingView>
@@ -1104,7 +1189,7 @@ export default function Prices() {
                               style={{
                                 paddingLeft: 5,
                                 fontSize: 12,
-                                color: 'gray'
+                                color: 'gray',
                               }}
                             >
                               Rua
@@ -1112,13 +1197,13 @@ export default function Prices() {
                             <KeyboardAvoidingView>
                               <Input
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
-                                  const parts = formattedValue.trim().split(' ')
-                                  const localType = parts[0]?.toUpperCase() || ''
-                                  const streetName = parts.slice(1).join(' ')
-                                  setLocalType(localType)
-                                  setStreet(streetName)
-                                  setStreetComplete(formattedValue) // usado para exibir no campo
+                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, ''); // mantém só letras e espaço
+                                  const parts = formattedValue.trim().split(' ');
+                                  const localType = parts[0]?.toUpperCase() || '';
+                                  const streetName = parts.slice(1).join(' ');
+                                  setLocalType(localType);
+                                  setStreet(streetName);
+                                  setStreetComplete(formattedValue); // usado para exibir no campo
                                 }}
                                 backgroundColor="white"
                                 borderColor="lightgray"
@@ -1128,11 +1213,11 @@ export default function Prices() {
                                 value={streetComplete}
                                 focusStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 hoverStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1146,7 +1231,7 @@ export default function Prices() {
                           gap={10}
                           justifyContent="space-between"
                           style={{
-                            flexDirection: Platform.OS === 'web' ? 'row' : 'column'
+                            flexDirection: Platform.OS === 'web' ? 'row' : 'column',
                           }}
                         >
                           <View flex={1}>
@@ -1164,16 +1249,16 @@ export default function Prices() {
                                 value={localNumber}
                                 keyboardType="numeric"
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^0-9]/g, '')
-                                  setLocalNumber(formattedValue)
+                                  const formattedValue = value.replace(/[^0-9]/g, '');
+                                  setLocalNumber(formattedValue);
                                 }}
                                 focusStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 hoverStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1192,15 +1277,15 @@ export default function Prices() {
                                 borderRadius={5}
                                 value={complement}
                                 onChangeText={(value) => {
-                                  setComplement(value)
+                                  setComplement(value);
                                 }}
                                 focusStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 hoverStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1227,16 +1312,16 @@ export default function Prices() {
                                 borderRadius={5}
                                 value={responsibleReceivingName}
                                 onChangeText={(value) => {
-                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                  setResponsibleReceivingName(formattedValue)
+                                  const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                                  setResponsibleReceivingName(formattedValue);
                                 }}
                                 focusStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 hoverStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1257,26 +1342,32 @@ export default function Prices() {
                                 keyboardType="phone-pad"
                                 focusStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 hoverStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 onChangeText={(value) => {
-                                  let onlyNums = value.replace(/\D/g, '')
+                                  let onlyNums = value.replace(/\D/g, '');
 
                                   if (onlyNums.length > 10) {
-                                    onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{5})(\d{0,4})/,
+                                      '($1) $2-$3',
+                                    );
                                   } else if (onlyNums.length > 6) {
-                                    onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+                                    onlyNums = onlyNums.replace(
+                                      /(\d{2})(\d{4})(\d{0,4})/,
+                                      '($1) $2-$3',
+                                    );
                                   } else if (onlyNums.length > 2) {
-                                    onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
+                                    onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
                                   } else if (onlyNums.length > 0) {
-                                    onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
+                                    onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
                                   }
 
-                                  setResponsibleReceivingPhoneNumber(onlyNums)
+                                  setResponsibleReceivingPhoneNumber(onlyNums);
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1302,15 +1393,15 @@ export default function Prices() {
                                 borderRadius={5}
                                 value={deliveryInformation}
                                 onChangeText={(value) => {
-                                  setDeliveryInformation(value)
+                                  setDeliveryInformation(value);
                                 }}
                                 focusStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                                 hoverStyle={{
                                   borderColor: '#049A63',
-                                  borderWidth: 1
+                                  borderWidth: 1,
                                 }}
                               />
                             </KeyboardAvoidingView>
@@ -1333,25 +1424,27 @@ export default function Prices() {
                                   borderColor: 'lightgray',
                                   borderRadius: 5,
                                   flex: 1,
-                                  marginBottom: Platform.OS === 'web' ? 0 : 5
+                                  marginBottom: Platform.OS === 'web' ? 0 : 5,
                                 }}
                                 setValue={() => {}}
                                 items={allRestaurants.map((item) => ({
                                   label: item?.name,
-                                  value: item?.name
+                                  value: item?.name,
                                 }))}
                                 multiple={false}
                                 open={restOpen}
                                 setOpen={setRestOpen}
                                 placeholder=""
                                 onSelectItem={(value) => {
-                                  const rest = allRestaurants.find((item) => item?.name === value.value)
+                                  const rest = allRestaurants.find(
+                                    (item) => item?.name === value.value,
+                                  );
                                   if (rest) {
                                     if (rest.registrationReleasedNewApp === true) {
-                                      setShowBlockedModal(true)
-                                      return
+                                      setShowBlockedModal(true);
+                                      return;
                                     }
-                                    setDraftSelectedRestaurant(rest)
+                                    setDraftSelectedRestaurant(rest);
                                   }
                                 }}
                               ></DropDownPicker>
@@ -1363,21 +1456,21 @@ export default function Prices() {
                                 paddingTop: 5,
                                 flexDirection: 'row',
                                 justifyContent: 'space-between',
-                                zIndex: 10
+                                zIndex: 10,
                               }}
                             >
                               <View
                                 style={{
                                   flex: 1,
                                   zIndex: 10,
-                                  marginRight: 5
+                                  marginRight: 5,
                                 }}
                               >
                                 <Text
                                   style={{
                                     paddingLeft: 5,
                                     fontSize: 12,
-                                    color: 'gray'
+                                    color: 'gray',
                                   }}
                                 >
                                   A partir de
@@ -1387,7 +1480,7 @@ export default function Prices() {
                                   setValue={setMinHour}
                                   items={minhours.map((item) => ({
                                     label: item,
-                                    value: item
+                                    value: item,
                                   }))}
                                   multiple={false}
                                   open={minHourOpen}
@@ -1397,18 +1490,18 @@ export default function Prices() {
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
-                                    presentationStyle: 'formSheet'
+                                    presentationStyle: 'formSheet',
                                   }}
                                   modalContentContainerStyle={{
                                     backgroundColor: '#fff',
                                     padding: 20,
                                     borderRadius: 10,
-                                    margin: 40
+                                    margin: 40,
                                   }}
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
-                                    borderRadius: 5
+                                    borderRadius: 5,
                                   }}
                                   zIndex={10}
                                   zIndexInverse={5}
@@ -1420,7 +1513,7 @@ export default function Prices() {
                                   style={{
                                     paddingLeft: 5,
                                     fontSize: 12,
-                                    color: 'gray'
+                                    color: 'gray',
                                   }}
                                 >
                                   Até
@@ -1430,7 +1523,7 @@ export default function Prices() {
                                   setValue={setMaxHour}
                                   items={maxhours.map((item) => ({
                                     label: item,
-                                    value: item
+                                    value: item,
                                   }))}
                                   multiple={false}
                                   open={maxHourOpen}
@@ -1441,18 +1534,18 @@ export default function Prices() {
                                   modalProps={{
                                     animationType: 'slide',
                                     transparent: false,
-                                    presentationStyle: 'formSheet'
+                                    presentationStyle: 'formSheet',
                                   }}
                                   modalContentContainerStyle={{
                                     backgroundColor: '#fff',
                                     padding: 20,
                                     borderRadius: 10,
-                                    margin: 40
+                                    margin: 40,
                                   }}
                                   style={{
                                     borderWidth: 1,
                                     borderColor: 'lightgray',
-                                    borderRadius: 5
+                                    borderRadius: 5,
                                   }}
                                   zIndex={9}
                                   zIndexInverse={4}
@@ -1463,7 +1556,7 @@ export default function Prices() {
                             <View
                               style={{
                                 flexDirection: 'row',
-                                flexWrap: 'wrap'
+                                flexWrap: 'wrap',
                               }}
                             >
                               {/* Campo CEP */}
@@ -1473,7 +1566,7 @@ export default function Prices() {
                                     paddingTop: 10,
                                     paddingLeft: 5,
                                     fontSize: 12,
-                                    color: 'gray'
+                                    color: 'gray',
                                   }}
                                 >
                                   Cep
@@ -1484,28 +1577,32 @@ export default function Prices() {
                                   borderColor="lightgray"
                                   borderRadius={5}
                                   onChangeText={async (value) => {
-                                    const cleaned = value.replace(/\D/g, '')
-                                    const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2')
+                                    const cleaned = value.replace(/\D/g, '');
+                                    const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
 
                                     if (formatted.length === 9) {
-                                      setLoading(true)
-                                      const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`)
-                                      const result = await response.json()
+                                      setLoading(true);
+                                      const response = await fetch(
+                                        `https://viacep.com.br/ws/${cleaned}/json/`,
+                                      );
+                                      const result = await response.json();
                                       if (response.ok && !result.erro) {
-                                        const rawStreet = campoString(result.logradouro)
-                                        const [streetType, ...streetNameParts] = rawStreet.trim().split(' ')
+                                        const rawStreet = campoString(result.logradouro);
+                                        const [streetType, ...streetNameParts] = rawStreet
+                                          .trim()
+                                          .split(' ');
 
-                                        setCity(campoString(result.localidade))
-                                        setNeighborhood(campoString(result.bairro))
-                                        setLocalType(streetType?.toUpperCase() || '')
-                                        setStreet(streetNameParts.join(' '))
-                                        setStreetComplete(rawStreet)
-                                        setLocalNumber('')
+                                        setCity(campoString(result.localidade));
+                                        setNeighborhood(campoString(result.bairro));
+                                        setLocalType(streetType?.toUpperCase() || '');
+                                        setStreet(streetNameParts.join(' '));
+                                        setStreetComplete(rawStreet);
+                                        setLocalNumber('');
                                       }
-                                      setLoading(false)
+                                      setLoading(false);
                                     }
 
-                                    setZipCode(formatted)
+                                    setZipCode(formatted);
                                   }}
                                   value={zipCode}
                                 />
@@ -1527,11 +1624,11 @@ export default function Prices() {
                                   value={city}
                                   focusStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                   hoverStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                 />
                               </View>
@@ -1550,11 +1647,11 @@ export default function Prices() {
                                   value={neighborhood}
                                   focusStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                   hoverStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                 />
                               </View>
@@ -1563,7 +1660,7 @@ export default function Prices() {
                                   flexDirection: 'row',
                                   flexWrap: 'wrap',
                                   gap: 10,
-                                  marginBottom: 5
+                                  marginBottom: 5,
                                 }}
                               >
                                 <View flex={1}>
@@ -1571,7 +1668,7 @@ export default function Prices() {
                                     style={{
                                       paddingLeft: 5,
                                       fontSize: 12,
-                                      color: 'gray'
+                                      color: 'gray',
                                     }}
                                   >
                                     Rua
@@ -1579,13 +1676,13 @@ export default function Prices() {
                                   <KeyboardAvoidingView>
                                     <Input
                                       onChangeText={(value) => {
-                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '') // mantém só letras e espaço
-                                        const parts = formattedValue.trim().split(' ')
-                                        const localType = parts[0]?.toUpperCase() || ''
-                                        const streetName = parts.slice(1).join(' ')
-                                        setLocalType(localType)
-                                        setStreet(streetName)
-                                        setStreetComplete(formattedValue) // usado para exibir no campo
+                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, ''); // mantém só letras e espaço
+                                        const parts = formattedValue.trim().split(' ');
+                                        const localType = parts[0]?.toUpperCase() || '';
+                                        const streetName = parts.slice(1).join(' ');
+                                        setLocalType(localType);
+                                        setStreet(streetName);
+                                        setStreetComplete(formattedValue); // usado para exibir no campo
                                       }}
                                       backgroundColor="white"
                                       borderColor="lightgray"
@@ -1595,11 +1692,11 @@ export default function Prices() {
                                       value={streetComplete}
                                       focusStyle={{
                                         borderColor: '#049A63',
-                                        borderWidth: 1
+                                        borderWidth: 1,
                                       }}
                                       hoverStyle={{
                                         borderColor: '#049A63',
-                                        borderWidth: 1
+                                        borderWidth: 1,
                                       }}
                                     />
                                   </KeyboardAvoidingView>
@@ -1628,16 +1725,16 @@ export default function Prices() {
                                   value={localNumber}
                                   keyboardType="numeric"
                                   onChangeText={(value) => {
-                                    const formattedValue = value.replace(/[^0-9]/g, '')
-                                    setLocalNumber(formattedValue)
+                                    const formattedValue = value.replace(/[^0-9]/g, '');
+                                    setLocalNumber(formattedValue);
                                   }}
                                   focusStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                   hoverStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                 />
                               </View>
@@ -1654,15 +1751,15 @@ export default function Prices() {
                                   borderRadius={5}
                                   value={complement}
                                   onChangeText={(value) => {
-                                    setComplement(value)
+                                    setComplement(value);
                                   }}
                                   focusStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                   hoverStyle={{
                                     borderColor: '#049A63',
-                                    borderWidth: 1
+                                    borderWidth: 1,
                                   }}
                                 />
                               </View>
@@ -1688,24 +1785,23 @@ export default function Prices() {
                                     borderRadius={5}
                                     value={responsibleReceivingName}
                                     onChangeText={(value) => {
-                                      const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                                      setResponsibleReceivingName(formattedValue)
+                                      const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                                      setResponsibleReceivingName(formattedValue);
                                     }}
                                     focusStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1
+                                      borderWidth: 1,
                                     }}
                                     hoverStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1
+                                      borderWidth: 1,
                                     }}
                                   />
                                 </KeyboardAvoidingView>
                               </View>
                               <View flex={1}>
                                 <Text paddingLeft={5} fontSize={12} color="gray">
-                                  Cel Resp. recebimento{' '}
-                                  <Text color="red">*</Text>
+                                  Cel Resp. recebimento <Text color="red">*</Text>
                                 </Text>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                   <Input
@@ -1719,30 +1815,36 @@ export default function Prices() {
                                     keyboardType="phone-pad"
                                     focusStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1
+                                      borderWidth: 1,
                                     }}
                                     hoverStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1
+                                      borderWidth: 1,
                                     }}
                                     onChangeText={(value) => {
-                                      let onlyNums = value.replace(/\D/g, '')
+                                      let onlyNums = value.replace(/\D/g, '');
 
                                       if (onlyNums.length > 10) {
                                         // Formato moderno (celular): (XX) XXXXX-XXXX
-                                        onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{5})(\d{0,4})/,
+                                          '($1) $2-$3',
+                                        );
                                       } else if (onlyNums.length > 6) {
                                         // Formato convencional (fixo): (XX) XXXX-XXXX
-                                        onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+                                        onlyNums = onlyNums.replace(
+                                          /(\d{2})(\d{4})(\d{0,4})/,
+                                          '($1) $2-$3',
+                                        );
                                       } else if (onlyNums.length > 2) {
                                         // Formato parcial: (XX) XXXX
-                                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2')
+                                        onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
                                       } else if (onlyNums.length > 0) {
                                         // Formato parcial: (XX
-                                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
+                                        onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
                                       }
 
-                                      setResponsibleReceivingPhoneNumber(onlyNums)
+                                      setResponsibleReceivingPhoneNumber(onlyNums);
                                     }}
                                   />
                                 </KeyboardAvoidingView>
@@ -1768,15 +1870,15 @@ export default function Prices() {
                                     borderRadius={5}
                                     value={deliveryInformation}
                                     onChangeText={(value) => {
-                                      setDeliveryInformation(value)
+                                      setDeliveryInformation(value);
                                     }}
                                     focusStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1
+                                      borderWidth: 1,
                                     }}
                                     hoverStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1
+                                      borderWidth: 1,
                                     }}
                                   />
                                 </KeyboardAvoidingView>
@@ -1796,8 +1898,8 @@ export default function Prices() {
                     >
                       <Button
                         onPress={() => {
-                          setEditInfos(false)
-                          setDraftSelectedRestaurant(null)
+                          setEditInfos(false);
+                          setDraftSelectedRestaurant(null);
                         }}
                         backgroundColor="black"
                         flex={1}
@@ -1807,44 +1909,55 @@ export default function Prices() {
                         </Text>
                       </Button>
                       <Button
-                        {...(zipCode?.length === 9 && localNumber?.length && street?.length && responsibleReceivingName?.length && responsibleReceivingPhoneNumber?.length && localType?.length && city?.length ? {} : { opacity: 0.4, disabled: true })}
+                        {...(zipCode?.length === 9 &&
+                        localNumber?.length &&
+                        street?.length &&
+                        responsibleReceivingName?.length &&
+                        responsibleReceivingPhoneNumber?.length &&
+                        localType?.length &&
+                        city?.length
+                          ? {}
+                          : { opacity: 0.4, disabled: true })}
                         onPress={async () => {
-                          if (!validateFields()) return // Valida os campos antes de prosseguir
+                          if (!validateFields()) return; // Valida os campos antes de prosseguir
 
                           //setLoading(true);
-                          const rest: SelectItem = JSON.parse(JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant))
-                          const addressInfo = rest.addressInfos[0]
+                          const rest: SelectItem = JSON.parse(
+                            JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant),
+                          );
+                          const addressInfo = rest.addressInfos[0];
 
-                          addressInfo.neighborhood = neighborhood
-                          addressInfo.city = city
-                          addressInfo.localType = localType
-                          addressInfo.localNumber = localNumber
-                          addressInfo.responsibleReceivingName = responsibleReceivingName
-                          addressInfo.responsibleReceivingPhoneNumber = responsibleReceivingPhoneNumber
-                          addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '')
-                          addressInfo.address = street
-                          addressInfo.complement = complement
-                          addressInfo.deliveryInformation = deliveryInformation
-                          addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`
-                          addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`
+                          addressInfo.neighborhood = neighborhood;
+                          addressInfo.city = city;
+                          addressInfo.localType = localType;
+                          addressInfo.localNumber = localNumber;
+                          addressInfo.responsibleReceivingName = responsibleReceivingName;
+                          addressInfo.responsibleReceivingPhoneNumber =
+                            responsibleReceivingPhoneNumber;
+                          addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '');
+                          addressInfo.address = street;
+                          addressInfo.complement = complement;
+                          addressInfo.deliveryInformation = deliveryInformation;
+                          addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
+                          addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 
-                          setEditInfos(false)
+                          setEditInfos(false);
 
-                          setSelectedRestaurant(rest)
+                          setSelectedRestaurant(rest);
 
-                          setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }))
+                          setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }));
                           await Promise.all([
                             loadPrices(rest),
                             fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
                               body: JSON.stringify({
-                                ...rest
+                                ...rest,
                               }),
                               headers: {
-                                'Content-Type': 'application/json'
+                                'Content-Type': 'application/json',
                               },
-                              method: 'POST'
-                            })
-                          ])
+                              method: 'POST',
+                            }),
+                          ]);
                         }}
                         backgroundColor="#04BF7B"
                         flex={1}
@@ -1857,11 +1970,21 @@ export default function Prices() {
                   </View>
                 </View>
               </ScrollView>
-              <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
+              <CustomAlert
+                visible={isAlertVisible}
+                title="Campos obrigatórios"
+                message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`}
+                onConfirm={() => setIsAlertVisible(false)}
+              />
             </Modal>
           </View>
         )}
-        <CustomAlert visible={isConectarAlertVisible} title="Conéctar+ indisponível!" message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação." onConfirm={() => setIsConectarAlertVisible(false)} />
+        <CustomAlert
+          visible={isConectarAlertVisible}
+          title="Conéctar+ indisponível!"
+          message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação."
+          onConfirm={() => setIsConectarAlertVisible(false)}
+        />
         <DialogComercialInstance
           openModal={showBlockedModal}
           setOpenModal={setShowBlockedModal}
@@ -1871,30 +1994,38 @@ export default function Prices() {
           onSelectAvailable={async () => {
             try {
               // Encontrar um restaurante disponível
-              const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp)
+              const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp);
 
               if (availableRestaurant) {
                 // 1. Fechar o modal
-                setShowBlockedModal(false)
+                setShowBlockedModal(false);
 
                 // 2. Salvar o novo restaurante selecionado
-                await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+                await AsyncStorage.setItem(
+                  'selectedRestaurant',
+                  JSON.stringify({ restaurant: availableRestaurant }),
+                );
 
                 // 3. Atualizar o estado local
-                setSelectedRestaurant(availableRestaurant)
+                setSelectedRestaurant(availableRestaurant);
 
                 // 4. Recarregar os preços para o novo restaurante
-                await loadPrices(availableRestaurant)
+                await loadPrices(availableRestaurant);
 
-                setDraftSelectedRestaurant(null)
+                setDraftSelectedRestaurant(null);
               }
             } catch (error) {
-              console.error('Erro ao trocar de restaurante:', error)
+              console.error('Erro ao trocar de restaurante:', error);
             }
           }}
         />
       </View>
-      <CustomAlert visible={isAlertVisible} title="Campos obrigatórios" message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`} onConfirm={() => setIsAlertVisible(false)} />
+      <CustomAlert
+        visible={isAlertVisible}
+        title="Campos obrigatórios"
+        message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`}
+        onConfirm={() => setIsAlertVisible(false)}
+      />
     </Stack>
-  )
+  );
 }
