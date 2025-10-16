@@ -147,11 +147,11 @@ const PreferencesScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <YStack
-          w={Platform.OS === 'web' ? '76%' : '92%'}
+          width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
-          p="$4"
+          padding="$4"
           gap={15}
-          mt="$2"
+          marginTop="$2"
         >
           <CustomAlert
             visible={isAlertVisible}
@@ -174,7 +174,7 @@ const PreferencesScreen: React.FC = () => {
           </CustomSubtitle>
 
           {loading ? (
-            <YStack f={1} jc="center" ai="center" paddingTop={100}>
+            <YStack flex={1} justifyContent="center" alignItems="center" paddingTop={100}>
               <ActivityIndicator size="large" color="#04BF7B" />
             </YStack>
           ) : (

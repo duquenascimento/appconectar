@@ -38,7 +38,7 @@ export function UpdateAppModal({ openModal, message }: UpdateAppModalProps) {
         </Button>
       </XStack>
 
-      <View mt="$3" alignItems="center">
+      <View marginTop="$3" alignItems="center">
         <Text fontSize="$2" color="$gray10">
           v{process.env.EXPO_PUBLIC_VERSION}
         </Text>

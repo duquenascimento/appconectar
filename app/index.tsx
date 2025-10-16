@@ -119,31 +119,31 @@ const PwRecovery = ({
           backgroundColor="rgba(0, 0, 0, 0.9)"
         >
           <View
-            pb={15}
+            paddingBottom={15}
             paddingHorizontal={15}
-            pt={15}
-            $xl={{ minWidth: '40%' }}
-            $sm={{ minWidth: '90%' }}
+            paddingTop={15}
+            /* $xl={{ minWidth: '40%' }}
+            $sm={{ minWidth: '90%' }} */
             backgroundColor="white"
             borderRadius={10}
             justifyContent="center"
           >
             <Text>Redefinição de senha</Text>
             {step4 && (
-              <Text fontSize={20} mt={15} mb={15}>
+              <Text fontSize={20} marginTop={15} marginBottom={15}>
                 Senha redefinida com sucesso
               </Text>
             )}
             {!step3 && !step4 && (
               <>
-                <Text pt={5} fontSize={10}>
+                <Text paddingTop={5} fontSize={10}>
                   Informe o e-mail abaixo e insira o código enviado
                 </Text>
                 <Input
                   autoCapitalize="none"
                   keyboardType="email-address"
-                  mt={15}
-                  mb={15}
+                  marginTop={15}
+                  marginBottom={15}
                   onChangeText={setEmailModal}
                   placeholder="E-mail"
                   value={emailModal}
@@ -165,13 +165,13 @@ const PwRecovery = ({
             )}
             {step3 && !step4 && (
               <>
-                <Text pt={15} fontSize={10}>
+                <Text paddingTop={15} fontSize={10}>
                   Sua nova senha deve ter no mínimo 8 caracteres.
                 </Text>
                 {/* Campo "Nova Senha" */}
                 <XStack
-                  mt={10}
-                  pr="$3.5"
+                  marginTop={10}
+                  paddingRight="$3.5"
                   borderWidth={1}
                   borderRadius={9}
                   borderColor={isPasswordValid ? 'lightgray' : 'red'}
@@ -181,8 +181,8 @@ const PwRecovery = ({
                     autoCapitalize="none"
                     placeholder="Nova senha"
                     secureTextEntry={showPassword}
-                    f={1}
-                    mr="$3.5"
+                    flex={1}
+                    marginRight="$3.5"
                     backgroundColor="transparent"
                     borderWidth={0}
                     value={passwordModal}
@@ -196,9 +196,9 @@ const PwRecovery = ({
                 </XStack>
                 {/* Campo "Confirmar Nova Senha" */}
                 <XStack
-                  mt={10}
-                  mb={15}
-                  pr="$3.5"
+                  marginTop={10}
+                  marginBottom={15}
+                  paddingRight="$3.5"
                   borderWidth={1}
                   borderRadius={9}
                   borderColor={isPasswordValid ? 'lightgray' : 'red'}
@@ -208,8 +208,8 @@ const PwRecovery = ({
                     autoCapitalize="none"
                     placeholder="Confirmar nova senha"
                     secureTextEntry={showPassword}
-                    f={1}
-                    mr="$3.5"
+                    flex={1}
+                    marginRight="$3.5"
                     backgroundColor="transparent"
                     borderWidth={0}
                     value={confirmPasswordModal}
@@ -224,14 +224,14 @@ const PwRecovery = ({
               </>
             )}
             {erro && (
-              <Text color="red" mt={5}>
+              <Text color="red" marginTop={5}>
                 {erro}
               </Text>
             )}
             {!step4 && (
               <View
                 height={70}
-                pt={15}
+                paddingTop={15}
                 gap={5}
                 justifyContent="space-between"
                 flexDirection="row"
@@ -250,7 +250,7 @@ const PwRecovery = ({
                   backgroundColor="black"
                   flex={1}
                 >
-                  <Text pl={5} fontSize={12} color="white">
+                  <Text paddingLeft={5} fontSize={12} color="white">
                     Cancelar
                   </Text>
                 </Button>
@@ -333,7 +333,7 @@ const PwRecovery = ({
                   backgroundColor="#04BF7B"
                   flex={1}
                 >
-                  <Text pl={5} fontSize={12} color="white">
+                  <Text paddingLeft={5} fontSize={12} color="white">
                     Avançar
                   </Text>
                 </Button>
@@ -342,13 +342,13 @@ const PwRecovery = ({
             {step4 && (
               <View
                 height={70}
-                pt={15}
+                paddingTop={15}
                 gap={5}
                 justifyContent="space-between"
                 flexDirection="row"
               >
                 <Button onPress={close} backgroundColor="#04BF7B" flex={1}>
-                  <Text pl={5} fontSize={12} color="white">
+                  <Text paddingLeft={5} fontSize={12} color="white">
                     Fechar
                   </Text>
                 </Button>
@@ -444,7 +444,7 @@ export default function Sign() {
   }
 
   return (
-    <Stack bg={'$background'} height="100%">
+    <Stack backgroundColor={'$background'} height="100%">
       {closeModal && (
         <PwRecovery close={handleCloseModal} loading={handleLoading} />
       )}
@@ -608,7 +608,7 @@ export function SignInMobile(props: {
   }
 
   return (
-    <YStack px={24} f={1} justifyContent="center" alignItems="center">
+    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
       <DialogInstance
         openModal={registerInvalid}
         setRegisterInvalid={setRegisterInvalid}
@@ -619,7 +619,7 @@ export function SignInMobile(props: {
         objectFit="contain"
         maxWidth={200}
         height={80}
-        mb="$9"
+        marginBottom="$9"
       ></Image>
       <Text alignSelf="center" fontSize="$8">
         Bem-vindo
@@ -633,7 +633,7 @@ export function SignInMobile(props: {
         borderWidth={1}
         borderRadius={9}
         borderColor="lightgray"
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -645,7 +645,7 @@ export function SignInMobile(props: {
           backgroundColor="$colorTransparent"
           borderWidth="$0"
           borderColor="$colorTransparent"
-          f={1}
+          flex={1}
           maxLength={256}
           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
           value={email}
@@ -654,11 +654,11 @@ export function SignInMobile(props: {
       </XStack>
       <XStack
         backgroundColor="white"
-        pr="$3.5"
+        paddingRight="$3.5"
         borderWidth={1}
         borderRadius={9}
         borderColor="lightgray"
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -671,8 +671,8 @@ export function SignInMobile(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
-          f={1}
-          mr="$3.5"
+          flex={1}
+          marginRight="$3.5"
           maxLength={35}
           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
           value={password}
@@ -688,7 +688,7 @@ export function SignInMobile(props: {
       </XStack>
 
       <Button
-        mt="$3.5"
+        marginTop="$3.5"
         backgroundColor="#04BF7B"
         color="white"
         fontWeight="$10"
@@ -700,21 +700,21 @@ export function SignInMobile(props: {
         Entrar
       </Button>
 
-      {/* <Text color='$gray10Dark' mt='$3.5'>Ou entre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou entre com</Text>
+            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
+            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
 
       <Text
         onPress={props.modal}
         fontSize="$5"
-        mt="$5"
+        marginTop="$5"
         fontWeight="$15"
         cursor="pointer"
       >
         Esqueceu sua senha?
       </Text>
       <Text
-        mt={5}
+        marginTop={5}
         color="gray"
         cursor="pointer"
         onPress={() => {
@@ -727,7 +727,7 @@ export function SignInMobile(props: {
       </Text>
 
       <XStack
-        mt="$9"
+        marginTop="$9"
         borderColor="$gray7Light"
         borderWidth={1}
         borderRadius={9}
@@ -737,7 +737,7 @@ export function SignInMobile(props: {
           borderTopRightRadius={0}
           borderBottomRightRadius={0}
           height="$5"
-          bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
         >
           Entrar
         </Button>
@@ -746,7 +746,7 @@ export function SignInMobile(props: {
           borderTopLeftRadius={0}
           borderBottomLeftRadius={0}
           height="$5"
-          bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
           onPress={() => props.onButtonPress('SignUp')}
         >
           Criar conta
@@ -917,7 +917,7 @@ export function SignUpMobile(props: {
   }
 
   return (
-    <YStack px={24} f={1} justifyContent="center" alignItems="center">
+    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
       <DialogInstance
         openModal={registerInvalid}
         setRegisterInvalid={setRegisterInvalid}
@@ -928,7 +928,7 @@ export function SignUpMobile(props: {
         objectFit="contain"
         maxWidth={200}
         height={80}
-        mb="$6"
+        marginBottom="$6"
       ></Image>
 
       <Text alignSelf="flex-start" fontSize="$8">
@@ -944,7 +944,7 @@ export function SignUpMobile(props: {
         borderWidth={1}
         borderRadius={9}
         borderColor={name.length > 0 && !nameValid ? '$red10' : 'lightgray'}
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -976,7 +976,7 @@ export function SignUpMobile(props: {
         />
       </XStack>
 
-      <XStack style={{ zIndex: 50, width: '100%' }} mt="$3.5">
+      <XStack style={{ zIndex: 50, width: '100%' }} marginTop="$3.5">
         <DropDownPicker
           open={open}
           value={position}
@@ -1006,7 +1006,7 @@ export function SignUpMobile(props: {
         borderColor={
           phone.length === 0 ? 'lightgray' : phoneValid ? 'lightgray' : 'red'
         }
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1054,7 +1054,7 @@ export function SignUpMobile(props: {
         borderWidth={1}
         borderRadius={9}
         borderColor={email.length > 0 && !emailValid ? 'red' : 'lightgray'}
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1070,7 +1070,7 @@ export function SignUpMobile(props: {
           textContentType="emailAddress"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
-          f={1}
+          flex={1}
           maxLength={256}
           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
@@ -1079,7 +1079,7 @@ export function SignUpMobile(props: {
       <XStack
         width="$100"
         backgroundColor="white"
-        pr="$3.5"
+        paddingRight="$3.5"
         borderWidth={1}
         borderRadius={9}
         borderColor={
@@ -1089,7 +1089,7 @@ export function SignUpMobile(props: {
             ? 'lightgray'
             : 'red'
         }
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1103,8 +1103,8 @@ export function SignUpMobile(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
-          f={1}
-          mr="$3.5"
+          flex={1}
+          marginRight="$3.5"
           maxLength={20}
           value={password}
           onChangeText={(text) => {
@@ -1124,7 +1124,7 @@ export function SignUpMobile(props: {
       <XStack
         width="$100"
         backgroundColor="white"
-        pr="$3.5"
+        paddingRight="$3.5"
         borderWidth={1}
         borderRadius={9}
         borderColor={
@@ -1134,7 +1134,7 @@ export function SignUpMobile(props: {
             ? 'lightgray'
             : 'red'
         }
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1148,8 +1148,8 @@ export function SignUpMobile(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showConfirmPw}
-          f={1}
-          mr="$3.5"
+          flex={1}
+          marginRight="$3.5"
           maxLength={20}
           onChangeText={(text) => {
             setConfirmPassword(text)
@@ -1167,7 +1167,7 @@ export function SignUpMobile(props: {
       </XStack>
 
       <Button
-        mt="$3.5"
+        marginTop="$3.5"
         backgroundColor="#04BF7B"
         color="white"
         fontWeight="$10"
@@ -1191,12 +1191,12 @@ export function SignUpMobile(props: {
         Cadastrar
       </Button>
 
-      {/* <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou cadastre com</Text>
+            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
+            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
 
       <Text
-        mt={5}
+        marginTop={5}
         color="gray"
         cursor="pointer"
         onPress={() => {
@@ -1209,7 +1209,7 @@ export function SignUpMobile(props: {
       </Text>
 
       <XStack
-        mt="$9"
+        marginTop="$9"
         borderColor="$gray7Light"
         borderWidth={1}
         borderRadius={9}
@@ -1219,7 +1219,7 @@ export function SignUpMobile(props: {
           borderTopRightRadius={0}
           borderBottomRightRadius={0}
           height="$5"
-          bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
           onPress={() => props.onButtonPress('SignIn')}
         >
           Entrar
@@ -1229,7 +1229,7 @@ export function SignUpMobile(props: {
           borderTopLeftRadius={0}
           borderBottomLeftRadius={0}
           height="$5"
-          bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
         >
           Criar conta
         </Button>
@@ -1344,7 +1344,7 @@ export function SignInWeb(props: {
   }
 
   return (
-    <YStack px={24} f={1} justifyContent="center" alignItems="center">
+    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
       <DialogInstance
         openModal={registerInvalid}
         setRegisterInvalid={setRegisterInvalid}
@@ -1355,7 +1355,7 @@ export function SignInWeb(props: {
         width={240}
         height={80}
         objectFit="fill"
-        mb="$8"
+        marginBottom="$8"
       />
 
       <Stack width="$20">
@@ -1371,7 +1371,7 @@ export function SignInWeb(props: {
         borderWidth={1}
         borderRadius={9}
         borderColor="lightgray"
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1385,7 +1385,7 @@ export function SignInWeb(props: {
           backgroundColor="$colorTransparent"
           borderWidth="$0"
           borderColor="$colorTransparent"
-          f={1}
+          flex={1}
           maxLength={256}
           width="100%"
         />
@@ -1393,11 +1393,11 @@ export function SignInWeb(props: {
       <XStack
         width="$20"
         backgroundColor="white"
-        pr="$3.5"
+        paddingRight="$3.5"
         borderWidth={1}
         borderRadius={9}
         borderColor="lightgray"
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1414,8 +1414,8 @@ export function SignInWeb(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
-          f={1}
-          mr="$3.5"
+          flex={1}
+          marginRight="$3.5"
           maxLength={20}
         />
         <Icons
@@ -1432,7 +1432,7 @@ export function SignInWeb(props: {
           await login(email, password, setRegisterInvalid, setErros)
         }}
         hoverStyle={{ backgroundColor: '#03a86c' }}
-        mt="$3.5"
+        marginTop="$3.5"
         backgroundColor="#04BF7B"
         color="white"
         fontWeight="$10"
@@ -1441,14 +1441,14 @@ export function SignInWeb(props: {
         Entrar
       </Button>
 
-      {/* <Text color='$gray10Dark' mt='$3.5'>Ou entre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou entre com</Text>
+            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
+            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
 
       <Text
         onPress={props.modal}
         fontSize="$5"
-        mt="$5"
+        marginTop="$5"
         fontWeight="$15"
         cursor="pointer"
       >
@@ -1456,7 +1456,7 @@ export function SignInWeb(props: {
       </Text>
 
       <Text
-        mt={5}
+        marginTop={5}
         color="gray"
         cursor="pointer"
         onPress={() => {
@@ -1469,7 +1469,7 @@ export function SignInWeb(props: {
       </Text>
 
       <XStack
-        mt="$9"
+        marginTop="$9"
         borderColor="$gray7Light"
         borderWidth={1}
         borderRadius={9}
@@ -1480,7 +1480,7 @@ export function SignInWeb(props: {
           borderTopRightRadius={0}
           borderBottomRightRadius={0}
           height="$5"
-          bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
         >
           Entrar
         </Button>
@@ -1489,7 +1489,7 @@ export function SignInWeb(props: {
           borderTopLeftRadius={0}
           borderBottomLeftRadius={0}
           height="$5"
-          bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
           onPress={() => props.onButtonPress('SignUp')}
         >
           Criar conta
@@ -1659,13 +1659,13 @@ export function SignUpWeb(props: {
   }
 
   return (
-    <YStack px={24} f={1} justifyContent="center" alignItems="center">
+    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
       <Image
         src={require('../assets/images/logo-conectar-positivo.svg')}
         width={240}
         height={80}
         objectFit="fill"
-        mb="$6"
+        marginBottom="$6"
       />
       {registerInvalid && (
         <DialogInstance
@@ -1686,7 +1686,7 @@ export function SignUpWeb(props: {
         borderWidth={1}
         borderRadius={9}
         borderColor={name.length > 0 && !nameValid ? 'red' : 'lightgray'}
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1700,7 +1700,7 @@ export function SignUpWeb(props: {
           value={name}
           backgroundColor="$colorTransparent"
           borderWidth="0"
-          f={1}
+          flex={1}
           width="100%"
           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
@@ -1712,7 +1712,7 @@ export function SignUpWeb(props: {
         borderWidth={1}
         backgroundColor="white"
         borderRadius={9}
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={30}
@@ -1745,7 +1745,7 @@ export function SignUpWeb(props: {
         borderColor={
           phone.length === 0 ? 'lightgray' : phoneValid ? 'lightgray' : 'red'
         }
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1793,7 +1793,7 @@ export function SignUpWeb(props: {
         borderWidth={1}
         borderRadius={9}
         borderColor={email.length > 0 && !emailValid ? 'red' : 'lightgray'}
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1809,7 +1809,7 @@ export function SignUpWeb(props: {
           textContentType="emailAddress"
           backgroundColor="$colorTransparent"
           borderWidth="$0"
-          f={1}
+          flex={1}
           maxLength={256}
           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
@@ -1818,7 +1818,7 @@ export function SignUpWeb(props: {
       <XStack
         width="$20"
         backgroundColor="white"
-        pr="$3.5"
+        paddingRight="$3.5"
         borderWidth={1}
         borderRadius={9}
         borderColor={
@@ -1828,7 +1828,7 @@ export function SignUpWeb(props: {
             ? 'lightgray'
             : 'red' // Vermelho se inválido
         }
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1842,8 +1842,8 @@ export function SignUpWeb(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
-          f={1}
-          mr="$3.5"
+          flex={1}
+          marginRight="$3.5"
           value={password}
           maxLength={20}
           onChangeText={(text) => {
@@ -1863,7 +1863,7 @@ export function SignUpWeb(props: {
       <XStack
         width="$20"
         backgroundColor="white"
-        pr="$3.5"
+        paddingRight="$3.5"
         borderWidth={1}
         borderRadius={9}
         borderColor={
@@ -1873,7 +1873,7 @@ export function SignUpWeb(props: {
             ? 'lightgray'
             : 'red' // Vermelho se inválido
         }
-        mt="$3.5"
+        marginTop="$3.5"
         alignItems="center"
         flexDirection="row"
         zIndex={20}
@@ -1887,8 +1887,8 @@ export function SignUpWeb(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           secureTextEntry={showConfirmPw}
-          f={1}
-          mr="$3.5"
+          flex={1}
+          marginRight="$3.5"
           maxLength={20}
           onChangeText={(text) => {
             setConfirmPassword(text)
@@ -1922,7 +1922,7 @@ export function SignUpWeb(props: {
           )
         }}
         hoverStyle={{ backgroundColor: '#03a86c' }}
-        mt="$3.5"
+        marginTop="$3.5"
         backgroundColor="#04BF7B"
         color="white"
         fontWeight="$10"
@@ -1931,12 +1931,12 @@ export function SignUpWeb(props: {
         Cadastrar
       </Button>
 
-      {/* <Text color='$gray10Dark' mt='$3.5'>Ou cadastre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' mt='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
+      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou cadastre com</Text>
+            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
+            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
 
       <Text
-        mt={5}
+        marginTop={5}
         color="gray"
         cursor="pointer"
         onPress={() => {
@@ -1949,7 +1949,7 @@ export function SignUpWeb(props: {
       </Text>
 
       <XStack
-        mt="$6"
+        marginTop="$6"
         borderColor="$gray7Light"
         borderWidth={1}
         borderRadius={9}
@@ -1960,7 +1960,7 @@ export function SignUpWeb(props: {
           borderTopRightRadius={0}
           borderBottomRightRadius={0}
           height="$5"
-          bg={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
           onPress={() => props.onButtonPress('SignIn')}
         >
           Entrar
@@ -1970,7 +1970,7 @@ export function SignUpWeb(props: {
           borderTopLeftRadius={0}
           borderBottomLeftRadius={0}
           height="$5"
-          bg={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
+          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
         >
           Criar conta
         </Button>
@@ -1988,7 +1988,7 @@ export function DialogInstance(props: {
 }) {
   return (
     <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet
           animationConfig={{
             type: 'spring',

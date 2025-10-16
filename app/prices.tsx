@@ -107,8 +107,13 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
       borderBottomWidth={0.1}
       borderBottomColor="lightgray"
     >
-      <View style={{ paddingLeft: Platform.OS === 'web' ? '20vw' : '' }} marginVertical={10} flexDirection="row" f={1}>
-        <View p={5}>
+      <View
+        style={{ paddingLeft: Platform.OS === 'web' ? '20vw' : '' }}
+        marginVertical={10}
+        flexDirection="row"
+        flex={1}
+      >
+        <View padding={5}>
           <Image
             source={{
               uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`
@@ -118,11 +123,13 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
             borderRadius={50}
           />
         </View>
-        <View ml={10} maxWidth="75%" justifyContent="center">
-          <Text fs={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
+        <View marginLeft={10} maxWidth="75%" justifyContent="center">
+          <Text flexShrink={16}>
+            {supplier.supplier.name.replace('Distribuidora', '')}
+          </Text>
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star"></Icons>
-            <Text pl={4}>{supplier.supplier.star}</Text>
+            <Text paddingLeft={4}>{supplier.supplier.star}</Text>
           </View>
         </View>
       </View>
@@ -154,7 +161,11 @@ const SupplierBox = ({ supplier, available, goToConfirm, selectedRestaurant }: {
           )}
         </View>
       </View>
-      <View pl={10} justifyContent="center" style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}>
+      <View
+        paddingLeft={10}
+        justifyContent="center"
+        style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}
+      >
         {available && <Icons name="chevron-forward" size={24}></Icons>}
       </View>
     </View>
@@ -453,14 +464,26 @@ export default function Prices() {
   const renderItem = ({ item }: { item: any }) => {
     if (item.separator) {
       return (
-        <Text style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }} pb={10} pt={30} opacity={60} fontSize={16}>
+        <Text
+          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+          paddingBottom={10}
+          paddingTop={30}
+          opacity={60}
+          fontSize={16}
+        >
           Fornecedores indisponíveis
         </Text>
       )
     }
     if (item.initialSeparator) {
       return (
-        <Text style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }} pb={5} opacity={60} mt={10} fontSize={16}>
+        <Text
+          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+          paddingBottom={5}
+          opacity={60}
+          marginTop={10}
+          fontSize={16}
+        >
           Fornecedores disponíveis
         </Text>
       )
@@ -519,7 +542,7 @@ export default function Prices() {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
-        <Text fontSize={12} mt={5} color="gray" textAlign="center">
+        <Text fontSize={12} marginTop={5} color="gray" textAlign="center">
           Cotação solicitada, fique de olho no Whatsapp
         </Text>
       </View>
@@ -532,7 +555,7 @@ export default function Prices() {
         <ActivityIndicator size="large" color="#04BF7B" />
         {loadingSuppliers ? (
           <>
-            <Text fontSize={16} mt={5} color="gray" textAlign="center">
+            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
               Carregando lista de fornecedores. Por favor Aguarde...
             </Text>
           </>
@@ -544,9 +567,20 @@ export default function Prices() {
   }
 
   return (
-    <Stack pt={Platform.OS === 'web' ? 20 : 15} backgroundColor="white" height="100%" position="relative">
+    <Stack
+      paddingTop={Platform.OS === 'web' ? 20 : 15}
+      backgroundColor="white"
+      height="100%"
+      position="relative"
+    >
       <View height={50} flex={1} paddingTop={20}>
-        <View pb={20} alignItems="center" paddingLeft={20} paddingRight={20} flexDirection="row">
+        <View
+          paddingBottom={20}
+          alignItems="center"
+          paddingLeft={20}
+          paddingRight={20}
+          flexDirection="row"
+        >
           <Icons
             onPress={() => {
               router.push('/cart')
@@ -554,7 +588,7 @@ export default function Prices() {
             size={25}
             name="chevron-back"
           ></Icons>
-          <Text f={1} textAlign="center" fontSize={20}>
+          <Text flex={1} textAlign="center" fontSize={20}>
             Cotações
           </Text>
         </View>
@@ -572,7 +606,12 @@ export default function Prices() {
             justifyContent="center"
           >
             <Text color={tab === 'plus' ? '#04BF7B' : 'gray'}>Conéctar+</Text>
-            <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? '#04BF7B' : 'white'}></View>
+            <View
+              marginTop={10}
+              height={1}
+              width="100%"
+              backgroundColor={tab === 'plus' ? '#04BF7B' : 'white'}
+            ></View>
           </View>
           <View
             onPress={() => {
@@ -584,16 +623,46 @@ export default function Prices() {
             alignItems="center"
             justifyContent="center"
           >
-            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>Por fornecedor</Text>
-            <View mt={10} h={1} width="100%" backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}></View>
+            <Text color={tab === 'plus' ? 'gray' : '#04BF7B'}>
+              Por fornecedor
+            </Text>
+            <View
+              marginTop={10}
+              height={1}
+              width="100%"
+              backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}
+            ></View>
           </View>
         </View>
         <View backgroundColor="white" flex={1} paddingHorizontal={5}>
-          <View p={10} paddingTop={0} height="100%">
-            {tab === 'onlySupplier' && <VirtualizedList style={{ marginBottom: 5, flexGrow: 1 }} data={combinedSuppliers} getItemCount={getItemCount} getItem={getItem} keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)} renderItem={renderItem} ItemSeparatorComponent={() => <View height={2} />} initialNumToRender={10} windowSize={4} scrollEnabled={true} />}
+          <View padding={10} paddingTop={0} height="100%">
+            {tab === 'onlySupplier' && (
+              <VirtualizedList
+                style={{ marginBottom: 5, flexGrow: 1 }}
+                data={combinedSuppliers}
+                getItemCount={getItemCount}
+                getItem={getItem}
+                keyExtractor={(item, index) =>
+                  item.supplier ? item.supplier.name : `separator-${index}`
+                }
+                renderItem={renderItem}
+                ItemSeparatorComponent={() => <View height={2} />}
+                initialNumToRender={10}
+                windowSize={4}
+                scrollEnabled={true}
+              />
+            )}
             {tab !== 'onlySupplier' && !permissionConectarPlus && (
-              <View p={20} mt={10}>
-                <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title="Pronto!" subtitle="Cotação solicitada." description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação." buttonText="Ok" onConfirm={handleConfirm} />
+              <View padding={20} marginTop={10}>
+                <DialogInstanceNotification
+                  openModal={showNotification}
+                  setOpenModal={setShowNotification}
+                  title="Pronto!"
+                  subtitle="Cotação solicitada."
+                  description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação."
+                  buttonText="Ok"
+                  onConfirm={handleConfirm}
+                />
 
                 <Button
                   backgroundColor="#04BF7B"
@@ -625,7 +694,7 @@ export default function Prices() {
                     Solicitar cotação
                   </Text>
                 </Button>
-                <Text mt={5} textAlign="center" fontSize={12} color="gray">
+                <Text marginTop={5} textAlign="center" fontSize={12} color="gray">
                   Você receberá a cotação no Whatsapp
                 </Text>
               </View>
@@ -657,16 +726,43 @@ export default function Prices() {
           borderTopWidth={1}
         >
           <View flexDirection="row" alignItems="center">
-            <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+            <View
+              padding={10}
+              marginRight={10}
+              flexDirection="row"
+              flex={1}
+              borderColor="lightgray"
+              borderRadius={5}
+              borderWidth={1}
+              paddingHorizontal={10}
+              backgroundColor="white"
+              alignItems="center"
+            >
               <Icons size={20} color="#04BF7B" name="storefront"></Icons>
-              <View ml={20}></View>
-              <Text numberOfLines={showRestInfo ? 1 : 1} ellipsizeMode="tail" fontSize={12} style={{ flexShrink: 1, width: '100%' }}>
+              <View marginLeft={20}></View>
+              <Text
+                numberOfLines={showRestInfo ? 1 : 1}
+                ellipsizeMode="tail"
+                fontSize={12}
+                style={{ flexShrink: 1, width: '100%' }}
+              >
                 {selectedRestaurant?.name || ''}
               </Text>
             </View>
-            <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+            <View
+              padding={10}
+              marginRight={10}
+              flexDirection="row"
+              flex={1}
+              borderColor="lightgray"
+              borderRadius={5}
+              borderWidth={1}
+              paddingHorizontal={10}
+              backgroundColor="white"
+              alignItems="center"
+            >
               <Icons size={20} color="#04BF7B" name="time"></Icons>
-              <View ml={20}></View>
+              <View marginLeft={20}></View>
               <Text fontSize={12}>
                 {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} - {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
               </Text>
@@ -680,30 +776,93 @@ export default function Prices() {
             ></Icons>
           </View>
           <View display={showRestInfo ? 'flex' : 'none'}>
-            <View pt={5} flexDirection="row" alignItems="center">
-              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+            <View paddingTop={5} flexDirection="row" alignItems="center">
+              <View
+                padding={10}
+                marginRight={10}
+                flexDirection="row"
+                flex={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="location"></Icons>
-                <View ml={20}></View>
-                <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>
-                  {selectedRestaurant.addressInfos[0].localType} {selectedRestaurant.addressInfos[0].address}, {selectedRestaurant.addressInfos[0].localNumber}. {selectedRestaurant.addressInfos[0].complement} - {selectedRestaurant.addressInfos[0].neighborhood}, {selectedRestaurant.addressInfos[0].city}
+                <View marginLeft={20}></View>
+                <Text
+                  numberOfLines={1}
+                  overflow="scroll"
+                  ellipsizeMode="tail"
+                  fontSize={12}
+                >
+                  {selectedRestaurant.addressInfos[0].localType}{' '}
+                  {selectedRestaurant.addressInfos[0].address},{' '}
+                  {selectedRestaurant.addressInfos[0].localNumber}.{' '}
+                  {selectedRestaurant.addressInfos[0].complement} -{' '}
+                  {selectedRestaurant.addressInfos[0].neighborhood},{' '}
+                  {selectedRestaurant.addressInfos[0].city}
                 </Text>
               </View>
-              <View p={10} mr={10} flexDirection="row" f={2} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+              <View
+                padding={10}
+                marginRight={10}
+                flexDirection="row"
+                flex={2}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
-                <View ml={20}></View>
-                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
+                <View marginLeft={20}></View>
+                <Text fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].deliveryInformation}
+                </Text>
               </View>
             </View>
-            <View pt={5} flexDirection="row" alignItems="center">
-              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+            <View paddingTop={5} flexDirection="row" alignItems="center">
+              <View
+                padding={10}
+                marginRight={10}
+                flexDirection="row"
+                flex={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="person"></Icons>
-                <View ml={20}></View>
-                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingName}</Text>
+                <View marginLeft={20}></View>
+                <Text fontSize={12}>
+                  {selectedRestaurant.addressInfos[0].responsibleReceivingName}
+                </Text>
               </View>
-              <View p={10} mr={10} flexDirection="row" f={1} borderColor="lightgray" borderRadius={5} borderWidth={1} paddingHorizontal={10} backgroundColor="white" alignItems="center">
+              <View
+                padding={10}
+                marginRight={10}
+                flexDirection="row"
+                flex={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+              >
                 <Icons size={20} color="#04BF7B" name="call"></Icons>
-                <View ml={20}></View>
-                <Text fontSize={12}>{selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}</Text>
+                <View marginLeft={20}></View>
+                <Text fontSize={12}>
+                  {
+                    selectedRestaurant.addressInfos[0]
+                      .responsibleReceivingPhoneNumber
+                  }
+                </Text>
               </View>
             </View>
           </View>
@@ -719,11 +878,25 @@ export default function Prices() {
                 }}
                 keyboardShouldPersistTaps="handled"
               >
-                <View flex={1} justifyContent="center" alignItems="center" backgroundColor="rgba(0, 0, 0, 0.9)">
-                  <View pb={15} paddingHorizontal={15} pt={15} minWidth={Platform.OS === 'web' ? '40%' : '90%'} backgroundColor="white" borderRadius={10} justifyContent="center" zIndex={101}>
+                <View
+                  flex={1}
+                  justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="rgba(0, 0, 0, 0.9)"
+                >
+                  <View
+                    paddingBottom={15}
+                    paddingHorizontal={15}
+                    paddingTop={15}
+                    minWidth={Platform.OS === 'web' ? '40%' : '90%'}
+                    backgroundColor="white"
+                    borderRadius={10}
+                    justifyContent="center"
+                    zIndex={101}
+                  >
                     {screemSize === 'lg/xl' ? (
                       <>
-                        <Text pl={5} fontSize={12} color="gray">
+                        <Text paddingLeft={5} fontSize={12} color="gray">
                           Restaurante
                         </Text>
                         {allRestaurants.length > 0 ? (
@@ -760,9 +933,16 @@ export default function Prices() {
                         ) : (
                           <Text>Loading...</Text>
                         )}
-                        <View pt={10} gap={10} mb={Platform.OS === 'web' ? 0 : 35} justifyContent="space-between" flexDirection="row" zIndex={100}>
+                        <View
+                          paddingTop={10}
+                          gap={10}
+                          marginBottom={Platform.OS === 'web' ? 0 : 35}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                          zIndex={100}
+                        >
                           <View flex={1}>
-                            <Text pl={5} fontSize={12} color="gray">
+                            <Text paddingLeft={5} fontSize={12} color="gray">
                               A partir de
                             </Text>
                             <DropDownPicker
@@ -786,7 +966,7 @@ export default function Prices() {
                             ></DropDownPicker>
                           </View>
                           <View flex={1} zIndex={100}>
-                            <Text pl={5} fontSize={12} color="gray">
+                            <Text paddingLeft={5} fontSize={12} color="gray">
                               Até
                             </Text>
                             <DropDownPicker
@@ -862,9 +1042,9 @@ export default function Prices() {
                                 value={zipCode}
                               />
                             </View>
-                            <View zIndex={-1} flex={1} mt={10}>
+                            <View zIndex={-1} flex={1} marginTop={10}>
                               <KeyboardAvoidingView>
-                                <Text pl={5} fontSize={12} color="gray">
+                                <Text paddingLeft={5} fontSize={12} color="gray">
                                   Cidade
                                 </Text>
                                 <Input
@@ -892,7 +1072,7 @@ export default function Prices() {
 
                         <View flex={1}>
                           <KeyboardAvoidingView>
-                            <Text pl={5} fontSize={12} color="gray">
+                            <Text paddingLeft={5} fontSize={12} color="gray">
                               Bairro
                             </Text>
                             <Input
@@ -914,7 +1094,11 @@ export default function Prices() {
                             />
                           </KeyboardAvoidingView>
                         </View>
-                        <View flexDirection="row" mt={10} gap={Platform.OS === 'web' ? 10 : 50}>
+                        <View
+                          flexDirection="row"
+                          marginTop={10}
+                          gap={Platform.OS === 'web' ? 10 : 50}
+                        >
                           <View flex={1}>
                             <Text
                               style={{
@@ -957,8 +1141,8 @@ export default function Prices() {
                         <View
                           zIndex={-1}
                           height={70}
-                          mb={5}
-                          pt={10}
+                          marginBottom={5}
+                          paddingTop={10}
                           gap={10}
                           justifyContent="space-between"
                           style={{
@@ -967,7 +1151,7 @@ export default function Prices() {
                         >
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                              <Text pl={5} fontSize={12} color="gray">
+                              <Text paddingLeft={5} fontSize={12} color="gray">
                                 Nº
                               </Text>
                               <Input
@@ -997,7 +1181,7 @@ export default function Prices() {
 
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                              <Text pl={5} fontSize={12} color="gray">
+                              <Text paddingLeft={5} fontSize={12} color="gray">
                                 Complemento
                               </Text>
                               <Input
@@ -1022,9 +1206,16 @@ export default function Prices() {
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                        <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                        <View
+                          zIndex={-1}
+                          height={70}
+                          paddingTop={10}
+                          gap={10}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                        >
                           <View flex={1}>
-                            <Text pl={5} fontSize={12} color="gray">
+                            <Text paddingLeft={5} fontSize={12} color="gray">
                               Resp. recebimento <Text color="red">*</Text>
                             </Text>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -1051,7 +1242,7 @@ export default function Prices() {
                             </KeyboardAvoidingView>
                           </View>
                           <View flex={1}>
-                            <Text pl={5} fontSize={12} color="gray">
+                            <Text paddingLeft={5} fontSize={12} color="gray">
                               Cel Resp. recebimento <Text color="red">*</Text>
                             </Text>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -1091,10 +1282,16 @@ export default function Prices() {
                             </KeyboardAvoidingView>
                           </View>
                         </View>
-                        <View height={70} pt={10} gap={5} justifyContent="space-between" flexDirection="row">
+                        <View
+                          height={70}
+                          paddingTop={10}
+                          gap={5}
+                          justifyContent="space-between"
+                          flexDirection="row"
+                        >
                           <View flex={1}>
                             <KeyboardAvoidingView style={{ flex: 1 }}>
-                              <Text pl={5} fontSize={12} color="gray">
+                              <Text paddingLeft={5} fontSize={12} color="gray">
                                 Info de entrega
                               </Text>
                               <Input
@@ -1124,7 +1321,7 @@ export default function Prices() {
                       <>
                         <KeyboardAvoidingView style={{ flex: 1 }}>
                           <ScrollView keyboardShouldPersistTaps="handled">
-                            <Text pl={5} fontSize={12} color="gray">
+                            <Text paddingLeft={5} fontSize={12} color="gray">
                               Restaurante
                             </Text>
                             {allRestaurants.length > 0 ? (
@@ -1315,7 +1512,7 @@ export default function Prices() {
                               </View>
 
                               <View style={{ flex: 1 }}>
-                                <Text pl={5} fontSize={12} color="gray">
+                                <Text paddingLeft={5} fontSize={12} color="gray">
                                   Cidade
                                 </Text>
                                 <Input
@@ -1339,7 +1536,7 @@ export default function Prices() {
                                 />
                               </View>
                               <View>
-                                <Text pl={5} fontSize={12} color="gray">
+                                <Text paddingLeft={5} fontSize={12} color="gray">
                                   Bairro
                                 </Text>
                                 <Input
@@ -1410,9 +1607,16 @@ export default function Prices() {
                               </View>
                             </View>
 
-                            <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                            <View
+                              zIndex={-1}
+                              height={70}
+                              paddingTop={10}
+                              gap={10}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
                               <View flex={1} position="relative">
-                                <Text pl={5} fontSize={12} color="gray">
+                                <Text paddingLeft={5} fontSize={12} color="gray">
                                   Nº
                                 </Text>
                                 <Input
@@ -1439,7 +1643,7 @@ export default function Prices() {
                               </View>
 
                               <View flex={1} position="relative">
-                                <Text pl={5} fontSize={12} color="gray">
+                                <Text paddingLeft={5} fontSize={12} color="gray">
                                   Complemento
                                 </Text>
                                 <Input
@@ -1463,9 +1667,16 @@ export default function Prices() {
                                 />
                               </View>
                             </View>
-                            <View zIndex={-1} height={70} pt={10} gap={10} justifyContent="space-between" flexDirection="row">
+                            <View
+                              zIndex={-1}
+                              height={70}
+                              paddingTop={10}
+                              gap={10}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
                               <View flex={1}>
-                                <Text pl={5} fontSize={12} color="gray">
+                                <Text paddingLeft={5} fontSize={12} color="gray">
                                   Resp. recebimento <Text color="red">*</Text>
                                 </Text>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
@@ -1492,8 +1703,9 @@ export default function Prices() {
                                 </KeyboardAvoidingView>
                               </View>
                               <View flex={1}>
-                                <Text pl={5} fontSize={12} color="gray">
-                                  Cel Resp. recebimento <Text color="red">*</Text>
+                                <Text paddingLeft={5} fontSize={12} color="gray">
+                                  Cel Resp. recebimento{' '}
+                                  <Text color="red">*</Text>
                                 </Text>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
                                   <Input
@@ -1536,10 +1748,16 @@ export default function Prices() {
                                 </KeyboardAvoidingView>
                               </View>
                             </View>
-                            <View height={70} pt={10} gap={5} justifyContent="space-between" flexDirection="row">
+                            <View
+                              height={70}
+                              paddingTop={10}
+                              gap={5}
+                              justifyContent="space-between"
+                              flexDirection="row"
+                            >
                               <View flex={1}>
                                 <KeyboardAvoidingView style={{ flex: 1 }}>
-                                  <Text pl={5} fontSize={12} color="gray">
+                                  <Text paddingLeft={5} fontSize={12} color="gray">
                                     Info de entrega
                                   </Text>
                                   <Input
@@ -1569,7 +1787,13 @@ export default function Prices() {
                       </>
                     )}
 
-                    <View height={70} pt={15} gap={5} justifyContent="space-between" flexDirection="row">
+                    <View
+                      height={70}
+                      paddingTop={15}
+                      gap={5}
+                      justifyContent="space-between"
+                      flexDirection="row"
+                    >
                       <Button
                         onPress={() => {
                           setEditInfos(false)
@@ -1578,7 +1802,7 @@ export default function Prices() {
                         backgroundColor="black"
                         flex={1}
                       >
-                        <Text pl={5} fontSize={12} color="white">
+                        <Text paddingLeft={5} fontSize={12} color="white">
                           Cancelar
                         </Text>
                       </Button>
@@ -1625,7 +1849,7 @@ export default function Prices() {
                         backgroundColor="#04BF7B"
                         flex={1}
                       >
-                        <Text pl={5} fontSize={12} color="white">
+                        <Text paddingLeft={5} fontSize={12} color="white">
                           Salvar
                         </Text>
                       </Button>

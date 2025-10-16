@@ -104,7 +104,7 @@ export default function OrderConfirmedScreen() {
         }}
       >
         <ActivityIndicator size="large" color="#1DC588" />
-        <Text mt="$4">Carregando confirmação...</Text>
+        <Text marginTop="$4">Carregando confirmação...</Text>
       </SafeAreaView>
     )
   }
@@ -126,7 +126,7 @@ export default function OrderConfirmedScreen() {
             flex={1}
             alignItems="center"
             justifyContent="center"
-            p="$4"
+            padding="$4"
             gap="$4"
           >
             <YStack alignItems="center" gap="$3">
@@ -146,11 +146,11 @@ export default function OrderConfirmedScreen() {
               </Text>
             </YStack>
 
-            <YStack width="100%" bg="white" br={8} p="$4" gap="$3">
+            <YStack width="100%" backgroundColor="white" borderRadius={8} padding="$4" gap="$3">
               {suppliers.map(({ supplier }, index) => (
                 <React.Fragment key={supplier.externalId}>
-                  <XStack ai="center" jc="space-between">
-                    <XStack ai="center" gap="$3">
+                  <XStack alignItems="center" justifyContent="space-between">
+                    <XStack alignItems="center" gap="$3">
                       <Image
                         source={{ uri: supplier.image }}
                         width={40}
@@ -161,7 +161,7 @@ export default function OrderConfirmedScreen() {
                         <Text fontSize={16} fontWeight="bold">
                           {supplier.name}
                         </Text>
-                        <XStack ai="center" gap="$1.5">
+                        <XStack alignItems="center" gap="$1.5">
                           <Icons name="star" color="#F59E0B" size={14} />
                           <Text fontSize={12} color="$gray10">
                             {supplier.star}
@@ -169,7 +169,7 @@ export default function OrderConfirmedScreen() {
                         </XStack>
                       </YStack>
                     </XStack>
-                    <YStack ai="flex-end">
+                    <YStack alignItems="flex-end">
                       <Text fontSize={16} fontWeight="bold">
                         {formatCurrency(supplier.discount.orderValueFinish)}
                       </Text>
@@ -186,8 +186,8 @@ export default function OrderConfirmedScreen() {
             </YStack>
 
             {restaurantDetails && (
-              <YStack width="100%" bg="white" br={8} p="$4" gap="$4">
-                <XStack ai="flex-start" gap="$3">
+              <YStack width="100%" backgroundColor="white" borderRadius={8} padding="$4" gap="$4">
+                <XStack alignItems="flex-start" gap="$3">
                   <Icons name="location-outline" size={24} color="$gray11" />
                   <YStack flex={1}>
                     <Text fontSize={16} fontWeight="bold">
@@ -199,7 +199,7 @@ export default function OrderConfirmedScreen() {
                   </YStack>
                 </XStack>
 
-                <XStack ai="flex-start" gap="$3">
+                <XStack alignItems="flex-start" gap="$3">
                   <Icons name="time-outline" size={24} color="$gray11" />
                   <YStack>
                     <Text fontSize={16} fontWeight="bold">
@@ -211,7 +211,7 @@ export default function OrderConfirmedScreen() {
                   </YStack>
                 </XStack>
 
-                <XStack ai="flex-start" gap="$3">
+                <XStack alignItems="flex-start" gap="$3">
                   <Icons name="cash-outline" size={24} color="$gray11" />
                   <YStack>
                     <Text fontSize={16} fontWeight="bold">
@@ -227,7 +227,7 @@ export default function OrderConfirmedScreen() {
           </YStack>
         </ScrollView>
 
-        <YStack py="$4" px="$4" bg="#F0F4F8">
+        <YStack paddingVertical="$4" paddingHorizontal="$4" backgroundColor="#F0F4F8">
           <CustomButton
             title="Ir para Meus pedidos"
             onPress={() => router.push('/ordersScreen')}

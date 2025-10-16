@@ -169,7 +169,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
         }}
       >
         <View flexDirection="row" alignItems="center">
-          <View p={Platform.OS === 'web' ? 10 : 5}>
+          <View padding={Platform.OS === 'web' ? 10 : 5}>
             <CustomImageBadge
               uri={produto.image[0]}
               badgeText={produto.orderUnit}
@@ -177,7 +177,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
               badgeColor="#0BC07D"
             />
             <View
-              ml={Platform.OS === 'web' ? 10 : 5}
+              marginLeft={Platform.OS === 'web' ? 10 : 5}
               onPress={() => {
                 produto.setConfirmDeleteItem({
                   amount: valueQuant,
@@ -209,7 +209,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
           </View>
         </View>
         <View
-          mr={Platform.OS === 'web' ? 10 : 5}
+          marginRight={Platform.OS === 'web' ? 10 : 5}
           gap={Platform.OS === 'web' ? 15 : 0}
           flexDirection="row"
           alignItems="center"
@@ -249,7 +249,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
               justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'}
               flex={1}
               alignItems="center"
-              mr={Platform.OS === 'web' ? 35 : 0}
+              marginRight={Platform.OS === 'web' ? 35 : 0}
               flexDirection="row"
               gap={8}
             >
@@ -359,7 +359,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             <View
               borderColor="#F0F2F6"
               borderWidth={1}
-              p={3}
+              padding={3}
               borderRadius={18}
               flexDirection="row"
               justifyContent="flex-end"
@@ -707,7 +707,7 @@ export default function Cart() {
 
   return (
     <Stack
-      pt={Platform.OS === 'web' ? 20 : 15}
+      paddingTop={Platform.OS === 'web' ? 20 : 15}
       backgroundColor="#F0F2F6"
       height="100%"
       position="relative"
@@ -729,7 +729,7 @@ export default function Cart() {
             size={25}
             name="chevron-back"
           ></Icons>
-          <Text f={1} textAlign="center" fontSize={20}>
+          <Text flex={1} textAlign="center" fontSize={20}>
             Meu carrinho
           </Text>
         </View>
@@ -752,7 +752,7 @@ export default function Cart() {
         <View
           backgroundColor="#F0F2F6"
           display={confirmDelte ? 'none' : 'flex'}
-          px={20}
+          paddingHorizontal={20}
           justifyContent="center"
           alignItems="center"
           flexDirection="row"
@@ -793,7 +793,7 @@ export default function Cart() {
               justifyContent="center"
               alignItems="center"
               backgroundColor="#04BF7B"
-              f={1}
+              flex={1}
             >
               <Text fontSize={16} color="white">
                 Ver cotações

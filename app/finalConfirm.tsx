@@ -194,12 +194,12 @@ export default function FinalConfirm() {
     <View
       padding={30}
       backgroundColor="#F0F2F6"
-      f={1}
+      flex={1}
       justifyContent="center"
       alignItems="center"
     >
       <Icons size={90} color="#04BF7B" name="checkmark-circle"></Icons>
-      <Text pb={25} fontSize={30}>
+      <Text paddingBottom={25} fontSize={30}>
         Pedido confirmado!
       </Text>
       <View padding={15} backgroundColor="white" borderRadius={5} width="80%">
@@ -216,16 +216,16 @@ export default function FinalConfirm() {
             height={50}
             borderRadius={50}
           />
-          <View ml={5} justifyContent="center" f={1}>
+          <View marginLeft={5} justifyContent="center" flex={1}>
             <Text>{supplier?.supplier.name}</Text>
             <View alignItems="center" flexDirection="row">
               <Icons color="orange" name="star"></Icons>
-              <Text color="gray" pl={4}>
+              <Text color="gray" paddingLeft={4}>
                 {supplier?.supplier.star}
               </Text>
             </View>
           </View>
-          <View pr={5} justifyContent="center">
+          <View paddingRight={5} justifyContent="center">
             <Text fontSize={16} fontWeight="800">
               R${' '}
               {supplier?.supplier.discount.orderValueFinish
@@ -234,25 +234,25 @@ export default function FinalConfirm() {
             </Text>
           </View>
         </View>
-        <View alignItems="center" mt={15} flexDirection="row">
+        <View alignItems="center" marginTop={15} flexDirection="row">
           <Icons size={20} name="location"></Icons>
-          <View ml={10}>
+          <View marginLeft={10}>
             <Text fontSize={16}>{deliveryData?.restName}</Text>
             <Text fontSize={12}>{deliveryData?.address}</Text>
           </View>
         </View>
-        <View alignItems="center" mt={15} flexDirection="row">
+        <View alignItems="center" marginTop={15} flexDirection="row">
           <Icons size={20} name="time"></Icons>
-          <View ml={10}>
+          <View marginLeft={10}>
             <Text fontSize={16}>
               Entre {deliveryData?.minHour} e {deliveryData?.maxHour}
             </Text>
             <Text fontSize={12}>{deliveryData?.deliveryDateFormated}</Text>
           </View>
         </View>
-        <View alignItems="center" mt={15} flexDirection="row">
+        <View alignItems="center" marginTop={15} flexDirection="row">
           <Icons size={20} name="cash"></Icons>
-          <View ml={10}>
+          <View marginLeft={10}>
             <Text fontSize={16}>
               Venc. {getPaymentDate(deliveryData?.paymentWay ?? '')}
             </Text>

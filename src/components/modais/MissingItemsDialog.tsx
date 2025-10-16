@@ -12,7 +12,7 @@ const MissingItemsDialog: React.FC<MissingItemsDialogProps> = ({ open, onClose, 
   return (
     <Dialog modal open={open} onOpenChange={onClose}>
       {/* Adapta a modal em telas pequenas (mobile) */}
-      <Adapt when="sm" platform="touch">
+      <Adapt /* when="sm" */ platform="touch">
         <Sheet animation="medium" zIndex={200000} modal dismissOnSnapToBottom>
           <Sheet.Frame padding="$4" gap="$4">
             <Adapt.Contents />

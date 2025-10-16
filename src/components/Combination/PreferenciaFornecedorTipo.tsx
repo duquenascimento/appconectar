@@ -4,7 +4,7 @@ import { DropdownCampo } from './DropdownCampo'
 import { ContainerSelecaoItems } from './ContainerSelecaoItems'
 import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { TipoFornecedor } from '@/src/types/combinationTypes'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
 import { useSupplier } from '@/src/contexts/fornecedores.context'
 import CustomAlert from '../modais/CustomAlert'
@@ -20,6 +20,7 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
   const [showValidationAlert, setShowValidationAlert] = useState(false)
   const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null)
   const [ignorarValidacao, setIgnorarValidacao] = useState(false)
+  const [selectFornecedoresContextoPref, setSelectFornecedoresContextoPref] = useState<{label: string, value: string}[]>([])
 
   const { suppliers, unavailableSupplier } = useSupplier()
 
@@ -35,6 +36,35 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
     }))
   }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados])
 
+  // Função que adiciona um 'check' ao lado do nome do fornecedor selecionado
+  const updateFornecedorLabel = (value: string) => {
+    setSelectFornecedoresContextoPref(prevState => {
+      return prevState.map(obj => {
+        if(obj.value === value)
+          return {...obj, label: `${obj.label} ✅`}
+        return obj
+      })
+    })
+  }
+
+  useEffect(() => {
+    // Array com todos os campos já selecionados para a combinação
+    const combinacaoArray = Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : [];
+
+    // Atualiza as opções do select de 'Fornecedores Específicos'
+    setSelectFornecedoresContextoPref(fornecedoresContexto);
+
+    // Caso um fornecedor específico seja selecionado, altera seu nome para mostrar um 'check' do lado
+    if(combinacaoArray.length > 0){
+      fornecedoresContexto.forEach(fornecedorLabel => {
+        combinacaoArray.forEach(combinacaoIndexValue => {
+          if(fornecedorLabel.value == combinacaoIndexValue)
+            updateFornecedorLabel(combinacaoIndexValue)
+        })
+      });
+    }
+  }, [combinacao])
+
   const resetarPreferenciaFornecedor = () => {
     if (!tipoTemporario) return
 
@@ -47,7 +77,7 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
   }
 
   const handleFornecedorTipo = (value: TipoFornecedor) => {
-    if (value === 'especifico' && combinacao.dividir_em_maximo < 2) {
+    if (combinacao.dividir_em_maximo < 2) {
       setShowValidationAlert(true)
       return
     }
@@ -64,7 +94,7 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={1000}>
+    <YStack borderWidth={1} borderColor="$gray6" padding="$4" gap={3} borderRadius="$4" zIndex={1000}>
       <CustomAlert
         visible={showValidationAlert}
         title="Atenção!"
@@ -87,20 +117,21 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
       />
       <Text fontWeight="bold">Preferência de fornecedor</Text>
       <CustomSubtitle>Escolha como os fornecedores serão priorizados na combinação</CustomSubtitle>
-      <Separator my="$3" />
+      <Separator marginHorizontal="$3" />
 
       <DropdownCampo
         campo="preferencia_fornecedor_tipo"
         label="Tipo de preferência"
         items={tipoFornecedorItems}
-        value={combinacao.preferencia_fornecedor_tipo ?? 'qualquer'}
+        value={combinacao.preferencia_fornecedor_tipo ?? ''}
+        placeholder='Selecione...'
         onChange={(val) => handleFornecedorTipo(val as TipoFornecedor)}
         zIndex={4000}
       />
-      {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
+
         <ContainerSelecaoItems
           label="Fornecedores específicos"
-          items={fornecedoresContexto}
+          items={selectFornecedoresContextoPref}
           value={Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : []}
           onChange={onChange}
           onRemove={(item) => {
@@ -123,7 +154,6 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
           error={error}
           ignoreValidation={ignorarValidacao}
         />
-      )}
     </YStack>
   )
 }

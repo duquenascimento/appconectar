@@ -103,7 +103,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray4" borderRadius="$4" p="$3" gap="$2">
+    <YStack borderWidth={1} borderColor="$gray4" borderRadius="$4" padding="$3" gap="$2">
       <Text>Fixar produtos e/ou classes</Text>
 
       <XStack alignItems="center" gap="$2">
@@ -136,7 +136,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
       </XStack>
 
       {busca.length > 0 && sugestoes.length > 0 && (
-        <YStack mt="$2" gap="$1">
+        <YStack marginTop="$2" gap="$1">
           {sugestoes.map((item) => {
             const isClasse = 'nome' in item
 
@@ -150,7 +150,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
       )}
 
       {selecionados.length > 0 && (
-        <YStack mt="$4" gap="$1">
+        <YStack marginTop="$4" gap="$1">
           <Text fontWeight="bold">Produtos selecionados:</Text>
           {selecionados.map((produto) => (
             <Text key={produto.id}>• {produto.name}</Text>
@@ -161,17 +161,17 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
       {(produto.produto_sku || produto.classe) && (
         <XStack flexWrap="wrap" gap="$2">
           {produto.produto_sku && (
-            <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
+            <XStack paddingHorizontal="$2" paddingVertical="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
               <Text>{productsContext.find((p) => p.sku === produto.produto_sku)?.name ?? produto.produto_sku}</Text>
-              <Button size="$1" circular ml="$2" backgroundColor="transparent" onPress={() => updateProduto('produto_sku', undefined)}>
+              <Button size="$1" circular marginLeft="$2" backgroundColor="transparent" onPress={() => updateProduto('produto_sku', undefined)}>
                 ×
               </Button>
             </XStack>
           )}
           {produto.classe && (
-            <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
+            <XStack paddingHorizontal="$2" paddingVertical="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
               <Text>{produto.classe}</Text>
-              <Button size="$1" circular ml="$2" backgroundColor="transparent" onPress={() => updateProduto('classe', undefined)}>
+              <Button size="$1" circular marginLeft="$2" backgroundColor="transparent" onPress={() => updateProduto('classe', undefined)}>
                 ×
               </Button>
             </XStack>

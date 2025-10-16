@@ -22,7 +22,7 @@ const DialogInstanceNotification: React.FC<DialogInstanceNotificationProps> = ({
 }) => {
     return (
         <Dialog modal open={openModal}>
-            <Adapt when="sm" platform="touch">
+            <Adapt /* when="sm" */ platform="touch">
                 <Sheet animationConfig={{
                     type: 'spring',
                     damping: 20,

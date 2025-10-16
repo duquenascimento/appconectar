@@ -78,7 +78,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" p="$4" gap="$3">
+    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontWeight="bold">Prioridade {index + 1}</Text>
         <XStack gap="$2">
