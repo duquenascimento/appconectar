@@ -1,84 +1,159 @@
-import { YStack, XStack, Text, Button, Separator } from 'tamagui'
-import Icons from '@expo/vector-icons/Ionicons'
-import { DropdownCampo } from './DropdownCampo'
-import { useCombinacao } from '@/src/contexts/combinacao.context'
-import { ProdutoPreferenciaCard } from './ProdutoPreferenciaCard'
-import { AcaoNaFalha } from '@/src/types/combinationTypes'
-import { updatePreferencia } from '@/src/utils/preferenciaUtils'
+import { useEffect, useMemo, useState } from 'react';
+import { YStack, XStack, Input, Button, Text, Separator } from 'tamagui';
+import Icons from '@expo/vector-icons/Ionicons';
+import { DropdownCampo } from './DropdownCampo';
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useProductContext } from '@/src/contexts/produtos.context';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
+import { SupplierData } from '../../types/types';
+import { AcaoNaFalha } from '../../types/combinationTypes';
+import { updatePreferencia } from '../../utils/preferenciaUtils';
 
 type Props = {
-  index: number
-  onMoveUp: () => void
-  onMoveDown: () => void
-  onRemove: () => void
-}
+  index: number;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onRemove: () => void;
+};
 
 const tipoProdutoItems = [
   { label: 'Fixar produtos por fornecedor', value: 'fixar' },
-  { label: 'Remover produtos por fornecedor', value: 'remover' }
-]
+  { label: 'Remover produtos por fornecedor', value: 'remover' },
+];
 
 export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }: Props) {
-  const { combinacao, updateCampo } = useCombinacao()
-  const preferencia = combinacao.preferencias?.[index]
+  const { combinacao, updateCampo } = useCombinacao();
+  const { productsContext, classe } = useProductContext();
+  const { suppliers, unavailableSupplier } = useSupplier();
+  const bloqueados = combinacao.fornecedores_bloqueados || [];
 
-  if (!preferencia) return null
+  const [busca, setBusca] = useState('');
+  const [sugestoes, setSugestoes] = useState<any[]>([]);
+
+  const preferencia = combinacao.preferencias?.[index];
+  if (!preferencia) return null;
 
   const atualizarCampoLocal = (key: keyof typeof preferencia, value: any) => {
     const novaCombinacao = updatePreferencia(combinacao, index, {
       ...preferencia,
-      [key]: value
-    })
-    updateCampo('preferencias', novaCombinacao.preferencias)
-  }
+      [key]: value,
+    });
+    updateCampo('preferencias', novaCombinacao.preferencias);
+  };
 
-  const adicionarProduto = () => {
-    const novasPreferencias = [...(combinacao.preferencias ?? [])]
-    novasPreferencias[index].produtos.push({
-      produto_sku: undefined,
-      classe: undefined,
+  const atualizarFornecedoresPreferencia = (fornecedores: string[]) => {
+    const novasPreferencias = [...(combinacao.preferencias ?? [])];
+    const produtosAtualizados = novasPreferencias[index].produtos.map((produto) => ({
+      ...produto,
+      fornecedores: fornecedores,
+    }));
+
+    novasPreferencias[index].produtos = produtosAtualizados;
+    updateCampo('preferencias', novasPreferencias);
+  };
+
+  const atualizarAcaoNaFalhaPreferencia = (acao_na_falha: string) => {
+    const novasPreferencias = [...(combinacao.preferencias ?? [])];
+    const produtosAtualizados = novasPreferencias[index].produtos.map((produto) => ({
+      ...produto,
+      acao_na_falha: acao_na_falha,
+    }));
+
+    novasPreferencias[index].produtos = produtosAtualizados;
+    updateCampo('preferencias', novasPreferencias);
+  };
+
+  const fornecedoresComuns = useMemo(() => {
+    if (preferencia.produtos.length === 0) return [];
+
+    const primeiroFornecedores = preferencia.produtos[0]?.fornecedores || [];
+    const todosIguais = preferencia.produtos.every(
+      (p) => JSON.stringify(p.fornecedores) === JSON.stringify(primeiroFornecedores),
+    );
+
+    return todosIguais ? primeiroFornecedores : [];
+  }, [preferencia.produtos]);
+
+  const acaoNaFalhaComum = useMemo(() => {
+    if (preferencia.produtos.length === 0) return 'ignorar';
+
+    const primeiraAcao = preferencia.produtos[0]?.acao_na_falha || 'ignorar';
+    const todosIguais = preferencia.produtos.every((p) => p.acao_na_falha === primeiraAcao);
+
+    return todosIguais ? primeiraAcao : 'ignorar';
+  }, [preferencia.produtos]);
+
+  const adicionarProduto = (itemSelecionado: any) => {
+    const novasPreferencias = [...(combinacao.preferencias ?? [])];
+    const produtos = [...(novasPreferencias[index].produtos ?? [])];
+
+    const novoProduto = {
+      produto_sku: itemSelecionado.sku ?? undefined,
+      classe: itemSelecionado.nome ?? undefined,
       fornecedores: [],
-      acao_na_falha: AcaoNaFalha.IGNORAR
-    })
-    updateCampo('preferencias', novasPreferencias)
-  }
+      acao_na_falha: AcaoNaFalha.IGNORAR,
+    };
 
-  const updateProduto = (field: keyof typeof produto, value: any) => {
-  updateCampo('preferencias', (prevPreferencias: any[]) => {
-    const novasPreferencias = [...prevPreferencias]
-    const preferenciaAtual = { ...novasPreferencias[preferenciaIndex] }
-    const produtosAtualizados = [...preferenciaAtual.produtos]
+    const jaExiste = produtos.some(
+      (p) => p.produto_sku === novoProduto.produto_sku && p.classe === novoProduto.classe,
+    );
 
-    produtosAtualizados[produtoIndex] = {
-      ...produtosAtualizados[produtoIndex],
-      [field]: value ?? undefined
+    if (!jaExiste) {
+      produtos.push(novoProduto);
+      novasPreferencias[index].produtos = produtos;
+      updateCampo('preferencias', novasPreferencias);
     }
 
-    preferenciaAtual.produtos = produtosAtualizados
-    novasPreferencias[preferenciaIndex] = preferenciaAtual
-
-    return novasPreferencias
-  })
-}
-
+    setBusca('');
+    setSugestoes([]);
+  };
 
   const removerProduto = (produtoIndex: number) => {
-    const novasPreferencias = [...(combinacao.preferencias ?? [])]
-    novasPreferencias[index].produtos = novasPreferencias[index].produtos.filter((_, i) => i !== produtoIndex)
-    updateCampo('preferencias', novasPreferencias)
-  }
+    const novasPreferencias = [...(combinacao.preferencias ?? [])];
+    novasPreferencias[index].produtos = novasPreferencias[index].produtos.filter(
+      (_, i) => i !== produtoIndex,
+    );
+    updateCampo('preferencias', novasPreferencias);
+  };
 
-  const moverProduto = (from: number, to: number) => {
-    const novasPreferencias = [...(combinacao.preferencias ?? [])]
-    const produtos = [...novasPreferencias[index].produtos]
-    const item = produtos.splice(from, 1)[0]
-    produtos.splice(to, 0, item)
-    novasPreferencias[index].produtos = produtos
-    updateCampo('preferencias', novasPreferencias)
-  }
+  const fornecedoresDisponiveis = useMemo(() => {
+    const todosFornecedores: SupplierData[] = [
+      ...(suppliers ?? []),
+      ...(unavailableSupplier ?? []),
+    ];
+
+    return todosFornecedores
+      .map((f) => ({
+        id: f.supplier?.externalId ?? null,
+        nome: f.supplier?.name ?? '',
+      }))
+      .filter((f) => f.id && !bloqueados.includes(f.id))
+      .sort((a, b) => a.nome.localeCompare(b.nome))
+      .map((f) => ({
+        label: f.nome,
+        value: f.id!,
+      }));
+  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
+
+  useEffect(() => {
+    if (!busca.trim()) {
+      setSugestoes([]);
+      return;
+    }
+
+    const termo = busca.toLowerCase();
+
+    const matchesProduto = productsContext.filter((produto) =>
+      produto.name.toLowerCase().includes(termo),
+    );
+    const matchesClasse = classe.filter((c) => c.nome.toLowerCase().includes(termo));
+
+    setSugestoes([...matchesProduto, ...matchesClasse].slice(0, 5));
+  }, [busca, productsContext, classe]);
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
+    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" p="$4" gap="$3">
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontWeight="bold">Prioridade {index + 1}</Text>
         <XStack gap="$2">
@@ -96,11 +171,119 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
       <Separator />
 
-      <DropdownCampo campo={`preferencias[${index}].tipo`} label="Eu quero..." items={tipoProdutoItems} value={preferencia.tipo} onChange={(val) => atualizarCampoLocal('tipo', val)} schemaPath={`preferencias[${index}].tipo`} zIndex={3000} />
+      <DropdownCampo
+        campo={`preferencias[${index}].tipo`}
+        label="Eu quero..."
+        items={tipoProdutoItems}
+        value={preferencia.tipo}
+        onChange={(val) => atualizarCampoLocal('tipo', val)}
+        schemaPath={`preferencias[${index}].tipo`}
+        zIndex={3000}
+      />
 
-      {preferencia.produtos.map((produto, produtoIndex) => (
-        <ProdutoPreferenciaCard key={produtoIndex} preferenciaIndex={index} produtoIndex={produtoIndex} produto={produto} onRemove={() => removerProduto(produtoIndex)} onMoveUp={() => produtoIndex > 0 && moverProduto(produtoIndex, produtoIndex - 1)} onMoveDown={() => produtoIndex < preferencia.produtos.length - 1 && moverProduto(produtoIndex, produtoIndex + 1)} />
-      ))}
+      <Text fontWeight="bold" marginTop="$3">
+        Fixar produtos e/ou classes
+      </Text>
+
+      <XStack alignItems="center" gap="$2">
+        <Input
+          flex={1}
+          placeholder="Buscar produto ou classe"
+          value={busca}
+          onChangeText={setBusca}
+        />
+        <Button
+          onPress={() => {
+            if (!busca.trim()) return;
+
+            const termo = busca.toLowerCase();
+            const matchClasse = classe.find((c) => c.nome.toLowerCase().includes(termo));
+            const matchProduto = productsContext.find((p) => p.name.toLowerCase().includes(termo));
+
+            if (matchClasse) adicionarProduto(matchClasse);
+            else if (matchProduto) adicionarProduto(matchProduto);
+
+            setBusca('');
+          }}
+        >
+          <Icons name="search" size={20} />
+        </Button>
+      </XStack>
+
+      {busca.length > 0 && sugestoes.length > 0 && (
+        <YStack mt="$2" gap="$1">
+          {sugestoes.map((item) => (
+            <Text
+              key={item.id}
+              onPress={() => adicionarProduto(item)}
+              paddingVertical="$3"
+              paddingHorizontal="$4"
+              borderBottomWidth={1}
+              borderColor="$gray4"
+            >
+              {'nome' in item ? item.nome : item.name}
+            </Text>
+          ))}
+        </YStack>
+      )}
+
+      {preferencia.produtos.length > 0 && (
+        <XStack flexWrap="wrap" gap="$2" marginTop="$2">
+          {preferencia.produtos
+            .map((p, i) => {
+              if (!p.produto_sku && !p.classe) return null;
+
+              const label = p.classe
+                ? `Classe: ${p.classe}`
+                : `Produto: ${productsContext.find((prod) => prod.sku === p.produto_sku)?.name ?? p.produto_sku}`;
+
+              return (
+                <XStack
+                  key={i}
+                  px="$2"
+                  py="$1"
+                  borderRadius={8}
+                  backgroundColor="$gray3"
+                  alignItems="center"
+                >
+                  <Text>{label}</Text>
+                  <Button
+                    size="$1"
+                    circular
+                    ml="$2"
+                    backgroundColor="transparent"
+                    onPress={() => removerProduto(i)}
+                  >
+                    ×
+                  </Button>
+                </XStack>
+              );
+            })
+            .filter(Boolean)}
+        </XStack>
+      )}
+
+      <ContainerSelecaoItemsComFornecedor
+        label="Com fornecedor(es)"
+        items={fornecedoresDisponiveis}
+        value={fornecedoresComuns}
+        onChange={atualizarFornecedoresPreferencia}
+        schemaPath={`preferencias[${index}].fornecedores`}
+        zIndex={30000}
+      />
+
+      <DropdownCampo
+        campo={`preferencias[${index}].acao_na_falha`}
+        schemaPath={`preferencias[${index}].acao_na_falha`}
+        label="Não sendo possível..."
+        items={[
+          { label: 'Ignorar e pular', value: 'ignorar' },
+          { label: 'Indisponível', value: 'indisponivel' },
+        ]}
+        value={acaoNaFalhaComum}
+        onChange={atualizarAcaoNaFalhaPreferencia}
+        zIndex={2500}
+      />
     </YStack>
-  )
+  );
 }
