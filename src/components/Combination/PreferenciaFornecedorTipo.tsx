@@ -1,100 +1,116 @@
-import { YStack, Separator, Text } from 'tamagui'
-import CustomSubtitle from '../subtitle/customSubtitle'
-import { DropdownCampo } from './DropdownCampo'
-import { ContainerSelecaoItems } from './ContainerSelecaoItems'
-import { useCombinacao } from '@/src/contexts/combinacao.context'
-import { TipoFornecedor } from '@/src/types/combinationTypes'
-import { useEffect, useMemo, useState } from 'react'
-import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert'
-import { useSupplier } from '@/src/contexts/fornecedores.context'
-import CustomAlert from '../modais/CustomAlert'
+import { useEffect, useMemo, useState } from 'react';
+import { YStack, Separator, Text } from 'tamagui';
+import CustomSubtitle from '../subtitle/customSubtitle';
+import { DropdownCampo } from './DropdownCampo';
+import { ContainerSelecaoItems } from './ContainerSelecaoItems';
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { TipoFornecedor } from '../../types/combinationTypes';
+import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import CustomAlert from '../modais/CustomAlert';
 
 const tipoFornecedorItems = [
   { label: 'Qualquer', value: 'qualquer' },
-  { label: 'Específico', value: 'especifico' }
-]
+  { label: 'Específico', value: 'especifico' },
+];
 
-export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string; onChange: (val: string[]) => void }) {
-  const { combinacao, updateCampo } = useCombinacao()
-  const [showModal, setShowModal] = useState(false)
-  const [showValidationAlert, setShowValidationAlert] = useState(false)
-  const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null)
-  const [ignorarValidacao, setIgnorarValidacao] = useState(false)
-  const [selectFornecedoresContextoPref, setSelectFornecedoresContextoPref] = useState<{label: string, value: string}[]>([])
+export function PreferenciaFornecedorCampo({
+  error,
+  onChange,
+}: {
+  error?: string;
+  onChange: (val: string[]) => void;
+}) {
+  const { combinacao, updateCampo } = useCombinacao();
+  const [showModal, setShowModal] = useState(false);
+  const [showValidationAlert, setShowValidationAlert] = useState(false);
+  const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null);
+  const [ignorarValidacao, setIgnorarValidacao] = useState(false);
+  const [selectFornecedoresContexto, setSelectFornecedoresContexto] = useState<
+    { label: string; value: string }[]
+  >([]);
 
-  const { suppliers, unavailableSupplier } = useSupplier()
+  const { suppliers, unavailableSupplier } = useSupplier();
 
   const fornecedoresContexto = useMemo(() => {
-    const todosFornecedores = [...suppliers, ...unavailableSupplier]
+    const todosFornecedores = [...suppliers, ...unavailableSupplier];
 
-    const fornecedoresNaoBloqueados = todosFornecedores.filter((item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId))
-    const fornecedoresClassificados = fornecedoresNaoBloqueados.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+    const fornecedoresNaoBloqueados = todosFornecedores.filter(
+      (item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId),
+    );
+    const fornecedoresClassificados = fornecedoresNaoBloqueados.sort((a, b) =>
+      a.supplier.name.localeCompare(b.supplier.name),
+    );
 
     return fornecedoresClassificados.map((item) => ({
       label: item.supplier.name,
-      value: item.supplier.externalId
-    }))
-  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados])
+      value: item.supplier.externalId,
+    }));
+  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
 
   // Função que adiciona um 'check' ao lado do nome do fornecedor selecionado
   const updateFornecedorLabel = (value: string) => {
-    setSelectFornecedoresContextoPref(prevState => {
-      return prevState.map(obj => {
-        if(obj.value === value)
-          return {...obj, label: `${obj.label} ✅`}
-        return obj
-      })
-    })
-  }
+    setSelectFornecedoresContexto((prevState) => {
+      return prevState.map((obj) => {
+        if (obj.value === value) return { ...obj, label: `${obj.label} ✅` };
+        return obj;
+      });
+    });
+  };
 
   useEffect(() => {
     // Array com todos os campos já selecionados para a combinação
-    const combinacaoArray = Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : [];
+    const combinacaoArray = Array.isArray(combinacao?.fornecedores_especificos)
+      ? combinacao.fornecedores_especificos
+      : [];
 
     // Atualiza as opções do select de 'Fornecedores Específicos'
-    setSelectFornecedoresContextoPref(fornecedoresContexto);
+    setSelectFornecedoresContexto(fornecedoresContexto);
 
     // Caso um fornecedor específico seja selecionado, altera seu nome para mostrar um 'check' do lado
-    if(combinacaoArray.length > 0){
-      fornecedoresContexto.forEach(fornecedorLabel => {
-        combinacaoArray.forEach(combinacaoIndexValue => {
-          if(fornecedorLabel.value == combinacaoIndexValue)
-            updateFornecedorLabel(combinacaoIndexValue)
-        })
+    if (combinacaoArray.length > 0) {
+      fornecedoresContexto.forEach((fornecedorLabel) => {
+        combinacaoArray.forEach((combinacaoIndexValue) => {
+          if (fornecedorLabel.value == combinacaoIndexValue)
+            updateFornecedorLabel(combinacaoIndexValue);
+        });
       });
     }
-  }, [combinacao])
+  }, [combinacao]);
 
   const resetarPreferenciaFornecedor = () => {
-    if (!tipoTemporario) return
+    if (!tipoTemporario) return;
 
-    updateCampo('preferencia_fornecedor_tipo', tipoTemporario)
-    updateCampo('definir_preferencia_produto', false)
-    updateCampo('preferencias', [])
-    updateCampo('fornecedores_especificos', [])
-    setTipoTemporario(null)
-    setShowModal(false)
-  }
+    updateCampo('preferencia_fornecedor_tipo', tipoTemporario);
+    updateCampo('definir_preferencia_produto', false);
+    updateCampo('preferencias', []);
+    updateCampo('fornecedores_especificos', []);
+    setTipoTemporario(null);
+    setShowModal(false);
+  };
 
   const handleFornecedorTipo = (value: TipoFornecedor) => {
     if (combinacao.dividir_em_maximo < 2) {
-      setShowValidationAlert(true)
-      return
+      setShowValidationAlert(true);
+      return;
     }
 
-    const vaiDeixarDeSerEspecifico = combinacao.preferencia_fornecedor_tipo === 'especifico' && value !== 'especifico'
-    const haDados = (combinacao.preferencias?.length ?? 0) > 0 || (combinacao.fornecedores_especificos?.length ?? 0) > 0
+    const vaiDeixarDeSerEspecifico =
+      combinacao.preferencia_fornecedor_tipo === 'especifico' && value !== 'especifico';
+    const haDados =
+      (combinacao.preferencias?.length ?? 0) > 0 ||
+      (combinacao.fornecedores_especificos?.length ?? 0) > 0;
 
     if (vaiDeixarDeSerEspecifico && haDados) {
-      setTipoTemporario(value)
-      setShowModal(true)
+      setTipoTemporario(value);
+      setShowModal(true);
     } else {
-      updateCampo('preferencia_fornecedor_tipo', value)
+      updateCampo('preferencia_fornecedor_tipo', value);
     }
-  }
+  };
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" padding="$4" gap={3} borderRadius="$4" zIndex={1000}>
+    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={1000}>
       <CustomAlert
         visible={showValidationAlert}
         title="Atenção!"
@@ -104,56 +120,64 @@ export function PreferenciaFornecedorCampo({ error, onChange }: { error?: string
       <TwoButtonCustomAlert
         visible={showModal}
         title={'Tem certeza de que quer realizar esta ação?'}
-        message={'Ao fazer isto, os fornecedores específicos e preferências selecionados serão removidos'}
+        message={
+          'Ao fazer isto, os fornecedores específicos e preferências selecionados serão removidos'
+        }
         onConfirm={() => {
-          setIgnorarValidacao(false) 
-          resetarPreferenciaFornecedor()
+          setIgnorarValidacao(false);
+          resetarPreferenciaFornecedor();
         }}
         onCancel={() => {
-          setIgnorarValidacao(true)
-          setTipoTemporario(null)
-          setShowModal(false)
+          setIgnorarValidacao(true);
+          setTipoTemporario(null);
+          setShowModal(false);
         }}
       />
       <Text fontWeight="bold">Preferência de fornecedor</Text>
       <CustomSubtitle>Escolha como os fornecedores serão priorizados na combinação</CustomSubtitle>
-      <Separator marginHorizontal="$3" />
+      <Separator my="$3" />
 
       <DropdownCampo
         campo="preferencia_fornecedor_tipo"
         label="Tipo de preferência"
         items={tipoFornecedorItems}
         value={combinacao.preferencia_fornecedor_tipo ?? ''}
-        placeholder='Selecione...'
+        placeholder="Selecione..."
         onChange={(val) => handleFornecedorTipo(val as TipoFornecedor)}
         zIndex={4000}
       />
 
+      {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems
           label="Fornecedores específicos"
-          items={selectFornecedoresContextoPref}
-          value={Array.isArray(combinacao?.fornecedores_especificos) ? combinacao.fornecedores_especificos : []}
+          items={selectFornecedoresContexto}
+          value={
+            Array.isArray(combinacao?.fornecedores_especificos)
+              ? combinacao.fornecedores_especificos
+              : []
+          }
           onChange={onChange}
           onRemove={(item) => {
-            const fornecedoresAtuais = combinacao.fornecedores_especificos ?? []
+            const fornecedoresAtuais = combinacao.fornecedores_especificos ?? [];
             if (fornecedoresAtuais.length === 1) {
-              setIgnorarValidacao(true)
-              setTipoTemporario(combinacao.preferencia_fornecedor_tipo ?? null)
-              setShowModal(true)
+              setIgnorarValidacao(true);
+              setTipoTemporario(combinacao.preferencia_fornecedor_tipo ?? null);
+              setShowModal(true);
             } else {
               // Remove normalmente
-              const updated = fornecedoresAtuais.filter((v) => v !== item)
-              updateCampo('fornecedores_especificos', updated)
+              const updated = fornecedoresAtuais.filter((v) => v !== item);
+              updateCampo('fornecedores_especificos', updated);
             }
           }}
           schemaPath="fornecedores_especificos"
           extraValidationContext={{
-            preferencia_fornecedor_tipo: combinacao.preferencia_fornecedor_tipo
+            preferencia_fornecedor_tipo: combinacao.preferencia_fornecedor_tipo,
           }}
           zIndex={2000}
           error={error}
           ignoreValidation={ignorarValidacao}
         />
+      )}
     </YStack>
-  )
+  );
 }
