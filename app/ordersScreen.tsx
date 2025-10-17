@@ -416,7 +416,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
       <FlatList
         style={{
-          width: Platform.OS === 'web' ? '70%' : undefined,
+          width: Platform.OS === 'web' ? '70%' : '92%',
           alignSelf: 'center'
         }}
         data={filteredOrders}

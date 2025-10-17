@@ -306,7 +306,7 @@ const ProductBox = React.memo(
       >
         <View
           style={{
-            width: Platform.OS === 'web' ? '70%' : '',
+            width: Platform.OS === 'web' ? '70%' : '100%',
             alignSelf: 'center'
           }}
           flex={1}
