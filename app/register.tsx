@@ -256,20 +256,50 @@ export default function Register() {
         if (result.erro) {
           formik.setFieldError('zipcode', 'CEP não encontrado')
           setIsCepValid(false)
+          setErros(['CEP não encontrado. Digite o endereço manualmente.'])
+          setRegisterInvalid(true)
           return
         }
 
         if (response.ok && !result.erro) {
-          const endereco: any = dividirLogradouro(result.logradouro)
+          const camposFaltantes: string[] = []
+          if (!result.bairro) camposFaltantes.push('Bairro')
+          if (!result.logradouro) camposFaltantes.push('Logradouro')
+          if (!result.localNumber) camposFaltantes.push('Número')
 
+          if (camposFaltantes.length > 0) {
+            const camposMensagem = camposFaltantes.join(' e ')
+            formik.setFieldError('zipcode', 'CEP com informações incompletas')
+            setErros([`O CEP retornado não possui dados completos. Digite manualmente o campo: ${camposMensagem}.`])
+            setRegisterInvalid(true)
+            setIsCepValid(false)
+
+            formik.setValues({
+              ...formik.values,
+              zipcode: formatted,
+              city: campoString(result.localidade || ''),
+              neigh: campoString(result.bairro || ''),
+              street: campoString(result.logradouro || ''),
+              localType: '',
+              localNumber: '',
+              complement: ''
+            })
+
+            formik.setFieldTouched('zipcode', true, false)
+            formik.setFieldTouched('neigh', true, false)
+            formik.setFieldTouched('street', true, false)
+            setLoading(false)
+            return
+          }
+          const endereco: any = dividirLogradouro(result.logradouro)
           formik.setValues({
             ...formik.values,
-            neigh: result.bairro.toUpperCase(),
-            street: endereco.logradouro,
+            neigh: campoString(result.bairro),
+            street: campoString(endereco.logradouro),
             localNumber: '',
             complement: '',
             localType: endereco.tipoLogradouro,
-            city: result.localidade,
+            city: campoString(result.localidade),
             zipcode: formatted
           })
 
@@ -381,14 +411,7 @@ export default function Register() {
       await formik.validateForm()
 
       let currentStepIsValid = true
-      const currentSchema =
-        step === 0
-          ? step0Validation
-          : step === 1
-          ? step1Validation
-          : step === 2
-          ? step2Validation
-          : step3Validation
+      const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation
       try {
         await currentSchema.validate(formik.values, { abortEarly: false })
       } catch (validationErrors: any) {
@@ -412,14 +435,11 @@ export default function Register() {
       if (step === 0) {
         const errosApi: string[] = []
         const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '')
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ cnpj: cnpjNumerico }),
-            headers: { 'Content-type': 'application/json' }
-          }
-        )
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`, {
+          method: 'POST',
+          body: JSON.stringify({ cnpj: cnpjNumerico }),
+          headers: { 'Content-type': 'application/json' }
+        })
         const result: CheckCnpj = await response.json()
 
         if (response.ok) {
@@ -431,30 +451,18 @@ export default function Register() {
             setLoading(false)
             return
           }
-          const buscaCep = await fetch(
-            `https://viacep.com.br/ws/${result.data.cep}/json/`
-          )
-          const enderecoCNPJ = await buscaCep.json()
-          if (enderecoCNPJ.erro) {
-            formik.setFieldError('zipcode', 'CEP não encontrado')
-            setIsCepValid(false)
-            return
-          }
 
-          const endereco: any = dividirLogradouro(enderecoCNPJ.logradouro)
           formik.setValues({
             ...formik.values,
             legalRestaurantName: result.data.razao_social,
-            zipcode: formatCep(result.data.cep),
-            neigh: campoString(enderecoCNPJ.bairro),
-            street: campoString(endereco.logradouro),
-            localNumber: result.data.numero,
-            complement: result.data.complemento ?? '',
-            localType: endereco.tipoLogradouro,
-            city: campoString(enderecoCNPJ.localidade),
+            zipcode: '',
+            neigh: '',
+            street: '',
+            city: '',
             stateNumberId: result.data.inscricao_estadual ?? '',
             cityNumberId: result.data.inscricao_municipal ?? ''
           })
+
           setStep(1)
         } else {
           if (result.msg === 'already exists') {
@@ -481,10 +489,7 @@ export default function Register() {
       if (step < 3) {
         const nextStep = step + 1
         await saveStepData(formik.values, nextStep)
-        console.log('Dados do passo salvos:', {
-          step: nextStep,
-          values: formik.values
-        })
+        console.log('Dados do passo salvos:', { step: nextStep, values: formik.values })
       }
     } catch (error) {
       console.error('Erro em handleNextBtn:', error)
