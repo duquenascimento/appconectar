@@ -32,39 +32,56 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
   const [busca, setBusca] = useState('');
   const [sugestoes, setSugestoes] = useState<any[]>([]);
 
-  const [availableProducts, setAvailableProducts] = useState<any[]>([])
-  const [availableClasses, setAvailableClasses] = useState<Classe[]>([])
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<Classe[]>([]);
 
   useEffect(() => {
-      async function getRestaurants() {
-        const restaurants = await loadRestaurants()
-  
-        const verduraKg = restaurants.filter(
-          (rest: any) => rest.verduraKg === true
-        )
-  
-        if(verduraKg.length) {
-          setAvailableProducts(productsContext.filter(item => {
-            return !(item.class.trim() === 'VERDURAS')
-          }))
-          setAvailableClasses(classe.filter(c => {
-            return !(c.nome.trim() === 'VERDURAS')
-          }))
-        }
-        else{
-          setAvailableProducts(productsContext.filter(item => {
-            return !(item.class.trim() == 'VERDURAS - KG')
-          }))
-          setAvailableClasses(classe.filter(c => {
-            return !(c.nome.trim() == 'VERDURAS - KG')
-          }))
-        }
+    async function getRestaurants() {
+      const restaurants = await loadRestaurants();
+
+      const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true);
+
+      if (verduraKg.length) {
+        setAvailableProducts(
+          productsContext.filter((item) => {
+            return !(item.class.trim() === 'VERDURAS');
+          }),
+        );
+        setAvailableClasses(
+          classe.filter((c) => {
+            return !(c.nome.trim() === 'VERDURAS');
+          }),
+        );
+      } else {
+        setAvailableProducts(
+          productsContext.filter((item) => {
+            return !(item.class.trim() == 'VERDURAS - KG');
+          }),
+        );
+        setAvailableClasses(
+          classe.filter((c) => {
+            return !(c.nome.trim() == 'VERDURAS - KG');
+          }),
+        );
       }
-      getRestaurants()
-    }, [])
+    }
+    getRestaurants();
+  }, [productsContext]);
 
   const preferencia = combinacao.preferencias?.[index];
   if (!preferencia) return null;
+
+  const productsRaw = preferencia.produtos;
+  const produtos = Array.from(
+    new Map(
+      productsRaw.map((item) => {
+        const key =
+          item.produto_sku !== null ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
+
+        return [key, item];
+      }),
+    ).values(),
+  );
 
   const atualizarCampoLocal = (key: keyof typeof preferencia, value: any) => {
     const novaCombinacao = updatePreferencia(combinacao, index, {
@@ -98,13 +115,11 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
   const fornecedoresComuns = useMemo(() => {
     if (preferencia.produtos.length === 0) return [];
-
-    const primeiroFornecedores = preferencia.produtos[0]?.fornecedores || [];
-    const todosIguais = preferencia.produtos.every(
-      (p) => JSON.stringify(p.fornecedores) === JSON.stringify(primeiroFornecedores),
+    const fornecedoresUnicos = Array.from(
+      new Set(preferencia.produtos.flatMap((p) => p.fornecedores)),
     );
 
-    return todosIguais ? primeiroFornecedores : [];
+    return fornecedoresUnicos;
   }, [preferencia.produtos]);
 
   const acaoNaFalhaComum = useMemo(() => {
@@ -123,7 +138,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     const novoProduto = {
       produto_sku: itemSelecionado.sku ?? undefined,
       classe: itemSelecionado.nome ?? undefined,
-      fornecedores: [],
+      fornecedores: fornecedoresComuns,
       acao_na_falha: AcaoNaFalha.IGNORAR,
     };
 
@@ -141,10 +156,11 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     setSugestoes([]);
   };
 
-  const removerProduto = (produtoIndex: number) => {
+  //  const removerProduto = (produtoIndex: number) => {
+  const removerProduto = (sku: string | undefined) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.filter(
-      (_, i) => i !== produtoIndex,
+      (p, i) => p.produto_sku !== sku,
     );
     updateCampo('preferencias', novasPreferencias);
   };
@@ -230,7 +246,9 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
             const termo = busca.toLowerCase();
             const matchClasse = availableClasses.find((c) => c.nome.toLowerCase().includes(termo));
-            const matchProduto = availableProducts.find((p) => p.name.toLowerCase().includes(termo));
+            const matchProduto = availableProducts.find((p) =>
+              p.name.toLowerCase().includes(termo),
+            );
 
             if (matchClasse) adicionarProduto(matchClasse);
             else if (matchProduto) adicionarProduto(matchProduto);
@@ -261,13 +279,13 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
       {preferencia.produtos.length > 0 && (
         <XStack flexWrap="wrap" gap="$2" marginTop="$2">
-          {preferencia.produtos
+          {produtos
             .map((p, i) => {
               if (!p.produto_sku && !p.classe) return null;
 
               const label = p.classe
                 ? `Classe: ${p.classe}`
-                : `Produto: ${availableProducts.find((prod) => prod.sku === p.produto_sku)?.name ?? p.produto_sku}`;
+                : `Produto: ${availableProducts.find((prod) => prod.sku === p.produto_sku)?.name}`;
 
               return (
                 <XStack
@@ -284,7 +302,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
                     circular
                     marginLeft="$2"
                     backgroundColor="transparent"
-                    onPress={() => removerProduto(i)}
+                    onPress={() => removerProduto(p.produto_sku)}
                   >
                     ×
                   </Button>

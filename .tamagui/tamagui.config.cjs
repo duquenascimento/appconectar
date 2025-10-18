@@ -2164,20 +2164,20 @@ var require_getElevation = __commonJS({
     });
     module2.exports = __toCommonJS2(getElevation_exports);
     var import_core60 = require("@tamagui/core");
-    var getElevation2 = /* @__PURE__ */ __name((size7, extras) => {
-      if (!size7) return;
+    var getElevation2 = /* @__PURE__ */ __name((size6, extras) => {
+      if (!size6) return;
       const {
-        tokens: tokens3
-      } = extras, token = tokens3.size[size7], sizeNum = (0, import_core60.isVariable)(token) ? +token.val : size7;
+        tokens: tokens2
+      } = extras, token = tokens2.size[size6], sizeNum = (0, import_core60.isVariable)(token) ? +token.val : size6;
       return getSizedElevation2(sizeNum, extras);
     }, "getElevation");
     var getSizedElevation2 = /* @__PURE__ */ __name((val, {
       theme,
-      tokens: tokens3
+      tokens: tokens2
     }) => {
       let num = 0;
       if (val === true) {
-        const val2 = (0, import_core60.getVariableValue)(tokens3.size.true);
+        const val2 = (0, import_core60.getVariableValue)(tokens2.size.true);
         typeof val2 == "number" ? num = val2 : num = 10;
       } else num = +val;
       if (num === 0) return;
@@ -2305,35 +2305,35 @@ var require_cjs6 = __commonJS({
       stepTokenUpOrDown: /* @__PURE__ */ __name(() => stepTokenUpOrDown2, "stepTokenUpOrDown")
     });
     module2.exports = __toCommonJS2(src_exports);
-    var import_web25 = require("@tamagui/core");
+    var import_web24 = require("@tamagui/core");
     var defaultOptions2 = {
       shift: 0,
       bounds: [0]
     };
-    var getSize2 = /* @__PURE__ */ __name((size7, options) => getTokenRelative2("size", size7, options), "getSize");
-    var getSpace2 = /* @__PURE__ */ __name((space3, options) => getTokenRelative2("space", space3, options), "getSpace");
-    var getRadius = /* @__PURE__ */ __name((radius3, options) => getTokenRelative2("radius", radius3, options), "getRadius");
+    var getSize2 = /* @__PURE__ */ __name((size6, options) => getTokenRelative2("size", size6, options), "getSize");
+    var getSpace2 = /* @__PURE__ */ __name((space2, options) => getTokenRelative2("space", space2, options), "getSpace");
+    var getRadius = /* @__PURE__ */ __name((radius2, options) => getTokenRelative2("radius", radius2, options), "getRadius");
     var cacheVariables2 = {};
     var cacheWholeVariables2 = {};
     var cacheKeys2 = {};
     var cacheWholeKeys2 = {};
     var stepTokenUpOrDown2 = /* @__PURE__ */ __name((type, current, options = defaultOptions2) => {
       var _a, _b;
-      const tokens3 = (0, import_web25.getTokens)({
+      const tokens2 = (0, import_web24.getTokens)({
         prefixed: true
       })[type];
       if (!(type in cacheVariables2)) {
         cacheKeys2[type] = [], cacheVariables2[type] = [], cacheWholeKeys2[type] = [], cacheWholeVariables2[type] = [];
-        const sorted = Object.keys(tokens3).map((k) => tokens3[k]).sort((a, b) => a.val - b.val);
+        const sorted = Object.keys(tokens2).map((k) => tokens2[k]).sort((a, b) => a.val - b.val);
         for (const token of sorted) cacheKeys2[type].push(token.key), cacheVariables2[type].push(token);
         const sortedExcludingHalfSteps = sorted.filter((x) => !x.key.endsWith(".5"));
         for (const token of sortedExcludingHalfSteps) cacheWholeKeys2[type].push(token.key), cacheWholeVariables2[type].push(token);
       }
       const isString = typeof current == "string", tokensOrdered = (options.excludeHalfSteps ? isString ? cacheWholeKeys2 : cacheWholeVariables2 : isString ? cacheKeys2 : cacheVariables2)[type], min2 = ((_a = options.bounds) == null ? void 0 : _a[0]) ?? 0, max2 = ((_b = options.bounds) == null ? void 0 : _b[1]) ?? tokensOrdered.length - 1, currentIndex = tokensOrdered.indexOf(current);
       let shift4 = options.shift || 0;
-      shift4 && (current === "$true" || (0, import_web25.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
+      shift4 && (current === "$true" || (0, import_web24.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
       const index3 = Math.min(max2, Math.max(min2, currentIndex + shift4)), found = tokensOrdered[index3];
-      return (typeof found == "string" ? tokens3[found] : found) || tokens3.$true;
+      return (typeof found == "string" ? tokens2[found] : found) || tokens2.$true;
     }, "stepTokenUpOrDown");
     var getTokenRelative2 = stepTokenUpOrDown2;
   }
@@ -2369,7 +2369,7 @@ var require_cjs7 = __commonJS({
     module2.exports = __toCommonJS2(src_exports);
     var import_get_token16 = require_cjs6();
     var getButtonSized2 = /* @__PURE__ */ __name((val, {
-      tokens: tokens3,
+      tokens: tokens2,
       props
     }) => {
       if (!val || props.circular) return;
@@ -2378,7 +2378,7 @@ var require_cjs7 = __commonJS({
         height: val,
         borderRadius: props.circular ? 1e5 : val * 0.2
       };
-      const xSize = (0, import_get_token16.getSpace)(val), radiusToken = tokens3.radius[val] ?? tokens3.radius.$true;
+      const xSize = (0, import_get_token16.getSpace)(val), radiusToken = tokens2.radius[val] ?? tokens2.radius.$true;
       return {
         paddingHorizontal: xSize,
         height: val,
@@ -2452,22 +2452,22 @@ var require_variants = __commonJS({
     var padded2 = {
       true: /* @__PURE__ */ __name((_, extras) => {
         const {
-          tokens: tokens3,
+          tokens: tokens2,
           props
         } = extras;
         return {
-          padding: tokens3.space[props.size] || tokens3.space.$true
+          padding: tokens2.space[props.size] || tokens2.space.$true
         };
       }, "true")
     };
     var radiused2 = {
       true: /* @__PURE__ */ __name((_, extras) => {
         const {
-          tokens: tokens3,
+          tokens: tokens2,
           props
         } = extras;
         return {
-          borderRadius: tokens3.radius[props.size] || tokens3.radius.$true
+          borderRadius: tokens2.radius[props.size] || tokens2.radius.$true
         };
       }, "true")
     };
@@ -2478,18 +2478,18 @@ var require_variants = __commonJS({
     var circular2 = {
       true: /* @__PURE__ */ __name((_, {
         props,
-        tokens: tokens3
+        tokens: tokens2
       }) => {
         if (!("size" in props)) return circularStyle2;
-        const size7 = typeof props.size == "number" ? props.size : tokens3.size[props.size];
+        const size6 = typeof props.size == "number" ? props.size : tokens2.size[props.size];
         return {
           ...circularStyle2,
-          width: size7,
-          height: size7,
-          maxWidth: size7,
-          maxHeight: size7,
-          minWidth: size7,
-          minHeight: size7
+          width: size6,
+          height: size6,
+          maxWidth: size6,
+          maxHeight: size6,
+          minWidth: size6,
+          minHeight: size6
         };
       }, "true")
     };
@@ -2769,8 +2769,8 @@ var require_cjs9 = __commonJS({
       if (!font) return {
         fontSize: sizeTokenIn
       };
-      const sizeToken = sizeTokenIn === "$true" ? getDefaultSizeToken2(font) : sizeTokenIn, style = {}, fontSize = font.size[sizeToken], lineHeight = (_a = font.lineHeight) == null ? void 0 : _a[sizeToken], fontWeight = (_b = font.weight) == null ? void 0 : _b[sizeToken], letterSpacing = (_c = font.letterSpacing) == null ? void 0 : _c[sizeToken], textTransform = (_d = font.transform) == null ? void 0 : _d[sizeToken], fontStyle = props.fontStyle ?? ((_e = font.style) == null ? void 0 : _e[sizeToken]), color3 = props.color ?? ((_f = font.color) == null ? void 0 : _f[sizeToken]);
-      return fontStyle && (style.fontStyle = fontStyle), textTransform && (style.textTransform = textTransform), fontFamily && (style.fontFamily = fontFamily), fontWeight && (style.fontWeight = fontWeight), letterSpacing && (style.letterSpacing = letterSpacing), fontSize && (style.fontSize = fontSize), lineHeight && (style.lineHeight = lineHeight), color3 && (style.color = color3), process.env.NODE_ENV === "development" && props.debug && props.debug === "verbose" && (console.groupCollapsed("  \u{1F539} getFontSized", sizeTokenIn, sizeToken), import_constants45.isClient && console.info({
+      const sizeToken = sizeTokenIn === "$true" ? getDefaultSizeToken2(font) : sizeTokenIn, style = {}, fontSize = font.size[sizeToken], lineHeight = (_a = font.lineHeight) == null ? void 0 : _a[sizeToken], fontWeight = (_b = font.weight) == null ? void 0 : _b[sizeToken], letterSpacing = (_c = font.letterSpacing) == null ? void 0 : _c[sizeToken], textTransform = (_d = font.transform) == null ? void 0 : _d[sizeToken], fontStyle = props.fontStyle ?? ((_e = font.style) == null ? void 0 : _e[sizeToken]), color2 = props.color ?? ((_f = font.color) == null ? void 0 : _f[sizeToken]);
+      return fontStyle && (style.fontStyle = fontStyle), textTransform && (style.textTransform = textTransform), fontFamily && (style.fontFamily = fontFamily), fontWeight && (style.fontWeight = fontWeight), letterSpacing && (style.letterSpacing = letterSpacing), fontSize && (style.fontSize = fontSize), lineHeight && (style.lineHeight = lineHeight), color2 && (style.color = color2), process.env.NODE_ENV === "development" && props.debug && props.debug === "verbose" && (console.groupCollapsed("  \u{1F539} getFontSized", sizeTokenIn, sizeToken), import_constants45.isClient && console.info({
         style,
         props,
         font
@@ -2818,8 +2818,8 @@ var require_SizableText = __commonJS({
     });
     module2.exports = __toCommonJS2(SizableText_exports);
     var import_get_font_sized5 = require_cjs9();
-    var import_web25 = require("@tamagui/core");
-    var SizableText2 = (0, import_web25.styled)(import_web25.Text, {
+    var import_web24 = require("@tamagui/core");
+    var SizableText2 = (0, import_web24.styled)(import_web24.Text, {
       name: "SizableText",
       fontFamily: "$body",
       variants: {
@@ -2837,8 +2837,8 @@ var require_SizableText = __commonJS({
     });
     SizableText2.staticConfig.variants.fontFamily = {
       "...": /* @__PURE__ */ __name((_val, extras) => {
-        const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size7 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
-        return (0, import_get_font_sized5.getFontSized)(size7, extras);
+        const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size6 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
+        return (0, import_get_font_sized5.getFontSized)(size6, extras);
       }, "...")
     };
   }
@@ -2872,9 +2872,9 @@ var require_Paragraph = __commonJS({
       Paragraph: /* @__PURE__ */ __name(() => Paragraph2, "Paragraph")
     });
     module2.exports = __toCommonJS2(Paragraph_exports);
-    var import_web25 = require("@tamagui/core");
+    var import_web24 = require("@tamagui/core");
     var import_SizableText2 = require_SizableText();
-    var Paragraph2 = (0, import_web25.styled)(import_SizableText2.SizableText, {
+    var Paragraph2 = (0, import_web24.styled)(import_SizableText2.SizableText, {
       name: "Paragraph",
       tag: "p",
       userSelect: "auto",
@@ -2919,9 +2919,9 @@ var require_Headings = __commonJS({
       Heading: /* @__PURE__ */ __name(() => Heading2, "Heading")
     });
     module2.exports = __toCommonJS2(Headings_exports);
-    var import_web25 = require("@tamagui/core");
+    var import_web24 = require("@tamagui/core");
     var import_Paragraph2 = require_Paragraph();
-    var Heading2 = (0, import_web25.styled)(import_Paragraph2.Paragraph, {
+    var Heading2 = (0, import_web24.styled)(import_Paragraph2.Paragraph, {
       tag: "span",
       name: "Heading",
       accessibilityRole: "header",
@@ -2929,32 +2929,32 @@ var require_Headings = __commonJS({
       size: "$8",
       margin: 0
     });
-    var H12 = (0, import_web25.styled)(Heading2, {
+    var H12 = (0, import_web24.styled)(Heading2, {
       name: "H1",
       tag: "h1",
       size: "$10"
     });
-    var H22 = (0, import_web25.styled)(Heading2, {
+    var H22 = (0, import_web24.styled)(Heading2, {
       name: "H2",
       tag: "h2",
       size: "$9"
     });
-    var H32 = (0, import_web25.styled)(Heading2, {
+    var H32 = (0, import_web24.styled)(Heading2, {
       name: "H3",
       tag: "h3",
       size: "$8"
     });
-    var H42 = (0, import_web25.styled)(Heading2, {
+    var H42 = (0, import_web24.styled)(Heading2, {
       name: "H4",
       tag: "h4",
       size: "$7"
     });
-    var H52 = (0, import_web25.styled)(Heading2, {
+    var H52 = (0, import_web24.styled)(Heading2, {
       name: "H5",
       tag: "h5",
       size: "$6"
     });
-    var H62 = (0, import_web25.styled)(Heading2, {
+    var H62 = (0, import_web24.styled)(Heading2, {
       name: "H6",
       tag: "h6",
       size: "$5"
@@ -3012,9 +3012,9 @@ var require_wrapChildrenInText = __commonJS({
       const {
         children,
         textProps,
-        size: size7,
+        size: size6,
         noTextWrap,
-        color: color3,
+        color: color2,
         fontFamily,
         fontSize,
         fontWeight,
@@ -3027,7 +3027,7 @@ var require_wrapChildrenInText = __commonJS({
       const props = {
         ...extraProps
       };
-      return color3 && (props.color = color3), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size7 && (props.size = size7), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react49.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(TextComponent, {
+      return color2 && (props.color = color2), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size6 && (props.size = size6), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react49.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(TextComponent, {
         ...props,
         ...textProps,
         children: child
@@ -3474,8 +3474,8 @@ var require_Accordion = __commonJS({
     var import_text9 = require_cjs10();
     var import_use_controllable_state17 = require_cjs13();
     var import_use_direction5 = require_cjs14();
+    var import_web24 = require("@tamagui/core");
     var import_web25 = require("@tamagui/core");
-    var import_web26 = require("@tamagui/core");
     var React78 = __toESM2(require("react"));
     var import_jsx_runtime64 = require("react/jsx-runtime");
     var ACCORDION_NAME = "Accordion";
@@ -3499,11 +3499,11 @@ var require_Accordion = __commonJS({
         ) : null;
       }
     };
-    var { Provider: AccordionValueProvider, useStyledContext: useAccordionValueContext } = (0, import_web26.createStyledContext)();
+    var { Provider: AccordionValueProvider, useStyledContext: useAccordionValueContext } = (0, import_web25.createStyledContext)();
     var {
       Provider: AccordionCollapsibleProvider,
       useStyledContext: useAccordionCollapsibleContext
-    } = (0, import_web26.createStyledContext)();
+    } = (0, import_web25.createStyledContext)();
     var AccordionImplSingle = React78.forwardRef((props, forwardedRef) => {
       const {
         value: valueProp,
@@ -3568,7 +3568,7 @@ var require_Accordion = __commonJS({
         }
       );
     });
-    var { Provider: AccordionImplProvider, useStyledContext: useAccordionContext } = (0, import_web26.createStyledContext)();
+    var { Provider: AccordionImplProvider, useStyledContext: useAccordionContext } = (0, import_web25.createStyledContext)();
     var AccordionImpl = React78.forwardRef(
       (props, forwardedRef) => {
         const {
@@ -3643,7 +3643,7 @@ var require_Accordion = __commonJS({
       }
     );
     var ITEM_NAME3 = "AccordionItem";
-    var { Provider: AccordionItemProvider, useStyledContext: useAccordionItemContext } = (0, import_web26.createStyledContext)();
+    var { Provider: AccordionItemProvider, useStyledContext: useAccordionItemContext } = (0, import_web25.createStyledContext)();
     var AccordionItem = React78.forwardRef(
       (props, forwardedRef) => {
         const { __scopeAccordion, value, ...accordionItemProps } = props, accordionContext = useAccordionContext(__scopeAccordion), valueContext = useAccordionValueContext(__scopeAccordion), triggerId = React78.useId(), open = value && valueContext.value.includes(value) || false, disabled = accordionContext.disabled || props.disabled;
@@ -3691,7 +3691,7 @@ var require_Accordion = __commonJS({
       }
     );
     AccordionHeader.displayName = HEADER_NAME;
-    var AccordionTriggerFrame = (0, import_web26.styled)(import_collapsible.Collapsible.Trigger, {
+    var AccordionTriggerFrame = (0, import_web25.styled)(import_collapsible.Collapsible.Trigger, {
       variants: {
         unstyled: {
           false: {
@@ -3730,7 +3730,7 @@ var require_Accordion = __commonJS({
         }
       ) });
     });
-    var AccordionContentFrame = (0, import_web26.styled)(import_collapsible.Collapsible.Content, {
+    var AccordionContentFrame = (0, import_web25.styled)(import_collapsible.Collapsible.Content, {
       variants: {
         unstyled: {
           false: {
@@ -3757,16 +3757,16 @@ var require_Accordion = __commonJS({
         }
       );
     });
-    var HeightAnimator = import_web25.View.styleable((props, ref) => {
+    var HeightAnimator = import_web24.View.styleable((props, ref) => {
       const itemContext = useAccordionItemContext(), { children, ...rest } = props, [height, setHeight] = React78.useState(0);
       React78.useEffect(() => {
         itemContext.open || setHeight(0);
       }, [itemContext.open]);
-      const onLayout = (0, import_web25.useEvent)(({ nativeEvent }) => {
+      const onLayout = (0, import_web24.useEvent)(({ nativeEvent }) => {
         nativeEvent.layout.height && setHeight(nativeEvent.layout.height);
       });
-      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(import_web25.View, { ref, height, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
-        import_web25.View,
+      return /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(import_web24.View, { ref, height, ...rest, children: /* @__PURE__ */ (0, import_jsx_runtime64.jsx)(
+        import_web24.View,
         {
           position: "absolute",
           width: "100%",
@@ -4011,15 +4011,15 @@ function __extends(d, b) {
   d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 }
 function __rest(s, e) {
-  var t2 = {};
+  var t = {};
   for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-    t2[p] = s[p];
+    t[p] = s[p];
   if (s != null && typeof Object.getOwnPropertySymbols === "function")
     for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
       if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-        t2[p[i]] = s[p[i]];
+        t[p[i]] = s[p[i]];
     }
-  return t2;
+  return t;
 }
 function __decorate(decorators, target, key, desc) {
   var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -4115,9 +4115,9 @@ function __awaiter(thisArg, _arguments, P, generator) {
 }
 function __generator(thisArg, body) {
   var _ = { label: 0, sent: /* @__PURE__ */ __name(function() {
-    if (t2[0] & 1) throw t2[1];
-    return t2[1];
-  }, "sent"), trys: [], ops: [] }, f, y, t2, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    if (t[0] & 1) throw t[1];
+    return t[1];
+  }, "sent"), trys: [], ops: [] }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
   return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
     return this;
   }), g;
@@ -4130,12 +4130,12 @@ function __generator(thisArg, body) {
   function step(op) {
     if (f) throw new TypeError("Generator is already executing.");
     while (g && (g = 0, op[0] && (_ = 0)), _) try {
-      if (f = 1, y && (t2 = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t2 = y["return"]) && t2.call(y), 0) : y.next) && !(t2 = t2.call(y, op[1])).done) return t2;
-      if (y = 0, t2) op = [op[0] & 2, t2.value];
+      if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+      if (y = 0, t) op = [op[0] & 2, t.value];
       switch (op[0]) {
         case 0:
         case 1:
-          t2 = op;
+          t = op;
           break;
         case 4:
           _.label++;
@@ -4150,25 +4150,25 @@ function __generator(thisArg, body) {
           _.trys.pop();
           continue;
         default:
-          if (!(t2 = _.trys, t2 = t2.length > 0 && t2[t2.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+          if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
             _ = 0;
             continue;
           }
-          if (op[0] === 3 && (!t2 || op[1] > t2[0] && op[1] < t2[3])) {
+          if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
             _.label = op[1];
             break;
           }
-          if (op[0] === 6 && _.label < t2[1]) {
-            _.label = t2[1];
-            t2 = op;
+          if (op[0] === 6 && _.label < t[1]) {
+            _.label = t[1];
+            t = op;
             break;
           }
-          if (t2 && _.label < t2[2]) {
-            _.label = t2[2];
+          if (t && _.label < t[2]) {
+            _.label = t[2];
             _.ops.push(op);
             break;
           }
-          if (t2[2]) _.ops.pop();
+          if (t[2]) _.ops.pop();
           _.trys.pop();
           continue;
       }
@@ -4177,7 +4177,7 @@ function __generator(thisArg, body) {
       op = [6, e];
       y = 0;
     } finally {
-      f = t2 = 0;
+      f = t = 0;
     }
     if (op[0] & 5) throw op[1];
     return { value: op[0] ? op[1] : void 0, done: true };
@@ -4433,12 +4433,12 @@ var init_tslib_es6 = __esm({
     }, "extendStatics");
     __name(__extends, "__extends");
     __assign = /* @__PURE__ */ __name(function() {
-      __assign = Object.assign || /* @__PURE__ */ __name(function __assign2(t2) {
+      __assign = Object.assign || /* @__PURE__ */ __name(function __assign2(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
           s = arguments[i];
-          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t2[p] = s[p];
+          for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
         }
-        return t2;
+        return t;
       }, "__assign");
       return __assign.apply(this, arguments);
     }, "__assign");
@@ -5989,15 +5989,15 @@ var require_typeof = __commonJS({
 var require_toPrimitive = __commonJS({
   "node_modules/@babel/runtime/helpers/toPrimitive.js"(exports2, module2) {
     var _typeof = require_typeof()["default"];
-    function toPrimitive(t2, r) {
-      if ("object" != _typeof(t2) || !t2) return t2;
-      var e = t2[Symbol.toPrimitive];
+    function toPrimitive(t, r) {
+      if ("object" != _typeof(t) || !t) return t;
+      var e = t[Symbol.toPrimitive];
       if (void 0 !== e) {
-        var i = e.call(t2, r || "default");
+        var i = e.call(t, r || "default");
         if ("object" != _typeof(i)) return i;
         throw new TypeError("@@toPrimitive must return a primitive value.");
       }
-      return ("string" === r ? String : Number)(t2);
+      return ("string" === r ? String : Number)(t);
     }
     __name(toPrimitive, "toPrimitive");
     module2.exports = toPrimitive, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -6009,8 +6009,8 @@ var require_toPropertyKey = __commonJS({
   "node_modules/@babel/runtime/helpers/toPropertyKey.js"(exports2, module2) {
     var _typeof = require_typeof()["default"];
     var toPrimitive = require_toPrimitive();
-    function toPropertyKey(t2) {
-      var i = toPrimitive(t2, "string");
+    function toPropertyKey(t) {
+      var i = toPrimitive(t, "string");
       return "symbol" == _typeof(i) ? i : i + "";
     }
     __name(toPropertyKey, "toPropertyKey");
@@ -6022,13 +6022,13 @@ var require_toPropertyKey = __commonJS({
 var require_defineProperty = __commonJS({
   "node_modules/@babel/runtime/helpers/defineProperty.js"(exports2, module2) {
     var toPropertyKey = require_toPropertyKey();
-    function _defineProperty(e, r, t2) {
+    function _defineProperty(e, r, t) {
       return (r = toPropertyKey(r)) in e ? Object.defineProperty(e, r, {
-        value: t2,
+        value: t,
         enumerable: true,
         configurable: true,
         writable: true
-      }) : e[r] = t2, e;
+      }) : e[r] = t, e;
     }
     __name(_defineProperty, "_defineProperty");
     module2.exports = _defineProperty, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -6040,23 +6040,23 @@ var require_objectSpread2 = __commonJS({
   "node_modules/@babel/runtime/helpers/objectSpread2.js"(exports2, module2) {
     var defineProperty = require_defineProperty();
     function ownKeys2(e, r) {
-      var t2 = Object.keys(e);
+      var t = Object.keys(e);
       if (Object.getOwnPropertySymbols) {
         var o = Object.getOwnPropertySymbols(e);
         r && (o = o.filter(function(r2) {
           return Object.getOwnPropertyDescriptor(e, r2).enumerable;
-        })), t2.push.apply(t2, o);
+        })), t.push.apply(t, o);
       }
-      return t2;
+      return t;
     }
     __name(ownKeys2, "ownKeys");
     function _objectSpread2(e) {
       for (var r = 1; r < arguments.length; r++) {
-        var t2 = null != arguments[r] ? arguments[r] : {};
-        r % 2 ? ownKeys2(Object(t2), true).forEach(function(r2) {
-          defineProperty(e, r2, t2[r2]);
-        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys2(Object(t2)).forEach(function(r2) {
-          Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t2, r2));
+        var t = null != arguments[r] ? arguments[r] : {};
+        r % 2 ? ownKeys2(Object(t), true).forEach(function(r2) {
+          defineProperty(e, r2, t[r2]);
+        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys2(Object(t)).forEach(function(r2) {
+          Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
         });
       }
       return e;
@@ -6071,12 +6071,12 @@ var require_objectWithoutPropertiesLoose = __commonJS({
   "node_modules/@babel/runtime/helpers/objectWithoutPropertiesLoose.js"(exports2, module2) {
     function _objectWithoutPropertiesLoose(r, e) {
       if (null == r) return {};
-      var t2 = {};
+      var t = {};
       for (var n in r) if ({}.hasOwnProperty.call(r, n)) {
         if (-1 !== e.indexOf(n)) continue;
-        t2[n] = r[n];
+        t[n] = r[n];
       }
-      return t2;
+      return t;
     }
     __name(_objectWithoutPropertiesLoose, "_objectWithoutPropertiesLoose");
     module2.exports = _objectWithoutPropertiesLoose, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -6159,7 +6159,7 @@ var require_isWebColor = __commonJS({
     "use strict";
     exports2.__esModule = true;
     exports2.default = void 0;
-    var isWebColor = /* @__PURE__ */ __name((color3) => color3 === "currentcolor" || color3 === "currentColor" || color3 === "inherit" || color3.indexOf("var(") === 0, "isWebColor");
+    var isWebColor = /* @__PURE__ */ __name((color2) => color2 === "currentcolor" || color2 === "currentColor" || color2 === "inherit" || color2.indexOf("var(") === 0, "isWebColor");
     var _default = exports2.default = isWebColor;
     module2.exports = exports2.default;
   }
@@ -6169,33 +6169,33 @@ var require_isWebColor = __commonJS({
 var require_normalize_colors = __commonJS({
   "node_modules/react-native-web/node_modules/@react-native/normalize-colors/index.js"(exports2, module2) {
     "use strict";
-    function normalizeColor(color3) {
-      if (typeof color3 === "number") {
-        if (color3 >>> 0 === color3 && color3 >= 0 && color3 <= 4294967295) {
-          return color3;
+    function normalizeColor(color2) {
+      if (typeof color2 === "number") {
+        if (color2 >>> 0 === color2 && color2 >= 0 && color2 <= 4294967295) {
+          return color2;
         }
         return null;
       }
-      if (typeof color3 !== "string") {
+      if (typeof color2 !== "string") {
         return null;
       }
       const matchers = getMatchers();
       let match;
-      if (match = matchers.hex6.exec(color3)) {
+      if (match = matchers.hex6.exec(color2)) {
         return parseInt(match[1] + "ff", 16) >>> 0;
       }
-      const colorFromKeyword = normalizeKeyword(color3);
+      const colorFromKeyword = normalizeKeyword(color2);
       if (colorFromKeyword != null) {
         return colorFromKeyword;
       }
-      if (match = matchers.rgb.exec(color3)) {
+      if (match = matchers.rgb.exec(color2)) {
         return (parse255(match[1]) << 24 | // r
         parse255(match[2]) << 16 | // g
         parse255(match[3]) << 8 | // b
         255) >>> // a
         0;
       }
-      if (match = matchers.rgba.exec(color3)) {
+      if (match = matchers.rgba.exec(color2)) {
         if (match[6] !== void 0) {
           return (parse255(match[6]) << 24 | // r
           parse255(match[7]) << 16 | // g
@@ -6209,7 +6209,7 @@ var require_normalize_colors = __commonJS({
         parse1(match[5])) >>> // a
         0;
       }
-      if (match = matchers.hex3.exec(color3)) {
+      if (match = matchers.hex3.exec(color2)) {
         return parseInt(
           match[1] + match[1] + // r
           match[2] + match[2] + // g
@@ -6219,10 +6219,10 @@ var require_normalize_colors = __commonJS({
           16
         ) >>> 0;
       }
-      if (match = matchers.hex8.exec(color3)) {
+      if (match = matchers.hex8.exec(color2)) {
         return parseInt(match[1], 16) >>> 0;
       }
-      if (match = matchers.hex4.exec(color3)) {
+      if (match = matchers.hex4.exec(color2)) {
         return parseInt(
           match[1] + match[1] + // r
           match[2] + match[2] + // g
@@ -6232,7 +6232,7 @@ var require_normalize_colors = __commonJS({
           16
         ) >>> 0;
       }
-      if (match = matchers.hsl.exec(color3)) {
+      if (match = matchers.hsl.exec(color2)) {
         return (hslToRgb(
           parse360(match[1]),
           // h
@@ -6243,7 +6243,7 @@ var require_normalize_colors = __commonJS({
         ) | 255) >>> // a
         0;
       }
-      if (match = matchers.hsla.exec(color3)) {
+      if (match = matchers.hsla.exec(color2)) {
         if (match[6] !== void 0) {
           return (hslToRgb(
             parse360(match[6]),
@@ -6265,7 +6265,7 @@ var require_normalize_colors = __commonJS({
         ) | parse1(match[5])) >>> // a
         0;
       }
-      if (match = matchers.hwb.exec(color3)) {
+      if (match = matchers.hwb.exec(color2)) {
         return (hwbToRgb(
           parse360(match[1]),
           // h
@@ -6279,21 +6279,21 @@ var require_normalize_colors = __commonJS({
       return null;
     }
     __name(normalizeColor, "normalizeColor");
-    function hue2rgb(p, q, t2) {
-      if (t2 < 0) {
-        t2 += 1;
+    function hue2rgb(p, q, t) {
+      if (t < 0) {
+        t += 1;
       }
-      if (t2 > 1) {
-        t2 -= 1;
+      if (t > 1) {
+        t -= 1;
       }
-      if (t2 < 1 / 6) {
-        return p + (q - p) * 6 * t2;
+      if (t < 1 / 6) {
+        return p + (q - p) * 6 * t;
       }
-      if (t2 < 1 / 2) {
+      if (t < 1 / 2) {
         return q;
       }
-      if (t2 < 2 / 3) {
-        return p + (q - p) * (2 / 3 - t2) * 6;
+      if (t < 2 / 3) {
+        return p + (q - p) * (2 / 3 - t) * 6;
       }
       return p;
     }
@@ -6711,11 +6711,11 @@ var require_processColor = __commonJS({
     exports2.__esModule = true;
     exports2.default = void 0;
     var _normalizeColors = _interopRequireDefault(require_normalize_colors());
-    var processColor = /* @__PURE__ */ __name((color3) => {
-      if (color3 === void 0 || color3 === null) {
-        return color3;
+    var processColor = /* @__PURE__ */ __name((color2) => {
+      if (color2 === void 0 || color2 === null) {
+        return color2;
       }
-      var int32Color = (0, _normalizeColors.default)(color3);
+      var int32Color = (0, _normalizeColors.default)(color2);
       if (int32Color === void 0 || int32Color === null) {
         return void 0;
       }
@@ -6736,15 +6736,15 @@ var require_normalizeColor = __commonJS({
     exports2.default = void 0;
     var _isWebColor = _interopRequireDefault(require_isWebColor());
     var _processColor = _interopRequireDefault(require_processColor());
-    var normalizeColor = /* @__PURE__ */ __name(function normalizeColor2(color3, opacity) {
+    var normalizeColor = /* @__PURE__ */ __name(function normalizeColor2(color2, opacity) {
       if (opacity === void 0) {
         opacity = 1;
       }
-      if (color3 == null) return;
-      if (typeof color3 === "string" && (0, _isWebColor.default)(color3)) {
-        return color3;
+      if (color2 == null) return;
+      if (typeof color2 === "string" && (0, _isWebColor.default)(color2)) {
+        return color2;
       }
-      var colorInt = (0, _processColor.default)(color3);
+      var colorInt = (0, _processColor.default)(color2);
       if (colorInt != null) {
         var r = colorInt >> 16 & 255;
         var g = colorInt >> 8 & 255;
@@ -8686,22 +8686,22 @@ var require_preprocess = __commonJS({
       var offsetX = (0, _normalizeValueWithProperty.default)(width);
       var offsetY = (0, _normalizeValueWithProperty.default)(height);
       var blurRadius = (0, _normalizeValueWithProperty.default)(shadowRadius || 0);
-      var color3 = (0, _normalizeColor.default)(shadowColor || "black", shadowOpacity);
-      if (color3 != null && offsetX != null && offsetY != null && blurRadius != null) {
-        return offsetX + " " + offsetY + " " + blurRadius + " " + color3;
+      var color2 = (0, _normalizeColor.default)(shadowColor || "black", shadowOpacity);
+      if (color2 != null && offsetX != null && offsetY != null && blurRadius != null) {
+        return offsetX + " " + offsetY + " " + blurRadius + " " + color2;
       }
     }, "createBoxShadowValue");
     exports2.createBoxShadowValue = createBoxShadowValue;
     var createTextShadowValue = /* @__PURE__ */ __name((style) => {
       var textShadowColor = style.textShadowColor, textShadowOffset = style.textShadowOffset, textShadowRadius = style.textShadowRadius;
       var _ref2 = textShadowOffset || defaultOffset, height = _ref2.height, width = _ref2.width;
-      var radius3 = textShadowRadius || 0;
+      var radius2 = textShadowRadius || 0;
       var offsetX = (0, _normalizeValueWithProperty.default)(width);
       var offsetY = (0, _normalizeValueWithProperty.default)(height);
-      var blurRadius = (0, _normalizeValueWithProperty.default)(radius3);
-      var color3 = (0, _normalizeValueWithProperty.default)(textShadowColor, "textShadowColor");
-      if (color3 && (height !== 0 || width !== 0 || radius3 !== 0) && offsetX != null && offsetY != null && blurRadius != null) {
-        return offsetX + " " + offsetY + " " + blurRadius + " " + color3;
+      var blurRadius = (0, _normalizeValueWithProperty.default)(radius2);
+      var color2 = (0, _normalizeValueWithProperty.default)(textShadowColor, "textShadowColor");
+      if (color2 && (height !== 0 || width !== 0 || radius2 !== 0) && offsetX != null && offsetY != null && blurRadius != null) {
+        return offsetX + " " + offsetY + " " + blurRadius + " " + color2;
       }
     }, "createTextShadowValue");
     exports2.createTextShadowValue = createTextShadowValue;
@@ -8713,9 +8713,9 @@ var require_preprocess = __commonJS({
       var offsetY = (0, _normalizeValueWithProperty.default)(boxShadow.offsetY) || 0;
       var blurRadius = (0, _normalizeValueWithProperty.default)(boxShadow.blurRadius) || 0;
       var spreadDistance = (0, _normalizeValueWithProperty.default)(boxShadow.spreadDistance) || 0;
-      var color3 = (0, _normalizeColor.default)(boxShadow.color) || "black";
+      var color2 = (0, _normalizeColor.default)(boxShadow.color) || "black";
       var position = boxShadow.inset ? "inset " : "";
-      return "" + position + offsetX + " " + offsetY + " " + blurRadius + " " + spreadDistance + " " + color3;
+      return "" + position + offsetX + " " + offsetY + " " + blurRadius + " " + spreadDistance + " " + color2;
     }, "mapBoxShadow");
     var createBoxShadowArrayValue = /* @__PURE__ */ __name((value) => {
       return value.map(mapBoxShadow).join(", ");
@@ -8983,13 +8983,13 @@ var require_parse = __commonJS({
     var plus = "+".charCodeAt(0);
     var isUnicodeRange = /^[a-f0-9?-]+$/i;
     module2.exports = function(input) {
-      var tokens3 = [];
+      var tokens2 = [];
       var value = input;
       var next, quote, prev, token, escape, escapePos, whitespacePos, parenthesesOpenPos;
       var pos = 0;
       var code = value.charCodeAt(pos);
       var max2 = value.length;
-      var stack = [{ nodes: tokens3 }];
+      var stack = [{ nodes: tokens2 }];
       var balanced = 0;
       var parent;
       var name = "";
@@ -9003,7 +9003,7 @@ var require_parse = __commonJS({
             code = value.charCodeAt(next);
           } while (code <= 32);
           token = value.slice(pos, next);
-          prev = tokens3[tokens3.length - 1];
+          prev = tokens2[tokens2.length - 1];
           if (code === closeParentheses && balanced) {
             after = token;
           } else if (prev && prev.type === "div") {
@@ -9012,7 +9012,7 @@ var require_parse = __commonJS({
           } else if (code === comma || code === colon || code === slash && value.charCodeAt(next + 1) !== star && (!parent || parent && parent.type === "function" && parent.value !== "calc")) {
             before = token;
           } else {
-            tokens3.push({
+            tokens2.push({
               type: "space",
               sourceIndex: pos,
               sourceEndIndex: next,
@@ -9045,7 +9045,7 @@ var require_parse = __commonJS({
           } while (escape);
           token.value = value.slice(pos + 1, next);
           token.sourceEndIndex = token.unclosed ? next : next + 1;
-          tokens3.push(token);
+          tokens2.push(token);
           pos = next + 1;
           code = value.charCodeAt(pos);
         } else if (code === slash && value.charCodeAt(pos + 1) === star) {
@@ -9061,12 +9061,12 @@ var require_parse = __commonJS({
             token.sourceEndIndex = next;
           }
           token.value = value.slice(pos + 2, next);
-          tokens3.push(token);
+          tokens2.push(token);
           pos = next + 2;
           code = value.charCodeAt(pos);
         } else if ((code === slash || code === star) && parent && parent.type === "function" && parent.value === "calc") {
           token = value[pos];
-          tokens3.push({
+          tokens2.push({
             type: "word",
             sourceIndex: pos - before.length,
             sourceEndIndex: pos + token.length,
@@ -9076,7 +9076,7 @@ var require_parse = __commonJS({
           code = value.charCodeAt(pos);
         } else if (code === slash || code === comma || code === colon) {
           token = value[pos];
-          tokens3.push({
+          tokens2.push({
             type: "div",
             sourceIndex: pos - before.length,
             sourceEndIndex: pos + token.length,
@@ -9155,14 +9155,14 @@ var require_parse = __commonJS({
             pos = next + 1;
             token.sourceEndIndex = token.unclosed ? next : pos;
             code = value.charCodeAt(pos);
-            tokens3.push(token);
+            tokens2.push(token);
           } else {
             balanced += 1;
             token.after = "";
             token.sourceEndIndex = pos + 1;
-            tokens3.push(token);
+            tokens2.push(token);
             stack.push(token);
-            tokens3 = token.nodes = [];
+            tokens2 = token.nodes = [];
             parent = token;
           }
           name = "";
@@ -9176,7 +9176,7 @@ var require_parse = __commonJS({
           stack[stack.length - 1].sourceEndIndex = pos;
           stack.pop();
           parent = stack[balanced];
-          tokens3 = parent.nodes;
+          tokens2 = parent.nodes;
         } else {
           next = pos;
           do {
@@ -9190,14 +9190,14 @@ var require_parse = __commonJS({
           if (openParentheses === code) {
             name = token;
           } else if ((uLower === token.charCodeAt(0) || uUpper === token.charCodeAt(0)) && plus === token.charCodeAt(1) && isUnicodeRange.test(token.slice(2))) {
-            tokens3.push({
+            tokens2.push({
               type: "unicode-range",
               sourceIndex: pos,
               sourceEndIndex: next,
               value: token
             });
           } else {
-            tokens3.push({
+            tokens2.push({
               type: "word",
               sourceIndex: pos,
               sourceEndIndex: next,
@@ -9950,22 +9950,22 @@ var require_createDOMProps = __commonJS({
 var require_interopRequireWildcard = __commonJS({
   "node_modules/@babel/runtime/helpers/interopRequireWildcard.js"(exports2, module2) {
     var _typeof = require_typeof()["default"];
-    function _interopRequireWildcard(e, t2) {
+    function _interopRequireWildcard(e, t) {
       if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
-      return (module2.exports = _interopRequireWildcard = /* @__PURE__ */ __name(function _interopRequireWildcard2(e2, t3) {
-        if (!t3 && e2 && e2.__esModule) return e2;
+      return (module2.exports = _interopRequireWildcard = /* @__PURE__ */ __name(function _interopRequireWildcard2(e2, t2) {
+        if (!t2 && e2 && e2.__esModule) return e2;
         var o, i, f = {
           __proto__: null,
           "default": e2
         };
         if (null === e2 || "object" != _typeof(e2) && "function" != typeof e2) return f;
-        if (o = t3 ? n : r) {
+        if (o = t2 ? n : r) {
           if (o.has(e2)) return o.get(e2);
           o.set(e2, f);
         }
         for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
         return f;
-      }, "_interopRequireWildcard"), module2.exports.__esModule = true, module2.exports["default"] = module2.exports)(e, t2);
+      }, "_interopRequireWildcard"), module2.exports.__esModule = true, module2.exports["default"] = module2.exports)(e, t);
     }
     __name(_interopRequireWildcard, "_interopRequireWildcard");
     module2.exports = _interopRequireWildcard, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
@@ -10600,8 +10600,8 @@ var require_extends = __commonJS({
     function _extends2() {
       return module2.exports = _extends2 = Object.assign ? Object.assign.bind() : function(n) {
         for (var e = 1; e < arguments.length; e++) {
-          var t2 = arguments[e];
-          for (var r in t2) ({}).hasOwnProperty.call(t2, r) && (n[r] = t2[r]);
+          var t = arguments[e];
+          for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
         }
         return n;
       }, module2.exports.__esModule = true, module2.exports["default"] = module2.exports, _extends2.apply(null, arguments);
@@ -12172,8 +12172,8 @@ var require_unsupportedIterableToArray = __commonJS({
     function _unsupportedIterableToArray(r, a) {
       if (r) {
         if ("string" == typeof r) return arrayLikeToArray(r, a);
-        var t2 = {}.toString.call(r).slice(8, -1);
-        return "Object" === t2 && r.constructor && (t2 = r.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? arrayLikeToArray(r, a) : void 0;
+        var t = {}.toString.call(r).slice(8, -1);
+        return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? arrayLikeToArray(r, a) : void 0;
       }
     }
     __name(_unsupportedIterableToArray, "_unsupportedIterableToArray");
@@ -12186,10 +12186,10 @@ var require_createForOfIteratorHelperLoose = __commonJS({
   "node_modules/@babel/runtime/helpers/createForOfIteratorHelperLoose.js"(exports2, module2) {
     var unsupportedIterableToArray = require_unsupportedIterableToArray();
     function _createForOfIteratorHelperLoose(r, e) {
-      var t2 = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
-      if (t2) return (t2 = t2.call(r)).next.bind(t2);
-      if (Array.isArray(r) || (t2 = unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
-        t2 && (r = t2);
+      var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+      if (t) return (t = t.call(r)).next.bind(t);
+      if (Array.isArray(r) || (t = unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) {
+        t && (r = t);
         var o = 0;
         return function() {
           return o >= r.length ? {
@@ -12219,7 +12219,7 @@ var require_RefreshControl = __commonJS({
     var _react = _interopRequireDefault(require("react"));
     var _excluded = ["colors", "enabled", "onRefresh", "progressBackgroundColor", "progressViewOffset", "refreshing", "size", "tintColor", "title", "titleColor"];
     function RefreshControl(props) {
-      var colors = props.colors, enabled = props.enabled, onRefresh = props.onRefresh, progressBackgroundColor = props.progressBackgroundColor, progressViewOffset = props.progressViewOffset, refreshing = props.refreshing, size7 = props.size, tintColor = props.tintColor, title = props.title, titleColor = props.titleColor, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
+      var colors = props.colors, enabled = props.enabled, onRefresh = props.onRefresh, progressBackgroundColor = props.progressBackgroundColor, progressViewOffset = props.progressViewOffset, refreshing = props.refreshing, size6 = props.size, tintColor = props.tintColor, title = props.title, titleColor = props.titleColor, rest = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       return /* @__PURE__ */ _react.default.createElement(_View.default, rest);
     }
     __name(RefreshControl, "RefreshControl");
@@ -14701,8 +14701,8 @@ var require_VirtualizedList = __commonJS({
         this._nestedChildLists.forEach((childList) => {
           childList.recordInteraction();
         });
-        this._viewabilityTuples.forEach((t2) => {
-          t2.viewabilityHelper.recordInteraction();
+        this._viewabilityTuples.forEach((t) => {
+          t.viewabilityHelper.recordInteraction();
         });
         this._updateViewableItems(this.props, this.state.cellsAroundViewport);
       }
@@ -16901,7 +16901,7 @@ var require_AnimatedInterpolation = __commonJS({
     var _invariant = _interopRequireDefault(require_invariant());
     var _normalizeColors = _interopRequireDefault(require_normalize_colors());
     var __DEV__ = process.env.NODE_ENV !== "production";
-    var linear = /* @__PURE__ */ __name((t2) => t2, "linear");
+    var linear = /* @__PURE__ */ __name((t) => t, "linear");
     function createInterpolation(config2) {
       if (config2.outputRange && typeof config2.outputRange[0] === "string") {
         return createInterpolationFromStringOutputRange(config2);
@@ -20003,12 +20003,12 @@ var require_SpringConfig = __commonJS({
         return start + n * (end - start);
       }
       __name(projectNormal, "projectNormal");
-      function linearInterpolation(t2, start, end) {
-        return t2 * end + (1 - t2) * start;
+      function linearInterpolation(t, start, end) {
+        return t * end + (1 - t) * start;
       }
       __name(linearInterpolation, "linearInterpolation");
-      function quadraticOutInterpolation(t2, start, end) {
-        return linearInterpolation(2 * t2 - t2 * t2, start, end);
+      function quadraticOutInterpolation(t, start, end) {
+        return linearInterpolation(2 * t - t * t, start, end);
       }
       __name(quadraticOutInterpolation, "quadraticOutInterpolation");
       function b3Friction1(x) {
@@ -20071,19 +20071,19 @@ var require_AnimatedColor = __commonJS({
       a: 1
     };
     var _uniqueId = 1;
-    var processColorObject = /* @__PURE__ */ __name((color3) => {
-      return color3;
+    var processColorObject = /* @__PURE__ */ __name((color2) => {
+      return color2;
     }, "processColorObject");
-    function processColor(color3) {
-      if (color3 === void 0 || color3 === null) {
+    function processColor(color2) {
+      if (color2 === void 0 || color2 === null) {
         return null;
       }
-      if (isRgbaValue(color3)) {
-        return color3;
+      if (isRgbaValue(color2)) {
+        return color2;
       }
       var normalizedColor = (0, _normalizeColors.default)(
         // $FlowIgnore[incompatible-cast] - Type is verified above
-        color3
+        color2
       );
       if (normalizedColor === void 0 || normalizedColor === null) {
         return null;
@@ -20467,15 +20467,15 @@ var require_SpringAnimation = __commonJS({
         var x0 = this._toValue - this._startPosition;
         var position = 0;
         var velocity = 0;
-        var t2 = this._frameTime;
+        var t = this._frameTime;
         if (zeta < 1) {
-          var envelope = Math.exp(-zeta * omega0 * t2);
-          position = this._toValue - envelope * ((v0 + zeta * omega0 * x0) / omega1 * Math.sin(omega1 * t2) + x0 * Math.cos(omega1 * t2));
-          velocity = zeta * omega0 * envelope * (Math.sin(omega1 * t2) * (v0 + zeta * omega0 * x0) / omega1 + x0 * Math.cos(omega1 * t2)) - envelope * (Math.cos(omega1 * t2) * (v0 + zeta * omega0 * x0) - omega1 * x0 * Math.sin(omega1 * t2));
+          var envelope = Math.exp(-zeta * omega0 * t);
+          position = this._toValue - envelope * ((v0 + zeta * omega0 * x0) / omega1 * Math.sin(omega1 * t) + x0 * Math.cos(omega1 * t));
+          velocity = zeta * omega0 * envelope * (Math.sin(omega1 * t) * (v0 + zeta * omega0 * x0) / omega1 + x0 * Math.cos(omega1 * t)) - envelope * (Math.cos(omega1 * t) * (v0 + zeta * omega0 * x0) - omega1 * x0 * Math.sin(omega1 * t));
         } else {
-          var _envelope = Math.exp(-omega0 * t2);
-          position = this._toValue - _envelope * (x0 + (v0 + omega0 * x0) * t2);
-          velocity = _envelope * (v0 * (t2 * omega0 - 1) + t2 * x0 * (omega0 * omega0));
+          var _envelope = Math.exp(-omega0 * t);
+          position = this._toValue - _envelope * (x0 + (v0 + omega0 * x0) * t);
+          velocity = _envelope * (v0 * (t * omega0 - 1) + t * x0 * (omega0 * omega0));
         }
         this._lastTime = now;
         this._lastPosition = position;
@@ -20663,8 +20663,8 @@ var require_Easing = __commonJS({
        *
        * http://cubic-bezier.com/#0,0,1,1
        */
-      static linear(t2) {
-        return t2;
+      static linear(t) {
+        return t;
       }
       /**
        * A simple inertial interaction, similar to an object slowly accelerating to
@@ -20672,11 +20672,11 @@ var require_Easing = __commonJS({
        *
        * http://cubic-bezier.com/#.42,0,1,1
        */
-      static ease(t2) {
+      static ease(t) {
         if (!ease) {
           ease = _Easing.bezier(0.42, 0, 1, 1);
         }
-        return ease(t2);
+        return ease(t);
       }
       /**
        * A quadratic function, `f(t) = t * t`. Position equals the square of elapsed
@@ -20684,8 +20684,8 @@ var require_Easing = __commonJS({
        *
        * http://easings.net/#easeInQuad
        */
-      static quad(t2) {
-        return t2 * t2;
+      static quad(t) {
+        return t * t;
       }
       /**
        * A cubic function, `f(t) = t * t * t`. Position equals the cube of elapsed
@@ -20693,8 +20693,8 @@ var require_Easing = __commonJS({
        *
        * http://easings.net/#easeInCubic
        */
-      static cubic(t2) {
-        return t2 * t2 * t2;
+      static cubic(t) {
+        return t * t * t;
       }
       /**
        * A power function. Position is equal to the Nth power of elapsed time.
@@ -20703,31 +20703,31 @@ var require_Easing = __commonJS({
        * n = 5: http://easings.net/#easeInQuint
        */
       static poly(n) {
-        return (t2) => Math.pow(t2, n);
+        return (t) => Math.pow(t, n);
       }
       /**
        * A sinusoidal function.
        *
        * http://easings.net/#easeInSine
        */
-      static sin(t2) {
-        return 1 - Math.cos(t2 * Math.PI / 2);
+      static sin(t) {
+        return 1 - Math.cos(t * Math.PI / 2);
       }
       /**
        * A circular function.
        *
        * http://easings.net/#easeInCirc
        */
-      static circle(t2) {
-        return 1 - Math.sqrt(1 - t2 * t2);
+      static circle(t) {
+        return 1 - Math.sqrt(1 - t * t);
       }
       /**
        * An exponential function.
        *
        * http://easings.net/#easeInExpo
        */
-      static exp(t2) {
-        return Math.pow(2, 10 * (t2 - 1));
+      static exp(t) {
+        return Math.pow(2, 10 * (t - 1));
       }
       /**
        * A simple elastic interaction, similar to a spring oscillating back and
@@ -20744,7 +20744,7 @@ var require_Easing = __commonJS({
           bounciness = 1;
         }
         var p = bounciness * Math.PI;
-        return (t2) => 1 - Math.pow(Math.cos(t2 * Math.PI / 2), 3) * Math.cos(t2 * p);
+        return (t) => 1 - Math.pow(Math.cos(t * Math.PI / 2), 3) * Math.cos(t * p);
       }
       /**
        * Use with `Animated.parallel()` to create a simple effect where the object
@@ -20758,27 +20758,27 @@ var require_Easing = __commonJS({
         if (s === void 0) {
           s = 1.70158;
         }
-        return (t2) => t2 * t2 * ((s + 1) * t2 - s);
+        return (t) => t * t * ((s + 1) * t - s);
       }
       /**
        * Provides a simple bouncing effect.
        *
        * http://easings.net/#easeInBounce
        */
-      static bounce(t2) {
-        if (t2 < 1 / 2.75) {
-          return 7.5625 * t2 * t2;
+      static bounce(t) {
+        if (t < 1 / 2.75) {
+          return 7.5625 * t * t;
         }
-        if (t2 < 2 / 2.75) {
-          var _t = t2 - 1.5 / 2.75;
+        if (t < 2 / 2.75) {
+          var _t = t - 1.5 / 2.75;
           return 7.5625 * _t * _t + 0.75;
         }
-        if (t2 < 2.5 / 2.75) {
-          var _t2 = t2 - 2.25 / 2.75;
+        if (t < 2.5 / 2.75) {
+          var _t2 = t - 2.25 / 2.75;
           return 7.5625 * _t2 * _t2 + 0.9375;
         }
-        var t22 = t2 - 2.625 / 2.75;
-        return 7.5625 * t22 * t22 + 0.984375;
+        var t2 = t - 2.625 / 2.75;
+        return 7.5625 * t2 * t2 + 0.984375;
       }
       /**
        * Provides a cubic bezier curve, equivalent to CSS Transitions'
@@ -20800,7 +20800,7 @@ var require_Easing = __commonJS({
        * Runs an easing function backwards.
        */
       static out(easing) {
-        return (t2) => 1 - easing(1 - t2);
+        return (t) => 1 - easing(1 - t);
       }
       /**
        * Makes any easing function symmetrical. The easing function will run
@@ -20808,11 +20808,11 @@ var require_Easing = __commonJS({
        * duration.
        */
       static inOut(easing) {
-        return (t2) => {
-          if (t2 < 0.5) {
-            return easing(t2 * 2) / 2;
+        return (t) => {
+          if (t < 0.5) {
+            return easing(t * 2) / 2;
           }
-          return 1 - easing((1 - t2) * 2) / 2;
+          return 1 - easing((1 - t) * 2) / 2;
         };
       }
     };
@@ -22858,16 +22858,16 @@ var require_ActivityIndicator = __commonJS({
       style
     }), "createSvgCircle");
     var ActivityIndicator2 = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
-      var _props$animating = props.animating, animating = _props$animating === void 0 ? true : _props$animating, _props$color = props.color, color3 = _props$color === void 0 ? "#1976D2" : _props$color, _props$hidesWhenStopp = props.hidesWhenStopped, hidesWhenStopped = _props$hidesWhenStopp === void 0 ? true : _props$hidesWhenStopp, _props$size = props.size, size7 = _props$size === void 0 ? "small" : _props$size, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
+      var _props$animating = props.animating, animating = _props$animating === void 0 ? true : _props$animating, _props$color = props.color, color2 = _props$color === void 0 ? "#1976D2" : _props$color, _props$hidesWhenStopp = props.hidesWhenStopped, hidesWhenStopped = _props$hidesWhenStopp === void 0 ? true : _props$hidesWhenStopp, _props$size = props.size, size6 = _props$size === void 0 ? "small" : _props$size, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       var svg = /* @__PURE__ */ React78.createElement("svg", {
         height: "100%",
         viewBox: "0 0 32 32",
         width: "100%"
       }, createSvgCircle({
-        stroke: color3,
+        stroke: color2,
         opacity: 0.2
       }), createSvgCircle({
-        stroke: color3,
+        stroke: color2,
         strokeDasharray: 80,
         strokeDashoffset: 60
       }));
@@ -22879,10 +22879,10 @@ var require_ActivityIndicator = __commonJS({
         style: [styles.container, style]
       }), /* @__PURE__ */ React78.createElement(_View.default, {
         children: svg,
-        style: [typeof size7 === "number" ? {
-          height: size7,
-          width: size7
-        } : indicatorSizes[size7], styles.animation, !animating && styles.animationPause, !animating && hidesWhenStopped && styles.hidesWhenStopped]
+        style: [typeof size6 === "number" ? {
+          height: size6,
+          width: size6
+        } : indicatorSizes[size6], styles.animation, !animating && styles.animationPause, !animating && hidesWhenStopped && styles.hidesWhenStopped]
       }));
     });
     ActivityIndicator2.displayName = "ActivityIndicator";
@@ -23444,7 +23444,7 @@ var require_Button = __commonJS({
     var _TouchableOpacity = _interopRequireDefault(require_TouchableOpacity());
     var _Text = _interopRequireDefault(require_Text());
     var Button = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
-      var accessibilityLabel = props.accessibilityLabel, color3 = props.color, disabled = props.disabled, onPress = props.onPress, testID = props.testID, title = props.title;
+      var accessibilityLabel = props.accessibilityLabel, color2 = props.color, disabled = props.disabled, onPress = props.onPress, testID = props.testID, title = props.title;
       return /* @__PURE__ */ React78.createElement(_TouchableOpacity.default, {
         accessibilityLabel,
         accessibilityRole: "button",
@@ -23452,8 +23452,8 @@ var require_Button = __commonJS({
         focusable: !disabled,
         onPress,
         ref: forwardedRef,
-        style: [styles.button, color3 && {
-          backgroundColor: color3
+        style: [styles.button, color2 && {
+          backgroundColor: color2
         }, disabled && styles.buttonDisabled],
         testID
       }, /* @__PURE__ */ React78.createElement(_Text.default, {
@@ -23503,7 +23503,7 @@ var require_CheckBox = __commonJS({
     var _View = _interopRequireDefault(require_View());
     var _excluded = ["aria-readonly", "color", "disabled", "onChange", "onValueChange", "readOnly", "style", "value"];
     var CheckBox = /* @__PURE__ */ React78.forwardRef((props, forwardedRef) => {
-      var ariaReadOnly = props["aria-readonly"], color3 = props.color, disabled = props.disabled, onChange = props.onChange, onValueChange = props.onValueChange, readOnly = props.readOnly, style = props.style, value = props.value, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
+      var ariaReadOnly = props["aria-readonly"], color2 = props.color, disabled = props.disabled, onChange = props.onChange, onValueChange = props.onValueChange, readOnly = props.readOnly, style = props.style, value = props.value, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       function handleChange(event) {
         var value2 = event.nativeEvent.target.checked;
         event.nativeEvent.value = value2;
@@ -23516,9 +23516,9 @@ var require_CheckBox = __commonJS({
           styles.fakeControl,
           value && styles.fakeControlChecked,
           // custom color
-          value && color3 && {
-            backgroundColor: color3,
-            borderColor: color3
+          value && color2 && {
+            backgroundColor: color2,
+            borderColor: color2
           },
           disabled && styles.fakeControlDisabled,
           value && disabled && styles.fakeControlCheckedAndDisabled
@@ -24132,9 +24132,9 @@ var require_PickerItem = __commonJS({
     exports2.default = PickerItem;
     var _createElement = _interopRequireDefault(require_createElement());
     function PickerItem(props) {
-      var color3 = props.color, label = props.label, testID = props.testID, value = props.value;
+      var color2 = props.color, label = props.label, testID = props.testID, value = props.value;
       var style = {
-        color: color3
+        color: color2
       };
       return (0, _createElement.default)("option", {
         children: label,
@@ -24756,7 +24756,7 @@ var require_ProgressBar = __commonJS({
     var _View = _interopRequireDefault(require_View());
     var _excluded = ["color", "indeterminate", "progress", "trackColor", "style"];
     var ProgressBar = /* @__PURE__ */ React78.forwardRef((props, ref) => {
-      var _props$color = props.color, color3 = _props$color === void 0 ? "#1976D2" : _props$color, _props$indeterminate = props.indeterminate, indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate, _props$progress = props.progress, progress = _props$progress === void 0 ? 0 : _props$progress, _props$trackColor = props.trackColor, trackColor = _props$trackColor === void 0 ? "transparent" : _props$trackColor, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
+      var _props$color = props.color, color2 = _props$color === void 0 ? "#1976D2" : _props$color, _props$indeterminate = props.indeterminate, indeterminate = _props$indeterminate === void 0 ? false : _props$indeterminate, _props$progress = props.progress, progress = _props$progress === void 0 ? 0 : _props$progress, _props$trackColor = props.trackColor, trackColor = _props$trackColor === void 0 ? "transparent" : _props$trackColor, style = props.style, other = (0, _objectWithoutPropertiesLoose2.default)(props, _excluded);
       var percentageProgress = progress * 100;
       var width = indeterminate ? "25%" : percentageProgress + "%";
       return /* @__PURE__ */ React78.createElement(_View.default, (0, _extends2.default)({}, other, {
@@ -24770,7 +24770,7 @@ var require_ProgressBar = __commonJS({
         }]
       }), /* @__PURE__ */ React78.createElement(_View.default, {
         style: [{
-          backgroundColor: color3,
+          backgroundColor: color2,
           width
         }, styles.progress, indeterminate && styles.animation]
       }));
@@ -25897,8 +25897,8 @@ var require_Touchable = __commonJS({
         }
         _UIManager.default.measure(tag, this._handleQueryLayout);
       }, "_remeasureMetricsOnActivation"),
-      _handleQueryLayout: /* @__PURE__ */ __name(function _handleQueryLayout(l, t2, w, h, globalX, globalY) {
-        if (!l && !t2 && !w && !h && !globalX && !globalY) {
+      _handleQueryLayout: /* @__PURE__ */ __name(function _handleQueryLayout(l, t, w, h, globalX, globalY) {
+        if (!l && !t && !w && !h && !globalX && !globalY) {
           return;
         }
         this.state.touchable.positionOnActivate && _Position.default.release(this.state.touchable.positionOnActivate);
@@ -26076,7 +26076,7 @@ var require_Touchable = __commonJS({
        * Renders a debugging overlay to visualize touch target with hitSlop (might not work on Android).
        */
       renderDebugView: /* @__PURE__ */ __name((_ref) => {
-        var color3 = _ref.color, hitSlop = _ref.hitSlop;
+        var color2 = _ref.color, hitSlop = _ref.hitSlop;
         if (!Touchable.TOUCH_TARGET_DEBUG) {
           return null;
         }
@@ -26093,7 +26093,7 @@ var require_Touchable = __commonJS({
         for (var key in hitSlop) {
           debugHitSlopStyle[key] = -hitSlop[key];
         }
-        var normalizedColor = (0, _normalizeColors.default)(color3);
+        var normalizedColor = (0, _normalizeColors.default)(color2);
         if (typeof normalizedColor !== "number") {
           return null;
         }
@@ -28319,16 +28319,16 @@ var animationsCSS = createAnimations({
 // node_modules/@tamagui/font-inter/dist/esm/index.mjs
 var import_core = require("@tamagui/core");
 var createInterFont = /* @__PURE__ */ __name((font = {}, {
-  sizeLineHeight = /* @__PURE__ */ __name((size7) => size7 + 10, "sizeLineHeight"),
-  sizeSize = /* @__PURE__ */ __name((size7) => size7 * 1, "sizeSize")
+  sizeLineHeight = /* @__PURE__ */ __name((size6) => size6 + 10, "sizeLineHeight"),
+  sizeSize = /* @__PURE__ */ __name((size6) => size6 * 1, "sizeSize")
 } = {}) => {
-  const size7 = Object.fromEntries(Object.entries({
+  const size6 = Object.fromEntries(Object.entries({
     ...defaultSizes,
     ...font.size
   }).map(([k, v]) => [k, sizeSize(+v)]));
   return (0, import_core.createFont)({
     family: import_core.isWeb ? 'Inter, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' : "Inter",
-    lineHeight: Object.fromEntries(Object.entries(size7).map(([k, v]) => [k, sizeLineHeight((0, import_core.getVariableValue)(v))])),
+    lineHeight: Object.fromEntries(Object.entries(size6).map(([k, v]) => [k, sizeLineHeight((0, import_core.getVariableValue)(v))])),
     weight: {
       4: "300"
     },
@@ -28336,7 +28336,7 @@ var createInterFont = /* @__PURE__ */ __name((font = {}, {
       4: 0
     },
     ...font,
-    size: size7
+    size: size6
   });
 }, "createInterFont");
 var defaultSizes = {
@@ -28420,11 +28420,11 @@ var genericFontSizes = {
 function createGenericFont(family, font = {}, {
   sizeLineHeight = /* @__PURE__ */ __name((val) => val * 1.35, "sizeLineHeight")
 } = {}) {
-  const size7 = font.size || genericFontSizes;
+  const size6 = font.size || genericFontSizes;
   return (0, import_web3.createFont)({
     family,
-    size: size7,
-    lineHeight: Object.fromEntries(Object.entries(size7).map(([k, v]) => [k, sizeLineHeight(+v)])),
+    size: size6,
+    lineHeight: Object.fromEntries(Object.entries(size6).map(([k, v]) => [k, sizeLineHeight(+v)])),
     weight: {
       0: "300"
     },
@@ -28481,7 +28481,7 @@ var headingFont = createInterFont({
     }
   }
 }, {
-  sizeLineHeight: /* @__PURE__ */ __name((size7) => Math.round(size7 * 1.1 + (size7 < 30 ? 10 : 5)), "sizeLineHeight")
+  sizeLineHeight: /* @__PURE__ */ __name((size6) => Math.round(size6 * 1.1 + (size6 < 30 ? 10 : 5)), "sizeLineHeight")
 });
 var bodyFont = createInterFont({
   weight: {
@@ -28489,8 +28489,8 @@ var bodyFont = createInterFont({
     7: "600"
   }
 }, {
-  sizeSize: /* @__PURE__ */ __name((size7) => Math.round(size7), "sizeSize"),
-  sizeLineHeight: /* @__PURE__ */ __name((size7) => Math.round(size7 * 1.1 + (size7 >= 12 ? 8 : 4)), "sizeLineHeight")
+  sizeSize: /* @__PURE__ */ __name((size6) => Math.round(size6), "sizeSize"),
+  sizeLineHeight: /* @__PURE__ */ __name((size6) => Math.round(size6 * 1.1 + (size6 >= 12 ? 8 : 4)), "sizeLineHeight")
 });
 var monoFont = createGenericFont('"ui-monospace", "SFMono-Regular", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace', {
   weight: {
@@ -29510,20 +29510,20 @@ var import_core5 = require("@tamagui/core");
 
 // node_modules/@tamagui/stacks/dist/esm/getElevation.mjs
 var import_core4 = require("@tamagui/core");
-var getElevation = /* @__PURE__ */ __name((size7, extras) => {
-  if (!size7) return;
+var getElevation = /* @__PURE__ */ __name((size6, extras) => {
+  if (!size6) return;
   const {
-    tokens: tokens3
-  } = extras, token = tokens3.size[size7], sizeNum = (0, import_core4.isVariable)(token) ? +token.val : size7;
+    tokens: tokens2
+  } = extras, token = tokens2.size[size6], sizeNum = (0, import_core4.isVariable)(token) ? +token.val : size6;
   return getSizedElevation(sizeNum, extras);
 }, "getElevation");
 var getSizedElevation = /* @__PURE__ */ __name((val, {
   theme,
-  tokens: tokens3
+  tokens: tokens2
 }) => {
   let num = 0;
   if (val === true) {
-    const val2 = (0, import_core4.getVariableValue)(tokens3.size.true);
+    const val2 = (0, import_core4.getVariableValue)(tokens2.size.true);
     typeof val2 == "number" ? num = val2 : num = 10;
   } else num = +val;
   if (num === 0) return;
@@ -29592,20 +29592,20 @@ var defaultOptions = {
   shift: 0,
   bounds: [0]
 };
-var getSize = /* @__PURE__ */ __name((size7, options) => getTokenRelative("size", size7, options), "getSize");
-var getSpace = /* @__PURE__ */ __name((space3, options) => getTokenRelative("space", space3, options), "getSpace");
+var getSize = /* @__PURE__ */ __name((size6, options) => getTokenRelative("size", size6, options), "getSize");
+var getSpace = /* @__PURE__ */ __name((space2, options) => getTokenRelative("space", space2, options), "getSpace");
 var cacheVariables = {};
 var cacheWholeVariables = {};
 var cacheKeys = {};
 var cacheWholeKeys = {};
 var stepTokenUpOrDown = /* @__PURE__ */ __name((type, current, options = defaultOptions) => {
   var _a, _b;
-  const tokens3 = (0, import_web6.getTokens)({
+  const tokens2 = (0, import_web6.getTokens)({
     prefixed: true
   })[type];
   if (!(type in cacheVariables)) {
     cacheKeys[type] = [], cacheVariables[type] = [], cacheWholeKeys[type] = [], cacheWholeVariables[type] = [];
-    const sorted = Object.keys(tokens3).map((k) => tokens3[k]).sort((a, b) => a.val - b.val);
+    const sorted = Object.keys(tokens2).map((k) => tokens2[k]).sort((a, b) => a.val - b.val);
     for (const token of sorted) cacheKeys[type].push(token.key), cacheVariables[type].push(token);
     const sortedExcludingHalfSteps = sorted.filter((x) => !x.key.endsWith(".5"));
     for (const token of sortedExcludingHalfSteps) cacheWholeKeys[type].push(token.key), cacheWholeVariables[type].push(token);
@@ -29614,13 +29614,13 @@ var stepTokenUpOrDown = /* @__PURE__ */ __name((type, current, options = default
   let shift4 = options.shift || 0;
   shift4 && (current === "$true" || (0, import_web6.isVariable)(current) && current.name === "true") && (shift4 += shift4 > 0 ? 1 : -1);
   const index3 = Math.min(max2, Math.max(min2, currentIndex + shift4)), found = tokensOrdered[index3];
-  return (typeof found == "string" ? tokens3[found] : found) || tokens3.$true;
+  return (typeof found == "string" ? tokens2[found] : found) || tokens2.$true;
 }, "stepTokenUpOrDown");
 var getTokenRelative = stepTokenUpOrDown;
 
 // node_modules/@tamagui/get-button-sized/dist/esm/index.mjs
 var getButtonSized = /* @__PURE__ */ __name((val, {
-  tokens: tokens3,
+  tokens: tokens2,
   props
 }) => {
   if (!val || props.circular) return;
@@ -29629,7 +29629,7 @@ var getButtonSized = /* @__PURE__ */ __name((val, {
     height: val,
     borderRadius: props.circular ? 1e5 : val * 0.2
   };
-  const xSize = getSpace(val), radiusToken = tokens3.radius[val] ?? tokens3.radius.$true;
+  const xSize = getSpace(val), radiusToken = tokens2.radius[val] ?? tokens2.radius.$true;
   return {
     paddingHorizontal: xSize,
     height: val,
@@ -29666,22 +29666,22 @@ var bordered = /* @__PURE__ */ __name((val, {
 var padded = {
   true: /* @__PURE__ */ __name((_, extras) => {
     const {
-      tokens: tokens3,
+      tokens: tokens2,
       props
     } = extras;
     return {
-      padding: tokens3.space[props.size] || tokens3.space.$true
+      padding: tokens2.space[props.size] || tokens2.space.$true
     };
   }, "true")
 };
 var radiused = {
   true: /* @__PURE__ */ __name((_, extras) => {
     const {
-      tokens: tokens3,
+      tokens: tokens2,
       props
     } = extras;
     return {
-      borderRadius: tokens3.radius[props.size] || tokens3.radius.$true
+      borderRadius: tokens2.radius[props.size] || tokens2.radius.$true
     };
   }, "true")
 };
@@ -29692,18 +29692,18 @@ var circularStyle = {
 var circular = {
   true: /* @__PURE__ */ __name((_, {
     props,
-    tokens: tokens3
+    tokens: tokens2
   }) => {
     if (!("size" in props)) return circularStyle;
-    const size7 = typeof props.size == "number" ? props.size : tokens3.size[props.size];
+    const size6 = typeof props.size == "number" ? props.size : tokens2.size[props.size];
     return {
       ...circularStyle,
-      width: size7,
-      height: size7,
-      maxWidth: size7,
-      maxHeight: size7,
-      minWidth: size7,
-      minHeight: size7
+      width: size6,
+      height: size6,
+      maxWidth: size6,
+      maxHeight: size6,
+      minWidth: size6,
+      minHeight: size6
     };
   }, "true")
 };
@@ -30184,7 +30184,7 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
     animation,
     animationConfig: animationConfigProp,
     modal = false,
-    zIndex: zIndex3 = parentSheet.zIndex + 1,
+    zIndex: zIndex2 = parentSheet.zIndex + 1,
     moveOnKeyboardChange = false,
     unmountChildrenWhenHidden = false,
     portalProps,
@@ -30228,8 +30228,8 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
     };
   }, [parentSheetContext, open]);
   const nextParentContext = import_react17.default.useMemo(() => ({
-    zIndex: zIndex3
-  }), [zIndex3]), animatedNumber = useAnimatedNumber(hiddenSize), at = import_react17.default.useRef(hiddenSize);
+    zIndex: zIndex2
+  }), [zIndex2]), animatedNumber = useAnimatedNumber(hiddenSize), at = import_react17.default.useRef(hiddenSize);
   useAnimatedNumberReaction({
     value: animatedNumber,
     hostRef: sheetRef
@@ -30404,7 +30404,7 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
         disableClassName: true,
         style: [{
           position: "absolute",
-          zIndex: zIndex3,
+          zIndex: zIndex2,
           width: "100%",
           height: forcedContentHeight,
           minHeight: forcedContentHeight,
@@ -30419,7 +30419,7 @@ var SheetImplementationCustom = import_react17.default.forwardRef(function(props
   }), adaptContext = import_react17.default.useContext(AdaptParentContext), shouldMountChildren = !!(opacity || !unmountChildrenWhenHidden);
   if (modal) {
     const modalContents = /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(Portal, {
-      zIndex: zIndex3,
+      zIndex: zIndex2,
       ...portalProps,
       children: shouldMountChildren && /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(ContainerComponent, {
         children: /* @__PURE__ */ (0, import_jsx_runtime12.jsx)(import_core10.Theme, {
@@ -30834,8 +30834,8 @@ var getFontSized = /* @__PURE__ */ __name((sizeTokenIn = "$true", {
   if (!font) return {
     fontSize: sizeTokenIn
   };
-  const sizeToken = sizeTokenIn === "$true" ? getDefaultSizeToken(font) : sizeTokenIn, style = {}, fontSize = font.size[sizeToken], lineHeight = (_a = font.lineHeight) == null ? void 0 : _a[sizeToken], fontWeight = (_b = font.weight) == null ? void 0 : _b[sizeToken], letterSpacing = (_c = font.letterSpacing) == null ? void 0 : _c[sizeToken], textTransform = (_d = font.transform) == null ? void 0 : _d[sizeToken], fontStyle = props.fontStyle ?? ((_e = font.style) == null ? void 0 : _e[sizeToken]), color3 = props.color ?? ((_f = font.color) == null ? void 0 : _f[sizeToken]);
-  return fontStyle && (style.fontStyle = fontStyle), textTransform && (style.textTransform = textTransform), fontFamily && (style.fontFamily = fontFamily), fontWeight && (style.fontWeight = fontWeight), letterSpacing && (style.letterSpacing = letterSpacing), fontSize && (style.fontSize = fontSize), lineHeight && (style.lineHeight = lineHeight), color3 && (style.color = color3), process.env.NODE_ENV === "development" && props.debug && props.debug === "verbose" && (console.groupCollapsed("  \u{1F539} getFontSized", sizeTokenIn, sizeToken), isClient && console.info({
+  const sizeToken = sizeTokenIn === "$true" ? getDefaultSizeToken(font) : sizeTokenIn, style = {}, fontSize = font.size[sizeToken], lineHeight = (_a = font.lineHeight) == null ? void 0 : _a[sizeToken], fontWeight = (_b = font.weight) == null ? void 0 : _b[sizeToken], letterSpacing = (_c = font.letterSpacing) == null ? void 0 : _c[sizeToken], textTransform = (_d = font.transform) == null ? void 0 : _d[sizeToken], fontStyle = props.fontStyle ?? ((_e = font.style) == null ? void 0 : _e[sizeToken]), color2 = props.color ?? ((_f = font.color) == null ? void 0 : _f[sizeToken]);
+  return fontStyle && (style.fontStyle = fontStyle), textTransform && (style.textTransform = textTransform), fontFamily && (style.fontFamily = fontFamily), fontWeight && (style.fontWeight = fontWeight), letterSpacing && (style.letterSpacing = letterSpacing), fontSize && (style.fontSize = fontSize), lineHeight && (style.lineHeight = lineHeight), color2 && (style.color = color2), process.env.NODE_ENV === "development" && props.debug && props.debug === "verbose" && (console.groupCollapsed("  \u{1F539} getFontSized", sizeTokenIn, sizeToken), isClient && console.info({
     style,
     props,
     font
@@ -30872,8 +30872,8 @@ var SizableText = (0, import_web8.styled)(import_web8.Text, {
 });
 SizableText.staticConfig.variants.fontFamily = {
   "...": /* @__PURE__ */ __name((_val, extras) => {
-    const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size7 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
-    return getFontSized(size7, extras);
+    const sizeProp = extras.props.size, fontSizeProp = extras.props.fontSize, size6 = sizeProp === "$true" && fontSizeProp ? fontSizeProp : extras.props.size || "$true";
+    return getFontSized(size6, extras);
   }, "...")
 };
 
@@ -30936,9 +30936,9 @@ function wrapChildrenInText(TextComponent, propsIn, extraProps) {
   const {
     children,
     textProps,
-    size: size7,
+    size: size6,
     noTextWrap,
-    color: color3,
+    color: color2,
     fontFamily,
     fontSize,
     fontWeight,
@@ -30951,7 +30951,7 @@ function wrapChildrenInText(TextComponent, propsIn, extraProps) {
   const props = {
     ...extraProps
   };
-  return color3 && (props.color = color3), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size7 && (props.size = size7), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react22.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? (
+  return color2 && (props.color = color2), fontFamily && (props.fontFamily = fontFamily), fontSize && (props.fontSize = fontSize), fontWeight && (props.fontWeight = fontWeight), letterSpacing && (props.letterSpacing = letterSpacing), textAlign && (props.textAlign = textAlign), size6 && (props.size = size6), fontStyle && (props.fontStyle = fontStyle), maxFontSizeMultiplier && (props.maxFontSizeMultiplier = maxFontSizeMultiplier), import_react22.default.Children.toArray(children).map((child, index3) => typeof child == "string" ? (
     // so "data-disable-theme" is a hack to fix themeInverse, don't ask me why
     /* @__PURE__ */ (0, import_jsx_runtime17.jsx)(TextComponent, {
       ...props,
@@ -31033,15 +31033,15 @@ function DialogPortalItemContent(props) {
     children,
     context,
     themeName,
-    space: space3,
+    space: space2,
     spaceDirection,
     separator
   } = props;
   let childrenSpaced = children;
-  return (space3 || separator) && (childrenSpaced = (0, import_core15.spacedChildren)({
+  return (space2 || separator) && (childrenSpaced = (0, import_core15.spacedChildren)({
     children,
     separator,
-    space: space3,
+    space: space2,
     direction: spaceDirection
   })), /* @__PURE__ */ (0, import_jsx_runtime18.jsx)(DialogProvider, {
     scope: __scopeDialog,
@@ -31725,10 +31725,10 @@ Image.queryCache = import_react_native_web5.Image.queryCache;
 var import_web11 = require("@tamagui/core");
 
 // node_modules/@tamagui/shapes/dist/esm/getShapeSize.mjs
-var getShapeSize = /* @__PURE__ */ __name((size7, {
-  tokens: tokens3
+var getShapeSize = /* @__PURE__ */ __name((size6, {
+  tokens: tokens2
 }) => {
-  const width = tokens3.size[size7] ?? size7, height = tokens3.size[size7] ?? size7;
+  const width = tokens2.size[size6] ?? size6, height = tokens2.size[size6] ?? size6;
   return {
     width,
     height,
@@ -31839,16 +31839,16 @@ var AvatarFrame = (0, import_core18.styled)(Square, {
 var Avatar = withStaticProperties(React35.forwardRef((props, forwardedRef) => {
   const {
     __scopeAvatar,
-    size: size7 = "$true",
+    size: size6 = "$true",
     ...avatarProps
   } = props, [imageLoadingStatus, setImageLoadingStatus] = React35.useState("idle");
   return /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AvatarProvider, {
-    size: size7,
+    size: size6,
     scope: __scopeAvatar,
     imageLoadingStatus,
     onImageLoadingStatusChange: setImageLoadingStatus,
     children: /* @__PURE__ */ (0, import_jsx_runtime21.jsx)(AvatarFrame, {
-      size: size7,
+      size: size6,
       ...avatarProps,
       ref: forwardedRef
     })
@@ -31876,11 +31876,11 @@ var getFontSizeToken = /* @__PURE__ */ __name((inSize, opts) => {
   var _a;
   if (typeof inSize == "number") return null;
   const relativeSize = (opts == null ? void 0 : opts.relativeSize) || 0, conf = (0, import_core19.getConfig)(), fontSize = ((_a = conf.fontsParsed[(opts == null ? void 0 : opts.font) || conf.defaultFontToken]) == null ? void 0 : _a.size) || // fallback to size tokens
-  conf.tokensParsed.size, size7 = (inSize === "$true" && !("$true" in fontSize) ? "$4" : inSize) ?? ("$true" in fontSize ? "$true" : "$4"), sizeTokens = Object.keys(fontSize);
-  let foundIndex = sizeTokens.indexOf(size7);
-  foundIndex === -1 && size7.endsWith(".5") && (foundIndex = sizeTokens.indexOf(size7.replace(".5", ""))), process.env.NODE_ENV === "development" && foundIndex === -1 && console.warn("No font size found", size7, opts, "in size tokens", sizeTokens);
+  conf.tokensParsed.size, size6 = (inSize === "$true" && !("$true" in fontSize) ? "$4" : inSize) ?? ("$true" in fontSize ? "$true" : "$4"), sizeTokens = Object.keys(fontSize);
+  let foundIndex = sizeTokens.indexOf(size6);
+  foundIndex === -1 && size6.endsWith(".5") && (foundIndex = sizeTokens.indexOf(size6.replace(".5", ""))), process.env.NODE_ENV === "development" && foundIndex === -1 && console.warn("No font size found", size6, opts, "in size tokens", sizeTokens);
   const tokenIndex = Math.min(Math.max(0, foundIndex + relativeSize), sizeTokens.length - 1);
-  return sizeTokens[tokenIndex] ?? size7;
+  return sizeTokens[tokenIndex] ?? size6;
 }, "getFontSizeToken");
 
 // node_modules/@tamagui/button/dist/esm/Button.mjs
@@ -31906,10 +31906,10 @@ var useCurrentColor = /* @__PURE__ */ __name((colorProp) => {
 // node_modules/@tamagui/helpers-tamagui/dist/esm/useGetThemedIcon.mjs
 var import_react24 = __toESM(require("react"), 1);
 var useGetThemedIcon = /* @__PURE__ */ __name((props) => {
-  const color3 = useCurrentColor(props.color);
+  const color2 = useCurrentColor(props.color);
   return (el) => el && (import_react24.default.isValidElement(el) ? import_react24.default.cloneElement(el, {
     ...props,
-    color: color3,
+    color: color2,
     // @ts-expect-error
     ...el.props
   }) : import_react24.default.createElement(el, props));
@@ -32019,12 +32019,12 @@ var ButtonIcon = /* @__PURE__ */ __name((props) => {
     children,
     scaleIcon = 1
   } = props, {
-    size: size7,
-    color: color3
-  } = (0, import_react25.useContext)(ButtonContext), iconSize = (typeof size7 == "number" ? size7 * 0.5 : getFontSize(size7)) * scaleIcon;
+    size: size6,
+    color: color2
+  } = (0, import_react25.useContext)(ButtonContext), iconSize = (typeof size6 == "number" ? size6 * 0.5 : getFontSize(size6)) * scaleIcon;
   return useGetThemedIcon({
     size: iconSize,
-    color: color3
+    color: color2
   })(children);
 }, "ButtonIcon");
 var ButtonComponent = ButtonFrame.styleable(function(props, ref) {
@@ -32068,7 +32068,7 @@ function useButton({
   }), {
     icon,
     iconAfter,
-    space: space3,
+    space: space2,
     spaceFlex,
     scaleIcon = 1,
     scaleSpace = 0.66,
@@ -32083,12 +32083,12 @@ function useButton({
     ellipse,
     maxFontSizeMultiplier,
     ...restProps
-  } = propsActive, size7 = propsActive.size || (propsActive.unstyled ? void 0 : "$true"), color3 = propsActive.color, iconSize = (typeof size7 == "number" ? size7 * 0.5 : getFontSize(size7, {
+  } = propsActive, size6 = propsActive.size || (propsActive.unstyled ? void 0 : "$true"), color2 = propsActive.color, iconSize = (typeof size6 == "number" ? size6 * 0.5 : getFontSize(size6, {
     font: (fontFamily == null ? void 0 : fontFamily[0]) === "$" ? fontFamily : void 0
   })) * scaleIcon, getThemedIcon = useGetThemedIcon({
     size: iconSize,
-    color: color3
-  }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), spaceSize = space3 ?? (0, import_web14.getVariableValue)(iconSize) * scaleSpace, contents = noTextWrap ? [propsIn.children] : wrapChildrenInText(Text5, {
+    color: color2
+  }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), spaceSize = space2 ?? (0, import_web14.getVariableValue)(iconSize) * scaleSpace, contents = noTextWrap ? [propsIn.children] : wrapChildrenInText(Text5, {
     children: propsIn.children,
     fontFamily,
     fontSize,
@@ -32100,7 +32100,7 @@ function useButton({
     maxFontSizeMultiplier
   }, Text5 === ButtonText && propsActive.unstyled !== true ? {
     unstyled: process.env.TAMAGUI_HEADLESS === "1",
-    size: size7
+    size: size6
   } : void 0), inner2 = (0, import_web14.spacedChildren)({
     // a bit arbitrary but scaling to font size is necessary so long as button does
     space: spaceSize,
@@ -32112,7 +32112,7 @@ function useButton({
     // so even if icons are undefined we still pass them
     children: [themedIcon, ...contents, themedIconAfter]
   }), props = {
-    size: size7,
+    size: size6,
     ...propsIn.disabled && {
       // in rnw - false still has keyboard tabIndex, undefined = not actually focusable
       focusable: void 0,
@@ -32161,9 +32161,9 @@ var CardFrame = (0, import_web15.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val, {
-        tokens: tokens3
+        tokens: tokens2
       }) => ({
-        borderRadius: tokens3.radius[val] ?? val
+        borderRadius: tokens2.radius[val] ?? val
       }), "...size")
     }
   },
@@ -32184,9 +32184,9 @@ var CardHeader = (0, import_web15.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val, {
-        tokens: tokens3
+        tokens: tokens2
       }) => ({
-        padding: tokens3.space[val] ?? val
+        padding: tokens2.space[val] ?? val
       }), "...size")
     }
   },
@@ -32613,10 +32613,10 @@ function createCheckbox(createProps) {
       unstyled = false,
       ...props
     } = _props, propsActive = (0, import_core22.useProps)(props), styledContext = import_react28.default.useContext(CheckboxStyledContext);
-    let adjustedSize = 0, size7 = 0;
+    let adjustedSize = 0, size6 = 0;
     unstyled || (adjustedSize = (0, import_core22.getVariableValue)(getSize(propsActive.size ?? (styledContext == null ? void 0 : styledContext.size) ?? "$true", {
       shift: sizeAdjust
-    })), size7 = scaleSize ? Math.round(adjustedSize * scaleSize) : adjustedSize);
+    })), size6 = scaleSize ? Math.round(adjustedSize * scaleSize) : adjustedSize);
     const [checked = false, setChecked] = useControllableState({
       prop: checkedProp,
       defaultProp: defaultChecked,
@@ -32653,14 +32653,14 @@ function createCheckbox(createProps) {
         scaleIcon: scaleIcon ?? (styledContext == null ? void 0 : styledContext.scaleIcon) ?? 1,
         children: [/* @__PURE__ */ (0, import_jsx_runtime26.jsx)(Frame2, {
           ...!unstyled && {
-            width: size7,
-            height: size7
+            width: size6,
+            height: size6
           },
           tag: "button",
           ref: checkboxRef,
           unstyled,
           ...unstyled === false && {
-            size: size7,
+            size: size6,
             theme: checked ? "active" : null
           },
           checked,
@@ -32815,9 +32815,9 @@ var GroupFrame = (0, import_core24.styled)(ThemeableStack, {
       }
     },
     size: /* @__PURE__ */ __name((val, {
-      tokens: tokens3
+      tokens: tokens2
     }) => ({
-      borderRadius: tokens3.radius[val] ?? val ?? tokens3.radius.$true
+      borderRadius: tokens2.radius[val] ?? val ?? tokens2.radius.$true
     }), "size")
   },
   defaultVariants: {
@@ -32829,8 +32829,8 @@ function createGroup(verticalDefault) {
     const activeProps = (0, import_core24.useProps)(props), {
       __scopeGroup,
       children: childrenProp,
-      space: space3,
-      size: size7 = "$true",
+      space: space2,
+      size: size6 = "$true",
       spaceDirection,
       separator,
       scrollable,
@@ -32843,12 +32843,12 @@ function createGroup(verticalDefault) {
       ...restProps
     } = activeProps, vertical = orientation === "vertical", [itemChildrenCount, setItemChildrenCount] = useControllableState({
       defaultProp: forceUseItem ? 1 : 0
-    }), isUsingItems = itemChildrenCount > 0, radius3 = borderRadius ?? (size7 ? (0, import_core24.getVariableValue)((0, import_core24.getTokens)().radius[size7]) - 1 : void 0), disablePassBorderRadius = disablePassBorderRadiusProp ?? !(radius3 !== void 0), childrenArray = import_react29.default.Children.toArray(childrenProp), children = isUsingItems ? import_react29.default.Children.toArray(childrenProp).filter(import_react29.default.isValidElement) : childrenArray.map((child, i) => {
+    }), isUsingItems = itemChildrenCount > 0, radius2 = borderRadius ?? (size6 ? (0, import_core24.getVariableValue)((0, import_core24.getTokens)().radius[size6]) - 1 : void 0), disablePassBorderRadius = disablePassBorderRadiusProp ?? !(radius2 !== void 0), childrenArray = import_react29.default.Children.toArray(childrenProp), children = isUsingItems ? import_react29.default.Children.toArray(childrenProp).filter(import_react29.default.isValidElement) : childrenArray.map((child, i) => {
       if (!import_react29.default.isValidElement(child) || child.type === import_react29.default.Fragment) return child;
       const disabled = child.props.disabled ?? disabledProp, isFirst = i === 0, isLast = i === childrenArray.length - 1, radiusStyles = disablePassBorderRadius === true ? null : getBorderRadius({
         isFirst,
         isLast,
-        radius: radius3,
+        radius: radius2,
         vertical,
         disable: disablePassBorderRadius
       }), props2 = {
@@ -32861,20 +32861,20 @@ function createGroup(verticalDefault) {
     }), indexedChildren = useIndexedChildren((0, import_core24.spacedChildren)({
       direction: spaceDirection,
       separator,
-      space: space3,
+      space: space2,
       children
     })), onItemMount = import_react29.default.useCallback(() => setItemChildrenCount((prev) => prev + 1), []), onItemUnmount = import_react29.default.useCallback(() => setItemChildrenCount((prev) => prev - 1), []);
     return /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(GroupProvider, {
       disablePassBorderRadius,
       vertical: orientation === "vertical",
-      radius: radius3,
+      radius: radius2,
       disabled: disabledProp,
       onItemMount,
       onItemUnmount,
       scope: __scopeGroup,
       children: /* @__PURE__ */ (0, import_jsx_runtime29.jsx)(GroupFrame, {
         ref,
-        size: size7,
+        size: size6,
         flexDirection: orientation === "horizontal" ? "row" : "column",
         borderRadius,
         ...restProps,
@@ -32950,14 +32950,14 @@ var wrapScroll = /* @__PURE__ */ __name(({
 var getBorderRadius = /* @__PURE__ */ __name(({
   isFirst,
   isLast,
-  radius: radius3,
+  radius: radius2,
   vertical,
   disable
 }) => ({
-  borderTopLeftRadius: isFirst && disable !== "top" && disable !== "start" ? radius3 : 0,
-  borderTopRightRadius: disable !== "top" && disable !== "end" && (vertical && isFirst || !vertical && isLast) ? radius3 : 0,
-  borderBottomLeftRadius: disable !== "bottom" && disable !== "start" && (vertical && isLast || !vertical && isFirst) ? radius3 : 0,
-  borderBottomRightRadius: isLast && disable !== "bottom" && disable !== "end" ? radius3 : 0
+  borderTopLeftRadius: isFirst && disable !== "top" && disable !== "start" ? radius2 : 0,
+  borderTopRightRadius: disable !== "top" && disable !== "end" && (vertical && isFirst || !vertical && isLast) ? radius2 : 0,
+  borderBottomLeftRadius: disable !== "bottom" && disable !== "start" && (vertical && isLast || !vertical && isFirst) ? radius2 : 0,
+  borderBottomRightRadius: isLast && disable !== "bottom" && disable !== "end" ? radius2 : 0
 }), "getBorderRadius");
 var cloneElementWithPropOrder = /* @__PURE__ */ __name((child, props) => {
   const next = (0, import_core24.mergeProps)(child.props, props, (0, import_core24.getConfig)().shorthands);
@@ -33036,11 +33036,11 @@ var ListItemFrame = (0, import_web18.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val, {
-        tokens: tokens3
+        tokens: tokens2
       }) => ({
-        minHeight: tokens3.size[val],
-        paddingHorizontal: tokens3.space[val],
-        paddingVertical: getSpace(tokens3.space[val], {
+        minHeight: tokens2.size[val],
+        paddingHorizontal: tokens2.space[val],
+        paddingVertical: getSpace(tokens2.space[val], {
           shift: -4
         })
       }), "...size")
@@ -33126,7 +33126,7 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
     iconAfter,
     noTextWrap,
     theme: themeName,
-    space: space3,
+    space: space2,
     spaceFlex,
     scaleIcon = 1,
     scaleSpace = 1,
@@ -33134,7 +33134,7 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
     subTitle,
     title,
     // text props
-    color: color3,
+    color: color2,
     fontWeight,
     fontSize,
     fontFamily,
@@ -33143,7 +33143,7 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
     ellipse,
     ...rest
   } = props, textProps = {
-    color: color3,
+    color: color2,
     fontWeight,
     fontSize,
     fontFamily,
@@ -33151,9 +33151,9 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
     textAlign,
     ellipse,
     children
-  }, size7 = props.size || "$true", iconSize = getFontSize(size7) * scaleIcon, getThemedIcon = useGetThemedIcon({
+  }, size6 = props.size || "$true", iconSize = getFontSize(size6) * scaleIcon, getThemedIcon = useGetThemedIcon({
     size: iconSize,
-    color: color3
+    color: color2
   }), [themedIcon, themedIconAfter] = [icon, iconAfter].map(getThemedIcon), sizeToken = (0, import_web18.getTokens)().space[props.space] ?? iconSize, spaceSize = (0, import_web18.getVariableValue)(sizeToken) * scaleSpace, contents = wrapChildrenInText(Text5, textProps);
   return {
     props: {
@@ -33166,7 +33166,7 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
         }) : null, title || subTitle ? /* @__PURE__ */ (0, import_jsx_runtime30.jsxs)(YStack, {
           flex: 1,
           children: [noTextWrap === "all" ? title : /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Title, {
-            size: size7,
+            size: size6,
             children: title
           }), subTitle ? /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(import_jsx_runtime30.Fragment, {
             children: typeof subTitle == "string" && noTextWrap !== "all" ? (
@@ -33174,7 +33174,7 @@ var useListItem = /* @__PURE__ */ __name((propsIn, {
               // or standardize on subtle colors in themes
               /* @__PURE__ */ (0, import_jsx_runtime30.jsx)(Subtitle, {
                 unstyled,
-                size: size7,
+                size: size6,
                 children: subTitle
               })
             ) : subTitle
@@ -35100,7 +35100,7 @@ function Popper(props) {
   var _a;
   const {
     children,
-    size: size7,
+    size: size6,
     strategy = "absolute",
     placement = "bottom",
     stayInFrame,
@@ -35132,7 +35132,7 @@ function Popper(props) {
     if (open && refs.reference.current && refs.floating.current) return floating.update(), autoUpdate(refs.reference.current, refs.floating.current, floating.update);
   }, [open, floating.update, refs.floating, refs.reference]);
   const popperContext = {
-    size: size7,
+    size: size6,
     arrowRef: setArrow,
     arrowStyle: middlewareData.arrow,
     onArrowSize: setArrowSize,
@@ -35179,10 +35179,10 @@ var PopperContentFrame = (0, import_core27.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val, {
-        tokens: tokens3
+        tokens: tokens2
       }) => ({
-        padding: tokens3.space[val],
-        borderRadius: tokens3.radius[val]
+        padding: tokens2.space[val],
+        borderRadius: tokens2.radius[val]
       }), "...size")
     }
   },
@@ -35202,7 +35202,7 @@ var PopperContent = React47.forwardRef(function(props, forwardedRef) {
     x,
     y,
     getFloatingProps,
-    size: size7,
+    size: size6,
     update,
     floatingStyles,
     hasFloating
@@ -35216,7 +35216,7 @@ var PopperContent = React47.forwardRef(function(props, forwardedRef) {
     "data-placement": placement,
     "data-strategy": strategy,
     contain: "layout",
-    size: size7,
+    size: size6,
     ...rest
   }, "popper-content-frame"), [placement, strategy, props]), [needsMeasure, setNeedsMeasure] = React47.useState(true);
   React47.useEffect(() => {
@@ -35301,28 +35301,28 @@ var PopperArrow = PopperArrowFrame.styleable(function(propsIn, forwardedRef) {
   } = props, context = usePopperContext(__scopePopper), sizeVal = typeof sizeProp == "number" ? sizeProp : (0, import_core27.getVariableValue)(getSpace(sizeProp ?? context.size, {
     shift: -2,
     bounds: [2]
-  })), size7 = Math.max(0, +sizeVal), {
+  })), size6 = Math.max(0, +sizeVal), {
     placement
   } = context, refs = useComposedRefs(context.arrowRef, forwardedRef), x = ((_a = context.arrowStyle) == null ? void 0 : _a.x) || 0, y = ((_b = context.arrowStyle) == null ? void 0 : _b.y) || 0, primaryPlacement = placement ? placement.split("-")[0] : "top", arrowStyle = {
     x,
     y,
-    width: size7,
-    height: size7
+    width: size6,
+    height: size6
   }, innerArrowStyle = {}, isVertical = primaryPlacement === "bottom" || primaryPlacement === "top";
   if (primaryPlacement) {
-    arrowStyle[isVertical ? "width" : "height"] = size7 * 2;
+    arrowStyle[isVertical ? "width" : "height"] = size6 * 2;
     const oppSide = opposites[primaryPlacement];
-    oppSide && (arrowStyle[oppSide] = -size7, innerArrowStyle[oppSide] = size7 / 2), (oppSide === "top" || oppSide === "bottom") && (arrowStyle.left = 0), (oppSide === "left" || oppSide === "right") && (arrowStyle.top = 0), useIsomorphicLayoutEffect(() => {
+    oppSide && (arrowStyle[oppSide] = -size6, innerArrowStyle[oppSide] = size6 / 2), (oppSide === "top" || oppSide === "bottom") && (arrowStyle.left = 0), (oppSide === "left" || oppSide === "right") && (arrowStyle.top = 0), useIsomorphicLayoutEffect(() => {
       var _a2;
-      (_a2 = context.onArrowSize) == null ? void 0 : _a2.call(context, size7);
-    }, [size7, context.onArrowSize]);
+      (_a2 = context.onArrowSize) == null ? void 0 : _a2.call(context, size6);
+    }, [size6, context.onArrowSize]);
   }
   return /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PopperArrowOuterFrame, {
     ref: refs,
     ...arrowStyle,
     children: /* @__PURE__ */ (0, import_jsx_runtime32.jsx)(PopperArrowFrame, {
-      width: size7,
-      height: size7,
+      width: size6,
+      height: size6,
       ...arrowProps,
       ...innerArrowStyle,
       rotate: "45deg",
@@ -39101,7 +39101,7 @@ var PopoverContent = PopperContentFrame.extractable(React50.forwardRef(function(
     allowPinchZoom,
     trapFocus,
     disableRemoveScroll = true,
-    zIndex: zIndex3,
+    zIndex: zIndex2,
     __scopePopover,
     ...contentImplProps
   } = props, context = usePopoverContext(__scopePopover), contentRef = React50.useRef(null), composedRefs = useComposedRefs(forwardedRef, contentRef), isRightClickOutsideRef = React50.useRef(false), [isFullyHidden, setIsFullyHidden] = React50.useState(!context.open);
@@ -39153,7 +39153,7 @@ __name(PopoverRepropagateContext, "PopoverRepropagateContext");
 function PopoverContentPortal(props) {
   const {
     __scopePopover
-  } = props, zIndex3 = props.zIndex ?? 15e4, context = usePopoverContext(__scopePopover), popperContext = usePopperContext(__scopePopover || POPOVER_SCOPE), themeName = (0, import_core28.useThemeName)();
+  } = props, zIndex2 = props.zIndex ?? 15e4, context = usePopoverContext(__scopePopover), popperContext = usePopperContext(__scopePopover || POPOVER_SCOPE), themeName = (0, import_core28.useThemeName)();
   let contents = props.children;
   return (import_react_native_web7.Platform.OS === "android" || import_react_native_web7.Platform.OS === "ios") && (contents = /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(PopoverRepropagateContext, {
     scope: __scopePopover || POPOVER_SCOPE,
@@ -39161,7 +39161,7 @@ function PopoverContentPortal(props) {
     context,
     children: props.children
   })), /* @__PURE__ */ (0, import_jsx_runtime33.jsx)(Portal, {
-    zIndex: zIndex3,
+    zIndex: zIndex2,
     children: /* @__PURE__ */ (0, import_jsx_runtime33.jsxs)(import_core28.Theme, {
       forceClassName: true,
       name: themeName,
@@ -39461,10 +39461,10 @@ var ProgressFrame = (0, import_core29.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val) => {
-        const size7 = Math.round((0, import_core29.getVariableValue)(getSize(val)) * 0.25);
+        const size6 = Math.round((0, import_core29.getVariableValue)(getSize(val)) * 0.25);
         return {
-          height: size7,
-          minWidth: (0, import_core29.getVariableValue)(size7) * 20,
+          height: size6,
+          minWidth: (0, import_core29.getVariableValue)(size6) * 20,
           width: "100%"
         };
       }, "...size")
@@ -39481,7 +39481,7 @@ var Progress = withStaticProperties(ProgressFrame.styleable(function(props, forw
     value: valueProp,
     max: maxProp,
     getValueLabel = defaultGetValueLabel,
-    size: size7 = "$true",
+    size: size6 = "$true",
     ...progressProps
   } = props, max2 = isValidMaxNumber(maxProp) ? maxProp : DEFAULT_MAX, value = isValidValueNumber(valueProp, max2) ? valueProp : null, valueLabel = isNumber(value) ? getValueLabel(value, max2) : void 0, [width, setWidth] = React51.useState(0);
   return /* @__PURE__ */ (0, import_jsx_runtime34.jsx)(ProgressProvider, {
@@ -39499,7 +39499,7 @@ var Progress = withStaticProperties(ProgressFrame.styleable(function(props, forw
       "data-value": value ?? void 0,
       "data-max": max2,
       ...progressProps.unstyled !== true && {
-        size: size7
+        size: size6
       },
       ...progressProps,
       onLayout: /* @__PURE__ */ __name((e) => {
@@ -39571,10 +39571,10 @@ var RadioGroupItemFrame = (0, import_core30.styled)(ThemeableStack, {
       "...size": /* @__PURE__ */ __name((value, {
         props
       }) => {
-        const size7 = Math.floor((0, import_core30.getVariableValue)(getSize(value)) * (props.scaleSize ?? 0.5));
+        const size6 = Math.floor((0, import_core30.getVariableValue)(getSize(value)) * (props.scaleSize ?? 0.5));
         return {
-          width: size7,
-          height: size7
+          width: size6,
+          height: size6
         };
       }, "...size")
     }
@@ -40346,7 +40346,7 @@ var CONTENT_NAME4 = "SelectContent";
 var SelectContent = /* @__PURE__ */ __name(({
   children,
   __scopeSelect,
-  zIndex: zIndex3 = 1e3,
+  zIndex: zIndex2 = 1e3,
   ...focusScopeProps
 }) => {
   const context = useSelectContext(CONTENT_NAME4, __scopeSelect), itemParentContext = useSelectItemParentContext(CONTENT_NAME4, __scopeSelect), themeName = (0, import_core37.useThemeName)(), showSheet = useShowSelectSheet(context), contents = /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(import_core37.Theme, {
@@ -40354,7 +40354,7 @@ var SelectContent = /* @__PURE__ */ __name(({
     name: themeName,
     children
   }), touch = (0, import_core37.useIsTouchDevice)(), overlayStyle = import_react39.default.useMemo(() => ({
-    zIndex: zIndex3,
+    zIndex: zIndex2,
     pointerEvents: context.open ? "auto" : "none"
   }), [context.open]);
   return itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime42.jsx)(import_jsx_runtime42.Fragment, {
@@ -40625,7 +40625,7 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
     dataRef,
     interactions,
     shouldRenderWebNative,
-    size: size7,
+    size: size6,
     onActiveChange,
     initialValue: initialValue2
   } = context, [isSelected, setSelected] = React60.useState(initialValue2 === value);
@@ -40690,7 +40690,7 @@ var SelectItem = ListItemFrame.styleable(function(props, forwardedRef) {
         hoverTheme: true,
         focusTheme: true,
         cursor: "default",
-        size: size7,
+        size: size6,
         outlineOffset: -0.5,
         focusVisibleStyle: {
           outlineColor: "$outlineColor",
@@ -40922,9 +40922,9 @@ var SelectViewportFrame = (0, import_core41.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val, {
-        tokens: tokens3
+        tokens: tokens2
       }) => ({
-        borderRadius: tokens3.radius[val] ?? val
+        borderRadius: tokens2.radius[val] ?? val
       }), "...size")
     }
   },
@@ -41089,11 +41089,11 @@ var NativeSelectFrame = (0, import_core42.styled)(ThemeableStack, {
     size: {
       "...size": /* @__PURE__ */ __name((val, extras) => {
         const {
-          tokens: tokens3
-        } = extras, paddingHorizontal = (0, import_core42.getVariableValue)(tokens3.space[val]);
+          tokens: tokens2
+        } = extras, paddingHorizontal = (0, import_core42.getVariableValue)(tokens2.space[val]);
         return {
-          borderRadius: tokens3.radius[val] ?? val,
-          minHeight: tokens3.size[val],
+          borderRadius: tokens2.radius[val] ?? val,
+          minHeight: tokens2.size[val],
           paddingRight: paddingHorizontal + 20,
           paddingLeft: paddingHorizontal,
           paddingVertical: getSpace(val, {
@@ -41111,16 +41111,16 @@ var SelectGroup = React64.forwardRef((props, forwardedRef) => {
   const {
     __scopeSelect,
     ...groupProps
-  } = props, groupId = React64.useId(), context = useSelectContext(GROUP_NAME3, __scopeSelect), itemParentContext = useSelectItemParentContext(GROUP_NAME3, __scopeSelect), size7 = itemParentContext.size ?? "$true", nativeSelectRef = React64.useRef(null), content = itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(NativeSelectFrame, {
+  } = props, groupId = React64.useId(), context = useSelectContext(GROUP_NAME3, __scopeSelect), itemParentContext = useSelectItemParentContext(GROUP_NAME3, __scopeSelect), size6 = itemParentContext.size ?? "$true", nativeSelectRef = React64.useRef(null), content = itemParentContext.shouldRenderWebNative ? /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(NativeSelectFrame, {
     asChild: true,
-    size: size7,
+    size: size6,
     value: context.value,
     id: itemParentContext.id,
     children: /* @__PURE__ */ (0, import_jsx_runtime49.jsx)(NativeSelectTextFrame, {
       onChange: /* @__PURE__ */ __name((event) => {
         itemParentContext.onChange(event.currentTarget.value);
       }, "onChange"),
-      size: size7,
+      size: size6,
       ref: nativeSelectRef,
       style: {
         color: "var(--color)",
@@ -41402,14 +41402,14 @@ var SliderFrame = (0, import_core43.styled)(YStack, {
     },
     size: /* @__PURE__ */ __name((val, extras) => {
       if (!val) return;
-      const orientation = extras.props.orientation, size7 = Math.round((0, import_core43.getVariableValue)(getSize(val)) / 6);
+      const orientation = extras.props.orientation, size6 = Math.round((0, import_core43.getVariableValue)(getSize(val)) / 6);
       return orientation === "horizontal" ? {
-        height: size7,
-        borderRadius: size7,
+        height: size6,
+        borderRadius: size6,
         justifyContent: "center"
       } : {
-        width: size7,
-        borderRadius: size7,
+        width: size6,
+        borderRadius: size6,
         alignItems: "center"
       };
     }, "size")
@@ -41686,14 +41686,14 @@ var SliderTrackActive = React66.forwardRef((props, forwardedRef) => {
 SliderTrackActive.displayName = RANGE_NAME;
 var THUMB_NAME = "SliderThumb";
 var getThumbSize = /* @__PURE__ */ __name((val) => {
-  const tokens3 = (0, import_core44.getTokens)(), size7 = typeof val == "number" ? val : getSize(tokens3.size[val], {
+  const tokens2 = (0, import_core44.getTokens)(), size6 = typeof val == "number" ? val : getSize(tokens2.size[val], {
     shift: -1
   });
   return {
-    width: size7,
-    height: size7,
-    minWidth: size7,
-    minHeight: size7
+    width: size6,
+    height: size6,
+    minWidth: size6,
+    minHeight: size6
   };
 }, "getThumbSize");
 var SliderThumbFrame = (0, import_core44.styled)(ThemeableStack, {
@@ -41724,25 +41724,25 @@ var SliderThumb = React66.memo(SliderThumbFrame.styleable(function(props, forwar
     index: index3,
     size: sizeProp,
     ...thumbProps
-  } = props, context = useSliderContext(THUMB_NAME, __scopeSlider), orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider), [thumb, setThumb] = React66.useState(null), composedRefs = useComposedRefs(forwardedRef, setThumb), value = context.values[index3], percent = value === void 0 ? 0 : convertValueToPercentage(value, context.min, context.max), label = getLabel(index3, context.values.length), sizeIn = sizeProp ?? context.size ?? "$true", [size7, setSize] = React66.useState(() => (0, import_core44.getVariableValue)(getThumbSize(sizeIn).width)), thumbInBoundsOffset = size7 ? getThumbInBoundsOffset(size7, percent, orientation.direction) : 0;
+  } = props, context = useSliderContext(THUMB_NAME, __scopeSlider), orientation = useSliderOrientationContext(THUMB_NAME, __scopeSlider), [thumb, setThumb] = React66.useState(null), composedRefs = useComposedRefs(forwardedRef, setThumb), value = context.values[index3], percent = value === void 0 ? 0 : convertValueToPercentage(value, context.min, context.max), label = getLabel(index3, context.values.length), sizeIn = sizeProp ?? context.size ?? "$true", [size6, setSize] = React66.useState(() => (0, import_core44.getVariableValue)(getThumbSize(sizeIn).width)), thumbInBoundsOffset = size6 ? getThumbInBoundsOffset(size6, percent, orientation.direction) : 0;
   React66.useEffect(() => {
     if (thumb) return context.thumbs.set(thumb, index3), () => {
       context.thumbs.delete(thumb);
     };
   }, [thumb, context.thumbs, index3]);
   const positionalStyles = context.orientation === "horizontal" ? {
-    x: thumbInBoundsOffset - size7 / 2,
-    y: -size7 / 2,
+    x: thumbInBoundsOffset - size6 / 2,
+    y: -size6 / 2,
     top: "50%",
-    ...size7 === 0 && {
+    ...size6 === 0 && {
       top: "auto",
       bottom: "auto"
     }
   } : {
-    x: -size7 / 2,
-    y: size7 / 2,
+    x: -size6 / 2,
+    y: size6 / 2,
     left: "50%",
-    ...size7 === 0 && {
+    ...size6 === 0 && {
       left: "auto",
       right: "auto"
     }
@@ -41995,10 +41995,10 @@ var SwitchThumb = (0, import_core46.styled)(ThemeableStack, {
     },
     size: {
       "...size": /* @__PURE__ */ __name((val) => {
-        const size7 = getSwitchHeight(val);
+        const size6 = getSwitchHeight(val);
         return {
-          height: size7,
-          width: size7
+          height: size6,
+          width: size6
         };
       }, "...size")
     }
@@ -42073,12 +42073,12 @@ function createSwitch(createProps) {
     } = context, styledContext = SwitchStyledContext.useStyledContext(), {
       unstyled: unstyledContext,
       size: sizeContext
-    } = styledContext, unstyled = process.env.TAMAGUI_HEADLESS === "1" ? true : unstyledProp ?? unstyledContext ?? false, size7 = sizeProp ?? sizeContext ?? "$true", initialChecked = React68.useRef(checked).current, [thumbWidth, setThumbWidth] = React68.useState(0), distance = frameWidth - thumbWidth, x = initialChecked ? checked ? 0 : -distance : checked ? distance : 0;
+    } = styledContext, unstyled = process.env.TAMAGUI_HEADLESS === "1" ? true : unstyledProp ?? unstyledContext ?? false, size6 = sizeProp ?? sizeContext ?? "$true", initialChecked = React68.useRef(checked).current, [thumbWidth, setThumbWidth] = React68.useState(0), distance = frameWidth - thumbWidth, x = initialChecked ? checked ? 0 : -distance : checked ? distance : 0;
     return /* @__PURE__ */ (0, import_jsx_runtime53.jsx)(Thumb2, {
       ref: forwardedRef,
       unstyled,
       ...unstyled === false && {
-        size: size7,
+        size: size6,
         ...!disableActiveTheme && {
           theme: checked ? "active" : null
         }
@@ -42375,7 +42375,7 @@ var TabsComponent = TabsFrame.styleable((props, forwardedRef) => {
     orientation = "horizontal",
     dir,
     activationMode = "automatic",
-    size: size7 = "$true",
+    size: size6 = "$true",
     ...tabsProps
   } = props, direction = useDirection(dir), [value, setValue] = useControllableState({
     prop: valueProp,
@@ -42390,7 +42390,7 @@ var TabsComponent = TabsFrame.styleable((props, forwardedRef) => {
     orientation,
     dir: direction,
     activationMode,
-    size: size7,
+    size: size6,
     registerTrigger,
     triggersCount,
     unregisterTrigger,
@@ -42675,11 +42675,11 @@ var ToggleGroupItem = ToggleFrame.extractable(import_react44.default.forwardRef(
     ...rest
   } = props, valueContext = useToggleGroupValueContext(props.__scopeToggleGroup), context = useToggleGroupContext(props.__scopeToggleGroup), pressed = valueContext == null ? void 0 : valueContext.value.includes(props.value), disabled = context.disabled || props.disabled || false, groupItemProps = useGroupItem({
     disabled
-  }), size7 = props.size ?? context.size, sizeProps = props.unstyled ? {} : {
+  }), size6 = props.size ?? context.size, sizeProps = props.unstyled ? {} : {
     width: void 0,
     height: void 0,
-    padding: (0, import_web22.getVariableValue)(size7) * 0.6
-  }, iconSize = (typeof size7 == "number" ? size7 * 0.7 : getFontSize(size7)) * 1.2, theme = (0, import_web22.useTheme)(), getThemedIcon = useGetThemedIcon({
+    padding: (0, import_web22.getVariableValue)(size6) * 0.6
+  }, iconSize = (typeof size6 == "number" ? size6 * 0.7 : getFontSize(size6)) * 1.2, theme = (0, import_web22.useTheme)(), getThemedIcon = useGetThemedIcon({
     size: iconSize,
     color: theme.color
   }), children = import_react44.default.Children.toArray(props.children).map((child) => props.disablePassStyles || !import_react44.default.isValidElement(child) ? child : getThemedIcon(child)), commonProps = {
@@ -42847,12 +42847,12 @@ var ToggleGroupImpl = ToggleGroupImplElementFrame.extractable(import_react44.def
     ...toggleGroupProps
   }, adjustedSize = (0, import_web22.getVariableValue)(getSize(sizeProp, {
     shift: sizeAdjust
-  })), size7 = Math.round(adjustedSize * 0.45);
+  })), size6 = Math.round(adjustedSize * 0.45);
   return /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(ToggleGroupContext, {
     scope: __scopeToggleGroup,
     rovingFocus,
     disabled,
-    size: size7,
+    size: size6,
     children: rovingFocus ? /* @__PURE__ */ (0, import_jsx_runtime56.jsx)(RovingFocusGroup, {
       asChild: "except-style",
       __scopeRovingFocusGroup: __scopeToggleGroup || TOGGLE_GROUP_CONTEXT,
@@ -43419,17 +43419,17 @@ var import_react_native_web12 = __toESM(require_cjs16(), 1);
 var import_jsx_runtime62 = require("react/jsx-runtime");
 var Spinner = YStack.extractable((0, import_core56.themeable)(React76.forwardRef((props, ref) => {
   const {
-    size: size7,
+    size: size6,
     color: colorProp,
     ...stackProps
   } = props, theme = (0, import_core56.useTheme)();
-  let color3 = colorProp;
-  return color3 && color3[0] === "$" && (color3 = (0, import_core56.variableToString)(theme[color3])), /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(YStack, {
+  let color2 = colorProp;
+  return color2 && color2[0] === "$" && (color2 = (0, import_core56.variableToString)(theme[color2])), /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(YStack, {
     ref,
     ...stackProps,
     children: /* @__PURE__ */ (0, import_jsx_runtime62.jsx)(import_react_native_web12.ActivityIndicator, {
-      size: size7,
-      color: color3
+      size: size6,
+      color: color2
     })
   });
 }), {
@@ -43490,3559 +43490,25 @@ var Text4 = (0, import_core58.styled)(import_core58.Text, {
 // node_modules/tamagui/dist/esm/index.mjs
 var import_core59 = require("@tamagui/core");
 
-// node_modules/@tamagui/themes/dist/esm/generated-new.mjs
-var generated_new_exports = {};
-__export(generated_new_exports, {
-  dark: () => dark,
-  dark_Button: () => dark_Button,
-  dark_Card: () => dark_Card,
-  dark_Checkbox: () => dark_Checkbox,
-  dark_DialogOverlay: () => dark_DialogOverlay,
-  dark_DrawerFrame: () => dark_DrawerFrame,
-  dark_Input: () => dark_Input,
-  dark_ListItem: () => dark_ListItem,
-  dark_ModalOverlay: () => dark_ModalOverlay,
-  dark_Progress: () => dark_Progress,
-  dark_ProgressIndicator: () => dark_ProgressIndicator,
-  dark_RadioGroupItem: () => dark_RadioGroupItem,
-  dark_SheetOverlay: () => dark_SheetOverlay,
-  dark_SliderThumb: () => dark_SliderThumb,
-  dark_SliderTrack: () => dark_SliderTrack,
-  dark_SliderTrackActive: () => dark_SliderTrackActive,
-  dark_Switch: () => dark_Switch,
-  dark_SwitchThumb: () => dark_SwitchThumb,
-  dark_TextArea: () => dark_TextArea,
-  dark_Tooltip: () => dark_Tooltip,
-  dark_TooltipArrow: () => dark_TooltipArrow,
-  dark_TooltipContent: () => dark_TooltipContent,
-  dark_active: () => dark_active,
-  dark_active_Button: () => dark_active_Button,
-  dark_active_Card: () => dark_active_Card,
-  dark_active_Checkbox: () => dark_active_Checkbox,
-  dark_active_DialogOverlay: () => dark_active_DialogOverlay,
-  dark_active_DrawerFrame: () => dark_active_DrawerFrame,
-  dark_active_Input: () => dark_active_Input,
-  dark_active_ListItem: () => dark_active_ListItem,
-  dark_active_ModalOverlay: () => dark_active_ModalOverlay,
-  dark_active_Progress: () => dark_active_Progress,
-  dark_active_ProgressIndicator: () => dark_active_ProgressIndicator,
-  dark_active_RadioGroupItem: () => dark_active_RadioGroupItem,
-  dark_active_SheetOverlay: () => dark_active_SheetOverlay,
-  dark_active_SliderThumb: () => dark_active_SliderThumb,
-  dark_active_SliderTrack: () => dark_active_SliderTrack,
-  dark_active_SliderTrackActive: () => dark_active_SliderTrackActive,
-  dark_active_Switch: () => dark_active_Switch,
-  dark_active_SwitchThumb: () => dark_active_SwitchThumb,
-  dark_active_TextArea: () => dark_active_TextArea,
-  dark_active_Tooltip: () => dark_active_Tooltip,
-  dark_active_TooltipArrow: () => dark_active_TooltipArrow,
-  dark_active_TooltipContent: () => dark_active_TooltipContent,
-  dark_alt1: () => dark_alt1,
-  dark_alt1_Button: () => dark_alt1_Button,
-  dark_alt1_Card: () => dark_alt1_Card,
-  dark_alt1_Checkbox: () => dark_alt1_Checkbox,
-  dark_alt1_DialogOverlay: () => dark_alt1_DialogOverlay,
-  dark_alt1_DrawerFrame: () => dark_alt1_DrawerFrame,
-  dark_alt1_Input: () => dark_alt1_Input,
-  dark_alt1_ListItem: () => dark_alt1_ListItem,
-  dark_alt1_ModalOverlay: () => dark_alt1_ModalOverlay,
-  dark_alt1_Progress: () => dark_alt1_Progress,
-  dark_alt1_ProgressIndicator: () => dark_alt1_ProgressIndicator,
-  dark_alt1_RadioGroupItem: () => dark_alt1_RadioGroupItem,
-  dark_alt1_SheetOverlay: () => dark_alt1_SheetOverlay,
-  dark_alt1_SliderThumb: () => dark_alt1_SliderThumb,
-  dark_alt1_SliderTrack: () => dark_alt1_SliderTrack,
-  dark_alt1_SliderTrackActive: () => dark_alt1_SliderTrackActive,
-  dark_alt1_Switch: () => dark_alt1_Switch,
-  dark_alt1_SwitchThumb: () => dark_alt1_SwitchThumb,
-  dark_alt1_TextArea: () => dark_alt1_TextArea,
-  dark_alt1_Tooltip: () => dark_alt1_Tooltip,
-  dark_alt1_TooltipArrow: () => dark_alt1_TooltipArrow,
-  dark_alt1_TooltipContent: () => dark_alt1_TooltipContent,
-  dark_alt2: () => dark_alt2,
-  dark_alt2_Button: () => dark_alt2_Button,
-  dark_alt2_Card: () => dark_alt2_Card,
-  dark_alt2_Checkbox: () => dark_alt2_Checkbox,
-  dark_alt2_DialogOverlay: () => dark_alt2_DialogOverlay,
-  dark_alt2_DrawerFrame: () => dark_alt2_DrawerFrame,
-  dark_alt2_Input: () => dark_alt2_Input,
-  dark_alt2_ListItem: () => dark_alt2_ListItem,
-  dark_alt2_ModalOverlay: () => dark_alt2_ModalOverlay,
-  dark_alt2_Progress: () => dark_alt2_Progress,
-  dark_alt2_ProgressIndicator: () => dark_alt2_ProgressIndicator,
-  dark_alt2_RadioGroupItem: () => dark_alt2_RadioGroupItem,
-  dark_alt2_SheetOverlay: () => dark_alt2_SheetOverlay,
-  dark_alt2_SliderThumb: () => dark_alt2_SliderThumb,
-  dark_alt2_SliderTrack: () => dark_alt2_SliderTrack,
-  dark_alt2_SliderTrackActive: () => dark_alt2_SliderTrackActive,
-  dark_alt2_Switch: () => dark_alt2_Switch,
-  dark_alt2_SwitchThumb: () => dark_alt2_SwitchThumb,
-  dark_alt2_TextArea: () => dark_alt2_TextArea,
-  dark_alt2_Tooltip: () => dark_alt2_Tooltip,
-  dark_alt2_TooltipArrow: () => dark_alt2_TooltipArrow,
-  dark_alt2_TooltipContent: () => dark_alt2_TooltipContent,
-  dark_blue: () => dark_blue,
-  dark_blue_Button: () => dark_blue_Button,
-  dark_blue_Card: () => dark_blue_Card,
-  dark_blue_Checkbox: () => dark_blue_Checkbox,
-  dark_blue_DialogOverlay: () => dark_blue_DialogOverlay,
-  dark_blue_DrawerFrame: () => dark_blue_DrawerFrame,
-  dark_blue_Input: () => dark_blue_Input,
-  dark_blue_ListItem: () => dark_blue_ListItem,
-  dark_blue_ModalOverlay: () => dark_blue_ModalOverlay,
-  dark_blue_Progress: () => dark_blue_Progress,
-  dark_blue_ProgressIndicator: () => dark_blue_ProgressIndicator,
-  dark_blue_RadioGroupItem: () => dark_blue_RadioGroupItem,
-  dark_blue_SheetOverlay: () => dark_blue_SheetOverlay,
-  dark_blue_SliderThumb: () => dark_blue_SliderThumb,
-  dark_blue_SliderTrack: () => dark_blue_SliderTrack,
-  dark_blue_SliderTrackActive: () => dark_blue_SliderTrackActive,
-  dark_blue_Switch: () => dark_blue_Switch,
-  dark_blue_SwitchThumb: () => dark_blue_SwitchThumb,
-  dark_blue_TextArea: () => dark_blue_TextArea,
-  dark_blue_Tooltip: () => dark_blue_Tooltip,
-  dark_blue_TooltipArrow: () => dark_blue_TooltipArrow,
-  dark_blue_TooltipContent: () => dark_blue_TooltipContent,
-  dark_blue_active: () => dark_blue_active,
-  dark_blue_active_Button: () => dark_blue_active_Button,
-  dark_blue_active_Card: () => dark_blue_active_Card,
-  dark_blue_active_Checkbox: () => dark_blue_active_Checkbox,
-  dark_blue_active_DialogOverlay: () => dark_blue_active_DialogOverlay,
-  dark_blue_active_DrawerFrame: () => dark_blue_active_DrawerFrame,
-  dark_blue_active_Input: () => dark_blue_active_Input,
-  dark_blue_active_ListItem: () => dark_blue_active_ListItem,
-  dark_blue_active_ModalOverlay: () => dark_blue_active_ModalOverlay,
-  dark_blue_active_Progress: () => dark_blue_active_Progress,
-  dark_blue_active_ProgressIndicator: () => dark_blue_active_ProgressIndicator,
-  dark_blue_active_RadioGroupItem: () => dark_blue_active_RadioGroupItem,
-  dark_blue_active_SheetOverlay: () => dark_blue_active_SheetOverlay,
-  dark_blue_active_SliderThumb: () => dark_blue_active_SliderThumb,
-  dark_blue_active_SliderTrack: () => dark_blue_active_SliderTrack,
-  dark_blue_active_SliderTrackActive: () => dark_blue_active_SliderTrackActive,
-  dark_blue_active_Switch: () => dark_blue_active_Switch,
-  dark_blue_active_SwitchThumb: () => dark_blue_active_SwitchThumb,
-  dark_blue_active_TextArea: () => dark_blue_active_TextArea,
-  dark_blue_active_Tooltip: () => dark_blue_active_Tooltip,
-  dark_blue_active_TooltipArrow: () => dark_blue_active_TooltipArrow,
-  dark_blue_active_TooltipContent: () => dark_blue_active_TooltipContent,
-  dark_blue_alt1: () => dark_blue_alt1,
-  dark_blue_alt1_Button: () => dark_blue_alt1_Button,
-  dark_blue_alt1_Card: () => dark_blue_alt1_Card,
-  dark_blue_alt1_Checkbox: () => dark_blue_alt1_Checkbox,
-  dark_blue_alt1_DialogOverlay: () => dark_blue_alt1_DialogOverlay,
-  dark_blue_alt1_DrawerFrame: () => dark_blue_alt1_DrawerFrame,
-  dark_blue_alt1_Input: () => dark_blue_alt1_Input,
-  dark_blue_alt1_ListItem: () => dark_blue_alt1_ListItem,
-  dark_blue_alt1_ModalOverlay: () => dark_blue_alt1_ModalOverlay,
-  dark_blue_alt1_Progress: () => dark_blue_alt1_Progress,
-  dark_blue_alt1_ProgressIndicator: () => dark_blue_alt1_ProgressIndicator,
-  dark_blue_alt1_RadioGroupItem: () => dark_blue_alt1_RadioGroupItem,
-  dark_blue_alt1_SheetOverlay: () => dark_blue_alt1_SheetOverlay,
-  dark_blue_alt1_SliderThumb: () => dark_blue_alt1_SliderThumb,
-  dark_blue_alt1_SliderTrack: () => dark_blue_alt1_SliderTrack,
-  dark_blue_alt1_SliderTrackActive: () => dark_blue_alt1_SliderTrackActive,
-  dark_blue_alt1_Switch: () => dark_blue_alt1_Switch,
-  dark_blue_alt1_SwitchThumb: () => dark_blue_alt1_SwitchThumb,
-  dark_blue_alt1_TextArea: () => dark_blue_alt1_TextArea,
-  dark_blue_alt1_Tooltip: () => dark_blue_alt1_Tooltip,
-  dark_blue_alt1_TooltipArrow: () => dark_blue_alt1_TooltipArrow,
-  dark_blue_alt1_TooltipContent: () => dark_blue_alt1_TooltipContent,
-  dark_blue_alt2: () => dark_blue_alt2,
-  dark_blue_alt2_Button: () => dark_blue_alt2_Button,
-  dark_blue_alt2_Card: () => dark_blue_alt2_Card,
-  dark_blue_alt2_Checkbox: () => dark_blue_alt2_Checkbox,
-  dark_blue_alt2_DialogOverlay: () => dark_blue_alt2_DialogOverlay,
-  dark_blue_alt2_DrawerFrame: () => dark_blue_alt2_DrawerFrame,
-  dark_blue_alt2_Input: () => dark_blue_alt2_Input,
-  dark_blue_alt2_ListItem: () => dark_blue_alt2_ListItem,
-  dark_blue_alt2_ModalOverlay: () => dark_blue_alt2_ModalOverlay,
-  dark_blue_alt2_Progress: () => dark_blue_alt2_Progress,
-  dark_blue_alt2_ProgressIndicator: () => dark_blue_alt2_ProgressIndicator,
-  dark_blue_alt2_RadioGroupItem: () => dark_blue_alt2_RadioGroupItem,
-  dark_blue_alt2_SheetOverlay: () => dark_blue_alt2_SheetOverlay,
-  dark_blue_alt2_SliderThumb: () => dark_blue_alt2_SliderThumb,
-  dark_blue_alt2_SliderTrack: () => dark_blue_alt2_SliderTrack,
-  dark_blue_alt2_SliderTrackActive: () => dark_blue_alt2_SliderTrackActive,
-  dark_blue_alt2_Switch: () => dark_blue_alt2_Switch,
-  dark_blue_alt2_SwitchThumb: () => dark_blue_alt2_SwitchThumb,
-  dark_blue_alt2_TextArea: () => dark_blue_alt2_TextArea,
-  dark_blue_alt2_Tooltip: () => dark_blue_alt2_Tooltip,
-  dark_blue_alt2_TooltipArrow: () => dark_blue_alt2_TooltipArrow,
-  dark_blue_alt2_TooltipContent: () => dark_blue_alt2_TooltipContent,
-  dark_green: () => dark_green,
-  dark_green_Button: () => dark_green_Button,
-  dark_green_Card: () => dark_green_Card,
-  dark_green_Checkbox: () => dark_green_Checkbox,
-  dark_green_DialogOverlay: () => dark_green_DialogOverlay,
-  dark_green_DrawerFrame: () => dark_green_DrawerFrame,
-  dark_green_Input: () => dark_green_Input,
-  dark_green_ListItem: () => dark_green_ListItem,
-  dark_green_ModalOverlay: () => dark_green_ModalOverlay,
-  dark_green_Progress: () => dark_green_Progress,
-  dark_green_ProgressIndicator: () => dark_green_ProgressIndicator,
-  dark_green_RadioGroupItem: () => dark_green_RadioGroupItem,
-  dark_green_SheetOverlay: () => dark_green_SheetOverlay,
-  dark_green_SliderThumb: () => dark_green_SliderThumb,
-  dark_green_SliderTrack: () => dark_green_SliderTrack,
-  dark_green_SliderTrackActive: () => dark_green_SliderTrackActive,
-  dark_green_Switch: () => dark_green_Switch,
-  dark_green_SwitchThumb: () => dark_green_SwitchThumb,
-  dark_green_TextArea: () => dark_green_TextArea,
-  dark_green_Tooltip: () => dark_green_Tooltip,
-  dark_green_TooltipArrow: () => dark_green_TooltipArrow,
-  dark_green_TooltipContent: () => dark_green_TooltipContent,
-  dark_green_active: () => dark_green_active,
-  dark_green_active_Button: () => dark_green_active_Button,
-  dark_green_active_Card: () => dark_green_active_Card,
-  dark_green_active_Checkbox: () => dark_green_active_Checkbox,
-  dark_green_active_DialogOverlay: () => dark_green_active_DialogOverlay,
-  dark_green_active_DrawerFrame: () => dark_green_active_DrawerFrame,
-  dark_green_active_Input: () => dark_green_active_Input,
-  dark_green_active_ListItem: () => dark_green_active_ListItem,
-  dark_green_active_ModalOverlay: () => dark_green_active_ModalOverlay,
-  dark_green_active_Progress: () => dark_green_active_Progress,
-  dark_green_active_ProgressIndicator: () => dark_green_active_ProgressIndicator,
-  dark_green_active_RadioGroupItem: () => dark_green_active_RadioGroupItem,
-  dark_green_active_SheetOverlay: () => dark_green_active_SheetOverlay,
-  dark_green_active_SliderThumb: () => dark_green_active_SliderThumb,
-  dark_green_active_SliderTrack: () => dark_green_active_SliderTrack,
-  dark_green_active_SliderTrackActive: () => dark_green_active_SliderTrackActive,
-  dark_green_active_Switch: () => dark_green_active_Switch,
-  dark_green_active_SwitchThumb: () => dark_green_active_SwitchThumb,
-  dark_green_active_TextArea: () => dark_green_active_TextArea,
-  dark_green_active_Tooltip: () => dark_green_active_Tooltip,
-  dark_green_active_TooltipArrow: () => dark_green_active_TooltipArrow,
-  dark_green_active_TooltipContent: () => dark_green_active_TooltipContent,
-  dark_green_alt1: () => dark_green_alt1,
-  dark_green_alt1_Button: () => dark_green_alt1_Button,
-  dark_green_alt1_Card: () => dark_green_alt1_Card,
-  dark_green_alt1_Checkbox: () => dark_green_alt1_Checkbox,
-  dark_green_alt1_DialogOverlay: () => dark_green_alt1_DialogOverlay,
-  dark_green_alt1_DrawerFrame: () => dark_green_alt1_DrawerFrame,
-  dark_green_alt1_Input: () => dark_green_alt1_Input,
-  dark_green_alt1_ListItem: () => dark_green_alt1_ListItem,
-  dark_green_alt1_ModalOverlay: () => dark_green_alt1_ModalOverlay,
-  dark_green_alt1_Progress: () => dark_green_alt1_Progress,
-  dark_green_alt1_ProgressIndicator: () => dark_green_alt1_ProgressIndicator,
-  dark_green_alt1_RadioGroupItem: () => dark_green_alt1_RadioGroupItem,
-  dark_green_alt1_SheetOverlay: () => dark_green_alt1_SheetOverlay,
-  dark_green_alt1_SliderThumb: () => dark_green_alt1_SliderThumb,
-  dark_green_alt1_SliderTrack: () => dark_green_alt1_SliderTrack,
-  dark_green_alt1_SliderTrackActive: () => dark_green_alt1_SliderTrackActive,
-  dark_green_alt1_Switch: () => dark_green_alt1_Switch,
-  dark_green_alt1_SwitchThumb: () => dark_green_alt1_SwitchThumb,
-  dark_green_alt1_TextArea: () => dark_green_alt1_TextArea,
-  dark_green_alt1_Tooltip: () => dark_green_alt1_Tooltip,
-  dark_green_alt1_TooltipArrow: () => dark_green_alt1_TooltipArrow,
-  dark_green_alt1_TooltipContent: () => dark_green_alt1_TooltipContent,
-  dark_green_alt2: () => dark_green_alt2,
-  dark_green_alt2_Button: () => dark_green_alt2_Button,
-  dark_green_alt2_Card: () => dark_green_alt2_Card,
-  dark_green_alt2_Checkbox: () => dark_green_alt2_Checkbox,
-  dark_green_alt2_DialogOverlay: () => dark_green_alt2_DialogOverlay,
-  dark_green_alt2_DrawerFrame: () => dark_green_alt2_DrawerFrame,
-  dark_green_alt2_Input: () => dark_green_alt2_Input,
-  dark_green_alt2_ListItem: () => dark_green_alt2_ListItem,
-  dark_green_alt2_ModalOverlay: () => dark_green_alt2_ModalOverlay,
-  dark_green_alt2_Progress: () => dark_green_alt2_Progress,
-  dark_green_alt2_ProgressIndicator: () => dark_green_alt2_ProgressIndicator,
-  dark_green_alt2_RadioGroupItem: () => dark_green_alt2_RadioGroupItem,
-  dark_green_alt2_SheetOverlay: () => dark_green_alt2_SheetOverlay,
-  dark_green_alt2_SliderThumb: () => dark_green_alt2_SliderThumb,
-  dark_green_alt2_SliderTrack: () => dark_green_alt2_SliderTrack,
-  dark_green_alt2_SliderTrackActive: () => dark_green_alt2_SliderTrackActive,
-  dark_green_alt2_Switch: () => dark_green_alt2_Switch,
-  dark_green_alt2_SwitchThumb: () => dark_green_alt2_SwitchThumb,
-  dark_green_alt2_TextArea: () => dark_green_alt2_TextArea,
-  dark_green_alt2_Tooltip: () => dark_green_alt2_Tooltip,
-  dark_green_alt2_TooltipArrow: () => dark_green_alt2_TooltipArrow,
-  dark_green_alt2_TooltipContent: () => dark_green_alt2_TooltipContent,
-  dark_orange: () => dark_orange,
-  dark_orange_Button: () => dark_orange_Button,
-  dark_orange_Card: () => dark_orange_Card,
-  dark_orange_Checkbox: () => dark_orange_Checkbox,
-  dark_orange_DialogOverlay: () => dark_orange_DialogOverlay,
-  dark_orange_DrawerFrame: () => dark_orange_DrawerFrame,
-  dark_orange_Input: () => dark_orange_Input,
-  dark_orange_ListItem: () => dark_orange_ListItem,
-  dark_orange_ModalOverlay: () => dark_orange_ModalOverlay,
-  dark_orange_Progress: () => dark_orange_Progress,
-  dark_orange_ProgressIndicator: () => dark_orange_ProgressIndicator,
-  dark_orange_RadioGroupItem: () => dark_orange_RadioGroupItem,
-  dark_orange_SheetOverlay: () => dark_orange_SheetOverlay,
-  dark_orange_SliderThumb: () => dark_orange_SliderThumb,
-  dark_orange_SliderTrack: () => dark_orange_SliderTrack,
-  dark_orange_SliderTrackActive: () => dark_orange_SliderTrackActive,
-  dark_orange_Switch: () => dark_orange_Switch,
-  dark_orange_SwitchThumb: () => dark_orange_SwitchThumb,
-  dark_orange_TextArea: () => dark_orange_TextArea,
-  dark_orange_Tooltip: () => dark_orange_Tooltip,
-  dark_orange_TooltipArrow: () => dark_orange_TooltipArrow,
-  dark_orange_TooltipContent: () => dark_orange_TooltipContent,
-  dark_orange_active: () => dark_orange_active,
-  dark_orange_active_Button: () => dark_orange_active_Button,
-  dark_orange_active_Card: () => dark_orange_active_Card,
-  dark_orange_active_Checkbox: () => dark_orange_active_Checkbox,
-  dark_orange_active_DialogOverlay: () => dark_orange_active_DialogOverlay,
-  dark_orange_active_DrawerFrame: () => dark_orange_active_DrawerFrame,
-  dark_orange_active_Input: () => dark_orange_active_Input,
-  dark_orange_active_ListItem: () => dark_orange_active_ListItem,
-  dark_orange_active_ModalOverlay: () => dark_orange_active_ModalOverlay,
-  dark_orange_active_Progress: () => dark_orange_active_Progress,
-  dark_orange_active_ProgressIndicator: () => dark_orange_active_ProgressIndicator,
-  dark_orange_active_RadioGroupItem: () => dark_orange_active_RadioGroupItem,
-  dark_orange_active_SheetOverlay: () => dark_orange_active_SheetOverlay,
-  dark_orange_active_SliderThumb: () => dark_orange_active_SliderThumb,
-  dark_orange_active_SliderTrack: () => dark_orange_active_SliderTrack,
-  dark_orange_active_SliderTrackActive: () => dark_orange_active_SliderTrackActive,
-  dark_orange_active_Switch: () => dark_orange_active_Switch,
-  dark_orange_active_SwitchThumb: () => dark_orange_active_SwitchThumb,
-  dark_orange_active_TextArea: () => dark_orange_active_TextArea,
-  dark_orange_active_Tooltip: () => dark_orange_active_Tooltip,
-  dark_orange_active_TooltipArrow: () => dark_orange_active_TooltipArrow,
-  dark_orange_active_TooltipContent: () => dark_orange_active_TooltipContent,
-  dark_orange_alt1: () => dark_orange_alt1,
-  dark_orange_alt1_Button: () => dark_orange_alt1_Button,
-  dark_orange_alt1_Card: () => dark_orange_alt1_Card,
-  dark_orange_alt1_Checkbox: () => dark_orange_alt1_Checkbox,
-  dark_orange_alt1_DialogOverlay: () => dark_orange_alt1_DialogOverlay,
-  dark_orange_alt1_DrawerFrame: () => dark_orange_alt1_DrawerFrame,
-  dark_orange_alt1_Input: () => dark_orange_alt1_Input,
-  dark_orange_alt1_ListItem: () => dark_orange_alt1_ListItem,
-  dark_orange_alt1_ModalOverlay: () => dark_orange_alt1_ModalOverlay,
-  dark_orange_alt1_Progress: () => dark_orange_alt1_Progress,
-  dark_orange_alt1_ProgressIndicator: () => dark_orange_alt1_ProgressIndicator,
-  dark_orange_alt1_RadioGroupItem: () => dark_orange_alt1_RadioGroupItem,
-  dark_orange_alt1_SheetOverlay: () => dark_orange_alt1_SheetOverlay,
-  dark_orange_alt1_SliderThumb: () => dark_orange_alt1_SliderThumb,
-  dark_orange_alt1_SliderTrack: () => dark_orange_alt1_SliderTrack,
-  dark_orange_alt1_SliderTrackActive: () => dark_orange_alt1_SliderTrackActive,
-  dark_orange_alt1_Switch: () => dark_orange_alt1_Switch,
-  dark_orange_alt1_SwitchThumb: () => dark_orange_alt1_SwitchThumb,
-  dark_orange_alt1_TextArea: () => dark_orange_alt1_TextArea,
-  dark_orange_alt1_Tooltip: () => dark_orange_alt1_Tooltip,
-  dark_orange_alt1_TooltipArrow: () => dark_orange_alt1_TooltipArrow,
-  dark_orange_alt1_TooltipContent: () => dark_orange_alt1_TooltipContent,
-  dark_orange_alt2: () => dark_orange_alt2,
-  dark_orange_alt2_Button: () => dark_orange_alt2_Button,
-  dark_orange_alt2_Card: () => dark_orange_alt2_Card,
-  dark_orange_alt2_Checkbox: () => dark_orange_alt2_Checkbox,
-  dark_orange_alt2_DialogOverlay: () => dark_orange_alt2_DialogOverlay,
-  dark_orange_alt2_DrawerFrame: () => dark_orange_alt2_DrawerFrame,
-  dark_orange_alt2_Input: () => dark_orange_alt2_Input,
-  dark_orange_alt2_ListItem: () => dark_orange_alt2_ListItem,
-  dark_orange_alt2_ModalOverlay: () => dark_orange_alt2_ModalOverlay,
-  dark_orange_alt2_Progress: () => dark_orange_alt2_Progress,
-  dark_orange_alt2_ProgressIndicator: () => dark_orange_alt2_ProgressIndicator,
-  dark_orange_alt2_RadioGroupItem: () => dark_orange_alt2_RadioGroupItem,
-  dark_orange_alt2_SheetOverlay: () => dark_orange_alt2_SheetOverlay,
-  dark_orange_alt2_SliderThumb: () => dark_orange_alt2_SliderThumb,
-  dark_orange_alt2_SliderTrack: () => dark_orange_alt2_SliderTrack,
-  dark_orange_alt2_SliderTrackActive: () => dark_orange_alt2_SliderTrackActive,
-  dark_orange_alt2_Switch: () => dark_orange_alt2_Switch,
-  dark_orange_alt2_SwitchThumb: () => dark_orange_alt2_SwitchThumb,
-  dark_orange_alt2_TextArea: () => dark_orange_alt2_TextArea,
-  dark_orange_alt2_Tooltip: () => dark_orange_alt2_Tooltip,
-  dark_orange_alt2_TooltipArrow: () => dark_orange_alt2_TooltipArrow,
-  dark_orange_alt2_TooltipContent: () => dark_orange_alt2_TooltipContent,
-  dark_pink: () => dark_pink,
-  dark_pink_Button: () => dark_pink_Button,
-  dark_pink_Card: () => dark_pink_Card,
-  dark_pink_Checkbox: () => dark_pink_Checkbox,
-  dark_pink_DialogOverlay: () => dark_pink_DialogOverlay,
-  dark_pink_DrawerFrame: () => dark_pink_DrawerFrame,
-  dark_pink_Input: () => dark_pink_Input,
-  dark_pink_ListItem: () => dark_pink_ListItem,
-  dark_pink_ModalOverlay: () => dark_pink_ModalOverlay,
-  dark_pink_Progress: () => dark_pink_Progress,
-  dark_pink_ProgressIndicator: () => dark_pink_ProgressIndicator,
-  dark_pink_RadioGroupItem: () => dark_pink_RadioGroupItem,
-  dark_pink_SheetOverlay: () => dark_pink_SheetOverlay,
-  dark_pink_SliderThumb: () => dark_pink_SliderThumb,
-  dark_pink_SliderTrack: () => dark_pink_SliderTrack,
-  dark_pink_SliderTrackActive: () => dark_pink_SliderTrackActive,
-  dark_pink_Switch: () => dark_pink_Switch,
-  dark_pink_SwitchThumb: () => dark_pink_SwitchThumb,
-  dark_pink_TextArea: () => dark_pink_TextArea,
-  dark_pink_Tooltip: () => dark_pink_Tooltip,
-  dark_pink_TooltipArrow: () => dark_pink_TooltipArrow,
-  dark_pink_TooltipContent: () => dark_pink_TooltipContent,
-  dark_pink_active: () => dark_pink_active,
-  dark_pink_active_Button: () => dark_pink_active_Button,
-  dark_pink_active_Card: () => dark_pink_active_Card,
-  dark_pink_active_Checkbox: () => dark_pink_active_Checkbox,
-  dark_pink_active_DialogOverlay: () => dark_pink_active_DialogOverlay,
-  dark_pink_active_DrawerFrame: () => dark_pink_active_DrawerFrame,
-  dark_pink_active_Input: () => dark_pink_active_Input,
-  dark_pink_active_ListItem: () => dark_pink_active_ListItem,
-  dark_pink_active_ModalOverlay: () => dark_pink_active_ModalOverlay,
-  dark_pink_active_Progress: () => dark_pink_active_Progress,
-  dark_pink_active_ProgressIndicator: () => dark_pink_active_ProgressIndicator,
-  dark_pink_active_RadioGroupItem: () => dark_pink_active_RadioGroupItem,
-  dark_pink_active_SheetOverlay: () => dark_pink_active_SheetOverlay,
-  dark_pink_active_SliderThumb: () => dark_pink_active_SliderThumb,
-  dark_pink_active_SliderTrack: () => dark_pink_active_SliderTrack,
-  dark_pink_active_SliderTrackActive: () => dark_pink_active_SliderTrackActive,
-  dark_pink_active_Switch: () => dark_pink_active_Switch,
-  dark_pink_active_SwitchThumb: () => dark_pink_active_SwitchThumb,
-  dark_pink_active_TextArea: () => dark_pink_active_TextArea,
-  dark_pink_active_Tooltip: () => dark_pink_active_Tooltip,
-  dark_pink_active_TooltipArrow: () => dark_pink_active_TooltipArrow,
-  dark_pink_active_TooltipContent: () => dark_pink_active_TooltipContent,
-  dark_pink_alt1: () => dark_pink_alt1,
-  dark_pink_alt1_Button: () => dark_pink_alt1_Button,
-  dark_pink_alt1_Card: () => dark_pink_alt1_Card,
-  dark_pink_alt1_Checkbox: () => dark_pink_alt1_Checkbox,
-  dark_pink_alt1_DialogOverlay: () => dark_pink_alt1_DialogOverlay,
-  dark_pink_alt1_DrawerFrame: () => dark_pink_alt1_DrawerFrame,
-  dark_pink_alt1_Input: () => dark_pink_alt1_Input,
-  dark_pink_alt1_ListItem: () => dark_pink_alt1_ListItem,
-  dark_pink_alt1_ModalOverlay: () => dark_pink_alt1_ModalOverlay,
-  dark_pink_alt1_Progress: () => dark_pink_alt1_Progress,
-  dark_pink_alt1_ProgressIndicator: () => dark_pink_alt1_ProgressIndicator,
-  dark_pink_alt1_RadioGroupItem: () => dark_pink_alt1_RadioGroupItem,
-  dark_pink_alt1_SheetOverlay: () => dark_pink_alt1_SheetOverlay,
-  dark_pink_alt1_SliderThumb: () => dark_pink_alt1_SliderThumb,
-  dark_pink_alt1_SliderTrack: () => dark_pink_alt1_SliderTrack,
-  dark_pink_alt1_SliderTrackActive: () => dark_pink_alt1_SliderTrackActive,
-  dark_pink_alt1_Switch: () => dark_pink_alt1_Switch,
-  dark_pink_alt1_SwitchThumb: () => dark_pink_alt1_SwitchThumb,
-  dark_pink_alt1_TextArea: () => dark_pink_alt1_TextArea,
-  dark_pink_alt1_Tooltip: () => dark_pink_alt1_Tooltip,
-  dark_pink_alt1_TooltipArrow: () => dark_pink_alt1_TooltipArrow,
-  dark_pink_alt1_TooltipContent: () => dark_pink_alt1_TooltipContent,
-  dark_pink_alt2: () => dark_pink_alt2,
-  dark_pink_alt2_Button: () => dark_pink_alt2_Button,
-  dark_pink_alt2_Card: () => dark_pink_alt2_Card,
-  dark_pink_alt2_Checkbox: () => dark_pink_alt2_Checkbox,
-  dark_pink_alt2_DialogOverlay: () => dark_pink_alt2_DialogOverlay,
-  dark_pink_alt2_DrawerFrame: () => dark_pink_alt2_DrawerFrame,
-  dark_pink_alt2_Input: () => dark_pink_alt2_Input,
-  dark_pink_alt2_ListItem: () => dark_pink_alt2_ListItem,
-  dark_pink_alt2_ModalOverlay: () => dark_pink_alt2_ModalOverlay,
-  dark_pink_alt2_Progress: () => dark_pink_alt2_Progress,
-  dark_pink_alt2_ProgressIndicator: () => dark_pink_alt2_ProgressIndicator,
-  dark_pink_alt2_RadioGroupItem: () => dark_pink_alt2_RadioGroupItem,
-  dark_pink_alt2_SheetOverlay: () => dark_pink_alt2_SheetOverlay,
-  dark_pink_alt2_SliderThumb: () => dark_pink_alt2_SliderThumb,
-  dark_pink_alt2_SliderTrack: () => dark_pink_alt2_SliderTrack,
-  dark_pink_alt2_SliderTrackActive: () => dark_pink_alt2_SliderTrackActive,
-  dark_pink_alt2_Switch: () => dark_pink_alt2_Switch,
-  dark_pink_alt2_SwitchThumb: () => dark_pink_alt2_SwitchThumb,
-  dark_pink_alt2_TextArea: () => dark_pink_alt2_TextArea,
-  dark_pink_alt2_Tooltip: () => dark_pink_alt2_Tooltip,
-  dark_pink_alt2_TooltipArrow: () => dark_pink_alt2_TooltipArrow,
-  dark_pink_alt2_TooltipContent: () => dark_pink_alt2_TooltipContent,
-  dark_purple: () => dark_purple,
-  dark_purple_Button: () => dark_purple_Button,
-  dark_purple_Card: () => dark_purple_Card,
-  dark_purple_Checkbox: () => dark_purple_Checkbox,
-  dark_purple_DialogOverlay: () => dark_purple_DialogOverlay,
-  dark_purple_DrawerFrame: () => dark_purple_DrawerFrame,
-  dark_purple_Input: () => dark_purple_Input,
-  dark_purple_ListItem: () => dark_purple_ListItem,
-  dark_purple_ModalOverlay: () => dark_purple_ModalOverlay,
-  dark_purple_Progress: () => dark_purple_Progress,
-  dark_purple_ProgressIndicator: () => dark_purple_ProgressIndicator,
-  dark_purple_RadioGroupItem: () => dark_purple_RadioGroupItem,
-  dark_purple_SheetOverlay: () => dark_purple_SheetOverlay,
-  dark_purple_SliderThumb: () => dark_purple_SliderThumb,
-  dark_purple_SliderTrack: () => dark_purple_SliderTrack,
-  dark_purple_SliderTrackActive: () => dark_purple_SliderTrackActive,
-  dark_purple_Switch: () => dark_purple_Switch,
-  dark_purple_SwitchThumb: () => dark_purple_SwitchThumb,
-  dark_purple_TextArea: () => dark_purple_TextArea,
-  dark_purple_Tooltip: () => dark_purple_Tooltip,
-  dark_purple_TooltipArrow: () => dark_purple_TooltipArrow,
-  dark_purple_TooltipContent: () => dark_purple_TooltipContent,
-  dark_purple_active: () => dark_purple_active,
-  dark_purple_active_Button: () => dark_purple_active_Button,
-  dark_purple_active_Card: () => dark_purple_active_Card,
-  dark_purple_active_Checkbox: () => dark_purple_active_Checkbox,
-  dark_purple_active_DialogOverlay: () => dark_purple_active_DialogOverlay,
-  dark_purple_active_DrawerFrame: () => dark_purple_active_DrawerFrame,
-  dark_purple_active_Input: () => dark_purple_active_Input,
-  dark_purple_active_ListItem: () => dark_purple_active_ListItem,
-  dark_purple_active_ModalOverlay: () => dark_purple_active_ModalOverlay,
-  dark_purple_active_Progress: () => dark_purple_active_Progress,
-  dark_purple_active_ProgressIndicator: () => dark_purple_active_ProgressIndicator,
-  dark_purple_active_RadioGroupItem: () => dark_purple_active_RadioGroupItem,
-  dark_purple_active_SheetOverlay: () => dark_purple_active_SheetOverlay,
-  dark_purple_active_SliderThumb: () => dark_purple_active_SliderThumb,
-  dark_purple_active_SliderTrack: () => dark_purple_active_SliderTrack,
-  dark_purple_active_SliderTrackActive: () => dark_purple_active_SliderTrackActive,
-  dark_purple_active_Switch: () => dark_purple_active_Switch,
-  dark_purple_active_SwitchThumb: () => dark_purple_active_SwitchThumb,
-  dark_purple_active_TextArea: () => dark_purple_active_TextArea,
-  dark_purple_active_Tooltip: () => dark_purple_active_Tooltip,
-  dark_purple_active_TooltipArrow: () => dark_purple_active_TooltipArrow,
-  dark_purple_active_TooltipContent: () => dark_purple_active_TooltipContent,
-  dark_purple_alt1: () => dark_purple_alt1,
-  dark_purple_alt1_Button: () => dark_purple_alt1_Button,
-  dark_purple_alt1_Card: () => dark_purple_alt1_Card,
-  dark_purple_alt1_Checkbox: () => dark_purple_alt1_Checkbox,
-  dark_purple_alt1_DialogOverlay: () => dark_purple_alt1_DialogOverlay,
-  dark_purple_alt1_DrawerFrame: () => dark_purple_alt1_DrawerFrame,
-  dark_purple_alt1_Input: () => dark_purple_alt1_Input,
-  dark_purple_alt1_ListItem: () => dark_purple_alt1_ListItem,
-  dark_purple_alt1_ModalOverlay: () => dark_purple_alt1_ModalOverlay,
-  dark_purple_alt1_Progress: () => dark_purple_alt1_Progress,
-  dark_purple_alt1_ProgressIndicator: () => dark_purple_alt1_ProgressIndicator,
-  dark_purple_alt1_RadioGroupItem: () => dark_purple_alt1_RadioGroupItem,
-  dark_purple_alt1_SheetOverlay: () => dark_purple_alt1_SheetOverlay,
-  dark_purple_alt1_SliderThumb: () => dark_purple_alt1_SliderThumb,
-  dark_purple_alt1_SliderTrack: () => dark_purple_alt1_SliderTrack,
-  dark_purple_alt1_SliderTrackActive: () => dark_purple_alt1_SliderTrackActive,
-  dark_purple_alt1_Switch: () => dark_purple_alt1_Switch,
-  dark_purple_alt1_SwitchThumb: () => dark_purple_alt1_SwitchThumb,
-  dark_purple_alt1_TextArea: () => dark_purple_alt1_TextArea,
-  dark_purple_alt1_Tooltip: () => dark_purple_alt1_Tooltip,
-  dark_purple_alt1_TooltipArrow: () => dark_purple_alt1_TooltipArrow,
-  dark_purple_alt1_TooltipContent: () => dark_purple_alt1_TooltipContent,
-  dark_purple_alt2: () => dark_purple_alt2,
-  dark_purple_alt2_Button: () => dark_purple_alt2_Button,
-  dark_purple_alt2_Card: () => dark_purple_alt2_Card,
-  dark_purple_alt2_Checkbox: () => dark_purple_alt2_Checkbox,
-  dark_purple_alt2_DialogOverlay: () => dark_purple_alt2_DialogOverlay,
-  dark_purple_alt2_DrawerFrame: () => dark_purple_alt2_DrawerFrame,
-  dark_purple_alt2_Input: () => dark_purple_alt2_Input,
-  dark_purple_alt2_ListItem: () => dark_purple_alt2_ListItem,
-  dark_purple_alt2_ModalOverlay: () => dark_purple_alt2_ModalOverlay,
-  dark_purple_alt2_Progress: () => dark_purple_alt2_Progress,
-  dark_purple_alt2_ProgressIndicator: () => dark_purple_alt2_ProgressIndicator,
-  dark_purple_alt2_RadioGroupItem: () => dark_purple_alt2_RadioGroupItem,
-  dark_purple_alt2_SheetOverlay: () => dark_purple_alt2_SheetOverlay,
-  dark_purple_alt2_SliderThumb: () => dark_purple_alt2_SliderThumb,
-  dark_purple_alt2_SliderTrack: () => dark_purple_alt2_SliderTrack,
-  dark_purple_alt2_SliderTrackActive: () => dark_purple_alt2_SliderTrackActive,
-  dark_purple_alt2_Switch: () => dark_purple_alt2_Switch,
-  dark_purple_alt2_SwitchThumb: () => dark_purple_alt2_SwitchThumb,
-  dark_purple_alt2_TextArea: () => dark_purple_alt2_TextArea,
-  dark_purple_alt2_Tooltip: () => dark_purple_alt2_Tooltip,
-  dark_purple_alt2_TooltipArrow: () => dark_purple_alt2_TooltipArrow,
-  dark_purple_alt2_TooltipContent: () => dark_purple_alt2_TooltipContent,
-  dark_red: () => dark_red,
-  dark_red_Button: () => dark_red_Button,
-  dark_red_Card: () => dark_red_Card,
-  dark_red_Checkbox: () => dark_red_Checkbox,
-  dark_red_DialogOverlay: () => dark_red_DialogOverlay,
-  dark_red_DrawerFrame: () => dark_red_DrawerFrame,
-  dark_red_Input: () => dark_red_Input,
-  dark_red_ListItem: () => dark_red_ListItem,
-  dark_red_ModalOverlay: () => dark_red_ModalOverlay,
-  dark_red_Progress: () => dark_red_Progress,
-  dark_red_ProgressIndicator: () => dark_red_ProgressIndicator,
-  dark_red_RadioGroupItem: () => dark_red_RadioGroupItem,
-  dark_red_SheetOverlay: () => dark_red_SheetOverlay,
-  dark_red_SliderThumb: () => dark_red_SliderThumb,
-  dark_red_SliderTrack: () => dark_red_SliderTrack,
-  dark_red_SliderTrackActive: () => dark_red_SliderTrackActive,
-  dark_red_Switch: () => dark_red_Switch,
-  dark_red_SwitchThumb: () => dark_red_SwitchThumb,
-  dark_red_TextArea: () => dark_red_TextArea,
-  dark_red_Tooltip: () => dark_red_Tooltip,
-  dark_red_TooltipArrow: () => dark_red_TooltipArrow,
-  dark_red_TooltipContent: () => dark_red_TooltipContent,
-  dark_red_active: () => dark_red_active,
-  dark_red_active_Button: () => dark_red_active_Button,
-  dark_red_active_Card: () => dark_red_active_Card,
-  dark_red_active_Checkbox: () => dark_red_active_Checkbox,
-  dark_red_active_DialogOverlay: () => dark_red_active_DialogOverlay,
-  dark_red_active_DrawerFrame: () => dark_red_active_DrawerFrame,
-  dark_red_active_Input: () => dark_red_active_Input,
-  dark_red_active_ListItem: () => dark_red_active_ListItem,
-  dark_red_active_ModalOverlay: () => dark_red_active_ModalOverlay,
-  dark_red_active_Progress: () => dark_red_active_Progress,
-  dark_red_active_ProgressIndicator: () => dark_red_active_ProgressIndicator,
-  dark_red_active_RadioGroupItem: () => dark_red_active_RadioGroupItem,
-  dark_red_active_SheetOverlay: () => dark_red_active_SheetOverlay,
-  dark_red_active_SliderThumb: () => dark_red_active_SliderThumb,
-  dark_red_active_SliderTrack: () => dark_red_active_SliderTrack,
-  dark_red_active_SliderTrackActive: () => dark_red_active_SliderTrackActive,
-  dark_red_active_Switch: () => dark_red_active_Switch,
-  dark_red_active_SwitchThumb: () => dark_red_active_SwitchThumb,
-  dark_red_active_TextArea: () => dark_red_active_TextArea,
-  dark_red_active_Tooltip: () => dark_red_active_Tooltip,
-  dark_red_active_TooltipArrow: () => dark_red_active_TooltipArrow,
-  dark_red_active_TooltipContent: () => dark_red_active_TooltipContent,
-  dark_red_alt1: () => dark_red_alt1,
-  dark_red_alt1_Button: () => dark_red_alt1_Button,
-  dark_red_alt1_Card: () => dark_red_alt1_Card,
-  dark_red_alt1_Checkbox: () => dark_red_alt1_Checkbox,
-  dark_red_alt1_DialogOverlay: () => dark_red_alt1_DialogOverlay,
-  dark_red_alt1_DrawerFrame: () => dark_red_alt1_DrawerFrame,
-  dark_red_alt1_Input: () => dark_red_alt1_Input,
-  dark_red_alt1_ListItem: () => dark_red_alt1_ListItem,
-  dark_red_alt1_ModalOverlay: () => dark_red_alt1_ModalOverlay,
-  dark_red_alt1_Progress: () => dark_red_alt1_Progress,
-  dark_red_alt1_ProgressIndicator: () => dark_red_alt1_ProgressIndicator,
-  dark_red_alt1_RadioGroupItem: () => dark_red_alt1_RadioGroupItem,
-  dark_red_alt1_SheetOverlay: () => dark_red_alt1_SheetOverlay,
-  dark_red_alt1_SliderThumb: () => dark_red_alt1_SliderThumb,
-  dark_red_alt1_SliderTrack: () => dark_red_alt1_SliderTrack,
-  dark_red_alt1_SliderTrackActive: () => dark_red_alt1_SliderTrackActive,
-  dark_red_alt1_Switch: () => dark_red_alt1_Switch,
-  dark_red_alt1_SwitchThumb: () => dark_red_alt1_SwitchThumb,
-  dark_red_alt1_TextArea: () => dark_red_alt1_TextArea,
-  dark_red_alt1_Tooltip: () => dark_red_alt1_Tooltip,
-  dark_red_alt1_TooltipArrow: () => dark_red_alt1_TooltipArrow,
-  dark_red_alt1_TooltipContent: () => dark_red_alt1_TooltipContent,
-  dark_red_alt2: () => dark_red_alt2,
-  dark_red_alt2_Button: () => dark_red_alt2_Button,
-  dark_red_alt2_Card: () => dark_red_alt2_Card,
-  dark_red_alt2_Checkbox: () => dark_red_alt2_Checkbox,
-  dark_red_alt2_DialogOverlay: () => dark_red_alt2_DialogOverlay,
-  dark_red_alt2_DrawerFrame: () => dark_red_alt2_DrawerFrame,
-  dark_red_alt2_Input: () => dark_red_alt2_Input,
-  dark_red_alt2_ListItem: () => dark_red_alt2_ListItem,
-  dark_red_alt2_ModalOverlay: () => dark_red_alt2_ModalOverlay,
-  dark_red_alt2_Progress: () => dark_red_alt2_Progress,
-  dark_red_alt2_ProgressIndicator: () => dark_red_alt2_ProgressIndicator,
-  dark_red_alt2_RadioGroupItem: () => dark_red_alt2_RadioGroupItem,
-  dark_red_alt2_SheetOverlay: () => dark_red_alt2_SheetOverlay,
-  dark_red_alt2_SliderThumb: () => dark_red_alt2_SliderThumb,
-  dark_red_alt2_SliderTrack: () => dark_red_alt2_SliderTrack,
-  dark_red_alt2_SliderTrackActive: () => dark_red_alt2_SliderTrackActive,
-  dark_red_alt2_Switch: () => dark_red_alt2_Switch,
-  dark_red_alt2_SwitchThumb: () => dark_red_alt2_SwitchThumb,
-  dark_red_alt2_TextArea: () => dark_red_alt2_TextArea,
-  dark_red_alt2_Tooltip: () => dark_red_alt2_Tooltip,
-  dark_red_alt2_TooltipArrow: () => dark_red_alt2_TooltipArrow,
-  dark_red_alt2_TooltipContent: () => dark_red_alt2_TooltipContent,
-  dark_yellow: () => dark_yellow,
-  dark_yellow_Button: () => dark_yellow_Button,
-  dark_yellow_Card: () => dark_yellow_Card,
-  dark_yellow_Checkbox: () => dark_yellow_Checkbox,
-  dark_yellow_DialogOverlay: () => dark_yellow_DialogOverlay,
-  dark_yellow_DrawerFrame: () => dark_yellow_DrawerFrame,
-  dark_yellow_Input: () => dark_yellow_Input,
-  dark_yellow_ListItem: () => dark_yellow_ListItem,
-  dark_yellow_ModalOverlay: () => dark_yellow_ModalOverlay,
-  dark_yellow_Progress: () => dark_yellow_Progress,
-  dark_yellow_ProgressIndicator: () => dark_yellow_ProgressIndicator,
-  dark_yellow_RadioGroupItem: () => dark_yellow_RadioGroupItem,
-  dark_yellow_SheetOverlay: () => dark_yellow_SheetOverlay,
-  dark_yellow_SliderThumb: () => dark_yellow_SliderThumb,
-  dark_yellow_SliderTrack: () => dark_yellow_SliderTrack,
-  dark_yellow_SliderTrackActive: () => dark_yellow_SliderTrackActive,
-  dark_yellow_Switch: () => dark_yellow_Switch,
-  dark_yellow_SwitchThumb: () => dark_yellow_SwitchThumb,
-  dark_yellow_TextArea: () => dark_yellow_TextArea,
-  dark_yellow_Tooltip: () => dark_yellow_Tooltip,
-  dark_yellow_TooltipArrow: () => dark_yellow_TooltipArrow,
-  dark_yellow_TooltipContent: () => dark_yellow_TooltipContent,
-  dark_yellow_active: () => dark_yellow_active,
-  dark_yellow_active_Button: () => dark_yellow_active_Button,
-  dark_yellow_active_Card: () => dark_yellow_active_Card,
-  dark_yellow_active_Checkbox: () => dark_yellow_active_Checkbox,
-  dark_yellow_active_DialogOverlay: () => dark_yellow_active_DialogOverlay,
-  dark_yellow_active_DrawerFrame: () => dark_yellow_active_DrawerFrame,
-  dark_yellow_active_Input: () => dark_yellow_active_Input,
-  dark_yellow_active_ListItem: () => dark_yellow_active_ListItem,
-  dark_yellow_active_ModalOverlay: () => dark_yellow_active_ModalOverlay,
-  dark_yellow_active_Progress: () => dark_yellow_active_Progress,
-  dark_yellow_active_ProgressIndicator: () => dark_yellow_active_ProgressIndicator,
-  dark_yellow_active_RadioGroupItem: () => dark_yellow_active_RadioGroupItem,
-  dark_yellow_active_SheetOverlay: () => dark_yellow_active_SheetOverlay,
-  dark_yellow_active_SliderThumb: () => dark_yellow_active_SliderThumb,
-  dark_yellow_active_SliderTrack: () => dark_yellow_active_SliderTrack,
-  dark_yellow_active_SliderTrackActive: () => dark_yellow_active_SliderTrackActive,
-  dark_yellow_active_Switch: () => dark_yellow_active_Switch,
-  dark_yellow_active_SwitchThumb: () => dark_yellow_active_SwitchThumb,
-  dark_yellow_active_TextArea: () => dark_yellow_active_TextArea,
-  dark_yellow_active_Tooltip: () => dark_yellow_active_Tooltip,
-  dark_yellow_active_TooltipArrow: () => dark_yellow_active_TooltipArrow,
-  dark_yellow_active_TooltipContent: () => dark_yellow_active_TooltipContent,
-  dark_yellow_alt1: () => dark_yellow_alt1,
-  dark_yellow_alt1_Button: () => dark_yellow_alt1_Button,
-  dark_yellow_alt1_Card: () => dark_yellow_alt1_Card,
-  dark_yellow_alt1_Checkbox: () => dark_yellow_alt1_Checkbox,
-  dark_yellow_alt1_DialogOverlay: () => dark_yellow_alt1_DialogOverlay,
-  dark_yellow_alt1_DrawerFrame: () => dark_yellow_alt1_DrawerFrame,
-  dark_yellow_alt1_Input: () => dark_yellow_alt1_Input,
-  dark_yellow_alt1_ListItem: () => dark_yellow_alt1_ListItem,
-  dark_yellow_alt1_ModalOverlay: () => dark_yellow_alt1_ModalOverlay,
-  dark_yellow_alt1_Progress: () => dark_yellow_alt1_Progress,
-  dark_yellow_alt1_ProgressIndicator: () => dark_yellow_alt1_ProgressIndicator,
-  dark_yellow_alt1_RadioGroupItem: () => dark_yellow_alt1_RadioGroupItem,
-  dark_yellow_alt1_SheetOverlay: () => dark_yellow_alt1_SheetOverlay,
-  dark_yellow_alt1_SliderThumb: () => dark_yellow_alt1_SliderThumb,
-  dark_yellow_alt1_SliderTrack: () => dark_yellow_alt1_SliderTrack,
-  dark_yellow_alt1_SliderTrackActive: () => dark_yellow_alt1_SliderTrackActive,
-  dark_yellow_alt1_Switch: () => dark_yellow_alt1_Switch,
-  dark_yellow_alt1_SwitchThumb: () => dark_yellow_alt1_SwitchThumb,
-  dark_yellow_alt1_TextArea: () => dark_yellow_alt1_TextArea,
-  dark_yellow_alt1_Tooltip: () => dark_yellow_alt1_Tooltip,
-  dark_yellow_alt1_TooltipArrow: () => dark_yellow_alt1_TooltipArrow,
-  dark_yellow_alt1_TooltipContent: () => dark_yellow_alt1_TooltipContent,
-  dark_yellow_alt2: () => dark_yellow_alt2,
-  dark_yellow_alt2_Button: () => dark_yellow_alt2_Button,
-  dark_yellow_alt2_Card: () => dark_yellow_alt2_Card,
-  dark_yellow_alt2_Checkbox: () => dark_yellow_alt2_Checkbox,
-  dark_yellow_alt2_DialogOverlay: () => dark_yellow_alt2_DialogOverlay,
-  dark_yellow_alt2_DrawerFrame: () => dark_yellow_alt2_DrawerFrame,
-  dark_yellow_alt2_Input: () => dark_yellow_alt2_Input,
-  dark_yellow_alt2_ListItem: () => dark_yellow_alt2_ListItem,
-  dark_yellow_alt2_ModalOverlay: () => dark_yellow_alt2_ModalOverlay,
-  dark_yellow_alt2_Progress: () => dark_yellow_alt2_Progress,
-  dark_yellow_alt2_ProgressIndicator: () => dark_yellow_alt2_ProgressIndicator,
-  dark_yellow_alt2_RadioGroupItem: () => dark_yellow_alt2_RadioGroupItem,
-  dark_yellow_alt2_SheetOverlay: () => dark_yellow_alt2_SheetOverlay,
-  dark_yellow_alt2_SliderThumb: () => dark_yellow_alt2_SliderThumb,
-  dark_yellow_alt2_SliderTrack: () => dark_yellow_alt2_SliderTrack,
-  dark_yellow_alt2_SliderTrackActive: () => dark_yellow_alt2_SliderTrackActive,
-  dark_yellow_alt2_Switch: () => dark_yellow_alt2_Switch,
-  dark_yellow_alt2_SwitchThumb: () => dark_yellow_alt2_SwitchThumb,
-  dark_yellow_alt2_TextArea: () => dark_yellow_alt2_TextArea,
-  dark_yellow_alt2_Tooltip: () => dark_yellow_alt2_Tooltip,
-  dark_yellow_alt2_TooltipArrow: () => dark_yellow_alt2_TooltipArrow,
-  dark_yellow_alt2_TooltipContent: () => dark_yellow_alt2_TooltipContent,
-  light: () => light,
-  light_Button: () => light_Button,
-  light_Card: () => light_Card,
-  light_Checkbox: () => light_Checkbox,
-  light_DialogOverlay: () => light_DialogOverlay,
-  light_DrawerFrame: () => light_DrawerFrame,
-  light_Input: () => light_Input,
-  light_ListItem: () => light_ListItem,
-  light_ModalOverlay: () => light_ModalOverlay,
-  light_Progress: () => light_Progress,
-  light_ProgressIndicator: () => light_ProgressIndicator,
-  light_RadioGroupItem: () => light_RadioGroupItem,
-  light_SheetOverlay: () => light_SheetOverlay,
-  light_SliderThumb: () => light_SliderThumb,
-  light_SliderTrack: () => light_SliderTrack,
-  light_SliderTrackActive: () => light_SliderTrackActive,
-  light_Switch: () => light_Switch,
-  light_SwitchThumb: () => light_SwitchThumb,
-  light_TextArea: () => light_TextArea,
-  light_Tooltip: () => light_Tooltip,
-  light_TooltipArrow: () => light_TooltipArrow,
-  light_TooltipContent: () => light_TooltipContent,
-  light_active: () => light_active,
-  light_active_Button: () => light_active_Button,
-  light_active_Card: () => light_active_Card,
-  light_active_Checkbox: () => light_active_Checkbox,
-  light_active_DialogOverlay: () => light_active_DialogOverlay,
-  light_active_DrawerFrame: () => light_active_DrawerFrame,
-  light_active_Input: () => light_active_Input,
-  light_active_ListItem: () => light_active_ListItem,
-  light_active_ModalOverlay: () => light_active_ModalOverlay,
-  light_active_Progress: () => light_active_Progress,
-  light_active_ProgressIndicator: () => light_active_ProgressIndicator,
-  light_active_RadioGroupItem: () => light_active_RadioGroupItem,
-  light_active_SheetOverlay: () => light_active_SheetOverlay,
-  light_active_SliderThumb: () => light_active_SliderThumb,
-  light_active_SliderTrack: () => light_active_SliderTrack,
-  light_active_SliderTrackActive: () => light_active_SliderTrackActive,
-  light_active_Switch: () => light_active_Switch,
-  light_active_SwitchThumb: () => light_active_SwitchThumb,
-  light_active_TextArea: () => light_active_TextArea,
-  light_active_Tooltip: () => light_active_Tooltip,
-  light_active_TooltipArrow: () => light_active_TooltipArrow,
-  light_active_TooltipContent: () => light_active_TooltipContent,
-  light_alt1: () => light_alt1,
-  light_alt1_Button: () => light_alt1_Button,
-  light_alt1_Card: () => light_alt1_Card,
-  light_alt1_Checkbox: () => light_alt1_Checkbox,
-  light_alt1_DialogOverlay: () => light_alt1_DialogOverlay,
-  light_alt1_DrawerFrame: () => light_alt1_DrawerFrame,
-  light_alt1_Input: () => light_alt1_Input,
-  light_alt1_ListItem: () => light_alt1_ListItem,
-  light_alt1_ModalOverlay: () => light_alt1_ModalOverlay,
-  light_alt1_Progress: () => light_alt1_Progress,
-  light_alt1_ProgressIndicator: () => light_alt1_ProgressIndicator,
-  light_alt1_RadioGroupItem: () => light_alt1_RadioGroupItem,
-  light_alt1_SheetOverlay: () => light_alt1_SheetOverlay,
-  light_alt1_SliderThumb: () => light_alt1_SliderThumb,
-  light_alt1_SliderTrack: () => light_alt1_SliderTrack,
-  light_alt1_SliderTrackActive: () => light_alt1_SliderTrackActive,
-  light_alt1_Switch: () => light_alt1_Switch,
-  light_alt1_SwitchThumb: () => light_alt1_SwitchThumb,
-  light_alt1_TextArea: () => light_alt1_TextArea,
-  light_alt1_Tooltip: () => light_alt1_Tooltip,
-  light_alt1_TooltipArrow: () => light_alt1_TooltipArrow,
-  light_alt1_TooltipContent: () => light_alt1_TooltipContent,
-  light_alt2: () => light_alt2,
-  light_alt2_Button: () => light_alt2_Button,
-  light_alt2_Card: () => light_alt2_Card,
-  light_alt2_Checkbox: () => light_alt2_Checkbox,
-  light_alt2_DialogOverlay: () => light_alt2_DialogOverlay,
-  light_alt2_DrawerFrame: () => light_alt2_DrawerFrame,
-  light_alt2_Input: () => light_alt2_Input,
-  light_alt2_ListItem: () => light_alt2_ListItem,
-  light_alt2_ModalOverlay: () => light_alt2_ModalOverlay,
-  light_alt2_Progress: () => light_alt2_Progress,
-  light_alt2_ProgressIndicator: () => light_alt2_ProgressIndicator,
-  light_alt2_RadioGroupItem: () => light_alt2_RadioGroupItem,
-  light_alt2_SheetOverlay: () => light_alt2_SheetOverlay,
-  light_alt2_SliderThumb: () => light_alt2_SliderThumb,
-  light_alt2_SliderTrack: () => light_alt2_SliderTrack,
-  light_alt2_SliderTrackActive: () => light_alt2_SliderTrackActive,
-  light_alt2_Switch: () => light_alt2_Switch,
-  light_alt2_SwitchThumb: () => light_alt2_SwitchThumb,
-  light_alt2_TextArea: () => light_alt2_TextArea,
-  light_alt2_Tooltip: () => light_alt2_Tooltip,
-  light_alt2_TooltipArrow: () => light_alt2_TooltipArrow,
-  light_alt2_TooltipContent: () => light_alt2_TooltipContent,
-  light_blue: () => light_blue,
-  light_blue_Button: () => light_blue_Button,
-  light_blue_Card: () => light_blue_Card,
-  light_blue_Checkbox: () => light_blue_Checkbox,
-  light_blue_DialogOverlay: () => light_blue_DialogOverlay,
-  light_blue_DrawerFrame: () => light_blue_DrawerFrame,
-  light_blue_Input: () => light_blue_Input,
-  light_blue_ListItem: () => light_blue_ListItem,
-  light_blue_ModalOverlay: () => light_blue_ModalOverlay,
-  light_blue_Progress: () => light_blue_Progress,
-  light_blue_ProgressIndicator: () => light_blue_ProgressIndicator,
-  light_blue_RadioGroupItem: () => light_blue_RadioGroupItem,
-  light_blue_SheetOverlay: () => light_blue_SheetOverlay,
-  light_blue_SliderThumb: () => light_blue_SliderThumb,
-  light_blue_SliderTrack: () => light_blue_SliderTrack,
-  light_blue_SliderTrackActive: () => light_blue_SliderTrackActive,
-  light_blue_Switch: () => light_blue_Switch,
-  light_blue_SwitchThumb: () => light_blue_SwitchThumb,
-  light_blue_TextArea: () => light_blue_TextArea,
-  light_blue_Tooltip: () => light_blue_Tooltip,
-  light_blue_TooltipArrow: () => light_blue_TooltipArrow,
-  light_blue_TooltipContent: () => light_blue_TooltipContent,
-  light_blue_active: () => light_blue_active,
-  light_blue_active_Button: () => light_blue_active_Button,
-  light_blue_active_Card: () => light_blue_active_Card,
-  light_blue_active_Checkbox: () => light_blue_active_Checkbox,
-  light_blue_active_DialogOverlay: () => light_blue_active_DialogOverlay,
-  light_blue_active_DrawerFrame: () => light_blue_active_DrawerFrame,
-  light_blue_active_Input: () => light_blue_active_Input,
-  light_blue_active_ListItem: () => light_blue_active_ListItem,
-  light_blue_active_ModalOverlay: () => light_blue_active_ModalOverlay,
-  light_blue_active_Progress: () => light_blue_active_Progress,
-  light_blue_active_ProgressIndicator: () => light_blue_active_ProgressIndicator,
-  light_blue_active_RadioGroupItem: () => light_blue_active_RadioGroupItem,
-  light_blue_active_SheetOverlay: () => light_blue_active_SheetOverlay,
-  light_blue_active_SliderThumb: () => light_blue_active_SliderThumb,
-  light_blue_active_SliderTrack: () => light_blue_active_SliderTrack,
-  light_blue_active_SliderTrackActive: () => light_blue_active_SliderTrackActive,
-  light_blue_active_Switch: () => light_blue_active_Switch,
-  light_blue_active_SwitchThumb: () => light_blue_active_SwitchThumb,
-  light_blue_active_TextArea: () => light_blue_active_TextArea,
-  light_blue_active_Tooltip: () => light_blue_active_Tooltip,
-  light_blue_active_TooltipArrow: () => light_blue_active_TooltipArrow,
-  light_blue_active_TooltipContent: () => light_blue_active_TooltipContent,
-  light_blue_alt1: () => light_blue_alt1,
-  light_blue_alt1_Button: () => light_blue_alt1_Button,
-  light_blue_alt1_Card: () => light_blue_alt1_Card,
-  light_blue_alt1_Checkbox: () => light_blue_alt1_Checkbox,
-  light_blue_alt1_DialogOverlay: () => light_blue_alt1_DialogOverlay,
-  light_blue_alt1_DrawerFrame: () => light_blue_alt1_DrawerFrame,
-  light_blue_alt1_Input: () => light_blue_alt1_Input,
-  light_blue_alt1_ListItem: () => light_blue_alt1_ListItem,
-  light_blue_alt1_ModalOverlay: () => light_blue_alt1_ModalOverlay,
-  light_blue_alt1_Progress: () => light_blue_alt1_Progress,
-  light_blue_alt1_ProgressIndicator: () => light_blue_alt1_ProgressIndicator,
-  light_blue_alt1_RadioGroupItem: () => light_blue_alt1_RadioGroupItem,
-  light_blue_alt1_SheetOverlay: () => light_blue_alt1_SheetOverlay,
-  light_blue_alt1_SliderThumb: () => light_blue_alt1_SliderThumb,
-  light_blue_alt1_SliderTrack: () => light_blue_alt1_SliderTrack,
-  light_blue_alt1_SliderTrackActive: () => light_blue_alt1_SliderTrackActive,
-  light_blue_alt1_Switch: () => light_blue_alt1_Switch,
-  light_blue_alt1_SwitchThumb: () => light_blue_alt1_SwitchThumb,
-  light_blue_alt1_TextArea: () => light_blue_alt1_TextArea,
-  light_blue_alt1_Tooltip: () => light_blue_alt1_Tooltip,
-  light_blue_alt1_TooltipArrow: () => light_blue_alt1_TooltipArrow,
-  light_blue_alt1_TooltipContent: () => light_blue_alt1_TooltipContent,
-  light_blue_alt2: () => light_blue_alt2,
-  light_blue_alt2_Button: () => light_blue_alt2_Button,
-  light_blue_alt2_Card: () => light_blue_alt2_Card,
-  light_blue_alt2_Checkbox: () => light_blue_alt2_Checkbox,
-  light_blue_alt2_DialogOverlay: () => light_blue_alt2_DialogOverlay,
-  light_blue_alt2_DrawerFrame: () => light_blue_alt2_DrawerFrame,
-  light_blue_alt2_Input: () => light_blue_alt2_Input,
-  light_blue_alt2_ListItem: () => light_blue_alt2_ListItem,
-  light_blue_alt2_ModalOverlay: () => light_blue_alt2_ModalOverlay,
-  light_blue_alt2_Progress: () => light_blue_alt2_Progress,
-  light_blue_alt2_ProgressIndicator: () => light_blue_alt2_ProgressIndicator,
-  light_blue_alt2_RadioGroupItem: () => light_blue_alt2_RadioGroupItem,
-  light_blue_alt2_SheetOverlay: () => light_blue_alt2_SheetOverlay,
-  light_blue_alt2_SliderThumb: () => light_blue_alt2_SliderThumb,
-  light_blue_alt2_SliderTrack: () => light_blue_alt2_SliderTrack,
-  light_blue_alt2_SliderTrackActive: () => light_blue_alt2_SliderTrackActive,
-  light_blue_alt2_Switch: () => light_blue_alt2_Switch,
-  light_blue_alt2_SwitchThumb: () => light_blue_alt2_SwitchThumb,
-  light_blue_alt2_TextArea: () => light_blue_alt2_TextArea,
-  light_blue_alt2_Tooltip: () => light_blue_alt2_Tooltip,
-  light_blue_alt2_TooltipArrow: () => light_blue_alt2_TooltipArrow,
-  light_blue_alt2_TooltipContent: () => light_blue_alt2_TooltipContent,
-  light_green: () => light_green,
-  light_green_Button: () => light_green_Button,
-  light_green_Card: () => light_green_Card,
-  light_green_Checkbox: () => light_green_Checkbox,
-  light_green_DialogOverlay: () => light_green_DialogOverlay,
-  light_green_DrawerFrame: () => light_green_DrawerFrame,
-  light_green_Input: () => light_green_Input,
-  light_green_ListItem: () => light_green_ListItem,
-  light_green_ModalOverlay: () => light_green_ModalOverlay,
-  light_green_Progress: () => light_green_Progress,
-  light_green_ProgressIndicator: () => light_green_ProgressIndicator,
-  light_green_RadioGroupItem: () => light_green_RadioGroupItem,
-  light_green_SheetOverlay: () => light_green_SheetOverlay,
-  light_green_SliderThumb: () => light_green_SliderThumb,
-  light_green_SliderTrack: () => light_green_SliderTrack,
-  light_green_SliderTrackActive: () => light_green_SliderTrackActive,
-  light_green_Switch: () => light_green_Switch,
-  light_green_SwitchThumb: () => light_green_SwitchThumb,
-  light_green_TextArea: () => light_green_TextArea,
-  light_green_Tooltip: () => light_green_Tooltip,
-  light_green_TooltipArrow: () => light_green_TooltipArrow,
-  light_green_TooltipContent: () => light_green_TooltipContent,
-  light_green_active: () => light_green_active,
-  light_green_active_Button: () => light_green_active_Button,
-  light_green_active_Card: () => light_green_active_Card,
-  light_green_active_Checkbox: () => light_green_active_Checkbox,
-  light_green_active_DialogOverlay: () => light_green_active_DialogOverlay,
-  light_green_active_DrawerFrame: () => light_green_active_DrawerFrame,
-  light_green_active_Input: () => light_green_active_Input,
-  light_green_active_ListItem: () => light_green_active_ListItem,
-  light_green_active_ModalOverlay: () => light_green_active_ModalOverlay,
-  light_green_active_Progress: () => light_green_active_Progress,
-  light_green_active_ProgressIndicator: () => light_green_active_ProgressIndicator,
-  light_green_active_RadioGroupItem: () => light_green_active_RadioGroupItem,
-  light_green_active_SheetOverlay: () => light_green_active_SheetOverlay,
-  light_green_active_SliderThumb: () => light_green_active_SliderThumb,
-  light_green_active_SliderTrack: () => light_green_active_SliderTrack,
-  light_green_active_SliderTrackActive: () => light_green_active_SliderTrackActive,
-  light_green_active_Switch: () => light_green_active_Switch,
-  light_green_active_SwitchThumb: () => light_green_active_SwitchThumb,
-  light_green_active_TextArea: () => light_green_active_TextArea,
-  light_green_active_Tooltip: () => light_green_active_Tooltip,
-  light_green_active_TooltipArrow: () => light_green_active_TooltipArrow,
-  light_green_active_TooltipContent: () => light_green_active_TooltipContent,
-  light_green_alt1: () => light_green_alt1,
-  light_green_alt1_Button: () => light_green_alt1_Button,
-  light_green_alt1_Card: () => light_green_alt1_Card,
-  light_green_alt1_Checkbox: () => light_green_alt1_Checkbox,
-  light_green_alt1_DialogOverlay: () => light_green_alt1_DialogOverlay,
-  light_green_alt1_DrawerFrame: () => light_green_alt1_DrawerFrame,
-  light_green_alt1_Input: () => light_green_alt1_Input,
-  light_green_alt1_ListItem: () => light_green_alt1_ListItem,
-  light_green_alt1_ModalOverlay: () => light_green_alt1_ModalOverlay,
-  light_green_alt1_Progress: () => light_green_alt1_Progress,
-  light_green_alt1_ProgressIndicator: () => light_green_alt1_ProgressIndicator,
-  light_green_alt1_RadioGroupItem: () => light_green_alt1_RadioGroupItem,
-  light_green_alt1_SheetOverlay: () => light_green_alt1_SheetOverlay,
-  light_green_alt1_SliderThumb: () => light_green_alt1_SliderThumb,
-  light_green_alt1_SliderTrack: () => light_green_alt1_SliderTrack,
-  light_green_alt1_SliderTrackActive: () => light_green_alt1_SliderTrackActive,
-  light_green_alt1_Switch: () => light_green_alt1_Switch,
-  light_green_alt1_SwitchThumb: () => light_green_alt1_SwitchThumb,
-  light_green_alt1_TextArea: () => light_green_alt1_TextArea,
-  light_green_alt1_Tooltip: () => light_green_alt1_Tooltip,
-  light_green_alt1_TooltipArrow: () => light_green_alt1_TooltipArrow,
-  light_green_alt1_TooltipContent: () => light_green_alt1_TooltipContent,
-  light_green_alt2: () => light_green_alt2,
-  light_green_alt2_Button: () => light_green_alt2_Button,
-  light_green_alt2_Card: () => light_green_alt2_Card,
-  light_green_alt2_Checkbox: () => light_green_alt2_Checkbox,
-  light_green_alt2_DialogOverlay: () => light_green_alt2_DialogOverlay,
-  light_green_alt2_DrawerFrame: () => light_green_alt2_DrawerFrame,
-  light_green_alt2_Input: () => light_green_alt2_Input,
-  light_green_alt2_ListItem: () => light_green_alt2_ListItem,
-  light_green_alt2_ModalOverlay: () => light_green_alt2_ModalOverlay,
-  light_green_alt2_Progress: () => light_green_alt2_Progress,
-  light_green_alt2_ProgressIndicator: () => light_green_alt2_ProgressIndicator,
-  light_green_alt2_RadioGroupItem: () => light_green_alt2_RadioGroupItem,
-  light_green_alt2_SheetOverlay: () => light_green_alt2_SheetOverlay,
-  light_green_alt2_SliderThumb: () => light_green_alt2_SliderThumb,
-  light_green_alt2_SliderTrack: () => light_green_alt2_SliderTrack,
-  light_green_alt2_SliderTrackActive: () => light_green_alt2_SliderTrackActive,
-  light_green_alt2_Switch: () => light_green_alt2_Switch,
-  light_green_alt2_SwitchThumb: () => light_green_alt2_SwitchThumb,
-  light_green_alt2_TextArea: () => light_green_alt2_TextArea,
-  light_green_alt2_Tooltip: () => light_green_alt2_Tooltip,
-  light_green_alt2_TooltipArrow: () => light_green_alt2_TooltipArrow,
-  light_green_alt2_TooltipContent: () => light_green_alt2_TooltipContent,
-  light_orange: () => light_orange,
-  light_orange_Button: () => light_orange_Button,
-  light_orange_Card: () => light_orange_Card,
-  light_orange_Checkbox: () => light_orange_Checkbox,
-  light_orange_DialogOverlay: () => light_orange_DialogOverlay,
-  light_orange_DrawerFrame: () => light_orange_DrawerFrame,
-  light_orange_Input: () => light_orange_Input,
-  light_orange_ListItem: () => light_orange_ListItem,
-  light_orange_ModalOverlay: () => light_orange_ModalOverlay,
-  light_orange_Progress: () => light_orange_Progress,
-  light_orange_ProgressIndicator: () => light_orange_ProgressIndicator,
-  light_orange_RadioGroupItem: () => light_orange_RadioGroupItem,
-  light_orange_SheetOverlay: () => light_orange_SheetOverlay,
-  light_orange_SliderThumb: () => light_orange_SliderThumb,
-  light_orange_SliderTrack: () => light_orange_SliderTrack,
-  light_orange_SliderTrackActive: () => light_orange_SliderTrackActive,
-  light_orange_Switch: () => light_orange_Switch,
-  light_orange_SwitchThumb: () => light_orange_SwitchThumb,
-  light_orange_TextArea: () => light_orange_TextArea,
-  light_orange_Tooltip: () => light_orange_Tooltip,
-  light_orange_TooltipArrow: () => light_orange_TooltipArrow,
-  light_orange_TooltipContent: () => light_orange_TooltipContent,
-  light_orange_active: () => light_orange_active,
-  light_orange_active_Button: () => light_orange_active_Button,
-  light_orange_active_Card: () => light_orange_active_Card,
-  light_orange_active_Checkbox: () => light_orange_active_Checkbox,
-  light_orange_active_DialogOverlay: () => light_orange_active_DialogOverlay,
-  light_orange_active_DrawerFrame: () => light_orange_active_DrawerFrame,
-  light_orange_active_Input: () => light_orange_active_Input,
-  light_orange_active_ListItem: () => light_orange_active_ListItem,
-  light_orange_active_ModalOverlay: () => light_orange_active_ModalOverlay,
-  light_orange_active_Progress: () => light_orange_active_Progress,
-  light_orange_active_ProgressIndicator: () => light_orange_active_ProgressIndicator,
-  light_orange_active_RadioGroupItem: () => light_orange_active_RadioGroupItem,
-  light_orange_active_SheetOverlay: () => light_orange_active_SheetOverlay,
-  light_orange_active_SliderThumb: () => light_orange_active_SliderThumb,
-  light_orange_active_SliderTrack: () => light_orange_active_SliderTrack,
-  light_orange_active_SliderTrackActive: () => light_orange_active_SliderTrackActive,
-  light_orange_active_Switch: () => light_orange_active_Switch,
-  light_orange_active_SwitchThumb: () => light_orange_active_SwitchThumb,
-  light_orange_active_TextArea: () => light_orange_active_TextArea,
-  light_orange_active_Tooltip: () => light_orange_active_Tooltip,
-  light_orange_active_TooltipArrow: () => light_orange_active_TooltipArrow,
-  light_orange_active_TooltipContent: () => light_orange_active_TooltipContent,
-  light_orange_alt1: () => light_orange_alt1,
-  light_orange_alt1_Button: () => light_orange_alt1_Button,
-  light_orange_alt1_Card: () => light_orange_alt1_Card,
-  light_orange_alt1_Checkbox: () => light_orange_alt1_Checkbox,
-  light_orange_alt1_DialogOverlay: () => light_orange_alt1_DialogOverlay,
-  light_orange_alt1_DrawerFrame: () => light_orange_alt1_DrawerFrame,
-  light_orange_alt1_Input: () => light_orange_alt1_Input,
-  light_orange_alt1_ListItem: () => light_orange_alt1_ListItem,
-  light_orange_alt1_ModalOverlay: () => light_orange_alt1_ModalOverlay,
-  light_orange_alt1_Progress: () => light_orange_alt1_Progress,
-  light_orange_alt1_ProgressIndicator: () => light_orange_alt1_ProgressIndicator,
-  light_orange_alt1_RadioGroupItem: () => light_orange_alt1_RadioGroupItem,
-  light_orange_alt1_SheetOverlay: () => light_orange_alt1_SheetOverlay,
-  light_orange_alt1_SliderThumb: () => light_orange_alt1_SliderThumb,
-  light_orange_alt1_SliderTrack: () => light_orange_alt1_SliderTrack,
-  light_orange_alt1_SliderTrackActive: () => light_orange_alt1_SliderTrackActive,
-  light_orange_alt1_Switch: () => light_orange_alt1_Switch,
-  light_orange_alt1_SwitchThumb: () => light_orange_alt1_SwitchThumb,
-  light_orange_alt1_TextArea: () => light_orange_alt1_TextArea,
-  light_orange_alt1_Tooltip: () => light_orange_alt1_Tooltip,
-  light_orange_alt1_TooltipArrow: () => light_orange_alt1_TooltipArrow,
-  light_orange_alt1_TooltipContent: () => light_orange_alt1_TooltipContent,
-  light_orange_alt2: () => light_orange_alt2,
-  light_orange_alt2_Button: () => light_orange_alt2_Button,
-  light_orange_alt2_Card: () => light_orange_alt2_Card,
-  light_orange_alt2_Checkbox: () => light_orange_alt2_Checkbox,
-  light_orange_alt2_DialogOverlay: () => light_orange_alt2_DialogOverlay,
-  light_orange_alt2_DrawerFrame: () => light_orange_alt2_DrawerFrame,
-  light_orange_alt2_Input: () => light_orange_alt2_Input,
-  light_orange_alt2_ListItem: () => light_orange_alt2_ListItem,
-  light_orange_alt2_ModalOverlay: () => light_orange_alt2_ModalOverlay,
-  light_orange_alt2_Progress: () => light_orange_alt2_Progress,
-  light_orange_alt2_ProgressIndicator: () => light_orange_alt2_ProgressIndicator,
-  light_orange_alt2_RadioGroupItem: () => light_orange_alt2_RadioGroupItem,
-  light_orange_alt2_SheetOverlay: () => light_orange_alt2_SheetOverlay,
-  light_orange_alt2_SliderThumb: () => light_orange_alt2_SliderThumb,
-  light_orange_alt2_SliderTrack: () => light_orange_alt2_SliderTrack,
-  light_orange_alt2_SliderTrackActive: () => light_orange_alt2_SliderTrackActive,
-  light_orange_alt2_Switch: () => light_orange_alt2_Switch,
-  light_orange_alt2_SwitchThumb: () => light_orange_alt2_SwitchThumb,
-  light_orange_alt2_TextArea: () => light_orange_alt2_TextArea,
-  light_orange_alt2_Tooltip: () => light_orange_alt2_Tooltip,
-  light_orange_alt2_TooltipArrow: () => light_orange_alt2_TooltipArrow,
-  light_orange_alt2_TooltipContent: () => light_orange_alt2_TooltipContent,
-  light_pink: () => light_pink,
-  light_pink_Button: () => light_pink_Button,
-  light_pink_Card: () => light_pink_Card,
-  light_pink_Checkbox: () => light_pink_Checkbox,
-  light_pink_DialogOverlay: () => light_pink_DialogOverlay,
-  light_pink_DrawerFrame: () => light_pink_DrawerFrame,
-  light_pink_Input: () => light_pink_Input,
-  light_pink_ListItem: () => light_pink_ListItem,
-  light_pink_ModalOverlay: () => light_pink_ModalOverlay,
-  light_pink_Progress: () => light_pink_Progress,
-  light_pink_ProgressIndicator: () => light_pink_ProgressIndicator,
-  light_pink_RadioGroupItem: () => light_pink_RadioGroupItem,
-  light_pink_SheetOverlay: () => light_pink_SheetOverlay,
-  light_pink_SliderThumb: () => light_pink_SliderThumb,
-  light_pink_SliderTrack: () => light_pink_SliderTrack,
-  light_pink_SliderTrackActive: () => light_pink_SliderTrackActive,
-  light_pink_Switch: () => light_pink_Switch,
-  light_pink_SwitchThumb: () => light_pink_SwitchThumb,
-  light_pink_TextArea: () => light_pink_TextArea,
-  light_pink_Tooltip: () => light_pink_Tooltip,
-  light_pink_TooltipArrow: () => light_pink_TooltipArrow,
-  light_pink_TooltipContent: () => light_pink_TooltipContent,
-  light_pink_active: () => light_pink_active,
-  light_pink_active_Button: () => light_pink_active_Button,
-  light_pink_active_Card: () => light_pink_active_Card,
-  light_pink_active_Checkbox: () => light_pink_active_Checkbox,
-  light_pink_active_DialogOverlay: () => light_pink_active_DialogOverlay,
-  light_pink_active_DrawerFrame: () => light_pink_active_DrawerFrame,
-  light_pink_active_Input: () => light_pink_active_Input,
-  light_pink_active_ListItem: () => light_pink_active_ListItem,
-  light_pink_active_ModalOverlay: () => light_pink_active_ModalOverlay,
-  light_pink_active_Progress: () => light_pink_active_Progress,
-  light_pink_active_ProgressIndicator: () => light_pink_active_ProgressIndicator,
-  light_pink_active_RadioGroupItem: () => light_pink_active_RadioGroupItem,
-  light_pink_active_SheetOverlay: () => light_pink_active_SheetOverlay,
-  light_pink_active_SliderThumb: () => light_pink_active_SliderThumb,
-  light_pink_active_SliderTrack: () => light_pink_active_SliderTrack,
-  light_pink_active_SliderTrackActive: () => light_pink_active_SliderTrackActive,
-  light_pink_active_Switch: () => light_pink_active_Switch,
-  light_pink_active_SwitchThumb: () => light_pink_active_SwitchThumb,
-  light_pink_active_TextArea: () => light_pink_active_TextArea,
-  light_pink_active_Tooltip: () => light_pink_active_Tooltip,
-  light_pink_active_TooltipArrow: () => light_pink_active_TooltipArrow,
-  light_pink_active_TooltipContent: () => light_pink_active_TooltipContent,
-  light_pink_alt1: () => light_pink_alt1,
-  light_pink_alt1_Button: () => light_pink_alt1_Button,
-  light_pink_alt1_Card: () => light_pink_alt1_Card,
-  light_pink_alt1_Checkbox: () => light_pink_alt1_Checkbox,
-  light_pink_alt1_DialogOverlay: () => light_pink_alt1_DialogOverlay,
-  light_pink_alt1_DrawerFrame: () => light_pink_alt1_DrawerFrame,
-  light_pink_alt1_Input: () => light_pink_alt1_Input,
-  light_pink_alt1_ListItem: () => light_pink_alt1_ListItem,
-  light_pink_alt1_ModalOverlay: () => light_pink_alt1_ModalOverlay,
-  light_pink_alt1_Progress: () => light_pink_alt1_Progress,
-  light_pink_alt1_ProgressIndicator: () => light_pink_alt1_ProgressIndicator,
-  light_pink_alt1_RadioGroupItem: () => light_pink_alt1_RadioGroupItem,
-  light_pink_alt1_SheetOverlay: () => light_pink_alt1_SheetOverlay,
-  light_pink_alt1_SliderThumb: () => light_pink_alt1_SliderThumb,
-  light_pink_alt1_SliderTrack: () => light_pink_alt1_SliderTrack,
-  light_pink_alt1_SliderTrackActive: () => light_pink_alt1_SliderTrackActive,
-  light_pink_alt1_Switch: () => light_pink_alt1_Switch,
-  light_pink_alt1_SwitchThumb: () => light_pink_alt1_SwitchThumb,
-  light_pink_alt1_TextArea: () => light_pink_alt1_TextArea,
-  light_pink_alt1_Tooltip: () => light_pink_alt1_Tooltip,
-  light_pink_alt1_TooltipArrow: () => light_pink_alt1_TooltipArrow,
-  light_pink_alt1_TooltipContent: () => light_pink_alt1_TooltipContent,
-  light_pink_alt2: () => light_pink_alt2,
-  light_pink_alt2_Button: () => light_pink_alt2_Button,
-  light_pink_alt2_Card: () => light_pink_alt2_Card,
-  light_pink_alt2_Checkbox: () => light_pink_alt2_Checkbox,
-  light_pink_alt2_DialogOverlay: () => light_pink_alt2_DialogOverlay,
-  light_pink_alt2_DrawerFrame: () => light_pink_alt2_DrawerFrame,
-  light_pink_alt2_Input: () => light_pink_alt2_Input,
-  light_pink_alt2_ListItem: () => light_pink_alt2_ListItem,
-  light_pink_alt2_ModalOverlay: () => light_pink_alt2_ModalOverlay,
-  light_pink_alt2_Progress: () => light_pink_alt2_Progress,
-  light_pink_alt2_ProgressIndicator: () => light_pink_alt2_ProgressIndicator,
-  light_pink_alt2_RadioGroupItem: () => light_pink_alt2_RadioGroupItem,
-  light_pink_alt2_SheetOverlay: () => light_pink_alt2_SheetOverlay,
-  light_pink_alt2_SliderThumb: () => light_pink_alt2_SliderThumb,
-  light_pink_alt2_SliderTrack: () => light_pink_alt2_SliderTrack,
-  light_pink_alt2_SliderTrackActive: () => light_pink_alt2_SliderTrackActive,
-  light_pink_alt2_Switch: () => light_pink_alt2_Switch,
-  light_pink_alt2_SwitchThumb: () => light_pink_alt2_SwitchThumb,
-  light_pink_alt2_TextArea: () => light_pink_alt2_TextArea,
-  light_pink_alt2_Tooltip: () => light_pink_alt2_Tooltip,
-  light_pink_alt2_TooltipArrow: () => light_pink_alt2_TooltipArrow,
-  light_pink_alt2_TooltipContent: () => light_pink_alt2_TooltipContent,
-  light_purple: () => light_purple,
-  light_purple_Button: () => light_purple_Button,
-  light_purple_Card: () => light_purple_Card,
-  light_purple_Checkbox: () => light_purple_Checkbox,
-  light_purple_DialogOverlay: () => light_purple_DialogOverlay,
-  light_purple_DrawerFrame: () => light_purple_DrawerFrame,
-  light_purple_Input: () => light_purple_Input,
-  light_purple_ListItem: () => light_purple_ListItem,
-  light_purple_ModalOverlay: () => light_purple_ModalOverlay,
-  light_purple_Progress: () => light_purple_Progress,
-  light_purple_ProgressIndicator: () => light_purple_ProgressIndicator,
-  light_purple_RadioGroupItem: () => light_purple_RadioGroupItem,
-  light_purple_SheetOverlay: () => light_purple_SheetOverlay,
-  light_purple_SliderThumb: () => light_purple_SliderThumb,
-  light_purple_SliderTrack: () => light_purple_SliderTrack,
-  light_purple_SliderTrackActive: () => light_purple_SliderTrackActive,
-  light_purple_Switch: () => light_purple_Switch,
-  light_purple_SwitchThumb: () => light_purple_SwitchThumb,
-  light_purple_TextArea: () => light_purple_TextArea,
-  light_purple_Tooltip: () => light_purple_Tooltip,
-  light_purple_TooltipArrow: () => light_purple_TooltipArrow,
-  light_purple_TooltipContent: () => light_purple_TooltipContent,
-  light_purple_active: () => light_purple_active,
-  light_purple_active_Button: () => light_purple_active_Button,
-  light_purple_active_Card: () => light_purple_active_Card,
-  light_purple_active_Checkbox: () => light_purple_active_Checkbox,
-  light_purple_active_DialogOverlay: () => light_purple_active_DialogOverlay,
-  light_purple_active_DrawerFrame: () => light_purple_active_DrawerFrame,
-  light_purple_active_Input: () => light_purple_active_Input,
-  light_purple_active_ListItem: () => light_purple_active_ListItem,
-  light_purple_active_ModalOverlay: () => light_purple_active_ModalOverlay,
-  light_purple_active_Progress: () => light_purple_active_Progress,
-  light_purple_active_ProgressIndicator: () => light_purple_active_ProgressIndicator,
-  light_purple_active_RadioGroupItem: () => light_purple_active_RadioGroupItem,
-  light_purple_active_SheetOverlay: () => light_purple_active_SheetOverlay,
-  light_purple_active_SliderThumb: () => light_purple_active_SliderThumb,
-  light_purple_active_SliderTrack: () => light_purple_active_SliderTrack,
-  light_purple_active_SliderTrackActive: () => light_purple_active_SliderTrackActive,
-  light_purple_active_Switch: () => light_purple_active_Switch,
-  light_purple_active_SwitchThumb: () => light_purple_active_SwitchThumb,
-  light_purple_active_TextArea: () => light_purple_active_TextArea,
-  light_purple_active_Tooltip: () => light_purple_active_Tooltip,
-  light_purple_active_TooltipArrow: () => light_purple_active_TooltipArrow,
-  light_purple_active_TooltipContent: () => light_purple_active_TooltipContent,
-  light_purple_alt1: () => light_purple_alt1,
-  light_purple_alt1_Button: () => light_purple_alt1_Button,
-  light_purple_alt1_Card: () => light_purple_alt1_Card,
-  light_purple_alt1_Checkbox: () => light_purple_alt1_Checkbox,
-  light_purple_alt1_DialogOverlay: () => light_purple_alt1_DialogOverlay,
-  light_purple_alt1_DrawerFrame: () => light_purple_alt1_DrawerFrame,
-  light_purple_alt1_Input: () => light_purple_alt1_Input,
-  light_purple_alt1_ListItem: () => light_purple_alt1_ListItem,
-  light_purple_alt1_ModalOverlay: () => light_purple_alt1_ModalOverlay,
-  light_purple_alt1_Progress: () => light_purple_alt1_Progress,
-  light_purple_alt1_ProgressIndicator: () => light_purple_alt1_ProgressIndicator,
-  light_purple_alt1_RadioGroupItem: () => light_purple_alt1_RadioGroupItem,
-  light_purple_alt1_SheetOverlay: () => light_purple_alt1_SheetOverlay,
-  light_purple_alt1_SliderThumb: () => light_purple_alt1_SliderThumb,
-  light_purple_alt1_SliderTrack: () => light_purple_alt1_SliderTrack,
-  light_purple_alt1_SliderTrackActive: () => light_purple_alt1_SliderTrackActive,
-  light_purple_alt1_Switch: () => light_purple_alt1_Switch,
-  light_purple_alt1_SwitchThumb: () => light_purple_alt1_SwitchThumb,
-  light_purple_alt1_TextArea: () => light_purple_alt1_TextArea,
-  light_purple_alt1_Tooltip: () => light_purple_alt1_Tooltip,
-  light_purple_alt1_TooltipArrow: () => light_purple_alt1_TooltipArrow,
-  light_purple_alt1_TooltipContent: () => light_purple_alt1_TooltipContent,
-  light_purple_alt2: () => light_purple_alt2,
-  light_purple_alt2_Button: () => light_purple_alt2_Button,
-  light_purple_alt2_Card: () => light_purple_alt2_Card,
-  light_purple_alt2_Checkbox: () => light_purple_alt2_Checkbox,
-  light_purple_alt2_DialogOverlay: () => light_purple_alt2_DialogOverlay,
-  light_purple_alt2_DrawerFrame: () => light_purple_alt2_DrawerFrame,
-  light_purple_alt2_Input: () => light_purple_alt2_Input,
-  light_purple_alt2_ListItem: () => light_purple_alt2_ListItem,
-  light_purple_alt2_ModalOverlay: () => light_purple_alt2_ModalOverlay,
-  light_purple_alt2_Progress: () => light_purple_alt2_Progress,
-  light_purple_alt2_ProgressIndicator: () => light_purple_alt2_ProgressIndicator,
-  light_purple_alt2_RadioGroupItem: () => light_purple_alt2_RadioGroupItem,
-  light_purple_alt2_SheetOverlay: () => light_purple_alt2_SheetOverlay,
-  light_purple_alt2_SliderThumb: () => light_purple_alt2_SliderThumb,
-  light_purple_alt2_SliderTrack: () => light_purple_alt2_SliderTrack,
-  light_purple_alt2_SliderTrackActive: () => light_purple_alt2_SliderTrackActive,
-  light_purple_alt2_Switch: () => light_purple_alt2_Switch,
-  light_purple_alt2_SwitchThumb: () => light_purple_alt2_SwitchThumb,
-  light_purple_alt2_TextArea: () => light_purple_alt2_TextArea,
-  light_purple_alt2_Tooltip: () => light_purple_alt2_Tooltip,
-  light_purple_alt2_TooltipArrow: () => light_purple_alt2_TooltipArrow,
-  light_purple_alt2_TooltipContent: () => light_purple_alt2_TooltipContent,
-  light_red: () => light_red,
-  light_red_Button: () => light_red_Button,
-  light_red_Card: () => light_red_Card,
-  light_red_Checkbox: () => light_red_Checkbox,
-  light_red_DialogOverlay: () => light_red_DialogOverlay,
-  light_red_DrawerFrame: () => light_red_DrawerFrame,
-  light_red_Input: () => light_red_Input,
-  light_red_ListItem: () => light_red_ListItem,
-  light_red_ModalOverlay: () => light_red_ModalOverlay,
-  light_red_Progress: () => light_red_Progress,
-  light_red_ProgressIndicator: () => light_red_ProgressIndicator,
-  light_red_RadioGroupItem: () => light_red_RadioGroupItem,
-  light_red_SheetOverlay: () => light_red_SheetOverlay,
-  light_red_SliderThumb: () => light_red_SliderThumb,
-  light_red_SliderTrack: () => light_red_SliderTrack,
-  light_red_SliderTrackActive: () => light_red_SliderTrackActive,
-  light_red_Switch: () => light_red_Switch,
-  light_red_SwitchThumb: () => light_red_SwitchThumb,
-  light_red_TextArea: () => light_red_TextArea,
-  light_red_Tooltip: () => light_red_Tooltip,
-  light_red_TooltipArrow: () => light_red_TooltipArrow,
-  light_red_TooltipContent: () => light_red_TooltipContent,
-  light_red_active: () => light_red_active,
-  light_red_active_Button: () => light_red_active_Button,
-  light_red_active_Card: () => light_red_active_Card,
-  light_red_active_Checkbox: () => light_red_active_Checkbox,
-  light_red_active_DialogOverlay: () => light_red_active_DialogOverlay,
-  light_red_active_DrawerFrame: () => light_red_active_DrawerFrame,
-  light_red_active_Input: () => light_red_active_Input,
-  light_red_active_ListItem: () => light_red_active_ListItem,
-  light_red_active_ModalOverlay: () => light_red_active_ModalOverlay,
-  light_red_active_Progress: () => light_red_active_Progress,
-  light_red_active_ProgressIndicator: () => light_red_active_ProgressIndicator,
-  light_red_active_RadioGroupItem: () => light_red_active_RadioGroupItem,
-  light_red_active_SheetOverlay: () => light_red_active_SheetOverlay,
-  light_red_active_SliderThumb: () => light_red_active_SliderThumb,
-  light_red_active_SliderTrack: () => light_red_active_SliderTrack,
-  light_red_active_SliderTrackActive: () => light_red_active_SliderTrackActive,
-  light_red_active_Switch: () => light_red_active_Switch,
-  light_red_active_SwitchThumb: () => light_red_active_SwitchThumb,
-  light_red_active_TextArea: () => light_red_active_TextArea,
-  light_red_active_Tooltip: () => light_red_active_Tooltip,
-  light_red_active_TooltipArrow: () => light_red_active_TooltipArrow,
-  light_red_active_TooltipContent: () => light_red_active_TooltipContent,
-  light_red_alt1: () => light_red_alt1,
-  light_red_alt1_Button: () => light_red_alt1_Button,
-  light_red_alt1_Card: () => light_red_alt1_Card,
-  light_red_alt1_Checkbox: () => light_red_alt1_Checkbox,
-  light_red_alt1_DialogOverlay: () => light_red_alt1_DialogOverlay,
-  light_red_alt1_DrawerFrame: () => light_red_alt1_DrawerFrame,
-  light_red_alt1_Input: () => light_red_alt1_Input,
-  light_red_alt1_ListItem: () => light_red_alt1_ListItem,
-  light_red_alt1_ModalOverlay: () => light_red_alt1_ModalOverlay,
-  light_red_alt1_Progress: () => light_red_alt1_Progress,
-  light_red_alt1_ProgressIndicator: () => light_red_alt1_ProgressIndicator,
-  light_red_alt1_RadioGroupItem: () => light_red_alt1_RadioGroupItem,
-  light_red_alt1_SheetOverlay: () => light_red_alt1_SheetOverlay,
-  light_red_alt1_SliderThumb: () => light_red_alt1_SliderThumb,
-  light_red_alt1_SliderTrack: () => light_red_alt1_SliderTrack,
-  light_red_alt1_SliderTrackActive: () => light_red_alt1_SliderTrackActive,
-  light_red_alt1_Switch: () => light_red_alt1_Switch,
-  light_red_alt1_SwitchThumb: () => light_red_alt1_SwitchThumb,
-  light_red_alt1_TextArea: () => light_red_alt1_TextArea,
-  light_red_alt1_Tooltip: () => light_red_alt1_Tooltip,
-  light_red_alt1_TooltipArrow: () => light_red_alt1_TooltipArrow,
-  light_red_alt1_TooltipContent: () => light_red_alt1_TooltipContent,
-  light_red_alt2: () => light_red_alt2,
-  light_red_alt2_Button: () => light_red_alt2_Button,
-  light_red_alt2_Card: () => light_red_alt2_Card,
-  light_red_alt2_Checkbox: () => light_red_alt2_Checkbox,
-  light_red_alt2_DialogOverlay: () => light_red_alt2_DialogOverlay,
-  light_red_alt2_DrawerFrame: () => light_red_alt2_DrawerFrame,
-  light_red_alt2_Input: () => light_red_alt2_Input,
-  light_red_alt2_ListItem: () => light_red_alt2_ListItem,
-  light_red_alt2_ModalOverlay: () => light_red_alt2_ModalOverlay,
-  light_red_alt2_Progress: () => light_red_alt2_Progress,
-  light_red_alt2_ProgressIndicator: () => light_red_alt2_ProgressIndicator,
-  light_red_alt2_RadioGroupItem: () => light_red_alt2_RadioGroupItem,
-  light_red_alt2_SheetOverlay: () => light_red_alt2_SheetOverlay,
-  light_red_alt2_SliderThumb: () => light_red_alt2_SliderThumb,
-  light_red_alt2_SliderTrack: () => light_red_alt2_SliderTrack,
-  light_red_alt2_SliderTrackActive: () => light_red_alt2_SliderTrackActive,
-  light_red_alt2_Switch: () => light_red_alt2_Switch,
-  light_red_alt2_SwitchThumb: () => light_red_alt2_SwitchThumb,
-  light_red_alt2_TextArea: () => light_red_alt2_TextArea,
-  light_red_alt2_Tooltip: () => light_red_alt2_Tooltip,
-  light_red_alt2_TooltipArrow: () => light_red_alt2_TooltipArrow,
-  light_red_alt2_TooltipContent: () => light_red_alt2_TooltipContent,
-  light_yellow: () => light_yellow,
-  light_yellow_Button: () => light_yellow_Button,
-  light_yellow_Card: () => light_yellow_Card,
-  light_yellow_Checkbox: () => light_yellow_Checkbox,
-  light_yellow_DialogOverlay: () => light_yellow_DialogOverlay,
-  light_yellow_DrawerFrame: () => light_yellow_DrawerFrame,
-  light_yellow_Input: () => light_yellow_Input,
-  light_yellow_ListItem: () => light_yellow_ListItem,
-  light_yellow_ModalOverlay: () => light_yellow_ModalOverlay,
-  light_yellow_Progress: () => light_yellow_Progress,
-  light_yellow_ProgressIndicator: () => light_yellow_ProgressIndicator,
-  light_yellow_RadioGroupItem: () => light_yellow_RadioGroupItem,
-  light_yellow_SheetOverlay: () => light_yellow_SheetOverlay,
-  light_yellow_SliderThumb: () => light_yellow_SliderThumb,
-  light_yellow_SliderTrack: () => light_yellow_SliderTrack,
-  light_yellow_SliderTrackActive: () => light_yellow_SliderTrackActive,
-  light_yellow_Switch: () => light_yellow_Switch,
-  light_yellow_SwitchThumb: () => light_yellow_SwitchThumb,
-  light_yellow_TextArea: () => light_yellow_TextArea,
-  light_yellow_Tooltip: () => light_yellow_Tooltip,
-  light_yellow_TooltipArrow: () => light_yellow_TooltipArrow,
-  light_yellow_TooltipContent: () => light_yellow_TooltipContent,
-  light_yellow_active: () => light_yellow_active,
-  light_yellow_active_Button: () => light_yellow_active_Button,
-  light_yellow_active_Card: () => light_yellow_active_Card,
-  light_yellow_active_Checkbox: () => light_yellow_active_Checkbox,
-  light_yellow_active_DialogOverlay: () => light_yellow_active_DialogOverlay,
-  light_yellow_active_DrawerFrame: () => light_yellow_active_DrawerFrame,
-  light_yellow_active_Input: () => light_yellow_active_Input,
-  light_yellow_active_ListItem: () => light_yellow_active_ListItem,
-  light_yellow_active_ModalOverlay: () => light_yellow_active_ModalOverlay,
-  light_yellow_active_Progress: () => light_yellow_active_Progress,
-  light_yellow_active_ProgressIndicator: () => light_yellow_active_ProgressIndicator,
-  light_yellow_active_RadioGroupItem: () => light_yellow_active_RadioGroupItem,
-  light_yellow_active_SheetOverlay: () => light_yellow_active_SheetOverlay,
-  light_yellow_active_SliderThumb: () => light_yellow_active_SliderThumb,
-  light_yellow_active_SliderTrack: () => light_yellow_active_SliderTrack,
-  light_yellow_active_SliderTrackActive: () => light_yellow_active_SliderTrackActive,
-  light_yellow_active_Switch: () => light_yellow_active_Switch,
-  light_yellow_active_SwitchThumb: () => light_yellow_active_SwitchThumb,
-  light_yellow_active_TextArea: () => light_yellow_active_TextArea,
-  light_yellow_active_Tooltip: () => light_yellow_active_Tooltip,
-  light_yellow_active_TooltipArrow: () => light_yellow_active_TooltipArrow,
-  light_yellow_active_TooltipContent: () => light_yellow_active_TooltipContent,
-  light_yellow_alt1: () => light_yellow_alt1,
-  light_yellow_alt1_Button: () => light_yellow_alt1_Button,
-  light_yellow_alt1_Card: () => light_yellow_alt1_Card,
-  light_yellow_alt1_Checkbox: () => light_yellow_alt1_Checkbox,
-  light_yellow_alt1_DialogOverlay: () => light_yellow_alt1_DialogOverlay,
-  light_yellow_alt1_DrawerFrame: () => light_yellow_alt1_DrawerFrame,
-  light_yellow_alt1_Input: () => light_yellow_alt1_Input,
-  light_yellow_alt1_ListItem: () => light_yellow_alt1_ListItem,
-  light_yellow_alt1_ModalOverlay: () => light_yellow_alt1_ModalOverlay,
-  light_yellow_alt1_Progress: () => light_yellow_alt1_Progress,
-  light_yellow_alt1_ProgressIndicator: () => light_yellow_alt1_ProgressIndicator,
-  light_yellow_alt1_RadioGroupItem: () => light_yellow_alt1_RadioGroupItem,
-  light_yellow_alt1_SheetOverlay: () => light_yellow_alt1_SheetOverlay,
-  light_yellow_alt1_SliderThumb: () => light_yellow_alt1_SliderThumb,
-  light_yellow_alt1_SliderTrack: () => light_yellow_alt1_SliderTrack,
-  light_yellow_alt1_SliderTrackActive: () => light_yellow_alt1_SliderTrackActive,
-  light_yellow_alt1_Switch: () => light_yellow_alt1_Switch,
-  light_yellow_alt1_SwitchThumb: () => light_yellow_alt1_SwitchThumb,
-  light_yellow_alt1_TextArea: () => light_yellow_alt1_TextArea,
-  light_yellow_alt1_Tooltip: () => light_yellow_alt1_Tooltip,
-  light_yellow_alt1_TooltipArrow: () => light_yellow_alt1_TooltipArrow,
-  light_yellow_alt1_TooltipContent: () => light_yellow_alt1_TooltipContent,
-  light_yellow_alt2: () => light_yellow_alt2,
-  light_yellow_alt2_Button: () => light_yellow_alt2_Button,
-  light_yellow_alt2_Card: () => light_yellow_alt2_Card,
-  light_yellow_alt2_Checkbox: () => light_yellow_alt2_Checkbox,
-  light_yellow_alt2_DialogOverlay: () => light_yellow_alt2_DialogOverlay,
-  light_yellow_alt2_DrawerFrame: () => light_yellow_alt2_DrawerFrame,
-  light_yellow_alt2_Input: () => light_yellow_alt2_Input,
-  light_yellow_alt2_ListItem: () => light_yellow_alt2_ListItem,
-  light_yellow_alt2_ModalOverlay: () => light_yellow_alt2_ModalOverlay,
-  light_yellow_alt2_Progress: () => light_yellow_alt2_Progress,
-  light_yellow_alt2_ProgressIndicator: () => light_yellow_alt2_ProgressIndicator,
-  light_yellow_alt2_RadioGroupItem: () => light_yellow_alt2_RadioGroupItem,
-  light_yellow_alt2_SheetOverlay: () => light_yellow_alt2_SheetOverlay,
-  light_yellow_alt2_SliderThumb: () => light_yellow_alt2_SliderThumb,
-  light_yellow_alt2_SliderTrack: () => light_yellow_alt2_SliderTrack,
-  light_yellow_alt2_SliderTrackActive: () => light_yellow_alt2_SliderTrackActive,
-  light_yellow_alt2_Switch: () => light_yellow_alt2_Switch,
-  light_yellow_alt2_SwitchThumb: () => light_yellow_alt2_SwitchThumb,
-  light_yellow_alt2_TextArea: () => light_yellow_alt2_TextArea,
-  light_yellow_alt2_Tooltip: () => light_yellow_alt2_Tooltip,
-  light_yellow_alt2_TooltipArrow: () => light_yellow_alt2_TooltipArrow,
-  light_yellow_alt2_TooltipContent: () => light_yellow_alt2_TooltipContent
-});
-function t(a) {
-  let res = {};
-  for (const [ki, vi] of a) res[ks[ki]] = vs[vi];
-  return res;
-}
-__name(t, "t");
-var vs = ["#fff", "#f8f8f8", "hsl(0, 0%, 96.3%)", "hsl(0, 0%, 94.1%)", "hsl(0, 0%, 92.0%)", "hsl(0, 0%, 90.0%)", "hsl(0, 0%, 88.5%)", "hsl(0, 0%, 81.0%)", "hsl(0, 0%, 56.1%)", "hsl(0, 0%, 50.3%)", "hsl(0, 0%, 42.5%)", "hsl(0, 0%, 9.0%)", "rgba(255,255,255,0)", "rgba(10,10,10,0)", "hsl(206, 100%, 99.2%)", "hsl(210, 100%, 98.0%)", "hsl(209, 100%, 96.5%)", "hsl(210, 98.8%, 94.0%)", "hsl(209, 95.0%, 90.1%)", "hsl(209, 81.2%, 84.5%)", "hsl(208, 77.5%, 76.9%)", "hsl(206, 81.9%, 65.3%)", "hsl(206, 100%, 50.0%)", "hsl(208, 100%, 47.3%)", "hsl(211, 100%, 43.2%)", "hsl(211, 100%, 15.0%)", "hsl(0, 0%, 99.0%)", "hsl(0, 0%, 97.3%)", "hsl(0, 0%, 95.1%)", "hsl(0, 0%, 93.0%)", "hsl(0, 0%, 90.9%)", "hsl(0, 0%, 88.7%)", "hsl(0, 0%, 85.8%)", "hsl(0, 0%, 78.0%)", "hsl(0, 0%, 52.3%)", "hsl(0, 0%, 43.5%)", "hsl(136, 50.0%, 98.9%)", "hsl(138, 62.5%, 96.9%)", "hsl(139, 55.2%, 94.5%)", "hsl(140, 48.7%, 91.0%)", "hsl(141, 43.7%, 86.0%)", "hsl(143, 40.3%, 79.0%)", "hsl(146, 38.5%, 69.0%)", "hsl(151, 40.2%, 54.1%)", "hsl(151, 55.0%, 41.5%)", "hsl(152, 57.5%, 37.6%)", "hsl(153, 67.0%, 28.5%)", "hsl(155, 40.0%, 14.0%)", "hsl(24, 70.0%, 99.0%)", "hsl(24, 83.3%, 97.6%)", "hsl(24, 100%, 95.3%)", "hsl(25, 100%, 92.2%)", "hsl(25, 100%, 88.2%)", "hsl(25, 100%, 82.8%)", "hsl(24, 100%, 75.3%)", "hsl(24, 94.5%, 64.3%)", "hsl(24, 94.0%, 50.0%)", "hsl(24, 100%, 46.5%)", "hsl(24, 100%, 37.0%)", "hsl(15, 60.0%, 17.0%)", "hsl(322, 100%, 99.4%)", "hsl(323, 100%, 98.4%)", "hsl(323, 86.3%, 96.5%)", "hsl(323, 78.7%, 94.2%)", "hsl(323, 72.2%, 91.1%)", "hsl(323, 66.3%, 86.6%)", "hsl(323, 62.0%, 80.1%)", "hsl(323, 60.3%, 72.4%)", "hsl(322, 65.0%, 54.5%)", "hsl(322, 63.9%, 50.7%)", "hsl(322, 75.0%, 46.0%)", "hsl(320, 70.0%, 13.5%)", "hsl(280, 65.0%, 99.4%)", "hsl(276, 100%, 99.0%)", "hsl(276, 83.1%, 97.0%)", "hsl(275, 76.4%, 94.7%)", "hsl(275, 70.8%, 91.8%)", "hsl(274, 65.4%, 87.8%)", "hsl(273, 61.0%, 81.7%)", "hsl(272, 60.0%, 73.5%)", "hsl(272, 51.0%, 54.0%)", "hsl(272, 46.8%, 50.3%)", "hsl(272, 50.0%, 45.8%)", "hsl(272, 66.0%, 16.0%)", "hsl(359, 100%, 99.4%)", "hsl(359, 100%, 98.6%)", "hsl(360, 100%, 96.8%)", "hsl(360, 97.9%, 94.8%)", "hsl(360, 90.2%, 91.9%)", "hsl(360, 81.7%, 87.8%)", "hsl(359, 74.2%, 81.7%)", "hsl(359, 69.5%, 74.3%)", "hsl(358, 75.0%, 59.0%)", "hsl(358, 69.4%, 55.2%)", "hsl(358, 65.0%, 48.7%)", "hsl(354, 50.0%, 14.6%)", "hsl(60, 54.0%, 98.5%)", "hsl(52, 100%, 95.5%)", "hsl(55, 100%, 90.9%)", "hsl(54, 100%, 86.6%)", "hsl(52, 97.9%, 82.0%)", "hsl(50, 89.4%, 76.1%)", "hsl(47, 80.4%, 68.0%)", "hsl(48, 100%, 46.1%)", "hsl(53, 92.0%, 50.0%)", "hsl(50, 100%, 48.5%)", "hsl(42, 100%, 29.0%)", "hsl(40, 55.0%, 13.5%)", "rgba(0,0,0,0.085)", "rgba(0,0,0,0.04)", "#050505", "#151515", "#191919", "#232323", "#282828", "#323232", "#424242", "#494949", "#545454", "#626262", "#a5a5a5", "hsl(212, 35.0%, 9.2%)", "hsl(216, 50.0%, 11.8%)", "hsl(214, 59.4%, 15.3%)", "hsl(214, 65.8%, 17.9%)", "hsl(213, 71.2%, 20.2%)", "hsl(212, 77.4%, 23.1%)", "hsl(211, 85.1%, 27.4%)", "hsl(211, 89.7%, 34.1%)", "hsl(209, 100%, 60.6%)", "hsl(210, 100%, 66.1%)", "hsl(206, 98.0%, 95.8%)", "hsl(0, 0%, 8.5%)", "hsl(0, 0%, 11.0%)", "hsl(0, 0%, 13.6%)", "hsl(0, 0%, 15.8%)", "hsl(0, 0%, 17.9%)", "hsl(0, 0%, 20.5%)", "hsl(0, 0%, 24.3%)", "hsl(0, 0%, 31.2%)", "hsl(0, 0%, 43.9%)", "hsl(0, 0%, 49.4%)", "hsl(0, 0%, 62.8%)", "hsl(146, 30.0%, 7.4%)", "hsl(155, 44.2%, 8.4%)", "hsl(155, 46.7%, 10.9%)", "hsl(154, 48.4%, 12.9%)", "hsl(154, 49.7%, 14.9%)", "hsl(154, 50.9%, 17.6%)", "hsl(153, 51.8%, 21.8%)", "hsl(151, 51.7%, 28.4%)", "hsl(151, 49.3%, 46.5%)", "hsl(151, 50.0%, 53.2%)", "hsl(137, 72.0%, 94.0%)", "hsl(30, 70.0%, 7.2%)", "hsl(28, 100%, 8.4%)", "hsl(26, 91.1%, 11.6%)", "hsl(25, 88.3%, 14.1%)", "hsl(24, 87.6%, 16.6%)", "hsl(24, 88.6%, 19.8%)", "hsl(24, 92.4%, 24.0%)", "hsl(25, 100%, 29.0%)", "hsl(24, 100%, 58.5%)", "hsl(24, 100%, 62.2%)", "hsl(24, 97.0%, 93.2%)", "hsl(318, 25.0%, 9.6%)", "hsl(319, 32.2%, 11.6%)", "hsl(319, 41.0%, 16.0%)", "hsl(320, 45.4%, 18.7%)", "hsl(320, 49.0%, 21.1%)", "hsl(321, 53.6%, 24.4%)", "hsl(321, 61.1%, 29.7%)", "hsl(322, 74.9%, 37.5%)", "hsl(323, 72.8%, 59.2%)", "hsl(325, 90.0%, 66.4%)", "hsl(322, 90.0%, 95.8%)", "hsl(284, 20.0%, 9.6%)", "hsl(283, 30.0%, 11.8%)", "hsl(281, 37.5%, 16.5%)", "hsl(280, 41.2%, 20.0%)", "hsl(279, 43.8%, 23.3%)", "hsl(277, 46.4%, 27.5%)", "hsl(275, 49.3%, 34.6%)", "hsl(272, 52.1%, 45.9%)", "hsl(273, 57.3%, 59.1%)", "hsl(275, 80.0%, 71.0%)", "hsl(279, 75.0%, 95.7%)", "hsl(353, 23.0%, 9.8%)", "hsl(357, 34.4%, 12.0%)", "hsl(356, 43.4%, 16.4%)", "hsl(356, 47.6%, 19.2%)", "hsl(356, 51.1%, 21.9%)", "hsl(356, 55.2%, 25.9%)", "hsl(357, 60.2%, 31.8%)", "hsl(358, 65.0%, 40.4%)", "hsl(358, 85.3%, 64.0%)", "hsl(358, 100%, 69.5%)", "hsl(351, 89.0%, 96.0%)", "hsl(45, 100%, 5.5%)", "hsl(46, 100%, 6.7%)", "hsl(45, 100%, 8.7%)", "hsl(45, 100%, 10.4%)", "hsl(47, 100%, 12.1%)", "hsl(49, 100%, 14.3%)", "hsl(49, 90.3%, 18.4%)", "hsl(50, 100%, 22.0%)", "hsl(54, 100%, 68.0%)", "hsl(48, 100%, 47.0%)", "hsl(53, 100%, 91.0%)", "rgba(0,0,0,0.3)", "rgba(0,0,0,0.2)", "hsla(24, 70.0%, 99.0%, 0)", "hsla(15, 60.0%, 17.0%, 0)", "hsla(60, 54.0%, 98.5%, 0)", "hsla(40, 55.0%, 13.5%, 0)", "hsla(136, 50.0%, 98.9%, 0)", "hsla(155, 40.0%, 14.0%, 0)", "hsla(206, 100%, 99.2%, 0)", "hsla(211, 100%, 15.0%, 0)", "hsla(280, 65.0%, 99.4%, 0)", "hsla(272, 66.0%, 16.0%, 0)", "hsla(322, 100%, 99.4%, 0)", "hsla(320, 70.0%, 13.5%, 0)", "hsla(359, 100%, 99.4%, 0)", "hsla(354, 50.0%, 14.6%, 0)", "hsla(30, 70.0%, 7.2%, 0)", "hsla(24, 97.0%, 93.2%, 0)", "hsla(45, 100%, 5.5%, 0)", "hsla(53, 100%, 91.0%, 0)", "hsla(146, 30.0%, 7.4%, 0)", "hsla(137, 72.0%, 94.0%, 0)", "hsla(212, 35.0%, 9.2%, 0)", "hsla(206, 98.0%, 95.8%, 0)", "hsla(284, 20.0%, 9.6%, 0)", "hsla(279, 75.0%, 95.7%, 0)", "hsla(318, 25.0%, 9.6%, 0)", "hsla(322, 90.0%, 95.8%, 0)", "hsla(353, 23.0%, 9.8%, 0)", "hsla(351, 89.0%, 96.0%, 0)", "rgba(0,0,0,0.5)", "rgba(0,0,0,0.9)", "transparent"];
-var ks = ["color1", "color2", "color3", "color4", "color5", "color6", "color7", "color8", "color9", "color10", "color11", "color12", "background", "backgroundHover", "backgroundPress", "backgroundFocus", "backgroundStrong", "backgroundTransparent", "color", "colorHover", "colorPress", "colorFocus", "colorTransparent", "borderColor", "borderColorHover", "borderColorFocus", "borderColorPress", "placeholderColor", "blue1", "blue2", "blue3", "blue4", "blue5", "blue6", "blue7", "blue8", "blue9", "blue10", "blue11", "blue12", "gray1", "gray2", "gray3", "gray4", "gray5", "gray6", "gray7", "gray8", "gray9", "gray10", "gray11", "gray12", "green1", "green2", "green3", "green4", "green5", "green6", "green7", "green8", "green9", "green10", "green11", "green12", "orange1", "orange2", "orange3", "orange4", "orange5", "orange6", "orange7", "orange8", "orange9", "orange10", "orange11", "orange12", "pink1", "pink2", "pink3", "pink4", "pink5", "pink6", "pink7", "pink8", "pink9", "pink10", "pink11", "pink12", "purple1", "purple2", "purple3", "purple4", "purple5", "purple6", "purple7", "purple8", "purple9", "purple10", "purple11", "purple12", "red1", "red2", "red3", "red4", "red5", "red6", "red7", "red8", "red9", "red10", "red11", "red12", "yellow1", "yellow2", "yellow3", "yellow4", "yellow5", "yellow6", "yellow7", "yellow8", "yellow9", "yellow10", "yellow11", "yellow12", "shadowColor", "shadowColorHover", "shadowColorPress", "shadowColorFocus"];
-var n1 = t([[0, 0], [1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [10, 10], [11, 11], [12, 1], [13, 2], [14, 3], [15, 4], [16, 0], [17, 12], [18, 11], [19, 10], [20, 11], [21, 10], [22, 13], [23, 4], [24, 5], [25, 3], [26, 4], [27, 8], [28, 14], [29, 15], [30, 16], [31, 17], [32, 18], [33, 19], [34, 20], [35, 21], [36, 22], [37, 23], [38, 24], [39, 25], [40, 26], [41, 27], [42, 28], [43, 29], [44, 30], [45, 31], [46, 32], [47, 33], [48, 8], [49, 34], [50, 35], [51, 11], [52, 36], [53, 37], [54, 38], [55, 39], [56, 40], [57, 41], [58, 42], [59, 43], [60, 44], [61, 45], [62, 46], [63, 47], [64, 48], [65, 49], [66, 50], [67, 51], [68, 52], [69, 53], [70, 54], [71, 55], [72, 56], [73, 57], [74, 58], [75, 59], [76, 60], [77, 61], [78, 62], [79, 63], [80, 64], [81, 65], [82, 66], [83, 67], [84, 68], [85, 69], [86, 70], [87, 71], [88, 72], [89, 73], [90, 74], [91, 75], [92, 76], [93, 77], [94, 78], [95, 79], [96, 80], [97, 81], [98, 82], [99, 83], [100, 84], [101, 85], [102, 86], [103, 87], [104, 88], [105, 89], [106, 90], [107, 91], [108, 92], [109, 93], [110, 94], [111, 95], [112, 96], [113, 97], [114, 98], [115, 99], [116, 100], [117, 101], [118, 102], [119, 103], [120, 104], [121, 105], [122, 106], [123, 107], [124, 108], [125, 108], [126, 109], [127, 109]]);
-var light = n1;
-var n2 = t([[0, 110], [1, 111], [2, 112], [3, 113], [4, 114], [5, 115], [6, 116], [7, 117], [8, 118], [9, 119], [10, 120], [11, 0], [12, 111], [13, 112], [14, 113], [15, 114], [16, 110], [17, 13], [18, 0], [19, 120], [20, 0], [21, 120], [22, 12], [23, 114], [24, 115], [25, 113], [26, 114], [27, 118], [28, 121], [29, 122], [30, 123], [31, 124], [32, 125], [33, 126], [34, 127], [35, 128], [36, 22], [37, 129], [38, 130], [39, 131], [40, 132], [41, 133], [42, 134], [43, 135], [44, 136], [45, 137], [46, 138], [47, 139], [48, 140], [49, 141], [50, 142], [51, 29], [52, 143], [53, 144], [54, 145], [55, 146], [56, 147], [57, 148], [58, 149], [59, 150], [60, 44], [61, 151], [62, 152], [63, 153], [64, 154], [65, 155], [66, 156], [67, 157], [68, 158], [69, 159], [70, 160], [71, 161], [72, 56], [73, 162], [74, 163], [75, 164], [76, 165], [77, 166], [78, 167], [79, 168], [80, 169], [81, 170], [82, 171], [83, 172], [84, 68], [85, 173], [86, 174], [87, 175], [88, 176], [89, 177], [90, 178], [91, 179], [92, 180], [93, 181], [94, 182], [95, 183], [96, 80], [97, 184], [98, 185], [99, 186], [100, 187], [101, 188], [102, 189], [103, 190], [104, 191], [105, 192], [106, 193], [107, 194], [108, 92], [109, 195], [110, 196], [111, 197], [112, 198], [113, 199], [114, 200], [115, 201], [116, 202], [117, 203], [118, 204], [119, 205], [120, 104], [121, 206], [122, 207], [123, 208], [124, 209], [125, 209], [126, 210], [127, 210]]);
-var dark = n2;
-var n3 = t([[0, 48], [1, 49], [2, 50], [3, 51], [4, 52], [5, 53], [6, 55], [7, 56], [8, 57], [9, 58], [10, 59], [11, 11], [12, 49], [13, 50], [14, 51], [15, 52], [16, 48], [17, 211], [18, 11], [19, 59], [20, 11], [21, 59], [22, 212], [23, 51], [24, 52], [25, 51], [26, 51], [27, 57]]);
-var light_orange = n3;
-var n4 = t([[0, 96], [1, 97], [2, 98], [3, 99], [4, 100], [5, 101], [6, 103], [7, 104], [8, 105], [9, 106], [10, 107], [11, 11], [12, 97], [13, 98], [14, 99], [15, 100], [16, 96], [17, 213], [18, 11], [19, 107], [20, 11], [21, 107], [22, 214], [23, 99], [24, 100], [25, 99], [26, 99], [27, 105]]);
-var light_yellow = n4;
-var n5 = t([[0, 36], [1, 37], [2, 38], [3, 39], [4, 40], [5, 41], [6, 43], [7, 44], [8, 45], [9, 46], [10, 47], [11, 11], [12, 37], [13, 38], [14, 39], [15, 40], [16, 36], [17, 215], [18, 11], [19, 47], [20, 11], [21, 47], [22, 216], [23, 39], [24, 40], [25, 39], [26, 39], [27, 45]]);
-var light_green = n5;
-var n6 = t([[0, 14], [1, 15], [2, 16], [3, 17], [4, 18], [5, 19], [6, 21], [7, 22], [8, 23], [9, 24], [10, 25], [11, 11], [12, 15], [13, 16], [14, 17], [15, 18], [16, 14], [17, 217], [18, 11], [19, 25], [20, 11], [21, 25], [22, 218], [23, 17], [24, 18], [25, 17], [26, 17], [27, 23]]);
-var light_blue = n6;
-var n7 = t([[0, 72], [1, 73], [2, 74], [3, 75], [4, 76], [5, 77], [6, 79], [7, 80], [8, 81], [9, 82], [10, 83], [11, 11], [12, 73], [13, 74], [14, 75], [15, 76], [16, 72], [17, 219], [18, 11], [19, 83], [20, 11], [21, 83], [22, 220], [23, 75], [24, 76], [25, 75], [26, 75], [27, 81]]);
-var light_purple = n7;
-var n8 = t([[0, 60], [1, 61], [2, 62], [3, 63], [4, 64], [5, 65], [6, 67], [7, 68], [8, 69], [9, 70], [10, 71], [11, 11], [12, 61], [13, 62], [14, 63], [15, 64], [16, 60], [17, 221], [18, 11], [19, 71], [20, 11], [21, 71], [22, 222], [23, 63], [24, 64], [25, 63], [26, 63], [27, 69]]);
-var light_pink = n8;
-var n9 = t([[0, 84], [1, 85], [2, 86], [3, 87], [4, 88], [5, 89], [6, 91], [7, 92], [8, 93], [9, 94], [10, 95], [11, 11], [12, 85], [13, 86], [14, 87], [15, 88], [16, 84], [17, 223], [18, 11], [19, 95], [20, 11], [21, 95], [22, 224], [23, 87], [24, 88], [25, 87], [26, 87], [27, 93]]);
-var light_red = n9;
-var n10 = t([[0, 154], [1, 155], [2, 156], [3, 157], [4, 158], [5, 159], [6, 161], [7, 56], [8, 162], [9, 163], [10, 164], [11, 0], [12, 155], [13, 156], [14, 157], [15, 158], [16, 154], [17, 225], [18, 0], [19, 164], [20, 0], [21, 164], [22, 226], [23, 158], [24, 159], [25, 157], [26, 158], [27, 162]]);
-var dark_orange = n10;
-var n11 = t([[0, 198], [1, 199], [2, 200], [3, 201], [4, 202], [5, 203], [6, 205], [7, 104], [8, 206], [9, 207], [10, 208], [11, 0], [12, 199], [13, 200], [14, 201], [15, 202], [16, 198], [17, 227], [18, 0], [19, 208], [20, 0], [21, 208], [22, 228], [23, 202], [24, 203], [25, 201], [26, 202], [27, 206]]);
-var dark_yellow = n11;
-var n12 = t([[0, 143], [1, 144], [2, 145], [3, 146], [4, 147], [5, 148], [6, 150], [7, 44], [8, 151], [9, 152], [10, 153], [11, 0], [12, 144], [13, 145], [14, 146], [15, 147], [16, 143], [17, 229], [18, 0], [19, 153], [20, 0], [21, 153], [22, 230], [23, 147], [24, 148], [25, 146], [26, 147], [27, 151]]);
-var dark_green = n12;
-var n13 = t([[0, 121], [1, 122], [2, 123], [3, 124], [4, 125], [5, 126], [6, 128], [7, 22], [8, 129], [9, 130], [10, 131], [11, 0], [12, 122], [13, 123], [14, 124], [15, 125], [16, 121], [17, 231], [18, 0], [19, 131], [20, 0], [21, 131], [22, 232], [23, 125], [24, 126], [25, 124], [26, 125], [27, 129]]);
-var dark_blue = n13;
-var n14 = t([[0, 176], [1, 177], [2, 178], [3, 179], [4, 180], [5, 181], [6, 183], [7, 80], [8, 184], [9, 185], [10, 186], [11, 0], [12, 177], [13, 178], [14, 179], [15, 180], [16, 176], [17, 233], [18, 0], [19, 186], [20, 0], [21, 186], [22, 234], [23, 180], [24, 181], [25, 179], [26, 180], [27, 184]]);
-var dark_purple = n14;
-var n15 = t([[0, 165], [1, 166], [2, 167], [3, 168], [4, 169], [5, 170], [6, 172], [7, 68], [8, 173], [9, 174], [10, 175], [11, 0], [12, 166], [13, 167], [14, 168], [15, 169], [16, 165], [17, 235], [18, 0], [19, 175], [20, 0], [21, 175], [22, 236], [23, 169], [24, 170], [25, 168], [26, 169], [27, 173]]);
-var dark_pink = n15;
-var n16 = t([[0, 187], [1, 188], [2, 189], [3, 190], [4, 191], [5, 192], [6, 194], [7, 92], [8, 195], [9, 196], [10, 197], [11, 0], [12, 188], [13, 189], [14, 190], [15, 191], [16, 187], [17, 237], [18, 0], [19, 197], [20, 0], [21, 197], [22, 238], [23, 191], [24, 192], [25, 190], [26, 191], [27, 195]]);
-var dark_red = n16;
-var n17 = t([[12, 239]]);
-var light_SheetOverlay = n17;
-var light_DialogOverlay = n17;
-var light_ModalOverlay = n17;
-var light_orange_SheetOverlay = n17;
-var light_orange_DialogOverlay = n17;
-var light_orange_ModalOverlay = n17;
-var light_yellow_SheetOverlay = n17;
-var light_yellow_DialogOverlay = n17;
-var light_yellow_ModalOverlay = n17;
-var light_green_SheetOverlay = n17;
-var light_green_DialogOverlay = n17;
-var light_green_ModalOverlay = n17;
-var light_blue_SheetOverlay = n17;
-var light_blue_DialogOverlay = n17;
-var light_blue_ModalOverlay = n17;
-var light_purple_SheetOverlay = n17;
-var light_purple_DialogOverlay = n17;
-var light_purple_ModalOverlay = n17;
-var light_pink_SheetOverlay = n17;
-var light_pink_DialogOverlay = n17;
-var light_pink_ModalOverlay = n17;
-var light_red_SheetOverlay = n17;
-var light_red_DialogOverlay = n17;
-var light_red_ModalOverlay = n17;
-var light_alt1_SheetOverlay = n17;
-var light_alt1_DialogOverlay = n17;
-var light_alt1_ModalOverlay = n17;
-var light_alt2_SheetOverlay = n17;
-var light_alt2_DialogOverlay = n17;
-var light_alt2_ModalOverlay = n17;
-var light_active_SheetOverlay = n17;
-var light_active_DialogOverlay = n17;
-var light_active_ModalOverlay = n17;
-var light_orange_alt1_SheetOverlay = n17;
-var light_orange_alt1_DialogOverlay = n17;
-var light_orange_alt1_ModalOverlay = n17;
-var light_orange_alt2_SheetOverlay = n17;
-var light_orange_alt2_DialogOverlay = n17;
-var light_orange_alt2_ModalOverlay = n17;
-var light_orange_active_SheetOverlay = n17;
-var light_orange_active_DialogOverlay = n17;
-var light_orange_active_ModalOverlay = n17;
-var light_yellow_alt1_SheetOverlay = n17;
-var light_yellow_alt1_DialogOverlay = n17;
-var light_yellow_alt1_ModalOverlay = n17;
-var light_yellow_alt2_SheetOverlay = n17;
-var light_yellow_alt2_DialogOverlay = n17;
-var light_yellow_alt2_ModalOverlay = n17;
-var light_yellow_active_SheetOverlay = n17;
-var light_yellow_active_DialogOverlay = n17;
-var light_yellow_active_ModalOverlay = n17;
-var light_green_alt1_SheetOverlay = n17;
-var light_green_alt1_DialogOverlay = n17;
-var light_green_alt1_ModalOverlay = n17;
-var light_green_alt2_SheetOverlay = n17;
-var light_green_alt2_DialogOverlay = n17;
-var light_green_alt2_ModalOverlay = n17;
-var light_green_active_SheetOverlay = n17;
-var light_green_active_DialogOverlay = n17;
-var light_green_active_ModalOverlay = n17;
-var light_blue_alt1_SheetOverlay = n17;
-var light_blue_alt1_DialogOverlay = n17;
-var light_blue_alt1_ModalOverlay = n17;
-var light_blue_alt2_SheetOverlay = n17;
-var light_blue_alt2_DialogOverlay = n17;
-var light_blue_alt2_ModalOverlay = n17;
-var light_blue_active_SheetOverlay = n17;
-var light_blue_active_DialogOverlay = n17;
-var light_blue_active_ModalOverlay = n17;
-var light_purple_alt1_SheetOverlay = n17;
-var light_purple_alt1_DialogOverlay = n17;
-var light_purple_alt1_ModalOverlay = n17;
-var light_purple_alt2_SheetOverlay = n17;
-var light_purple_alt2_DialogOverlay = n17;
-var light_purple_alt2_ModalOverlay = n17;
-var light_purple_active_SheetOverlay = n17;
-var light_purple_active_DialogOverlay = n17;
-var light_purple_active_ModalOverlay = n17;
-var light_pink_alt1_SheetOverlay = n17;
-var light_pink_alt1_DialogOverlay = n17;
-var light_pink_alt1_ModalOverlay = n17;
-var light_pink_alt2_SheetOverlay = n17;
-var light_pink_alt2_DialogOverlay = n17;
-var light_pink_alt2_ModalOverlay = n17;
-var light_pink_active_SheetOverlay = n17;
-var light_pink_active_DialogOverlay = n17;
-var light_pink_active_ModalOverlay = n17;
-var light_red_alt1_SheetOverlay = n17;
-var light_red_alt1_DialogOverlay = n17;
-var light_red_alt1_ModalOverlay = n17;
-var light_red_alt2_SheetOverlay = n17;
-var light_red_alt2_DialogOverlay = n17;
-var light_red_alt2_ModalOverlay = n17;
-var light_red_active_SheetOverlay = n17;
-var light_red_active_DialogOverlay = n17;
-var light_red_active_ModalOverlay = n17;
-var n18 = t([[12, 240]]);
-var dark_SheetOverlay = n18;
-var dark_DialogOverlay = n18;
-var dark_ModalOverlay = n18;
-var dark_orange_SheetOverlay = n18;
-var dark_orange_DialogOverlay = n18;
-var dark_orange_ModalOverlay = n18;
-var dark_yellow_SheetOverlay = n18;
-var dark_yellow_DialogOverlay = n18;
-var dark_yellow_ModalOverlay = n18;
-var dark_green_SheetOverlay = n18;
-var dark_green_DialogOverlay = n18;
-var dark_green_ModalOverlay = n18;
-var dark_blue_SheetOverlay = n18;
-var dark_blue_DialogOverlay = n18;
-var dark_blue_ModalOverlay = n18;
-var dark_purple_SheetOverlay = n18;
-var dark_purple_DialogOverlay = n18;
-var dark_purple_ModalOverlay = n18;
-var dark_pink_SheetOverlay = n18;
-var dark_pink_DialogOverlay = n18;
-var dark_pink_ModalOverlay = n18;
-var dark_red_SheetOverlay = n18;
-var dark_red_DialogOverlay = n18;
-var dark_red_ModalOverlay = n18;
-var dark_alt1_SheetOverlay = n18;
-var dark_alt1_DialogOverlay = n18;
-var dark_alt1_ModalOverlay = n18;
-var dark_alt2_SheetOverlay = n18;
-var dark_alt2_DialogOverlay = n18;
-var dark_alt2_ModalOverlay = n18;
-var dark_active_SheetOverlay = n18;
-var dark_active_DialogOverlay = n18;
-var dark_active_ModalOverlay = n18;
-var dark_orange_alt1_SheetOverlay = n18;
-var dark_orange_alt1_DialogOverlay = n18;
-var dark_orange_alt1_ModalOverlay = n18;
-var dark_orange_alt2_SheetOverlay = n18;
-var dark_orange_alt2_DialogOverlay = n18;
-var dark_orange_alt2_ModalOverlay = n18;
-var dark_orange_active_SheetOverlay = n18;
-var dark_orange_active_DialogOverlay = n18;
-var dark_orange_active_ModalOverlay = n18;
-var dark_yellow_alt1_SheetOverlay = n18;
-var dark_yellow_alt1_DialogOverlay = n18;
-var dark_yellow_alt1_ModalOverlay = n18;
-var dark_yellow_alt2_SheetOverlay = n18;
-var dark_yellow_alt2_DialogOverlay = n18;
-var dark_yellow_alt2_ModalOverlay = n18;
-var dark_yellow_active_SheetOverlay = n18;
-var dark_yellow_active_DialogOverlay = n18;
-var dark_yellow_active_ModalOverlay = n18;
-var dark_green_alt1_SheetOverlay = n18;
-var dark_green_alt1_DialogOverlay = n18;
-var dark_green_alt1_ModalOverlay = n18;
-var dark_green_alt2_SheetOverlay = n18;
-var dark_green_alt2_DialogOverlay = n18;
-var dark_green_alt2_ModalOverlay = n18;
-var dark_green_active_SheetOverlay = n18;
-var dark_green_active_DialogOverlay = n18;
-var dark_green_active_ModalOverlay = n18;
-var dark_blue_alt1_SheetOverlay = n18;
-var dark_blue_alt1_DialogOverlay = n18;
-var dark_blue_alt1_ModalOverlay = n18;
-var dark_blue_alt2_SheetOverlay = n18;
-var dark_blue_alt2_DialogOverlay = n18;
-var dark_blue_alt2_ModalOverlay = n18;
-var dark_blue_active_SheetOverlay = n18;
-var dark_blue_active_DialogOverlay = n18;
-var dark_blue_active_ModalOverlay = n18;
-var dark_purple_alt1_SheetOverlay = n18;
-var dark_purple_alt1_DialogOverlay = n18;
-var dark_purple_alt1_ModalOverlay = n18;
-var dark_purple_alt2_SheetOverlay = n18;
-var dark_purple_alt2_DialogOverlay = n18;
-var dark_purple_alt2_ModalOverlay = n18;
-var dark_purple_active_SheetOverlay = n18;
-var dark_purple_active_DialogOverlay = n18;
-var dark_purple_active_ModalOverlay = n18;
-var dark_pink_alt1_SheetOverlay = n18;
-var dark_pink_alt1_DialogOverlay = n18;
-var dark_pink_alt1_ModalOverlay = n18;
-var dark_pink_alt2_SheetOverlay = n18;
-var dark_pink_alt2_DialogOverlay = n18;
-var dark_pink_alt2_ModalOverlay = n18;
-var dark_pink_active_SheetOverlay = n18;
-var dark_pink_active_DialogOverlay = n18;
-var dark_pink_active_ModalOverlay = n18;
-var dark_red_alt1_SheetOverlay = n18;
-var dark_red_alt1_DialogOverlay = n18;
-var dark_red_alt1_ModalOverlay = n18;
-var dark_red_alt2_SheetOverlay = n18;
-var dark_red_alt2_DialogOverlay = n18;
-var dark_red_alt2_ModalOverlay = n18;
-var dark_red_active_SheetOverlay = n18;
-var dark_red_active_DialogOverlay = n18;
-var dark_red_active_ModalOverlay = n18;
-var n19 = t([[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 11], [12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 10], [19, 9], [20, 10], [21, 9], [22, 11], [23, 5], [24, 6], [25, 4], [26, 5], [27, 7]]);
-var light_alt1 = n19;
-var n20 = t([[0, 2], [1, 3], [2, 4], [3, 5], [4, 6], [5, 7], [6, 8], [7, 9], [8, 10], [9, 11], [10, 11], [11, 11], [12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 9], [19, 8], [20, 9], [21, 8], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_alt2 = n20;
-var n21 = t([[0, 3], [1, 4], [2, 5], [3, 6], [4, 7], [5, 8], [6, 9], [7, 10], [8, 11], [9, 13], [10, 13], [11, 13], [12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [19, 7], [20, 8], [21, 7], [22, 9], [23, 7], [24, 8], [25, 6], [26, 7], [27, 5]]);
-var light_active = n21;
-var n22 = t([[0, 111], [1, 112], [2, 113], [3, 114], [4, 115], [5, 116], [6, 117], [7, 118], [8, 119], [9, 120], [10, 0], [11, 0], [12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 120], [19, 119], [20, 120], [21, 119], [22, 0], [23, 115], [24, 116], [25, 114], [26, 115], [27, 117]]);
-var dark_alt1 = n22;
-var n23 = t([[0, 112], [1, 113], [2, 114], [3, 115], [4, 116], [5, 117], [6, 118], [7, 119], [8, 120], [9, 0], [10, 0], [11, 0], [12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 119], [19, 118], [20, 119], [21, 118], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_alt2 = n23;
-var n24 = t([[0, 113], [1, 114], [2, 115], [3, 116], [4, 117], [5, 118], [6, 119], [7, 120], [8, 0], [9, 12], [10, 12], [11, 12], [12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [19, 117], [20, 118], [21, 117], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_active = n24;
-var n25 = t([[0, 49], [1, 50], [2, 51], [3, 52], [4, 53], [5, 55], [6, 56], [7, 57], [8, 58], [9, 59], [10, 11], [11, 11], [12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 59], [19, 58], [20, 59], [21, 58], [22, 11], [23, 52], [24, 53], [25, 52], [26, 52], [27, 56]]);
-var light_orange_alt1 = n25;
-var n26 = t([[0, 50], [1, 51], [2, 52], [3, 53], [4, 55], [5, 56], [6, 57], [7, 58], [8, 59], [9, 11], [10, 11], [11, 11], [12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 58], [19, 57], [20, 58], [21, 57], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_alt2 = n26;
-var n27 = t([[0, 51], [1, 52], [2, 53], [3, 55], [4, 56], [5, 57], [6, 58], [7, 59], [8, 11], [9, 212], [10, 212], [11, 212], [12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [19, 56], [20, 57], [21, 56], [22, 58], [23, 55], [24, 56], [25, 55], [26, 55], [27, 53]]);
-var light_orange_active = n27;
-var n28 = t([[0, 97], [1, 98], [2, 99], [3, 100], [4, 101], [5, 103], [6, 104], [7, 105], [8, 106], [9, 107], [10, 11], [11, 11], [12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 107], [19, 106], [20, 107], [21, 106], [22, 11], [23, 100], [24, 101], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_alt1 = n28;
-var n29 = t([[0, 98], [1, 99], [2, 100], [3, 101], [4, 103], [5, 104], [6, 105], [7, 106], [8, 107], [9, 11], [10, 11], [11, 11], [12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 106], [19, 105], [20, 106], [21, 105], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_alt2 = n29;
-var n30 = t([[0, 99], [1, 100], [2, 101], [3, 103], [4, 104], [5, 105], [6, 106], [7, 107], [8, 11], [9, 214], [10, 214], [11, 214], [12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [19, 104], [20, 105], [21, 104], [22, 106], [23, 103], [24, 104], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_active = n30;
-var n31 = t([[0, 37], [1, 38], [2, 39], [3, 40], [4, 41], [5, 43], [6, 44], [7, 45], [8, 46], [9, 47], [10, 11], [11, 11], [12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 47], [19, 46], [20, 47], [21, 46], [22, 11], [23, 40], [24, 41], [25, 40], [26, 40], [27, 44]]);
-var light_green_alt1 = n31;
-var n32 = t([[0, 38], [1, 39], [2, 40], [3, 41], [4, 43], [5, 44], [6, 45], [7, 46], [8, 47], [9, 11], [10, 11], [11, 11], [12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 46], [19, 45], [20, 46], [21, 45], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_alt2 = n32;
-var n33 = t([[0, 39], [1, 40], [2, 41], [3, 43], [4, 44], [5, 45], [6, 46], [7, 47], [8, 11], [9, 216], [10, 216], [11, 216], [12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [19, 44], [20, 45], [21, 44], [22, 46], [23, 43], [24, 44], [25, 43], [26, 43], [27, 41]]);
-var light_green_active = n33;
-var n34 = t([[0, 15], [1, 16], [2, 17], [3, 18], [4, 19], [5, 21], [6, 22], [7, 23], [8, 24], [9, 25], [10, 11], [11, 11], [12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 25], [19, 24], [20, 25], [21, 24], [22, 11], [23, 18], [24, 19], [25, 18], [26, 18], [27, 22]]);
-var light_blue_alt1 = n34;
-var n35 = t([[0, 16], [1, 17], [2, 18], [3, 19], [4, 21], [5, 22], [6, 23], [7, 24], [8, 25], [9, 11], [10, 11], [11, 11], [12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 24], [19, 23], [20, 24], [21, 23], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_alt2 = n35;
-var n36 = t([[0, 17], [1, 18], [2, 19], [3, 21], [4, 22], [5, 23], [6, 24], [7, 25], [8, 11], [9, 218], [10, 218], [11, 218], [12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [19, 22], [20, 23], [21, 22], [22, 24], [23, 21], [24, 22], [25, 21], [26, 21], [27, 19]]);
-var light_blue_active = n36;
-var n37 = t([[0, 73], [1, 74], [2, 75], [3, 76], [4, 77], [5, 79], [6, 80], [7, 81], [8, 82], [9, 83], [10, 11], [11, 11], [12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 83], [19, 82], [20, 83], [21, 82], [22, 11], [23, 76], [24, 77], [25, 76], [26, 76], [27, 80]]);
-var light_purple_alt1 = n37;
-var n38 = t([[0, 74], [1, 75], [2, 76], [3, 77], [4, 79], [5, 80], [6, 81], [7, 82], [8, 83], [9, 11], [10, 11], [11, 11], [12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 82], [19, 81], [20, 82], [21, 81], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_alt2 = n38;
-var n39 = t([[0, 75], [1, 76], [2, 77], [3, 79], [4, 80], [5, 81], [6, 82], [7, 83], [8, 11], [9, 220], [10, 220], [11, 220], [12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [19, 80], [20, 81], [21, 80], [22, 82], [23, 79], [24, 80], [25, 79], [26, 79], [27, 77]]);
-var light_purple_active = n39;
-var n40 = t([[0, 61], [1, 62], [2, 63], [3, 64], [4, 65], [5, 67], [6, 68], [7, 69], [8, 70], [9, 71], [10, 11], [11, 11], [12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 71], [19, 70], [20, 71], [21, 70], [22, 11], [23, 64], [24, 65], [25, 64], [26, 64], [27, 68]]);
-var light_pink_alt1 = n40;
-var n41 = t([[0, 62], [1, 63], [2, 64], [3, 65], [4, 67], [5, 68], [6, 69], [7, 70], [8, 71], [9, 11], [10, 11], [11, 11], [12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 70], [19, 69], [20, 70], [21, 69], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_alt2 = n41;
-var n42 = t([[0, 63], [1, 64], [2, 65], [3, 67], [4, 68], [5, 69], [6, 70], [7, 71], [8, 11], [9, 222], [10, 222], [11, 222], [12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [19, 68], [20, 69], [21, 68], [22, 70], [23, 67], [24, 68], [25, 67], [26, 67], [27, 65]]);
-var light_pink_active = n42;
-var n43 = t([[0, 85], [1, 86], [2, 87], [3, 88], [4, 89], [5, 91], [6, 92], [7, 93], [8, 94], [9, 95], [10, 11], [11, 11], [12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 95], [19, 94], [20, 95], [21, 94], [22, 11], [23, 88], [24, 89], [25, 88], [26, 88], [27, 92]]);
-var light_red_alt1 = n43;
-var n44 = t([[0, 86], [1, 87], [2, 88], [3, 89], [4, 91], [5, 92], [6, 93], [7, 94], [8, 95], [9, 11], [10, 11], [11, 11], [12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 94], [19, 93], [20, 94], [21, 93], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_alt2 = n44;
-var n45 = t([[0, 87], [1, 88], [2, 89], [3, 91], [4, 92], [5, 93], [6, 94], [7, 95], [8, 11], [9, 224], [10, 224], [11, 224], [12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [19, 92], [20, 93], [21, 92], [22, 94], [23, 91], [24, 92], [25, 91], [26, 91], [27, 89]]);
-var light_red_active = n45;
-var n46 = t([[0, 155], [1, 156], [2, 157], [3, 158], [4, 159], [5, 161], [6, 56], [7, 162], [8, 163], [9, 164], [10, 0], [11, 0], [12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 164], [19, 163], [20, 164], [21, 163], [22, 0], [23, 159], [24, 161], [25, 158], [26, 159], [27, 56]]);
-var dark_orange_alt1 = n46;
-var n47 = t([[0, 156], [1, 157], [2, 158], [3, 159], [4, 161], [5, 56], [6, 162], [7, 163], [8, 164], [9, 0], [10, 0], [11, 0], [12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 163], [19, 162], [20, 163], [21, 162], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_alt2 = n47;
-var n48 = t([[0, 157], [1, 158], [2, 159], [3, 161], [4, 56], [5, 162], [6, 163], [7, 164], [8, 0], [9, 226], [10, 226], [11, 226], [12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [19, 56], [20, 162], [21, 56], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_active = n48;
-var n49 = t([[0, 199], [1, 200], [2, 201], [3, 202], [4, 203], [5, 205], [6, 104], [7, 206], [8, 207], [9, 208], [10, 0], [11, 0], [12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 208], [19, 207], [20, 208], [21, 207], [22, 0], [23, 203], [24, 205], [25, 202], [26, 203], [27, 104]]);
-var dark_yellow_alt1 = n49;
-var n50 = t([[0, 200], [1, 201], [2, 202], [3, 203], [4, 205], [5, 104], [6, 206], [7, 207], [8, 208], [9, 0], [10, 0], [11, 0], [12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 207], [19, 206], [20, 207], [21, 206], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_alt2 = n50;
-var n51 = t([[0, 201], [1, 202], [2, 203], [3, 205], [4, 104], [5, 206], [6, 207], [7, 208], [8, 0], [9, 228], [10, 228], [11, 228], [12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [19, 104], [20, 206], [21, 104], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_active = n51;
-var n52 = t([[0, 144], [1, 145], [2, 146], [3, 147], [4, 148], [5, 150], [6, 44], [7, 151], [8, 152], [9, 153], [10, 0], [11, 0], [12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 153], [19, 152], [20, 153], [21, 152], [22, 0], [23, 148], [24, 150], [25, 147], [26, 148], [27, 44]]);
-var dark_green_alt1 = n52;
-var n53 = t([[0, 145], [1, 146], [2, 147], [3, 148], [4, 150], [5, 44], [6, 151], [7, 152], [8, 153], [9, 0], [10, 0], [11, 0], [12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 152], [19, 151], [20, 152], [21, 151], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_alt2 = n53;
-var n54 = t([[0, 146], [1, 147], [2, 148], [3, 150], [4, 44], [5, 151], [6, 152], [7, 153], [8, 0], [9, 230], [10, 230], [11, 230], [12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [19, 44], [20, 151], [21, 44], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_active = n54;
-var n55 = t([[0, 122], [1, 123], [2, 124], [3, 125], [4, 126], [5, 128], [6, 22], [7, 129], [8, 130], [9, 131], [10, 0], [11, 0], [12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 131], [19, 130], [20, 131], [21, 130], [22, 0], [23, 126], [24, 128], [25, 125], [26, 126], [27, 22]]);
-var dark_blue_alt1 = n55;
-var n56 = t([[0, 123], [1, 124], [2, 125], [3, 126], [4, 128], [5, 22], [6, 129], [7, 130], [8, 131], [9, 0], [10, 0], [11, 0], [12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 130], [19, 129], [20, 130], [21, 129], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_alt2 = n56;
-var n57 = t([[0, 124], [1, 125], [2, 126], [3, 128], [4, 22], [5, 129], [6, 130], [7, 131], [8, 0], [9, 232], [10, 232], [11, 232], [12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [19, 22], [20, 129], [21, 22], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_active = n57;
-var n58 = t([[0, 177], [1, 178], [2, 179], [3, 180], [4, 181], [5, 183], [6, 80], [7, 184], [8, 185], [9, 186], [10, 0], [11, 0], [12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 186], [19, 185], [20, 186], [21, 185], [22, 0], [23, 181], [24, 183], [25, 180], [26, 181], [27, 80]]);
-var dark_purple_alt1 = n58;
-var n59 = t([[0, 178], [1, 179], [2, 180], [3, 181], [4, 183], [5, 80], [6, 184], [7, 185], [8, 186], [9, 0], [10, 0], [11, 0], [12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 185], [19, 184], [20, 185], [21, 184], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_alt2 = n59;
-var n60 = t([[0, 179], [1, 180], [2, 181], [3, 183], [4, 80], [5, 184], [6, 185], [7, 186], [8, 0], [9, 234], [10, 234], [11, 234], [12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [19, 80], [20, 184], [21, 80], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_active = n60;
-var n61 = t([[0, 166], [1, 167], [2, 168], [3, 169], [4, 170], [5, 172], [6, 68], [7, 173], [8, 174], [9, 175], [10, 0], [11, 0], [12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 175], [19, 174], [20, 175], [21, 174], [22, 0], [23, 170], [24, 172], [25, 169], [26, 170], [27, 68]]);
-var dark_pink_alt1 = n61;
-var n62 = t([[0, 167], [1, 168], [2, 169], [3, 170], [4, 172], [5, 68], [6, 173], [7, 174], [8, 175], [9, 0], [10, 0], [11, 0], [12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 174], [19, 173], [20, 174], [21, 173], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_alt2 = n62;
-var n63 = t([[0, 168], [1, 169], [2, 170], [3, 172], [4, 68], [5, 173], [6, 174], [7, 175], [8, 0], [9, 236], [10, 236], [11, 236], [12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [19, 68], [20, 173], [21, 68], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_active = n63;
-var n64 = t([[0, 188], [1, 189], [2, 190], [3, 191], [4, 192], [5, 194], [6, 92], [7, 195], [8, 196], [9, 197], [10, 0], [11, 0], [12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 197], [19, 196], [20, 197], [21, 196], [22, 0], [23, 192], [24, 194], [25, 191], [26, 192], [27, 92]]);
-var dark_red_alt1 = n64;
-var n65 = t([[0, 189], [1, 190], [2, 191], [3, 192], [4, 194], [5, 92], [6, 195], [7, 196], [8, 197], [9, 0], [10, 0], [11, 0], [12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 196], [19, 195], [20, 196], [21, 195], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_alt2 = n65;
-var n66 = t([[0, 190], [1, 191], [2, 192], [3, 194], [4, 92], [5, 195], [6, 196], [7, 197], [8, 0], [9, 238], [10, 238], [11, 238], [12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [19, 92], [20, 195], [21, 92], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_active = n66;
-var n67 = t([[12, 0], [13, 1], [14, 2], [15, 3], [16, 0], [17, 0], [18, 11], [19, 10], [20, 11], [21, 10], [22, 11], [23, 3], [24, 4], [25, 2], [26, 3], [27, 9]]);
-var light_ListItem = n67;
-var n68 = t([[12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 11], [19, 10], [20, 11], [21, 10], [22, 11], [23, 5], [24, 6], [25, 4], [26, 5], [27, 7]]);
-var light_Card = n68;
-var light_DrawerFrame = n68;
-var light_Progress = n68;
-var light_TooltipArrow = n68;
-var n69 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 11], [19, 10], [20, 11], [21, 10], [22, 10], [23, 241], [24, 241], [25, 5], [26, 6], [27, 6]]);
-var light_Button = n69;
-var n70 = t([[12, 1], [13, 2], [14, 3], [15, 4], [16, 0], [17, 12], [18, 11], [19, 10], [20, 11], [21, 10], [22, 13], [23, 6], [24, 7], [25, 5], [26, 6], [27, 8]]);
-var light_Checkbox = n70;
-var light_RadioGroupItem = n70;
-var light_Input = n70;
-var light_TextArea = n70;
-var n71 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 11], [19, 10], [20, 11], [21, 10], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_Switch = n71;
-var light_TooltipContent = n71;
-var light_SliderTrack = n71;
-var n72 = t([[12, 11], [13, 11], [14, 10], [15, 9], [16, 11], [17, 11], [18, 0], [19, 1], [20, 0], [21, 1], [22, 0], [23, 9], [24, 8], [25, 10], [26, 9], [27, 1]]);
-var light_SwitchThumb = n72;
-var n73 = t([[12, 8], [13, 7], [14, 6], [15, 5], [16, 9], [17, 10], [18, 0], [19, 1], [20, 0], [21, 1], [22, 1], [23, 5], [24, 4], [25, 6], [26, 5], [27, 5]]);
-var light_SliderTrackActive = n73;
-var n74 = t([[12, 10], [13, 9], [14, 8], [15, 7], [16, 11], [17, 13], [18, 0], [19, 1], [20, 0], [21, 1], [22, 12], [23, 7], [24, 6], [25, 8], [26, 7], [27, 3]]);
-var light_SliderThumb = n74;
-var light_Tooltip = n74;
-var light_ProgressIndicator = n74;
-var n75 = t([[12, 111], [13, 112], [14, 113], [15, 114], [16, 110], [17, 13], [18, 0], [19, 120], [20, 0], [21, 120], [22, 12], [23, 114], [24, 115], [25, 113], [26, 114], [27, 118]]);
-var dark_ListItem = n75;
-var n76 = t([[12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 0], [19, 120], [20, 0], [21, 120], [22, 0], [23, 115], [24, 116], [25, 114], [26, 115], [27, 117]]);
-var dark_Card = n76;
-var dark_DrawerFrame = n76;
-var dark_Progress = n76;
-var dark_TooltipArrow = n76;
-var n77 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 0], [19, 120], [20, 0], [21, 120], [22, 120], [23, 241], [24, 241], [25, 115], [26, 116], [27, 116]]);
-var dark_Button = n77;
-var n78 = t([[12, 111], [13, 112], [14, 113], [15, 114], [16, 110], [17, 13], [18, 0], [19, 120], [20, 0], [21, 120], [22, 12], [23, 116], [24, 117], [25, 115], [26, 116], [27, 118]]);
-var dark_Checkbox = n78;
-var dark_RadioGroupItem = n78;
-var dark_Input = n78;
-var dark_TextArea = n78;
-var n79 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 0], [19, 120], [20, 0], [21, 120], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_Switch = n79;
-var dark_TooltipContent = n79;
-var dark_SliderTrack = n79;
-var n80 = t([[12, 0], [13, 0], [14, 120], [15, 119], [16, 0], [17, 0], [18, 110], [19, 111], [20, 110], [21, 111], [22, 110], [23, 119], [24, 118], [25, 120], [26, 119], [27, 111]]);
-var dark_SwitchThumb = n80;
-var n81 = t([[12, 118], [13, 117], [14, 116], [15, 115], [16, 119], [17, 120], [18, 110], [19, 111], [20, 110], [21, 111], [22, 111], [23, 115], [24, 114], [25, 116], [26, 115], [27, 115]]);
-var dark_SliderTrackActive = n81;
-var n82 = t([[12, 120], [13, 119], [14, 118], [15, 117], [16, 0], [17, 12], [18, 110], [19, 111], [20, 110], [21, 111], [22, 13], [23, 117], [24, 116], [25, 118], [26, 117], [27, 113]]);
-var dark_SliderThumb = n82;
-var dark_Tooltip = n82;
-var dark_ProgressIndicator = n82;
-var n83 = t([[12, 48], [13, 49], [14, 50], [15, 51], [16, 48], [17, 48], [18, 11], [19, 59], [20, 11], [21, 59], [22, 11], [23, 50], [24, 51], [25, 50], [26, 50], [27, 58]]);
-var light_orange_ListItem = n83;
-var n84 = t([[12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 11], [19, 59], [20, 11], [21, 59], [22, 11], [23, 52], [24, 53], [25, 52], [26, 52], [27, 56]]);
-var light_orange_Card = n84;
-var light_orange_DrawerFrame = n84;
-var light_orange_Progress = n84;
-var light_orange_TooltipArrow = n84;
-var n85 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 11], [19, 59], [20, 11], [21, 59], [22, 59], [23, 241], [24, 241], [25, 53], [26, 53], [27, 55]]);
-var light_orange_Button = n85;
-var n86 = t([[12, 49], [13, 50], [14, 51], [15, 52], [16, 48], [17, 211], [18, 11], [19, 59], [20, 11], [21, 59], [22, 212], [23, 53], [24, 55], [25, 53], [26, 53], [27, 57]]);
-var light_orange_Checkbox = n86;
-var light_orange_RadioGroupItem = n86;
-var light_orange_Input = n86;
-var light_orange_TextArea = n86;
-var n87 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 11], [19, 59], [20, 11], [21, 59], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_Switch = n87;
-var light_orange_TooltipContent = n87;
-var light_orange_SliderTrack = n87;
-var n88 = t([[12, 11], [13, 11], [14, 59], [15, 58], [16, 11], [17, 11], [18, 48], [19, 49], [20, 48], [21, 49], [22, 48], [23, 59], [24, 58], [25, 59], [26, 59], [27, 49]]);
-var light_orange_SwitchThumb = n88;
-var n89 = t([[12, 57], [13, 56], [14, 55], [15, 53], [16, 58], [17, 59], [18, 48], [19, 49], [20, 48], [21, 49], [22, 49], [23, 55], [24, 53], [25, 55], [26, 55], [27, 53]]);
-var light_orange_SliderTrackActive = n89;
-var n90 = t([[12, 59], [13, 58], [14, 57], [15, 56], [16, 11], [17, 212], [18, 48], [19, 49], [20, 48], [21, 49], [22, 211], [23, 57], [24, 56], [25, 57], [26, 57], [27, 51]]);
-var light_orange_SliderThumb = n90;
-var light_orange_Tooltip = n90;
-var light_orange_ProgressIndicator = n90;
-var n91 = t([[12, 96], [13, 97], [14, 98], [15, 99], [16, 96], [17, 96], [18, 11], [19, 107], [20, 11], [21, 107], [22, 11], [23, 98], [24, 99], [25, 98], [26, 98], [27, 106]]);
-var light_yellow_ListItem = n91;
-var n92 = t([[12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 11], [19, 107], [20, 11], [21, 107], [22, 11], [23, 100], [24, 101], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_Card = n92;
-var light_yellow_DrawerFrame = n92;
-var light_yellow_Progress = n92;
-var light_yellow_TooltipArrow = n92;
-var n93 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 11], [19, 107], [20, 11], [21, 107], [22, 107], [23, 241], [24, 241], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_Button = n93;
-var n94 = t([[12, 97], [13, 98], [14, 99], [15, 100], [16, 96], [17, 213], [18, 11], [19, 107], [20, 11], [21, 107], [22, 214], [23, 101], [24, 103], [25, 101], [26, 101], [27, 105]]);
-var light_yellow_Checkbox = n94;
-var light_yellow_RadioGroupItem = n94;
-var light_yellow_Input = n94;
-var light_yellow_TextArea = n94;
-var n95 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 11], [19, 107], [20, 11], [21, 107], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_Switch = n95;
-var light_yellow_TooltipContent = n95;
-var light_yellow_SliderTrack = n95;
-var n96 = t([[12, 11], [13, 11], [14, 107], [15, 106], [16, 11], [17, 11], [18, 96], [19, 97], [20, 96], [21, 97], [22, 96], [23, 107], [24, 106], [25, 107], [26, 107], [27, 97]]);
-var light_yellow_SwitchThumb = n96;
-var n97 = t([[12, 105], [13, 104], [14, 103], [15, 101], [16, 106], [17, 107], [18, 96], [19, 97], [20, 96], [21, 97], [22, 97], [23, 103], [24, 101], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_SliderTrackActive = n97;
-var n98 = t([[12, 107], [13, 106], [14, 105], [15, 104], [16, 11], [17, 214], [18, 96], [19, 97], [20, 96], [21, 97], [22, 213], [23, 105], [24, 104], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_SliderThumb = n98;
-var light_yellow_Tooltip = n98;
-var light_yellow_ProgressIndicator = n98;
-var n99 = t([[12, 36], [13, 37], [14, 38], [15, 39], [16, 36], [17, 36], [18, 11], [19, 47], [20, 11], [21, 47], [22, 11], [23, 38], [24, 39], [25, 38], [26, 38], [27, 46]]);
-var light_green_ListItem = n99;
-var n100 = t([[12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 11], [19, 47], [20, 11], [21, 47], [22, 11], [23, 40], [24, 41], [25, 40], [26, 40], [27, 44]]);
-var light_green_Card = n100;
-var light_green_DrawerFrame = n100;
-var light_green_Progress = n100;
-var light_green_TooltipArrow = n100;
-var n101 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 11], [19, 47], [20, 11], [21, 47], [22, 47], [23, 241], [24, 241], [25, 41], [26, 41], [27, 43]]);
-var light_green_Button = n101;
-var n102 = t([[12, 37], [13, 38], [14, 39], [15, 40], [16, 36], [17, 215], [18, 11], [19, 47], [20, 11], [21, 47], [22, 216], [23, 41], [24, 43], [25, 41], [26, 41], [27, 45]]);
-var light_green_Checkbox = n102;
-var light_green_RadioGroupItem = n102;
-var light_green_Input = n102;
-var light_green_TextArea = n102;
-var n103 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 11], [19, 47], [20, 11], [21, 47], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_Switch = n103;
-var light_green_TooltipContent = n103;
-var light_green_SliderTrack = n103;
-var n104 = t([[12, 11], [13, 11], [14, 47], [15, 46], [16, 11], [17, 11], [18, 36], [19, 37], [20, 36], [21, 37], [22, 36], [23, 47], [24, 46], [25, 47], [26, 47], [27, 37]]);
-var light_green_SwitchThumb = n104;
-var n105 = t([[12, 45], [13, 44], [14, 43], [15, 41], [16, 46], [17, 47], [18, 36], [19, 37], [20, 36], [21, 37], [22, 37], [23, 43], [24, 41], [25, 43], [26, 43], [27, 41]]);
-var light_green_SliderTrackActive = n105;
-var n106 = t([[12, 47], [13, 46], [14, 45], [15, 44], [16, 11], [17, 216], [18, 36], [19, 37], [20, 36], [21, 37], [22, 215], [23, 45], [24, 44], [25, 45], [26, 45], [27, 39]]);
-var light_green_SliderThumb = n106;
-var light_green_Tooltip = n106;
-var light_green_ProgressIndicator = n106;
-var n107 = t([[12, 14], [13, 15], [14, 16], [15, 17], [16, 14], [17, 14], [18, 11], [19, 25], [20, 11], [21, 25], [22, 11], [23, 16], [24, 17], [25, 16], [26, 16], [27, 24]]);
-var light_blue_ListItem = n107;
-var n108 = t([[12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 11], [19, 25], [20, 11], [21, 25], [22, 11], [23, 18], [24, 19], [25, 18], [26, 18], [27, 22]]);
-var light_blue_Card = n108;
-var light_blue_DrawerFrame = n108;
-var light_blue_Progress = n108;
-var light_blue_TooltipArrow = n108;
-var n109 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 11], [19, 25], [20, 11], [21, 25], [22, 25], [23, 241], [24, 241], [25, 19], [26, 19], [27, 21]]);
-var light_blue_Button = n109;
-var n110 = t([[12, 15], [13, 16], [14, 17], [15, 18], [16, 14], [17, 217], [18, 11], [19, 25], [20, 11], [21, 25], [22, 218], [23, 19], [24, 21], [25, 19], [26, 19], [27, 23]]);
-var light_blue_Checkbox = n110;
-var light_blue_RadioGroupItem = n110;
-var light_blue_Input = n110;
-var light_blue_TextArea = n110;
-var n111 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 11], [19, 25], [20, 11], [21, 25], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_Switch = n111;
-var light_blue_TooltipContent = n111;
-var light_blue_SliderTrack = n111;
-var n112 = t([[12, 11], [13, 11], [14, 25], [15, 24], [16, 11], [17, 11], [18, 14], [19, 15], [20, 14], [21, 15], [22, 14], [23, 25], [24, 24], [25, 25], [26, 25], [27, 15]]);
-var light_blue_SwitchThumb = n112;
-var n113 = t([[12, 23], [13, 22], [14, 21], [15, 19], [16, 24], [17, 25], [18, 14], [19, 15], [20, 14], [21, 15], [22, 15], [23, 21], [24, 19], [25, 21], [26, 21], [27, 19]]);
-var light_blue_SliderTrackActive = n113;
-var n114 = t([[12, 25], [13, 24], [14, 23], [15, 22], [16, 11], [17, 218], [18, 14], [19, 15], [20, 14], [21, 15], [22, 217], [23, 23], [24, 22], [25, 23], [26, 23], [27, 17]]);
-var light_blue_SliderThumb = n114;
-var light_blue_Tooltip = n114;
-var light_blue_ProgressIndicator = n114;
-var n115 = t([[12, 72], [13, 73], [14, 74], [15, 75], [16, 72], [17, 72], [18, 11], [19, 83], [20, 11], [21, 83], [22, 11], [23, 74], [24, 75], [25, 74], [26, 74], [27, 82]]);
-var light_purple_ListItem = n115;
-var n116 = t([[12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 11], [19, 83], [20, 11], [21, 83], [22, 11], [23, 76], [24, 77], [25, 76], [26, 76], [27, 80]]);
-var light_purple_Card = n116;
-var light_purple_DrawerFrame = n116;
-var light_purple_Progress = n116;
-var light_purple_TooltipArrow = n116;
-var n117 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 11], [19, 83], [20, 11], [21, 83], [22, 83], [23, 241], [24, 241], [25, 77], [26, 77], [27, 79]]);
-var light_purple_Button = n117;
-var n118 = t([[12, 73], [13, 74], [14, 75], [15, 76], [16, 72], [17, 219], [18, 11], [19, 83], [20, 11], [21, 83], [22, 220], [23, 77], [24, 79], [25, 77], [26, 77], [27, 81]]);
-var light_purple_Checkbox = n118;
-var light_purple_RadioGroupItem = n118;
-var light_purple_Input = n118;
-var light_purple_TextArea = n118;
-var n119 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 11], [19, 83], [20, 11], [21, 83], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_Switch = n119;
-var light_purple_TooltipContent = n119;
-var light_purple_SliderTrack = n119;
-var n120 = t([[12, 11], [13, 11], [14, 83], [15, 82], [16, 11], [17, 11], [18, 72], [19, 73], [20, 72], [21, 73], [22, 72], [23, 83], [24, 82], [25, 83], [26, 83], [27, 73]]);
-var light_purple_SwitchThumb = n120;
-var n121 = t([[12, 81], [13, 80], [14, 79], [15, 77], [16, 82], [17, 83], [18, 72], [19, 73], [20, 72], [21, 73], [22, 73], [23, 79], [24, 77], [25, 79], [26, 79], [27, 77]]);
-var light_purple_SliderTrackActive = n121;
-var n122 = t([[12, 83], [13, 82], [14, 81], [15, 80], [16, 11], [17, 220], [18, 72], [19, 73], [20, 72], [21, 73], [22, 219], [23, 81], [24, 80], [25, 81], [26, 81], [27, 75]]);
-var light_purple_SliderThumb = n122;
-var light_purple_Tooltip = n122;
-var light_purple_ProgressIndicator = n122;
-var n123 = t([[12, 60], [13, 61], [14, 62], [15, 63], [16, 60], [17, 60], [18, 11], [19, 71], [20, 11], [21, 71], [22, 11], [23, 62], [24, 63], [25, 62], [26, 62], [27, 70]]);
-var light_pink_ListItem = n123;
-var n124 = t([[12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 11], [19, 71], [20, 11], [21, 71], [22, 11], [23, 64], [24, 65], [25, 64], [26, 64], [27, 68]]);
-var light_pink_Card = n124;
-var light_pink_DrawerFrame = n124;
-var light_pink_Progress = n124;
-var light_pink_TooltipArrow = n124;
-var n125 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 11], [19, 71], [20, 11], [21, 71], [22, 71], [23, 241], [24, 241], [25, 65], [26, 65], [27, 67]]);
-var light_pink_Button = n125;
-var n126 = t([[12, 61], [13, 62], [14, 63], [15, 64], [16, 60], [17, 221], [18, 11], [19, 71], [20, 11], [21, 71], [22, 222], [23, 65], [24, 67], [25, 65], [26, 65], [27, 69]]);
-var light_pink_Checkbox = n126;
-var light_pink_RadioGroupItem = n126;
-var light_pink_Input = n126;
-var light_pink_TextArea = n126;
-var n127 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 11], [19, 71], [20, 11], [21, 71], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_Switch = n127;
-var light_pink_TooltipContent = n127;
-var light_pink_SliderTrack = n127;
-var n128 = t([[12, 11], [13, 11], [14, 71], [15, 70], [16, 11], [17, 11], [18, 60], [19, 61], [20, 60], [21, 61], [22, 60], [23, 71], [24, 70], [25, 71], [26, 71], [27, 61]]);
-var light_pink_SwitchThumb = n128;
-var n129 = t([[12, 69], [13, 68], [14, 67], [15, 65], [16, 70], [17, 71], [18, 60], [19, 61], [20, 60], [21, 61], [22, 61], [23, 67], [24, 65], [25, 67], [26, 67], [27, 65]]);
-var light_pink_SliderTrackActive = n129;
-var n130 = t([[12, 71], [13, 70], [14, 69], [15, 68], [16, 11], [17, 222], [18, 60], [19, 61], [20, 60], [21, 61], [22, 221], [23, 69], [24, 68], [25, 69], [26, 69], [27, 63]]);
-var light_pink_SliderThumb = n130;
-var light_pink_Tooltip = n130;
-var light_pink_ProgressIndicator = n130;
-var n131 = t([[12, 84], [13, 85], [14, 86], [15, 87], [16, 84], [17, 84], [18, 11], [19, 95], [20, 11], [21, 95], [22, 11], [23, 86], [24, 87], [25, 86], [26, 86], [27, 94]]);
-var light_red_ListItem = n131;
-var n132 = t([[12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 11], [19, 95], [20, 11], [21, 95], [22, 11], [23, 88], [24, 89], [25, 88], [26, 88], [27, 92]]);
-var light_red_Card = n132;
-var light_red_DrawerFrame = n132;
-var light_red_Progress = n132;
-var light_red_TooltipArrow = n132;
-var n133 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 11], [19, 95], [20, 11], [21, 95], [22, 95], [23, 241], [24, 241], [25, 89], [26, 89], [27, 91]]);
-var light_red_Button = n133;
-var n134 = t([[12, 85], [13, 86], [14, 87], [15, 88], [16, 84], [17, 223], [18, 11], [19, 95], [20, 11], [21, 95], [22, 224], [23, 89], [24, 91], [25, 89], [26, 89], [27, 93]]);
-var light_red_Checkbox = n134;
-var light_red_RadioGroupItem = n134;
-var light_red_Input = n134;
-var light_red_TextArea = n134;
-var n135 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 11], [19, 95], [20, 11], [21, 95], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_Switch = n135;
-var light_red_TooltipContent = n135;
-var light_red_SliderTrack = n135;
-var n136 = t([[12, 11], [13, 11], [14, 95], [15, 94], [16, 11], [17, 11], [18, 84], [19, 85], [20, 84], [21, 85], [22, 84], [23, 95], [24, 94], [25, 95], [26, 95], [27, 85]]);
-var light_red_SwitchThumb = n136;
-var n137 = t([[12, 93], [13, 92], [14, 91], [15, 89], [16, 94], [17, 95], [18, 84], [19, 85], [20, 84], [21, 85], [22, 85], [23, 91], [24, 89], [25, 91], [26, 91], [27, 89]]);
-var light_red_SliderTrackActive = n137;
-var n138 = t([[12, 95], [13, 94], [14, 93], [15, 92], [16, 11], [17, 224], [18, 84], [19, 85], [20, 84], [21, 85], [22, 223], [23, 93], [24, 92], [25, 93], [26, 93], [27, 87]]);
-var light_red_SliderThumb = n138;
-var light_red_Tooltip = n138;
-var light_red_ProgressIndicator = n138;
-var n139 = t([[12, 155], [13, 156], [14, 157], [15, 158], [16, 154], [17, 225], [18, 0], [19, 164], [20, 0], [21, 164], [22, 226], [23, 158], [24, 159], [25, 157], [26, 158], [27, 162]]);
-var dark_orange_ListItem = n139;
-var n140 = t([[12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 0], [19, 164], [20, 0], [21, 164], [22, 0], [23, 159], [24, 161], [25, 158], [26, 159], [27, 56]]);
-var dark_orange_Card = n140;
-var dark_orange_DrawerFrame = n140;
-var dark_orange_Progress = n140;
-var dark_orange_TooltipArrow = n140;
-var n141 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 0], [19, 164], [20, 0], [21, 164], [22, 164], [23, 241], [24, 241], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_Button = n141;
-var n142 = t([[12, 155], [13, 156], [14, 157], [15, 158], [16, 154], [17, 225], [18, 0], [19, 164], [20, 0], [21, 164], [22, 226], [23, 161], [24, 56], [25, 159], [26, 161], [27, 162]]);
-var dark_orange_Checkbox = n142;
-var dark_orange_RadioGroupItem = n142;
-var dark_orange_Input = n142;
-var dark_orange_TextArea = n142;
-var n143 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 0], [19, 164], [20, 0], [21, 164], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_Switch = n143;
-var dark_orange_TooltipContent = n143;
-var dark_orange_SliderTrack = n143;
-var n144 = t([[12, 0], [13, 0], [14, 164], [15, 163], [16, 0], [17, 0], [18, 154], [19, 155], [20, 154], [21, 155], [22, 154], [23, 163], [24, 162], [25, 164], [26, 163], [27, 155]]);
-var dark_orange_SwitchThumb = n144;
-var n145 = t([[12, 162], [13, 56], [14, 161], [15, 159], [16, 163], [17, 164], [18, 154], [19, 155], [20, 154], [21, 155], [22, 155], [23, 159], [24, 158], [25, 161], [26, 159], [27, 159]]);
-var dark_orange_SliderTrackActive = n145;
-var n146 = t([[12, 164], [13, 163], [14, 162], [15, 56], [16, 0], [17, 226], [18, 154], [19, 155], [20, 154], [21, 155], [22, 225], [23, 56], [24, 161], [25, 162], [26, 56], [27, 157]]);
-var dark_orange_SliderThumb = n146;
-var dark_orange_Tooltip = n146;
-var dark_orange_ProgressIndicator = n146;
-var n147 = t([[12, 199], [13, 200], [14, 201], [15, 202], [16, 198], [17, 227], [18, 0], [19, 208], [20, 0], [21, 208], [22, 228], [23, 202], [24, 203], [25, 201], [26, 202], [27, 206]]);
-var dark_yellow_ListItem = n147;
-var n148 = t([[12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 0], [19, 208], [20, 0], [21, 208], [22, 0], [23, 203], [24, 205], [25, 202], [26, 203], [27, 104]]);
-var dark_yellow_Card = n148;
-var dark_yellow_DrawerFrame = n148;
-var dark_yellow_Progress = n148;
-var dark_yellow_TooltipArrow = n148;
-var n149 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 0], [19, 208], [20, 0], [21, 208], [22, 208], [23, 241], [24, 241], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_Button = n149;
-var n150 = t([[12, 199], [13, 200], [14, 201], [15, 202], [16, 198], [17, 227], [18, 0], [19, 208], [20, 0], [21, 208], [22, 228], [23, 205], [24, 104], [25, 203], [26, 205], [27, 206]]);
-var dark_yellow_Checkbox = n150;
-var dark_yellow_RadioGroupItem = n150;
-var dark_yellow_Input = n150;
-var dark_yellow_TextArea = n150;
-var n151 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 0], [19, 208], [20, 0], [21, 208], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_Switch = n151;
-var dark_yellow_TooltipContent = n151;
-var dark_yellow_SliderTrack = n151;
-var n152 = t([[12, 0], [13, 0], [14, 208], [15, 207], [16, 0], [17, 0], [18, 198], [19, 199], [20, 198], [21, 199], [22, 198], [23, 207], [24, 206], [25, 208], [26, 207], [27, 199]]);
-var dark_yellow_SwitchThumb = n152;
-var n153 = t([[12, 206], [13, 104], [14, 205], [15, 203], [16, 207], [17, 208], [18, 198], [19, 199], [20, 198], [21, 199], [22, 199], [23, 203], [24, 202], [25, 205], [26, 203], [27, 203]]);
-var dark_yellow_SliderTrackActive = n153;
-var n154 = t([[12, 208], [13, 207], [14, 206], [15, 104], [16, 0], [17, 228], [18, 198], [19, 199], [20, 198], [21, 199], [22, 227], [23, 104], [24, 205], [25, 206], [26, 104], [27, 201]]);
-var dark_yellow_SliderThumb = n154;
-var dark_yellow_Tooltip = n154;
-var dark_yellow_ProgressIndicator = n154;
-var n155 = t([[12, 144], [13, 145], [14, 146], [15, 147], [16, 143], [17, 229], [18, 0], [19, 153], [20, 0], [21, 153], [22, 230], [23, 147], [24, 148], [25, 146], [26, 147], [27, 151]]);
-var dark_green_ListItem = n155;
-var n156 = t([[12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 0], [19, 153], [20, 0], [21, 153], [22, 0], [23, 148], [24, 150], [25, 147], [26, 148], [27, 44]]);
-var dark_green_Card = n156;
-var dark_green_DrawerFrame = n156;
-var dark_green_Progress = n156;
-var dark_green_TooltipArrow = n156;
-var n157 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 0], [19, 153], [20, 0], [21, 153], [22, 153], [23, 241], [24, 241], [25, 148], [26, 150], [27, 150]]);
-var dark_green_Button = n157;
-var n158 = t([[12, 144], [13, 145], [14, 146], [15, 147], [16, 143], [17, 229], [18, 0], [19, 153], [20, 0], [21, 153], [22, 230], [23, 150], [24, 44], [25, 148], [26, 150], [27, 151]]);
-var dark_green_Checkbox = n158;
-var dark_green_RadioGroupItem = n158;
-var dark_green_Input = n158;
-var dark_green_TextArea = n158;
-var n159 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 0], [19, 153], [20, 0], [21, 153], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_Switch = n159;
-var dark_green_TooltipContent = n159;
-var dark_green_SliderTrack = n159;
-var n160 = t([[12, 0], [13, 0], [14, 153], [15, 152], [16, 0], [17, 0], [18, 143], [19, 144], [20, 143], [21, 144], [22, 143], [23, 152], [24, 151], [25, 153], [26, 152], [27, 144]]);
-var dark_green_SwitchThumb = n160;
-var n161 = t([[12, 151], [13, 44], [14, 150], [15, 148], [16, 152], [17, 153], [18, 143], [19, 144], [20, 143], [21, 144], [22, 144], [23, 148], [24, 147], [25, 150], [26, 148], [27, 148]]);
-var dark_green_SliderTrackActive = n161;
-var n162 = t([[12, 153], [13, 152], [14, 151], [15, 44], [16, 0], [17, 230], [18, 143], [19, 144], [20, 143], [21, 144], [22, 229], [23, 44], [24, 150], [25, 151], [26, 44], [27, 146]]);
-var dark_green_SliderThumb = n162;
-var dark_green_Tooltip = n162;
-var dark_green_ProgressIndicator = n162;
-var n163 = t([[12, 122], [13, 123], [14, 124], [15, 125], [16, 121], [17, 231], [18, 0], [19, 131], [20, 0], [21, 131], [22, 232], [23, 125], [24, 126], [25, 124], [26, 125], [27, 129]]);
-var dark_blue_ListItem = n163;
-var n164 = t([[12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 0], [19, 131], [20, 0], [21, 131], [22, 0], [23, 126], [24, 128], [25, 125], [26, 126], [27, 22]]);
-var dark_blue_Card = n164;
-var dark_blue_DrawerFrame = n164;
-var dark_blue_Progress = n164;
-var dark_blue_TooltipArrow = n164;
-var n165 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 0], [19, 131], [20, 0], [21, 131], [22, 131], [23, 241], [24, 241], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_Button = n165;
-var n166 = t([[12, 122], [13, 123], [14, 124], [15, 125], [16, 121], [17, 231], [18, 0], [19, 131], [20, 0], [21, 131], [22, 232], [23, 128], [24, 22], [25, 126], [26, 128], [27, 129]]);
-var dark_blue_Checkbox = n166;
-var dark_blue_RadioGroupItem = n166;
-var dark_blue_Input = n166;
-var dark_blue_TextArea = n166;
-var n167 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 0], [19, 131], [20, 0], [21, 131], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_Switch = n167;
-var dark_blue_TooltipContent = n167;
-var dark_blue_SliderTrack = n167;
-var n168 = t([[12, 0], [13, 0], [14, 131], [15, 130], [16, 0], [17, 0], [18, 121], [19, 122], [20, 121], [21, 122], [22, 121], [23, 130], [24, 129], [25, 131], [26, 130], [27, 122]]);
-var dark_blue_SwitchThumb = n168;
-var n169 = t([[12, 129], [13, 22], [14, 128], [15, 126], [16, 130], [17, 131], [18, 121], [19, 122], [20, 121], [21, 122], [22, 122], [23, 126], [24, 125], [25, 128], [26, 126], [27, 126]]);
-var dark_blue_SliderTrackActive = n169;
-var n170 = t([[12, 131], [13, 130], [14, 129], [15, 22], [16, 0], [17, 232], [18, 121], [19, 122], [20, 121], [21, 122], [22, 231], [23, 22], [24, 128], [25, 129], [26, 22], [27, 124]]);
-var dark_blue_SliderThumb = n170;
-var dark_blue_Tooltip = n170;
-var dark_blue_ProgressIndicator = n170;
-var n171 = t([[12, 177], [13, 178], [14, 179], [15, 180], [16, 176], [17, 233], [18, 0], [19, 186], [20, 0], [21, 186], [22, 234], [23, 180], [24, 181], [25, 179], [26, 180], [27, 184]]);
-var dark_purple_ListItem = n171;
-var n172 = t([[12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 0], [19, 186], [20, 0], [21, 186], [22, 0], [23, 181], [24, 183], [25, 180], [26, 181], [27, 80]]);
-var dark_purple_Card = n172;
-var dark_purple_DrawerFrame = n172;
-var dark_purple_Progress = n172;
-var dark_purple_TooltipArrow = n172;
-var n173 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 0], [19, 186], [20, 0], [21, 186], [22, 186], [23, 241], [24, 241], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_Button = n173;
-var n174 = t([[12, 177], [13, 178], [14, 179], [15, 180], [16, 176], [17, 233], [18, 0], [19, 186], [20, 0], [21, 186], [22, 234], [23, 183], [24, 80], [25, 181], [26, 183], [27, 184]]);
-var dark_purple_Checkbox = n174;
-var dark_purple_RadioGroupItem = n174;
-var dark_purple_Input = n174;
-var dark_purple_TextArea = n174;
-var n175 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 0], [19, 186], [20, 0], [21, 186], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_Switch = n175;
-var dark_purple_TooltipContent = n175;
-var dark_purple_SliderTrack = n175;
-var n176 = t([[12, 0], [13, 0], [14, 186], [15, 185], [16, 0], [17, 0], [18, 176], [19, 177], [20, 176], [21, 177], [22, 176], [23, 185], [24, 184], [25, 186], [26, 185], [27, 177]]);
-var dark_purple_SwitchThumb = n176;
-var n177 = t([[12, 184], [13, 80], [14, 183], [15, 181], [16, 185], [17, 186], [18, 176], [19, 177], [20, 176], [21, 177], [22, 177], [23, 181], [24, 180], [25, 183], [26, 181], [27, 181]]);
-var dark_purple_SliderTrackActive = n177;
-var n178 = t([[12, 186], [13, 185], [14, 184], [15, 80], [16, 0], [17, 234], [18, 176], [19, 177], [20, 176], [21, 177], [22, 233], [23, 80], [24, 183], [25, 184], [26, 80], [27, 179]]);
-var dark_purple_SliderThumb = n178;
-var dark_purple_Tooltip = n178;
-var dark_purple_ProgressIndicator = n178;
-var n179 = t([[12, 166], [13, 167], [14, 168], [15, 169], [16, 165], [17, 235], [18, 0], [19, 175], [20, 0], [21, 175], [22, 236], [23, 169], [24, 170], [25, 168], [26, 169], [27, 173]]);
-var dark_pink_ListItem = n179;
-var n180 = t([[12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 0], [19, 175], [20, 0], [21, 175], [22, 0], [23, 170], [24, 172], [25, 169], [26, 170], [27, 68]]);
-var dark_pink_Card = n180;
-var dark_pink_DrawerFrame = n180;
-var dark_pink_Progress = n180;
-var dark_pink_TooltipArrow = n180;
-var n181 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 0], [19, 175], [20, 0], [21, 175], [22, 175], [23, 241], [24, 241], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_Button = n181;
-var n182 = t([[12, 166], [13, 167], [14, 168], [15, 169], [16, 165], [17, 235], [18, 0], [19, 175], [20, 0], [21, 175], [22, 236], [23, 172], [24, 68], [25, 170], [26, 172], [27, 173]]);
-var dark_pink_Checkbox = n182;
-var dark_pink_RadioGroupItem = n182;
-var dark_pink_Input = n182;
-var dark_pink_TextArea = n182;
-var n183 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 0], [19, 175], [20, 0], [21, 175], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_Switch = n183;
-var dark_pink_TooltipContent = n183;
-var dark_pink_SliderTrack = n183;
-var n184 = t([[12, 0], [13, 0], [14, 175], [15, 174], [16, 0], [17, 0], [18, 165], [19, 166], [20, 165], [21, 166], [22, 165], [23, 174], [24, 173], [25, 175], [26, 174], [27, 166]]);
-var dark_pink_SwitchThumb = n184;
-var n185 = t([[12, 173], [13, 68], [14, 172], [15, 170], [16, 174], [17, 175], [18, 165], [19, 166], [20, 165], [21, 166], [22, 166], [23, 170], [24, 169], [25, 172], [26, 170], [27, 170]]);
-var dark_pink_SliderTrackActive = n185;
-var n186 = t([[12, 175], [13, 174], [14, 173], [15, 68], [16, 0], [17, 236], [18, 165], [19, 166], [20, 165], [21, 166], [22, 235], [23, 68], [24, 172], [25, 173], [26, 68], [27, 168]]);
-var dark_pink_SliderThumb = n186;
-var dark_pink_Tooltip = n186;
-var dark_pink_ProgressIndicator = n186;
-var n187 = t([[12, 188], [13, 189], [14, 190], [15, 191], [16, 187], [17, 237], [18, 0], [19, 197], [20, 0], [21, 197], [22, 238], [23, 191], [24, 192], [25, 190], [26, 191], [27, 195]]);
-var dark_red_ListItem = n187;
-var n188 = t([[12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 0], [19, 197], [20, 0], [21, 197], [22, 0], [23, 192], [24, 194], [25, 191], [26, 192], [27, 92]]);
-var dark_red_Card = n188;
-var dark_red_DrawerFrame = n188;
-var dark_red_Progress = n188;
-var dark_red_TooltipArrow = n188;
-var n189 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 0], [19, 197], [20, 0], [21, 197], [22, 197], [23, 241], [24, 241], [25, 192], [26, 194], [27, 194]]);
-var dark_red_Button = n189;
-var n190 = t([[12, 188], [13, 189], [14, 190], [15, 191], [16, 187], [17, 237], [18, 0], [19, 197], [20, 0], [21, 197], [22, 238], [23, 194], [24, 92], [25, 192], [26, 194], [27, 195]]);
-var dark_red_Checkbox = n190;
-var dark_red_RadioGroupItem = n190;
-var dark_red_Input = n190;
-var dark_red_TextArea = n190;
-var n191 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 0], [19, 197], [20, 0], [21, 197], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_Switch = n191;
-var dark_red_TooltipContent = n191;
-var dark_red_SliderTrack = n191;
-var n192 = t([[12, 0], [13, 0], [14, 197], [15, 196], [16, 0], [17, 0], [18, 187], [19, 188], [20, 187], [21, 188], [22, 187], [23, 196], [24, 195], [25, 197], [26, 196], [27, 188]]);
-var dark_red_SwitchThumb = n192;
-var n193 = t([[12, 195], [13, 92], [14, 194], [15, 192], [16, 196], [17, 197], [18, 187], [19, 188], [20, 187], [21, 188], [22, 188], [23, 192], [24, 191], [25, 194], [26, 192], [27, 192]]);
-var dark_red_SliderTrackActive = n193;
-var n194 = t([[12, 197], [13, 196], [14, 195], [15, 92], [16, 0], [17, 238], [18, 187], [19, 188], [20, 187], [21, 188], [22, 237], [23, 92], [24, 194], [25, 195], [26, 92], [27, 190]]);
-var dark_red_SliderThumb = n194;
-var dark_red_Tooltip = n194;
-var dark_red_ProgressIndicator = n194;
-var n195 = t([[12, 1], [13, 2], [14, 3], [15, 4], [16, 0], [17, 0], [18, 10], [19, 9], [20, 10], [21, 9], [22, 11], [23, 4], [24, 5], [25, 3], [26, 4], [27, 8]]);
-var light_alt1_ListItem = n195;
-var n196 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 10], [19, 9], [20, 10], [21, 9], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_alt1_Card = n196;
-var light_alt1_DrawerFrame = n196;
-var light_alt1_Progress = n196;
-var light_alt1_TooltipArrow = n196;
-var n197 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [18, 10], [19, 9], [20, 10], [21, 9], [22, 9], [23, 241], [24, 241], [25, 6], [26, 7], [27, 5]]);
-var light_alt1_Button = n197;
-var n198 = t([[12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 10], [19, 9], [20, 10], [21, 9], [22, 11], [23, 7], [24, 8], [25, 6], [26, 7], [27, 7]]);
-var light_alt1_Checkbox = n198;
-var light_alt1_RadioGroupItem = n198;
-var light_alt1_Input = n198;
-var light_alt1_TextArea = n198;
-var n199 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [18, 10], [19, 9], [20, 10], [21, 9], [22, 9], [23, 7], [24, 8], [25, 6], [26, 7], [27, 5]]);
-var light_alt1_Switch = n199;
-var light_alt1_TooltipContent = n199;
-var light_alt1_SliderTrack = n199;
-var n200 = t([[12, 11], [13, 10], [14, 9], [15, 8], [16, 11], [17, 11], [18, 1], [19, 2], [20, 1], [21, 2], [22, 0], [23, 8], [24, 7], [25, 9], [26, 8], [27, 2]]);
-var light_alt1_SwitchThumb = n200;
-var n201 = t([[12, 7], [13, 6], [14, 5], [15, 4], [16, 8], [17, 9], [18, 1], [19, 2], [20, 1], [21, 2], [22, 2], [23, 4], [24, 3], [25, 5], [26, 4], [27, 6]]);
-var light_alt1_SliderTrackActive = n201;
-var n202 = t([[12, 9], [13, 8], [14, 7], [15, 6], [16, 10], [17, 11], [18, 1], [19, 2], [20, 1], [21, 2], [22, 0], [23, 6], [24, 5], [25, 7], [26, 6], [27, 4]]);
-var light_alt1_SliderThumb = n202;
-var light_alt1_Tooltip = n202;
-var light_alt1_ProgressIndicator = n202;
-var n203 = t([[12, 2], [13, 3], [14, 4], [15, 5], [16, 1], [17, 0], [18, 9], [19, 8], [20, 9], [21, 8], [22, 11], [23, 5], [24, 6], [25, 4], [26, 5], [27, 7]]);
-var light_alt2_ListItem = n203;
-var n204 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [18, 9], [19, 8], [20, 9], [21, 8], [22, 9], [23, 7], [24, 8], [25, 6], [26, 7], [27, 5]]);
-var light_alt2_Card = n204;
-var light_alt2_DrawerFrame = n204;
-var light_alt2_Progress = n204;
-var light_alt2_TooltipArrow = n204;
-var n205 = t([[12, 5], [13, 6], [14, 7], [15, 8], [16, 4], [17, 3], [18, 9], [19, 8], [20, 9], [21, 8], [22, 8], [23, 241], [24, 241], [25, 7], [26, 8], [27, 4]]);
-var light_alt2_Button = n205;
-var n206 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [18, 9], [19, 8], [20, 9], [21, 8], [22, 10], [23, 8], [24, 9], [25, 7], [26, 8], [27, 6]]);
-var light_alt2_Checkbox = n206;
-var light_alt2_RadioGroupItem = n206;
-var light_alt2_Input = n206;
-var light_alt2_TextArea = n206;
-var n207 = t([[12, 5], [13, 6], [14, 7], [15, 8], [16, 4], [17, 3], [18, 9], [19, 8], [20, 9], [21, 8], [22, 8], [23, 8], [24, 9], [25, 7], [26, 8], [27, 4]]);
-var light_alt2_Switch = n207;
-var light_alt2_TooltipContent = n207;
-var light_alt2_SliderTrack = n207;
-var n208 = t([[12, 10], [13, 9], [14, 8], [15, 7], [16, 11], [17, 11], [18, 2], [19, 3], [20, 2], [21, 3], [22, 0], [23, 7], [24, 6], [25, 8], [26, 7], [27, 3]]);
-var light_alt2_SwitchThumb = n208;
-var n209 = t([[12, 6], [13, 5], [14, 4], [15, 3], [16, 7], [17, 8], [18, 2], [19, 3], [20, 2], [21, 3], [22, 3], [23, 3], [24, 2], [25, 4], [26, 3], [27, 7]]);
-var light_alt2_SliderTrackActive = n209;
-var n210 = t([[12, 8], [13, 7], [14, 6], [15, 5], [16, 9], [17, 10], [18, 2], [19, 3], [20, 2], [21, 3], [22, 1], [23, 5], [24, 4], [25, 6], [26, 5], [27, 5]]);
-var light_alt2_SliderThumb = n210;
-var light_alt2_Tooltip = n210;
-var light_alt2_ProgressIndicator = n210;
-var n211 = t([[12, 3], [13, 4], [14, 5], [15, 6], [16, 2], [17, 1], [19, 7], [20, 8], [21, 7], [22, 10], [23, 6], [24, 7], [25, 5], [26, 6], [27, 6]]);
-var light_active_ListItem = n211;
-var n212 = t([[12, 5], [13, 6], [14, 7], [15, 8], [16, 4], [17, 3], [19, 7], [20, 8], [21, 7], [22, 8], [23, 8], [24, 9], [25, 7], [26, 8], [27, 4]]);
-var light_active_Card = n212;
-var light_active_DrawerFrame = n212;
-var light_active_Progress = n212;
-var light_active_TooltipArrow = n212;
-var n213 = t([[12, 6], [13, 7], [14, 8], [15, 9], [16, 5], [17, 4], [19, 7], [20, 8], [21, 7], [22, 7], [23, 241], [24, 241], [25, 8], [26, 9], [27, 3]]);
-var light_active_Button = n213;
-var n214 = t([[12, 4], [13, 5], [14, 6], [15, 7], [16, 3], [17, 2], [19, 7], [20, 8], [21, 7], [22, 9], [23, 9], [24, 10], [25, 8], [26, 9], [27, 5]]);
-var light_active_Checkbox = n214;
-var light_active_RadioGroupItem = n214;
-var light_active_Input = n214;
-var light_active_TextArea = n214;
-var n215 = t([[12, 6], [13, 7], [14, 8], [15, 9], [16, 5], [17, 4], [19, 7], [20, 8], [21, 7], [22, 7], [23, 9], [24, 10], [25, 8], [26, 9], [27, 3]]);
-var light_active_Switch = n215;
-var light_active_TooltipContent = n215;
-var light_active_SliderTrack = n215;
-var n216 = t([[12, 9], [13, 8], [14, 7], [15, 6], [16, 10], [17, 11], [19, 4], [20, 3], [21, 4], [22, 0], [23, 6], [24, 5], [25, 7], [26, 6], [27, 4]]);
-var light_active_SwitchThumb = n216;
-var n217 = t([[12, 5], [13, 4], [14, 3], [15, 2], [16, 6], [17, 7], [19, 4], [20, 3], [21, 4], [22, 4], [23, 2], [24, 1], [25, 3], [26, 2], [27, 8]]);
-var light_active_SliderTrackActive = n217;
-var n218 = t([[12, 7], [13, 6], [14, 5], [15, 4], [16, 8], [17, 9], [19, 4], [20, 3], [21, 4], [22, 2], [23, 4], [24, 3], [25, 5], [26, 4], [27, 6]]);
-var light_active_SliderThumb = n218;
-var light_active_Tooltip = n218;
-var light_active_ProgressIndicator = n218;
-var n219 = t([[12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 120], [19, 119], [20, 120], [21, 119], [22, 0], [23, 115], [24, 116], [25, 114], [26, 115], [27, 117]]);
-var dark_alt1_ListItem = n219;
-var n220 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 120], [19, 119], [20, 120], [21, 119], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_alt1_Card = n220;
-var dark_alt1_DrawerFrame = n220;
-var dark_alt1_Progress = n220;
-var dark_alt1_TooltipArrow = n220;
-var n221 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [18, 120], [19, 119], [20, 120], [21, 119], [22, 119], [23, 241], [24, 241], [25, 116], [26, 117], [27, 115]]);
-var dark_alt1_Button = n221;
-var n222 = t([[12, 112], [13, 113], [14, 114], [15, 115], [16, 111], [17, 110], [18, 120], [19, 119], [20, 120], [21, 119], [22, 0], [23, 117], [24, 118], [25, 116], [26, 117], [27, 117]]);
-var dark_alt1_Checkbox = n222;
-var dark_alt1_RadioGroupItem = n222;
-var dark_alt1_Input = n222;
-var dark_alt1_TextArea = n222;
-var n223 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [18, 120], [19, 119], [20, 120], [21, 119], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_alt1_Switch = n223;
-var dark_alt1_TooltipContent = n223;
-var dark_alt1_SliderTrack = n223;
-var n224 = t([[12, 0], [13, 120], [14, 119], [15, 118], [16, 0], [17, 0], [18, 111], [19, 112], [20, 111], [21, 112], [22, 110], [23, 118], [24, 117], [25, 119], [26, 118], [27, 112]]);
-var dark_alt1_SwitchThumb = n224;
-var n225 = t([[12, 117], [13, 116], [14, 115], [15, 114], [16, 118], [17, 119], [18, 111], [19, 112], [20, 111], [21, 112], [22, 112], [23, 114], [24, 113], [25, 115], [26, 114], [27, 116]]);
-var dark_alt1_SliderTrackActive = n225;
-var n226 = t([[12, 119], [13, 118], [14, 117], [15, 116], [16, 120], [17, 0], [18, 111], [19, 112], [20, 111], [21, 112], [22, 110], [23, 116], [24, 115], [25, 117], [26, 116], [27, 114]]);
-var dark_alt1_SliderThumb = n226;
-var dark_alt1_Tooltip = n226;
-var dark_alt1_ProgressIndicator = n226;
-var n227 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 119], [19, 118], [20, 119], [21, 118], [22, 120], [23, 116], [24, 117], [25, 115], [26, 116], [27, 116]]);
-var dark_alt2_ListItem = n227;
-var n228 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [18, 119], [19, 118], [20, 119], [21, 118], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_alt2_Card = n228;
-var dark_alt2_DrawerFrame = n228;
-var dark_alt2_Progress = n228;
-var dark_alt2_TooltipArrow = n228;
-var n229 = t([[12, 115], [13, 116], [14, 117], [15, 118], [16, 114], [17, 113], [18, 119], [19, 118], [20, 119], [21, 118], [22, 118], [23, 241], [24, 241], [25, 117], [26, 118], [27, 114]]);
-var dark_alt2_Button = n229;
-var n230 = t([[12, 113], [13, 114], [14, 115], [15, 116], [16, 112], [17, 111], [18, 119], [19, 118], [20, 119], [21, 118], [22, 120], [23, 118], [24, 119], [25, 117], [26, 118], [27, 116]]);
-var dark_alt2_Checkbox = n230;
-var dark_alt2_RadioGroupItem = n230;
-var dark_alt2_Input = n230;
-var dark_alt2_TextArea = n230;
-var n231 = t([[12, 115], [13, 116], [14, 117], [15, 118], [16, 114], [17, 113], [18, 119], [19, 118], [20, 119], [21, 118], [22, 118], [23, 118], [24, 119], [25, 117], [26, 118], [27, 114]]);
-var dark_alt2_Switch = n231;
-var dark_alt2_TooltipContent = n231;
-var dark_alt2_SliderTrack = n231;
-var n232 = t([[12, 120], [13, 119], [14, 118], [15, 117], [16, 0], [17, 0], [18, 112], [19, 113], [20, 112], [21, 113], [22, 110], [23, 117], [24, 116], [25, 118], [26, 117], [27, 113]]);
-var dark_alt2_SwitchThumb = n232;
-var n233 = t([[12, 116], [13, 115], [14, 114], [15, 113], [16, 117], [17, 118], [18, 112], [19, 113], [20, 112], [21, 113], [22, 113], [23, 113], [24, 112], [25, 114], [26, 113], [27, 117]]);
-var dark_alt2_SliderTrackActive = n233;
-var n234 = t([[12, 118], [13, 117], [14, 116], [15, 115], [16, 119], [17, 120], [18, 112], [19, 113], [20, 112], [21, 113], [22, 111], [23, 115], [24, 114], [25, 116], [26, 115], [27, 115]]);
-var dark_alt2_SliderThumb = n234;
-var dark_alt2_Tooltip = n234;
-var dark_alt2_ProgressIndicator = n234;
-var n235 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [19, 117], [20, 118], [21, 117], [22, 119], [23, 117], [24, 118], [25, 116], [26, 117], [27, 115]]);
-var dark_active_ListItem = n235;
-var n236 = t([[12, 115], [13, 116], [14, 117], [15, 118], [16, 114], [17, 113], [19, 117], [20, 118], [21, 117], [22, 118], [23, 118], [24, 119], [25, 117], [26, 118], [27, 114]]);
-var dark_active_Card = n236;
-var dark_active_DrawerFrame = n236;
-var dark_active_Progress = n236;
-var dark_active_TooltipArrow = n236;
-var n237 = t([[12, 116], [13, 117], [14, 118], [15, 119], [16, 115], [17, 114], [19, 117], [20, 118], [21, 117], [22, 117], [23, 241], [24, 241], [25, 118], [26, 119], [27, 113]]);
-var dark_active_Button = n237;
-var n238 = t([[12, 114], [13, 115], [14, 116], [15, 117], [16, 113], [17, 112], [19, 117], [20, 118], [21, 117], [22, 119], [23, 119], [24, 120], [25, 118], [26, 119], [27, 115]]);
-var dark_active_Checkbox = n238;
-var dark_active_RadioGroupItem = n238;
-var dark_active_Input = n238;
-var dark_active_TextArea = n238;
-var n239 = t([[12, 116], [13, 117], [14, 118], [15, 119], [16, 115], [17, 114], [19, 117], [20, 118], [21, 117], [22, 117], [23, 119], [24, 120], [25, 118], [26, 119], [27, 113]]);
-var dark_active_Switch = n239;
-var dark_active_TooltipContent = n239;
-var dark_active_SliderTrack = n239;
-var n240 = t([[12, 119], [13, 118], [14, 117], [15, 116], [16, 120], [17, 0], [19, 114], [20, 113], [21, 114], [22, 110], [23, 116], [24, 115], [25, 117], [26, 116], [27, 114]]);
-var dark_active_SwitchThumb = n240;
-var n241 = t([[12, 115], [13, 114], [14, 113], [15, 112], [16, 116], [17, 117], [19, 114], [20, 113], [21, 114], [22, 114], [23, 112], [24, 111], [25, 113], [26, 112], [27, 118]]);
-var dark_active_SliderTrackActive = n241;
-var n242 = t([[12, 117], [13, 116], [14, 115], [15, 114], [16, 118], [17, 119], [19, 114], [20, 113], [21, 114], [22, 112], [23, 114], [24, 113], [25, 115], [26, 114], [27, 116]]);
-var dark_active_SliderThumb = n242;
-var dark_active_Tooltip = n242;
-var dark_active_ProgressIndicator = n242;
-var n243 = t([[12, 49], [13, 50], [14, 51], [15, 52], [16, 48], [17, 48], [18, 59], [19, 58], [20, 59], [21, 58], [22, 11], [23, 51], [24, 52], [25, 51], [26, 51], [27, 57]]);
-var light_orange_alt1_ListItem = n243;
-var n244 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 59], [19, 58], [20, 59], [21, 58], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_alt1_Card = n244;
-var light_orange_alt1_DrawerFrame = n244;
-var light_orange_alt1_Progress = n244;
-var light_orange_alt1_TooltipArrow = n244;
-var n245 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [18, 59], [19, 58], [20, 59], [21, 58], [22, 58], [23, 241], [24, 241], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt1_Button = n245;
-var n246 = t([[12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 59], [19, 58], [20, 59], [21, 58], [22, 11], [23, 55], [24, 56], [25, 55], [26, 55], [27, 56]]);
-var light_orange_alt1_Checkbox = n246;
-var light_orange_alt1_RadioGroupItem = n246;
-var light_orange_alt1_Input = n246;
-var light_orange_alt1_TextArea = n246;
-var n247 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [18, 59], [19, 58], [20, 59], [21, 58], [22, 58], [23, 55], [24, 56], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt1_Switch = n247;
-var light_orange_alt1_TooltipContent = n247;
-var light_orange_alt1_SliderTrack = n247;
-var n248 = t([[12, 11], [13, 59], [14, 58], [15, 57], [16, 11], [17, 11], [18, 49], [19, 50], [20, 49], [21, 50], [22, 48], [23, 58], [24, 57], [25, 58], [26, 58], [27, 50]]);
-var light_orange_alt1_SwitchThumb = n248;
-var n249 = t([[12, 56], [13, 55], [14, 53], [15, 52], [16, 57], [17, 58], [18, 49], [19, 50], [20, 49], [21, 50], [22, 50], [23, 53], [24, 52], [25, 53], [26, 53], [27, 55]]);
-var light_orange_alt1_SliderTrackActive = n249;
-var n250 = t([[12, 58], [13, 57], [14, 56], [15, 55], [16, 59], [17, 11], [18, 49], [19, 50], [20, 49], [21, 50], [22, 48], [23, 56], [24, 55], [25, 56], [26, 56], [27, 52]]);
-var light_orange_alt1_SliderThumb = n250;
-var light_orange_alt1_Tooltip = n250;
-var light_orange_alt1_ProgressIndicator = n250;
-var n251 = t([[12, 50], [13, 51], [14, 52], [15, 53], [16, 49], [17, 48], [18, 58], [19, 57], [20, 58], [21, 57], [22, 11], [23, 52], [24, 53], [25, 52], [26, 52], [27, 56]]);
-var light_orange_alt2_ListItem = n251;
-var n252 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [18, 58], [19, 57], [20, 58], [21, 57], [22, 58], [23, 55], [24, 56], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt2_Card = n252;
-var light_orange_alt2_DrawerFrame = n252;
-var light_orange_alt2_Progress = n252;
-var light_orange_alt2_TooltipArrow = n252;
-var n253 = t([[12, 53], [13, 55], [14, 56], [15, 57], [16, 52], [17, 51], [18, 58], [19, 57], [20, 58], [21, 57], [22, 57], [23, 241], [24, 241], [25, 56], [26, 56], [27, 52]]);
-var light_orange_alt2_Button = n253;
-var n254 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [18, 58], [19, 57], [20, 58], [21, 57], [22, 59], [23, 56], [24, 57], [25, 56], [26, 56], [27, 55]]);
-var light_orange_alt2_Checkbox = n254;
-var light_orange_alt2_RadioGroupItem = n254;
-var light_orange_alt2_Input = n254;
-var light_orange_alt2_TextArea = n254;
-var n255 = t([[12, 53], [13, 55], [14, 56], [15, 57], [16, 52], [17, 51], [18, 58], [19, 57], [20, 58], [21, 57], [22, 57], [23, 56], [24, 57], [25, 56], [26, 56], [27, 52]]);
-var light_orange_alt2_Switch = n255;
-var light_orange_alt2_TooltipContent = n255;
-var light_orange_alt2_SliderTrack = n255;
-var n256 = t([[12, 59], [13, 58], [14, 57], [15, 56], [16, 11], [17, 11], [18, 50], [19, 51], [20, 50], [21, 51], [22, 48], [23, 57], [24, 56], [25, 57], [26, 57], [27, 51]]);
-var light_orange_alt2_SwitchThumb = n256;
-var n257 = t([[12, 55], [13, 53], [14, 52], [15, 51], [16, 56], [17, 57], [18, 50], [19, 51], [20, 50], [21, 51], [22, 51], [23, 52], [24, 51], [25, 52], [26, 52], [27, 56]]);
-var light_orange_alt2_SliderTrackActive = n257;
-var n258 = t([[12, 57], [13, 56], [14, 55], [15, 53], [16, 58], [17, 59], [18, 50], [19, 51], [20, 50], [21, 51], [22, 49], [23, 55], [24, 53], [25, 55], [26, 55], [27, 53]]);
-var light_orange_alt2_SliderThumb = n258;
-var light_orange_alt2_Tooltip = n258;
-var light_orange_alt2_ProgressIndicator = n258;
-var n259 = t([[12, 51], [13, 52], [14, 53], [15, 55], [16, 50], [17, 49], [19, 56], [20, 57], [21, 56], [22, 59], [23, 53], [24, 55], [25, 53], [26, 53], [27, 55]]);
-var light_orange_active_ListItem = n259;
-var n260 = t([[12, 53], [13, 55], [14, 56], [15, 57], [16, 52], [17, 51], [19, 56], [20, 57], [21, 56], [22, 57], [23, 56], [24, 57], [25, 56], [26, 56], [27, 52]]);
-var light_orange_active_Card = n260;
-var light_orange_active_DrawerFrame = n260;
-var light_orange_active_Progress = n260;
-var light_orange_active_TooltipArrow = n260;
-var n261 = t([[12, 55], [13, 56], [14, 57], [15, 58], [16, 53], [17, 52], [19, 56], [20, 57], [21, 56], [22, 56], [23, 241], [24, 241], [25, 57], [26, 57], [27, 51]]);
-var light_orange_active_Button = n261;
-var n262 = t([[12, 52], [13, 53], [14, 55], [15, 56], [16, 51], [17, 50], [19, 56], [20, 57], [21, 56], [22, 58], [23, 57], [24, 58], [25, 57], [26, 57], [27, 53]]);
-var light_orange_active_Checkbox = n262;
-var light_orange_active_RadioGroupItem = n262;
-var light_orange_active_Input = n262;
-var light_orange_active_TextArea = n262;
-var n263 = t([[12, 55], [13, 56], [14, 57], [15, 58], [16, 53], [17, 52], [19, 56], [20, 57], [21, 56], [22, 56], [23, 57], [24, 58], [25, 57], [26, 57], [27, 51]]);
-var light_orange_active_Switch = n263;
-var light_orange_active_TooltipContent = n263;
-var light_orange_active_SliderTrack = n263;
-var n264 = t([[12, 58], [13, 57], [14, 56], [15, 55], [16, 59], [17, 11], [19, 52], [20, 51], [21, 52], [22, 48], [23, 56], [24, 55], [25, 56], [26, 56], [27, 52]]);
-var light_orange_active_SwitchThumb = n264;
-var n265 = t([[12, 53], [13, 52], [14, 51], [15, 50], [16, 55], [17, 56], [19, 52], [20, 51], [21, 52], [22, 52], [23, 51], [24, 50], [25, 51], [26, 51], [27, 57]]);
-var light_orange_active_SliderTrackActive = n265;
-var n266 = t([[12, 56], [13, 55], [14, 53], [15, 52], [16, 57], [17, 58], [19, 52], [20, 51], [21, 52], [22, 50], [23, 53], [24, 52], [25, 53], [26, 53], [27, 55]]);
-var light_orange_active_SliderThumb = n266;
-var light_orange_active_Tooltip = n266;
-var light_orange_active_ProgressIndicator = n266;
-var n267 = t([[12, 97], [13, 98], [14, 99], [15, 100], [16, 96], [17, 96], [18, 107], [19, 106], [20, 107], [21, 106], [22, 11], [23, 99], [24, 100], [25, 99], [26, 99], [27, 105]]);
-var light_yellow_alt1_ListItem = n267;
-var n268 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 107], [19, 106], [20, 107], [21, 106], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_alt1_Card = n268;
-var light_yellow_alt1_DrawerFrame = n268;
-var light_yellow_alt1_Progress = n268;
-var light_yellow_alt1_TooltipArrow = n268;
-var n269 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [18, 107], [19, 106], [20, 107], [21, 106], [22, 106], [23, 241], [24, 241], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt1_Button = n269;
-var n270 = t([[12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 107], [19, 106], [20, 107], [21, 106], [22, 11], [23, 103], [24, 104], [25, 103], [26, 103], [27, 104]]);
-var light_yellow_alt1_Checkbox = n270;
-var light_yellow_alt1_RadioGroupItem = n270;
-var light_yellow_alt1_Input = n270;
-var light_yellow_alt1_TextArea = n270;
-var n271 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [18, 107], [19, 106], [20, 107], [21, 106], [22, 106], [23, 103], [24, 104], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt1_Switch = n271;
-var light_yellow_alt1_TooltipContent = n271;
-var light_yellow_alt1_SliderTrack = n271;
-var n272 = t([[12, 11], [13, 107], [14, 106], [15, 105], [16, 11], [17, 11], [18, 97], [19, 98], [20, 97], [21, 98], [22, 96], [23, 106], [24, 105], [25, 106], [26, 106], [27, 98]]);
-var light_yellow_alt1_SwitchThumb = n272;
-var n273 = t([[12, 104], [13, 103], [14, 101], [15, 100], [16, 105], [17, 106], [18, 97], [19, 98], [20, 97], [21, 98], [22, 98], [23, 101], [24, 100], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_alt1_SliderTrackActive = n273;
-var n274 = t([[12, 106], [13, 105], [14, 104], [15, 103], [16, 107], [17, 11], [18, 97], [19, 98], [20, 97], [21, 98], [22, 96], [23, 104], [24, 103], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_alt1_SliderThumb = n274;
-var light_yellow_alt1_Tooltip = n274;
-var light_yellow_alt1_ProgressIndicator = n274;
-var n275 = t([[12, 98], [13, 99], [14, 100], [15, 101], [16, 97], [17, 96], [18, 106], [19, 105], [20, 106], [21, 105], [22, 11], [23, 100], [24, 101], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_alt2_ListItem = n275;
-var n276 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [18, 106], [19, 105], [20, 106], [21, 105], [22, 106], [23, 103], [24, 104], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt2_Card = n276;
-var light_yellow_alt2_DrawerFrame = n276;
-var light_yellow_alt2_Progress = n276;
-var light_yellow_alt2_TooltipArrow = n276;
-var n277 = t([[12, 101], [13, 103], [14, 104], [15, 105], [16, 100], [17, 99], [18, 106], [19, 105], [20, 106], [21, 105], [22, 105], [23, 241], [24, 241], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_alt2_Button = n277;
-var n278 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [18, 106], [19, 105], [20, 106], [21, 105], [22, 107], [23, 104], [24, 105], [25, 104], [26, 104], [27, 103]]);
-var light_yellow_alt2_Checkbox = n278;
-var light_yellow_alt2_RadioGroupItem = n278;
-var light_yellow_alt2_Input = n278;
-var light_yellow_alt2_TextArea = n278;
-var n279 = t([[12, 101], [13, 103], [14, 104], [15, 105], [16, 100], [17, 99], [18, 106], [19, 105], [20, 106], [21, 105], [22, 105], [23, 104], [24, 105], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_alt2_Switch = n279;
-var light_yellow_alt2_TooltipContent = n279;
-var light_yellow_alt2_SliderTrack = n279;
-var n280 = t([[12, 107], [13, 106], [14, 105], [15, 104], [16, 11], [17, 11], [18, 98], [19, 99], [20, 98], [21, 99], [22, 96], [23, 105], [24, 104], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_alt2_SwitchThumb = n280;
-var n281 = t([[12, 103], [13, 101], [14, 100], [15, 99], [16, 104], [17, 105], [18, 98], [19, 99], [20, 98], [21, 99], [22, 99], [23, 100], [24, 99], [25, 100], [26, 100], [27, 104]]);
-var light_yellow_alt2_SliderTrackActive = n281;
-var n282 = t([[12, 105], [13, 104], [14, 103], [15, 101], [16, 106], [17, 107], [18, 98], [19, 99], [20, 98], [21, 99], [22, 97], [23, 103], [24, 101], [25, 103], [26, 103], [27, 101]]);
-var light_yellow_alt2_SliderThumb = n282;
-var light_yellow_alt2_Tooltip = n282;
-var light_yellow_alt2_ProgressIndicator = n282;
-var n283 = t([[12, 99], [13, 100], [14, 101], [15, 103], [16, 98], [17, 97], [19, 104], [20, 105], [21, 104], [22, 107], [23, 101], [24, 103], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_active_ListItem = n283;
-var n284 = t([[12, 101], [13, 103], [14, 104], [15, 105], [16, 100], [17, 99], [19, 104], [20, 105], [21, 104], [22, 105], [23, 104], [24, 105], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_active_Card = n284;
-var light_yellow_active_DrawerFrame = n284;
-var light_yellow_active_Progress = n284;
-var light_yellow_active_TooltipArrow = n284;
-var n285 = t([[12, 103], [13, 104], [14, 105], [15, 106], [16, 101], [17, 100], [19, 104], [20, 105], [21, 104], [22, 104], [23, 241], [24, 241], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_active_Button = n285;
-var n286 = t([[12, 100], [13, 101], [14, 103], [15, 104], [16, 99], [17, 98], [19, 104], [20, 105], [21, 104], [22, 106], [23, 105], [24, 106], [25, 105], [26, 105], [27, 101]]);
-var light_yellow_active_Checkbox = n286;
-var light_yellow_active_RadioGroupItem = n286;
-var light_yellow_active_Input = n286;
-var light_yellow_active_TextArea = n286;
-var n287 = t([[12, 103], [13, 104], [14, 105], [15, 106], [16, 101], [17, 100], [19, 104], [20, 105], [21, 104], [22, 104], [23, 105], [24, 106], [25, 105], [26, 105], [27, 99]]);
-var light_yellow_active_Switch = n287;
-var light_yellow_active_TooltipContent = n287;
-var light_yellow_active_SliderTrack = n287;
-var n288 = t([[12, 106], [13, 105], [14, 104], [15, 103], [16, 107], [17, 11], [19, 100], [20, 99], [21, 100], [22, 96], [23, 104], [24, 103], [25, 104], [26, 104], [27, 100]]);
-var light_yellow_active_SwitchThumb = n288;
-var n289 = t([[12, 101], [13, 100], [14, 99], [15, 98], [16, 103], [17, 104], [19, 100], [20, 99], [21, 100], [22, 100], [23, 99], [24, 98], [25, 99], [26, 99], [27, 105]]);
-var light_yellow_active_SliderTrackActive = n289;
-var n290 = t([[12, 104], [13, 103], [14, 101], [15, 100], [16, 105], [17, 106], [19, 100], [20, 99], [21, 100], [22, 98], [23, 101], [24, 100], [25, 101], [26, 101], [27, 103]]);
-var light_yellow_active_SliderThumb = n290;
-var light_yellow_active_Tooltip = n290;
-var light_yellow_active_ProgressIndicator = n290;
-var n291 = t([[12, 37], [13, 38], [14, 39], [15, 40], [16, 36], [17, 36], [18, 47], [19, 46], [20, 47], [21, 46], [22, 11], [23, 39], [24, 40], [25, 39], [26, 39], [27, 45]]);
-var light_green_alt1_ListItem = n291;
-var n292 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 47], [19, 46], [20, 47], [21, 46], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_alt1_Card = n292;
-var light_green_alt1_DrawerFrame = n292;
-var light_green_alt1_Progress = n292;
-var light_green_alt1_TooltipArrow = n292;
-var n293 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [18, 47], [19, 46], [20, 47], [21, 46], [22, 46], [23, 241], [24, 241], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt1_Button = n293;
-var n294 = t([[12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 47], [19, 46], [20, 47], [21, 46], [22, 11], [23, 43], [24, 44], [25, 43], [26, 43], [27, 44]]);
-var light_green_alt1_Checkbox = n294;
-var light_green_alt1_RadioGroupItem = n294;
-var light_green_alt1_Input = n294;
-var light_green_alt1_TextArea = n294;
-var n295 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [18, 47], [19, 46], [20, 47], [21, 46], [22, 46], [23, 43], [24, 44], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt1_Switch = n295;
-var light_green_alt1_TooltipContent = n295;
-var light_green_alt1_SliderTrack = n295;
-var n296 = t([[12, 11], [13, 47], [14, 46], [15, 45], [16, 11], [17, 11], [18, 37], [19, 38], [20, 37], [21, 38], [22, 36], [23, 46], [24, 45], [25, 46], [26, 46], [27, 38]]);
-var light_green_alt1_SwitchThumb = n296;
-var n297 = t([[12, 44], [13, 43], [14, 41], [15, 40], [16, 45], [17, 46], [18, 37], [19, 38], [20, 37], [21, 38], [22, 38], [23, 41], [24, 40], [25, 41], [26, 41], [27, 43]]);
-var light_green_alt1_SliderTrackActive = n297;
-var n298 = t([[12, 46], [13, 45], [14, 44], [15, 43], [16, 47], [17, 11], [18, 37], [19, 38], [20, 37], [21, 38], [22, 36], [23, 44], [24, 43], [25, 44], [26, 44], [27, 40]]);
-var light_green_alt1_SliderThumb = n298;
-var light_green_alt1_Tooltip = n298;
-var light_green_alt1_ProgressIndicator = n298;
-var n299 = t([[12, 38], [13, 39], [14, 40], [15, 41], [16, 37], [17, 36], [18, 46], [19, 45], [20, 46], [21, 45], [22, 11], [23, 40], [24, 41], [25, 40], [26, 40], [27, 44]]);
-var light_green_alt2_ListItem = n299;
-var n300 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [18, 46], [19, 45], [20, 46], [21, 45], [22, 46], [23, 43], [24, 44], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt2_Card = n300;
-var light_green_alt2_DrawerFrame = n300;
-var light_green_alt2_Progress = n300;
-var light_green_alt2_TooltipArrow = n300;
-var n301 = t([[12, 41], [13, 43], [14, 44], [15, 45], [16, 40], [17, 39], [18, 46], [19, 45], [20, 46], [21, 45], [22, 45], [23, 241], [24, 241], [25, 44], [26, 44], [27, 40]]);
-var light_green_alt2_Button = n301;
-var n302 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [18, 46], [19, 45], [20, 46], [21, 45], [22, 47], [23, 44], [24, 45], [25, 44], [26, 44], [27, 43]]);
-var light_green_alt2_Checkbox = n302;
-var light_green_alt2_RadioGroupItem = n302;
-var light_green_alt2_Input = n302;
-var light_green_alt2_TextArea = n302;
-var n303 = t([[12, 41], [13, 43], [14, 44], [15, 45], [16, 40], [17, 39], [18, 46], [19, 45], [20, 46], [21, 45], [22, 45], [23, 44], [24, 45], [25, 44], [26, 44], [27, 40]]);
-var light_green_alt2_Switch = n303;
-var light_green_alt2_TooltipContent = n303;
-var light_green_alt2_SliderTrack = n303;
-var n304 = t([[12, 47], [13, 46], [14, 45], [15, 44], [16, 11], [17, 11], [18, 38], [19, 39], [20, 38], [21, 39], [22, 36], [23, 45], [24, 44], [25, 45], [26, 45], [27, 39]]);
-var light_green_alt2_SwitchThumb = n304;
-var n305 = t([[12, 43], [13, 41], [14, 40], [15, 39], [16, 44], [17, 45], [18, 38], [19, 39], [20, 38], [21, 39], [22, 39], [23, 40], [24, 39], [25, 40], [26, 40], [27, 44]]);
-var light_green_alt2_SliderTrackActive = n305;
-var n306 = t([[12, 45], [13, 44], [14, 43], [15, 41], [16, 46], [17, 47], [18, 38], [19, 39], [20, 38], [21, 39], [22, 37], [23, 43], [24, 41], [25, 43], [26, 43], [27, 41]]);
-var light_green_alt2_SliderThumb = n306;
-var light_green_alt2_Tooltip = n306;
-var light_green_alt2_ProgressIndicator = n306;
-var n307 = t([[12, 39], [13, 40], [14, 41], [15, 43], [16, 38], [17, 37], [19, 44], [20, 45], [21, 44], [22, 47], [23, 41], [24, 43], [25, 41], [26, 41], [27, 43]]);
-var light_green_active_ListItem = n307;
-var n308 = t([[12, 41], [13, 43], [14, 44], [15, 45], [16, 40], [17, 39], [19, 44], [20, 45], [21, 44], [22, 45], [23, 44], [24, 45], [25, 44], [26, 44], [27, 40]]);
-var light_green_active_Card = n308;
-var light_green_active_DrawerFrame = n308;
-var light_green_active_Progress = n308;
-var light_green_active_TooltipArrow = n308;
-var n309 = t([[12, 43], [13, 44], [14, 45], [15, 46], [16, 41], [17, 40], [19, 44], [20, 45], [21, 44], [22, 44], [23, 241], [24, 241], [25, 45], [26, 45], [27, 39]]);
-var light_green_active_Button = n309;
-var n310 = t([[12, 40], [13, 41], [14, 43], [15, 44], [16, 39], [17, 38], [19, 44], [20, 45], [21, 44], [22, 46], [23, 45], [24, 46], [25, 45], [26, 45], [27, 41]]);
-var light_green_active_Checkbox = n310;
-var light_green_active_RadioGroupItem = n310;
-var light_green_active_Input = n310;
-var light_green_active_TextArea = n310;
-var n311 = t([[12, 43], [13, 44], [14, 45], [15, 46], [16, 41], [17, 40], [19, 44], [20, 45], [21, 44], [22, 44], [23, 45], [24, 46], [25, 45], [26, 45], [27, 39]]);
-var light_green_active_Switch = n311;
-var light_green_active_TooltipContent = n311;
-var light_green_active_SliderTrack = n311;
-var n312 = t([[12, 46], [13, 45], [14, 44], [15, 43], [16, 47], [17, 11], [19, 40], [20, 39], [21, 40], [22, 36], [23, 44], [24, 43], [25, 44], [26, 44], [27, 40]]);
-var light_green_active_SwitchThumb = n312;
-var n313 = t([[12, 41], [13, 40], [14, 39], [15, 38], [16, 43], [17, 44], [19, 40], [20, 39], [21, 40], [22, 40], [23, 39], [24, 38], [25, 39], [26, 39], [27, 45]]);
-var light_green_active_SliderTrackActive = n313;
-var n314 = t([[12, 44], [13, 43], [14, 41], [15, 40], [16, 45], [17, 46], [19, 40], [20, 39], [21, 40], [22, 38], [23, 41], [24, 40], [25, 41], [26, 41], [27, 43]]);
-var light_green_active_SliderThumb = n314;
-var light_green_active_Tooltip = n314;
-var light_green_active_ProgressIndicator = n314;
-var n315 = t([[12, 15], [13, 16], [14, 17], [15, 18], [16, 14], [17, 14], [18, 25], [19, 24], [20, 25], [21, 24], [22, 11], [23, 17], [24, 18], [25, 17], [26, 17], [27, 23]]);
-var light_blue_alt1_ListItem = n315;
-var n316 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 25], [19, 24], [20, 25], [21, 24], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_alt1_Card = n316;
-var light_blue_alt1_DrawerFrame = n316;
-var light_blue_alt1_Progress = n316;
-var light_blue_alt1_TooltipArrow = n316;
-var n317 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [18, 25], [19, 24], [20, 25], [21, 24], [22, 24], [23, 241], [24, 241], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt1_Button = n317;
-var n318 = t([[12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 25], [19, 24], [20, 25], [21, 24], [22, 11], [23, 21], [24, 22], [25, 21], [26, 21], [27, 22]]);
-var light_blue_alt1_Checkbox = n318;
-var light_blue_alt1_RadioGroupItem = n318;
-var light_blue_alt1_Input = n318;
-var light_blue_alt1_TextArea = n318;
-var n319 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [18, 25], [19, 24], [20, 25], [21, 24], [22, 24], [23, 21], [24, 22], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt1_Switch = n319;
-var light_blue_alt1_TooltipContent = n319;
-var light_blue_alt1_SliderTrack = n319;
-var n320 = t([[12, 11], [13, 25], [14, 24], [15, 23], [16, 11], [17, 11], [18, 15], [19, 16], [20, 15], [21, 16], [22, 14], [23, 24], [24, 23], [25, 24], [26, 24], [27, 16]]);
-var light_blue_alt1_SwitchThumb = n320;
-var n321 = t([[12, 22], [13, 21], [14, 19], [15, 18], [16, 23], [17, 24], [18, 15], [19, 16], [20, 15], [21, 16], [22, 16], [23, 19], [24, 18], [25, 19], [26, 19], [27, 21]]);
-var light_blue_alt1_SliderTrackActive = n321;
-var n322 = t([[12, 24], [13, 23], [14, 22], [15, 21], [16, 25], [17, 11], [18, 15], [19, 16], [20, 15], [21, 16], [22, 14], [23, 22], [24, 21], [25, 22], [26, 22], [27, 18]]);
-var light_blue_alt1_SliderThumb = n322;
-var light_blue_alt1_Tooltip = n322;
-var light_blue_alt1_ProgressIndicator = n322;
-var n323 = t([[12, 16], [13, 17], [14, 18], [15, 19], [16, 15], [17, 14], [18, 24], [19, 23], [20, 24], [21, 23], [22, 11], [23, 18], [24, 19], [25, 18], [26, 18], [27, 22]]);
-var light_blue_alt2_ListItem = n323;
-var n324 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [18, 24], [19, 23], [20, 24], [21, 23], [22, 24], [23, 21], [24, 22], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt2_Card = n324;
-var light_blue_alt2_DrawerFrame = n324;
-var light_blue_alt2_Progress = n324;
-var light_blue_alt2_TooltipArrow = n324;
-var n325 = t([[12, 19], [13, 21], [14, 22], [15, 23], [16, 18], [17, 17], [18, 24], [19, 23], [20, 24], [21, 23], [22, 23], [23, 241], [24, 241], [25, 22], [26, 22], [27, 18]]);
-var light_blue_alt2_Button = n325;
-var n326 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [18, 24], [19, 23], [20, 24], [21, 23], [22, 25], [23, 22], [24, 23], [25, 22], [26, 22], [27, 21]]);
-var light_blue_alt2_Checkbox = n326;
-var light_blue_alt2_RadioGroupItem = n326;
-var light_blue_alt2_Input = n326;
-var light_blue_alt2_TextArea = n326;
-var n327 = t([[12, 19], [13, 21], [14, 22], [15, 23], [16, 18], [17, 17], [18, 24], [19, 23], [20, 24], [21, 23], [22, 23], [23, 22], [24, 23], [25, 22], [26, 22], [27, 18]]);
-var light_blue_alt2_Switch = n327;
-var light_blue_alt2_TooltipContent = n327;
-var light_blue_alt2_SliderTrack = n327;
-var n328 = t([[12, 25], [13, 24], [14, 23], [15, 22], [16, 11], [17, 11], [18, 16], [19, 17], [20, 16], [21, 17], [22, 14], [23, 23], [24, 22], [25, 23], [26, 23], [27, 17]]);
-var light_blue_alt2_SwitchThumb = n328;
-var n329 = t([[12, 21], [13, 19], [14, 18], [15, 17], [16, 22], [17, 23], [18, 16], [19, 17], [20, 16], [21, 17], [22, 17], [23, 18], [24, 17], [25, 18], [26, 18], [27, 22]]);
-var light_blue_alt2_SliderTrackActive = n329;
-var n330 = t([[12, 23], [13, 22], [14, 21], [15, 19], [16, 24], [17, 25], [18, 16], [19, 17], [20, 16], [21, 17], [22, 15], [23, 21], [24, 19], [25, 21], [26, 21], [27, 19]]);
-var light_blue_alt2_SliderThumb = n330;
-var light_blue_alt2_Tooltip = n330;
-var light_blue_alt2_ProgressIndicator = n330;
-var n331 = t([[12, 17], [13, 18], [14, 19], [15, 21], [16, 16], [17, 15], [19, 22], [20, 23], [21, 22], [22, 25], [23, 19], [24, 21], [25, 19], [26, 19], [27, 21]]);
-var light_blue_active_ListItem = n331;
-var n332 = t([[12, 19], [13, 21], [14, 22], [15, 23], [16, 18], [17, 17], [19, 22], [20, 23], [21, 22], [22, 23], [23, 22], [24, 23], [25, 22], [26, 22], [27, 18]]);
-var light_blue_active_Card = n332;
-var light_blue_active_DrawerFrame = n332;
-var light_blue_active_Progress = n332;
-var light_blue_active_TooltipArrow = n332;
-var n333 = t([[12, 21], [13, 22], [14, 23], [15, 24], [16, 19], [17, 18], [19, 22], [20, 23], [21, 22], [22, 22], [23, 241], [24, 241], [25, 23], [26, 23], [27, 17]]);
-var light_blue_active_Button = n333;
-var n334 = t([[12, 18], [13, 19], [14, 21], [15, 22], [16, 17], [17, 16], [19, 22], [20, 23], [21, 22], [22, 24], [23, 23], [24, 24], [25, 23], [26, 23], [27, 19]]);
-var light_blue_active_Checkbox = n334;
-var light_blue_active_RadioGroupItem = n334;
-var light_blue_active_Input = n334;
-var light_blue_active_TextArea = n334;
-var n335 = t([[12, 21], [13, 22], [14, 23], [15, 24], [16, 19], [17, 18], [19, 22], [20, 23], [21, 22], [22, 22], [23, 23], [24, 24], [25, 23], [26, 23], [27, 17]]);
-var light_blue_active_Switch = n335;
-var light_blue_active_TooltipContent = n335;
-var light_blue_active_SliderTrack = n335;
-var n336 = t([[12, 24], [13, 23], [14, 22], [15, 21], [16, 25], [17, 11], [19, 18], [20, 17], [21, 18], [22, 14], [23, 22], [24, 21], [25, 22], [26, 22], [27, 18]]);
-var light_blue_active_SwitchThumb = n336;
-var n337 = t([[12, 19], [13, 18], [14, 17], [15, 16], [16, 21], [17, 22], [19, 18], [20, 17], [21, 18], [22, 18], [23, 17], [24, 16], [25, 17], [26, 17], [27, 23]]);
-var light_blue_active_SliderTrackActive = n337;
-var n338 = t([[12, 22], [13, 21], [14, 19], [15, 18], [16, 23], [17, 24], [19, 18], [20, 17], [21, 18], [22, 16], [23, 19], [24, 18], [25, 19], [26, 19], [27, 21]]);
-var light_blue_active_SliderThumb = n338;
-var light_blue_active_Tooltip = n338;
-var light_blue_active_ProgressIndicator = n338;
-var n339 = t([[12, 73], [13, 74], [14, 75], [15, 76], [16, 72], [17, 72], [18, 83], [19, 82], [20, 83], [21, 82], [22, 11], [23, 75], [24, 76], [25, 75], [26, 75], [27, 81]]);
-var light_purple_alt1_ListItem = n339;
-var n340 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 83], [19, 82], [20, 83], [21, 82], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_alt1_Card = n340;
-var light_purple_alt1_DrawerFrame = n340;
-var light_purple_alt1_Progress = n340;
-var light_purple_alt1_TooltipArrow = n340;
-var n341 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [18, 83], [19, 82], [20, 83], [21, 82], [22, 82], [23, 241], [24, 241], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt1_Button = n341;
-var n342 = t([[12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 83], [19, 82], [20, 83], [21, 82], [22, 11], [23, 79], [24, 80], [25, 79], [26, 79], [27, 80]]);
-var light_purple_alt1_Checkbox = n342;
-var light_purple_alt1_RadioGroupItem = n342;
-var light_purple_alt1_Input = n342;
-var light_purple_alt1_TextArea = n342;
-var n343 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [18, 83], [19, 82], [20, 83], [21, 82], [22, 82], [23, 79], [24, 80], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt1_Switch = n343;
-var light_purple_alt1_TooltipContent = n343;
-var light_purple_alt1_SliderTrack = n343;
-var n344 = t([[12, 11], [13, 83], [14, 82], [15, 81], [16, 11], [17, 11], [18, 73], [19, 74], [20, 73], [21, 74], [22, 72], [23, 82], [24, 81], [25, 82], [26, 82], [27, 74]]);
-var light_purple_alt1_SwitchThumb = n344;
-var n345 = t([[12, 80], [13, 79], [14, 77], [15, 76], [16, 81], [17, 82], [18, 73], [19, 74], [20, 73], [21, 74], [22, 74], [23, 77], [24, 76], [25, 77], [26, 77], [27, 79]]);
-var light_purple_alt1_SliderTrackActive = n345;
-var n346 = t([[12, 82], [13, 81], [14, 80], [15, 79], [16, 83], [17, 11], [18, 73], [19, 74], [20, 73], [21, 74], [22, 72], [23, 80], [24, 79], [25, 80], [26, 80], [27, 76]]);
-var light_purple_alt1_SliderThumb = n346;
-var light_purple_alt1_Tooltip = n346;
-var light_purple_alt1_ProgressIndicator = n346;
-var n347 = t([[12, 74], [13, 75], [14, 76], [15, 77], [16, 73], [17, 72], [18, 82], [19, 81], [20, 82], [21, 81], [22, 11], [23, 76], [24, 77], [25, 76], [26, 76], [27, 80]]);
-var light_purple_alt2_ListItem = n347;
-var n348 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [18, 82], [19, 81], [20, 82], [21, 81], [22, 82], [23, 79], [24, 80], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt2_Card = n348;
-var light_purple_alt2_DrawerFrame = n348;
-var light_purple_alt2_Progress = n348;
-var light_purple_alt2_TooltipArrow = n348;
-var n349 = t([[12, 77], [13, 79], [14, 80], [15, 81], [16, 76], [17, 75], [18, 82], [19, 81], [20, 82], [21, 81], [22, 81], [23, 241], [24, 241], [25, 80], [26, 80], [27, 76]]);
-var light_purple_alt2_Button = n349;
-var n350 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [18, 82], [19, 81], [20, 82], [21, 81], [22, 83], [23, 80], [24, 81], [25, 80], [26, 80], [27, 79]]);
-var light_purple_alt2_Checkbox = n350;
-var light_purple_alt2_RadioGroupItem = n350;
-var light_purple_alt2_Input = n350;
-var light_purple_alt2_TextArea = n350;
-var n351 = t([[12, 77], [13, 79], [14, 80], [15, 81], [16, 76], [17, 75], [18, 82], [19, 81], [20, 82], [21, 81], [22, 81], [23, 80], [24, 81], [25, 80], [26, 80], [27, 76]]);
-var light_purple_alt2_Switch = n351;
-var light_purple_alt2_TooltipContent = n351;
-var light_purple_alt2_SliderTrack = n351;
-var n352 = t([[12, 83], [13, 82], [14, 81], [15, 80], [16, 11], [17, 11], [18, 74], [19, 75], [20, 74], [21, 75], [22, 72], [23, 81], [24, 80], [25, 81], [26, 81], [27, 75]]);
-var light_purple_alt2_SwitchThumb = n352;
-var n353 = t([[12, 79], [13, 77], [14, 76], [15, 75], [16, 80], [17, 81], [18, 74], [19, 75], [20, 74], [21, 75], [22, 75], [23, 76], [24, 75], [25, 76], [26, 76], [27, 80]]);
-var light_purple_alt2_SliderTrackActive = n353;
-var n354 = t([[12, 81], [13, 80], [14, 79], [15, 77], [16, 82], [17, 83], [18, 74], [19, 75], [20, 74], [21, 75], [22, 73], [23, 79], [24, 77], [25, 79], [26, 79], [27, 77]]);
-var light_purple_alt2_SliderThumb = n354;
-var light_purple_alt2_Tooltip = n354;
-var light_purple_alt2_ProgressIndicator = n354;
-var n355 = t([[12, 75], [13, 76], [14, 77], [15, 79], [16, 74], [17, 73], [19, 80], [20, 81], [21, 80], [22, 83], [23, 77], [24, 79], [25, 77], [26, 77], [27, 79]]);
-var light_purple_active_ListItem = n355;
-var n356 = t([[12, 77], [13, 79], [14, 80], [15, 81], [16, 76], [17, 75], [19, 80], [20, 81], [21, 80], [22, 81], [23, 80], [24, 81], [25, 80], [26, 80], [27, 76]]);
-var light_purple_active_Card = n356;
-var light_purple_active_DrawerFrame = n356;
-var light_purple_active_Progress = n356;
-var light_purple_active_TooltipArrow = n356;
-var n357 = t([[12, 79], [13, 80], [14, 81], [15, 82], [16, 77], [17, 76], [19, 80], [20, 81], [21, 80], [22, 80], [23, 241], [24, 241], [25, 81], [26, 81], [27, 75]]);
-var light_purple_active_Button = n357;
-var n358 = t([[12, 76], [13, 77], [14, 79], [15, 80], [16, 75], [17, 74], [19, 80], [20, 81], [21, 80], [22, 82], [23, 81], [24, 82], [25, 81], [26, 81], [27, 77]]);
-var light_purple_active_Checkbox = n358;
-var light_purple_active_RadioGroupItem = n358;
-var light_purple_active_Input = n358;
-var light_purple_active_TextArea = n358;
-var n359 = t([[12, 79], [13, 80], [14, 81], [15, 82], [16, 77], [17, 76], [19, 80], [20, 81], [21, 80], [22, 80], [23, 81], [24, 82], [25, 81], [26, 81], [27, 75]]);
-var light_purple_active_Switch = n359;
-var light_purple_active_TooltipContent = n359;
-var light_purple_active_SliderTrack = n359;
-var n360 = t([[12, 82], [13, 81], [14, 80], [15, 79], [16, 83], [17, 11], [19, 76], [20, 75], [21, 76], [22, 72], [23, 80], [24, 79], [25, 80], [26, 80], [27, 76]]);
-var light_purple_active_SwitchThumb = n360;
-var n361 = t([[12, 77], [13, 76], [14, 75], [15, 74], [16, 79], [17, 80], [19, 76], [20, 75], [21, 76], [22, 76], [23, 75], [24, 74], [25, 75], [26, 75], [27, 81]]);
-var light_purple_active_SliderTrackActive = n361;
-var n362 = t([[12, 80], [13, 79], [14, 77], [15, 76], [16, 81], [17, 82], [19, 76], [20, 75], [21, 76], [22, 74], [23, 77], [24, 76], [25, 77], [26, 77], [27, 79]]);
-var light_purple_active_SliderThumb = n362;
-var light_purple_active_Tooltip = n362;
-var light_purple_active_ProgressIndicator = n362;
-var n363 = t([[12, 61], [13, 62], [14, 63], [15, 64], [16, 60], [17, 60], [18, 71], [19, 70], [20, 71], [21, 70], [22, 11], [23, 63], [24, 64], [25, 63], [26, 63], [27, 69]]);
-var light_pink_alt1_ListItem = n363;
-var n364 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 71], [19, 70], [20, 71], [21, 70], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_alt1_Card = n364;
-var light_pink_alt1_DrawerFrame = n364;
-var light_pink_alt1_Progress = n364;
-var light_pink_alt1_TooltipArrow = n364;
-var n365 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [18, 71], [19, 70], [20, 71], [21, 70], [22, 70], [23, 241], [24, 241], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt1_Button = n365;
-var n366 = t([[12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 71], [19, 70], [20, 71], [21, 70], [22, 11], [23, 67], [24, 68], [25, 67], [26, 67], [27, 68]]);
-var light_pink_alt1_Checkbox = n366;
-var light_pink_alt1_RadioGroupItem = n366;
-var light_pink_alt1_Input = n366;
-var light_pink_alt1_TextArea = n366;
-var n367 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [18, 71], [19, 70], [20, 71], [21, 70], [22, 70], [23, 67], [24, 68], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt1_Switch = n367;
-var light_pink_alt1_TooltipContent = n367;
-var light_pink_alt1_SliderTrack = n367;
-var n368 = t([[12, 11], [13, 71], [14, 70], [15, 69], [16, 11], [17, 11], [18, 61], [19, 62], [20, 61], [21, 62], [22, 60], [23, 70], [24, 69], [25, 70], [26, 70], [27, 62]]);
-var light_pink_alt1_SwitchThumb = n368;
-var n369 = t([[12, 68], [13, 67], [14, 65], [15, 64], [16, 69], [17, 70], [18, 61], [19, 62], [20, 61], [21, 62], [22, 62], [23, 65], [24, 64], [25, 65], [26, 65], [27, 67]]);
-var light_pink_alt1_SliderTrackActive = n369;
-var n370 = t([[12, 70], [13, 69], [14, 68], [15, 67], [16, 71], [17, 11], [18, 61], [19, 62], [20, 61], [21, 62], [22, 60], [23, 68], [24, 67], [25, 68], [26, 68], [27, 64]]);
-var light_pink_alt1_SliderThumb = n370;
-var light_pink_alt1_Tooltip = n370;
-var light_pink_alt1_ProgressIndicator = n370;
-var n371 = t([[12, 62], [13, 63], [14, 64], [15, 65], [16, 61], [17, 60], [18, 70], [19, 69], [20, 70], [21, 69], [22, 11], [23, 64], [24, 65], [25, 64], [26, 64], [27, 68]]);
-var light_pink_alt2_ListItem = n371;
-var n372 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [18, 70], [19, 69], [20, 70], [21, 69], [22, 70], [23, 67], [24, 68], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt2_Card = n372;
-var light_pink_alt2_DrawerFrame = n372;
-var light_pink_alt2_Progress = n372;
-var light_pink_alt2_TooltipArrow = n372;
-var n373 = t([[12, 65], [13, 67], [14, 68], [15, 69], [16, 64], [17, 63], [18, 70], [19, 69], [20, 70], [21, 69], [22, 69], [23, 241], [24, 241], [25, 68], [26, 68], [27, 64]]);
-var light_pink_alt2_Button = n373;
-var n374 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [18, 70], [19, 69], [20, 70], [21, 69], [22, 71], [23, 68], [24, 69], [25, 68], [26, 68], [27, 67]]);
-var light_pink_alt2_Checkbox = n374;
-var light_pink_alt2_RadioGroupItem = n374;
-var light_pink_alt2_Input = n374;
-var light_pink_alt2_TextArea = n374;
-var n375 = t([[12, 65], [13, 67], [14, 68], [15, 69], [16, 64], [17, 63], [18, 70], [19, 69], [20, 70], [21, 69], [22, 69], [23, 68], [24, 69], [25, 68], [26, 68], [27, 64]]);
-var light_pink_alt2_Switch = n375;
-var light_pink_alt2_TooltipContent = n375;
-var light_pink_alt2_SliderTrack = n375;
-var n376 = t([[12, 71], [13, 70], [14, 69], [15, 68], [16, 11], [17, 11], [18, 62], [19, 63], [20, 62], [21, 63], [22, 60], [23, 69], [24, 68], [25, 69], [26, 69], [27, 63]]);
-var light_pink_alt2_SwitchThumb = n376;
-var n377 = t([[12, 67], [13, 65], [14, 64], [15, 63], [16, 68], [17, 69], [18, 62], [19, 63], [20, 62], [21, 63], [22, 63], [23, 64], [24, 63], [25, 64], [26, 64], [27, 68]]);
-var light_pink_alt2_SliderTrackActive = n377;
-var n378 = t([[12, 69], [13, 68], [14, 67], [15, 65], [16, 70], [17, 71], [18, 62], [19, 63], [20, 62], [21, 63], [22, 61], [23, 67], [24, 65], [25, 67], [26, 67], [27, 65]]);
-var light_pink_alt2_SliderThumb = n378;
-var light_pink_alt2_Tooltip = n378;
-var light_pink_alt2_ProgressIndicator = n378;
-var n379 = t([[12, 63], [13, 64], [14, 65], [15, 67], [16, 62], [17, 61], [19, 68], [20, 69], [21, 68], [22, 71], [23, 65], [24, 67], [25, 65], [26, 65], [27, 67]]);
-var light_pink_active_ListItem = n379;
-var n380 = t([[12, 65], [13, 67], [14, 68], [15, 69], [16, 64], [17, 63], [19, 68], [20, 69], [21, 68], [22, 69], [23, 68], [24, 69], [25, 68], [26, 68], [27, 64]]);
-var light_pink_active_Card = n380;
-var light_pink_active_DrawerFrame = n380;
-var light_pink_active_Progress = n380;
-var light_pink_active_TooltipArrow = n380;
-var n381 = t([[12, 67], [13, 68], [14, 69], [15, 70], [16, 65], [17, 64], [19, 68], [20, 69], [21, 68], [22, 68], [23, 241], [24, 241], [25, 69], [26, 69], [27, 63]]);
-var light_pink_active_Button = n381;
-var n382 = t([[12, 64], [13, 65], [14, 67], [15, 68], [16, 63], [17, 62], [19, 68], [20, 69], [21, 68], [22, 70], [23, 69], [24, 70], [25, 69], [26, 69], [27, 65]]);
-var light_pink_active_Checkbox = n382;
-var light_pink_active_RadioGroupItem = n382;
-var light_pink_active_Input = n382;
-var light_pink_active_TextArea = n382;
-var n383 = t([[12, 67], [13, 68], [14, 69], [15, 70], [16, 65], [17, 64], [19, 68], [20, 69], [21, 68], [22, 68], [23, 69], [24, 70], [25, 69], [26, 69], [27, 63]]);
-var light_pink_active_Switch = n383;
-var light_pink_active_TooltipContent = n383;
-var light_pink_active_SliderTrack = n383;
-var n384 = t([[12, 70], [13, 69], [14, 68], [15, 67], [16, 71], [17, 11], [19, 64], [20, 63], [21, 64], [22, 60], [23, 68], [24, 67], [25, 68], [26, 68], [27, 64]]);
-var light_pink_active_SwitchThumb = n384;
-var n385 = t([[12, 65], [13, 64], [14, 63], [15, 62], [16, 67], [17, 68], [19, 64], [20, 63], [21, 64], [22, 64], [23, 63], [24, 62], [25, 63], [26, 63], [27, 69]]);
-var light_pink_active_SliderTrackActive = n385;
-var n386 = t([[12, 68], [13, 67], [14, 65], [15, 64], [16, 69], [17, 70], [19, 64], [20, 63], [21, 64], [22, 62], [23, 65], [24, 64], [25, 65], [26, 65], [27, 67]]);
-var light_pink_active_SliderThumb = n386;
-var light_pink_active_Tooltip = n386;
-var light_pink_active_ProgressIndicator = n386;
-var n387 = t([[12, 85], [13, 86], [14, 87], [15, 88], [16, 84], [17, 84], [18, 95], [19, 94], [20, 95], [21, 94], [22, 11], [23, 87], [24, 88], [25, 87], [26, 87], [27, 93]]);
-var light_red_alt1_ListItem = n387;
-var n388 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 95], [19, 94], [20, 95], [21, 94], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_alt1_Card = n388;
-var light_red_alt1_DrawerFrame = n388;
-var light_red_alt1_Progress = n388;
-var light_red_alt1_TooltipArrow = n388;
-var n389 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [18, 95], [19, 94], [20, 95], [21, 94], [22, 94], [23, 241], [24, 241], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt1_Button = n389;
-var n390 = t([[12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 95], [19, 94], [20, 95], [21, 94], [22, 11], [23, 91], [24, 92], [25, 91], [26, 91], [27, 92]]);
-var light_red_alt1_Checkbox = n390;
-var light_red_alt1_RadioGroupItem = n390;
-var light_red_alt1_Input = n390;
-var light_red_alt1_TextArea = n390;
-var n391 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [18, 95], [19, 94], [20, 95], [21, 94], [22, 94], [23, 91], [24, 92], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt1_Switch = n391;
-var light_red_alt1_TooltipContent = n391;
-var light_red_alt1_SliderTrack = n391;
-var n392 = t([[12, 11], [13, 95], [14, 94], [15, 93], [16, 11], [17, 11], [18, 85], [19, 86], [20, 85], [21, 86], [22, 84], [23, 94], [24, 93], [25, 94], [26, 94], [27, 86]]);
-var light_red_alt1_SwitchThumb = n392;
-var n393 = t([[12, 92], [13, 91], [14, 89], [15, 88], [16, 93], [17, 94], [18, 85], [19, 86], [20, 85], [21, 86], [22, 86], [23, 89], [24, 88], [25, 89], [26, 89], [27, 91]]);
-var light_red_alt1_SliderTrackActive = n393;
-var n394 = t([[12, 94], [13, 93], [14, 92], [15, 91], [16, 95], [17, 11], [18, 85], [19, 86], [20, 85], [21, 86], [22, 84], [23, 92], [24, 91], [25, 92], [26, 92], [27, 88]]);
-var light_red_alt1_SliderThumb = n394;
-var light_red_alt1_Tooltip = n394;
-var light_red_alt1_ProgressIndicator = n394;
-var n395 = t([[12, 86], [13, 87], [14, 88], [15, 89], [16, 85], [17, 84], [18, 94], [19, 93], [20, 94], [21, 93], [22, 11], [23, 88], [24, 89], [25, 88], [26, 88], [27, 92]]);
-var light_red_alt2_ListItem = n395;
-var n396 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [18, 94], [19, 93], [20, 94], [21, 93], [22, 94], [23, 91], [24, 92], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt2_Card = n396;
-var light_red_alt2_DrawerFrame = n396;
-var light_red_alt2_Progress = n396;
-var light_red_alt2_TooltipArrow = n396;
-var n397 = t([[12, 89], [13, 91], [14, 92], [15, 93], [16, 88], [17, 87], [18, 94], [19, 93], [20, 94], [21, 93], [22, 93], [23, 241], [24, 241], [25, 92], [26, 92], [27, 88]]);
-var light_red_alt2_Button = n397;
-var n398 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [18, 94], [19, 93], [20, 94], [21, 93], [22, 95], [23, 92], [24, 93], [25, 92], [26, 92], [27, 91]]);
-var light_red_alt2_Checkbox = n398;
-var light_red_alt2_RadioGroupItem = n398;
-var light_red_alt2_Input = n398;
-var light_red_alt2_TextArea = n398;
-var n399 = t([[12, 89], [13, 91], [14, 92], [15, 93], [16, 88], [17, 87], [18, 94], [19, 93], [20, 94], [21, 93], [22, 93], [23, 92], [24, 93], [25, 92], [26, 92], [27, 88]]);
-var light_red_alt2_Switch = n399;
-var light_red_alt2_TooltipContent = n399;
-var light_red_alt2_SliderTrack = n399;
-var n400 = t([[12, 95], [13, 94], [14, 93], [15, 92], [16, 11], [17, 11], [18, 86], [19, 87], [20, 86], [21, 87], [22, 84], [23, 93], [24, 92], [25, 93], [26, 93], [27, 87]]);
-var light_red_alt2_SwitchThumb = n400;
-var n401 = t([[12, 91], [13, 89], [14, 88], [15, 87], [16, 92], [17, 93], [18, 86], [19, 87], [20, 86], [21, 87], [22, 87], [23, 88], [24, 87], [25, 88], [26, 88], [27, 92]]);
-var light_red_alt2_SliderTrackActive = n401;
-var n402 = t([[12, 93], [13, 92], [14, 91], [15, 89], [16, 94], [17, 95], [18, 86], [19, 87], [20, 86], [21, 87], [22, 85], [23, 91], [24, 89], [25, 91], [26, 91], [27, 89]]);
-var light_red_alt2_SliderThumb = n402;
-var light_red_alt2_Tooltip = n402;
-var light_red_alt2_ProgressIndicator = n402;
-var n403 = t([[12, 87], [13, 88], [14, 89], [15, 91], [16, 86], [17, 85], [19, 92], [20, 93], [21, 92], [22, 95], [23, 89], [24, 91], [25, 89], [26, 89], [27, 91]]);
-var light_red_active_ListItem = n403;
-var n404 = t([[12, 89], [13, 91], [14, 92], [15, 93], [16, 88], [17, 87], [19, 92], [20, 93], [21, 92], [22, 93], [23, 92], [24, 93], [25, 92], [26, 92], [27, 88]]);
-var light_red_active_Card = n404;
-var light_red_active_DrawerFrame = n404;
-var light_red_active_Progress = n404;
-var light_red_active_TooltipArrow = n404;
-var n405 = t([[12, 91], [13, 92], [14, 93], [15, 94], [16, 89], [17, 88], [19, 92], [20, 93], [21, 92], [22, 92], [23, 241], [24, 241], [25, 93], [26, 93], [27, 87]]);
-var light_red_active_Button = n405;
-var n406 = t([[12, 88], [13, 89], [14, 91], [15, 92], [16, 87], [17, 86], [19, 92], [20, 93], [21, 92], [22, 94], [23, 93], [24, 94], [25, 93], [26, 93], [27, 89]]);
-var light_red_active_Checkbox = n406;
-var light_red_active_RadioGroupItem = n406;
-var light_red_active_Input = n406;
-var light_red_active_TextArea = n406;
-var n407 = t([[12, 91], [13, 92], [14, 93], [15, 94], [16, 89], [17, 88], [19, 92], [20, 93], [21, 92], [22, 92], [23, 93], [24, 94], [25, 93], [26, 93], [27, 87]]);
-var light_red_active_Switch = n407;
-var light_red_active_TooltipContent = n407;
-var light_red_active_SliderTrack = n407;
-var n408 = t([[12, 94], [13, 93], [14, 92], [15, 91], [16, 95], [17, 11], [19, 88], [20, 87], [21, 88], [22, 84], [23, 92], [24, 91], [25, 92], [26, 92], [27, 88]]);
-var light_red_active_SwitchThumb = n408;
-var n409 = t([[12, 89], [13, 88], [14, 87], [15, 86], [16, 91], [17, 92], [19, 88], [20, 87], [21, 88], [22, 88], [23, 87], [24, 86], [25, 87], [26, 87], [27, 93]]);
-var light_red_active_SliderTrackActive = n409;
-var n410 = t([[12, 92], [13, 91], [14, 89], [15, 88], [16, 93], [17, 94], [19, 88], [20, 87], [21, 88], [22, 86], [23, 89], [24, 88], [25, 89], [26, 89], [27, 91]]);
-var light_red_active_SliderThumb = n410;
-var light_red_active_Tooltip = n410;
-var light_red_active_ProgressIndicator = n410;
-var n411 = t([[12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 164], [19, 163], [20, 164], [21, 163], [22, 0], [23, 159], [24, 161], [25, 158], [26, 159], [27, 56]]);
-var dark_orange_alt1_ListItem = n411;
-var n412 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 164], [19, 163], [20, 164], [21, 163], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_alt1_Card = n412;
-var dark_orange_alt1_DrawerFrame = n412;
-var dark_orange_alt1_Progress = n412;
-var dark_orange_alt1_TooltipArrow = n412;
-var n413 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [18, 164], [19, 163], [20, 164], [21, 163], [22, 163], [23, 241], [24, 241], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_alt1_Button = n413;
-var n414 = t([[12, 156], [13, 157], [14, 158], [15, 159], [16, 155], [17, 154], [18, 164], [19, 163], [20, 164], [21, 163], [22, 0], [23, 56], [24, 162], [25, 161], [26, 56], [27, 56]]);
-var dark_orange_alt1_Checkbox = n414;
-var dark_orange_alt1_RadioGroupItem = n414;
-var dark_orange_alt1_Input = n414;
-var dark_orange_alt1_TextArea = n414;
-var n415 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [18, 164], [19, 163], [20, 164], [21, 163], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_alt1_Switch = n415;
-var dark_orange_alt1_TooltipContent = n415;
-var dark_orange_alt1_SliderTrack = n415;
-var n416 = t([[12, 0], [13, 164], [14, 163], [15, 162], [16, 0], [17, 0], [18, 155], [19, 156], [20, 155], [21, 156], [22, 154], [23, 162], [24, 56], [25, 163], [26, 162], [27, 156]]);
-var dark_orange_alt1_SwitchThumb = n416;
-var n417 = t([[12, 56], [13, 161], [14, 159], [15, 158], [16, 162], [17, 163], [18, 155], [19, 156], [20, 155], [21, 156], [22, 156], [23, 158], [24, 157], [25, 159], [26, 158], [27, 161]]);
-var dark_orange_alt1_SliderTrackActive = n417;
-var n418 = t([[12, 163], [13, 162], [14, 56], [15, 161], [16, 164], [17, 0], [18, 155], [19, 156], [20, 155], [21, 156], [22, 154], [23, 161], [24, 159], [25, 56], [26, 161], [27, 158]]);
-var dark_orange_alt1_SliderThumb = n418;
-var dark_orange_alt1_Tooltip = n418;
-var dark_orange_alt1_ProgressIndicator = n418;
-var n419 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 163], [19, 162], [20, 163], [21, 162], [22, 164], [23, 161], [24, 56], [25, 159], [26, 161], [27, 161]]);
-var dark_orange_alt2_ListItem = n419;
-var n420 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [18, 163], [19, 162], [20, 163], [21, 162], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_alt2_Card = n420;
-var dark_orange_alt2_DrawerFrame = n420;
-var dark_orange_alt2_Progress = n420;
-var dark_orange_alt2_TooltipArrow = n420;
-var n421 = t([[12, 159], [13, 161], [14, 56], [15, 162], [16, 158], [17, 157], [18, 163], [19, 162], [20, 163], [21, 162], [22, 162], [23, 241], [24, 241], [25, 56], [26, 162], [27, 158]]);
-var dark_orange_alt2_Button = n421;
-var n422 = t([[12, 157], [13, 158], [14, 159], [15, 161], [16, 156], [17, 155], [18, 163], [19, 162], [20, 163], [21, 162], [22, 164], [23, 162], [24, 163], [25, 56], [26, 162], [27, 161]]);
-var dark_orange_alt2_Checkbox = n422;
-var dark_orange_alt2_RadioGroupItem = n422;
-var dark_orange_alt2_Input = n422;
-var dark_orange_alt2_TextArea = n422;
-var n423 = t([[12, 159], [13, 161], [14, 56], [15, 162], [16, 158], [17, 157], [18, 163], [19, 162], [20, 163], [21, 162], [22, 162], [23, 162], [24, 163], [25, 56], [26, 162], [27, 158]]);
-var dark_orange_alt2_Switch = n423;
-var dark_orange_alt2_TooltipContent = n423;
-var dark_orange_alt2_SliderTrack = n423;
-var n424 = t([[12, 164], [13, 163], [14, 162], [15, 56], [16, 0], [17, 0], [18, 156], [19, 157], [20, 156], [21, 157], [22, 154], [23, 56], [24, 161], [25, 162], [26, 56], [27, 157]]);
-var dark_orange_alt2_SwitchThumb = n424;
-var n425 = t([[12, 161], [13, 159], [14, 158], [15, 157], [16, 56], [17, 162], [18, 156], [19, 157], [20, 156], [21, 157], [22, 157], [23, 157], [24, 156], [25, 158], [26, 157], [27, 56]]);
-var dark_orange_alt2_SliderTrackActive = n425;
-var n426 = t([[12, 162], [13, 56], [14, 161], [15, 159], [16, 163], [17, 164], [18, 156], [19, 157], [20, 156], [21, 157], [22, 155], [23, 159], [24, 158], [25, 161], [26, 159], [27, 159]]);
-var dark_orange_alt2_SliderThumb = n426;
-var dark_orange_alt2_Tooltip = n426;
-var dark_orange_alt2_ProgressIndicator = n426;
-var n427 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [19, 56], [20, 162], [21, 56], [22, 163], [23, 56], [24, 162], [25, 161], [26, 56], [27, 159]]);
-var dark_orange_active_ListItem = n427;
-var n428 = t([[12, 159], [13, 161], [14, 56], [15, 162], [16, 158], [17, 157], [19, 56], [20, 162], [21, 56], [22, 162], [23, 162], [24, 163], [25, 56], [26, 162], [27, 158]]);
-var dark_orange_active_Card = n428;
-var dark_orange_active_DrawerFrame = n428;
-var dark_orange_active_Progress = n428;
-var dark_orange_active_TooltipArrow = n428;
-var n429 = t([[12, 161], [13, 56], [14, 162], [15, 163], [16, 159], [17, 158], [19, 56], [20, 162], [21, 56], [22, 56], [23, 241], [24, 241], [25, 162], [26, 163], [27, 157]]);
-var dark_orange_active_Button = n429;
-var n430 = t([[12, 158], [13, 159], [14, 161], [15, 56], [16, 157], [17, 156], [19, 56], [20, 162], [21, 56], [22, 163], [23, 163], [24, 164], [25, 162], [26, 163], [27, 159]]);
-var dark_orange_active_Checkbox = n430;
-var dark_orange_active_RadioGroupItem = n430;
-var dark_orange_active_Input = n430;
-var dark_orange_active_TextArea = n430;
-var n431 = t([[12, 161], [13, 56], [14, 162], [15, 163], [16, 159], [17, 158], [19, 56], [20, 162], [21, 56], [22, 56], [23, 163], [24, 164], [25, 162], [26, 163], [27, 157]]);
-var dark_orange_active_Switch = n431;
-var dark_orange_active_TooltipContent = n431;
-var dark_orange_active_SliderTrack = n431;
-var n432 = t([[12, 163], [13, 162], [14, 56], [15, 161], [16, 164], [17, 0], [19, 158], [20, 157], [21, 158], [22, 154], [23, 161], [24, 159], [25, 56], [26, 161], [27, 158]]);
-var dark_orange_active_SwitchThumb = n432;
-var n433 = t([[12, 159], [13, 158], [14, 157], [15, 156], [16, 161], [17, 56], [19, 158], [20, 157], [21, 158], [22, 158], [23, 156], [24, 155], [25, 157], [26, 156], [27, 162]]);
-var dark_orange_active_SliderTrackActive = n433;
-var n434 = t([[12, 56], [13, 161], [14, 159], [15, 158], [16, 162], [17, 163], [19, 158], [20, 157], [21, 158], [22, 156], [23, 158], [24, 157], [25, 159], [26, 158], [27, 161]]);
-var dark_orange_active_SliderThumb = n434;
-var dark_orange_active_Tooltip = n434;
-var dark_orange_active_ProgressIndicator = n434;
-var n435 = t([[12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 208], [19, 207], [20, 208], [21, 207], [22, 0], [23, 203], [24, 205], [25, 202], [26, 203], [27, 104]]);
-var dark_yellow_alt1_ListItem = n435;
-var n436 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 208], [19, 207], [20, 208], [21, 207], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_alt1_Card = n436;
-var dark_yellow_alt1_DrawerFrame = n436;
-var dark_yellow_alt1_Progress = n436;
-var dark_yellow_alt1_TooltipArrow = n436;
-var n437 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [18, 208], [19, 207], [20, 208], [21, 207], [22, 207], [23, 241], [24, 241], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_alt1_Button = n437;
-var n438 = t([[12, 200], [13, 201], [14, 202], [15, 203], [16, 199], [17, 198], [18, 208], [19, 207], [20, 208], [21, 207], [22, 0], [23, 104], [24, 206], [25, 205], [26, 104], [27, 104]]);
-var dark_yellow_alt1_Checkbox = n438;
-var dark_yellow_alt1_RadioGroupItem = n438;
-var dark_yellow_alt1_Input = n438;
-var dark_yellow_alt1_TextArea = n438;
-var n439 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [18, 208], [19, 207], [20, 208], [21, 207], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_alt1_Switch = n439;
-var dark_yellow_alt1_TooltipContent = n439;
-var dark_yellow_alt1_SliderTrack = n439;
-var n440 = t([[12, 0], [13, 208], [14, 207], [15, 206], [16, 0], [17, 0], [18, 199], [19, 200], [20, 199], [21, 200], [22, 198], [23, 206], [24, 104], [25, 207], [26, 206], [27, 200]]);
-var dark_yellow_alt1_SwitchThumb = n440;
-var n441 = t([[12, 104], [13, 205], [14, 203], [15, 202], [16, 206], [17, 207], [18, 199], [19, 200], [20, 199], [21, 200], [22, 200], [23, 202], [24, 201], [25, 203], [26, 202], [27, 205]]);
-var dark_yellow_alt1_SliderTrackActive = n441;
-var n442 = t([[12, 207], [13, 206], [14, 104], [15, 205], [16, 208], [17, 0], [18, 199], [19, 200], [20, 199], [21, 200], [22, 198], [23, 205], [24, 203], [25, 104], [26, 205], [27, 202]]);
-var dark_yellow_alt1_SliderThumb = n442;
-var dark_yellow_alt1_Tooltip = n442;
-var dark_yellow_alt1_ProgressIndicator = n442;
-var n443 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 207], [19, 206], [20, 207], [21, 206], [22, 208], [23, 205], [24, 104], [25, 203], [26, 205], [27, 205]]);
-var dark_yellow_alt2_ListItem = n443;
-var n444 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [18, 207], [19, 206], [20, 207], [21, 206], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_alt2_Card = n444;
-var dark_yellow_alt2_DrawerFrame = n444;
-var dark_yellow_alt2_Progress = n444;
-var dark_yellow_alt2_TooltipArrow = n444;
-var n445 = t([[12, 203], [13, 205], [14, 104], [15, 206], [16, 202], [17, 201], [18, 207], [19, 206], [20, 207], [21, 206], [22, 206], [23, 241], [24, 241], [25, 104], [26, 206], [27, 202]]);
-var dark_yellow_alt2_Button = n445;
-var n446 = t([[12, 201], [13, 202], [14, 203], [15, 205], [16, 200], [17, 199], [18, 207], [19, 206], [20, 207], [21, 206], [22, 208], [23, 206], [24, 207], [25, 104], [26, 206], [27, 205]]);
-var dark_yellow_alt2_Checkbox = n446;
-var dark_yellow_alt2_RadioGroupItem = n446;
-var dark_yellow_alt2_Input = n446;
-var dark_yellow_alt2_TextArea = n446;
-var n447 = t([[12, 203], [13, 205], [14, 104], [15, 206], [16, 202], [17, 201], [18, 207], [19, 206], [20, 207], [21, 206], [22, 206], [23, 206], [24, 207], [25, 104], [26, 206], [27, 202]]);
-var dark_yellow_alt2_Switch = n447;
-var dark_yellow_alt2_TooltipContent = n447;
-var dark_yellow_alt2_SliderTrack = n447;
-var n448 = t([[12, 208], [13, 207], [14, 206], [15, 104], [16, 0], [17, 0], [18, 200], [19, 201], [20, 200], [21, 201], [22, 198], [23, 104], [24, 205], [25, 206], [26, 104], [27, 201]]);
-var dark_yellow_alt2_SwitchThumb = n448;
-var n449 = t([[12, 205], [13, 203], [14, 202], [15, 201], [16, 104], [17, 206], [18, 200], [19, 201], [20, 200], [21, 201], [22, 201], [23, 201], [24, 200], [25, 202], [26, 201], [27, 104]]);
-var dark_yellow_alt2_SliderTrackActive = n449;
-var n450 = t([[12, 206], [13, 104], [14, 205], [15, 203], [16, 207], [17, 208], [18, 200], [19, 201], [20, 200], [21, 201], [22, 199], [23, 203], [24, 202], [25, 205], [26, 203], [27, 203]]);
-var dark_yellow_alt2_SliderThumb = n450;
-var dark_yellow_alt2_Tooltip = n450;
-var dark_yellow_alt2_ProgressIndicator = n450;
-var n451 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [19, 104], [20, 206], [21, 104], [22, 207], [23, 104], [24, 206], [25, 205], [26, 104], [27, 203]]);
-var dark_yellow_active_ListItem = n451;
-var n452 = t([[12, 203], [13, 205], [14, 104], [15, 206], [16, 202], [17, 201], [19, 104], [20, 206], [21, 104], [22, 206], [23, 206], [24, 207], [25, 104], [26, 206], [27, 202]]);
-var dark_yellow_active_Card = n452;
-var dark_yellow_active_DrawerFrame = n452;
-var dark_yellow_active_Progress = n452;
-var dark_yellow_active_TooltipArrow = n452;
-var n453 = t([[12, 205], [13, 104], [14, 206], [15, 207], [16, 203], [17, 202], [19, 104], [20, 206], [21, 104], [22, 104], [23, 241], [24, 241], [25, 206], [26, 207], [27, 201]]);
-var dark_yellow_active_Button = n453;
-var n454 = t([[12, 202], [13, 203], [14, 205], [15, 104], [16, 201], [17, 200], [19, 104], [20, 206], [21, 104], [22, 207], [23, 207], [24, 208], [25, 206], [26, 207], [27, 203]]);
-var dark_yellow_active_Checkbox = n454;
-var dark_yellow_active_RadioGroupItem = n454;
-var dark_yellow_active_Input = n454;
-var dark_yellow_active_TextArea = n454;
-var n455 = t([[12, 205], [13, 104], [14, 206], [15, 207], [16, 203], [17, 202], [19, 104], [20, 206], [21, 104], [22, 104], [23, 207], [24, 208], [25, 206], [26, 207], [27, 201]]);
-var dark_yellow_active_Switch = n455;
-var dark_yellow_active_TooltipContent = n455;
-var dark_yellow_active_SliderTrack = n455;
-var n456 = t([[12, 207], [13, 206], [14, 104], [15, 205], [16, 208], [17, 0], [19, 202], [20, 201], [21, 202], [22, 198], [23, 205], [24, 203], [25, 104], [26, 205], [27, 202]]);
-var dark_yellow_active_SwitchThumb = n456;
-var n457 = t([[12, 203], [13, 202], [14, 201], [15, 200], [16, 205], [17, 104], [19, 202], [20, 201], [21, 202], [22, 202], [23, 200], [24, 199], [25, 201], [26, 200], [27, 206]]);
-var dark_yellow_active_SliderTrackActive = n457;
-var n458 = t([[12, 104], [13, 205], [14, 203], [15, 202], [16, 206], [17, 207], [19, 202], [20, 201], [21, 202], [22, 200], [23, 202], [24, 201], [25, 203], [26, 202], [27, 205]]);
-var dark_yellow_active_SliderThumb = n458;
-var dark_yellow_active_Tooltip = n458;
-var dark_yellow_active_ProgressIndicator = n458;
-var n459 = t([[12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 153], [19, 152], [20, 153], [21, 152], [22, 0], [23, 148], [24, 150], [25, 147], [26, 148], [27, 44]]);
-var dark_green_alt1_ListItem = n459;
-var n460 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 153], [19, 152], [20, 153], [21, 152], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_alt1_Card = n460;
-var dark_green_alt1_DrawerFrame = n460;
-var dark_green_alt1_Progress = n460;
-var dark_green_alt1_TooltipArrow = n460;
-var n461 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [18, 153], [19, 152], [20, 153], [21, 152], [22, 152], [23, 241], [24, 241], [25, 150], [26, 44], [27, 148]]);
-var dark_green_alt1_Button = n461;
-var n462 = t([[12, 145], [13, 146], [14, 147], [15, 148], [16, 144], [17, 143], [18, 153], [19, 152], [20, 153], [21, 152], [22, 0], [23, 44], [24, 151], [25, 150], [26, 44], [27, 44]]);
-var dark_green_alt1_Checkbox = n462;
-var dark_green_alt1_RadioGroupItem = n462;
-var dark_green_alt1_Input = n462;
-var dark_green_alt1_TextArea = n462;
-var n463 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [18, 153], [19, 152], [20, 153], [21, 152], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_alt1_Switch = n463;
-var dark_green_alt1_TooltipContent = n463;
-var dark_green_alt1_SliderTrack = n463;
-var n464 = t([[12, 0], [13, 153], [14, 152], [15, 151], [16, 0], [17, 0], [18, 144], [19, 145], [20, 144], [21, 145], [22, 143], [23, 151], [24, 44], [25, 152], [26, 151], [27, 145]]);
-var dark_green_alt1_SwitchThumb = n464;
-var n465 = t([[12, 44], [13, 150], [14, 148], [15, 147], [16, 151], [17, 152], [18, 144], [19, 145], [20, 144], [21, 145], [22, 145], [23, 147], [24, 146], [25, 148], [26, 147], [27, 150]]);
-var dark_green_alt1_SliderTrackActive = n465;
-var n466 = t([[12, 152], [13, 151], [14, 44], [15, 150], [16, 153], [17, 0], [18, 144], [19, 145], [20, 144], [21, 145], [22, 143], [23, 150], [24, 148], [25, 44], [26, 150], [27, 147]]);
-var dark_green_alt1_SliderThumb = n466;
-var dark_green_alt1_Tooltip = n466;
-var dark_green_alt1_ProgressIndicator = n466;
-var n467 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 152], [19, 151], [20, 152], [21, 151], [22, 153], [23, 150], [24, 44], [25, 148], [26, 150], [27, 150]]);
-var dark_green_alt2_ListItem = n467;
-var n468 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [18, 152], [19, 151], [20, 152], [21, 151], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_alt2_Card = n468;
-var dark_green_alt2_DrawerFrame = n468;
-var dark_green_alt2_Progress = n468;
-var dark_green_alt2_TooltipArrow = n468;
-var n469 = t([[12, 148], [13, 150], [14, 44], [15, 151], [16, 147], [17, 146], [18, 152], [19, 151], [20, 152], [21, 151], [22, 151], [23, 241], [24, 241], [25, 44], [26, 151], [27, 147]]);
-var dark_green_alt2_Button = n469;
-var n470 = t([[12, 146], [13, 147], [14, 148], [15, 150], [16, 145], [17, 144], [18, 152], [19, 151], [20, 152], [21, 151], [22, 153], [23, 151], [24, 152], [25, 44], [26, 151], [27, 150]]);
-var dark_green_alt2_Checkbox = n470;
-var dark_green_alt2_RadioGroupItem = n470;
-var dark_green_alt2_Input = n470;
-var dark_green_alt2_TextArea = n470;
-var n471 = t([[12, 148], [13, 150], [14, 44], [15, 151], [16, 147], [17, 146], [18, 152], [19, 151], [20, 152], [21, 151], [22, 151], [23, 151], [24, 152], [25, 44], [26, 151], [27, 147]]);
-var dark_green_alt2_Switch = n471;
-var dark_green_alt2_TooltipContent = n471;
-var dark_green_alt2_SliderTrack = n471;
-var n472 = t([[12, 153], [13, 152], [14, 151], [15, 44], [16, 0], [17, 0], [18, 145], [19, 146], [20, 145], [21, 146], [22, 143], [23, 44], [24, 150], [25, 151], [26, 44], [27, 146]]);
-var dark_green_alt2_SwitchThumb = n472;
-var n473 = t([[12, 150], [13, 148], [14, 147], [15, 146], [16, 44], [17, 151], [18, 145], [19, 146], [20, 145], [21, 146], [22, 146], [23, 146], [24, 145], [25, 147], [26, 146], [27, 44]]);
-var dark_green_alt2_SliderTrackActive = n473;
-var n474 = t([[12, 151], [13, 44], [14, 150], [15, 148], [16, 152], [17, 153], [18, 145], [19, 146], [20, 145], [21, 146], [22, 144], [23, 148], [24, 147], [25, 150], [26, 148], [27, 148]]);
-var dark_green_alt2_SliderThumb = n474;
-var dark_green_alt2_Tooltip = n474;
-var dark_green_alt2_ProgressIndicator = n474;
-var n475 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [19, 44], [20, 151], [21, 44], [22, 152], [23, 44], [24, 151], [25, 150], [26, 44], [27, 148]]);
-var dark_green_active_ListItem = n475;
-var n476 = t([[12, 148], [13, 150], [14, 44], [15, 151], [16, 147], [17, 146], [19, 44], [20, 151], [21, 44], [22, 151], [23, 151], [24, 152], [25, 44], [26, 151], [27, 147]]);
-var dark_green_active_Card = n476;
-var dark_green_active_DrawerFrame = n476;
-var dark_green_active_Progress = n476;
-var dark_green_active_TooltipArrow = n476;
-var n477 = t([[12, 150], [13, 44], [14, 151], [15, 152], [16, 148], [17, 147], [19, 44], [20, 151], [21, 44], [22, 44], [23, 241], [24, 241], [25, 151], [26, 152], [27, 146]]);
-var dark_green_active_Button = n477;
-var n478 = t([[12, 147], [13, 148], [14, 150], [15, 44], [16, 146], [17, 145], [19, 44], [20, 151], [21, 44], [22, 152], [23, 152], [24, 153], [25, 151], [26, 152], [27, 148]]);
-var dark_green_active_Checkbox = n478;
-var dark_green_active_RadioGroupItem = n478;
-var dark_green_active_Input = n478;
-var dark_green_active_TextArea = n478;
-var n479 = t([[12, 150], [13, 44], [14, 151], [15, 152], [16, 148], [17, 147], [19, 44], [20, 151], [21, 44], [22, 44], [23, 152], [24, 153], [25, 151], [26, 152], [27, 146]]);
-var dark_green_active_Switch = n479;
-var dark_green_active_TooltipContent = n479;
-var dark_green_active_SliderTrack = n479;
-var n480 = t([[12, 152], [13, 151], [14, 44], [15, 150], [16, 153], [17, 0], [19, 147], [20, 146], [21, 147], [22, 143], [23, 150], [24, 148], [25, 44], [26, 150], [27, 147]]);
-var dark_green_active_SwitchThumb = n480;
-var n481 = t([[12, 148], [13, 147], [14, 146], [15, 145], [16, 150], [17, 44], [19, 147], [20, 146], [21, 147], [22, 147], [23, 145], [24, 144], [25, 146], [26, 145], [27, 151]]);
-var dark_green_active_SliderTrackActive = n481;
-var n482 = t([[12, 44], [13, 150], [14, 148], [15, 147], [16, 151], [17, 152], [19, 147], [20, 146], [21, 147], [22, 145], [23, 147], [24, 146], [25, 148], [26, 147], [27, 150]]);
-var dark_green_active_SliderThumb = n482;
-var dark_green_active_Tooltip = n482;
-var dark_green_active_ProgressIndicator = n482;
-var n483 = t([[12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 131], [19, 130], [20, 131], [21, 130], [22, 0], [23, 126], [24, 128], [25, 125], [26, 126], [27, 22]]);
-var dark_blue_alt1_ListItem = n483;
-var n484 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 131], [19, 130], [20, 131], [21, 130], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_alt1_Card = n484;
-var dark_blue_alt1_DrawerFrame = n484;
-var dark_blue_alt1_Progress = n484;
-var dark_blue_alt1_TooltipArrow = n484;
-var n485 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [18, 131], [19, 130], [20, 131], [21, 130], [22, 130], [23, 241], [24, 241], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_alt1_Button = n485;
-var n486 = t([[12, 123], [13, 124], [14, 125], [15, 126], [16, 122], [17, 121], [18, 131], [19, 130], [20, 131], [21, 130], [22, 0], [23, 22], [24, 129], [25, 128], [26, 22], [27, 22]]);
-var dark_blue_alt1_Checkbox = n486;
-var dark_blue_alt1_RadioGroupItem = n486;
-var dark_blue_alt1_Input = n486;
-var dark_blue_alt1_TextArea = n486;
-var n487 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [18, 131], [19, 130], [20, 131], [21, 130], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_alt1_Switch = n487;
-var dark_blue_alt1_TooltipContent = n487;
-var dark_blue_alt1_SliderTrack = n487;
-var n488 = t([[12, 0], [13, 131], [14, 130], [15, 129], [16, 0], [17, 0], [18, 122], [19, 123], [20, 122], [21, 123], [22, 121], [23, 129], [24, 22], [25, 130], [26, 129], [27, 123]]);
-var dark_blue_alt1_SwitchThumb = n488;
-var n489 = t([[12, 22], [13, 128], [14, 126], [15, 125], [16, 129], [17, 130], [18, 122], [19, 123], [20, 122], [21, 123], [22, 123], [23, 125], [24, 124], [25, 126], [26, 125], [27, 128]]);
-var dark_blue_alt1_SliderTrackActive = n489;
-var n490 = t([[12, 130], [13, 129], [14, 22], [15, 128], [16, 131], [17, 0], [18, 122], [19, 123], [20, 122], [21, 123], [22, 121], [23, 128], [24, 126], [25, 22], [26, 128], [27, 125]]);
-var dark_blue_alt1_SliderThumb = n490;
-var dark_blue_alt1_Tooltip = n490;
-var dark_blue_alt1_ProgressIndicator = n490;
-var n491 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 130], [19, 129], [20, 130], [21, 129], [22, 131], [23, 128], [24, 22], [25, 126], [26, 128], [27, 128]]);
-var dark_blue_alt2_ListItem = n491;
-var n492 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [18, 130], [19, 129], [20, 130], [21, 129], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_alt2_Card = n492;
-var dark_blue_alt2_DrawerFrame = n492;
-var dark_blue_alt2_Progress = n492;
-var dark_blue_alt2_TooltipArrow = n492;
-var n493 = t([[12, 126], [13, 128], [14, 22], [15, 129], [16, 125], [17, 124], [18, 130], [19, 129], [20, 130], [21, 129], [22, 129], [23, 241], [24, 241], [25, 22], [26, 129], [27, 125]]);
-var dark_blue_alt2_Button = n493;
-var n494 = t([[12, 124], [13, 125], [14, 126], [15, 128], [16, 123], [17, 122], [18, 130], [19, 129], [20, 130], [21, 129], [22, 131], [23, 129], [24, 130], [25, 22], [26, 129], [27, 128]]);
-var dark_blue_alt2_Checkbox = n494;
-var dark_blue_alt2_RadioGroupItem = n494;
-var dark_blue_alt2_Input = n494;
-var dark_blue_alt2_TextArea = n494;
-var n495 = t([[12, 126], [13, 128], [14, 22], [15, 129], [16, 125], [17, 124], [18, 130], [19, 129], [20, 130], [21, 129], [22, 129], [23, 129], [24, 130], [25, 22], [26, 129], [27, 125]]);
-var dark_blue_alt2_Switch = n495;
-var dark_blue_alt2_TooltipContent = n495;
-var dark_blue_alt2_SliderTrack = n495;
-var n496 = t([[12, 131], [13, 130], [14, 129], [15, 22], [16, 0], [17, 0], [18, 123], [19, 124], [20, 123], [21, 124], [22, 121], [23, 22], [24, 128], [25, 129], [26, 22], [27, 124]]);
-var dark_blue_alt2_SwitchThumb = n496;
-var n497 = t([[12, 128], [13, 126], [14, 125], [15, 124], [16, 22], [17, 129], [18, 123], [19, 124], [20, 123], [21, 124], [22, 124], [23, 124], [24, 123], [25, 125], [26, 124], [27, 22]]);
-var dark_blue_alt2_SliderTrackActive = n497;
-var n498 = t([[12, 129], [13, 22], [14, 128], [15, 126], [16, 130], [17, 131], [18, 123], [19, 124], [20, 123], [21, 124], [22, 122], [23, 126], [24, 125], [25, 128], [26, 126], [27, 126]]);
-var dark_blue_alt2_SliderThumb = n498;
-var dark_blue_alt2_Tooltip = n498;
-var dark_blue_alt2_ProgressIndicator = n498;
-var n499 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [19, 22], [20, 129], [21, 22], [22, 130], [23, 22], [24, 129], [25, 128], [26, 22], [27, 126]]);
-var dark_blue_active_ListItem = n499;
-var n500 = t([[12, 126], [13, 128], [14, 22], [15, 129], [16, 125], [17, 124], [19, 22], [20, 129], [21, 22], [22, 129], [23, 129], [24, 130], [25, 22], [26, 129], [27, 125]]);
-var dark_blue_active_Card = n500;
-var dark_blue_active_DrawerFrame = n500;
-var dark_blue_active_Progress = n500;
-var dark_blue_active_TooltipArrow = n500;
-var n501 = t([[12, 128], [13, 22], [14, 129], [15, 130], [16, 126], [17, 125], [19, 22], [20, 129], [21, 22], [22, 22], [23, 241], [24, 241], [25, 129], [26, 130], [27, 124]]);
-var dark_blue_active_Button = n501;
-var n502 = t([[12, 125], [13, 126], [14, 128], [15, 22], [16, 124], [17, 123], [19, 22], [20, 129], [21, 22], [22, 130], [23, 130], [24, 131], [25, 129], [26, 130], [27, 126]]);
-var dark_blue_active_Checkbox = n502;
-var dark_blue_active_RadioGroupItem = n502;
-var dark_blue_active_Input = n502;
-var dark_blue_active_TextArea = n502;
-var n503 = t([[12, 128], [13, 22], [14, 129], [15, 130], [16, 126], [17, 125], [19, 22], [20, 129], [21, 22], [22, 22], [23, 130], [24, 131], [25, 129], [26, 130], [27, 124]]);
-var dark_blue_active_Switch = n503;
-var dark_blue_active_TooltipContent = n503;
-var dark_blue_active_SliderTrack = n503;
-var n504 = t([[12, 130], [13, 129], [14, 22], [15, 128], [16, 131], [17, 0], [19, 125], [20, 124], [21, 125], [22, 121], [23, 128], [24, 126], [25, 22], [26, 128], [27, 125]]);
-var dark_blue_active_SwitchThumb = n504;
-var n505 = t([[12, 126], [13, 125], [14, 124], [15, 123], [16, 128], [17, 22], [19, 125], [20, 124], [21, 125], [22, 125], [23, 123], [24, 122], [25, 124], [26, 123], [27, 129]]);
-var dark_blue_active_SliderTrackActive = n505;
-var n506 = t([[12, 22], [13, 128], [14, 126], [15, 125], [16, 129], [17, 130], [19, 125], [20, 124], [21, 125], [22, 123], [23, 125], [24, 124], [25, 126], [26, 125], [27, 128]]);
-var dark_blue_active_SliderThumb = n506;
-var dark_blue_active_Tooltip = n506;
-var dark_blue_active_ProgressIndicator = n506;
-var n507 = t([[12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 186], [19, 185], [20, 186], [21, 185], [22, 0], [23, 181], [24, 183], [25, 180], [26, 181], [27, 80]]);
-var dark_purple_alt1_ListItem = n507;
-var n508 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 186], [19, 185], [20, 186], [21, 185], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_alt1_Card = n508;
-var dark_purple_alt1_DrawerFrame = n508;
-var dark_purple_alt1_Progress = n508;
-var dark_purple_alt1_TooltipArrow = n508;
-var n509 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [18, 186], [19, 185], [20, 186], [21, 185], [22, 185], [23, 241], [24, 241], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_alt1_Button = n509;
-var n510 = t([[12, 178], [13, 179], [14, 180], [15, 181], [16, 177], [17, 176], [18, 186], [19, 185], [20, 186], [21, 185], [22, 0], [23, 80], [24, 184], [25, 183], [26, 80], [27, 80]]);
-var dark_purple_alt1_Checkbox = n510;
-var dark_purple_alt1_RadioGroupItem = n510;
-var dark_purple_alt1_Input = n510;
-var dark_purple_alt1_TextArea = n510;
-var n511 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [18, 186], [19, 185], [20, 186], [21, 185], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_alt1_Switch = n511;
-var dark_purple_alt1_TooltipContent = n511;
-var dark_purple_alt1_SliderTrack = n511;
-var n512 = t([[12, 0], [13, 186], [14, 185], [15, 184], [16, 0], [17, 0], [18, 177], [19, 178], [20, 177], [21, 178], [22, 176], [23, 184], [24, 80], [25, 185], [26, 184], [27, 178]]);
-var dark_purple_alt1_SwitchThumb = n512;
-var n513 = t([[12, 80], [13, 183], [14, 181], [15, 180], [16, 184], [17, 185], [18, 177], [19, 178], [20, 177], [21, 178], [22, 178], [23, 180], [24, 179], [25, 181], [26, 180], [27, 183]]);
-var dark_purple_alt1_SliderTrackActive = n513;
-var n514 = t([[12, 185], [13, 184], [14, 80], [15, 183], [16, 186], [17, 0], [18, 177], [19, 178], [20, 177], [21, 178], [22, 176], [23, 183], [24, 181], [25, 80], [26, 183], [27, 180]]);
-var dark_purple_alt1_SliderThumb = n514;
-var dark_purple_alt1_Tooltip = n514;
-var dark_purple_alt1_ProgressIndicator = n514;
-var n515 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 185], [19, 184], [20, 185], [21, 184], [22, 186], [23, 183], [24, 80], [25, 181], [26, 183], [27, 183]]);
-var dark_purple_alt2_ListItem = n515;
-var n516 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [18, 185], [19, 184], [20, 185], [21, 184], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_alt2_Card = n516;
-var dark_purple_alt2_DrawerFrame = n516;
-var dark_purple_alt2_Progress = n516;
-var dark_purple_alt2_TooltipArrow = n516;
-var n517 = t([[12, 181], [13, 183], [14, 80], [15, 184], [16, 180], [17, 179], [18, 185], [19, 184], [20, 185], [21, 184], [22, 184], [23, 241], [24, 241], [25, 80], [26, 184], [27, 180]]);
-var dark_purple_alt2_Button = n517;
-var n518 = t([[12, 179], [13, 180], [14, 181], [15, 183], [16, 178], [17, 177], [18, 185], [19, 184], [20, 185], [21, 184], [22, 186], [23, 184], [24, 185], [25, 80], [26, 184], [27, 183]]);
-var dark_purple_alt2_Checkbox = n518;
-var dark_purple_alt2_RadioGroupItem = n518;
-var dark_purple_alt2_Input = n518;
-var dark_purple_alt2_TextArea = n518;
-var n519 = t([[12, 181], [13, 183], [14, 80], [15, 184], [16, 180], [17, 179], [18, 185], [19, 184], [20, 185], [21, 184], [22, 184], [23, 184], [24, 185], [25, 80], [26, 184], [27, 180]]);
-var dark_purple_alt2_Switch = n519;
-var dark_purple_alt2_TooltipContent = n519;
-var dark_purple_alt2_SliderTrack = n519;
-var n520 = t([[12, 186], [13, 185], [14, 184], [15, 80], [16, 0], [17, 0], [18, 178], [19, 179], [20, 178], [21, 179], [22, 176], [23, 80], [24, 183], [25, 184], [26, 80], [27, 179]]);
-var dark_purple_alt2_SwitchThumb = n520;
-var n521 = t([[12, 183], [13, 181], [14, 180], [15, 179], [16, 80], [17, 184], [18, 178], [19, 179], [20, 178], [21, 179], [22, 179], [23, 179], [24, 178], [25, 180], [26, 179], [27, 80]]);
-var dark_purple_alt2_SliderTrackActive = n521;
-var n522 = t([[12, 184], [13, 80], [14, 183], [15, 181], [16, 185], [17, 186], [18, 178], [19, 179], [20, 178], [21, 179], [22, 177], [23, 181], [24, 180], [25, 183], [26, 181], [27, 181]]);
-var dark_purple_alt2_SliderThumb = n522;
-var dark_purple_alt2_Tooltip = n522;
-var dark_purple_alt2_ProgressIndicator = n522;
-var n523 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [19, 80], [20, 184], [21, 80], [22, 185], [23, 80], [24, 184], [25, 183], [26, 80], [27, 181]]);
-var dark_purple_active_ListItem = n523;
-var n524 = t([[12, 181], [13, 183], [14, 80], [15, 184], [16, 180], [17, 179], [19, 80], [20, 184], [21, 80], [22, 184], [23, 184], [24, 185], [25, 80], [26, 184], [27, 180]]);
-var dark_purple_active_Card = n524;
-var dark_purple_active_DrawerFrame = n524;
-var dark_purple_active_Progress = n524;
-var dark_purple_active_TooltipArrow = n524;
-var n525 = t([[12, 183], [13, 80], [14, 184], [15, 185], [16, 181], [17, 180], [19, 80], [20, 184], [21, 80], [22, 80], [23, 241], [24, 241], [25, 184], [26, 185], [27, 179]]);
-var dark_purple_active_Button = n525;
-var n526 = t([[12, 180], [13, 181], [14, 183], [15, 80], [16, 179], [17, 178], [19, 80], [20, 184], [21, 80], [22, 185], [23, 185], [24, 186], [25, 184], [26, 185], [27, 181]]);
-var dark_purple_active_Checkbox = n526;
-var dark_purple_active_RadioGroupItem = n526;
-var dark_purple_active_Input = n526;
-var dark_purple_active_TextArea = n526;
-var n527 = t([[12, 183], [13, 80], [14, 184], [15, 185], [16, 181], [17, 180], [19, 80], [20, 184], [21, 80], [22, 80], [23, 185], [24, 186], [25, 184], [26, 185], [27, 179]]);
-var dark_purple_active_Switch = n527;
-var dark_purple_active_TooltipContent = n527;
-var dark_purple_active_SliderTrack = n527;
-var n528 = t([[12, 185], [13, 184], [14, 80], [15, 183], [16, 186], [17, 0], [19, 180], [20, 179], [21, 180], [22, 176], [23, 183], [24, 181], [25, 80], [26, 183], [27, 180]]);
-var dark_purple_active_SwitchThumb = n528;
-var n529 = t([[12, 181], [13, 180], [14, 179], [15, 178], [16, 183], [17, 80], [19, 180], [20, 179], [21, 180], [22, 180], [23, 178], [24, 177], [25, 179], [26, 178], [27, 184]]);
-var dark_purple_active_SliderTrackActive = n529;
-var n530 = t([[12, 80], [13, 183], [14, 181], [15, 180], [16, 184], [17, 185], [19, 180], [20, 179], [21, 180], [22, 178], [23, 180], [24, 179], [25, 181], [26, 180], [27, 183]]);
-var dark_purple_active_SliderThumb = n530;
-var dark_purple_active_Tooltip = n530;
-var dark_purple_active_ProgressIndicator = n530;
-var n531 = t([[12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 175], [19, 174], [20, 175], [21, 174], [22, 0], [23, 170], [24, 172], [25, 169], [26, 170], [27, 68]]);
-var dark_pink_alt1_ListItem = n531;
-var n532 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 175], [19, 174], [20, 175], [21, 174], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_alt1_Card = n532;
-var dark_pink_alt1_DrawerFrame = n532;
-var dark_pink_alt1_Progress = n532;
-var dark_pink_alt1_TooltipArrow = n532;
-var n533 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [18, 175], [19, 174], [20, 175], [21, 174], [22, 174], [23, 241], [24, 241], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_alt1_Button = n533;
-var n534 = t([[12, 167], [13, 168], [14, 169], [15, 170], [16, 166], [17, 165], [18, 175], [19, 174], [20, 175], [21, 174], [22, 0], [23, 68], [24, 173], [25, 172], [26, 68], [27, 68]]);
-var dark_pink_alt1_Checkbox = n534;
-var dark_pink_alt1_RadioGroupItem = n534;
-var dark_pink_alt1_Input = n534;
-var dark_pink_alt1_TextArea = n534;
-var n535 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [18, 175], [19, 174], [20, 175], [21, 174], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_alt1_Switch = n535;
-var dark_pink_alt1_TooltipContent = n535;
-var dark_pink_alt1_SliderTrack = n535;
-var n536 = t([[12, 0], [13, 175], [14, 174], [15, 173], [16, 0], [17, 0], [18, 166], [19, 167], [20, 166], [21, 167], [22, 165], [23, 173], [24, 68], [25, 174], [26, 173], [27, 167]]);
-var dark_pink_alt1_SwitchThumb = n536;
-var n537 = t([[12, 68], [13, 172], [14, 170], [15, 169], [16, 173], [17, 174], [18, 166], [19, 167], [20, 166], [21, 167], [22, 167], [23, 169], [24, 168], [25, 170], [26, 169], [27, 172]]);
-var dark_pink_alt1_SliderTrackActive = n537;
-var n538 = t([[12, 174], [13, 173], [14, 68], [15, 172], [16, 175], [17, 0], [18, 166], [19, 167], [20, 166], [21, 167], [22, 165], [23, 172], [24, 170], [25, 68], [26, 172], [27, 169]]);
-var dark_pink_alt1_SliderThumb = n538;
-var dark_pink_alt1_Tooltip = n538;
-var dark_pink_alt1_ProgressIndicator = n538;
-var n539 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 174], [19, 173], [20, 174], [21, 173], [22, 175], [23, 172], [24, 68], [25, 170], [26, 172], [27, 172]]);
-var dark_pink_alt2_ListItem = n539;
-var n540 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [18, 174], [19, 173], [20, 174], [21, 173], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_alt2_Card = n540;
-var dark_pink_alt2_DrawerFrame = n540;
-var dark_pink_alt2_Progress = n540;
-var dark_pink_alt2_TooltipArrow = n540;
-var n541 = t([[12, 170], [13, 172], [14, 68], [15, 173], [16, 169], [17, 168], [18, 174], [19, 173], [20, 174], [21, 173], [22, 173], [23, 241], [24, 241], [25, 68], [26, 173], [27, 169]]);
-var dark_pink_alt2_Button = n541;
-var n542 = t([[12, 168], [13, 169], [14, 170], [15, 172], [16, 167], [17, 166], [18, 174], [19, 173], [20, 174], [21, 173], [22, 175], [23, 173], [24, 174], [25, 68], [26, 173], [27, 172]]);
-var dark_pink_alt2_Checkbox = n542;
-var dark_pink_alt2_RadioGroupItem = n542;
-var dark_pink_alt2_Input = n542;
-var dark_pink_alt2_TextArea = n542;
-var n543 = t([[12, 170], [13, 172], [14, 68], [15, 173], [16, 169], [17, 168], [18, 174], [19, 173], [20, 174], [21, 173], [22, 173], [23, 173], [24, 174], [25, 68], [26, 173], [27, 169]]);
-var dark_pink_alt2_Switch = n543;
-var dark_pink_alt2_TooltipContent = n543;
-var dark_pink_alt2_SliderTrack = n543;
-var n544 = t([[12, 175], [13, 174], [14, 173], [15, 68], [16, 0], [17, 0], [18, 167], [19, 168], [20, 167], [21, 168], [22, 165], [23, 68], [24, 172], [25, 173], [26, 68], [27, 168]]);
-var dark_pink_alt2_SwitchThumb = n544;
-var n545 = t([[12, 172], [13, 170], [14, 169], [15, 168], [16, 68], [17, 173], [18, 167], [19, 168], [20, 167], [21, 168], [22, 168], [23, 168], [24, 167], [25, 169], [26, 168], [27, 68]]);
-var dark_pink_alt2_SliderTrackActive = n545;
-var n546 = t([[12, 173], [13, 68], [14, 172], [15, 170], [16, 174], [17, 175], [18, 167], [19, 168], [20, 167], [21, 168], [22, 166], [23, 170], [24, 169], [25, 172], [26, 170], [27, 170]]);
-var dark_pink_alt2_SliderThumb = n546;
-var dark_pink_alt2_Tooltip = n546;
-var dark_pink_alt2_ProgressIndicator = n546;
-var n547 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [19, 68], [20, 173], [21, 68], [22, 174], [23, 68], [24, 173], [25, 172], [26, 68], [27, 170]]);
-var dark_pink_active_ListItem = n547;
-var n548 = t([[12, 170], [13, 172], [14, 68], [15, 173], [16, 169], [17, 168], [19, 68], [20, 173], [21, 68], [22, 173], [23, 173], [24, 174], [25, 68], [26, 173], [27, 169]]);
-var dark_pink_active_Card = n548;
-var dark_pink_active_DrawerFrame = n548;
-var dark_pink_active_Progress = n548;
-var dark_pink_active_TooltipArrow = n548;
-var n549 = t([[12, 172], [13, 68], [14, 173], [15, 174], [16, 170], [17, 169], [19, 68], [20, 173], [21, 68], [22, 68], [23, 241], [24, 241], [25, 173], [26, 174], [27, 168]]);
-var dark_pink_active_Button = n549;
-var n550 = t([[12, 169], [13, 170], [14, 172], [15, 68], [16, 168], [17, 167], [19, 68], [20, 173], [21, 68], [22, 174], [23, 174], [24, 175], [25, 173], [26, 174], [27, 170]]);
-var dark_pink_active_Checkbox = n550;
-var dark_pink_active_RadioGroupItem = n550;
-var dark_pink_active_Input = n550;
-var dark_pink_active_TextArea = n550;
-var n551 = t([[12, 172], [13, 68], [14, 173], [15, 174], [16, 170], [17, 169], [19, 68], [20, 173], [21, 68], [22, 68], [23, 174], [24, 175], [25, 173], [26, 174], [27, 168]]);
-var dark_pink_active_Switch = n551;
-var dark_pink_active_TooltipContent = n551;
-var dark_pink_active_SliderTrack = n551;
-var n552 = t([[12, 174], [13, 173], [14, 68], [15, 172], [16, 175], [17, 0], [19, 169], [20, 168], [21, 169], [22, 165], [23, 172], [24, 170], [25, 68], [26, 172], [27, 169]]);
-var dark_pink_active_SwitchThumb = n552;
-var n553 = t([[12, 170], [13, 169], [14, 168], [15, 167], [16, 172], [17, 68], [19, 169], [20, 168], [21, 169], [22, 169], [23, 167], [24, 166], [25, 168], [26, 167], [27, 173]]);
-var dark_pink_active_SliderTrackActive = n553;
-var n554 = t([[12, 68], [13, 172], [14, 170], [15, 169], [16, 173], [17, 174], [19, 169], [20, 168], [21, 169], [22, 167], [23, 169], [24, 168], [25, 170], [26, 169], [27, 172]]);
-var dark_pink_active_SliderThumb = n554;
-var dark_pink_active_Tooltip = n554;
-var dark_pink_active_ProgressIndicator = n554;
-var n555 = t([[12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 197], [19, 196], [20, 197], [21, 196], [22, 0], [23, 192], [24, 194], [25, 191], [26, 192], [27, 92]]);
-var dark_red_alt1_ListItem = n555;
-var n556 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 197], [19, 196], [20, 197], [21, 196], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_alt1_Card = n556;
-var dark_red_alt1_DrawerFrame = n556;
-var dark_red_alt1_Progress = n556;
-var dark_red_alt1_TooltipArrow = n556;
-var n557 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [18, 197], [19, 196], [20, 197], [21, 196], [22, 196], [23, 241], [24, 241], [25, 194], [26, 92], [27, 192]]);
-var dark_red_alt1_Button = n557;
-var n558 = t([[12, 189], [13, 190], [14, 191], [15, 192], [16, 188], [17, 187], [18, 197], [19, 196], [20, 197], [21, 196], [22, 0], [23, 92], [24, 195], [25, 194], [26, 92], [27, 92]]);
-var dark_red_alt1_Checkbox = n558;
-var dark_red_alt1_RadioGroupItem = n558;
-var dark_red_alt1_Input = n558;
-var dark_red_alt1_TextArea = n558;
-var n559 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [18, 197], [19, 196], [20, 197], [21, 196], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_alt1_Switch = n559;
-var dark_red_alt1_TooltipContent = n559;
-var dark_red_alt1_SliderTrack = n559;
-var n560 = t([[12, 0], [13, 197], [14, 196], [15, 195], [16, 0], [17, 0], [18, 188], [19, 189], [20, 188], [21, 189], [22, 187], [23, 195], [24, 92], [25, 196], [26, 195], [27, 189]]);
-var dark_red_alt1_SwitchThumb = n560;
-var n561 = t([[12, 92], [13, 194], [14, 192], [15, 191], [16, 195], [17, 196], [18, 188], [19, 189], [20, 188], [21, 189], [22, 189], [23, 191], [24, 190], [25, 192], [26, 191], [27, 194]]);
-var dark_red_alt1_SliderTrackActive = n561;
-var n562 = t([[12, 196], [13, 195], [14, 92], [15, 194], [16, 197], [17, 0], [18, 188], [19, 189], [20, 188], [21, 189], [22, 187], [23, 194], [24, 192], [25, 92], [26, 194], [27, 191]]);
-var dark_red_alt1_SliderThumb = n562;
-var dark_red_alt1_Tooltip = n562;
-var dark_red_alt1_ProgressIndicator = n562;
-var n563 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 196], [19, 195], [20, 196], [21, 195], [22, 197], [23, 194], [24, 92], [25, 192], [26, 194], [27, 194]]);
-var dark_red_alt2_ListItem = n563;
-var n564 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [18, 196], [19, 195], [20, 196], [21, 195], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_alt2_Card = n564;
-var dark_red_alt2_DrawerFrame = n564;
-var dark_red_alt2_Progress = n564;
-var dark_red_alt2_TooltipArrow = n564;
-var n565 = t([[12, 192], [13, 194], [14, 92], [15, 195], [16, 191], [17, 190], [18, 196], [19, 195], [20, 196], [21, 195], [22, 195], [23, 241], [24, 241], [25, 92], [26, 195], [27, 191]]);
-var dark_red_alt2_Button = n565;
-var n566 = t([[12, 190], [13, 191], [14, 192], [15, 194], [16, 189], [17, 188], [18, 196], [19, 195], [20, 196], [21, 195], [22, 197], [23, 195], [24, 196], [25, 92], [26, 195], [27, 194]]);
-var dark_red_alt2_Checkbox = n566;
-var dark_red_alt2_RadioGroupItem = n566;
-var dark_red_alt2_Input = n566;
-var dark_red_alt2_TextArea = n566;
-var n567 = t([[12, 192], [13, 194], [14, 92], [15, 195], [16, 191], [17, 190], [18, 196], [19, 195], [20, 196], [21, 195], [22, 195], [23, 195], [24, 196], [25, 92], [26, 195], [27, 191]]);
-var dark_red_alt2_Switch = n567;
-var dark_red_alt2_TooltipContent = n567;
-var dark_red_alt2_SliderTrack = n567;
-var n568 = t([[12, 197], [13, 196], [14, 195], [15, 92], [16, 0], [17, 0], [18, 189], [19, 190], [20, 189], [21, 190], [22, 187], [23, 92], [24, 194], [25, 195], [26, 92], [27, 190]]);
-var dark_red_alt2_SwitchThumb = n568;
-var n569 = t([[12, 194], [13, 192], [14, 191], [15, 190], [16, 92], [17, 195], [18, 189], [19, 190], [20, 189], [21, 190], [22, 190], [23, 190], [24, 189], [25, 191], [26, 190], [27, 92]]);
-var dark_red_alt2_SliderTrackActive = n569;
-var n570 = t([[12, 195], [13, 92], [14, 194], [15, 192], [16, 196], [17, 197], [18, 189], [19, 190], [20, 189], [21, 190], [22, 188], [23, 192], [24, 191], [25, 194], [26, 192], [27, 192]]);
-var dark_red_alt2_SliderThumb = n570;
-var dark_red_alt2_Tooltip = n570;
-var dark_red_alt2_ProgressIndicator = n570;
-var n571 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [19, 92], [20, 195], [21, 92], [22, 196], [23, 92], [24, 195], [25, 194], [26, 92], [27, 192]]);
-var dark_red_active_ListItem = n571;
-var n572 = t([[12, 192], [13, 194], [14, 92], [15, 195], [16, 191], [17, 190], [19, 92], [20, 195], [21, 92], [22, 195], [23, 195], [24, 196], [25, 92], [26, 195], [27, 191]]);
-var dark_red_active_Card = n572;
-var dark_red_active_DrawerFrame = n572;
-var dark_red_active_Progress = n572;
-var dark_red_active_TooltipArrow = n572;
-var n573 = t([[12, 194], [13, 92], [14, 195], [15, 196], [16, 192], [17, 191], [19, 92], [20, 195], [21, 92], [22, 92], [23, 241], [24, 241], [25, 195], [26, 196], [27, 190]]);
-var dark_red_active_Button = n573;
-var n574 = t([[12, 191], [13, 192], [14, 194], [15, 92], [16, 190], [17, 189], [19, 92], [20, 195], [21, 92], [22, 196], [23, 196], [24, 197], [25, 195], [26, 196], [27, 192]]);
-var dark_red_active_Checkbox = n574;
-var dark_red_active_RadioGroupItem = n574;
-var dark_red_active_Input = n574;
-var dark_red_active_TextArea = n574;
-var n575 = t([[12, 194], [13, 92], [14, 195], [15, 196], [16, 192], [17, 191], [19, 92], [20, 195], [21, 92], [22, 92], [23, 196], [24, 197], [25, 195], [26, 196], [27, 190]]);
-var dark_red_active_Switch = n575;
-var dark_red_active_TooltipContent = n575;
-var dark_red_active_SliderTrack = n575;
-var n576 = t([[12, 196], [13, 195], [14, 92], [15, 194], [16, 197], [17, 0], [19, 191], [20, 190], [21, 191], [22, 187], [23, 194], [24, 192], [25, 92], [26, 194], [27, 191]]);
-var dark_red_active_SwitchThumb = n576;
-var n577 = t([[12, 192], [13, 191], [14, 190], [15, 189], [16, 194], [17, 92], [19, 191], [20, 190], [21, 191], [22, 191], [23, 189], [24, 188], [25, 190], [26, 189], [27, 195]]);
-var dark_red_active_SliderTrackActive = n577;
-var n578 = t([[12, 92], [13, 194], [14, 192], [15, 191], [16, 195], [17, 196], [19, 191], [20, 190], [21, 191], [22, 189], [23, 191], [24, 190], [25, 192], [26, 191], [27, 194]]);
-var dark_red_active_SliderThumb = n578;
-var dark_red_active_Tooltip = n578;
-var dark_red_active_ProgressIndicator = n578;
-
-// node_modules/@tamagui/themes/dist/esm/tokens.mjs
-var import_web24 = require("@tamagui/core");
-var size6 = {
-  $0: 0,
-  "$0.25": 2,
-  "$0.5": 4,
-  "$0.75": 8,
-  $1: 20,
-  "$1.5": 24,
-  $2: 28,
-  "$2.5": 32,
-  $3: 36,
-  "$3.5": 40,
-  $4: 44,
-  $true: 44,
-  "$4.5": 48,
-  $5: 52,
-  $6: 64,
-  $7: 74,
-  $8: 84,
-  $9: 94,
-  $10: 104,
-  $11: 124,
-  $12: 144,
-  $13: 164,
-  $14: 184,
-  $15: 204,
-  $16: 224,
-  $17: 224,
-  $18: 244,
-  $19: 264,
-  $20: 284
-};
-var spaces2 = Object.entries(size6).map(([k, v]) => [k, sizeToSpace2(v)]);
-function sizeToSpace2(v) {
-  return v === 0 ? 0 : v === 2 ? 0.5 : v === 4 ? 1 : v === 8 ? 1.5 : v <= 16 ? Math.round(v * 0.333) : Math.floor(v * 0.7 - 12);
-}
-__name(sizeToSpace2, "sizeToSpace");
-var spacesNegative2 = spaces2.slice(1).map(([k, v]) => [`-${k.slice(1)}`, -v]);
-var space2 = {
-  ...Object.fromEntries(spaces2),
-  ...Object.fromEntries(spacesNegative2)
-};
-var zIndex2 = {
-  0: 0,
-  1: 100,
-  2: 200,
-  3: 300,
-  4: 400,
-  5: 500
-};
-var colorTokens2 = {
-  light: {
-    blue: blue2,
-    gray: gray2,
-    green: green2,
-    orange: orange2,
-    pink: pink2,
-    purple: purple2,
-    red: red2,
-    yellow: yellow2
-  },
-  dark: {
-    blue,
-    gray,
-    green,
-    orange,
-    pink,
-    purple,
-    red,
-    yellow
-  }
-};
-var darkColors2 = {
-  ...colorTokens2.dark.blue,
-  ...colorTokens2.dark.gray,
-  ...colorTokens2.dark.green,
-  ...colorTokens2.dark.orange,
-  ...colorTokens2.dark.pink,
-  ...colorTokens2.dark.purple,
-  ...colorTokens2.dark.red,
-  ...colorTokens2.dark.yellow
-};
-var lightColors2 = {
-  ...colorTokens2.light.blue,
-  ...colorTokens2.light.gray,
-  ...colorTokens2.light.green,
-  ...colorTokens2.light.orange,
-  ...colorTokens2.light.pink,
-  ...colorTokens2.light.purple,
-  ...colorTokens2.light.red,
-  ...colorTokens2.light.yellow
-};
-var color2 = {
-  ...postfixObjKeys2(lightColors2, "Light"),
-  ...postfixObjKeys2(darkColors2, "Dark")
-};
-function postfixObjKeys2(obj, postfix) {
-  return Object.fromEntries(Object.entries(obj).map(([k, v]) => [`${k}${postfix}`, v]));
-}
-__name(postfixObjKeys2, "postfixObjKeys");
-var radius2 = {
-  0: 0,
-  1: 3,
-  2: 5,
-  3: 7,
-  4: 9,
-  true: 9,
-  5: 10,
-  6: 16,
-  7: 19,
-  8: 22,
-  9: 26,
-  10: 34,
-  11: 42,
-  12: 50
-};
-var tokens2 = (0, import_web24.createTokens)({
-  color: color2,
-  radius: radius2,
-  zIndex: zIndex2,
-  space: space2,
-  size: size6
-});
-
 // tamagui.config.ts
-var tamaguiConfig = createTamagui({
-  themes: generated_new_exports,
-  tokens: tokens2,
+var tamaguiOptions = {
+  animations: animationsCSS,
+  themes,
+  tokens,
+  fonts,
+  selectionStyles,
   components: {
-    Portal: true,
-    // 👈 Essencial para o modal funcionar!
-    ...config.components || {},
-    Dialog: true,
-    Sheet: true,
-    Button: false,
-    Text: false,
-    Input: true,
-    XStack: true,
-    YStack: true,
-    Image: false,
-    View: false,
-    Stack: false,
-    Adapt: true
+    ...config.components || {}
+  },
+  settings: {
+    mediaQueryDefaultActive,
+    defaultFont: "$body",
+    fastSchemeChange: true,
+    shouldAddPrefersColorThemes: true,
+    themeClassNameOnRoot: true
   }
-});
+};
+var tamaguiConfig = createTamagui(tamaguiOptions);
 var tamagui_config_default = tamaguiConfig;
 /*! Bundled license information:
 
