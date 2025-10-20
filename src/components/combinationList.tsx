@@ -195,7 +195,7 @@ const CombinationList: React.FC = () => {
         style={[
           styles.container,
           {
-            width: Platform.OS === 'web' ? '70%' : '90%',
+            width: Platform.OS === 'web' ? '70%' : '100%',
             alignSelf: 'center',
           },
         ]}

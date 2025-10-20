@@ -253,6 +253,7 @@ export const Combination: React.FC = () => {
         title={alertTitle}
         message={alertMessage}
         onConfirm={handleAlertConfirm}
+        color="black"
       />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
