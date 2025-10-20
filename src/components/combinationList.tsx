@@ -22,6 +22,7 @@ export interface Combination {
   totalValue?: number;
   delivery?: string;
   missingItems?: number;
+  missingProducts?: string[];
   createdAt?: string;
   supplierClosed?: string;
   combinationAvailable?: boolean;
@@ -39,6 +40,7 @@ export type RootStackParamList = {
     suppliersData: SupplierData[];
     toalValue?: number;
     missingItems?: number;
+    missingProducts?: string[];
   };
 };
 
@@ -91,6 +93,7 @@ const CombinationList: React.FC = () => {
             supplier: suppliers,
             totalValue: item.resultadoCotacao?.totalOrderValue,
             missingItems: missingItems < 0 ? 0 : missingItems,
+            missingProducts: item.resultadoCotacao?.missingProducts || [],
           };
         });
         const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
@@ -140,6 +143,7 @@ const CombinationList: React.FC = () => {
       totalValue: String(item.totalValue),
       missingItems: String(item.missingItems),
       suppliersData: JSON.stringify(mergedData),
+      missingProducts: item.missingProducts,
     };
 
     router.push({

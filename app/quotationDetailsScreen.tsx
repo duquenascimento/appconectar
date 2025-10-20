@@ -1,114 +1,130 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import {
-  Text,
-  View,
-  Image,
-  ScrollView,
-  XStack,
-  YStack,
-  Separator,
-  Button
-} from 'tamagui'
-import Icons from '@expo/vector-icons/Ionicons'
-import React, { useMemo, useState } from 'react'
-import { SafeAreaView, Alert, Platform } from 'react-native'
-import CustomHeader from '@/src/components/header/customHeader'
-import CustomInfoCard from '@/src/components/card/customInfoCard'
-import CustomButton from '../src/components/button/customButton'
-import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils'
-import CustomAlert from '@/src/components/modais/CustomAlert'
-import { LoadingConfirm } from '@/src/components/loading/confirmOrder'
-import { formatCurrency } from '../src/utils/formatCurrency'
-import { createOrderPremium } from '@/src/services/orderService'
-import { processOrderResponse } from '../src/utils/processOrderResponse'
-import { useRouter, useLocalSearchParams } from 'expo-router'
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
+import Icons from '@expo/vector-icons/Ionicons';
+import React, { useMemo, useState } from 'react';
+import { SafeAreaView, Alert, Platform } from 'react-native';
+import CustomHeader from '@/src/components/header/customHeader';
+import CustomInfoCard from '@/src/components/card/customInfoCard';
+import CustomButton from '../src/components/button/customButton';
+import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
+import CustomAlert from '@/src/components/modais/CustomAlert';
+import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
+import { formatCurrency } from '../src/utils/formatCurrency';
+import { createOrderPremium } from '@/src/services/orderService';
+import { processOrderResponse } from '../src/utils/processOrderResponse';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
+import { SupplierList } from '@/src/components/quotations/SupplierList';
 export interface Product {
-  price: number
-  priceWithoutTax: number
-  name: string
-  sku: string
-  quant: number
-  orderQuant: number
-  obs: string
-  priceUnique: number
-  priceUniqueWithTaxAndDiscount: number
-  image: string[]
-  orderUnit: string
+  price: number;
+  priceWithoutTax: number;
+  name: string;
+  sku: string;
+  quant: number;
+  orderQuant: number;
+  obs: string;
+  priceUnique: number;
+  priceUniqueWithTaxAndDiscount: number;
+  image: string[];
+  orderUnit: string;
 }
 
 export interface Discount {
-  orderValue: number
-  discount: number
-  orderWithoutTax: number
-  orderWithTax: number
-  tax: number
-  missingItens: number
-  orderValueFinish: number
-  product: Product[]
-  sku: string
+  orderValue: number;
+  discount: number;
+  orderWithoutTax: number;
+  orderWithTax: number;
+  tax: number;
+  missingItens: number;
+  orderValueFinish: number;
+  product: Product[];
+  sku: string;
 }
 
 export interface Supplier {
-  name: string
-  externalId: string
-  image: string
-  missingItens: number
-  minimumOrder: number
-  hour: string
-  discount: Discount
-  star: string
+  name: string;
+  externalId: string;
+  image: string;
+  missingItens: number;
+  minimumOrder: number;
+  hour: string;
+  discount: Discount;
+  star: string;
 }
 
 export interface SupplierData {
-  supplier: Supplier
+  supplier: Supplier;
 }
 
 type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Cart: undefined
-  Prices: undefined
-  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string }
+  Home: undefined;
+  Products: undefined;
+  Cart: undefined;
+  Prices: undefined;
+  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string };
   QuotationDetails: {
-    combinationId: string
-    combinationName?: string
-    suppliersData: SupplierData[]
-  }
-}
+    combinationId: string;
+    combinationName?: string;
+    suppliersData: SupplierData[];
+    missingProducts: string[];
+  };
+};
 
 type QuotationDetailsScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>
-  route: { params: RootStackParamList['QuotationDetails'] }
-}
+  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
+  route: { params: RootStackParamList['QuotationDetails'] };
+};
 
 export default function QuotationDetailsScreen() {
-  const router = useRouter()
+  const router = useRouter();
   const {
     combinationId,
     combinationName,
-    suppliersData: suppliersDataParam
+    suppliersData: suppliersDataParam,
+    missingProducts,
   } = useLocalSearchParams<{
-    combinationId?: string
-    combinationName?: string
-    suppliersData?: string
-  }>()
+    combinationId?: string;
+    combinationName?: string;
+    suppliersData?: string;
+    missingProducts: string[];
+  }>();
 
   const suppliersData = useMemo(() => {
-    if (!suppliersDataParam) return []
+    if (!suppliersDataParam) return [];
     try {
-      return JSON.parse(decodeURIComponent(suppliersDataParam as string))
+      return JSON.parse(decodeURIComponent(suppliersDataParam as string));
     } catch (error) {
-      console.error('Erro ao parsear suppliersData:', error)
-      return []
+      console.error('Erro ao parsear suppliersData:', error);
+      return [];
     }
-  }, [suppliersDataParam])
+  }, [suppliersDataParam]);
 
-  const [suppliers] = useState<SupplierData[]>(suppliersData || [])
-  const [headerTitle] = useState<string>(
-    combinationName || 'Detalhes da Cotação'
-  )
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [suppliers] = useState<SupplierData[]>(suppliersData || []);
+  const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const parsedMissingProducts = useMemo(() => {
+    if (!missingProducts) return [];
+
+    console.log('Produtos faltantes: ', missingProducts);
+
+    try {
+      if (Array.isArray(missingProducts)) return missingProducts;
+
+      if (typeof missingProducts === 'string') {
+        if (missingProducts.includes(',')) {
+          return missingProducts.split(',').map((sku) => sku.trim());
+        }
+        return JSON.parse(decodeURIComponent(missingProducts));
+      }
+
+      return [];
+    } catch (err) {
+      console.error('Erro ao parsear missingProducts:', err);
+      return [];
+    }
+  }, [missingProducts]);
 
   const totals = React.useMemo(() => {
     if (!suppliers)
@@ -117,99 +133,91 @@ export default function QuotationDetailsScreen() {
         discount: 0,
         grandTotal: 0,
         totalItems: 0,
-        missingItems: 0
-      }
+        missingItems: 0,
+      };
 
     return suppliers.reduce(
       (acc, { supplier }) => {
-        acc.subtotal += supplier.discount.orderValue
-        acc.discount += supplier.discount.discount
-        acc.grandTotal += supplier.discount.orderValueFinish
+        acc.subtotal += supplier.discount.orderValue;
+        acc.discount += supplier.discount.discount;
+        acc.grandTotal += supplier.discount.orderValueFinish;
 
-        const availableItems = supplier.discount.product.filter(
-          (p) => p.price > 0
-        )
-        acc.totalItems += availableItems.length
+        const availableItems = supplier.discount.product.filter((p) => p.price > 0);
+        acc.totalItems += availableItems.length;
 
-        const missingItemsInSupplier = supplier.discount.product.filter(
-          (p) => p.price === 0
-        )
-        acc.missingItems += missingItemsInSupplier.length
+        const missingItemsInSupplier = supplier.discount.product.filter((p) => p.price === 0);
+        acc.missingItems += missingItemsInSupplier.length;
 
-        return acc
+        return acc;
       },
       {
         subtotal: 0,
         discount: 0,
         grandTotal: 0,
         totalItems: 0,
-        missingItems: 0
-      }
-    )
-  }, [suppliers])
+        missingItems: 0,
+      },
+    );
+  }, [suppliers]);
 
-  const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN')
+  const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
 
-  const handleBackPress = () => router.back()
+  const handleBackPress = () => router.back();
   const handleConfirm = async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const token = await getToken()
+      const token = await getToken();
       if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.')
-        return
+        Alert.alert('Erro', 'Token de autenticação não encontrado.');
+        return;
       }
 
-      const storedRestaurant = await getStorage('selectedRestaurant')
+      const storedRestaurant = await getStorage('selectedRestaurant');
       if (!storedRestaurant) {
-        Alert.alert('Erro', 'Restaurante não encontrado.')
-        return
+        Alert.alert('Erro', 'Restaurante não encontrado.');
+        return;
       }
 
-      const parsedRestaurant = JSON.parse(storedRestaurant)
+      const parsedRestaurant = JSON.parse(storedRestaurant);
 
       const body = {
         token,
         suppliers: suppliers.map((s) => s.supplier),
-        restaurant: parsedRestaurant
-      }
+        restaurant: parsedRestaurant,
+      };
 
-      const createdOrders = await createOrderPremium(body)
+      const createdOrders = await createOrderPremium(body);
       if (createdOrders && createdOrders.status === 201) {
-        deleteMultiStorage(['cartOrder', 'cart'])
-        const deliveryDateFormated =
-          createdOrders.data.data[0].deliveryDateFormated
+        deleteMultiStorage(['cartOrder', 'cart']);
+        const deliveryDateFormated = createdOrders.data.data[0].deliveryDateFormated;
 
         const ordersBySupplier = createdOrders.data.data.map(
           (item: { orderId: string; externalId: string }) => ({
             orderId: item.orderId,
-            externalId: item.externalId
-          })
-        )
+            externalId: item.externalId,
+          }),
+        );
 
-        const supplierWithOrderId = processOrderResponse(
-          suppliers,
-          ordersBySupplier
-        )
+        const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
 
         router.push({
           pathname: '/orderConfirmedScreen',
           params: {
             suppliers: JSON.stringify(supplierWithOrderId),
-            deliveryDate: deliveryDateFormated
-          }
-        })
+            deliveryDate: deliveryDateFormated,
+          },
+        });
       } else {
-        Alert.alert('Erro', 'Erro ao confirmar a combinação.')
-        setIsAlertVisible(true)
+        Alert.alert('Erro', 'Erro ao confirmar a combinação.');
+        setIsAlertVisible(true);
       }
     } catch (error) {
-      console.error('Erro ao confirmar a combinação:', error)
-      Alert.alert('Erro', 'Ocorreu um erro inesperado.')
+      console.error('Erro ao confirmar a combinação:', error);
+      Alert.alert('Erro', 'Ocorreu um erro inesperado.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   if (!suppliers || suppliers.length === 0) {
     return (
@@ -219,7 +227,7 @@ export default function QuotationDetailsScreen() {
           <Text>Não foi possível carregar os dados da cotação.</Text>
         </View>
       </SafeAreaView>
-    )
+    );
   }
 
   return (
@@ -243,90 +251,9 @@ export default function QuotationDetailsScreen() {
               description="Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti."
             />
 
-            {suppliers.map(({ supplier }) => (
-              <YStack
-                key={supplier.externalId}
-                backgroundColor="white"
-                borderRadius={8}
-                padding="$3"
-                gap="$3"
-                borderColor="$gray6"
-                borderWidth={1}
-              >
-                <XStack alignItems="center">
-                  <Image
-                    source={{ uri: supplier.image }}
-                    width={Platform.OS === 'web' ? 40 : undefined}
-                    height={40}
-                    borderRadius={20}
-                  />
-                  <YStack marginLeft="$3" flex={1}>
-                    <Text fontSize={16} fontWeight="bold">
-                      {supplier.name.replace('Distribuidora', '').trim()}
-                    </Text>
-                    <XStack alignItems="center" gap="$1.5">
-                      <Icons name="star" color="#F59E0B" size={14} />
-                      <Text fontSize={12} color="$gray10">
-                        {supplier.star}
-                      </Text>
-                    </XStack>
-                  </YStack>
-                  <YStack alignItems="flex-end">
-                    <Text fontSize={16} fontWeight="bold">
-                      {formatCurrency(supplier.discount.orderValueFinish)}
-                    </Text>
-                    <Text fontSize={12} color="$gray10">
-                      {supplier.discount.product.length} item
-                      {supplier.discount.product.length !== 1 ? 's' : ''}
-                    </Text>
-                  </YStack>
-                </XStack>
+            <MissingItemsList missingProducts={parsedMissingProducts} />
+            <SupplierList suppliers={suppliers} />
 
-                <YStack gap="$3">
-                  {supplier.discount.product.map((product) => (
-                    <XStack key={product.sku} alignItems="center" gap="$3">
-                      <Image
-                        source={{ uri: product.image[0] }}
-                        width={Platform.OS === 'web' ? 40 : undefined}
-                        height={40}
-                        resizeMode="cover"
-                        borderRadius={5}
-                      />
-                      <YStack flex={1}>
-                        <Text fontSize={14} color="$gray12">
-                          {product.name}
-                        </Text>
-                        {product.obs ? (
-                          <Text fontSize={10} color="$gray10">
-                            Obs: {product.obs}
-                          </Text>
-                        ) : null}
-                      </YStack>
-                      <YStack alignItems="flex-end">
-                        <Text
-                          fontWeight="bold"
-                          fontSize={14}
-                          color={product.price ? '$gray12' : '$red10'}
-                        >
-                          {product.price
-                            ? formatCurrency(product.price)
-                            : 'Indisponível'}
-                        </Text>
-                        <Text fontSize={12} color="$gray10">
-                          {`${product.quant} ${formatUnit(
-                            product.orderUnit
-                          )} | ${formatCurrency(
-                            product.priceUniqueWithTaxAndDiscount
-                          )}/${formatUnit(product.orderUnit)}`}
-                        </Text>
-                      </YStack>
-                    </XStack>
-                  ))}
-                </YStack>
-              </YStack>
-            ))}
-
-            {/* Card de totais */}
             <YStack
               backgroundColor="white"
               borderRadius={8}
@@ -361,8 +288,8 @@ export default function QuotationDetailsScreen() {
                 </Text>
               </XStack>
               <Text fontSize={12} color="$gray10" textAlign="right">
-                {totals.totalItems} item{totals.totalItems !== 1 ? 's' : ''} |{' '}
-                {totals.missingItems} faltante
+                {totals.totalItems} item{totals.totalItems !== 1 ? 's' : ''} | {totals.missingItems}{' '}
+                faltante
                 {totals.missingItems !== 1 ? 's' : ''}
               </Text>
             </YStack>
@@ -402,7 +329,7 @@ export default function QuotationDetailsScreen() {
                   onPress={handleBackPress}
                   hoverStyle={{
                     backgroundColor: '#333333',
-                    opacity: 0.9
+                    opacity: 0.9,
                   }}
                   backgroundColor="#000000"
                   color="#FFFFFF"
@@ -417,7 +344,7 @@ export default function QuotationDetailsScreen() {
                   onPress={handleConfirm}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
-                    opacity: 0.9
+                    opacity: 0.9,
                   }}
                   backgroundColor="#1DC588"
                   color="#FFFFFF"
@@ -458,5 +385,5 @@ export default function QuotationDetailsScreen() {
       </YStack>
       <LoadingConfirm loading={isLoading} />
     </SafeAreaView>
-  )
+  );
 }
