@@ -666,7 +666,8 @@ export default function Prices() {
           <View
             disabled={!selectedRestaurant.premium}
             opacity={selectedRestaurant.premium ? 1 : 0.4}
-            onPress={() => {
+            onPress={async () => {
+              await loadRestaurants();
               setTab('plus');
             }}
             cursor="pointer"
@@ -684,7 +685,8 @@ export default function Prices() {
             ></View>
           </View>
           <View
-            onPress={() => {
+            onPress={async () => {
+              await loadRestaurants();
               setTab('onlySupplier');
             }}
             cursor="pointer"
