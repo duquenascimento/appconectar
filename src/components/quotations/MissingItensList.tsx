@@ -1,4 +1,3 @@
-// components/MissingItemsList.tsx
 import { YStack, Text } from 'tamagui';
 import { ProductItemCard } from './ProductItemCard';
 import { Product } from '@/src/types/types';

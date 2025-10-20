@@ -107,19 +107,27 @@ export default function QuotationDetailsScreen() {
   const parsedMissingProducts = useMemo(() => {
     if (!missingProducts) return [];
 
-    console.log('Produtos faltantes: ', missingProducts);
-
     try {
       if (Array.isArray(missingProducts)) return missingProducts;
 
-      if (typeof missingProducts === 'string') {
-        if (missingProducts.includes(',')) {
-          return missingProducts.split(',').map((sku) => sku.trim());
-        }
-        return JSON.parse(decodeURIComponent(missingProducts));
+      const raw =
+        typeof missingProducts === 'string'
+          ? decodeURIComponent(missingProducts).trim()
+          : Array.isArray(missingProducts)
+            ? missingProducts
+            : String(missingProducts);
+
+      if (Array.isArray(raw)) {
+        return raw.map(String);
       }
 
-      return [];
+      if (raw.includes(',')) {
+        return raw
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+      }
+      return raw ? [raw] : [];
     } catch (err) {
       console.error('Erro ao parsear missingProducts:', err);
       return [];
