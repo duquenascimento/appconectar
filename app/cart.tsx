@@ -16,7 +16,7 @@ import DialogInstanceNotification from '../src/components/modais/DialogInstanceN
 import { filterCarts } from '../src/utils/filterCarts';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
-import { loadRestaurants } from '@/src/services/restaurantService';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
 
 type RootStackParamList = {
   Home: undefined;
@@ -383,6 +383,7 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
+  const { loadRestaurants } = useSupplier();
   const router = useRouter();
 
   useEffect(() => {
