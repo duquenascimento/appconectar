@@ -17,7 +17,6 @@ import { combinacaoValidationSchema } from '@/src/validators/combination.form.va
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { router } from 'expo-router';
-import { router } from 'expo-router';
 
 export interface SuplierCombination {
   id: string;
