@@ -9,7 +9,7 @@ import { getStorage } from '../utils/utils'
 
 type Props = {
   cartSize: number
-  isScrolling: boolean
+  /* isScrolling: boolean */
   visibleProducts: Product[]
   selectedRestaurant: string | null
   onPress: () => void
@@ -22,7 +22,7 @@ interface Restaurant {
   user: string
 }
 
-export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProducts, selectedRestaurant, onPress }) => {
+export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selectedRestaurant, onPress }) => {
   const opacity = useSharedValue(0)
   const translateY = useSharedValue(50)
   const hideTimeout = useRef<NodeJS.Timeout | null>(null)
@@ -30,11 +30,11 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
   const [showWatcher, setShowWatcher] = useState(false)
 
   useEffect(() => {
-    if (cartSize <= 0) {
+    /* if (cartSize <= 0) {
       opacity.value = withTiming(0, { duration: 250 })
       translateY.value = withTiming(50, { duration: 250 })
       return
-    }
+    } */
 
     if (visibleProducts.length < 4) {
       opacity.value = withTiming(1, { duration: 100 })
@@ -42,7 +42,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
       return
     }
 
-    if (isScrolling) {
+    /* if (isScrolling) {
       if (hideTimeout.current) clearTimeout(hideTimeout.current)
       opacity.value = withTiming(1, { duration: 100 })
       translateY.value = withTiming(0, { duration: 100 })
@@ -51,12 +51,12 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
         opacity.value = withTiming(0, { duration: 200 })
         translateY.value = withTiming(50, { duration: 200 })
       }, 2000)
-    }
+    } */
 
     return () => {
       if (hideTimeout.current) clearTimeout(hideTimeout.current)
     }
-  }, [cartSize, isScrolling, visibleProducts])
+  }, [cartSize, visibleProducts])
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -117,7 +117,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
             bottom: 65,
             left: 0,
             right: 0,
-            display: cartSize <= 0 ? 'none' : 'flex',
+            display: /* cartSize <= 0 ? 'none' :  */'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 100,
@@ -131,8 +131,8 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
               cursor: 'pointer',
               pointerEvents: 'auto'
             }}
-            onClick={cartSize > 0 ? onPress : undefined}
-            disabled={cartSize <= 0}
+            onClick={/* cartSize > 0 ? onPress : undefined */ onPress}
+            /* disabled={cartSize <= 0} */
           >
             <div
               style={{
@@ -201,7 +201,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
         ]}
         pointerEvents="box-none"
       >
-        <TouchableOpacity activeOpacity={0.9} onPress={cartSize > 0 ? onPress : undefined} disabled={cartSize <= 0}>
+        <TouchableOpacity activeOpacity={0.9} onPress={/* cartSize > 0 ? onPress : undefined */ onPress} /* disabled={cartSize <= 0} */>
           <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
             <View>
               <Icons size={25} color="white" name="cart" />

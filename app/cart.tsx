@@ -697,7 +697,7 @@ export default function Cart() {
 
   const MemoizedProductBox = React.memo(ProductBox)
 
-  if (loading || displayedProducts.length === 0) {
+  if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -772,14 +772,18 @@ export default function Cart() {
             gap={5}
           >
             <View justifyContent="center" alignItems="center">
-              <Button
-                backgroundColor="black"
-                onPress={async () => {
-                  setConfirmDelete(true)
-                }}
-              >
-                <Icons name="trash" color="white" size={20}></Icons>
-              </Button>
+              {
+                cart.size > 0 && 
+                
+                <Button
+                  backgroundColor="black"
+                  onPress={async () => {
+                    setConfirmDelete(true)
+                  }}
+                >
+                  <Icons name="trash" color="white" size={20}></Icons>
+                </Button>
+              }
             </View>
             <Button
               borderRadius={10}

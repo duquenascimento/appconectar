@@ -25,6 +25,8 @@ import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
+import { TCart } from '@/src/types/cartTypes';
+import { loadCart } from '@/src/utils/cartUtils';
 
 export interface Product {
   price: number;
@@ -245,6 +247,7 @@ export default function Prices() {
   const screemSize = useScreenSize();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
+    const [cart, setCart] = useState<Map<string, TCart>>();
 
   const { modificado, setModificado } = useCombinacao();
   const router = useRouter();
@@ -274,6 +277,16 @@ export default function Prices() {
       fetchData();
     }
   });
+
+  useEffect(() => {
+    async function getCart() {
+      const getCartData = await loadCart()
+
+      if(getCartData)
+        setCart(getCartData)
+    }
+    getCart()
+  }, []);
 
   useEffect(() => {
     const handleConectarPlus = async () => {
@@ -704,7 +717,7 @@ export default function Prices() {
         </View>
         <View backgroundColor="white" flex={1} paddingHorizontal={5}>
           <View padding={10} paddingTop={0} height="100%">
-            {tab === 'onlySupplier' && (
+            {(tab === 'onlySupplier' && (cart && cart.size > 0)) && (
               <VirtualizedList
                 style={{ marginBottom: 5, flexGrow: 1 }}
                 data={combinedSuppliers}
@@ -719,6 +732,13 @@ export default function Prices() {
                 windowSize={4}
                 scrollEnabled={true}
               />
+            )}
+
+            {(tab === 'onlySupplier' && !(cart && cart.size > 0)) && (
+              <Stack flex={1} alignItems='center' justifyContent='center'>
+                <Text>Não há cotações disponíveis...</Text>
+                <Text>Tente adicionar algo ao carrinho!</Text>
+              </Stack>
             )}
             {tab !== 'onlySupplier' && !permissionConectarPlus && (
               <View padding={20} marginTop={10}>
