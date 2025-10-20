@@ -25,7 +25,7 @@ const ItemContainer = styled(XStack, {
   alignItems: 'center',
   justifyContent: 'space-between',
   paddingVertical: '$4',
-  paddingHorizontal: Platform.OS === 'web' ? '$4' : '$2',
+  paddingHorizontal: Platform.OS === 'web' ? '$4' : '$5',
   backgroundColor: '#fff',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
@@ -37,6 +37,7 @@ const LeftContent = styled(XStack, {
   alignItems: 'center',
   flex: 1,
   space: '$3',
+  marginRight: Platform.OS === 'web' ? 0 : 20,
 });
 
 const Circle = styled(View, {
@@ -64,7 +65,7 @@ const ItemSubTitle = styled(Text, {
 const RightContent = styled(YStack, {
   alignItems: 'flex-end',
   space: '$1',
-  marginRight: 10,
+  marginRight: Platform.OS === 'web' ? 10 : 0,
 });
 
 const ItemTotalValue = styled(Text, {
@@ -121,10 +122,9 @@ const CustomListItem: React.FC<ListItemProps> = ({
           {(missingItems !== undefined || unavailable) && (
             <ItemMissing color={!unavailable && missingItems === 0 ? '#666' : 'red'}>
               {supplier === 'N/A'
-                ? `indisponível no momento`
+                ? `Indisponível`
                 : unavailable
-                  ? `Fornecedor(es) fechado(s) ou 
-                com valor abaixo do mínimo`
+                  ? `Fornecedor(es) \nfechado(s) ou \nabaixo do \nvalor mínimo`
                   : `${missingItems} faltante${missingItems !== 1 ? 's' : ''}`}
             </ItemMissing>
           )}

@@ -7,15 +7,16 @@ interface CustomAlertProps {
   message: string
   onConfirm: () => void
   width?: DimensionValue
+  color?: string
 }
 
-const CustomAlert: React.FC<CustomAlertProps> = ({ visible, title, message, onConfirm, width = '80%' }) => {
+const CustomAlert: React.FC<CustomAlertProps> = ({ visible, title, message, onConfirm, width = '80%', color = 'red' }) => {
   return (
     <Modal transparent={true} visible={visible} animationType="fade" onRequestClose={onConfirm}>
       <View style={styles.overlay}>
         <View style={[styles.alertContainer, { width }]}>
           <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
+          <Text style={[styles.message, { color }]}>{message}</Text>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
             <Text style={styles.buttonText}>Fechar</Text>
           </TouchableOpacity>
@@ -48,7 +49,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
     marginBottom: 20,
-    color: 'red'
   },
   button: {
     backgroundColor: '#04BF7B',

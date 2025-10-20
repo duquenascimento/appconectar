@@ -3,12 +3,13 @@ import { YStack, XStack, Input, Button, Text, Separator } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import { DropdownCampo } from './DropdownCampo';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { useProductContext } from '@/src/contexts/produtos.context';
+import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
-import { SupplierData } from '../../types/types';
-import { AcaoNaFalha } from '../../types/combinationTypes';
+import { Product, SupplierData } from '../../types/types';
+import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
+import { loadRestaurants } from '@/src/services/restaurantService';
 
 type Props = {
   index: number;
@@ -31,8 +32,56 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
   const [busca, setBusca] = useState('');
   const [sugestoes, setSugestoes] = useState<any[]>([]);
 
+  const [availableProducts, setAvailableProducts] = useState<any[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<Classe[]>([]);
+
+  useEffect(() => {
+    async function getRestaurants() {
+      const restaurants = await loadRestaurants();
+
+      const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true);
+
+      if (verduraKg.length) {
+        setAvailableProducts(
+          productsContext.filter((item) => {
+            return !(item.class.trim() === 'VERDURAS');
+          }),
+        );
+        setAvailableClasses(
+          classe.filter((c) => {
+            return !(c.nome.trim() === 'VERDURAS');
+          }),
+        );
+      } else {
+        setAvailableProducts(
+          productsContext.filter((item) => {
+            return !(item.class.trim() == 'VERDURAS - KG');
+          }),
+        );
+        setAvailableClasses(
+          classe.filter((c) => {
+            return !(c.nome.trim() == 'VERDURAS - KG');
+          }),
+        );
+      }
+    }
+    getRestaurants();
+  }, [productsContext]);
+
   const preferencia = combinacao.preferencias?.[index];
   if (!preferencia) return null;
+
+  const productsRaw = preferencia.produtos;
+  const produtos = Array.from(
+    new Map(
+      productsRaw.map((item) => {
+        const key =
+          item.produto_sku ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
+
+        return [key, item];
+      }),
+    ).values(),
+  );
 
   const atualizarCampoLocal = (key: keyof typeof preferencia, value: any) => {
     const novaCombinacao = updatePreferencia(combinacao, index, {
@@ -66,13 +115,11 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
   const fornecedoresComuns = useMemo(() => {
     if (preferencia.produtos.length === 0) return [];
-
-    const primeiroFornecedores = preferencia.produtos[0]?.fornecedores || [];
-    const todosIguais = preferencia.produtos.every(
-      (p) => JSON.stringify(p.fornecedores) === JSON.stringify(primeiroFornecedores),
+    const fornecedoresUnicos = Array.from(
+      new Set(preferencia.produtos.flatMap((p) => p.fornecedores)),
     );
 
-    return todosIguais ? primeiroFornecedores : [];
+    return fornecedoresUnicos;
   }, [preferencia.produtos]);
 
   const acaoNaFalhaComum = useMemo(() => {
@@ -91,7 +138,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     const novoProduto = {
       produto_sku: itemSelecionado.sku ?? undefined,
       classe: itemSelecionado.nome ?? undefined,
-      fornecedores: [],
+      fornecedores: fornecedoresComuns,
       acao_na_falha: AcaoNaFalha.IGNORAR,
     };
 
@@ -109,10 +156,10 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     setSugestoes([]);
   };
 
-  const removerProduto = (produtoIndex: number) => {
+  const removerProduto = (produto: ProdutoPreferencia) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.filter(
-      (_, i) => i !== produtoIndex,
+      (p) => !(p.produto_sku === produto.produto_sku && p.classe === produto.classe),
     );
     updateCampo('preferencias', novasPreferencias);
   };
@@ -144,16 +191,16 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
     const termo = busca.toLowerCase();
 
-    const matchesProduto = productsContext.filter((produto) =>
+    const matchesProduto = availableProducts.filter((produto) =>
       produto.name.toLowerCase().includes(termo),
     );
-    const matchesClasse = classe.filter((c) => c.nome.toLowerCase().includes(termo));
+    const matchesClasse = availableClasses.filter((c) => c.nome.toLowerCase().includes(termo));
 
     setSugestoes([...matchesProduto, ...matchesClasse].slice(0, 5));
-  }, [busca, productsContext, classe]);
+  }, [busca, availableProducts, availableClasses]);
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" p="$4" gap="$3">
+    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontWeight="bold">Prioridade {index + 1}</Text>
         <XStack gap="$2">
@@ -197,8 +244,10 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
             if (!busca.trim()) return;
 
             const termo = busca.toLowerCase();
-            const matchClasse = classe.find((c) => c.nome.toLowerCase().includes(termo));
-            const matchProduto = productsContext.find((p) => p.name.toLowerCase().includes(termo));
+            const matchClasse = availableClasses.find((c) => c.nome.toLowerCase().includes(termo));
+            const matchProduto = availableProducts.find((p) =>
+              p.name.toLowerCase().includes(termo),
+            );
 
             if (matchClasse) adicionarProduto(matchClasse);
             else if (matchProduto) adicionarProduto(matchProduto);
@@ -211,7 +260,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
       </XStack>
 
       {busca.length > 0 && sugestoes.length > 0 && (
-        <YStack mt="$2" gap="$1">
+        <YStack marginTop="$2" gap="$1">
           {sugestoes.map((item) => (
             <Text
               key={item.id}
@@ -229,19 +278,19 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
       {preferencia.produtos.length > 0 && (
         <XStack flexWrap="wrap" gap="$2" marginTop="$2">
-          {preferencia.produtos
+          {produtos
             .map((p, i) => {
               if (!p.produto_sku && !p.classe) return null;
 
               const label = p.classe
                 ? `Classe: ${p.classe}`
-                : `Produto: ${productsContext.find((prod) => prod.sku === p.produto_sku)?.name ?? p.produto_sku}`;
+                : `Produto: ${availableProducts.find((prod) => prod.sku === p.produto_sku)?.name}`;
 
               return (
                 <XStack
                   key={i}
-                  px="$2"
-                  py="$1"
+                  paddingHorizontal="$2"
+                  paddingVertical="$1"
                   borderRadius={8}
                   backgroundColor="$gray3"
                   alignItems="center"
@@ -250,9 +299,9 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
                   <Button
                     size="$1"
                     circular
-                    ml="$2"
+                    marginLeft="$2"
                     backgroundColor="transparent"
-                    onPress={() => removerProduto(i)}
+                    onPress={() => removerProduto(p)}
                   >
                     ×
                   </Button>

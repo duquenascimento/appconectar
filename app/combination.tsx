@@ -17,6 +17,7 @@ import { combinacaoValidationSchema } from '@/src/validators/combination.form.va
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { router } from 'expo-router';
+import { router } from 'expo-router';
 
 export interface SuplierCombination {
   id: string;
@@ -77,7 +78,7 @@ export const Combination: React.FC = () => {
   }, []);
 
   const handleGoBack = () => {
-    navigation.goBack();
+    router.push('preferencesScreen');
   };
 
   const createCombination = async (combinacaoFiltrada?: any) => {
@@ -102,7 +103,7 @@ export const Combination: React.FC = () => {
       setAlertTitle('Sucesso!');
       setAlertMessage('Combinação criada com sucesso!');
       setIsAlertVisible(true);
-      setAlertCallback(() => navigation.goBack);
+      setAlertCallback(() => handleGoBack);
     } catch (error) {
       console.error('Erro ao salvar combinação:', error);
       setAlertTitle('Erro!');
@@ -131,7 +132,7 @@ export const Combination: React.FC = () => {
       setAlertTitle('Sucesso!');
       setAlertMessage('Combinação atualizada com sucesso!');
       setIsAlertVisible(true);
-      setAlertCallback(() => navigation.goBack);
+      setAlertCallback(() => handleGoBack);
     } catch (error) {
       console.error('Erro ao salvar combinação:', error);
       setAlertTitle('Erro!');
@@ -189,7 +190,9 @@ export const Combination: React.FC = () => {
           ),
       };
 
-      await combinacaoValidationSchema.validate(combinacaoParaValidar, { abortEarly: false });
+      const validacao = await combinacaoValidationSchema.validate(combinacaoParaValidar, {
+        abortEarly: false,
+      });
 
       // Enviar a combinação filtrada para o backend
       if (id) {
@@ -232,7 +235,7 @@ export const Combination: React.FC = () => {
       setAlertTitle('Sucesso!');
       setAlertMessage('Combinação excluída com sucesso!');
       setIsAlertVisible(true);
-      setAlertCallback(() => navigation.goBack);
+      setAlertCallback(() => handleGoBack);
     }
   };
 
@@ -255,6 +258,7 @@ export const Combination: React.FC = () => {
         title={alertTitle}
         message={alertMessage}
         onConfirm={handleAlertConfirm}
+        color="black"
       />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 100 }}
