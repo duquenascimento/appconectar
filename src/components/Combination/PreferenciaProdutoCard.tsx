@@ -7,7 +7,7 @@ import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { Product, SupplierData } from '../../types/types';
-import { AcaoNaFalha } from '../../types/combinationTypes';
+import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { loadRestaurants } from '@/src/services/restaurantService';
 
@@ -76,7 +76,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     new Map(
       productsRaw.map((item) => {
         const key =
-          item.produto_sku !== null ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
+          item.produto_sku ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
 
         return [key, item];
       }),
@@ -156,11 +156,10 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     setSugestoes([]);
   };
 
-  //  const removerProduto = (produtoIndex: number) => {
-  const removerProduto = (sku: string | undefined) => {
+  const removerProduto = (produto: ProdutoPreferencia) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.filter(
-      (p, i) => p.produto_sku !== sku,
+      (p) => !(p.produto_sku === produto.produto_sku && p.classe === produto.classe),
     );
     updateCampo('preferencias', novasPreferencias);
   };
@@ -302,7 +301,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
                     circular
                     marginLeft="$2"
                     backgroundColor="transparent"
-                    onPress={() => removerProduto(p.produto_sku)}
+                    onPress={() => removerProduto(p)}
                   >
                     ×
                   </Button>
