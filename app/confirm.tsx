@@ -1,5 +1,5 @@
-import { type SupplierData } from './prices'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type SupplierData } from './prices';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Image,
@@ -10,23 +10,20 @@ import {
   Dialog,
   XStack,
   Sheet,
-  Adapt
-} from 'tamagui'
-import { ActivityIndicator } from 'react-native'
-import Icons from '@expo/vector-icons/Ionicons'
-import { DateTime } from 'luxon'
-import {
-  deleteStorage,
-  getStorage,
-  getToken,
-  setStorage
-} from '../src/utils/utils'
-import * as Notifications from 'expo-notifications'
-import { Platform } from 'react-native'
-import MissingItemsDialog from '../src/components/modais/MissingItemsDialog'
-import CustomAlert from '@/src/components/modais/CustomAlert'
-import { validateAddress } from '../src/utils/validateAddress'
-import { useRouter } from 'expo-router'
+  Adapt,
+} from 'tamagui';
+import { ActivityIndicator } from 'react-native';
+import Icons from '@expo/vector-icons/Ionicons';
+import { DateTime } from 'luxon';
+import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import * as Notifications from 'expo-notifications';
+import { Platform } from 'react-native';
+import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
+import CustomAlert from '@/src/components/modais/CustomAlert';
+import { validateAddress } from '../src/utils/validateAddress';
+import { useRouter } from 'expo-router';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { useInactivityRedirect } from '@/src/utils/inativityTimer';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -35,15 +32,15 @@ if (Platform.OS !== 'web') {
       shouldPlaySound: true,
       shouldSetBadge: true,
       shouldShowBanner: true,
-      shouldShowList: true
-    })
-  })
+      shouldShowList: true,
+    }),
+  });
 }
 
 export function DialogInstance(props: {
-  openModal: boolean
-  setRegisterInvalid: Function
-  erros: string[]
+  openModal: boolean;
+  setRegisterInvalid: Function;
+  erros: string[];
 }) {
   return (
     <Dialog modal open={props.openModal}>
@@ -53,7 +50,7 @@ export function DialogInstance(props: {
             type: 'spring',
             damping: 20,
             mass: 0.5,
-            stiffness: 200
+            stiffness: 200,
           }}
           animation="medium"
           zIndex={200000}
@@ -90,9 +87,9 @@ export function DialogInstance(props: {
             'quicker',
             {
               opacity: {
-                overshootClamping: true
-              }
-            }
+                overshootClamping: true,
+              },
+            },
           ]}
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
@@ -105,7 +102,7 @@ export function DialogInstance(props: {
           )}
 
           {props.erros.map((erro) => {
-            return <Text key={erro}>- {erro}</Text>
+            return <Text key={erro}>- {erro}</Text>;
           })}
 
           <XStack alignSelf="center" gap="$4">
@@ -125,13 +122,10 @@ export function DialogInstance(props: {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
-  )
+  );
 }
 
-function DialogInstanceNotification(props: {
-  openModal: boolean
-  setRegisterInvalid: Function
-}) {
+function DialogInstanceNotification(props: { openModal: boolean; setRegisterInvalid: Function }) {
   return (
     <Dialog modal open={props.openModal}>
       <Adapt /* when="sm" */ platform="touch">
@@ -140,7 +134,7 @@ function DialogInstanceNotification(props: {
             type: 'spring',
             damping: 20,
             mass: 0.5,
-            stiffness: 200
+            stiffness: 200,
           }}
           animation="medium"
           zIndex={200000}
@@ -177,9 +171,9 @@ function DialogInstanceNotification(props: {
             'quicker',
             {
               opacity: {
-                overshootClamping: true
-              }
-            }
+                overshootClamping: true,
+              },
+            },
           ]}
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
@@ -188,9 +182,7 @@ function DialogInstanceNotification(props: {
           <Dialog.Title>Pronto!</Dialog.Title>
           <Dialog.Description>Sua notificação foi agendada</Dialog.Description>
 
-          <Text>
-            As 13h você será alertado em sua barra de notificação, até logo.
-          </Text>
+          <Text>As 13h você será alertado em sua barra de notificação, até logo.</Text>
 
           <XStack alignSelf="center" gap="$4">
             <Dialog.Close displayWhenAdapted asChild>
@@ -209,92 +201,99 @@ function DialogInstanceNotification(props: {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
-  )
+  );
 }
 
 export default function Confirm() {
-  const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>()
-  const [loadingToConfirm, setLoadingToConfirm] = useState<boolean>(false)
-  const [dots, setDots] = useState('')
-  const [showErros, setShowErros] = useState<string[]>([])
-  const [booleanErros, setBooleanErros] = useState(false)
-  const [showNotification, setShowNotification] = useState(false)
-  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false)
-  const [cartOrder, setCartOrder] = useState<
-    { sku: string; addOrder: number }[]
-  >([])
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
-  const [alertMessage, setAlertMessage] = useState<string>('')
-  const router = useRouter()
+  const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
+  const [loadingToConfirm, setLoadingToConfirm] = useState<boolean>(false);
+  const [dots, setDots] = useState('');
+  const [showErros, setShowErros] = useState<string[]>([]);
+  const [booleanErros, setBooleanErros] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false);
+  const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>('');
+  const { loadRestaurants, loadPrices } = useSupplier();
+  const router = useRouter();
 
   useEffect(() => {
     if (loadingToConfirm) {
       const interval = setInterval(() => {
         setDots((prevDots) => {
           if (prevDots.length === 3) {
-            return ''
+            return '';
           } else {
-            return prevDots + '.'
+            return prevDots + '.';
           }
-        })
-      }, 500) // Adjust the interval as needed
+        });
+      }, 500);
 
-      return () => clearInterval(interval) // Cleanup the interval on component unmount
+      return () => clearInterval(interval);
     }
-  }, [loadingToConfirm])
+  }, [loadingToConfirm]);
+
+  useInactivityRedirect({
+    timeout: 8000,
+    redirectPath: '/prices',
+    enabled: true,
+  });
 
   const loadSupplier = useCallback(async () => {
-    const supplierText = await getStorage('supplierSelected')
-    if (!supplierText) return
-    const supplier = JSON.parse(supplierText)
-    setSupplier(supplier)
-  }, [])
+    await loadPrices();
+    await loadRestaurants();
+    const supplierText = await getStorage('supplierSelected');
+    if (!supplierText) return;
+    const supplier = JSON.parse(supplierText);
+    setSupplier(supplier);
+  }, []);
 
   useEffect(() => {
     const loadSupplierAsync = async () => {
       try {
-        await loadSupplier()
-        const selectedRestaurantText = await getStorage('selectedRestaurant')
-        if (!selectedRestaurantText) return
-        const selectedRestaurant = JSON.parse(selectedRestaurantText)
-        setSelectedRestaurant(selectedRestaurant)
+        await loadSupplier();
+        const selectedRestaurantText = await getStorage('selectedRestaurant');
+        if (!selectedRestaurantText) return;
+        const selectedRestaurant = JSON.parse(selectedRestaurantText);
+        setSelectedRestaurant(selectedRestaurant);
       } catch (err) {
-        console.error(err)
-        router.push('/prices')
+        console.error(err);
+        router.push('/prices');
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    loadSupplierAsync()
-  }, [loadSupplier, router])
+    };
+    loadSupplierAsync();
+  }, [loadSupplier, router]);
 
   useEffect(() => {
-    ;(async () => {
+    (async () => {
       try {
-        const data = await getStorage('cartOrder')
-        const parsed = JSON.parse(data || '[]')
-        Array.isArray(parsed) && setCartOrder(parsed)
+        const data = await getStorage('cartOrder');
+        const parsed = JSON.parse(data || '[]');
+        Array.isArray(parsed) && setCartOrder(parsed);
       } catch (e) {
-        console.error('Erro ao carregar cartOrder:', e)
+        console.error('Erro ao carregar cartOrder:', e);
       }
-    })()
-  }, [])
+    })();
+  }, []);
 
   const productsWithAddOrder = useMemo(
     () =>
       supplier?.supplier?.discount?.product
         ?.map((i) => ({
           ...i,
-          addOrder: cartOrder.find((o) => o.sku === i.sku)?.addOrder ?? Infinity
+          addOrder: cartOrder.find((o) => o.sku === i.sku)?.addOrder ?? Infinity,
         }))
         .sort((a, b) => a.addOrder - b.addOrder) || [],
-    [supplier, cartOrder]
-  )
+    [supplier, cartOrder],
+  );
 
   interface PaymentDescriptions {
-    [key: string]: string
+    [key: string]: string;
   }
 
   const getPaymentDescription = (paymentWay: string) => {
@@ -318,159 +317,136 @@ export default function Confirm() {
       ME10: 'Mensal: vencimento dia 10',
       ME15: 'Mensal: vencimento dia 15',
       AV01: 'À Vista: pix no dia anterior à entrega',
-      AV00: 'À Vista: pix no dia da entrega'
-    }
+      AV00: 'À Vista: pix no dia da entrega',
+    };
 
-    return paymentDescriptions[paymentWay] || ''
-  }
+    return paymentDescriptions[paymentWay] || '';
+  };
 
   const isBefore13Hours = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo')
+    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
     const currentHour = Number(
       `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute
         .toString()
-        .padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
-    )
-    return 130000 >= currentHour
-  }
+        .padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`,
+    );
+    return 130000 >= currentHour;
+  };
 
   const isOpen = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo')
+    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
     const currentHour = Number(
-      `${
-        currentDate.hour.toString().length < 2
-          ? `0${currentDate.hour}`
-          : currentDate.hour
-      }${
-        currentDate.minute.toString().length < 2
-          ? `0${currentDate.minute}`
-          : currentDate.minute
-      }${
-        currentDate.second.toString().length < 2
-          ? `0${currentDate.second}`
-          : currentDate.second
-      }`
-    )
+      `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${
+        currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute
+      }${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
+    );
     return (
       Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour &&
-      supplier.supplier.minimumOrder <=
-        supplier.supplier.discount.orderValueFinish &&
+      supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish &&
       supplier.supplier.missingItens > 0
-    )
-  }
+    );
+  };
 
   function getSecondsUntil13h() {
-    const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate() // Data e hora atual
-    const target = new Date() // Cria uma nova data (hoje)
+    const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate(); // Data e hora atual
+    const target = new Date(); // Cria uma nova data (hoje)
 
-    target.setHours(13, 0, 0, 0) // Define 13h00 na data atual
+    target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
 
-    const differenceInMillis = target.getTime() - now.getTime() // Diferença em milissegundos
+    const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
 
     // Converter milissegundos para segundos
-    const differenceInSeconds = Math.floor(differenceInMillis / 1000)
+    const differenceInSeconds = Math.floor(differenceInMillis / 1000);
 
     // Verifica se o horário já passou e retorna o valor (negativo ou positivo)
-    return differenceInSeconds
+    return differenceInSeconds;
   }
 
   const getPaymentDate = (paymentWay: string): string => {
-    const today = new Date()
-    const todayUTC = new Date(
-      today.getTime() + today.getTimezoneOffset() * 60000
-    )
+    const today = new Date();
+    const todayUTC = new Date(today.getTime() + today.getTimezoneOffset() * 60000);
 
-    const offset = -3 // Horário padrão de São Paulo é UTC-3
+    const offset = -3; // Horário padrão de São Paulo é UTC-3
     const deliveryDay = new Date(
       todayUTC.getFullYear(),
       todayUTC.getMonth(),
       todayUTC.getDate(),
       todayUTC.getHours() + offset,
-      todayUTC.getMinutes()
-    )
-    deliveryDay.setDate(deliveryDay.getDate() + 1) // Definir o dia da entrega como 1 dia após o dia atual
+      todayUTC.getMinutes(),
+    );
+    deliveryDay.setDate(deliveryDay.getDate() + 1); // Definir o dia da entrega como 1 dia após o dia atual
 
     const calculateNextWeekday = (date: Date, day: number): Date => {
-      const resultDate = new Date(date)
-      resultDate.setDate(date.getDate() + ((day + (7 - date.getDay())) % 7))
-      return resultDate
-    }
+      const resultDate = new Date(date);
+      resultDate.setDate(date.getDate() + ((day + (7 - date.getDay())) % 7));
+      return resultDate;
+    };
 
-    const calculateNextBimonthly = (
-      date: Date,
-      day1: number,
-      day2: number
-    ): Date => {
-      const day = date.getDate()
+    const calculateNextBimonthly = (date: Date, day1: number, day2: number): Date => {
+      const day = date.getDate();
       if (day < day1) {
-        return new Date(date.getFullYear(), date.getMonth(), day1)
+        return new Date(date.getFullYear(), date.getMonth(), day1);
       } else if (day < day2) {
-        return new Date(date.getFullYear(), date.getMonth(), day2)
+        return new Date(date.getFullYear(), date.getMonth(), day2);
       } else {
-        return new Date(date.getFullYear(), date.getMonth() + 1, day1)
+        return new Date(date.getFullYear(), date.getMonth() + 1, day1);
       }
-    }
+    };
 
     const calculateNextMonthly = (date: Date, day: number): Date => {
-      const nextDate = new Date(date.getFullYear(), date.getMonth(), day)
+      const nextDate = new Date(date.getFullYear(), date.getMonth(), day);
       if (date.getDate() >= day) {
-        nextDate.setMonth(date.getMonth() + 1)
+        nextDate.setMonth(date.getMonth() + 1);
       }
       if (nextDate.getMonth() !== (date.getMonth() + 1) % 12) {
-        nextDate.setDate(0)
+        nextDate.setDate(0);
       }
-      return nextDate
-    }
+      return nextDate;
+    };
 
     const paymentDescriptions: PaymentDescriptions = {
       DI00: deliveryDay.toLocaleDateString('pt-BR'),
       DI01: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 1
+        deliveryDay.getDate() + 1,
       ).toLocaleDateString('pt-BR'),
       DI02: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 2
+        deliveryDay.getDate() + 2,
       ).toLocaleDateString('pt-BR'),
       DI07: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 7
+        deliveryDay.getDate() + 7,
       ).toLocaleDateString('pt-BR'),
       DI10: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 10
+        deliveryDay.getDate() + 10,
       ).toLocaleDateString('pt-BR'),
       DI14: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 14
+        deliveryDay.getDate() + 14,
       ).toLocaleDateString('pt-BR'),
       DI15: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 15
+        deliveryDay.getDate() + 15,
       ).toLocaleDateString('pt-BR'),
       DI28: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() + 28
+        deliveryDay.getDate() + 28,
       ).toLocaleDateString('pt-BR'),
       US08: calculateNextWeekday(deliveryDay, 1).toLocaleDateString('pt-BR'), // Próxima segunda-feira
       UQ10: calculateNextWeekday(deliveryDay, 3).toLocaleDateString('pt-BR'), // Próxima quarta-feira
       UX12: calculateNextWeekday(deliveryDay, 5).toLocaleDateString('pt-BR'), // Próxima sexta-feira
-      BX10: calculateNextBimonthly(deliveryDay, 10, 25).toLocaleDateString(
-        'pt-BR'
-      ), // Bissemanal nos dias 10 e 25
-      BX12: calculateNextBimonthly(deliveryDay, 12, 26).toLocaleDateString(
-        'pt-BR'
-      ), // Bissemanal nos dias 12 e 26
-      BX16: calculateNextBimonthly(deliveryDay, 16, 30).toLocaleDateString(
-        'pt-BR'
-      ), // Bissemanal nos dias 16 e 30
+      BX10: calculateNextBimonthly(deliveryDay, 10, 25).toLocaleDateString('pt-BR'), // Bissemanal nos dias 10 e 25
+      BX12: calculateNextBimonthly(deliveryDay, 12, 26).toLocaleDateString('pt-BR'), // Bissemanal nos dias 12 e 26
+      BX16: calculateNextBimonthly(deliveryDay, 16, 30).toLocaleDateString('pt-BR'), // Bissemanal nos dias 16 e 30
       ME01: calculateNextMonthly(deliveryDay, 1).toLocaleDateString('pt-BR'), // Mensal no dia 1
       ME05: calculateNextMonthly(deliveryDay, 5).toLocaleDateString('pt-BR'), // Mensal no dia 5
       ME10: calculateNextMonthly(deliveryDay, 10).toLocaleDateString('pt-BR'), // Mensal no dia 10
@@ -478,107 +454,97 @@ export default function Confirm() {
       AV01: new Date(
         deliveryDay.getFullYear(),
         deliveryDay.getMonth(),
-        deliveryDay.getDate() - 1
+        deliveryDay.getDate() - 1,
       ).toLocaleDateString('pt-BR'), // À Vista: no dia anterior à entrega
-      AV00: deliveryDay.toLocaleDateString('pt-BR') // À Vista: no dia da entrega
-    }
+      AV00: deliveryDay.toLocaleDateString('pt-BR'), // À Vista: no dia da entrega
+    };
 
-    return paymentDescriptions[paymentWay] || ''
-  }
+    return paymentDescriptions[paymentWay] || '';
+  };
 
   // Nova lógica de confirmação (A que estava antes dentro do else)
   const handleConfirmOrder = useCallback(async () => {
-    setShowMissingItemsModal(false)
-    setLoadingToConfirm(true)
+    setShowMissingItemsModal(false);
+    setLoadingToConfirm(true);
 
     try {
-      const token = await getToken()
+      const token = await getToken();
       if (!token) {
-        setLoadingToConfirm(false)
-        return
+        setLoadingToConfirm(false);
+        return;
       }
 
       const body = {
         token,
         supplier: supplier.supplier,
-        restaurant: selectedRestaurant
-      }
+        restaurant: selectedRestaurant,
+      };
 
-      const erros = []
+      const erros = [];
       if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) {
-        erros.push('O fornecedor está fechado')
+        erros.push('O fornecedor está fechado');
       }
       if (
-        supplier.supplier.minimumOrder >
-          supplier.supplier.discount.orderValueFinish &&
+        supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
         !selectedRestaurant.restaurant.allowMinimumOrder
       ) {
-        erros.push('O valor do pedido não atingiu o mínimo do fornecedor')
+        erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
       }
 
       if (erros.length > 0) {
-        setShowErros(erros)
-        setBooleanErros(true)
-        setLoadingToConfirm(false)
-        return
+        setShowErros(erros);
+        setBooleanErros(true);
+        setLoadingToConfirm(false);
+        return;
       }
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify(body)
-      })
+        body: JSON.stringify(body),
+      });
 
       if (result.ok) {
-        const response = await result.json()
-        await setStorage('finalConfirmData', JSON.stringify(response.data))
-        router.push('/finalConfirm')
+        const response = await result.json();
+        await setStorage('finalConfirmData', JSON.stringify(response.data));
+        router.push('/finalConfirm');
       } else {
-        setLoadingToConfirm(false)
-        setShowErros(['Ocorreu um erro ao confirmar o pedido.'])
-        setBooleanErros(true)
+        setLoadingToConfirm(false);
+        setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
+        setBooleanErros(true);
       }
     } catch (error) {
-      console.error('Erro em handleConfirmOrder:', error)
-      setLoadingToConfirm(false)
-      setShowErros(['Ocorreu um erro de conexão. Tente novamente.'])
-      setBooleanErros(true)
+      console.error('Erro em handleConfirmOrder:', error);
+      setLoadingToConfirm(false);
+      setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
+      setBooleanErros(true);
     }
-  }, [supplier, selectedRestaurant, router])
+  }, [supplier, selectedRestaurant, router]);
 
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
-    )
+    );
   }
 
   if (loadingToConfirm) {
     return (
-      <View
-        backgroundColor="#e3e6e7"
-        flex={1}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Image
-          width={300}
-          height={300}
-          source={require('../assets/images/korzina.gif')}
-        />
+      <View backgroundColor="#e3e6e7" flex={1} justifyContent="center" alignItems="center">
+        <Image width={300} height={300} source={require('../assets/images/korzina.gif')} />
         <Text fontWeight="800" paddingTop={20}>
           Estamos confirmando o seu pedido{dots}
         </Text>
       </View>
-    )
+    );
   }
 
   const actualMissingItemsCount =
-    supplier.supplier.discount.product.length - supplier.supplier.missingItens
-  const displayMissingItems = Math.max(0, actualMissingItemsCount)
+    supplier.supplier.discount.product.length - supplier.supplier.missingItens;
+  const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
     <Stack backgroundColor="white" paddingTop={20} height="100%" position="relative">
       <DialogInstance
@@ -615,9 +581,9 @@ export default function Confirm() {
             size={25}
             name="chevron-back"
             onPress={() => {
-              setLoading(true)
-              deleteStorage('supplierSelected')
-              router.push('/prices')
+              setLoading(true);
+              deleteStorage('supplierSelected');
+              router.push('/prices');
             }}
           ></Icons>
         </View>
@@ -629,7 +595,7 @@ export default function Confirm() {
           <View paddingLeft={5} justifyContent="center">
             <Image
               source={{
-                uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`
+                uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`,
               }}
               width={50}
               height={50}
@@ -660,12 +626,7 @@ export default function Confirm() {
             flexDirection="row"
             borderWidth={0.5}
           >
-            <Icons
-              color="gray"
-              size={24}
-              name="warning"
-              style={{ paddingLeft: 5 }}
-            ></Icons>
+            <Icons color="gray" size={24} name="warning" style={{ paddingLeft: 5 }}></Icons>
             {/*// modified add*/}
             <Text
               color="gray"
@@ -675,8 +636,7 @@ export default function Confirm() {
               fontSize={12}
               width={Platform.OS === 'web' ? '70vw' : '90%'}
             >
-              Podem ocorrer pequenas variações de peso/tamanho nos produtos,
-              comum ao hortifrúti.
+              Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
             </Text>
           </View>
           <View
@@ -705,9 +665,7 @@ export default function Confirm() {
                 <View flexDirection="row" alignItems="center">
                   <View flex={1} flexDirection="row" alignItems="center">
                     <View padding={5}>
-                      <Image
-                        source={{ uri: item.image[0], width: 50, height: 50 }}
-                      ></Image>
+                      <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
                     </View>
                     <View maxWidth={150}>
                       <Text>{item.name}</Text>
@@ -727,21 +685,14 @@ export default function Confirm() {
                         ? 'R$ ' + item.price.toFixed(2).replace('.', ',')
                         : 'Indisponível'}
                     </Text>
-                    <View
-                      alignSelf="flex-end"
-                      flexDirection="row"
-                      alignItems="center"
-                    >
+                    <View alignSelf="flex-end" flexDirection="row" alignItems="center">
                       <Text paddingRight={5} fontSize={12}>
                         {item.quant} {item.orderUnit.replace('Unid', 'Un')}
                       </Text>
                       <Text color="gray">
                         |{' '}
                         {item.priceUniqueWithTaxAndDiscount
-                          ? 'R$ ' +
-                            item.priceUniqueWithTaxAndDiscount
-                              .toFixed(2)
-                              .replace('.', ',')
+                          ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
                           : 'R$ ----'}
                         /{item.orderUnit.replace('Unid', 'Un')}
                       </Text>
@@ -749,7 +700,7 @@ export default function Confirm() {
                   </View>
                 </View>
               </View>
-            )
+            );
           })}
         </View>
         <View
@@ -761,35 +712,28 @@ export default function Confirm() {
           alignSelf="center"
         >
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Subtotal:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal:</Text>
             <Text
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
-              R${' '}
-              {supplier.supplier.discount.orderValueFinish
-                .toFixed(2)
-                .replace('.', ',')}
+              R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
             </Text>
           </View>
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingTop: 10
+              paddingTop: 10,
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Descontos:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos:</Text>
             <Text
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
               R$ 0,00
@@ -797,45 +741,34 @@ export default function Confirm() {
           </View>
           <View style={{ flexDirection: 'column', paddingTop: 10 }}>
             <View style={{ flexDirection: 'row' }}>
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-                Total:
-              </Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total:</Text>
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : ''
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                R${' '}
-                {supplier.supplier.discount.orderValueFinish
-                  .toFixed(2)
-                  .replace('.', ',')}
+                R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
               </Text>
             </View>
             <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              {supplier.supplier.discount.product.length} item(s) |{' '}
-              {displayMissingItems} faltante(s)
+              {supplier.supplier.discount.product.length} item(s) | {displayMissingItems}{' '}
+              faltante(s)
             </Text>
           </View>
-          <View
-            marginVertical={20}
-            borderWidth={0.5}
-            borderColor="lightgray"
-          ></View>
+          <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingTop: 10
+              paddingTop: 10,
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Formato pagamento:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento:</Text>
             <Text
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
               {getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}
@@ -845,34 +778,26 @@ export default function Confirm() {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingTop: 10
+              paddingTop: 10,
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Vencimento:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento:</Text>
             <Text
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
               {getPaymentDate(selectedRestaurant.restaurant.paymentWay)}
             </Text>
           </View>
-          <View
-            marginVertical={20}
-            borderWidth={0.5}
-            borderColor="lightgray"
-          ></View>
+          <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Restaurante:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante:</Text>
             <View
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
               <Text>{selectedRestaurant.restaurant.name}</Text>
@@ -882,38 +807,23 @@ export default function Confirm() {
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              paddingTop: 10
+              paddingTop: 10,
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Endereço:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço:</Text>
             <View
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
               <Text numberOfLines={3} ellipsizeMode="tail">
-                {(
-                  selectedRestaurant.restaurant.addressInfos[0].localType ?? ''
-                ).toUpperCase()}{' '}
-                {(
-                  selectedRestaurant.restaurant.addressInfos[0].address ?? ''
-                ).toUpperCase()}
-                , {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
-                {(
-                  selectedRestaurant.restaurant.addressInfos[0].complement ?? ''
-                ).toUpperCase()}{' '}
-                -{' '}
-                {(
-                  selectedRestaurant.restaurant.addressInfos[0].neighborhood ??
-                  ''
-                ).toUpperCase()}
-                ,{' '}
-                {(
-                  selectedRestaurant.restaurant.addressInfos[0].city ?? ''
-                ).toUpperCase()}
+                {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()}{' '}
+                {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
+                {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
+                {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
+                {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()},{' '}
+                {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
               </Text>
             </View>
           </View>
@@ -922,28 +832,23 @@ export default function Confirm() {
             style={{
               flexDirection: 'row',
               paddingTop: 10,
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Horário:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
             <View
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
               <Text>
                 {selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(
                   11,
-                  16
+                  16,
                 )}{' '}
                 -{' '}
-                {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(
-                  11,
-                  16
-                )}
+                {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
               </Text>
             </View>
           </View>
@@ -952,61 +857,53 @@ export default function Confirm() {
             style={{
               flexDirection: 'row',
               paddingTop: 10,
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Obs entrega:
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega:</Text>
             <Text
               style={{
                 maxWidth: 200,
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
-              {selectedRestaurant.restaurant.addressInfos[0]
-                .deliveryInformation || '--'}
+              {selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}
             </Text>
           </View>
           <View
             style={{
               flexDirection: 'row',
               paddingTop: 10,
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Entregar para
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para</Text>
             <Text
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
-              {selectedRestaurant.restaurant.addressInfos[0]
-                .responsibleReceivingName || '--'}
+              {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}
             </Text>
           </View>
           <View
             style={{
               flexDirection: 'row',
               paddingTop: 10,
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              Telefone
-            </Text>
+            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone</Text>
             <Text
               style={{
                 flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : ''
+                marginLeft: Platform.OS === 'web' ? 8 : '',
               }}
             >
-              {selectedRestaurant.restaurant.addressInfos[0]
-                .responsibleReceivingPhoneNumber || '--'}
+              {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber ||
+                '--'}
             </Text>
           </View>
         </View>
@@ -1020,9 +917,7 @@ export default function Confirm() {
           display={isBefore13Hours() ? 'flex' : 'none'}
         >
           A confirmação só pode ser feita após as 13h
-          {Platform.OS === 'web'
-            ? '.'
-            : ', agende uma notificação para alertar no horário'}
+          {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário'}
         </Text>
       </View>
       <View
@@ -1035,7 +930,7 @@ export default function Confirm() {
       >
         <Button
           onPress={() => {
-            router.push('/cart')
+            router.push('/cart');
           }}
           width={170}
           backgroundColor="#000"
@@ -1046,119 +941,108 @@ export default function Confirm() {
           onPress={async () => {
             try {
               if (isBefore13Hours()) {
-                const erros = []
+                const erros = [];
                 if (Platform.OS !== 'web') {
-                  const { status } = await Notifications.getPermissionsAsync()
+                  const { status } = await Notifications.getPermissionsAsync();
                   if (status !== 'granted') {
-                    const result = await Notifications.requestPermissionsAsync()
+                    const result = await Notifications.requestPermissionsAsync();
                     if (result.status !== 'granted') {
-                      console.log('No notification permissions granted!')
-                      return
+                      console.log('No notification permissions granted!');
+                      return;
                     }
                   }
 
                   const scheduledNotifications =
-                    await Notifications.getAllScheduledNotificationsAsync()
+                    await Notifications.getAllScheduledNotificationsAsync();
                   const isAlreadyScheduled = scheduledNotifications.some(
                     (notification) =>
                       notification.content.title === 'Confirme o seu pedido' &&
-                      notification.content.body ===
-                        'O seu pedido já pode ser confirmado!'
-                  )
+                      notification.content.body === 'O seu pedido já pode ser confirmado!',
+                  );
 
                   if (!isAlreadyScheduled) {
                     await Notifications.scheduleNotificationAsync({
                       content: {
                         title: 'Confirme o seu pedido',
-                        body: 'O seu pedido já pode ser confirmado!'
+                        body: 'O seu pedido já pode ser confirmado!',
                       },
-                      trigger: { seconds: getSecondsUntil13h() }
-                    })
-                    console.log('Notificação local agendada')
+                      trigger: { seconds: getSecondsUntil13h() },
+                    });
+                    console.log('Notificação local agendada');
                   } else {
-                    console.log('Notificação já agendada')
+                    console.log('Notificação já agendada');
                   }
 
-                  setShowNotification(true)
+                  setShowNotification(true);
                 } else if (Platform.OS === 'web') {
-                  erros.push('O pedido só pode ser confirmado após as 13h')
+                  erros.push('O pedido só pode ser confirmado após as 13h');
                 }
 
                 // Agendamento ChatGurur
                 try {
                   const sendDateTime = DateTime.now()
                     .setZone('America/Sao_Paulo')
-                    .set({ hour: 13, minute: 0, second: 0 })
-                  const sendDate = sendDateTime.toFormat('yyyy-MM-dd')
-                  const sendTime = sendDateTime.toFormat('HH:mm')
+                    .set({ hour: 13, minute: 0, second: 0 });
+                  const sendDate = sendDateTime.toFormat('yyyy-MM-dd');
+                  const sendTime = sendDateTime.toFormat('HH:mm');
 
-                  const token = await getToken()
-                  if (!token) return new Map()
+                  const token = await getToken();
+                  if (!token) return new Map();
 
                   const phone =
-                    selectedRestaurant.restaurant.addressInfos[0]
-                      .responsibleReceivingPhoneNumber
+                    selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber;
 
-                  await fetch(
-                    `${process.env.EXPO_PUBLIC_API_URL}/confirm/agendamento`,
-                    {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json'
+                  await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/agendamento`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      token,
+                      selectedRestaurant: {
+                        addressInfos: [
+                          {
+                            phoneNumber: phone,
+                          },
+                        ],
                       },
-                      body: JSON.stringify({
-                        token,
-                        selectedRestaurant: {
-                          addressInfos: [
-                            {
-                              phoneNumber: phone
-                            }
-                          ]
-                        },
-                        message:
-                          'Olá! Seu pedido já pode ser confirmado na plataforma.',
-                        sendDate,
-                        sendTime
-                      })
-                    }
-                  )
+                      message: 'Olá! Seu pedido já pode ser confirmado na plataforma.',
+                      sendDate,
+                      sendTime,
+                    }),
+                  });
                 } catch (error) {
-                  console.error('Erro ao agendar via ChatGuru:', error)
+                  console.error('Erro ao agendar via ChatGuru:', error);
                 }
 
-                setShowErros(erros)
-                if (erros.length) setBooleanErros(true)
+                setShowErros(erros);
+                if (erros.length) setBooleanErros(true);
               } else {
-                const validationResult = validateAddress(selectedRestaurant)
+                const validationResult = validateAddress(selectedRestaurant);
                 if (!validationResult.isValid) {
-                  setAlertMessage(validationResult.message)
-                  setIsAlertVisible(true)
-                  return
+                  setAlertMessage(validationResult.message);
+                  setIsAlertVisible(true);
+                  return;
                 }
 
                 if (displayMissingItems > 0) {
-                  setShowMissingItemsModal(true)
+                  setShowMissingItemsModal(true);
                 } else {
-                  await handleConfirmOrder()
+                  await handleConfirmOrder();
                 }
               }
             } catch (error) {
-              console.error('Erro no botão de confirmação:', error)
+              console.error('Erro no botão de confirmação:', error);
             }
           }}
           width={170}
           backgroundColor="#04BF7B"
         >
-          <Text
-            fontSize={13}
-            color="white"
-            textAlign="center"
-            style={{ fontSize: 12 }}
-          >
+          <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
             {isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}
           </Text>
         </Button>
       </View>
     </Stack>
-  )
+  );
 }

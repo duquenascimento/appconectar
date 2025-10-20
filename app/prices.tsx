@@ -14,7 +14,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import CustomAlert from '../src/components/modais/CustomAlert';
-import { loadPermissionConectarPlus, loadRestaurants } from '../src/services/restaurantService';
+import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { campoString } from '../src/utils/formatCampos';
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
@@ -249,7 +249,7 @@ export default function Prices() {
   const { modificado, setModificado } = useCombinacao();
   const router = useRouter();
 
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices, loadRestaurants } = useSupplier();
 
   useFocusEffect(() => {
     if (tab === 'plus' && modificado) {
