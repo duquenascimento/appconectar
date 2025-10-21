@@ -241,18 +241,17 @@ export default function OrderDetailsScreen() {
           negativeMainButton
         />
         <View
-          flexDirection="row"
-          alignItems="center"
-          padding={6}
-          borderBottomWidth={1}
-          borderBottomColor="lightgray"
+          alignItems= 'center' 
+          flexDirection='row' 
+          paddingVertical= '$4' 
+          gap= '$4' 
         >
           <Icons
             onPress={() => router.push('/ordersScreen')}
             size={30}
             name="chevron-back"
           ></Icons>
-          <View flex={1} alignItems="center" marginBottom={5}>
+          <View flex={1} marginBottom={5}>
             <Text>Pedido {order.id}</Text>
             <Text fontSize={10} color="gray">
               Entregue {formatDate(order.deliveryDate)}

@@ -638,13 +638,12 @@ export default function Prices() {
         height="100%"
         position="relative"
       >
-        <View height={50} flex={1} paddingTop={20}>
+        <View height={50} flex={1}>
           <View
-            paddingBottom={20}
-            alignItems="center"
-            paddingLeft={20}
-            paddingRight={20}
-            flexDirection="row"
+            alignItems= 'center' 
+            flexDirection='row' 
+            paddingVertical= '$4' 
+            gap= '$4' 
           >
             <Icons
               onPress={() => {
@@ -653,7 +652,7 @@ export default function Prices() {
               size={30}
               name="chevron-back"
             ></Icons>
-            <Text flex={1} textAlign="center" fontSize={20}>
+            <Text flex={1} fontSize={16}>
               Cotações
             </Text>
           </View>
@@ -824,7 +823,8 @@ export default function Prices() {
                 borderWidth={1}
                 paddingHorizontal={10}
                 backgroundColor="white"
-                alignItems="center"
+                alignItems="center" 
+                overflow='hidden'
               >
                 <Icons size={20} color="#04BF7B" name="storefront"></Icons>
                 <View marginLeft={20}></View>
@@ -847,7 +847,8 @@ export default function Prices() {
                 borderWidth={1}
                 paddingHorizontal={10}
                 backgroundColor="white"
-                alignItems="center"
+                alignItems="center" 
+                overflow='hidden'
               >
                 <Icons size={20} color="#04BF7B" name="time"></Icons>
                 <View marginLeft={20}></View>
@@ -876,7 +877,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center"
+                  alignItems="center" 
+                  overflow='hidden'
                 >
                   <Icons size={20} color="#04BF7B" name="location"></Icons>
                   <View marginLeft={20}></View>
@@ -899,7 +901,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center"
+                  alignItems="center" 
+                  overflow='hidden'
                 >
                   <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                   <View marginLeft={20}></View>
@@ -917,7 +920,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center"
+                  alignItems="center" 
+                  overflow='hidden'
                 >
                   <Icons size={20} color="#04BF7B" name="person"></Icons>
                   <View marginLeft={20}></View>
@@ -935,7 +939,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center"
+                  alignItems="center" 
+                  overflow='hidden'
                 >
                   <Icons size={20} color="#04BF7B" name="call"></Icons>
                   <View marginLeft={20}></View>

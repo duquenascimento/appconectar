@@ -14,8 +14,14 @@ const colorMapping = {
 
 export default function PageContainer({ children, backgroundColor }: PageContainerProps) {
 	return (
-		<SafeAreaView style={{flex: 1, backgroundColor: `${colorMapping[backgroundColor]}`, paddingVertical: 10, paddingHorizontal: 15}}>
-				{ children }
+		<SafeAreaView style={{
+			flex: 1, 
+			backgroundColor: `${colorMapping[backgroundColor]}`, 
+			paddingTop: 30,
+			paddingBottom: 10,  
+			paddingHorizontal: 15
+		}}>
+			{ children }
 		</SafeAreaView>
 	)
 }

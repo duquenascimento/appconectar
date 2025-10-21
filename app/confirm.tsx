@@ -574,10 +574,10 @@ export default function Confirm() {
         />
         <View backgroundColor="white" flexDirection="row" height={80}>
           <View
-            paddingHorizontal={10}
-            flexDirection="row"
-            justifyContent="center"
-            alignItems="center"
+            alignItems= 'center' 
+            flexDirection='row' 
+            paddingVertical= '$4' 
+            gap= '$4' 
           >
             <Icons
               size={30}

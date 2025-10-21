@@ -261,13 +261,12 @@ export const Combination: React.FC = () => {
         color="black"
       />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         <YStack
           width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
-          padding="$4"
+          padding="$2"
           gap={15}
           marginTop="$2"
         >
@@ -326,7 +325,7 @@ export const Combination: React.FC = () => {
                   }
                 }}
                 hoverStyle={{
-                  background: '#f84949ff',
+                  backgroundColor: '#f84949ff',
                   opacity: 0.9,
                 }}
                 backgroundColor="#f84949ff"
@@ -341,7 +340,7 @@ export const Combination: React.FC = () => {
               <Button
                 onPress={handleSaveCombination}
                 hoverStyle={{
-                  background: '#1DC588',
+                  backgroundColor: '#1DC588',
                   opacity: 0.9,
                 }}
                 backgroundColor="#1DC588"

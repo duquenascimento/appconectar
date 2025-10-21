@@ -13,12 +13,10 @@ const HeaderContainer = styled(XStack, {
   alignItems: 'center',
   justifyContent: 'flex-start',
   paddingVertical: '$4',
-  paddingTop: Platform.OS === 'web' ? undefined :'$6',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
   backgroundColor: '#fff',
   space: '$4',
-
 })
 
 const HeaderTitle = styled(Text, {
@@ -31,7 +29,7 @@ const HeaderTitle = styled(Text, {
 const CustomHeader: React.FC<HeaderProps> = ({ title, onBackPress }) => {
   return (
     <HeaderContainer>
-       <TouchableOpacity onPress={onBackPress} style={{ marginLeft: 25 }}>
+       <TouchableOpacity onPress={onBackPress}>
         <Icons name="chevron-back" size={30} color="#000" />
       </TouchableOpacity>
 

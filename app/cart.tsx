@@ -657,13 +657,12 @@ export default function Cart() {
         height="100%"
         position="relative"
       >
-        <View height={50} flex={1} paddingTop={20}>
+        <View height={50} flex={1}>
           <View
-            height={50}
-            alignItems="center"
-            paddingLeft={20}
-            paddingRight={20}
-            flexDirection="row"
+            alignItems= 'center' 
+            flexDirection='row' 
+            paddingVertical= '$4' 
+            gap= '$4' 
           >
             <Icons
               onPress={async () => {
@@ -674,7 +673,7 @@ export default function Cart() {
               size={30}
               name="chevron-back"
             ></Icons>
-            <Text flex={1} textAlign="center" fontSize={20}>
+            <Text flex={1} fontSize={16}>
               Meu carrinho
             </Text>
           </View>

@@ -1530,7 +1530,7 @@ export default function Products() {
         <FlatList
           style={{
             marginTop: -5,
-            maxHeight: Platform.OS === 'web' ? 50 : 40,
+            maxHeight: Platform.OS === 'web' ? 50 : 55,
             minHeight: Platform.OS === 'web' ? 50 : undefined,
             width: Platform.OS === 'web' ? '68%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined,
