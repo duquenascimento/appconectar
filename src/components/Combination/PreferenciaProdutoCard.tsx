@@ -6,10 +6,9 @@ import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
-import { Product, SupplierData } from '../../types/types';
+import { SupplierData } from '../../types/types';
 import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
-import { loadRestaurants } from '@/src/services/restaurantService';
 
 type Props = {
   index: number;
@@ -26,7 +25,7 @@ const tipoProdutoItems = [
 export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
-  const { suppliers, unavailableSupplier } = useSupplier();
+  const { suppliers, unavailableSupplier, loadRestaurants } = useSupplier();
   const bloqueados = combinacao.fornecedores_bloqueados || [];
 
   const [busca, setBusca] = useState('');
@@ -75,8 +74,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
   const produtos = Array.from(
     new Map(
       productsRaw.map((item) => {
-        const key =
-          item.produto_sku ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
+        const key = item.produto_sku ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
 
         return [key, item];
       }),
