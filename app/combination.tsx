@@ -186,9 +186,6 @@ export const Combination: React.FC = () => {
               (produto) => produto.produto_sku || produto.classe, // Mantém apenas produtos com dados
             ),
           }))
-          .filter(
-            (preferencia) => preferencia.produtos && preferencia.produtos.length > 0, // Remove preferências vazias
-          ),
       };
 
       await combinacaoValidationSchema.validate(combinacaoParaValidar, {

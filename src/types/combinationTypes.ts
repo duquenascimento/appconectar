@@ -17,6 +17,9 @@ export interface ProdutoPreferencia {
   produto_sku?: string
   classe?: string
   acao_na_falha: AcaoNaFalha
+  // TODO:  this should be removed and used only in the PreferenciaProduto
+  //        as the list of fornecedores isn't per product preference
+  fornecedores: string[]
 }
 
 export interface PreferenciaProduto {

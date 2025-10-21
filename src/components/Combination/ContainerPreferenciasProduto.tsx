@@ -128,7 +128,7 @@ export function ContainerPreferenciasProduto({
         ))}
 
       {combinacao.definir_preferencia_produto && (
-        <Button mt="$2" onPress={adicionarPreferencia} marginTop="$8">
+        <Button mt="$2" onPress={adicionarPreferencia} marginVertical="$4">
           <Icons name="add" size={20} />
           Adicionar Produto
         </Button>

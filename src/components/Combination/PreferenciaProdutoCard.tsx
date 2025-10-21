@@ -76,7 +76,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   const preferencia = combinacao.preferencias?.[index];
   if (!preferencia) return null;
 
-  const productsRaw = preferencia.produtos;
+  const productsRaw = preferencia.produtos.filter((item) => item.produto_sku || item.classe);
   const produtos = Array.from(
     new Map(
       productsRaw.map((item) => {
@@ -88,10 +88,9 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   );
 
   const validateProducts = async () => {
-    console.log('Validating products: ', preferencia.produtos);
-
     try {
-      await preferenciaProdutoSchema.validateAt('produtos', preferencia.produtos);
+      const validProducts = preferencia.produtos.filter((p) => p.produto_sku || p.classe);
+      await preferenciaProdutoSchema.validateAt('produtos', { produtos: validProducts });
       setProdutosValidationError('');
       setProdutosTouched(true);
     } catch (err: any) {
@@ -100,10 +99,9 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   };
 
   const validateFornecedores = async () => {
-    console.log('Validating suppliers: ', preferencia.fornecedores);
-
     try {
-      await preferenciaProdutoSchema.validateAt('fornecedores', preferencia.fornecedores);
+      const validFornecedores = preferencia.produtos[index]?.fornecedores ?? [];
+      await preferenciaProdutoSchema.validateAt('fornecedores', { fornecedores: validFornecedores });
       setFornecedoresValidationError('');
       setFornecedoresTouched(true);
     } catch (err: any) {
@@ -122,6 +120,10 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   const atualizarFornecedoresPreferencia = (fornecedores: string[]) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
     novasPreferencias[index].fornecedores = fornecedores;
+    novasPreferencias[index].produtos = novasPreferencias[index].produtos.map((p) => ({
+      ...p,
+      fornecedores: fornecedores,
+    }));
     updateCampo('preferencias', novasPreferencias);
     setFornecedoresTouched(true);
     setTimeout(() => validateFornecedores(), 0);
@@ -140,15 +142,14 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
     updateCampo('preferencias', novasPreferencias);
   };
 
-  // const fornecedoresSelecionados = useMemo(() => {
-  //   // console.log('Preferência fornecedores: ', preferencia.fornecedores);
-  //   // if (!preferencia.fornecedores || preferencia.fornecedores.length === 0) return [];
-  //   // const fornecedoresUnicos = Array.from(new Set(preferencia.fornecedores));
+  const fornecedoresComuns = useMemo(() => {
+    if (preferencia.produtos.length === 0) return [];
+    const fornecedoresUnicos = Array.from(
+      new Set(preferencia.produtos.flatMap((p) => p.fornecedores).filter((f) => f !== undefined && f !== null)),
+    );
 
-  //   // return fornecedoresUnicos;
-
-  //   return preferencia.fornecedores ?? [];
-  // }, [preferencia.fornecedores]);
+    return fornecedoresUnicos;
+  }, [preferencia.produtos]);
 
   const acaoNaFalhaComum = useMemo(() => {
     if (preferencia.produtos.length === 0) return 'ignorar';
@@ -167,6 +168,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
       produto_sku: itemSelecionado.sku ?? undefined,
       classe: itemSelecionado.nome ?? undefined,
       acao_na_falha: AcaoNaFalha.IGNORAR,
+      fornecedores: fornecedoresComuns,
     };
 
     const jaExiste = produtos.some(
@@ -214,8 +216,6 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
         value: f.id!,
       }));
       
-      console.log('Fornecedores disponíveis: ', fornecedoresLocal);
-
       return fornecedoresLocal;
   }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
 
@@ -233,8 +233,6 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
     const matchesClasse = availableClasses.filter((c) => c.nome.toLowerCase().includes(termo));
 
     const sugestoesLocal = [...matchesProduto, ...matchesClasse].slice(0, 5);
-
-    console.log('Sugestões: ', sugestoesLocal);
 
     setSugestoes(sugestoesLocal);
   }, [busca, availableProducts, availableClasses]);
@@ -378,7 +376,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
       <ContainerSelecaoItemsComFornecedor
         label="Com fornecedor(es)"
         items={fornecedoresDisponiveis}
-        value={preferencia.fornecedores}
+        value={fornecedoresComuns}
         onChange={atualizarFornecedoresPreferencia}
         schemaPath={`preferencias[${index}].fornecedores`}
         zIndex={30000}
