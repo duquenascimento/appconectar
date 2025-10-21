@@ -24,6 +24,8 @@ import { validateAddress } from '../src/utils/validateAddress';
 import { useRouter } from 'expo-router';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
+import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
+import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import PageContainer from '@/src/components/box/PageContainer';
 
 if (Platform.OS !== 'web') {
@@ -324,16 +326,6 @@ export default function Confirm() {
     return paymentDescriptions[paymentWay] || '';
   };
 
-  const isBefore13Hours = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
-    const currentHour = Number(
-      `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute
-        .toString()
-        .padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`,
-    );
-    return 130000 >= currentHour;
-  };
-
   const isOpen = () => {
     const currentDate = DateTime.now().setZone('America/Sao_Paulo');
     const currentHour = Number(
@@ -347,21 +339,6 @@ export default function Confirm() {
       supplier.supplier.missingItens > 0
     );
   };
-
-  function getSecondsUntil13h() {
-    const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate(); // Data e hora atual
-    const target = new Date(); // Cria uma nova data (hoje)
-
-    target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
-
-    const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
-
-    // Converter milissegundos para segundos
-    const differenceInSeconds = Math.floor(differenceInMillis / 1000);
-
-    // Verifica se o horário já passou e retorna o valor (negativo ou positivo)
-    return differenceInSeconds;
-  }
 
   const getPaymentDate = (paymentWay: string): string => {
     const today = new Date();
@@ -948,82 +925,13 @@ export default function Confirm() {
             onPress={async () => {
               try {
                 if (isBefore13Hours()) {
-                  const erros = [];
-                  if (Platform.OS !== 'web') {
-                    const { status } = await Notifications.getPermissionsAsync();
-                    if (status !== 'granted') {
-                      const result = await Notifications.requestPermissionsAsync();
-                      if (result.status !== 'granted') {
-                        console.log('No notification permissions granted!');
-                        return;
-                      }
-                    }
-
-                    const scheduledNotifications =
-                      await Notifications.getAllScheduledNotificationsAsync();
-                    const isAlreadyScheduled = scheduledNotifications.some(
-                      (notification) =>
-                        notification.content.title === 'Confirme o seu pedido' &&
-                        notification.content.body === 'O seu pedido já pode ser confirmado!',
-                    );
-
-                    if (!isAlreadyScheduled) {
-                      await Notifications.scheduleNotificationAsync({
-                        content: {
-                          title: 'Confirme o seu pedido',
-                          body: 'O seu pedido já pode ser confirmado!',
-                        },
-                        trigger: { seconds: getSecondsUntil13h() },
-                      });
-                      console.log('Notificação local agendada');
-                    } else {
-                      console.log('Notificação já agendada');
-                    }
-
-                    setShowNotification(true);
-                  } else if (Platform.OS === 'web') {
-                    erros.push('O pedido só pode ser confirmado após as 13h');
-                  }
-
-                  // Agendamento ChatGurur
-                  try {
-                    const sendDateTime = DateTime.now()
-                      .setZone('America/Sao_Paulo')
-                      .set({ hour: 13, minute: 0, second: 0 });
-                    const sendDate = sendDateTime.toFormat('yyyy-MM-dd');
-                    const sendTime = sendDateTime.toFormat('HH:mm');
-
-                    const token = await getToken();
-                    if (!token) return new Map();
-
-                    const phone =
-                      selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber;
-
-                    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm/agendamento`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        token,
-                        selectedRestaurant: {
-                          addressInfos: [
-                            {
-                              phoneNumber: phone,
-                            },
-                          ],
-                        },
-                        message: 'Olá! Seu pedido já pode ser confirmado na plataforma.',
-                        sendDate,
-                        sendTime,
-                      }),
-                    });
-                  } catch (error) {
-                    console.error('Erro ao agendar via ChatGuru:', error);
-                  }
-
-                  setShowErros(erros);
-                  if (erros.length) setBooleanErros(true);
+                  const errors = await scheduleNotification(
+                    selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+                  );
+                  
+                  setShowErros(errors);
+                  if (errors.length) setBooleanErros(true);
+                  else setShowNotification(true);
                 } else {
                   const validationResult = validateAddress(selectedRestaurant);
                   if (!validationResult.isValid) {

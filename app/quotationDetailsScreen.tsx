@@ -1,8 +1,7 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
+import { Text, View, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, Alert, Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomButton from '../src/components/button/customButton';
@@ -15,7 +14,10 @@ import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
+import { isBefore13Hours } from '@/src/utils/timeUtils';
+import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import PageContainer from '@/src/components/box/PageContainer';
+
 export interface Product {
   price: number;
   priceWithoutTax: number;
@@ -104,6 +106,9 @@ export default function QuotationDetailsScreen() {
   const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showErros, setShowErros] = useState<string[]>([]);
+  const [booleanErros, setBooleanErros] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
 
   const parsedMissingProducts = useMemo(() => {
     if (!missingProducts) return [];
@@ -171,6 +176,8 @@ export default function QuotationDetailsScreen() {
 
   const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
 
+  const isBefore13h = isBefore13Hours();
+
   const handleBackPress = () => router.back();
   const handleConfirm = async () => {
     setIsLoading(true);
@@ -188,6 +195,18 @@ export default function QuotationDetailsScreen() {
       }
 
       const parsedRestaurant = JSON.parse(storedRestaurant);
+
+      if (isBefore13h) {
+        const errors = await scheduleNotification(
+          parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+        );
+        
+        setShowErros(errors);
+        if (errors.length) setBooleanErros(true);
+        else setShowNotification(true);
+
+        return;
+      }
 
       const body = {
         token,
@@ -238,6 +257,7 @@ export default function QuotationDetailsScreen() {
       </PageContainer>
     );
   }
+
 
   return (
     <PageContainer backgroundColor='white'>
@@ -306,13 +326,26 @@ export default function QuotationDetailsScreen() {
         </ScrollView>
 
         <CustomAlert
+          visible={booleanErros}
+          title="Algo inesperado aconteceu!"
+          message={showErros.join('\n')}
+          onConfirm={() => setBooleanErros(false)}
+          width="35%"
+        />
+        <CustomAlert
+          visible={showNotification}
+          title="Notificação agendada!"
+          message="Sua notificação foi agendada para as 13h para que você possa confirmar seu pedido."
+          onConfirm={() => setShowNotification(false)}
+          width="35%"
+        />
+        <CustomAlert
           visible={isAlertVisible}
           title="Ops!"
           message="Ocorreu um erro ao confirmar combinação, tente novamente mais tarde."
           onConfirm={() => setIsAlertVisible(false)}
           width="35%"
         />
-
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View
           position="absolute"
@@ -325,6 +358,18 @@ export default function QuotationDetailsScreen() {
           borderTopWidth={1}
           borderTopColor="$gray4"
         >
+          <View paddingVertical={10} paddingHorizontal={10}>
+            <Text
+              marginHorizontal="auto"
+              color="red"
+              fontSize={12}
+              textAlign="center"
+              display={isBefore13h ? 'flex' : 'none'}
+            >
+              A confirmação só pode ser feita após as 13h
+              {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário.'}
+            </Text>
+          </View>
           {Platform.OS === 'web' ? (
             <XStack
               width={'74%'}
@@ -360,7 +405,7 @@ export default function QuotationDetailsScreen() {
                   borderColor="#A9A9A9"
                   borderWidth={1}
                 >
-                  Confirmar combinação
+                  {isBefore13h ? 'Agendar notificação' : 'Confirmar combinação'}
                 </Button>
               </YStack>
             </XStack>
@@ -382,7 +427,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <CustomButton
-                  title="Confirmar"
+                  title={isBefore13h ? 'Agendar' : 'Confirmar'}
                   onPress={handleConfirm}
                   backgroundColor="#1DC588"
                   textColor="#FFFFFF"
