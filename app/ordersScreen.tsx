@@ -13,6 +13,7 @@ import { VersionInfo } from '../src/utils/VersionApp';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
+import PageContainer from '@/src/components/box/PageContainer';
 
 interface Order {
   orderDocument: ReactNode;
@@ -271,17 +272,19 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
   if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-        <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-          Carregando histórico de pedidos. Por favor Aguarde...
-        </Text>
-      </View>
+      <PageContainer backgroundColor='white'>
+        <View flex={1} justifyContent="center" alignItems="center">
+          <ActivityIndicator size="large" color="#04BF7B" />
+          <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
+            Carregando histórico de pedidos. Por favor Aguarde...
+          </Text>
+        </View>
+      </PageContainer>
     );
   }
 
   return (
-    <>
+    <PageContainer backgroundColor='white'>
       <CustomAlert
         visible={showAlertVisible}
         title={customAlertTitle}
@@ -290,7 +293,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       />
       <Text
         style={{
-          marginTop: Platform.OS === 'web' ? 35 : 15,
+          marginTop: Platform.OS === 'web' ? 35 : 25,
           marginLeft: Platform.OS === 'web' ? '' : 15,
           width: Platform.OS === 'web' ? '70%' : '',
           alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start',
@@ -432,9 +435,9 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
               <Icons
                 name="chevron-forward"
                 size={20}
-                color="#000"
+                color="#000" 
                 style={{
-                  marginLeft: 'auto',
+                  marginLeft: 10,
                 }}
               />
             </TouchableOpacity>
@@ -447,7 +450,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         flexDirection="row"
         gap={30}
         height={55}
-        borderTopWidth={0.2}
+        borderTopWidth={0.4}
         borderTopColor="lightgray"
       >
         <View
@@ -535,6 +538,6 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           }
         }}
       />
-    </>
+    </PageContainer>
   );
 }

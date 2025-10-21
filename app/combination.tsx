@@ -17,6 +17,7 @@ import { combinacaoValidationSchema } from '@/src/validators/combination.form.va
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { router } from 'expo-router';
+import PageContainer from '@/src/components/box/PageContainer';
 
 export interface SuplierCombination {
   id: string;
@@ -247,7 +248,7 @@ export const Combination: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <PageContainer backgroundColor='white'>
       <CustomHeader
         title={id ? `${combinacao.nome}` : 'Nova combinação'}
         onBackPress={handleGoBack}
@@ -264,11 +265,11 @@ export const Combination: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <YStack
-          w={Platform.OS === 'web' ? '76%' : '92%'}
+          width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
-          p="$4"
+          padding="$4"
           gap={15}
-          mt="$2"
+          marginTop="$2"
         >
           <InputNome
             error={validationErrors.nome}
@@ -315,7 +316,7 @@ export const Combination: React.FC = () => {
             gap={10}
             alignSelf="center"
           >
-            <YStack f={1}>
+            <YStack flex={1}>
               <Button
                 onPress={() => {
                   if (id) {
@@ -336,7 +337,7 @@ export const Combination: React.FC = () => {
                 {id ? 'Excluir combinação' : 'Cancelar'}
               </Button>
             </YStack>
-            <YStack f={1}>
+            <YStack flex={1}>
               <Button
                 onPress={handleSaveCombination}
                 hoverStyle={{
@@ -359,7 +360,7 @@ export const Combination: React.FC = () => {
             gap={10}
             alignSelf="center"
           >
-            <YStack f={1}>
+            <YStack flex={1}>
               <CustomButton
                 title={id ? 'Excluir' : 'Cancelar'}
                 onPress={() => {
@@ -373,7 +374,7 @@ export const Combination: React.FC = () => {
                 textColor="#FFFFFF"
               />
             </YStack>
-            <YStack f={1}>
+            <YStack flex={1}>
               <CustomButton
                 title="Salvar"
                 onPress={handleSaveCombination}
@@ -384,7 +385,7 @@ export const Combination: React.FC = () => {
           </XStack>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </PageContainer>
   );
 };
 

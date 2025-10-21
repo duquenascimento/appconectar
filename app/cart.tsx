@@ -17,6 +17,7 @@ import { filterCarts } from '../src/utils/filterCarts';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
+import PageContainer from '@/src/components/box/PageContainer';
 
 type RootStackParamList = {
   Home: undefined;
@@ -640,271 +641,275 @@ export default function Cart() {
 
   if (loading || displayedProducts.length === 0) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
+      <PageContainer backgroundColor='white'>
+        <View flex={1} justifyContent="center" alignItems="center">
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      </PageContainer>
     );
   }
 
   return (
-    <Stack
-      paddingTop={Platform.OS === 'web' ? 20 : 15}
-      backgroundColor="#F0F2F6"
-      height="100%"
-      position="relative"
-    >
-      <View height={50} flex={1} paddingTop={20}>
-        <View
-          height={50}
-          alignItems="center"
-          paddingLeft={20}
-          paddingRight={20}
-          flexDirection="row"
-        >
-          <Icons
-            onPress={async () => {
-              setLoading(true);
-              await saveCartArray(cart, cartToExclude);
-              router.push('/products');
-            }}
-            size={25}
-            name="chevron-back"
-          ></Icons>
-          <Text flex={1} textAlign="center" fontSize={20}>
-            Meu carrinho
-          </Text>
-        </View>
+    <PageContainer backgroundColor='gray'>
+      <Stack
+        paddingTop={Platform.OS === 'web' ? 20 : 15}
+        backgroundColor="#F0F2F6"
+        height="100%"
+        position="relative"
+      >
+        <View height={50} flex={1} paddingTop={20}>
+          <View
+            height={50}
+            alignItems="center"
+            paddingLeft={20}
+            paddingRight={20}
+            flexDirection="row"
+          >
+            <Icons
+              onPress={async () => {
+                setLoading(true);
+                await saveCartArray(cart, cartToExclude);
+                router.push('/products');
+              }}
+              size={30}
+              name="chevron-back"
+            ></Icons>
+            <Text flex={1} textAlign="center" fontSize={20}>
+              Meu carrinho
+            </Text>
+          </View>
 
-        <View backgroundColor="#F0F2F6" flex={1} padding={16}>
-          <VirtualizedList
-            ref={flatListRef}
-            style={{ flex: 1 }}
-            data={MemoizedProductBox}
-            getItemCount={() => displayedProducts.length}
-            getItem={(data, index) => displayedProducts[index]}
-            keyExtractor={(item) => item.id}
-            renderItem={renderProduct}
-            ItemSeparatorComponent={() => <View height={8} />}
-            initialNumToRender={10}
-            windowSize={4}
-          />
-        </View>
+          <View backgroundColor="#F0F2F6" flex={1} padding={16}>
+            <VirtualizedList
+              ref={flatListRef}
+              style={{ flex: 1 }}
+              data={MemoizedProductBox}
+              getItemCount={() => displayedProducts.length}
+              getItem={(data, index) => displayedProducts[index]}
+              keyExtractor={(item) => item.id}
+              renderItem={renderProduct}
+              ItemSeparatorComponent={() => <View height={8} />}
+              initialNumToRender={10}
+              windowSize={4}
+            />
+          </View>
 
-        <View
-          backgroundColor="#F0F2F6"
-          display={confirmDelte ? 'none' : 'flex'}
-          paddingHorizontal={20}
-          justifyContent="center"
-          alignItems="center"
-          flexDirection="row"
-          gap={20}
-          height={70}
-        >
           <View
             backgroundColor="#F0F2F6"
-            {...(Platform.OS === 'web'
-              ? {
-                  minWidth: '50%',
-                  width: Platform.OS === 'web' ? '70%' : '92%',
-                }
-              : {})}
-            flexDirection="row"
+            display={confirmDelte ? 'none' : 'flex'}
+            paddingHorizontal={20}
             justifyContent="center"
-            gap={5}
+            alignItems="center"
+            flexDirection="row"
+            gap={20}
+            height={70}
           >
-            <View justifyContent="center" alignItems="center">
+            <View
+              backgroundColor="#F0F2F6"
+              {...(Platform.OS === 'web'
+                ? {
+                    minWidth: '50%',
+                    width: Platform.OS === 'web' ? '70%' : '92%',
+                  }
+                : {})}
+              flexDirection="row"
+              justifyContent="center"
+              gap={5}
+            >
+              <View justifyContent="center" alignItems="center">
+                <Button
+                  backgroundColor="black"
+                  onPress={async () => {
+                    setConfirmDelete(true);
+                  }}
+                >
+                  <Icons name="trash" color="white" size={20}></Icons>
+                </Button>
+              </View>
               <Button
-                backgroundColor="black"
-                onPress={async () => {
-                  setConfirmDelete(true);
+                borderRadius={10}
+                onPress={() => {
+                  setLoading(true);
+                  checkAlertItems(products);
+                  saveCartArray(cart, cartToExclude).then(() => {
+                    router.push('prices');
+                  });
                 }}
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor="#04BF7B"
+                flex={1}
               >
-                <Icons name="trash" color="white" size={20}></Icons>
+                <Text fontSize={16} color="white">
+                  Ver cotações
+                </Text>
+                <Icons
+                  size={18}
+                  style={{ paddingLeft: 10 }}
+                  color="white"
+                  name="arrow-forward"
+                ></Icons>
               </Button>
             </View>
-            <Button
-              borderRadius={10}
-              onPress={() => {
-                setLoading(true);
-                checkAlertItems(products);
-                saveCartArray(cart, cartToExclude).then(() => {
-                  router.push('prices');
-                });
-              }}
-              justifyContent="center"
-              alignItems="center"
-              backgroundColor="#04BF7B"
-              flex={1}
-            >
-              <Text fontSize={16} color="white">
-                Ver cotações
-              </Text>
-              <Icons
-                size={18}
-                style={{ paddingLeft: 10 }}
-                color="white"
-                name="arrow-forward"
-              ></Icons>
-            </Button>
+            <DialogInstanceNotification
+              openModal={showNotification}
+              setOpenModal={setShowNotification}
+              title={modalTitle}
+              subtitle={modalSubtitle}
+              description={modalDescription}
+              buttonText={modalButtonText}
+              onConfirm={modalOnConfirm}
+            />
           </View>
-          <DialogInstanceNotification
-            openModal={showNotification}
-            setOpenModal={setShowNotification}
-            title={modalTitle}
-            subtitle={modalSubtitle}
-            description={modalDescription}
-            buttonText={modalButtonText}
-            onConfirm={modalOnConfirm}
-          />
-        </View>
 
-        {confirmDelte && (
-          <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
-            <Modal transparent={true}>
-              <View
-                flex={1}
-                justifyContent="center"
-                alignItems="center"
-                backgroundColor="rgba(0, 0, 0, 0.9)"
-              >
+          {confirmDelte && (
+            <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
+              <Modal transparent={true}>
                 <View
-                  maxWidth={400}
-                  width="90%"
-                  backgroundColor="white"
-                  padding={20}
-                  borderRadius={10}
-                  alignItems="center"
+                  flex={1}
                   justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="rgba(0, 0, 0, 0.9)"
                 >
                   <View
-                    flexDirection="row"
-                    marginBottom={15}
-                    alignItems="flex-start"
-                    justifyContent="flex-start"
-                    width="100%"
+                    maxWidth={400}
+                    width="90%"
+                    backgroundColor="white"
+                    padding={20}
+                    borderRadius={10}
+                    alignItems="center"
+                    justifyContent="center"
                   >
-                    <View flex={1}>
-                      <Text fontSize={22}>Apagar carrinho</Text>
+                    <View
+                      flexDirection="row"
+                      marginBottom={15}
+                      alignItems="flex-start"
+                      justifyContent="flex-start"
+                      width="100%"
+                    >
+                      <View flex={1}>
+                        <Text fontSize={22}>Apagar carrinho</Text>
+                      </View>
+                    </View>
+                    <View marginBottom={20} width="100%">
+                      <Text fontSize={16} marginBottom={5}>
+                        Deseja apagar o carrinho e remover todos os produtos adicionados?
+                      </Text>
+                      <Text fontSize={10} color="gray" textAlign="left">
+                        Esta ação não poderá ser desfeita
+                      </Text>
+                    </View>
+                    <View
+                      gap={5}
+                      flexDirection="row"
+                      justifyContent="space-between"
+                      width="100%"
+                      alignItems="center"
+                    >
+                      <TouchableOpacity style={{ flex: 1 }}>
+                        <Button backgroundColor="#04BF7B" onPress={() => setConfirmDelete(false)}>
+                          <Text color="white" textAlign="center">
+                            Cancelar
+                          </Text>
+                        </Button>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={{ flex: 1 }}>
+                        <Button
+                          backgroundColor="black"
+                          onPress={async () => {
+                            setLoading(true);
+                            const token = await getToken();
+                            if (token == null) return [];
+                            await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`, {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json',
+                              },
+                              body: JSON.stringify({
+                                token,
+                              }),
+                            });
+                            deleteStorage('cart');
+                            router.push('products');
+                          }}
+                        >
+                          <Text color="white" textAlign="center">
+                            Apagar
+                          </Text>
+                        </Button>
+                      </TouchableOpacity>
                     </View>
                   </View>
-                  <View marginBottom={20} width="100%">
-                    <Text fontSize={16} marginBottom={5}>
-                      Deseja apagar o carrinho e remover todos os produtos adicionados?
-                    </Text>
-                    <Text fontSize={10} color="gray" textAlign="left">
-                      Esta ação não poderá ser desfeita
-                    </Text>
-                  </View>
-                  <View
-                    gap={5}
-                    flexDirection="row"
-                    justifyContent="space-between"
-                    width="100%"
-                    alignItems="center"
-                  >
-                    <TouchableOpacity style={{ flex: 1 }}>
-                      <Button backgroundColor="#04BF7B" onPress={() => setConfirmDelete(false)}>
-                        <Text color="white" textAlign="center">
-                          Cancelar
-                        </Text>
-                      </Button>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ flex: 1 }}>
-                      <Button
-                        backgroundColor="black"
-                        onPress={async () => {
-                          setLoading(true);
-                          const token = await getToken();
-                          if (token == null) return [];
-                          await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`, {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({
-                              token,
-                            }),
-                          });
-                          deleteStorage('cart');
-                          router.push('products');
-                        }}
-                      >
-                        <Text color="white" textAlign="center">
-                          Apagar
-                        </Text>
-                      </Button>
-                    </TouchableOpacity>
-                  </View>
                 </View>
-              </View>
-            </Modal>
-          </View>
-        )}
-        {confirmDeleteItem && (
-          <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
-            <Modal transparent={true}>
-              <View
-                flex={1}
-                justifyContent="center"
-                alignItems="center"
-                backgroundColor="rgba(0, 0, 0, 0.9)"
-              >
+              </Modal>
+            </View>
+          )}
+          {confirmDeleteItem && (
+            <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
+              <Modal transparent={true}>
                 <View
-                  maxWidth={400}
-                  width="90%"
-                  backgroundColor="white"
-                  padding={20}
-                  borderRadius={10}
-                  alignItems="center"
+                  flex={1}
                   justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="rgba(0, 0, 0, 0.9)"
                 >
                   <View
-                    flexDirection="row"
-                    marginBottom={15}
-                    alignItems="flex-start"
-                    justifyContent="flex-start"
-                    width="100%"
+                    maxWidth={400}
+                    width="90%"
+                    backgroundColor="white"
+                    padding={20}
+                    borderRadius={10}
+                    alignItems="center"
+                    justifyContent="center"
                   >
-                    <Text flex={1} fontSize={22}>
-                      Remover item
-                    </Text>
-                  </View>
-                  <View marginBottom={20} width="100%">
-                    <Text fontSize={16} marginBottom={5}>
-                      Deseja remover o item do carrinho?
-                    </Text>
-                    <Text fontSize={10} color="gray" textAlign="left">
-                      Esta ação não poderá ser desfeita
-                    </Text>
-                  </View>
-                  <View gap={5} flexDirection="row" justifyContent="space-between" width="100%">
-                    <TouchableOpacity style={{ flex: 1 }}>
-                      <Button backgroundColor="#04BF7B" onPress={() => setConfirmDeleteItem(false)}>
-                        <Text color="white" textAlign="center">
-                          Cancelar
-                        </Text>
-                      </Button>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={{ flex: 1 }}>
-                      <Button
-                        backgroundColor="black"
-                        onPress={async () => {
-                          setLoading(true);
-                          if (itemToDelete != null) deleteItemFromCart(itemToDelete);
-                        }}
-                      >
-                        <Text color="white" textAlign="center">
-                          Remover
-                        </Text>
-                      </Button>
-                    </TouchableOpacity>
+                    <View
+                      flexDirection="row"
+                      marginBottom={15}
+                      alignItems="flex-start"
+                      justifyContent="flex-start"
+                      width="100%"
+                    >
+                      <Text flex={1} fontSize={22}>
+                        Remover item
+                      </Text>
+                    </View>
+                    <View marginBottom={20} width="100%">
+                      <Text fontSize={16} marginBottom={5}>
+                        Deseja remover o item do carrinho?
+                      </Text>
+                      <Text fontSize={10} color="gray" textAlign="left">
+                        Esta ação não poderá ser desfeita
+                      </Text>
+                    </View>
+                    <View gap={5} flexDirection="row" justifyContent="space-between" width="100%">
+                      <TouchableOpacity style={{ flex: 1 }}>
+                        <Button backgroundColor="#04BF7B" onPress={() => setConfirmDeleteItem(false)}>
+                          <Text color="white" textAlign="center">
+                            Cancelar
+                          </Text>
+                        </Button>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={{ flex: 1 }}>
+                        <Button
+                          backgroundColor="black"
+                          onPress={async () => {
+                            setLoading(true);
+                            if (itemToDelete != null) deleteItemFromCart(itemToDelete);
+                          }}
+                        >
+                          <Text color="white" textAlign="center">
+                            Remover
+                          </Text>
+                        </Button>
+                      </TouchableOpacity>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </Modal>
-          </View>
-        )}
-      </View>
-    </Stack>
+              </Modal>
+            </View>
+          )}
+        </View>
+      </Stack>
+    </PageContainer>
   );
 }

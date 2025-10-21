@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { clearStorage, getStorage } from '../src/utils/utils'
 import { SaveUserAppInfo } from '../src/utils/VersionApp'
 import { useRouter } from 'expo-router'
+import PageContainer from '@/src/components/box/PageContainer'
 
 interface RestaurantInfo {
   restName: string
@@ -191,88 +192,90 @@ export default function FinalConfirm() {
   }
 
   return (
-    <View
-      padding={30}
-      backgroundColor="#F0F2F6"
-      flex={1}
-      justifyContent="center"
-      alignItems="center"
-    >
-      <Icons size={90} color="#04BF7B" name="checkmark-circle"></Icons>
-      <Text paddingBottom={25} fontSize={30}>
-        Pedido confirmado!
-      </Text>
-      <View padding={15} backgroundColor="white" borderRadius={5} width="80%">
-        <View
-          borderBottomColor="gray"
-          borderBottomWidth={0.5}
-          flexDirection="row"
-        >
-          <Image
-            source={{
-              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`
-            }}
-            width={50}
-            height={50}
-            borderRadius={50}
-          />
-          <View marginLeft={5} justifyContent="center" flex={1}>
-            <Text>{supplier?.supplier.name}</Text>
-            <View alignItems="center" flexDirection="row">
-              <Icons color="orange" name="star"></Icons>
-              <Text color="gray" paddingLeft={4}>
-                {supplier?.supplier.star}
+    <PageContainer backgroundColor='gray'>
+      <View
+        padding={30}
+        backgroundColor="#F0F2F6"
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <Icons size={90} color="#04BF7B" name="checkmark-circle"></Icons>
+        <Text paddingBottom={25} fontSize={30}>
+          Pedido confirmado!
+        </Text>
+        <View padding={15} backgroundColor="white" borderRadius={5} width="80%">
+          <View
+            borderBottomColor="gray"
+            borderBottomWidth={0.5}
+            flexDirection="row"
+          >
+            <Image
+              source={{
+                uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`
+              }}
+              width={50}
+              height={50}
+              borderRadius={50}
+            />
+            <View marginLeft={5} justifyContent="center" flex={1}>
+              <Text>{supplier?.supplier.name}</Text>
+              <View alignItems="center" flexDirection="row">
+                <Icons color="orange" name="star"></Icons>
+                <Text color="gray" paddingLeft={4}>
+                  {supplier?.supplier.star}
+                </Text>
+              </View>
+            </View>
+            <View paddingRight={5} justifyContent="center">
+              <Text fontSize={16} fontWeight="800">
+                R${' '}
+                {supplier?.supplier.discount.orderValueFinish
+                  .toString()
+                  .replace('.', ',')}
               </Text>
             </View>
           </View>
-          <View paddingRight={5} justifyContent="center">
-            <Text fontSize={16} fontWeight="800">
-              R${' '}
-              {supplier?.supplier.discount.orderValueFinish
-                .toString()
-                .replace('.', ',')}
-            </Text>
+          <View alignItems="center" marginTop={15} flexDirection="row">
+            <Icons size={20} name="location"></Icons>
+            <View marginLeft={10}>
+              <Text fontSize={16}>{deliveryData?.restName}</Text>
+              <Text fontSize={12}>{deliveryData?.address}</Text>
+            </View>
           </View>
-        </View>
-        <View alignItems="center" marginTop={15} flexDirection="row">
-          <Icons size={20} name="location"></Icons>
-          <View marginLeft={10}>
-            <Text fontSize={16}>{deliveryData?.restName}</Text>
-            <Text fontSize={12}>{deliveryData?.address}</Text>
+          <View alignItems="center" marginTop={15} flexDirection="row">
+            <Icons size={20} name="time"></Icons>
+            <View marginLeft={10}>
+              <Text fontSize={16}>
+                Entre {deliveryData?.minHour} e {deliveryData?.maxHour}
+              </Text>
+              <Text fontSize={12}>{deliveryData?.deliveryDateFormated}</Text>
+            </View>
           </View>
-        </View>
-        <View alignItems="center" marginTop={15} flexDirection="row">
-          <Icons size={20} name="time"></Icons>
-          <View marginLeft={10}>
-            <Text fontSize={16}>
-              Entre {deliveryData?.minHour} e {deliveryData?.maxHour}
-            </Text>
-            <Text fontSize={12}>{deliveryData?.deliveryDateFormated}</Text>
+          <View alignItems="center" marginTop={15} flexDirection="row">
+            <Icons size={20} name="cash"></Icons>
+            <View marginLeft={10}>
+              <Text fontSize={16}>
+                Venc. {getPaymentDate(deliveryData?.paymentWay ?? '')}
+              </Text>
+              <Text fontSize={12}>
+                {getPaymentDescription(deliveryData?.paymentWay ?? '')}
+              </Text>
+            </View>
           </View>
-        </View>
-        <View alignItems="center" marginTop={15} flexDirection="row">
-          <Icons size={20} name="cash"></Icons>
-          <View marginLeft={10}>
-            <Text fontSize={16}>
-              Venc. {getPaymentDate(deliveryData?.paymentWay ?? '')}
-            </Text>
-            <Text fontSize={12}>
-              {getPaymentDescription(deliveryData?.paymentWay ?? '')}
-            </Text>
+          <View paddingTop={40}>
+            <Button
+              onPress={async () => {
+                router.push('/products')
+                SaveUserAppInfo()
+              }}
+              backgroundColor="#04BF7B"
+            >
+              <Icons size={20} color="white" name="checkmark"></Icons>
+            </Button>
           </View>
-        </View>
-        <View paddingTop={40}>
-          <Button
-            onPress={async () => {
-              router.push('/products')
-              SaveUserAppInfo()
-            }}
-            backgroundColor="#04BF7B"
-          >
-            <Icons size={20} color="white" name="checkmark"></Icons>
-          </Button>
         </View>
       </View>
-    </View>
+    </PageContainer>
   )
 }

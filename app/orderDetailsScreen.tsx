@@ -19,6 +19,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router'
 import { TouchableOpacity } from 'react-native'
 import { clearStorage, deleteToken } from '../src/utils/utils'
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal'
+import PageContainer from '@/src/components/box/PageContainer'
 
 export function ModalDocumentsAndInvoices(props: {
   openModal: boolean
@@ -178,175 +179,177 @@ export default function OrderDetailsScreen() {
   const supplierName = supplier ? supplier.name : 'Fornecedor não encontrado'
 
   return (
-    <View flex={1} backgroundColor="#F0F2F6">
-      <ModalDocumentsAndInvoices
-        openModal={showDocumentsModal}
-        setRegisterInvalid={setShowDocumentsModal}
-      />
-      {pdfUrl && showPdfModal && (
-        <PdfViewerModal
-          key={pdfUrl}
-          pdfUrl={pdfUrl}
-          open={showPdfModal}
-          onClose={() => setShowPdfModal(false)}
+    <PageContainer backgroundColor='gray'>
+      <View flex={1} backgroundColor="#F0F2F6">
+        <ModalDocumentsAndInvoices
+          openModal={showDocumentsModal}
+          setRegisterInvalid={setShowDocumentsModal}
         />
-      )}
+        {pdfUrl && showPdfModal && (
+          <PdfViewerModal
+            key={pdfUrl}
+            pdfUrl={pdfUrl}
+            open={showPdfModal}
+            onClose={() => setShowPdfModal(false)}
+          />
+        )}
 
-      <Text
-        style={{
-          marginTop: 35,
-          marginLeft: Platform.OS === 'web' ? 30 : 15,
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
-        }}
-      >
-        Detalhamento
-      </Text>
-      <CustomAlert
-        message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
-        title="Ops!"
-        onConfirm={() => {
-          setModalErrorVisibility(false)
-        }}
-        visible={modalErrorVisibility}
-      />
-      <CustomAlert
-        message="Seu pedido foi cancelado com sucesso!"
-        title="Pedido cancelado"
-        onConfirm={() => {
-          router.back()
-        }}
-        visible={modalSuccessCanceledVisibility}
-      />
-      <CustomAlert
-        message="Esta ação não poderá ser revertida"
-        title="Cancelar pedido?"
-        onConfirm={async () => {
-          try {
-            setLoading(true)
-            const orderCanceled = await cancelOrder(order.id)
-            if (orderCanceled === 'too late') setModalErrorVisibility(true)
-            else setModalSuccessCanceledVisbility(true)
-          } finally {
-            setModalCancelOrderVisibility(false)
-            setLoading(false)
-          }
-        }}
-        visible={modalCancelOrderVisibility}
-        closeOption
-        setVisibility={setModalCancelOrderVisibility}
-        buttonText="Cancelar"
-        negativeMainButton
-      />
-      <View
-        flexDirection="row"
-        alignItems="center"
-        padding={6}
-        borderBottomWidth={1}
-        borderBottomColor="lightgray"
-      >
-        <Icons
-          onPress={() => router.push('/ordersScreen')}
-          size={25}
-          name="chevron-back"
-        ></Icons>
-        <View flex={1} alignItems="center" marginBottom={5}>
-          <Text>Pedido {order.id}</Text>
+        <Text
+          style={{
+            marginTop: 35,
+            marginLeft: Platform.OS === 'web' ? 30 : 15,
+            width: Platform.OS === 'web' ? '70%' : '92%',
+            alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
+          }}
+        >
+          Detalhamento
+        </Text>
+        <CustomAlert
+          message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
+          title="Ops!"
+          onConfirm={() => {
+            setModalErrorVisibility(false)
+          }}
+          visible={modalErrorVisibility}
+        />
+        <CustomAlert
+          message="Seu pedido foi cancelado com sucesso!"
+          title="Pedido cancelado"
+          onConfirm={() => {
+            router.back()
+          }}
+          visible={modalSuccessCanceledVisibility}
+        />
+        <CustomAlert
+          message="Esta ação não poderá ser revertida"
+          title="Cancelar pedido?"
+          onConfirm={async () => {
+            try {
+              setLoading(true)
+              const orderCanceled = await cancelOrder(order.id)
+              if (orderCanceled === 'too late') setModalErrorVisibility(true)
+              else setModalSuccessCanceledVisbility(true)
+            } finally {
+              setModalCancelOrderVisibility(false)
+              setLoading(false)
+            }
+          }}
+          visible={modalCancelOrderVisibility}
+          closeOption
+          setVisibility={setModalCancelOrderVisibility}
+          buttonText="Cancelar"
+          negativeMainButton
+        />
+        <View
+          flexDirection="row"
+          alignItems="center"
+          padding={6}
+          borderBottomWidth={1}
+          borderBottomColor="lightgray"
+        >
+          <Icons
+            onPress={() => router.push('/ordersScreen')}
+            size={30}
+            name="chevron-back"
+          ></Icons>
+          <View flex={1} alignItems="center" marginBottom={5}>
+            <Text>Pedido {order.id}</Text>
+            <Text fontSize={10} color="gray">
+              Entregue {formatDate(order.deliveryDate)}
+            </Text>
+          </View>
+        </View>
+        <View
+          padding={16}
+          flex={1}
+          gap={6}
+          style={{
+            width: Platform.OS === 'web' ? '70%' : '92%',
+            alignSelf: 'center'
+          }}
+        >
           <Text fontSize={10} color="gray">
-            Entregue {formatDate(order.deliveryDate)}
+            Documentos
           </Text>
+          <TouchableOpacity
+            onPress={async () => {
+              const url = order.orderDocument
+              if (!url) {
+                setShowDocumentsModal(true)
+                return
+              }
+
+              try {
+                const res = await fetch(
+                  `${
+                    process.env.EXPO_PUBLIC_API_URL
+                  }/verify-link?url=${encodeURIComponent(url)}`
+                )
+                const data = await res.json()
+                if (data && data.status === 200) {
+                  setPdfUrl(url)
+                  setShowPdfModal(true)
+                } else {
+                  setShowDocumentsModal(true)
+                }
+              } catch (err) {
+                console.error('Erro na verificação:', err)
+                setShowDocumentsModal(true)
+              }
+            }}
+          >
+            <LabelAndBoxContent
+              iconName="download"
+              title="Recibo"
+              subtitle="Por Conéctar"
+              icon={true}
+            />
+          </TouchableOpacity>
+          <Text fontSize={10} color="gray"></Text>
+          <TouchableOpacity
+            onPress={async () => {
+              const url = order.orderInvoices?.filePath[0]
+              if (!url) {
+                setShowDocumentsModal(true)
+                return
+              }
+
+              try {
+                const res = await fetch(
+                  `${
+                    process.env.EXPO_PUBLIC_API_URL
+                  }/verify-link?url=${encodeURIComponent(url)}`
+                )
+                const data = await res.json()
+                if (data && data.status === 200) {
+                  setPdfUrl(url)
+                  setShowPdfModal(true)
+                } else {
+                  setShowDocumentsModal(true)
+                }
+              } catch (err) {
+                console.error('Erro na verificação:', err)
+                setShowDocumentsModal(true)
+              }
+            }}
+          >
+            <LabelAndBoxContent
+              iconName="download"
+              icon={true}
+              title="Nota Fiscal"
+              subtitle={`Por ${supplierName}`}
+            />
+          </TouchableOpacity>
+          {/*<Button
+            borderColor="red"
+            borderWidth={1}
+            borderRadius={6}
+            onPress={async () => setModalCancelOrderVisibility(true)}
+          >
+            <Text color="red">Cancelar pedido</Text>
+          </Button>*/}
         </View>
       </View>
-      <View
-        padding={16}
-        flex={1}
-        gap={6}
-        style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: 'center'
-        }}
-      >
-        <Text fontSize={10} color="gray">
-          Documentos
-        </Text>
-        <TouchableOpacity
-          onPress={async () => {
-            const url = order.orderDocument
-            if (!url) {
-              setShowDocumentsModal(true)
-              return
-            }
-
-            try {
-              const res = await fetch(
-                `${
-                  process.env.EXPO_PUBLIC_API_URL
-                }/verify-link?url=${encodeURIComponent(url)}`
-              )
-              const data = await res.json()
-              if (data && data.status === 200) {
-                setPdfUrl(url)
-                setShowPdfModal(true)
-              } else {
-                setShowDocumentsModal(true)
-              }
-            } catch (err) {
-              console.error('Erro na verificação:', err)
-              setShowDocumentsModal(true)
-            }
-          }}
-        >
-          <LabelAndBoxContent
-            iconName="download"
-            title="Recibo"
-            subtitle="Por Conéctar"
-            icon={true}
-          />
-        </TouchableOpacity>
-        <Text fontSize={10} color="gray"></Text>
-        <TouchableOpacity
-          onPress={async () => {
-            const url = order.orderInvoices?.filePath[0]
-            if (!url) {
-              setShowDocumentsModal(true)
-              return
-            }
-
-            try {
-              const res = await fetch(
-                `${
-                  process.env.EXPO_PUBLIC_API_URL
-                }/verify-link?url=${encodeURIComponent(url)}`
-              )
-              const data = await res.json()
-              if (data && data.status === 200) {
-                setPdfUrl(url)
-                setShowPdfModal(true)
-              } else {
-                setShowDocumentsModal(true)
-              }
-            } catch (err) {
-              console.error('Erro na verificação:', err)
-              setShowDocumentsModal(true)
-            }
-          }}
-        >
-          <LabelAndBoxContent
-            iconName="download"
-            icon={true}
-            title="Nota Fiscal"
-            subtitle={`Por ${supplierName}`}
-          />
-        </TouchableOpacity>
-        {/*<Button
-          borderColor="red"
-          borderWidth={1}
-          borderRadius={6}
-          onPress={async () => setModalCancelOrderVisibility(true)}
-        >
-          <Text color="red">Cancelar pedido</Text>
-        </Button>*/}
-      </View>
-    </View>
+    </PageContainer>
   )
 }

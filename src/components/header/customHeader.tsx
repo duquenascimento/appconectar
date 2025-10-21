@@ -32,7 +32,7 @@ const CustomHeader: React.FC<HeaderProps> = ({ title, onBackPress }) => {
   return (
     <HeaderContainer>
        <TouchableOpacity onPress={onBackPress} style={{ marginLeft: 25 }}>
-        <Icons name="arrow-back" size={24} color="#000" />
+        <Icons name="chevron-back" size={30} color="#000" />
       </TouchableOpacity>
 
       <HeaderTitle numberOfLines={1} ellipsizeMode="tail">

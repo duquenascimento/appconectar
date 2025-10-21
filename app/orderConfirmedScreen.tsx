@@ -15,6 +15,7 @@ import { formatCurrency } from '../src/utils/formatCurrency'
 import { getDeliveryWindow } from '../src/utils/timeUtils'
 import { getPaymentDate } from '../src/utils/getPaymentDate'
 import { useRouter, useLocalSearchParams } from 'expo-router'
+import PageContainer from '@/src/components/box/PageContainer'
 interface RestaurantAddress {
   address: string
   neighborhood: string
@@ -110,7 +111,7 @@ export default function OrderConfirmedScreen() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F0F4F8' }}>
+    <PageContainer backgroundColor='gray'>
       <YStack
         flex={1}
         backgroundColor="#F0F4F8"
@@ -236,6 +237,6 @@ export default function OrderConfirmedScreen() {
           />
         </YStack>
       </YStack>
-    </SafeAreaView>
+    </PageContainer>
   )
 }
