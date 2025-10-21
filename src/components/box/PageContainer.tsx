@@ -17,7 +17,7 @@ export default function PageContainer({ children, backgroundColor }: PageContain
 		<SafeAreaView style={{
 			flex: 1, 
 			backgroundColor: `${colorMapping[backgroundColor]}`, 
-			paddingTop: 30,
+			paddingTop: 40,
 			paddingBottom: 10,  
 			paddingHorizontal: 15
 		}}>

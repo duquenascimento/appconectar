@@ -291,16 +291,14 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         message={customAlertMessage}
         onConfirm={() => setShowAlertVisible(false)}
       />
-      {/* <Text
+      <Text
         style={{
-          marginTop: Platform.OS === 'web' ? 35 : 25,
-          marginLeft: Platform.OS === 'web' ? '' : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start',
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          margin: 'auto'
         }}
       >
         Meus Pedidos
-      </Text> */}
+      </Text>
       <DropDownPicker
         value={selectedRestaurant}
         setValue={(value) => setSelectedRestaurant(value)}

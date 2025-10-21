@@ -652,7 +652,6 @@ export default function Cart() {
   return (
     <PageContainer backgroundColor='gray'>
       <Stack
-        paddingTop={Platform.OS === 'web' ? 20 : 15}
         backgroundColor="#F0F2F6"
         height="100%"
         position="relative"
@@ -661,8 +660,10 @@ export default function Cart() {
           <View
             alignItems= 'center' 
             flexDirection='row' 
-            paddingVertical= '$4' 
+            paddingVertical= '$2' 
             gap= '$4' 
+            style={{width: Platform.OS === 'web' ? '70%' : '92%'}}
+            marginHorizontal={'auto'}
           >
             <Icons
               onPress={async () => {

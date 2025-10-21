@@ -548,7 +548,7 @@ export default function Confirm() {
   const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
     <PageContainer backgroundColor='white'>
-      <Stack backgroundColor="#F9F9F9" paddingTop={20} height="100%" position="relative">
+      <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
         <DialogInstance
           openModal={booleanErros}
           setRegisterInvalid={setBooleanErros}
@@ -572,7 +572,12 @@ export default function Confirm() {
           onConfirm={() => setIsAlertVisible(false)}
           width="80%"
         />
-        <View backgroundColor="white" flexDirection="row" height={80}>
+        <View 
+          backgroundColor="white" 
+          flexDirection="row" 
+          style={{width: Platform.OS === 'web' ? '74%' : '90%'}}
+          marginHorizontal={'auto'}
+        >
           <View
             alignItems= 'center' 
             flexDirection='row' 
@@ -591,10 +596,10 @@ export default function Confirm() {
           </View>
           <View
             flexDirection="row"
-            marginLeft={Platform.OS === 'web' ? '10.5vw' : ''}
+            marginLeft={10}
             alignSelf="center"
           >
-            <View paddingLeft={5} justifyContent="center">
+            <View justifyContent="center">
               <Image
                 source={{
                   uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`,

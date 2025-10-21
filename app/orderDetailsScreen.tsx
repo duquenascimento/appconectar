@@ -196,7 +196,6 @@ export default function OrderDetailsScreen() {
 
         <Text
           style={{
-            marginTop: 35,
             marginLeft: Platform.OS === 'web' ? 30 : 15,
             width: Platform.OS === 'web' ? '70%' : '92%',
             alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
@@ -245,6 +244,8 @@ export default function OrderDetailsScreen() {
           flexDirection='row' 
           paddingVertical= '$4' 
           gap= '$4' 
+          style={{width: Platform.OS === 'web' ? '70%' : '92%'}}
+          marginHorizontal={'auto'}
         >
           <Icons
             onPress={() => router.push('/ordersScreen')}

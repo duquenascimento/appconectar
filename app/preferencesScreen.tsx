@@ -145,7 +145,6 @@ const PreferencesScreen: React.FC = () => {
         <YStack
           width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
-          
           gap={15}
           marginTop="$2"
         >

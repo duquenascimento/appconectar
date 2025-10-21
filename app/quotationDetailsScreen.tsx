@@ -246,7 +246,7 @@ export default function QuotationDetailsScreen() {
         backgroundColor="#F9F9F9"
         alignSelf="center"
         width={Platform.OS === 'web' ? '70%' : '100%'}
-        /* maxWidth={1280} */
+        maxWidth={1280}
       >
         <CustomHeader title={headerTitle} onBackPress={handleBackPress} />
 
@@ -321,7 +321,7 @@ export default function QuotationDetailsScreen() {
           right={0}
           paddingVertical="$4"
           paddingHorizontal="$4"
-          backgroundColor="white"
+          backgroundColor="#F9F9F9"
           borderTopWidth={1}
           borderTopColor="$gray4"
         >

@@ -633,7 +633,6 @@ export default function Prices() {
   return (
     <PageContainer backgroundColor='white'>
       <Stack
-        paddingTop={Platform.OS === 'web' ? 20 : 15}
         backgroundColor="#F9F9F9"
         height="100%"
         position="relative"
@@ -642,8 +641,10 @@ export default function Prices() {
           <View
             alignItems= 'center' 
             flexDirection='row' 
-            paddingVertical= '$4' 
+            paddingVertical= '$2' 
             gap= '$4' 
+            style={{width: Platform.OS === 'web' ? '70%' : '92%'}}
+            marginHorizontal={'auto'}
           >
             <Icons
               onPress={() => {

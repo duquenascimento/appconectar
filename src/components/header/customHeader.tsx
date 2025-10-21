@@ -9,13 +9,15 @@ interface HeaderProps {
 }
 
 const HeaderContainer = styled(XStack, {
-  name: 'HeaderContainer',
+  name: 'HeaderContainer', 
+  width: Platform.OS === 'web' ? '74%' : '90%', 
   alignItems: 'center',
   justifyContent: 'flex-start',
-  paddingVertical: '$4',
+  paddingVertical: '$2', 
+  marginHorizontal: 'auto',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
-  backgroundColor: '#fff',
+  backgroundColor: '#F9F9F9',
   space: '$4',
 })
 
