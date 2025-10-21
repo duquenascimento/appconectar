@@ -146,7 +146,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
         borderBottomLeftRadius={open ? 0 : 12}
         borderBottomRightRadius={open ? 0 : 12}
         style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
+          width: Platform.OS === 'web' ? '70%' : '100%',
           alignSelf: 'center',
         }}
       >
