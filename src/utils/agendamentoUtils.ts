@@ -40,7 +40,6 @@ export const scheduleNotification = async (phoneNumber: string): Promise<string[
             console.log('Notificação já agendada');
         }
 
-        // setShowNotification(true);
     } else if (Platform.OS === 'web') {
         erros.push('O pedido só pode ser confirmado após as 13h.');
     }
@@ -78,9 +77,6 @@ export const scheduleNotification = async (phoneNumber: string): Promise<string[
     } catch (error) {
         console.error('Erro ao agendar via ChatGuru:', error);
     }
-
-    // setShowErros(erros);
-    // if (erros.length) setBooleanErros(true);
 
     return erros;
 }

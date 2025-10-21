@@ -199,13 +199,10 @@ export default function QuotationDetailsScreen() {
         const errors = await scheduleNotification(
           parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
         );
-
+        
         setShowErros(errors);
-        if (errors.length) {
-          setBooleanErros(true);
-        } else {
-          setShowNotification(true);
-        }
+        if (errors.length) setBooleanErros(true);
+        else setShowNotification(true);
 
         return;
       }
