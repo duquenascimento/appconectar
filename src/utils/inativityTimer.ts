@@ -10,7 +10,7 @@ interface UseInactivityOptions {
 
 export const useInactivityRedirect = (options: UseInactivityOptions = {}) => {
   const {
-    timeout = 8000, // 2 minutos
+    timeout = 120000, // 2 minutos
     redirectPath = '/products',
     enabled = true,
   } = options;

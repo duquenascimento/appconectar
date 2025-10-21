@@ -237,7 +237,7 @@ export default function Confirm() {
   }, [loadingToConfirm]);
 
   useInactivityRedirect({
-    timeout: 8000,
+    timeout: 120000,
     redirectPath: '/prices',
     enabled: true,
   });
