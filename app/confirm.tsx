@@ -24,6 +24,7 @@ import { validateAddress } from '../src/utils/validateAddress';
 import { useRouter } from 'expo-router';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
+import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -323,16 +324,6 @@ export default function Confirm() {
     return paymentDescriptions[paymentWay] || '';
   };
 
-  const isBefore13Hours = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
-    const currentHour = Number(
-      `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute
-        .toString()
-        .padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`,
-    );
-    return 130000 >= currentHour;
-  };
-
   const isOpen = () => {
     const currentDate = DateTime.now().setZone('America/Sao_Paulo');
     const currentHour = Number(
@@ -346,21 +337,6 @@ export default function Confirm() {
       supplier.supplier.missingItens > 0
     );
   };
-
-  function getSecondsUntil13h() {
-    const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate(); // Data e hora atual
-    const target = new Date(); // Cria uma nova data (hoje)
-
-    target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
-
-    const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
-
-    // Converter milissegundos para segundos
-    const differenceInSeconds = Math.floor(differenceInMillis / 1000);
-
-    // Verifica se o horário já passou e retorna o valor (negativo ou positivo)
-    return differenceInSeconds;
-  }
 
   const getPaymentDate = (paymentWay: string): string => {
     const today = new Date();
