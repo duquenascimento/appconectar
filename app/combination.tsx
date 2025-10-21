@@ -15,6 +15,7 @@ import { ContainerPreferenciasProduto } from '../src/components/Combination/Cont
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator';
 import CustomAlert from '@/src/components/modais/CustomAlert';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { router } from 'expo-router';
 
 export interface SuplierCombination {
@@ -35,9 +36,12 @@ export const Combination: React.FC = () => {
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [triggerValidation, setTriggerValidation] = useState(false);
+  const { loadRestaurants, loadPrices } = useSupplier();
 
   useEffect(() => {
     const carregarCombinacao = async () => {
+      await loadPrices();
+      await loadRestaurants();
       if (!id) return;
 
       try {

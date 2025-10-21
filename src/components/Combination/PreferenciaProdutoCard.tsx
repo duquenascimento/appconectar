@@ -1,7 +1,6 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
-import { loadRestaurants } from '@/src/services/restaurantService';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
@@ -28,7 +27,7 @@ const tipoProdutoItems = [
 export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, triggerValidation }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
-  const { suppliers, unavailableSupplier } = useSupplier();
+  const { suppliers, unavailableSupplier, loadRestaurants } = useSupplier();
   const bloqueados = combinacao.fornecedores_bloqueados || [];
 
   const [busca, setBusca] = useState('');
@@ -81,8 +80,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   const produtos = Array.from(
     new Map(
       productsRaw.map((item) => {
-        const key =
-          item.produto_sku ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
+        const key = item.produto_sku ? `produto_sku:${item.produto_sku}` : `classe:${item.classe}`;
 
         return [key, item];
       }),
