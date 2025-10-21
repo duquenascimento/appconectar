@@ -10,9 +10,11 @@ import { resetarPreferencias } from '../../utils/preferenciaUtils';
 export function ContainerPreferenciasProduto({
   error,
   onClearErrors,
+  triggerValidation,
 }: {
   error?: string;
   onClearErrors: () => void;
+  triggerValidation?: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
   const [showModal, setShowModal] = useState(false);
@@ -121,11 +123,12 @@ export function ContainerPreferenciasProduto({
             onRemove={() => removerPreferencia(index)}
             onMoveUp={() => moverPreferencia(index, index - 1)}
             onMoveDown={() => moverPreferencia(index, index + 1)}
+            triggerValidation={triggerValidation}
           />
         ))}
 
       {combinacao.definir_preferencia_produto && (
-        <Button mt="$2" onPress={adicionarPreferencia} marginTop="$8">
+        <Button mt="$2" onPress={adicionarPreferencia} marginVertical="$4">
           <Icons name="add" size={20} />
           Adicionar Produto
         </Button>

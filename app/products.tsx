@@ -50,6 +50,7 @@ import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
+import PageContainer from '@/src/components/box/PageContainer';
 
 export type Product = {
   name: string;
@@ -1365,14 +1366,16 @@ export default function Products() {
 
   if (loading || !selectedRestaurant) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
+      <PageContainer backgroundColor='white'>
+        <View flex={1} justifyContent="center" alignItems="center">
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      </PageContainer>
     );
   }
 
   return (
-    <Stack paddingTop={20} backgroundColor="#f9f9f9" height="100%" position="relative">
+    <PageContainer backgroundColor='white'>
       <DialogComercialInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
@@ -1527,7 +1530,7 @@ export default function Products() {
         <FlatList
           style={{
             marginTop: -5,
-            maxHeight: Platform.OS === 'web' ? 50 : 40,
+            maxHeight: Platform.OS === 'web' ? 50 : 55,
             minHeight: Platform.OS === 'web' ? 50 : undefined,
             width: Platform.OS === 'web' ? '68%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined,
@@ -1624,8 +1627,8 @@ export default function Products() {
           alignItems="center"
           flexDirection="row"
           gap={30}
-          height={55}
-          borderTopWidth={0.2}
+          height={50}
+          borderTopWidth={0.4}
           borderTopColor="lightgray"
         >
           <View
@@ -1704,6 +1707,6 @@ export default function Products() {
           router.push('cart');
         }}
       />
-    </Stack>
+    </PageContainer>
   );
 }

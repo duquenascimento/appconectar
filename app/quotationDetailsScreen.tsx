@@ -1,8 +1,7 @@
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Text, View, Image, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
+import { Text, View, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
 import React, { useMemo, useState } from 'react';
-import { SafeAreaView, Alert, Platform } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomButton from '../src/components/button/customButton';
@@ -17,6 +16,8 @@ import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
 import { isBefore13Hours } from '@/src/utils/timeUtils';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
+import PageContainer from '@/src/components/box/PageContainer';
+
 export interface Product {
   price: number;
   priceWithoutTax: number;
@@ -248,21 +249,21 @@ export default function QuotationDetailsScreen() {
 
   if (!suppliers || suppliers.length === 0) {
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <PageContainer backgroundColor='white'>
         <CustomHeader title="Erro" onBackPress={handleBackPress} />
         <View flex={1} justifyContent="center" alignItems="center">
           <Text>Não foi possível carregar os dados da cotação.</Text>
         </View>
-      </SafeAreaView>
+      </PageContainer>
     );
   }
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <PageContainer backgroundColor='white'>
       <YStack
         flex={1}
-        backgroundColor="#FFFFFF"
+        backgroundColor="#F9F9F9"
         alignSelf="center"
         width={Platform.OS === 'web' ? '70%' : '100%'}
         maxWidth={1280}
@@ -353,7 +354,7 @@ export default function QuotationDetailsScreen() {
           right={0}
           paddingVertical="$4"
           paddingHorizontal="$4"
-          backgroundColor="white"
+          backgroundColor="#F9F9F9"
           borderTopWidth={1}
           borderTopColor="$gray4"
         >
@@ -437,6 +438,6 @@ export default function QuotationDetailsScreen() {
         </View>
       </YStack>
       <LoadingConfirm loading={isLoading} />
-    </SafeAreaView>
+    </PageContainer>
   );
 }

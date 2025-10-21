@@ -21,6 +21,7 @@ import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
+import PageContainer from '@/src/components/box/PageContainer';
 
 export interface Combination {
   id: string;
@@ -128,7 +129,7 @@ const PreferencesScreen: React.FC = () => {
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <PageContainer backgroundColor='white'>
       <CustomAlert
         visible={isAlertVisible}
         title="Ops!"
@@ -144,7 +145,6 @@ const PreferencesScreen: React.FC = () => {
         <YStack
           width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
-          padding="$4"
           gap={15}
           marginTop="$2"
         >
@@ -183,7 +183,7 @@ const PreferencesScreen: React.FC = () => {
         </YStack>
       </ScrollView>
       <CustomButton title="Criar nova combinação" onPress={handleCreateNewCombination} />
-    </SafeAreaView>
+    </PageContainer>
   );
 };
 

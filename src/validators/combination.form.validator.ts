@@ -7,14 +7,14 @@ const tipoFornecedorEnum = ['qualquer', 'especifico'] as const;
 const produtoPreferenciaSchema = Yup.object({
   produto_sku: Yup.string().optional(),
   classe: Yup.string().optional(),
-  fornecedores: Yup.array(Yup.string()).min(1, 'Informe ao menos um fornecedor.'),
   acao_na_falha: Yup.string().oneOf(acaoNaFalhaEnum),
 });
 
 export const preferenciaProdutoSchema = Yup.object({
   ordem: Yup.number().integer().min(1),
   tipo: Yup.string().oneOf(tipoProdutoEnum),
-  produtos: Yup.array(produtoPreferenciaSchema).min(1, 'Adicione ao menos um produto'),
+  produtos: Yup.array(produtoPreferenciaSchema).min(1, 'Adicione ao menos um produto e/ou classe'),
+  fornecedores: Yup.array(Yup.string()).min(1, 'Informe ao menos um fornecedor.'),
 });
 
 export const combinacaoValidationSchema = Yup.object({

@@ -26,6 +26,7 @@ import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
 import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
+import PageContainer from '@/src/components/box/PageContainer';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -523,202 +524,179 @@ export default function Confirm() {
     supplier.supplier.discount.product.length - supplier.supplier.missingItens;
   const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
-    <Stack backgroundColor="white" paddingTop={20} height="100%" position="relative">
-      <DialogInstance
-        openModal={booleanErros}
-        setRegisterInvalid={setBooleanErros}
-        erros={showErros}
-      />
+    <PageContainer backgroundColor='white'>
+      <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
+        <DialogInstance
+          openModal={booleanErros}
+          setRegisterInvalid={setBooleanErros}
+          erros={showErros}
+        />
 
-      <DialogInstanceNotification
-        openModal={showNotification}
-        setRegisterInvalid={setShowNotification}
-      />
-      <MissingItemsDialog
-        open={showMissingItemsModal}
-        onClose={() => setShowMissingItemsModal(false)}
-        onConfirm={handleConfirmOrder}
-        missingItemsCount={displayMissingItems}
-      />
-      <CustomAlert
-        visible={isAlertVisible}
-        title="Endereço Incompleto"
-        message={alertMessage}
-        onConfirm={() => setIsAlertVisible(false)}
-        width="80%"
-      />
-      <View backgroundColor="white" flexDirection="row" height={80}>
-        <View
-          paddingHorizontal={10}
-          flexDirection="row"
-          justifyContent="center"
-          alignItems="center"
+        <DialogInstanceNotification
+          openModal={showNotification}
+          setRegisterInvalid={setShowNotification}
+        />
+        <MissingItemsDialog
+          open={showMissingItemsModal}
+          onClose={() => setShowMissingItemsModal(false)}
+          onConfirm={handleConfirmOrder}
+          missingItemsCount={displayMissingItems}
+        />
+        <CustomAlert
+          visible={isAlertVisible}
+          title="Endereço Incompleto"
+          message={alertMessage}
+          onConfirm={() => setIsAlertVisible(false)}
+          width="80%"
+        />
+        <View 
+          backgroundColor="white" 
+          flexDirection="row" 
+          style={{width: Platform.OS === 'web' ? '74%' : '90%'}}
+          marginHorizontal={'auto'}
         >
-          <Icons
-            size={25}
-            name="chevron-back"
-            onPress={() => {
-              setLoading(true);
-              deleteStorage('supplierSelected');
-              router.push('/prices');
-            }}
-          ></Icons>
-        </View>
-        <View
-          flexDirection="row"
-          marginLeft={Platform.OS === 'web' ? '10.5vw' : ''}
-          alignSelf="center"
-        >
-          <View paddingLeft={5} justifyContent="center">
-            <Image
-              source={{
-                uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`,
+          <View
+            alignItems= 'center' 
+            flexDirection='row' 
+            paddingVertical= '$4' 
+            gap= '$4' 
+          >
+            <Icons
+              size={30}
+              name="chevron-back"
+              onPress={() => {
+                setLoading(true);
+                deleteStorage('supplierSelected');
+                router.push('/prices');
               }}
-              width={50}
-              height={50}
-              borderRadius={50}
-            />
+            ></Icons>
           </View>
-          <View marginLeft={10} justifyContent="center">
-            <Text fontSize={16}>{supplier?.supplier.name}</Text>
-            <View flexDirection="row" alignItems="center">
-              <Icons color="orange" name="star"></Icons>
-              <Text color="gray" paddingLeft={4}>
-                {supplier?.supplier.star}
-              </Text>
+          <View
+            flexDirection="row"
+            marginLeft={10}
+            alignSelf="center"
+          >
+            <View justifyContent="center">
+              <Image
+                source={{
+                  uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`,
+                }}
+                width={50}
+                height={50}
+                borderRadius={50}
+              />
+            </View>
+            <View marginLeft={10} justifyContent="center">
+              <Text fontSize={16}>{supplier?.supplier.name}</Text>
+              <View flexDirection="row" alignItems="center">
+                <Icons color="orange" name="star"></Icons>
+                <Text color="gray" paddingLeft={4}>
+                  {supplier?.supplier.star}
+                </Text>
+              </View>
             </View>
           </View>
         </View>
-      </View>
 
-      <ScrollView backgroundColor="white">
-        <View backgroundColor="white" padding={15}>
-          <View
-            alignItems="center"
-            marginLeft={Platform.OS === 'web' ? 10 : ''}
-            width={Platform.OS === 'web' ? '70.5vw' : ''}
-            alignSelf="center"
-            borderColor="gray"
-            minHeight={40}
-            flexDirection="row"
-            borderWidth={0.5}
-          >
-            <Icons color="gray" size={24} name="warning" style={{ paddingLeft: 5 }}></Icons>
-            {/*// modified add*/}
-            <Text
-              color="gray"
-              marginLeft={5}
-              marginRight={10}
-              textBreakStrategy="simple"
-              fontSize={12}
-              width={Platform.OS === 'web' ? '70vw' : '90%'}
+        <ScrollView backgroundColor="white">
+          <View backgroundColor="white" padding={15}>
+            <View
+              alignItems="center"
+              marginLeft={Platform.OS === 'web' ? 10 : ''}
+              width={Platform.OS === 'web' ? '70.5vw' : ''}
+              alignSelf="center"
+              borderColor="gray"
+              minHeight={40}
+              flexDirection="row"
+              borderWidth={0.5}
             >
-              Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
-            </Text>
+              <Icons color="gray" size={24} name="warning" style={{ paddingLeft: 5 }}></Icons>
+              {/*// modified add*/}
+              <Text
+                color="gray"
+                marginLeft={5}
+                marginRight={10}
+                textBreakStrategy="simple"
+                fontSize={12}
+                width={Platform.OS === 'web' ? '70vw' : '90%'}
+              >
+                Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
+              </Text>
+            </View>
+            <View
+              paddingTop={25}
+              width={Platform.OS === 'web' ? '70vw' : ''}
+              alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
+            >
+              <Text>Produtos selecionados</Text>
+            </View>
           </View>
           <View
-            paddingTop={25}
-            width={Platform.OS === 'web' ? '70vw' : ''}
-            alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
+            width={Platform.OS === 'web' ? '70vw' : '92%'}
+            alignSelf="center"
+            gap={20}
+            flex={1}
+            backgroundColor="white"
           >
-            <Text>Produtos selecionados</Text>
-          </View>
-        </View>
-        <View
-          width={Platform.OS === 'web' ? '70vw' : '92%'}
-          alignSelf="center"
-          gap={20}
-          flex={1}
-          backgroundColor="white"
-        >
-          {productsWithAddOrder.map((item) => {
-            return (
-              <View
-                key={item.sku}
-                borderBottomColor="lightgray"
-                paddingVertical={1}
-                borderBottomWidth={0.5}
-              >
-                <View flexDirection="row" alignItems="center">
-                  <View flex={1} flexDirection="row" alignItems="center">
-                    <View padding={5}>
-                      <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
+            {productsWithAddOrder.map((item) => {
+              return (
+                <View
+                  key={item.sku}
+                  borderBottomColor="lightgray"
+                  paddingVertical={1}
+                  borderBottomWidth={0.5}
+                >
+                  <View flexDirection="row" alignItems="center">
+                    <View flex={1} flexDirection="row" alignItems="center">
+                      <View padding={5}>
+                        <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
+                      </View>
+                      <View maxWidth={150}>
+                        <Text>{item.name}</Text>
+                        <Text fontSize={12} color="gray">
+                          Obs: {item.obs ? item.obs : ''}
+                        </Text>
+                      </View>
                     </View>
-                    <View maxWidth={150}>
-                      <Text>{item.name}</Text>
-                      <Text fontSize={12} color="gray">
-                        Obs: {item.obs ? item.obs : ''}
+                    <View>
+                      <Text
+                        fontWeight="800"
+                        color={item.price ? 'black' : 'red'}
+                        alignSelf="flex-end"
+                        fontSize={16}
+                      >
+                        {item.price
+                          ? 'R$ ' + item.price.toFixed(2).replace('.', ',')
+                          : 'Indisponível'}
                       </Text>
-                    </View>
-                  </View>
-                  <View>
-                    <Text
-                      fontWeight="800"
-                      color={item.price ? 'black' : 'red'}
-                      alignSelf="flex-end"
-                      fontSize={16}
-                    >
-                      {item.price
-                        ? 'R$ ' + item.price.toFixed(2).replace('.', ',')
-                        : 'Indisponível'}
-                    </Text>
-                    <View alignSelf="flex-end" flexDirection="row" alignItems="center">
-                      <Text paddingRight={5} fontSize={12}>
-                        {item.quant} {item.orderUnit.replace('Unid', 'Un')}
-                      </Text>
-                      <Text color="gray">
-                        |{' '}
-                        {item.priceUniqueWithTaxAndDiscount
-                          ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
-                          : 'R$ ----'}
-                        /{item.orderUnit.replace('Unid', 'Un')}
-                      </Text>
+                      <View alignSelf="flex-end" flexDirection="row" alignItems="center">
+                        <Text paddingRight={5} fontSize={12}>
+                          {item.quant} {item.orderUnit.replace('Unid', 'Un')}
+                        </Text>
+                        <Text color="gray">
+                          |{' '}
+                          {item.priceUniqueWithTaxAndDiscount
+                            ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
+                            : 'R$ ----'}
+                          /{item.orderUnit.replace('Unid', 'Un')}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                 </View>
-              </View>
-            );
-          })}
-        </View>
-        <View
-          backgroundColor="white"
-          gap={15}
-          marginTop={20}
-          paddingVertical={16}
-          width={Platform.OS === 'web' ? '70vw' : '92%'}
-          alignSelf="center"
-        >
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal:</Text>
-            <Text
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
-            </Text>
+              );
+            })}
           </View>
           <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingTop: 10,
-            }}
+            backgroundColor="white"
+            gap={15}
+            marginTop={20}
+            paddingVertical={16}
+            width={Platform.OS === 'web' ? '70vw' : '92%'}
+            alignSelf="center"
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos:</Text>
-            <Text
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              R$ 0,00
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'column', paddingTop: 10 }}>
-            <View style={{ flexDirection: 'row' }}>
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total:</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal:</Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -728,229 +706,259 @@ export default function Confirm() {
                 R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
               </Text>
             </View>
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-              {supplier.supplier.discount.product.length} item(s) | {displayMissingItems}{' '}
-              faltante(s)
-            </Text>
-          </View>
-          <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingTop: 10,
-            }}
-          >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento:</Text>
-            <Text
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              {getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingTop: 10,
-            }}
-          >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento:</Text>
-            <Text
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              {getPaymentDate(selectedRestaurant.restaurant.paymentWay)}
-            </Text>
-          </View>
-          <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante:</Text>
             <View
               style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingTop: 10,
               }}
             >
-              <Text>{selectedRestaurant.restaurant.name}</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos:</Text>
+              <Text
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                R$ 0,00
+              </Text>
             </View>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              paddingTop: 10,
-            }}
-          >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço:</Text>
+            <View style={{ flexDirection: 'column', paddingTop: 10 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total:</Text>
+                <Text
+                  style={{
+                    flexGrow: 1,
+                    marginLeft: Platform.OS === 'web' ? 8 : '',
+                  }}
+                >
+                  R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
+                {supplier.supplier.discount.product.length} item(s) | {displayMissingItems}{' '}
+                faltante(s)
+              </Text>
+            </View>
+            <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
             <View
               style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingTop: 10,
               }}
             >
-              <Text numberOfLines={3} ellipsizeMode="tail">
-                {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()}{' '}
-                {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
-                {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
-                {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
-                {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()},{' '}
-                {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento:</Text>
+              <Text
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                {getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingTop: 10,
+              }}
+            >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento:</Text>
+              <Text
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                {getPaymentDate(selectedRestaurant.restaurant.paymentWay)}
+              </Text>
+            </View>
+            <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante:</Text>
+              <View
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                <Text>{selectedRestaurant.restaurant.name}</Text>
+              </View>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingTop: 10,
+              }}
+            >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço:</Text>
+              <View
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                <Text numberOfLines={3} ellipsizeMode="tail">
+                  {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()}{' '}
+                  {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
+                  {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
+                  {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
+                  {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()},{' '}
+                  {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
+                </Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingTop: 10,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
+              <View
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                <Text>
+                  {selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(
+                    11,
+                    16,
+                  )}{' '}
+                  -{' '}
+                  {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
+                </Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingTop: 10,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega:</Text>
+              <Text
+                style={{
+                  maxWidth: 200,
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                {selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingTop: 10,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para</Text>
+              <Text
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}
+              </Text>
+            </View>
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingTop: 10,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone</Text>
+              <Text
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber ||
+                  '--'}
               </Text>
             </View>
           </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingTop: 10,
-              alignItems: 'center',
-            }}
+        </ScrollView>
+        <View paddingTop={10} paddingHorizontal={10}>
+          <Text
+            marginHorizontal="auto"
+            color="red"
+            fontSize={10}
+            textAlign="center"
+            display={isBefore13Hours() ? 'flex' : 'none'}
           >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
-            <View
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              <Text>
-                {selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(
-                  11,
-                  16,
-                )}{' '}
-                -{' '}
-                {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
-              </Text>
-            </View>
-          </View>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingTop: 10,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega:</Text>
-            <Text
-              style={{
-                maxWidth: 200,
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              {selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingTop: 10,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para</Text>
-            <Text
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}
-            </Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              paddingTop: 10,
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone</Text>
-            <Text
-              style={{
-                flexGrow: 1,
-                marginLeft: Platform.OS === 'web' ? 8 : '',
-              }}
-            >
-              {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber ||
-                '--'}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-      <View paddingTop={10} paddingHorizontal={10}>
-        <Text
-          marginHorizontal="auto"
-          color="red"
-          fontSize={12}
-          textAlign="center"
-          display={isBefore13Hours() ? 'flex' : 'none'}
-        >
-          A confirmação só pode ser feita após as 13h
-          {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário'}
-        </Text>
-      </View>
-      <View
-        backgroundColor="white"
-        gap={10}
-        flexDirection="row"
-        padding={10}
-        justifyContent="center"
-        alignItems="center"
-      >
-        <Button
-          onPress={() => {
-            router.push('/cart');
-          }}
-          width={170}
-          backgroundColor="#000"
-        >
-          <Text color="white">Alterar itens</Text>
-        </Button>
-        <Button
-          onPress={async () => {
-            try {
-              if (isBefore13Hours()) {
-                const errors = await scheduleNotification(
-                  selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
-                );
-
-                setShowErros(errors);
-                if (errors.length) setBooleanErros(true);
-                else setShowNotification(true);
-              } else {
-                const validationResult = validateAddress(selectedRestaurant);
-                if (!validationResult.isValid) {
-                  setAlertMessage(validationResult.message);
-                  setIsAlertVisible(true);
-                  return;
-                }
-
-                if (displayMissingItems > 0) {
-                  setShowMissingItemsModal(true);
-                } else {
-                  await handleConfirmOrder();
-                }
-              }
-            } catch (error) {
-              console.error('Erro no botão de confirmação:', error);
-            }
-          }}
-          width={170}
-          backgroundColor="#04BF7B"
-        >
-          <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
-            {isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}
+            A confirmação só pode ser feita após as 13h
+            {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário'}
           </Text>
-        </Button>
-      </View>
-    </Stack>
+        </View>
+        <View
+          backgroundColor="white"
+          gap={10}
+          flexDirection="row"
+          padding={10}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Button
+            onPress={() => {
+              router.push('/cart');
+            }}
+            width={170}
+            backgroundColor="#000"
+          >
+            <Text color="white">Alterar itens</Text>
+          </Button>
+          <Button
+            onPress={async () => {
+              try {
+                if (isBefore13Hours()) {
+                  const errors = await scheduleNotification(
+                    selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+                  );
+                  
+                  setShowErros(errors);
+                  if (errors.length) setBooleanErros(true);
+                  else setShowNotification(true);
+                } else {
+                  const validationResult = validateAddress(selectedRestaurant);
+                  if (!validationResult.isValid) {
+                    setAlertMessage(validationResult.message);
+                    setIsAlertVisible(true);
+                    return;
+                  }
+
+                  if (displayMissingItems > 0) {
+                    setShowMissingItemsModal(true);
+                  } else {
+                    await handleConfirmOrder();
+                  }
+                }
+              } catch (error) {
+                console.error('Erro no botão de confirmação:', error);
+              }
+            }}
+            width={170}
+            backgroundColor="#04BF7B"
+          >
+            <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
+              {isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}
+            </Text>
+          </Button>
+        </View>
+      </Stack>
+    </PageContainer>
   );
 }
