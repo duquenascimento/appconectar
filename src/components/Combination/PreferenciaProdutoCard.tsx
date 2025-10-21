@@ -1,21 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
-import { YStack, XStack, Input, Button, Text, Separator } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
-import { DropdownCampo } from './DropdownCampo';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
-import { Product, SupplierData } from '../../types/types';
-import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
-import { updatePreferencia } from '../../utils/preferenciaUtils';
+import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { loadRestaurants } from '@/src/services/restaurantService';
+import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
+import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
+import { SupplierData } from '../../types/types';
+import { updatePreferencia } from '../../utils/preferenciaUtils';
+import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
+import { DropdownCampo } from './DropdownCampo';
 
 type Props = {
   index: number;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
+  triggerValidation?: boolean;
 };
 
 const tipoProdutoItems = [
@@ -23,7 +25,7 @@ const tipoProdutoItems = [
   { label: 'Remover produtos por fornecedor', value: 'remover' },
 ];
 
-export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }: Props) {
+export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, triggerValidation }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
   const { suppliers, unavailableSupplier } = useSupplier();
@@ -31,6 +33,10 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
   const [busca, setBusca] = useState('');
   const [sugestoes, setSugestoes] = useState<any[]>([]);
+  const [produtosValidationError, setProdutosValidationError] = useState<string>('');
+  const [fornecedoresValidationError, setFornecedoresValidationError] = useState<string>('');
+  const [produtosTouched, setProdutosTouched] = useState(false);
+  const [fornecedoresTouched, setFornecedoresTouched] = useState(false);
 
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
   const [availableClasses, setAvailableClasses] = useState<Classe[]>([]);
@@ -83,6 +89,30 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     ).values(),
   );
 
+  const validateProducts = async () => {
+    console.log('Validating products: ', preferencia.produtos);
+
+    try {
+      await preferenciaProdutoSchema.validateAt('produtos', preferencia.produtos);
+      setProdutosValidationError('');
+      setProdutosTouched(true);
+    } catch (err: any) {
+      setProdutosValidationError(err.message || 'Erro de validação');
+    }
+  };
+
+  const validateFornecedores = async () => {
+    console.log('Validating suppliers: ', preferencia.fornecedores);
+
+    try {
+      await preferenciaProdutoSchema.validateAt('fornecedores', preferencia.fornecedores);
+      setFornecedoresValidationError('');
+      setFornecedoresTouched(true);
+    } catch (err: any) {
+      setFornecedoresValidationError(err.message || 'Erro de validação');
+    }
+  };
+
   const atualizarCampoLocal = (key: keyof typeof preferencia, value: any) => {
     const novaCombinacao = updatePreferencia(combinacao, index, {
       ...preferencia,
@@ -93,34 +123,34 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
 
   const atualizarFornecedoresPreferencia = (fornecedores: string[]) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
-    const produtosAtualizados = novasPreferencias[index].produtos.map((produto) => ({
-      ...produto,
-      fornecedores: fornecedores,
-    }));
-
-    novasPreferencias[index].produtos = produtosAtualizados;
+    novasPreferencias[index].fornecedores = fornecedores;
     updateCampo('preferencias', novasPreferencias);
+    setFornecedoresTouched(true);
+    setTimeout(() => validateFornecedores(), 0);
   };
 
   const atualizarAcaoNaFalhaPreferencia = (acao_na_falha: string) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
-    const produtosAtualizados = novasPreferencias[index].produtos.map((produto) => ({
+    const produtosAtualizados = novasPreferencias[index].produtos.filter(
+      (p) => !(p.produto_sku && p.classe),
+    ).map((produto) => ({
       ...produto,
-      acao_na_falha: acao_na_falha,
+      acao_na_falha: acao_na_falha as AcaoNaFalha,
     }));
 
     novasPreferencias[index].produtos = produtosAtualizados;
     updateCampo('preferencias', novasPreferencias);
   };
 
-  const fornecedoresComuns = useMemo(() => {
-    if (preferencia.produtos.length === 0) return [];
-    const fornecedoresUnicos = Array.from(
-      new Set(preferencia.produtos.flatMap((p) => p.fornecedores)),
-    );
+  // const fornecedoresSelecionados = useMemo(() => {
+  //   // console.log('Preferência fornecedores: ', preferencia.fornecedores);
+  //   // if (!preferencia.fornecedores || preferencia.fornecedores.length === 0) return [];
+  //   // const fornecedoresUnicos = Array.from(new Set(preferencia.fornecedores));
 
-    return fornecedoresUnicos;
-  }, [preferencia.produtos]);
+  //   // return fornecedoresUnicos;
+
+  //   return preferencia.fornecedores ?? [];
+  // }, [preferencia.fornecedores]);
 
   const acaoNaFalhaComum = useMemo(() => {
     if (preferencia.produtos.length === 0) return 'ignorar';
@@ -138,7 +168,6 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     const novoProduto = {
       produto_sku: itemSelecionado.sku ?? undefined,
       classe: itemSelecionado.nome ?? undefined,
-      fornecedores: fornecedoresComuns,
       acao_na_falha: AcaoNaFalha.IGNORAR,
     };
 
@@ -150,6 +179,8 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
       produtos.push(novoProduto);
       novasPreferencias[index].produtos = produtos;
       updateCampo('preferencias', novasPreferencias);
+      setProdutosTouched(true);
+      validateProducts();
     }
 
     setBusca('');
@@ -162,6 +193,9 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
       (p) => !(p.produto_sku === produto.produto_sku && p.classe === produto.classe),
     );
     updateCampo('preferencias', novasPreferencias);
+    setProdutosTouched(true);
+    // Validate after state update
+    setTimeout(() => validateProducts(), 0);
   };
 
   const fornecedoresDisponiveis = useMemo(() => {
@@ -170,7 +204,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
       ...(unavailableSupplier ?? []),
     ];
 
-    return todosFornecedores
+    const fornecedoresLocal = todosFornecedores
       .map((f) => ({
         id: f.supplier?.externalId ?? null,
         nome: f.supplier?.name ?? '',
@@ -181,6 +215,10 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
         label: f.nome,
         value: f.id!,
       }));
+      
+      console.log('Fornecedores disponíveis: ', fornecedoresLocal);
+
+      return fornecedoresLocal;
   }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
 
   useEffect(() => {
@@ -196,8 +234,29 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
     );
     const matchesClasse = availableClasses.filter((c) => c.nome.toLowerCase().includes(termo));
 
-    setSugestoes([...matchesProduto, ...matchesClasse].slice(0, 5));
+    const sugestoesLocal = [...matchesProduto, ...matchesClasse].slice(0, 5);
+
+    console.log('Sugestões: ', sugestoesLocal);
+
+    setSugestoes(sugestoesLocal);
   }, [busca, availableProducts, availableClasses]);
+
+  useEffect(() => {
+    validateProducts();
+  }, [preferencia.produtos]);
+
+  useEffect(() => {
+    validateProducts();
+  }, [preferencia.fornecedores]);
+
+  useEffect(() => {
+    if (triggerValidation) {
+      setProdutosTouched(true);
+      setFornecedoresTouched(true);
+      validateProducts();
+      validateFornecedores();
+    }
+  }, [triggerValidation]);
 
   return (
     <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
@@ -312,14 +371,26 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove }
         </XStack>
       )}
 
+      {produtosTouched && produtosValidationError && (
+        <Text padding="$1" color="red">
+          {produtosValidationError}
+        </Text>
+      )}
+
       <ContainerSelecaoItemsComFornecedor
         label="Com fornecedor(es)"
         items={fornecedoresDisponiveis}
-        value={fornecedoresComuns}
+        value={preferencia.fornecedores}
         onChange={atualizarFornecedoresPreferencia}
         schemaPath={`preferencias[${index}].fornecedores`}
         zIndex={30000}
       />
+
+      {fornecedoresTouched && fornecedoresValidationError && (
+        <Text padding="$1" color="red" marginTop="$-2">
+          {fornecedoresValidationError}
+        </Text>
+      )}
 
       <DropdownCampo
         campo={`preferencias[${index}].acao_na_falha`}

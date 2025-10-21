@@ -34,6 +34,7 @@ export const Combination: React.FC = () => {
   const [alertTitle, setAlertTitle] = useState('');
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [triggerValidation, setTriggerValidation] = useState(false);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -170,6 +171,7 @@ export const Combination: React.FC = () => {
   const handleSaveCombination = async () => {
     try {
       setValidationErrors({});
+      setTriggerValidation(true);
 
       const combinacaoParaValidar = {
         ...combinacao,
@@ -185,9 +187,12 @@ export const Combination: React.FC = () => {
           ),
       };
 
-      const validacao = await combinacaoValidationSchema.validate(combinacaoParaValidar, {
+      await combinacaoValidationSchema.validate(combinacaoParaValidar, {
         abortEarly: false,
       });
+
+      // Reset trigger validation after a short delay
+      setTimeout(() => setTriggerValidation(false), 100);
 
       // Enviar a combinação filtrada para o backend
       if (id) {
@@ -196,6 +201,9 @@ export const Combination: React.FC = () => {
         await createCombination(combinacaoParaValidar); // Passe a combinação filtrada
       }
     } catch (validationErrors) {
+      // Reset trigger validation even on error
+      setTimeout(() => setTriggerValidation(false), 100);
+      
       if (validationErrors instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {};
         validationErrors.inner.forEach((err) => {
@@ -300,6 +308,7 @@ export const Combination: React.FC = () => {
             <ContainerPreferenciasProduto
               error={validationErrors.preferencias}
               onClearErrors={clearPreferenceErrors}
+              triggerValidation={triggerValidation}
             />
           )}
         </YStack>

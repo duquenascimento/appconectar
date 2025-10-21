@@ -16,7 +16,6 @@ export enum TipoFornecedor {
 export interface ProdutoPreferencia {
   produto_sku?: string
   classe?: string
-  fornecedores: string[]
   acao_na_falha: AcaoNaFalha
 }
 
@@ -24,6 +23,7 @@ export interface PreferenciaProduto {
   ordem: number
   tipo: TipoProduto
   produtos: ProdutoPreferencia[]
+  fornecedores: string[]
 }
 
 export interface Combinacao {
