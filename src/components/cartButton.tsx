@@ -114,7 +114,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
         <div
           style={{
             position: 'absolute',
-            bottom: 65,
+            bottom: 75,
             left: 0,
             right: 0,
             display: cartSize <= 0 ? 'none' : 'flex',
@@ -190,7 +190,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, isScrolling, visibleProd
         style={[
           {
             position: 'absolute',
-            bottom: 65,
+            bottom: 75,
             left: 0,
             right: 0,
             alignItems: 'center',
