@@ -26,6 +26,7 @@ import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export interface Product {
   price: number;
@@ -250,7 +251,8 @@ export default function Prices() {
   const { modificado, setModificado } = useCombinacao();
   const router = useRouter();
 
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices, loadRestaurants } = useSupplier();
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
 
   useFocusEffect(() => {
     if (tab === 'plus' && modificado) {
@@ -385,6 +387,37 @@ export default function Prices() {
     } catch (error) {
       console.error('Erro ao parsear dados:', error);
       return null;
+    }
+  };
+
+  const handleTabChange = async (newTab: string) => {
+    try {
+      // Recarregar a lista de restaurantes para obter dados atualizados
+      const updatedRestaurants = await loadRestaurants();
+
+      // Encontrar o restaurante atualizado na lista
+      const currentRestaurantId = selectedRestaurant?.externalId || selectedRestaurant?.id;
+      const updatedRestaurant = updatedRestaurants.find(
+        (r: any) => r.externalId === currentRestaurantId || r.id === currentRestaurantId,
+      );
+
+      if (updatedRestaurant) {
+        // Atualizar o restaurante selecionado com os dados mais recentes
+        setSelectedRestaurant(updatedRestaurant);
+
+        // Se for Conectar+, verificar permissões atualizadas
+        if (newTab === 'plus' && updatedRestaurant.conectarPlusAuthorization) {
+          const permissionResult = await loadPermissionConectarPlus(updatedRestaurant.externalId);
+          setPermissionConectarPlus(permissionResult.authorized);
+        }
+      }
+
+      // Mudar para a aba selecionada
+      setTab(newTab);
+    } catch (error) {
+      console.error('Erro ao atualizar dados do restaurante:', error);
+      // Em caso de erro, apenas muda a aba sem atualizar os dados
+      setTab(newTab);
     }
   };
 
@@ -631,19 +664,15 @@ export default function Prices() {
   }
 
   return (
-    <PageContainer backgroundColor='white'>
-      <Stack
-        backgroundColor="#F9F9F9"
-        height="100%"
-        position="relative"
-      >
+    <PageContainer backgroundColor="white">
+      <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
         <View height={50} flex={1}>
           <View
-            alignItems= 'center' 
-            flexDirection='row' 
-            paddingVertical= '$2' 
-            gap= '$4' 
-            style={{width: Platform.OS === 'web' ? '70%' : '92%'}}
+            alignItems="center"
+            flexDirection="row"
+            paddingVertical="$2"
+            gap="$4"
+            style={{ width: Platform.OS === 'web' ? '70%' : '92%' }}
             marginHorizontal={'auto'}
           >
             <Icons
@@ -670,6 +699,7 @@ export default function Prices() {
               opacity={selectedRestaurant.premium ? 1 : 0.4}
               onPress={async () => {
                 await loadRestaurants();
+                await loadPrices();
                 setTab('plus');
               }}
               cursor="pointer"
@@ -689,6 +719,7 @@ export default function Prices() {
             <View
               onPress={async () => {
                 await loadRestaurants();
+                await loadPrices();
                 setTab('onlySupplier');
               }}
               cursor="pointer"
@@ -824,8 +855,8 @@ export default function Prices() {
                 borderWidth={1}
                 paddingHorizontal={10}
                 backgroundColor="white"
-                alignItems="center" 
-                overflow='hidden'
+                alignItems="center"
+                overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="storefront"></Icons>
                 <View marginLeft={20}></View>
@@ -848,8 +879,8 @@ export default function Prices() {
                 borderWidth={1}
                 paddingHorizontal={10}
                 backgroundColor="white"
-                alignItems="center" 
-                overflow='hidden'
+                alignItems="center"
+                overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="time"></Icons>
                 <View marginLeft={20}></View>
@@ -878,8 +909,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="location"></Icons>
                   <View marginLeft={20}></View>
@@ -902,12 +933,14 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                   <View marginLeft={20}></View>
-                  <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
+                  <Text fontSize={12}>
+                    {selectedRestaurant.addressInfos[0].deliveryInformation}
+                  </Text>
                 </View>
               </View>
               <View paddingTop={5} flexDirection="row" alignItems="center">
@@ -921,8 +954,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="person"></Icons>
                   <View marginLeft={20}></View>
@@ -940,8 +973,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="call"></Icons>
                   <View marginLeft={20}></View>
@@ -1848,7 +1881,10 @@ export default function Prices() {
                                           );
                                         } else if (onlyNums.length > 2) {
                                           // Formato parcial: (XX) XXXX
-                                          onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+                                          onlyNums = onlyNums.replace(
+                                            /(\d{2})(\d{0,4})/,
+                                            '($1) $2',
+                                          );
                                         } else if (onlyNums.length > 0) {
                                           // Formato parcial: (XX
                                           onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
@@ -2004,7 +2040,9 @@ export default function Prices() {
             onSelectAvailable={async () => {
               try {
                 // Encontrar um restaurante disponível
-                const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp);
+                const availableRestaurant = allRestaurants.find(
+                  (r) => !r.registrationReleasedNewApp,
+                );
 
                 if (availableRestaurant) {
                   // 1. Fechar o modal

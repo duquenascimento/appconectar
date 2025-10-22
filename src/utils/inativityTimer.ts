@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { AppState, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, usePathname } from 'expo-router';
 
 interface UseInactivityOptions {
   timeout?: number;
@@ -9,26 +9,26 @@ interface UseInactivityOptions {
 }
 
 export const useInactivityRedirect = (options: UseInactivityOptions = {}) => {
-  const {
-    timeout = 120000, // 2 minutos
-    redirectPath = '/products',
-    enabled = true,
-  } = options;
+  const { timeout = 120000, redirectPath = '/products', enabled = true } = options;
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
   const appStateRef = useRef<string>(AppState.currentState);
   const router = useRouter();
+  const pathname = usePathname();
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
 
   const resetTimer = useCallback(() => {
     if (!enabled) return;
 
     lastActivityRef.current = Date.now();
-
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-
+    clearTimer();
     timerRef.current = setTimeout(() => {
       const currentTime = Date.now();
       const timeDiff = currentTime - lastActivityRef.current;
@@ -40,12 +40,11 @@ export const useInactivityRedirect = (options: UseInactivityOptions = {}) => {
         router.push(redirectPath);
       }
     }, timeout);
-  }, [timeout, redirectPath, enabled, router]);
+  }, [timeout, redirectPath, enabled, router, clearTimer]);
 
   const handleAppStateChange = useCallback(
     (nextAppState: string) => {
       appStateRef.current = nextAppState;
-
       if (nextAppState === 'active') {
         resetTimer();
       }
@@ -76,9 +75,7 @@ export const useInactivityRedirect = (options: UseInactivityOptions = {}) => {
     resetTimer();
 
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      clearTimer();
 
       events.forEach((event) => {
         if (typeof document !== 'undefined') {
@@ -90,7 +87,11 @@ export const useInactivityRedirect = (options: UseInactivityOptions = {}) => {
         subscription.remove();
       }
     };
-  }, [resetTimer, handleAppStateChange, enabled]);
+  }, [resetTimer, handleAppStateChange, enabled, clearTimer]);
+
+  useEffect(() => {
+    clearTimer();
+  }, [pathname, clearTimer]);
 
   return { resetTimer };
 };

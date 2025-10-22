@@ -10,6 +10,7 @@ import { SupplierData } from '../../types/types';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { DropdownCampo } from './DropdownCampo';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 type Props = {
   index: number;
@@ -27,7 +28,8 @@ const tipoProdutoItems = [
 export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, triggerValidation }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
-  const { suppliers, unavailableSupplier, loadRestaurants } = useSupplier();
+  const { suppliers, unavailableSupplier } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const bloqueados = combinacao.fornecedores_bloqueados || [];
 
   const [busca, setBusca] = useState('');

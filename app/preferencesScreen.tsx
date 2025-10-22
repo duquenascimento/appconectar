@@ -22,6 +22,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export interface Combination {
   id: string;
@@ -54,7 +55,8 @@ const PreferencesScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao();
   const [combinationsFull, setCombinationsFull] = useState([]);
-  const { loadRestaurants, loadPrices } = useSupplier();
+  const { loadPrices } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
 
   useEffect(() => {
     const fetchStoredRestaurant = async () => {
@@ -129,7 +131,7 @@ const PreferencesScreen: React.FC = () => {
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`;
 
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <CustomAlert
         visible={isAlertVisible}
         title="Ops!"

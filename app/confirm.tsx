@@ -27,6 +27,7 @@ import { useInactivityRedirect } from '@/src/utils/inativityTimer';
 import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -220,7 +221,8 @@ export default function Confirm() {
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
-  const { loadRestaurants, loadPrices } = useSupplier();
+  const { loadPrices } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -240,7 +242,7 @@ export default function Confirm() {
   }, [loadingToConfirm]);
 
   useInactivityRedirect({
-    timeout: 120000,
+    timeout: 110000,
     redirectPath: '/prices',
     enabled: true,
   });
@@ -524,7 +526,7 @@ export default function Confirm() {
     supplier.supplier.discount.product.length - supplier.supplier.missingItens;
   const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
         <DialogInstance
           openModal={booleanErros}
@@ -549,18 +551,13 @@ export default function Confirm() {
           onConfirm={() => setIsAlertVisible(false)}
           width="80%"
         />
-        <View 
-          backgroundColor="white" 
-          flexDirection="row" 
-          style={{width: Platform.OS === 'web' ? '74%' : '90%'}}
+        <View
+          backgroundColor="white"
+          flexDirection="row"
+          style={{ width: Platform.OS === 'web' ? '74%' : '90%' }}
           marginHorizontal={'auto'}
         >
-          <View
-            alignItems= 'center' 
-            flexDirection='row' 
-            paddingVertical= '$4' 
-            gap= '$4' 
-          >
+          <View alignItems="center" flexDirection="row" paddingVertical="$4" gap="$4">
             <Icons
               size={30}
               name="chevron-back"
@@ -571,11 +568,7 @@ export default function Confirm() {
               }}
             ></Icons>
           </View>
-          <View
-            flexDirection="row"
-            marginLeft={10}
-            alignSelf="center"
-          >
+          <View flexDirection="row" marginLeft={10} alignSelf="center">
             <View justifyContent="center">
               <Image
                 source={{
@@ -676,7 +669,8 @@ export default function Confirm() {
                         <Text color="gray">
                           |{' '}
                           {item.priceUniqueWithTaxAndDiscount
-                            ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
+                            ? 'R$ ' +
+                              item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
                             : 'R$ ----'}
                           /{item.orderUnit.replace('Unid', 'Un')}
                         </Text>
@@ -806,8 +800,8 @@ export default function Confirm() {
                   {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
                   {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
                   {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()},{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
+                  {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()}
+                  , {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
                 </Text>
               </View>
             </View>
@@ -832,7 +826,10 @@ export default function Confirm() {
                     16,
                   )}{' '}
                   -{' '}
-                  {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
+                  {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(
+                    11,
+                    16,
+                  )}
                 </Text>
               </View>
             </View>
@@ -928,7 +925,7 @@ export default function Confirm() {
                   const errors = await scheduleNotification(
                     selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
                   );
-                  
+
                   setShowErros(errors);
                   if (errors.length) setBooleanErros(true);
                   else setShowNotification(true);
