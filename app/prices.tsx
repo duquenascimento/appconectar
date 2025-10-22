@@ -883,7 +883,7 @@ export default function Prices() {
                 >
                   <Icons size={20} color="#04BF7B" name="location"></Icons>
                   <View marginLeft={20}></View>
-                  <Text numberOfLines={1} overflow="scroll" ellipsizeMode="tail" fontSize={12}>
+                  <Text numberOfLines={1} textOverflow='ellipsis' ellipsizeMode="tail" fontSize={12}>
                     {selectedRestaurant.addressInfos[0].localType}{' '}
                     {selectedRestaurant.addressInfos[0].address},{' '}
                     {selectedRestaurant.addressInfos[0].localNumber}.{' '}
@@ -975,7 +975,7 @@ export default function Prices() {
                       paddingTop={15}
                       minWidth={Platform.OS === 'web' ? '40%' : '90%'}
                       backgroundColor="white"
-                      borderRadius={10}
+                      borderRadius={Platform.OS === 'web' ? 10 : 0}
                       justifyContent="center"
                       zIndex={101}
                     >
@@ -1089,7 +1089,6 @@ export default function Prices() {
                                 marginBottom: 5,
                               }}
                             >
-                              {/* Campo CEP */}
                               <View width={150}>
                                 <Text
                                   style={{
@@ -1106,6 +1105,14 @@ export default function Prices() {
                                   backgroundColor="white"
                                   borderColor="lightgray"
                                   borderRadius={5}
+                                  focusStyle={{
+                                    borderColor: '#049A63',
+                                    borderWidth: 1,
+                                  }}
+                                  hoverStyle={{
+                                    borderColor: '#049A63',
+                                    borderWidth: 1,
+                                  }}
                                   onChangeText={async (value) => {
                                     const cleaned = value.replace(/\D/g, '');
                                     const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
@@ -1192,7 +1199,6 @@ export default function Prices() {
                           <View
                             flexDirection="row"
                             marginTop={10}
-                            gap={Platform.OS === 'web' ? 10 : 50}
                           >
                             <View flex={1}>
                               <Text
@@ -1568,8 +1574,8 @@ export default function Prices() {
                                   flexDirection: 'row',
                                   flexWrap: 'wrap',
                                 }}
+                                gap={10}
                               >
-                                {/* Campo CEP */}
                                 <View width={150}>
                                   <Text
                                     style={{
@@ -1586,6 +1592,14 @@ export default function Prices() {
                                     backgroundColor="white"
                                     borderColor="lightgray"
                                     borderRadius={5}
+                                    focusStyle={{
+                                      borderColor: '#049A63',
+                                      borderWidth: 1,
+                                    }}
+                                    hoverStyle={{
+                                      borderColor: '#049A63',
+                                      borderWidth: 1,
+                                    }}
                                     onChangeText={async (value) => {
                                       const cleaned = value.replace(/\D/g, '');
                                       const formatted = cleaned.replace(/(\d{5})(\d{3})/, '$1-$2');
@@ -1619,98 +1633,97 @@ export default function Prices() {
                                 </View>
 
                                 <View style={{ flex: 1 }}>
-                                  <Text paddingLeft={5} fontSize={12} color="gray">
+                                  <Text paddingTop={10} paddingLeft={5} fontSize={12} color="gray">
                                     Cidade
                                   </Text>
                                   <Input
                                     marginBottom={10}
+                                    marginRight={1}
                                     color="gray"
-                                    fontSize={9}
-                                    disabled
                                     flex={1}
+                                    disabled
                                     backgroundColor="white"
                                     borderColor="lightgray"
+                                    borderWidth={1}
                                     borderRadius={5}
                                     value={city}
                                     focusStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1,
                                     }}
                                     hoverStyle={{
                                       borderColor: '#049A63',
-                                      borderWidth: 1,
                                     }}
                                   />
                                 </View>
-                                <View>
-                                  <Text paddingLeft={5} fontSize={12} color="gray">
-                                    Bairro
-                                  </Text>
-                                  <Input
-                                    marginBottom={10}
-                                    color="gray"
-                                    fontSize={12}
-                                    disabled
-                                    backgroundColor="white"
-                                    borderColor="lightgray"
-                                    borderRadius={5}
-                                    value={neighborhood}
-                                    focusStyle={{
-                                      borderColor: '#049A63',
-                                      borderWidth: 1,
-                                    }}
-                                    hoverStyle={{
-                                      borderColor: '#049A63',
-                                      borderWidth: 1,
-                                    }}
-                                  />
-                                </View>
-                                <View
-                                  style={{
-                                    flexDirection: 'row',
-                                    flexWrap: 'wrap',
-                                    gap: 10,
-                                    marginBottom: 5,
+                              </View>
+
+                              <View>
+                                <Text paddingLeft={5} fontSize={12} color="gray">
+                                  Bairro
+                                </Text>
+                                <Input
+                                  marginBottom={10}
+                                  marginRight={1}
+                                  color="gray"
+                                  disabled
+                                  backgroundColor="white"
+                                  borderColor="lightgray"
+                                  borderRadius={5}
+                                  value={neighborhood}
+                                  focusStyle={{
+                                    borderColor: '#049A63',
+                                    borderWidth: 1,
                                   }}
-                                >
-                                  <View flex={1}>
-                                    <Text
-                                      style={{
-                                        paddingLeft: 5,
-                                        fontSize: 12,
-                                        color: 'gray',
+                                  hoverStyle={{
+                                    borderColor: '#049A63',
+                                    borderWidth: 1,
+                                  }}
+                                />
+                              </View>
+                              <View
+                                style={{
+                                  flexDirection: 'row',
+                                  flexWrap: 'wrap',
+                                  gap: 10,
+                                  marginBottom: 5,
+                                }}
+                              >
+                                <View flex={1}>
+                                  <Text
+                                    style={{
+                                      paddingLeft: 5,
+                                      fontSize: 12,
+                                      color: 'gray',
+                                    }}
+                                  >
+                                    Rua
+                                  </Text>
+                                  <KeyboardAvoidingView>
+                                    <Input
+                                      onChangeText={(value) => {
+                                        const formattedValue = value.replace(/[^A-Za-z\s]/g, ''); // mantém só letras e espaço
+                                        const parts = formattedValue.trim().split(' ');
+                                        const localType = parts[0]?.toUpperCase() || '';
+                                        const streetName = parts.slice(1).join(' ');
+                                        setLocalType(localType);
+                                        setStreet(streetName);
+                                        setStreetComplete(formattedValue); // usado para exibir no campo
                                       }}
-                                    >
-                                      Rua
-                                    </Text>
-                                    <KeyboardAvoidingView>
-                                      <Input
-                                        onChangeText={(value) => {
-                                          const formattedValue = value.replace(/[^A-Za-z\s]/g, ''); // mantém só letras e espaço
-                                          const parts = formattedValue.trim().split(' ');
-                                          const localType = parts[0]?.toUpperCase() || '';
-                                          const streetName = parts.slice(1).join(' ');
-                                          setLocalType(localType);
-                                          setStreet(streetName);
-                                          setStreetComplete(formattedValue); // usado para exibir no campo
-                                        }}
-                                        backgroundColor="white"
-                                        borderColor="lightgray"
-                                        borderRadius={5}
-                                        borderTopLeftRadius={0}
-                                        borderBottomLeftRadius={0}
-                                        value={streetComplete}
-                                        focusStyle={{
-                                          borderColor: '#049A63',
-                                          borderWidth: 1,
-                                        }}
-                                        hoverStyle={{
-                                          borderColor: '#049A63',
-                                          borderWidth: 1,
-                                        }}
-                                      />
-                                    </KeyboardAvoidingView>
-                                  </View>
+                                      backgroundColor="white"
+                                      marginRight={1}
+                                      borderColor="lightgray"
+                                      borderRadius={5}
+                                      value={streetComplete}
+                                      focusStyle={{
+                                        borderColor: '#049A63',
+                                        borderWidth: 1,
+                                      }}
+                                      hoverStyle={{
+                                        borderColor: '#049A63',
+                                        borderWidth: 1,
+                                      }}
+                                    />
+                                  </KeyboardAvoidingView>
                                 </View>
                               </View>
 
