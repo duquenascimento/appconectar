@@ -18,6 +18,7 @@ import CustomAlert from '@/src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { router } from 'expo-router';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export interface SuplierCombination {
   id: string;
@@ -37,7 +38,8 @@ export const Combination: React.FC = () => {
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [triggerValidation, setTriggerValidation] = useState(false);
-  const { loadRestaurants, loadPrices } = useSupplier();
+  const { loadPrices } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
 
   useEffect(() => {
     const carregarCombinacao = async () => {

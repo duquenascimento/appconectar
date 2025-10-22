@@ -26,6 +26,7 @@ import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export interface Product {
   price: number;
@@ -250,7 +251,8 @@ export default function Prices() {
   const { modificado, setModificado } = useCombinacao();
   const router = useRouter();
 
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices, loadRestaurants } = useSupplier();
+  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
 
   useFocusEffect(() => {
     if (tab === 'plus' && modificado) {
@@ -613,37 +615,28 @@ export default function Prices() {
     );
   }
 
-  if (loading || loadingSuppliers) {
+  if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-        {loadingSuppliers ? (
-          <>
-            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-              Carregando lista de fornecedores. Por favor Aguarde...
-            </Text>
-          </>
-        ) : (
-          ''
-        )}
+      <View
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <ActivityIndicator size="large" color="#04BF7B"  />
       </View>
     );
   }
 
   return (
-    <PageContainer backgroundColor='white'>
-      <Stack
-        backgroundColor="#F9F9F9"
-        height="100%"
-        position="relative"
-      >
+    <PageContainer backgroundColor="white">
+      <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
         <View height={50} flex={1}>
           <View
-            alignItems= 'center' 
-            flexDirection='row' 
-            paddingVertical= '$2' 
-            gap= '$4' 
-            style={{width: Platform.OS === 'web' ? '70%' : '92%'}}
+            alignItems="center"
+            flexDirection="row"
+            paddingVertical="$2"
+            gap="$4"
+            style={{ width: Platform.OS === 'web' ? '70%' : '92%' }}
             marginHorizontal={'auto'}
           >
             <Icons
@@ -669,8 +662,17 @@ export default function Prices() {
               disabled={!selectedRestaurant.premium}
               opacity={selectedRestaurant.premium ? 1 : 0.4}
               onPress={async () => {
-                await loadRestaurants();
-                setTab('plus');
+                if (!selectedRestaurant.premium || loading) return;
+                try {
+                  setLoading(true);
+                  await loadRestaurants();
+                  await loadPrices();
+                  setTab('plus');
+                } catch (err) {
+                  console.error(err);
+                } finally {
+                  setLoading(false);
+                }
               }}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
@@ -688,8 +690,17 @@ export default function Prices() {
             </View>
             <View
               onPress={async () => {
-                await loadRestaurants();
-                setTab('onlySupplier');
+                if (loading) return;
+                try {
+                  setLoading(true);
+                  await loadRestaurants();
+                  await loadPrices();
+                  setTab('onlySupplier');
+                } catch (err) {
+                  console.error(err);
+                } finally {
+                  setLoading(false);
+                }
               }}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
@@ -780,11 +791,15 @@ export default function Prices() {
           {tab !== 'onlySupplier' && permissionConectarPlus && (
             <CustomButton
               title="Minhas combinações"
-              onPress={() => router.push('/preferencesScreen')}
+              onPress={async () => {
+                await loadRestaurants();
+                await loadPrices();
+                router.push('/preferencesScreen');
+              }}
             ></CustomButton>
           )}
           <View
-            onPress={() => {
+            onPress={async () => {
               setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
               setCity(selectedRestaurant.addressInfos[0].city);
               setLocalType(selectedRestaurant.addressInfos[0].localType);
@@ -824,8 +839,8 @@ export default function Prices() {
                 borderWidth={1}
                 paddingHorizontal={10}
                 backgroundColor="white"
-                alignItems="center" 
-                overflow='hidden'
+                alignItems="center"
+                overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="storefront"></Icons>
                 <View marginLeft={20}></View>
@@ -848,8 +863,8 @@ export default function Prices() {
                 borderWidth={1}
                 paddingHorizontal={10}
                 backgroundColor="white"
-                alignItems="center" 
-                overflow='hidden'
+                alignItems="center"
+                overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="time"></Icons>
                 <View marginLeft={20}></View>
@@ -860,8 +875,17 @@ export default function Prices() {
               </View>
               <Icons
                 size={20}
-                onPress={() => {
-                  setShowRestInfo(!showRestInfo);
+                onPress={async () => {
+                  try {
+                    setLoading(true);
+                    await loadRestaurants();
+                    await loadPrices();
+                    setShowRestInfo(!showRestInfo);
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
                 name={showRestInfo ? 'chevron-up' : 'chevron-down'}
               ></Icons>
@@ -878,8 +902,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="location"></Icons>
                   <View marginLeft={20}></View>
@@ -902,12 +926,14 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                   <View marginLeft={20}></View>
-                  <Text fontSize={12}>{selectedRestaurant.addressInfos[0].deliveryInformation}</Text>
+                  <Text fontSize={12}>
+                    {selectedRestaurant.addressInfos[0].deliveryInformation}
+                  </Text>
                 </View>
               </View>
               <View paddingTop={5} flexDirection="row" alignItems="center">
@@ -921,8 +947,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="person"></Icons>
                   <View marginLeft={20}></View>
@@ -940,8 +966,8 @@ export default function Prices() {
                   borderWidth={1}
                   paddingHorizontal={10}
                   backgroundColor="white"
-                  alignItems="center" 
-                  overflow='hidden'
+                  alignItems="center"
+                  overflow="hidden"
                 >
                   <Icons size={20} color="#04BF7B" name="call"></Icons>
                   <View marginLeft={20}></View>
@@ -1861,7 +1887,10 @@ export default function Prices() {
                                           );
                                         } else if (onlyNums.length > 2) {
                                           // Formato parcial: (XX) XXXX
-                                          onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+                                          onlyNums = onlyNums.replace(
+                                            /(\d{2})(\d{0,4})/,
+                                            '($1) $2',
+                                          );
                                         } else if (onlyNums.length > 0) {
                                           // Formato parcial: (XX
                                           onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
@@ -1920,9 +1949,18 @@ export default function Prices() {
                         flexDirection="row"
                       >
                         <Button
-                          onPress={() => {
-                            setEditInfos(false);
-                            setDraftSelectedRestaurant(null);
+                          onPress={async () => {
+                            try {
+                              setLoading(true);
+                              await loadRestaurants();
+                              await loadPrices();
+                              setEditInfos(false);
+                              setDraftSelectedRestaurant(null);
+                            } catch (err) {
+                              console.error(err);
+                            } finally {
+                              setLoading(false);
+                            }
                           }}
                           backgroundColor="black"
                           flex={1}
@@ -1981,6 +2019,15 @@ export default function Prices() {
                                 method: 'POST',
                               }),
                             ]);
+                            try {
+                              setLoading(true);
+                              await loadRestaurants();
+                              await loadPrices();
+                            } catch (err) {
+                              console.error(err);
+                            } finally {
+                              setLoading(false);
+                            }
                           }}
                           backgroundColor="#04BF7B"
                           flex={1}
@@ -2017,7 +2064,9 @@ export default function Prices() {
             onSelectAvailable={async () => {
               try {
                 // Encontrar um restaurante disponível
-                const availableRestaurant = allRestaurants.find((r) => !r.registrationReleasedNewApp);
+                const availableRestaurant = allRestaurants.find(
+                  (r) => !r.registrationReleasedNewApp,
+                );
 
                 if (availableRestaurant) {
                   // 1. Fechar o modal

@@ -14,6 +14,7 @@ import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 interface Order {
   orderDocument: ReactNode;
@@ -55,7 +56,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
-  const { loadRestaurants } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {

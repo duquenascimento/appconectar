@@ -18,6 +18,7 @@ import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 type RootStackParamList = {
   Home: undefined;
@@ -384,7 +385,7 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
-  const { loadRestaurants } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {
