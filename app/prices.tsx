@@ -811,11 +811,15 @@ export default function Prices() {
           {tab !== 'onlySupplier' && permissionConectarPlus && (
             <CustomButton
               title="Minhas combinações"
-              onPress={() => router.push('/preferencesScreen')}
+              onPress={async () => {
+                await loadRestaurants();
+                await loadPrices();
+                router.push('/preferencesScreen');
+              }}
             ></CustomButton>
           )}
           <View
-            onPress={() => {
+            onPress={async () => {
               setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
               setCity(selectedRestaurant.addressInfos[0].city);
               setLocalType(selectedRestaurant.addressInfos[0].localType);
@@ -834,6 +838,12 @@ export default function Prices() {
               setStreet(selectedRestaurant.addressInfos[0].address);
               setComplement(selectedRestaurant.addressInfos[0].complement);
               setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
+              try {
+                await loadRestaurants();
+                await loadPrices();
+              } catch (error) {
+                console.error('Erro ao carregar dados:', error);
+              }
               setEditInfos(true);
             }}
             backgroundColor="white"
@@ -891,7 +901,9 @@ export default function Prices() {
               </View>
               <Icons
                 size={20}
-                onPress={() => {
+                onPress={async () => {
+                  await loadRestaurants();
+                  await loadPrices();
                   setShowRestInfo(!showRestInfo);
                 }}
                 name={showRestInfo ? 'chevron-up' : 'chevron-down'}
@@ -2004,6 +2016,12 @@ export default function Prices() {
                                 method: 'POST',
                               }),
                             ]);
+                            try {
+                              await loadRestaurants();
+                              await loadPrices();
+                            } catch (error) {
+                              console.error('Erro ao carregar dados:', error);
+                            }
                           }}
                           backgroundColor="#04BF7B"
                           flex={1}
