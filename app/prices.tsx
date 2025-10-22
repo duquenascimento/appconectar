@@ -972,8 +972,8 @@ export default function Prices() {
                     <View
                       paddingBottom={15}
                       paddingHorizontal={15}
-                      paddingTop={15}
-                      minWidth={Platform.OS === 'web' ? '40%' : '90%'}
+                      paddingTop={40}
+                      minWidth={Platform.OS === 'web' ? '40%' : '100%'}
                       backgroundColor="white"
                       borderRadius={Platform.OS === 'web' ? 10 : 0}
                       justifyContent="center"
