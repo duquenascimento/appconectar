@@ -390,37 +390,6 @@ export default function Prices() {
     }
   };
 
-  const handleTabChange = async (newTab: string) => {
-    try {
-      // Recarregar a lista de restaurantes para obter dados atualizados
-      const updatedRestaurants = await loadRestaurants();
-
-      // Encontrar o restaurante atualizado na lista
-      const currentRestaurantId = selectedRestaurant?.externalId || selectedRestaurant?.id;
-      const updatedRestaurant = updatedRestaurants.find(
-        (r: any) => r.externalId === currentRestaurantId || r.id === currentRestaurantId,
-      );
-
-      if (updatedRestaurant) {
-        // Atualizar o restaurante selecionado com os dados mais recentes
-        setSelectedRestaurant(updatedRestaurant);
-
-        // Se for Conectar+, verificar permissões atualizadas
-        if (newTab === 'plus' && updatedRestaurant.conectarPlusAuthorization) {
-          const permissionResult = await loadPermissionConectarPlus(updatedRestaurant.externalId);
-          setPermissionConectarPlus(permissionResult.authorized);
-        }
-      }
-
-      // Mudar para a aba selecionada
-      setTab(newTab);
-    } catch (error) {
-      console.error('Erro ao atualizar dados do restaurante:', error);
-      // Em caso de erro, apenas muda a aba sem atualizar os dados
-      setTab(newTab);
-    }
-  };
-
   useEffect(() => {
     const loadPricesAsync = async () => {
       try {
@@ -838,12 +807,6 @@ export default function Prices() {
               setStreet(selectedRestaurant.addressInfos[0].address);
               setComplement(selectedRestaurant.addressInfos[0].complement);
               setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
-              try {
-                await loadRestaurants();
-                await loadPrices();
-              } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-              }
               setEditInfos(true);
             }}
             backgroundColor="white"
@@ -1955,7 +1918,9 @@ export default function Prices() {
                         flexDirection="row"
                       >
                         <Button
-                          onPress={() => {
+                          onPress={async () => {
+                            await loadRestaurants();
+                            await loadPrices();
                             setEditInfos(false);
                             setDraftSelectedRestaurant(null);
                           }}
