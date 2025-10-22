@@ -716,7 +716,8 @@ export default function Products() {
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(false);
+      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
+      // setLoading(false);
 
       return () => {};
     }, []),
@@ -748,9 +749,9 @@ export default function Products() {
     runCheck();
   }, []);
 
-  // useEffect(() => {
-  //   SaveUserAppInfo();
-  // }, []);
+  useEffect(() => {
+    SaveUserAppInfo();
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -1364,9 +1365,9 @@ export default function Products() {
     }
   }
 
-  if (loading || !selectedRestaurant) {
+  if (loading) {
     return (
-      <PageContainer backgroundColor='white'>
+      <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
         </View>
@@ -1375,7 +1376,7 @@ export default function Products() {
   }
 
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <DialogComercialInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
