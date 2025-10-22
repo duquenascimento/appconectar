@@ -85,8 +85,8 @@ export function ContainerPreferenciasProduto({
     <YStack gap="$4" mt="$4">
       <TwoButtonCustomAlert
         visible={showModal}
-        title={'Tem certeza de que quer realizar esta ação?'}
-        message={'Ao fazer isto, as preferências de produto serão removidas'}
+        title="Tem certeza de que quer realizar esta ação?"
+        message="Ao fazer isto, as preferências de produto serão removidas"
         onConfirm={resetPreferencias}
         onCancel={() => setShowModal(false)}
       />
@@ -110,7 +110,7 @@ export function ContainerPreferenciasProduto({
       <Separator />
 
       {error && (
-        <Text p={'$1'} color="red">
+        <Text p="$1" color="red">
           {error}
         </Text>
       )}

@@ -1,4 +1,3 @@
-import { type SupplierData } from './prices';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -12,16 +11,17 @@ import {
   Sheet,
   Adapt,
 } from 'tamagui';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Platform } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from 'luxon';
-import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { useRouter } from 'expo-router';
+import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { validateAddress } from '../src/utils/validateAddress';
-import { useRouter } from 'expo-router';
+import { type SupplierData } from './prices';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
 import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
@@ -229,9 +229,8 @@ export default function Confirm() {
         setDots((prevDots) => {
           if (prevDots.length === 3) {
             return '';
-          } else {
-            return prevDots + '.';
           }
+          return `${prevDots}.`;
         });
       }, 500);
 
@@ -364,11 +363,11 @@ export default function Confirm() {
       const day = date.getDate();
       if (day < day1) {
         return new Date(date.getFullYear(), date.getMonth(), day1);
-      } else if (day < day2) {
-        return new Date(date.getFullYear(), date.getMonth(), day2);
-      } else {
-        return new Date(date.getFullYear(), date.getMonth() + 1, day1);
       }
+      if (day < day2) {
+        return new Date(date.getFullYear(), date.getMonth(), day2);
+      }
+      return new Date(date.getFullYear(), date.getMonth() + 1, day1);
     };
 
     const calculateNextMonthly = (date: Date, day: number): Date => {
@@ -524,7 +523,7 @@ export default function Confirm() {
     supplier.supplier.discount.product.length - supplier.supplier.missingItens;
   const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
         <DialogInstance
           openModal={booleanErros}
@@ -549,18 +548,13 @@ export default function Confirm() {
           onConfirm={() => setIsAlertVisible(false)}
           width="80%"
         />
-        <View 
-          backgroundColor="white" 
-          flexDirection="row" 
-          style={{width: Platform.OS === 'web' ? '74%' : '90%'}}
-          marginHorizontal={'auto'}
+        <View
+          backgroundColor="white"
+          flexDirection="row"
+          style={{ width: Platform.OS === 'web' ? '74%' : '90%' }}
+          marginHorizontal="auto"
         >
-          <View
-            alignItems= 'center' 
-            flexDirection='row' 
-            paddingVertical= '$4' 
-            gap= '$4' 
-          >
+          <View alignItems="center" flexDirection="row" paddingVertical="$4" gap="$4">
             <Icons
               size={30}
               name="chevron-back"
@@ -569,13 +563,9 @@ export default function Confirm() {
                 deleteStorage('supplierSelected');
                 router.push('/prices');
               }}
-            ></Icons>
+            />
           </View>
-          <View
-            flexDirection="row"
-            marginLeft={10}
-            alignSelf="center"
-          >
+          <View flexDirection="row" marginLeft={10} alignSelf="center">
             <View justifyContent="center">
               <Image
                 source={{
@@ -589,7 +579,7 @@ export default function Confirm() {
             <View marginLeft={10} justifyContent="center">
               <Text fontSize={16}>{supplier?.supplier.name}</Text>
               <View flexDirection="row" alignItems="center">
-                <Icons color="orange" name="star"></Icons>
+                <Icons color="orange" name="star" />
                 <Text color="gray" paddingLeft={4}>
                   {supplier?.supplier.star}
                 </Text>
@@ -610,8 +600,8 @@ export default function Confirm() {
               flexDirection="row"
               borderWidth={0.5}
             >
-              <Icons color="gray" size={24} name="warning" style={{ paddingLeft: 5 }}></Icons>
-              {/*// modified add*/}
+              <Icons color="gray" size={24} name="warning" style={{ paddingLeft: 5 }} />
+              {/* // modified add */}
               <Text
                 color="gray"
                 marginLeft={5}
@@ -649,7 +639,7 @@ export default function Confirm() {
                   <View flexDirection="row" alignItems="center">
                     <View flex={1} flexDirection="row" alignItems="center">
                       <View padding={5}>
-                        <Image source={{ uri: item.image[0], width: 50, height: 50 }}></Image>
+                        <Image source={{ uri: item.image[0], width: 50, height: 50 }} />
                       </View>
                       <View maxWidth={150}>
                         <Text>{item.name}</Text>
@@ -666,7 +656,7 @@ export default function Confirm() {
                         fontSize={16}
                       >
                         {item.price
-                          ? 'R$ ' + item.price.toFixed(2).replace('.', ',')
+                          ? `R$ ${item.price.toFixed(2).replace('.', ',')}`
                           : 'Indisponível'}
                       </Text>
                       <View alignSelf="flex-end" flexDirection="row" alignItems="center">
@@ -676,7 +666,7 @@ export default function Confirm() {
                         <Text color="gray">
                           |{' '}
                           {item.priceUniqueWithTaxAndDiscount
-                            ? 'R$ ' + item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
+                            ? `R$ ${item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')}`
                             : 'R$ ----'}
                           /{item.orderUnit.replace('Unid', 'Un')}
                         </Text>
@@ -740,7 +730,7 @@ export default function Confirm() {
                 faltante(s)
               </Text>
             </View>
-            <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
+            <View marginVertical={20} borderWidth={0.5} borderColor="lightgray" />
             <View
               style={{
                 flexDirection: 'row',
@@ -775,7 +765,7 @@ export default function Confirm() {
                 {getPaymentDate(selectedRestaurant.restaurant.paymentWay)}
               </Text>
             </View>
-            <View marginVertical={20} borderWidth={0.5} borderColor="lightgray"></View>
+            <View marginVertical={20} borderWidth={0.5} borderColor="lightgray" />
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante:</Text>
               <View
@@ -806,8 +796,8 @@ export default function Confirm() {
                   {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
                   {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
                   {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()},{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
+                  {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()}
+                  , {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
                 </Text>
               </View>
             </View>
@@ -832,7 +822,10 @@ export default function Confirm() {
                     16,
                   )}{' '}
                   -{' '}
-                  {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
+                  {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(
+                    11,
+                    16,
+                  )}
                 </Text>
               </View>
             </View>
@@ -928,7 +921,7 @@ export default function Confirm() {
                   const errors = await scheduleNotification(
                     selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
                   );
-                  
+
                   setShowErros(errors);
                   if (errors.length) setBooleanErros(true);
                   else setShowNotification(true);

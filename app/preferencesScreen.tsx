@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, YStack } from 'tamagui';
+import { router } from 'expo-router';
 import CustomSubtitle from '../src/components/subtitle/customSubtitle';
 import CustomHeader from '../src/components/header/customHeader';
 import CustomListItem from '../src/components/list/customListItem';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, YStack } from 'tamagui';
 
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { mapCombination } from '../src/utils/mapCombination';
@@ -18,8 +19,7 @@ import { getStorage } from '../src/utils/utils';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { Combinacao } from '@/src/types/combinationTypes';
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
-import { useFocusEffect } from '@react-navigation/native';
-import { router } from 'expo-router';
+
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
 
@@ -129,7 +129,7 @@ const PreferencesScreen: React.FC = () => {
   const cardTitle = `Preferências de ${restaurant?.name ?? ''}`;
 
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <CustomAlert
         visible={isAlertVisible}
         title="Ops!"

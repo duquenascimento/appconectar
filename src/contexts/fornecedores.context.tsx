@@ -7,9 +7,9 @@ import {
   useCallback,
   SetStateAction,
 } from 'react';
+import { DateTime } from 'luxon';
 import { SupplierData } from '../types/types';
 import { getStorage, getToken, setStorage } from '@/src/utils/utils';
-import { DateTime } from 'luxon';
 
 interface SupplierContextType {
   suppliers: SupplierData[];
@@ -142,7 +142,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
       setLoadingSuppliers(false);
     }
   }, []);
- 
+
   const value = {
     suppliers,
     unavailableSupplier,
