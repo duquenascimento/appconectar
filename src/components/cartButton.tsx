@@ -9,7 +9,6 @@ import { getStorage } from '../utils/utils'
 
 type Props = {
   cartSize: number
-  /* isScrolling: boolean */
   visibleProducts: Product[]
   selectedRestaurant: string | null
   onPress: () => void
@@ -30,28 +29,11 @@ export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selecte
   const [showWatcher, setShowWatcher] = useState(false)
 
   useEffect(() => {
-    /* if (cartSize <= 0) {
-      opacity.value = withTiming(0, { duration: 250 })
-      translateY.value = withTiming(50, { duration: 250 })
-      return
-    } */
-
     if (visibleProducts.length < 4) {
       opacity.value = withTiming(1, { duration: 100 })
       translateY.value = withTiming(0, { duration: 100 })
       return
     }
-
-    /* if (isScrolling) {
-      if (hideTimeout.current) clearTimeout(hideTimeout.current)
-      opacity.value = withTiming(1, { duration: 100 })
-      translateY.value = withTiming(0, { duration: 100 })
-    } else {
-      hideTimeout.current = setTimeout(() => {
-        opacity.value = withTiming(0, { duration: 200 })
-        translateY.value = withTiming(50, { duration: 200 })
-      }, 2000)
-    } */
 
     return () => {
       if (hideTimeout.current) clearTimeout(hideTimeout.current)
@@ -117,7 +99,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selecte
             bottom: 65,
             left: 0,
             right: 0,
-            display: /* cartSize <= 0 ? 'none' :  */'flex',
+            display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 100,
@@ -131,8 +113,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selecte
               cursor: 'pointer',
               pointerEvents: 'auto'
             }}
-            onClick={/* cartSize > 0 ? onPress : undefined */ onPress}
-            /* disabled={cartSize <= 0} */
+            onClick={onPress}
           >
             <div
               style={{
@@ -201,7 +182,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selecte
         ]}
         pointerEvents="box-none"
       >
-        <TouchableOpacity activeOpacity={0.9} onPress={/* cartSize > 0 ? onPress : undefined */ onPress} /* disabled={cartSize <= 0} */>
+        <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
           <View backgroundColor="#FFA500" width={160} height={45} borderRadius={24} paddingHorizontal={16} paddingVertical={8} flexDirection="row" alignItems="center" justifyContent="center" pointerEvents="auto">
             <View>
               <Icons size={25} color="white" name="cart" />

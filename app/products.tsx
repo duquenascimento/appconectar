@@ -770,7 +770,6 @@ export default function Products() {
   const [isModalVisible, setModalVisible] = useState(false)
   const [image, setImage] = useState<string>('')
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false)
-/*   const [isScrolling, setIsScrolling] = useState(false) */
   const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] =
     useState(false)
   const [showFinanceBlock, setShowFinanceBlock] = useState(false)
@@ -836,16 +835,6 @@ export default function Products() {
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
   const flatListRef = useRef<FlatList<Product>>(null)
-
-  /* const handleScroll = () => {
-    if (!isScrolling) {
-      setIsScrolling(true)
-    }
-  }
-
-  const handleScrollEnd = () => {
-    setIsScrolling(false)
-  } */
 
   const loadProducts = useCallback(async () => {
     if (isLoading) return
@@ -1720,9 +1709,6 @@ export default function Products() {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 listRef={virtualizedListRef}
-                /* onScroll={handleScroll}
-                onMomentumScrollBegin={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd} */
               />
             ) : (
               <CustomFlatList
@@ -1730,9 +1716,6 @@ export default function Products() {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 onEndReached={loadProducts}
-                /* onScroll={handleScroll}
-                onMomentumScrollBegin={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd} */
                 listRef={flatListRef}
               />
             )
@@ -1853,7 +1836,6 @@ export default function Products() {
 
       <CartButton
         cartSize={displayedCartSize}
-        /* isScrolling={isScrolling} */
         visibleProducts={displayedProducts}
         selectedRestaurant={selectedRestaurant}
         onPress={async () => {

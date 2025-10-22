@@ -16,7 +16,7 @@ import {
   getToken,
   setStorage
 } from '../src/utils/utils'
-import { useFocusEffect, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
 import { filterCarts } from '../src/utils/filterCarts'
 import { CustomImageBadge } from '@/src/components/image/customImageBadge'
@@ -439,13 +439,6 @@ export default function Cart() {
   useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then()
   }, [cart])
-
-  useFocusEffect(
-    useCallback(() => {
-      setLoading(false)
-      return () => {}
-    }, [])
-  )
 
   useBackHandler(() => {
     setLoading(true)
