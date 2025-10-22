@@ -1,11 +1,7 @@
 import React, { createContext, useContext, useCallback, useState } from 'react';
 import { getToken } from '../utils/utils';
+import { Restaurant } from '../../app/products';
 
-interface Restaurant {
-  id: string;
-  name: string;
-  [key: string]: any;
-}
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
@@ -45,7 +41,7 @@ export const RestaurantProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       const data = await result.json();
       setRestaurants(data?.data ?? []);
-      return data?.data ?? []; // 👈 retorna os restaurantes
+      return data?.data ?? [];
     } catch (error) {
       console.error('Erro ao carregar restaurantes:', error);
       setRestaurants([]);

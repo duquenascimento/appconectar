@@ -684,7 +684,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 
 let classItems: { name: string }[] = [];
 
-interface Restaurant {
+export interface Restaurant {
   externalId: any;
   id: string;
   name: string;

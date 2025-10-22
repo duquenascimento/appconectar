@@ -30,7 +30,6 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [selectedRestaurant, setSelectedRestaurant] = useState<any | null>(null);
   const { loadRestaurants } = useRestaurantContext();
 
-  // --- Função auxiliar para buscar o restaurante salvo no AsyncStorage ---
   const getSavedRestaurant = async () => {
     try {
       const data = await getStorage('selectedRestaurant');
@@ -43,7 +42,6 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
     }
   };
 
-  // --- Salva fornecedores no storage ---
   const saveSuppliersToStorage = async (available: SupplierData[], unavailable: SupplierData[]) => {
     try {
       await setStorage('availableSuppliers', JSON.stringify(available)).catch(() => {
@@ -57,31 +55,6 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
     }
   };
 
-  // --- Nova função: carregar restaurante atualizado da API ---
-  // const loadRestaurants = useCallback(async () => {
-  //   try {
-  //     const token = await getToken();
-  //     if (token == null) return [];
-  //     const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         token,
-  //       }),
-  //     });
-  //     if (!result.ok) return [];
-  //     const restaurants = await result.json();
-  //     if (restaurants.data.length < 1) return [];
-  //     return restaurants.data;
-  //   } catch (error) {
-  //     console.error('Erro ao carregar restaurantes:', error);
-  //     return [];
-  //   }
-  // }, []); // Sem dependências, pois não usa nada do escopo externo que mude
-
-  // --- Carregar preços dos produtos ---
   const loadPrices = useCallback(
     async (restaurantId?: string) => {
       try {
