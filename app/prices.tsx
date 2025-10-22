@@ -615,19 +615,14 @@ export default function Prices() {
     );
   }
 
-  if (loading || loadingSuppliers) {
+  if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-        {loadingSuppliers ? (
-          <>
-            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-              Carregando lista de fornecedores. Por favor Aguarde...
-            </Text>
-          </>
-        ) : (
-          ''
-        )}
+      <View
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <ActivityIndicator size="large" color="#04BF7B"  />
       </View>
     );
   }
@@ -667,9 +662,17 @@ export default function Prices() {
               disabled={!selectedRestaurant.premium}
               opacity={selectedRestaurant.premium ? 1 : 0.4}
               onPress={async () => {
-                await loadRestaurants();
-                await loadPrices();
-                setTab('plus');
+                if (!selectedRestaurant.premium || loading) return;
+                try {
+                  setLoading(true);
+                  await loadRestaurants();
+                  await loadPrices();
+                  setTab('plus');
+                } catch (err) {
+                  console.error(err);
+                } finally {
+                  setLoading(false);
+                }
               }}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
@@ -687,9 +690,17 @@ export default function Prices() {
             </View>
             <View
               onPress={async () => {
-                await loadRestaurants();
-                await loadPrices();
-                setTab('onlySupplier');
+                if (loading) return;
+                try {
+                  setLoading(true);
+                  await loadRestaurants();
+                  await loadPrices();
+                  setTab('onlySupplier');
+                } catch (err) {
+                  console.error(err);
+                } finally {
+                  setLoading(false);
+                }
               }}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
@@ -865,9 +876,16 @@ export default function Prices() {
               <Icons
                 size={20}
                 onPress={async () => {
-                  await loadRestaurants();
-                  await loadPrices();
-                  setShowRestInfo(!showRestInfo);
+                  try {
+                    setLoading(true);
+                    await loadRestaurants();
+                    await loadPrices();
+                    setShowRestInfo(!showRestInfo);
+                  } catch (err) {
+                    console.error(err);
+                  } finally {
+                    setLoading(false);
+                  }
                 }}
                 name={showRestInfo ? 'chevron-up' : 'chevron-down'}
               ></Icons>
@@ -1919,10 +1937,17 @@ export default function Prices() {
                       >
                         <Button
                           onPress={async () => {
-                            await loadRestaurants();
-                            await loadPrices();
-                            setEditInfos(false);
-                            setDraftSelectedRestaurant(null);
+                            try {
+                              setLoading(true);
+                              await loadRestaurants();
+                              await loadPrices();
+                              setEditInfos(false);
+                              setDraftSelectedRestaurant(null);
+                            } catch (err) {
+                              console.error(err);
+                            } finally {
+                              setLoading(false);
+                            }
                           }}
                           backgroundColor="black"
                           flex={1}
@@ -1982,10 +2007,13 @@ export default function Prices() {
                               }),
                             ]);
                             try {
+                              setLoading(true);
                               await loadRestaurants();
                               await loadPrices();
-                            } catch (error) {
-                              console.error('Erro ao carregar dados:', error);
+                            } catch (err) {
+                              console.error(err);
+                            } finally {
+                              setLoading(false);
                             }
                           }}
                           backgroundColor="#04BF7B"
