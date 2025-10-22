@@ -15,7 +15,9 @@ import { ContainerPreferenciasProduto } from '../src/components/Combination/Cont
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator';
 import CustomAlert from '@/src/components/modais/CustomAlert';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { router } from 'expo-router';
+import PageContainer from '@/src/components/box/PageContainer';
 
 export interface SuplierCombination {
   id: string;
@@ -34,9 +36,13 @@ export const Combination: React.FC = () => {
   const [alertTitle, setAlertTitle] = useState('');
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [triggerValidation, setTriggerValidation] = useState(false);
+  const { loadRestaurants, loadPrices } = useSupplier();
 
   useEffect(() => {
     const carregarCombinacao = async () => {
+      await loadPrices();
+      await loadRestaurants();
       if (!id) return;
 
       try {
@@ -170,6 +176,7 @@ export const Combination: React.FC = () => {
   const handleSaveCombination = async () => {
     try {
       setValidationErrors({});
+      setTriggerValidation(true);
 
       const combinacaoParaValidar = {
         ...combinacao,
@@ -180,14 +187,14 @@ export const Combination: React.FC = () => {
               (produto) => produto.produto_sku || produto.classe, // Mantém apenas produtos com dados
             ),
           }))
-          .filter(
-            (preferencia) => preferencia.produtos && preferencia.produtos.length > 0, // Remove preferências vazias
-          ),
       };
 
-      const validacao = await combinacaoValidationSchema.validate(combinacaoParaValidar, {
+      await combinacaoValidationSchema.validate(combinacaoParaValidar, {
         abortEarly: false,
       });
+
+      // Reset trigger validation after a short delay
+      setTimeout(() => setTriggerValidation(false), 100);
 
       // Enviar a combinação filtrada para o backend
       if (id) {
@@ -196,6 +203,9 @@ export const Combination: React.FC = () => {
         await createCombination(combinacaoParaValidar); // Passe a combinação filtrada
       }
     } catch (validationErrors) {
+      // Reset trigger validation even on error
+      setTimeout(() => setTriggerValidation(false), 100);
+      
       if (validationErrors instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {};
         validationErrors.inner.forEach((err) => {
@@ -243,7 +253,7 @@ export const Combination: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <PageContainer backgroundColor='white'>
       <CustomHeader
         title={id ? `${combinacao.nome}` : 'Nova combinação'}
         onBackPress={handleGoBack}
@@ -256,15 +266,14 @@ export const Combination: React.FC = () => {
         color="black"
       />
       <ScrollView
-        contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
         <YStack
-          w={Platform.OS === 'web' ? '76%' : '92%'}
+          width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
-          p="$4"
+          padding="$2"
           gap={15}
-          mt="$2"
+          marginTop="$2"
         >
           <InputNome
             error={validationErrors.nome}
@@ -300,6 +309,7 @@ export const Combination: React.FC = () => {
             <ContainerPreferenciasProduto
               error={validationErrors.preferencias}
               onClearErrors={clearPreferenceErrors}
+              triggerValidation={triggerValidation}
             />
           )}
         </YStack>
@@ -311,7 +321,7 @@ export const Combination: React.FC = () => {
             gap={10}
             alignSelf="center"
           >
-            <YStack f={1}>
+            <YStack flex={1}>
               <Button
                 onPress={() => {
                   if (id) {
@@ -321,7 +331,7 @@ export const Combination: React.FC = () => {
                   }
                 }}
                 hoverStyle={{
-                  background: '#f84949ff',
+                  backgroundColor: '#f84949ff',
                   opacity: 0.9,
                 }}
                 backgroundColor="#f84949ff"
@@ -332,11 +342,11 @@ export const Combination: React.FC = () => {
                 {id ? 'Excluir combinação' : 'Cancelar'}
               </Button>
             </YStack>
-            <YStack f={1}>
+            <YStack flex={1}>
               <Button
                 onPress={handleSaveCombination}
                 hoverStyle={{
-                  background: '#1DC588',
+                  backgroundColor: '#1DC588',
                   opacity: 0.9,
                 }}
                 backgroundColor="#1DC588"
@@ -355,7 +365,7 @@ export const Combination: React.FC = () => {
             gap={10}
             alignSelf="center"
           >
-            <YStack f={1}>
+            <YStack flex={1}>
               <CustomButton
                 title={id ? 'Excluir' : 'Cancelar'}
                 onPress={() => {
@@ -369,7 +379,7 @@ export const Combination: React.FC = () => {
                 textColor="#FFFFFF"
               />
             </YStack>
-            <YStack f={1}>
+            <YStack flex={1}>
               <CustomButton
                 title="Salvar"
                 onPress={handleSaveCombination}
@@ -380,7 +390,7 @@ export const Combination: React.FC = () => {
           </XStack>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </PageContainer>
   );
 };
 

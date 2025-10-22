@@ -96,7 +96,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selecte
         <div
           style={{
             position: 'absolute',
-            bottom: 65,
+            bottom: 75,
             left: 0,
             right: 0,
             display: 'flex',
@@ -171,7 +171,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, visibleProducts, selecte
         style={[
           {
             position: 'absolute',
-            bottom: 65,
+            bottom: 75,
             left: 0,
             right: 0,
             alignItems: 'center',

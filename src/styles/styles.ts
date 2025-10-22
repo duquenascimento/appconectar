@@ -68,14 +68,13 @@ export const ordersScreenStyles = StyleSheet.create({
     borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 10,
   },
   leftColumn: {
-    marginLeft: 30,
+    marginLeft: 10,
     flex: 1,
     flexDirection: 'column',
     alignItems: 'flex-start',
-
   },
   rightColumn: {
     flex: 1,
@@ -92,10 +91,10 @@ export const ordersScreenStyles = StyleSheet.create({
     
   },
   deliveryDate: {
+    width: 'auto',  
     fontSize: Platform.select({ web: 14, default: 12 }),
     color: '#666',
     fontWeight: 'bold',
-    paddingEnd: 60
   },
   orderId: {
     fontSize: Platform.select({ web: 16, default: 14 }),

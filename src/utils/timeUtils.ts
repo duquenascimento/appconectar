@@ -1,26 +1,24 @@
 import { DateTime } from 'luxon'
 
-export function isBefore13Hours () {
-  const currentDate = DateTime.now().setZone('America/Sao_Paulo')
-  const currentHour = Number(
-    `${currentDate.hour.toString().padStart(2, '0')}${currentDate.minute
-      .toString()
-      .padStart(2, '0')}${currentDate.second.toString().padStart(2, '0')}`
-  )
-  return 130000 >= currentHour
+export function isBefore13Hours(): boolean {
+  const now = DateTime.now().setZone('America/Sao_Paulo'); // Data e hora atual
+  const targetTime = now.set({ hour: 13, minute: 0, second: 0, millisecond: 0 }); // Define 13h00 no mesmo dia
+  return now.valueOf() < targetTime.valueOf(); // Compara os timestamps em milissegundos
 }
 
-export function getSecondsUntil13h () {
-  const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate()
-  const target = new Date()
+export function getSecondsUntil13h() {
+  const now = DateTime.now().setZone('America/Sao_Paulo').toJSDate(); // Data e hora atual
+  const target = new Date(); // Cria uma nova data (hoje)
 
-  target.setHours(13, 0, 0, 0)
+  target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
 
-  const differenceInMillis = target.getTime() - now.getTime()
+  const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
 
-  const differenceInSeconds = Math.floor(differenceInMillis / 1000)
+  // Converter milissegundos para segundos
+  const differenceInSeconds = Math.floor(differenceInMillis / 1000);
 
-  return differenceInSeconds
+  // Verifica se o horário já passou e retorna o valor (negativo ou positivo)
+  return differenceInSeconds;
 }
 
 export function getDeliveryWindow(data: any) {

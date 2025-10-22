@@ -1,307 +1,290 @@
-import React, { ReactNode, useEffect, useState } from 'react'
-import { View, Text, XStack, Input } from 'tamagui'
-import {
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Linking
-} from 'react-native'
-import DropDownPicker from 'react-native-dropdown-picker'
-import Icons from '@expo/vector-icons/Ionicons'
-import { getOrders } from '../src/services/orderService'
-import { loadRestaurants } from '../src/services/restaurantService'
-import { ordersScreenStyles as styles } from '../src/styles/styles'
-import { clearStorage, deleteToken } from '../src/utils/utils'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo } from '../src/utils/VersionApp'
-import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes'
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance'
-import CustomAlert from '@/src/components/modais/CustomAlert'
-import { useRouter } from 'expo-router'
+import React, { ReactNode, useEffect, useState } from 'react';
+import { View, Text, XStack, Input } from 'tamagui';
+import { FlatList, TouchableOpacity, ActivityIndicator, Platform, Linking } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import DialogComercialInstance from '../src/components/modais/DialogInstanceNotification';
+import { getOrders } from '../src/services/orderService';
+import { ordersScreenStyles as styles } from '../src/styles/styles';
+import { clearStorage, deleteToken } from '../src/utils/utils';
+import { VersionInfo } from '../src/utils/VersionApp';
+import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import PageContainer from '@/src/components/box/PageContainer';
 
 interface Order {
-  orderDocument: ReactNode
-  id: string
-  deliveryDate: string
-  totalConectar: number
+  orderDocument: ReactNode;
+  id: string;
+  deliveryDate: string;
+  totalConectar: number;
   calcOrderAgain: {
     data: {
       supplier: {
-        name: string
-      }
-    }[]
-  }
+        name: string;
+      };
+    }[];
+  };
 }
 
 interface Restaurant {
-  externalId: any
-  id: string
-  name: string
-  registrationReleasedNewApp: boolean
+  externalId: any;
+  id: string;
+  name: string;
+  registrationReleasedNewApp: boolean;
 }
 
 const formatDate = (isoDate: string) => {
-  const date = new Date(isoDate)
-  return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
-}
+  const date = new Date(isoDate);
+  return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+};
 
 export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([])
-  const [isDownloading, setIsDownloading] = useState(false)
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([])
-  const [selectedRestaurant, setSelectedRestaurant] = useState('')
-  const [restaurantOpen, setRestaurantOpen] = useState(false)
-  const [showBlockedModal, setShowBlockedModal] = useState(false)
-  const [showAlertVisible, setShowAlertVisible] = useState(false)
-  const [customAlertTitle, setCustomAlertTitle] = useState('')
-  const [customAlertMessage, setCustomAlertMessage] = useState('')
-  const router = useRouter()
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [selectedRestaurant, setSelectedRestaurant] = useState('');
+  const [restaurantOpen, setRestaurantOpen] = useState(false);
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
+  const [showAlertVisible, setShowAlertVisible] = useState(false);
+  const [customAlertTitle, setCustomAlertTitle] = useState('');
+  const [customAlertMessage, setCustomAlertMessage] = useState('');
+  const { loadRestaurants } = useSupplier();
+  const router = useRouter();
 
   useEffect(() => {
     const LoadRestaurants = async () => {
       try {
-        const restaurantsData = await loadRestaurants()
-        setRestaurants(restaurantsData)
+        const restaurantsData = await loadRestaurants();
+        setRestaurants(restaurantsData);
         if (restaurantsData.length > 0) {
-          const restaurant = await getSavedRestaurant()
+          const restaurant = await getSavedRestaurant();
           if (restaurant) {
-            setSelectedRestaurant(restaurant.externalId)
+            setSelectedRestaurant(restaurant.externalId);
           } else {
-            setSelectedRestaurant(restaurantsData[0].externalId)
+            setSelectedRestaurant(restaurantsData[0].externalId);
           }
         }
       } catch (error) {}
-    }
-    LoadRestaurants()
-  }, [])
+    };
+    LoadRestaurants();
+  }, []);
 
   useEffect(() => {
     const loadOrders = async () => {
       if (!selectedRestaurant) {
-        return
+        return;
       }
-      setLoading(true)
+      setLoading(true);
       try {
-        const result = await getOrders(1, 100, selectedRestaurant)
+        const result = await getOrders(1, 100, selectedRestaurant);
 
         const ordersData = result.map((order: any) => {
           const filteredSupplier =
             order.calcOrderAgain?.data?.filter(
-              (item: any) => item.supplier?.externalId === order.supplierId
-            ) || []
+              (item: any) => item.supplier?.externalId === order.supplierId,
+            ) || [];
 
           return {
             ...order,
             calcOrderAgain: {
               ...order.calcOrderAgain,
-              data: filteredSupplier
-            }
-          }
-        })
-        setOrders(ordersData)
-        setFilteredOrders(ordersData)
+              data: filteredSupplier,
+            },
+          };
+        });
+        setOrders(ordersData);
+        setFilteredOrders(ordersData);
       } catch (error) {
-        console.error('Erro ao carregar pedidos:', error)
+        console.error('Erro ao carregar pedidos:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    loadOrders()
-  }, [selectedRestaurant])
+    };
+    loadOrders();
+  }, [selectedRestaurant]);
 
   const dialogProps = {
     openModal: showBlockedModal,
     setRegisterInvalid: setShowBlockedModal,
-    rest: restaurants.filter((r) => r.registrationReleasedNewApp)
-  }
+    rest: restaurants.filter((r) => r.registrationReleasedNewApp),
+  };
 
   const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
-      const data = await AsyncStorage.getItem('selectedRestaurant')
-      if (!data) return null
+      const data = await AsyncStorage.getItem('selectedRestaurant');
+      if (!data) return null;
 
-      const parsedData = JSON.parse(data)
+      const parsedData = JSON.parse(data);
 
       if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData)
-        return null
+        console.error('Formato inválido:', parsedData);
+        return null;
       }
 
-      return parsedData.restaurant
+      return parsedData.restaurant;
     } catch (error) {
-      console.error('Erro ao parsear dados:', error)
-      return null
+      console.error('Erro ao parsear dados:', error);
+      return null;
     }
-  }
+  };
 
   async function handleRestaurantChoice(value: string | null) {
     try {
-      if (!value) return
+      if (!value) return;
 
-      const restaurant = restaurants.find((r) => r.externalId === value)
-      if (!restaurant) return
+      const restaurant = restaurants.find((r) => r.externalId === value);
+      if (!restaurant) return;
 
       if (restaurant.registrationReleasedNewApp) {
-        setShowBlockedModal(true)
-        return
+        setShowBlockedModal(true);
+        return;
       }
-      const storedRestaurant = await getSavedRestaurant()
+      const storedRestaurant = await getSavedRestaurant();
       if (storedRestaurant?.externalId === value) {
-        return
+        return;
       }
-      await AsyncStorage.setItem(
-        'selectedRestaurant',
-        JSON.stringify({ restaurant })
-      )
-      setSelectedRestaurant(value)
-      setShowBlockedModal(false)
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }));
+      setSelectedRestaurant(value);
+      setShowBlockedModal(false);
     } catch (error) {
-      console.error('Falha na escolha de restaurante:', error)
+      console.error('Falha na escolha de restaurante:', error);
     }
   }
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query)
-    const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/
-    const isDatePartial = datePartialRegex.test(query)
+    setSearchQuery(query);
+    const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
+    const isDatePartial = datePartialRegex.test(query);
     const filtered = orders.filter((order: any) => {
       if (isDatePartial) {
-        const [day, month, year] = query.split('/')
-        const deliveryDate = order.deliveryDate.split('T')[0]
-        const [orderYear, orderMonth, orderDay] = deliveryDate.split('-')
-        if (day && !orderDay.startsWith(day)) return false
-        if (month && !orderMonth.startsWith(month)) return false
-        if (year && !orderYear.startsWith(year)) return false
-        return true
+        const [day, month, year] = query.split('/');
+        const deliveryDate = order.deliveryDate.split('T')[0];
+        const [orderYear, orderMonth, orderDay] = deliveryDate.split('-');
+        if (day && !orderDay.startsWith(day)) return false;
+        if (month && !orderMonth.startsWith(month)) return false;
+        if (year && !orderYear.startsWith(year)) return false;
+        return true;
       }
-      const matchesId = order.id.toLowerCase().includes(query.toLowerCase())
-      const matchesTotal = order.totalConectar.toString().includes(query)
+      const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
+      const matchesTotal = order.totalConectar.toString().includes(query);
       const matchExternalId = order.calcOrderAgain.data.find(
-        (item: any) =>
-          item.supplier && item.supplier.externalId === order.supplierId
-      )
+        (item: any) => item.supplier && item.supplier.externalId === order.supplierId,
+      );
 
       const matchesSupplier = matchExternalId.supplier.name
         .toLowerCase()
-        .includes(query.toLowerCase())
+        .includes(query.toLowerCase());
 
-      return matchesId || matchesTotal || matchesSupplier
-    })
+      return matchesId || matchesTotal || matchesSupplier;
+    });
 
-    setFilteredOrders(filtered)
+    setFilteredOrders(filtered);
     if (filtered.length === 0 && query.length > 0) {
     }
-  }
+  };
 
   const toggleOrderSelection = (orderId: string) => {
     setSelectedOrders((prevSelected: any) => {
       if (prevSelected.includes(orderId)) {
-        return prevSelected.filter((id: string) => id !== orderId)
+        return prevSelected.filter((id: string) => id !== orderId);
       } else {
-        return [...prevSelected, orderId]
+        return [...prevSelected, orderId];
       }
-    })
-  }
+    });
+  };
 
   const handleDownloadSelectedOrders = async () => {
-    setIsDownloading(true)
+    setIsDownloading(true);
     for (const orderId of selectedOrders) {
-      const order: any = orders.find((o) => o.id === orderId)
+      const order: any = orders.find((o) => o.id === orderId);
       if (!order) {
-        showAlert(
-          'Pedido inválido',
-          'Não foi possível encontrar o pedido selecionado.'
-        )
-        continue
+        showAlert('Pedido inválido', 'Não foi possível encontrar o pedido selecionado.');
+        continue;
       }
 
-      const { orderDocument, orderInvoices } = order
-      const invoiceUrl = orderInvoices?.filePath?.[0]
-      const isValidDocUrl =
-        typeof orderDocument === 'string' && orderDocument.startsWith('http')
+      const { orderDocument, orderInvoices } = order;
+      const invoiceUrl = orderInvoices?.filePath?.[0];
+      const isValidDocUrl = typeof orderDocument === 'string' && orderDocument.startsWith('http');
 
       if (!isValidDocUrl && !invoiceUrl) {
-        showAlert(
-          'Ocorreu um erro ao buscar documentos',
-          'Por favor, tente novamente mais tarde'
-        )
-        return
+        showAlert('Ocorreu um erro ao buscar documentos', 'Por favor, tente novamente mais tarde');
+        return;
       }
       if (!isValidDocUrl) {
-        showAlert(
-          'Documento indisponível',
-          'O pedido não está disponível para visualização.'
-        )
+        showAlert('Documento indisponível', 'O pedido não está disponível para visualização.');
       } else {
-        await openUrl(orderDocument)
+        await openUrl(orderDocument);
       }
       if (!invoiceUrl) {
         showAlert(
           'Nota fiscal indisponível',
-          'A nota fiscal deste pedido não está disponível para download.'
-        )
+          'A nota fiscal deste pedido não está disponível para download.',
+        );
       } else {
-        await openUrl(invoiceUrl)
+        await openUrl(invoiceUrl);
       }
-      await delay(1000)
+      await delay(1000);
     }
 
-    setIsDownloading(false)
-  }
+    setIsDownloading(false);
+  };
 
   const openUrl = async (url: string) => {
-    if (!url) return
+    if (!url) return;
 
     try {
       if (Platform.OS === 'web') {
-        window.open(url, '_blank')
+        window.open(url, '_blank');
       } else {
-        await Linking.openURL(url)
+        await Linking.openURL(url);
       }
     } catch (error) {
-      console.error('Erro ao abrir o link:', error)
+      console.error('Erro ao abrir o link:', error);
       showAlert(
         'Erro ao abrir o link',
-        'Não foi possível abrir o link do pedido ou da nota fiscal.'
-      )
+        'Não foi possível abrir o link do pedido ou da nota fiscal.',
+      );
     }
-  }
+  };
 
-  const delay = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms))
+  const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const showAlert = (title: string, message: string) => {
-    setCustomAlertTitle(title)
-    setCustomAlertMessage(message)
-    setShowAlertVisible(true)
-    setIsDownloading(false)
-  }
+    setCustomAlertTitle(title);
+    setCustomAlertMessage(message);
+    setShowAlertVisible(true);
+    setIsDownloading(false);
+  };
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
-      return text.substring(0, maxLength) + '...'
+      return text.substring(0, maxLength) + '...';
     }
-    return text
-  }
+    return text;
+  };
 
   if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-        <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-          Carregando histórico de pedidos. Por favor Aguarde...
-        </Text>
-      </View>
-    )
+      <PageContainer backgroundColor='white'>
+        <View flex={1} justifyContent="center" alignItems="center">
+          <ActivityIndicator size="large" color="#04BF7B" />
+          <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
+            Carregando histórico de pedidos. Por favor Aguarde...
+          </Text>
+        </View>
+      </PageContainer>
+    );
   }
 
   return (
-    <>
+    <PageContainer backgroundColor='white'>
       <CustomAlert
         visible={showAlertVisible}
         title={customAlertTitle}
@@ -310,10 +293,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       />
       <Text
         style={{
-          marginTop: Platform.OS === 'web' ? 35 : 15,
-          marginLeft: Platform.OS === 'web' ? '' : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          margin: 'auto'
         }}
       >
         Meus Pedidos
@@ -324,25 +305,23 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         onChangeValue={handleRestaurantChoice}
         items={restaurants.map((restaurant) => ({
           label: restaurant.name,
-          value: restaurant.externalId
+          value: restaurant.externalId,
         }))}
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         placeholder="Selecione um restaurante"
         onSelectItem={(value) => {
-          const rest = restaurants.find(
-            (item) => item?.externalId === value.value
-          )
+          const rest = restaurants.find((item) => item?.externalId === value.value);
           if (rest?.registrationReleasedNewApp) {
-            setShowBlockedModal(true)
+            setShowBlockedModal(true);
           } else {
-            setShowBlockedModal(false)
+            setShowBlockedModal(false);
           }
         }}
         listMode="SCROLLVIEW"
         dropDownContainerStyle={{
           width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: 'center'
+          alignSelf: 'center',
         }}
         style={{
           width: Platform.OS === 'web' ? '70%' : '92%',
@@ -353,7 +332,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           borderColor: '#ccc',
           borderWidth: 1,
           borderRadius: 5,
-          height: 40
+          height: 40,
         }}
       />
 
@@ -365,19 +344,14 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         alignSelf="center"
         alignItems="center"
       >
-        <Icons
-          name="search"
-          size={24}
-          color="#04BF7B"
-          style={{ marginLeft: 15 }}
-        />
+        <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
         <Input
           width={Platform.OS === 'web' ? '67%' : '92%'}
           placeholder="Buscar pedidos..."
           value={searchQuery}
           onChangeText={(text) => {
-            setSearchQuery(text)
-            handleSearch(text)
+            setSearchQuery(text);
+            handleSearch(text);
           }}
           backgroundColor="transparent"
           borderWidth={0}
@@ -402,7 +376,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           alignSelf: 'center',
           marginBottom: 16,
           marginTop: Platform.OS === 'web' ? 20 : 15,
-          marginHorizontal: 15
+          marginHorizontal: 15,
         }}
       >
         {isDownloading ? (
@@ -417,24 +391,21 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       <FlatList
         style={{
           width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: 'center'
+          alignSelf: 'center',
         }}
         data={filteredOrders}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={() => (
-          <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>
-        )}
+        ListEmptyComponent={() => <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>}
         renderItem={({ item }) => {
           const supplierName =
-            item.calcOrderAgain?.data[0]?.supplier?.name ||
-            'Fornecedor não disponível'
-          const truncatedSupplierName = truncateText(supplierName, 20)
+            item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
+          const truncatedSupplierName = truncateText(supplierName, 20);
           return (
             <TouchableOpacity
               onPress={() =>
                 router.push({
                   pathname: '/orderDetailsScreen',
-                  params: { orderId: item.id }
+                  params: { orderId: item.id },
                 })
               }
               style={styles.itemContainer}
@@ -450,9 +421,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
                 <Text marginBottom={10} style={styles.orderId}>
                   {item.id}
                 </Text>
-                <Text style={styles.deliveryDate}>
-                  {formatDate(item.deliveryDate)}
-                </Text>
+                <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
               </View>
 
               <View style={styles.rightColumn}>
@@ -464,13 +433,13 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
               <Icons
                 name="chevron-forward"
                 size={20}
-                color="#000"
+                color="#000" 
                 style={{
-                  marginLeft: 'auto'
+                  marginLeft: 10,
                 }}
               />
             </TouchableOpacity>
-          )
+          );
         }}
       />
       <View
@@ -479,7 +448,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         flexDirection="row"
         gap={30}
         height={55}
-        borderTopWidth={0.2}
+        borderTopWidth={0.4}
         borderTopColor="lightgray"
       >
         <View
@@ -500,8 +469,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         </View>
         <View
           onPress={async () => {
-            setLoading(true)
-            router.push('/ordersScreen')
+            setLoading(true);
+            router.push('/ordersScreen');
           }}
           padding={10}
           marginVertical={10}
@@ -520,9 +489,9 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         </View>
         <View
           onPress={async () => {
-            setLoading(true)
-            await Promise.all([clearStorage(), deleteToken()])
-            router.push('/')
+            setLoading(true);
+            await Promise.all([clearStorage(), deleteToken()]);
+            router.push('/');
           }}
           padding={10}
           marginVertical={10}
@@ -550,25 +519,23 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         messageText="Este restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
         onSelectAvailable={async () => {
           try {
-            const availableRestaurant = restaurants.find(
-              (r) => !r.registrationReleasedNewApp
-            )
+            const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
 
             if (availableRestaurant) {
-              setShowBlockedModal(false)
+              setShowBlockedModal(false);
               await AsyncStorage.setItem(
                 'selectedRestaurant',
-                JSON.stringify({ restaurant: availableRestaurant })
-              )
+                JSON.stringify({ restaurant: availableRestaurant }),
+              );
 
-              setSelectedRestaurant(availableRestaurant.externalId)
-              setShowBlockedModal(false)
+              setSelectedRestaurant(availableRestaurant.externalId);
+              setShowBlockedModal(false);
             }
           } catch (error) {
-            console.error('Erro ao trocar de restaurante:', error)
+            console.error('Erro ao trocar de restaurante:', error);
           }
         }}
       />
-    </>
-  )
+    </PageContainer>
+  );
 }
