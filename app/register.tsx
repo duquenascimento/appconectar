@@ -262,10 +262,27 @@ export default function Register() {
         }
 
         if (response.ok && !result.erro) {
+          const endereco: any = dividirLogradouro(result.logradouro)
+          formik.setValues({
+            ...formik.values,
+            zipcode: formatted,
+            neigh: campoString(result.bairro || ''),
+            street: campoString(endereco.logradouro || ''),
+            city: campoString(result.localidade || ''),
+            localType: endereco.tipoLogradouro,
+            localNumber: '',
+            complement: '',
+          })
+
           const camposFaltantes: string[] = []
-          if (!result.bairro) camposFaltantes.push('Bairro')
-          if (!result.logradouro) camposFaltantes.push('Logradouro')
-          if (!result.localNumber) camposFaltantes.push('Número')
+          if (!result.bairro) {
+            camposFaltantes.push('Bairro');
+            formik.setFieldTouched('neigh', true, false);
+          }
+          if (!result.logradouro) {
+            camposFaltantes.push('Logradouro');
+            formik.setFieldTouched('street', true, false);
+          }
 
           if (camposFaltantes.length > 0) {
             const camposMensagem = camposFaltantes.join(' e ')
@@ -273,38 +290,14 @@ export default function Register() {
             setErros([`O CEP retornado não possui dados completos. Digite manualmente o campo: ${camposMensagem}.`])
             setRegisterInvalid(true)
             setIsCepValid(false)
-
-            formik.setValues({
-              ...formik.values,
-              zipcode: formatted,
-              city: campoString(result.localidade || ''),
-              neigh: campoString(result.bairro || ''),
-              street: campoString(result.logradouro || ''),
-              localType: '',
-              localNumber: '',
-              complement: ''
-            })
-
-            formik.setFieldTouched('zipcode', true, false)
-            formik.setFieldTouched('neigh', true, false)
-            formik.setFieldTouched('street', true, false)
             setLoading(false)
             return
           }
-          const endereco: any = dividirLogradouro(result.logradouro)
-          formik.setValues({
-            ...formik.values,
-            neigh: campoString(result.bairro),
-            street: campoString(endereco.logradouro),
-            localNumber: '',
-            complement: '',
-            localType: endereco.tipoLogradouro,
-            city: campoString(result.localidade),
-            zipcode: formatted
-          })
 
-          formik.setFieldTouched('zipcode', true, false)
-          formik.setFieldTouched('neigh', true, false)
+          formik.setFieldTouched('zipcode', true, false);
+          formik.setFieldTouched('neigh', true, false);
+          formik.setFieldTouched('street', true, false);
+          setIsCepValid(true)
         }
       }
     } catch (error) {
@@ -549,12 +542,25 @@ export default function Register() {
     { value: '7', label: '7 dias' }
   ]
 
-  if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
+  const onNeighChange = (value: string) => {
+    formik.setFieldValue('neigh', value)
+    if (value.trim() !== '') {
+      formik.setFieldError('neigh', undefined)
+    }
+  }
+
+  const onStreetChange = (value: string) => {
+    formik.setFieldValue('street', value)
+    if (value.trim() !== '') {
+      formik.setFieldError('street', undefined)
+    }
+  }
+
+  const onNumberChange = (value: string) => {
+    formik.setFieldValue('localNumber', value)
+    if (value.trim() !== '') {
+      formik.setFieldError('localNumber', undefined)
+    }
   }
 
   return (
@@ -802,8 +808,9 @@ export default function Register() {
                     </Text>
                   </View>
                   <Input
-                    placeholder="00000-000"
+                    onBlur={() => formik.setFieldTouched('zipcode', true)}
                     onChangeText={cepChange}
+                    placeholder="00000-000"
                     value={formik.values.zipcode}
                     backgroundColor="white"
                     borderRadius={2}
@@ -814,7 +821,7 @@ export default function Register() {
                     }
                     focusStyle={getCepBorderStyle()}
                     hoverStyle={getCepBorderStyle()}
-                    onBlur={() => formik.setFieldTouched('zipcode', true)}
+                    maxLength={9}
                   />
                   {formik.touched.zipcode && formik.errors.zipcode && (
                     <Text color="red" fontSize={12}>
@@ -823,12 +830,16 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Bairro</Text>
                   <Input
-                    opacity={0.5}
                     onBlur={() => formik.setFieldTouched('neigh', true)}
-                    onChangeText={(text) => formik.setFieldValue('neigh', text)}
+                    onChangeText={onNeighChange}
                     value={formik.values.neigh}
                     backgroundColor="white"
                     borderRadius={2}
+                    borderColor={
+                      formik.touched.neigh && formik.errors.neigh
+                        ? 'red'
+                        : 'lightgray'
+                    }
                     focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   ></Input>
@@ -839,10 +850,9 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Logradouro</Text>
                   <Input
+                    onBlur={() => formik.setFieldTouched('street', true)}
+                    onChangeText={onStreetChange}
                     placeholder="exemplo: Dois Amores"
-                    onChangeText={(text) =>
-                      formik.setFieldValue('street', text)
-                    }
                     value={formik.values.street}
                     backgroundColor="white"
                     borderRadius={2}
@@ -861,16 +871,12 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Número</Text>
                   <Input
+                    onBlur={() => formik.setFieldTouched('localNumber', true)}
+                    onChangeText={onNumberChange}
                     placeholder="Exemplo: 12"
-                    onChangeText={(text) =>
-                      formik.setFieldValue('localNumber', text)
-                    }
                     value={formik.values.localNumber}
                     backgroundColor="white"
                     borderRadius={2}
-                    onBlur={() => {
-                      formik.setFieldTouched('localNumber', true)
-                    }}
                     borderColor={
                       formik.touched.localNumber && formik.errors.localNumber
                         ? 'red'
@@ -886,10 +892,10 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Complemento</Text>
                   <Input
-                    placeholder="Exemplo: Loja A"
                     onChangeText={(text) =>
                       formik.setFieldValue('complement', text)
                     }
+                    placeholder="Exemplo: Loja A"
                     value={formik.values.complement}
                     backgroundColor="white"
                     borderRadius={2}
@@ -1584,6 +1590,22 @@ export default function Register() {
           </Button>
         </View>
         <VersionInfo />
+        
+        {loading && (
+          <View
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            backgroundColor="rgba(0, 0, 0, 0.5)"
+            justifyContent="center"
+            alignItems="center"
+            zIndex={9999}
+          >
+            <ActivityIndicator size="large" color="#04BF7B" />
+          </View>
+        )}
       </View>
     </KeyboardAvoidingView>
   )

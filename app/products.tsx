@@ -748,9 +748,9 @@ export default function Products() {
     runCheck();
   }, []);
 
-  useEffect(() => {
-    SaveUserAppInfo();
-  }, []);
+  // useEffect(() => {
+  //   SaveUserAppInfo();
+  // }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
