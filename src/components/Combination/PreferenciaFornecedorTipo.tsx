@@ -110,7 +110,7 @@ export function PreferenciaFornecedorCampo({
   };
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" p="$4" gap={3} borderRadius="$4" zIndex={1000}>
+    <YStack borderWidth={1} borderColor="$gray6" padding="$4" gap={3} borderRadius="$4" zIndex={1000}>
       <CustomAlert
         visible={showValidationAlert}
         title="Atenção!"
@@ -135,7 +135,7 @@ export function PreferenciaFornecedorCampo({
       />
       <Text fontWeight="bold">Preferência de fornecedor</Text>
       <CustomSubtitle>Escolha como os fornecedores serão priorizados na combinação</CustomSubtitle>
-      <Separator my="$3" />
+      <Separator marginHorizontal="$3" />
 
       <DropdownCampo
         campo="preferencia_fornecedor_tipo"

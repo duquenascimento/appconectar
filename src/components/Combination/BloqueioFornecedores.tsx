@@ -17,12 +17,20 @@ export function BloqueioFornecedoresCampo({ error, onChange }: { error?: string;
 
   const fornecedoresContexto = useMemo(() => {
     const todosFornecedores = [...suppliers, ...unavailableSupplier]
-    const fornecedoresClassificados = todosFornecedores.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+
+    const fornecedoresNaoSelecionados = todosFornecedores.filter(
+      (item) => !combinacao.fornecedores_especificos?.includes(item.supplier.externalId)
+    )
+
+    const fornecedoresClassificados = fornecedoresNaoSelecionados.sort((a, b) => 
+      a.supplier.name.localeCompare(b.supplier.name)
+    )
+
     return fornecedoresClassificados.map((item) => ({
       label: item.supplier.name,
       value: item.supplier.externalId
     }))
-  }, [suppliers, unavailableSupplier])
+  }, [suppliers, unavailableSupplier, combinacao.fornecedores_especificos])
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false)
