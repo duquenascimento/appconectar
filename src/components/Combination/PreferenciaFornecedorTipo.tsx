@@ -48,7 +48,6 @@ export function PreferenciaFornecedorCampo({
     }));
   }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
 
-  // Função que adiciona um 'check' ao lado do nome do fornecedor selecionado
   const updateFornecedorLabel = (value: string) => {
     setSelectFornecedoresContexto((prevState) => {
       return prevState.map((obj) => {
@@ -59,15 +58,12 @@ export function PreferenciaFornecedorCampo({
   };
 
   useEffect(() => {
-    // Array com todos os campos já selecionados para a combinação
     const combinacaoArray = Array.isArray(combinacao?.fornecedores_especificos)
       ? combinacao.fornecedores_especificos
       : [];
 
-    // Atualiza as opções do select de 'Fornecedores Específicos'
     setSelectFornecedoresContexto(fornecedoresContexto);
 
-    // Caso um fornecedor específico seja selecionado, altera seu nome para mostrar um 'check' do lado
     if (combinacaoArray.length > 0) {
       fornecedoresContexto.forEach((fornecedorLabel) => {
         combinacaoArray.forEach((combinacaoIndexValue) => {
