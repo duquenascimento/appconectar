@@ -2,10 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Platform, SafeAreaView } from 'react-native';
 import { ScrollView, XStack, YStack, Button } from 'tamagui';
 import * as Yup from 'yup';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { router } from 'expo-router';
 import CustomButton from '@/src/components/button/customButton';
 import CustomHeader from '@/src/components/header/customHeader';
 import { getStorage } from '@/src/utils/utils';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import { InputNome } from '@/src/components/Combination/InputNome';
 import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
 import { BloqueioFornecedoresCampo } from '@/src/components/Combination/BloqueioFornecedores';
@@ -16,7 +17,6 @@ import { getCombinationsByRestaurant } from '@/src/services/combinationsService'
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { router } from 'expo-router';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
@@ -170,7 +170,7 @@ export const Combination: React.FC = () => {
   const clearPreferenceErrors = useCallback(() => {
     setValidationErrors((prev) => {
       const newErrors = { ...prev };
-      delete newErrors['preferencias'];
+      delete newErrors.preferencias;
       return newErrors;
     });
   }, []);
@@ -182,13 +182,12 @@ export const Combination: React.FC = () => {
 
       const combinacaoParaValidar = {
         ...combinacao,
-        preferencias: combinacao.preferencias
-          ?.map((preferencia) => ({
-            ...preferencia,
-            produtos: preferencia.produtos?.filter(
-              (produto) => produto.produto_sku || produto.classe, // Mantém apenas produtos com dados
-            ),
-          }))
+        preferencias: combinacao.preferencias?.map((preferencia) => ({
+          ...preferencia,
+          produtos: preferencia.produtos?.filter(
+            (produto) => produto.produto_sku || produto.classe, // Mantém apenas produtos com dados
+          ),
+        })),
       };
 
       await combinacaoValidationSchema.validate(combinacaoParaValidar, {
@@ -207,7 +206,7 @@ export const Combination: React.FC = () => {
     } catch (validationErrors) {
       // Reset trigger validation even on error
       setTimeout(() => setTriggerValidation(false), 100);
-      
+
       if (validationErrors instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {};
         validationErrors.inner.forEach((err) => {
@@ -255,7 +254,7 @@ export const Combination: React.FC = () => {
   };
 
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <CustomHeader
         title={id ? `${combinacao.nome}` : 'Nova combinação'}
         onBackPress={handleGoBack}
@@ -267,9 +266,7 @@ export const Combination: React.FC = () => {
         onConfirm={handleAlertConfirm}
         color="black"
       />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-      >
+      <ScrollView showsVerticalScrollIndicator={false}>
         <YStack
           width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
@@ -317,7 +314,7 @@ export const Combination: React.FC = () => {
         </YStack>
         {Platform.OS === 'web' ? (
           <XStack
-            width={'74%'}
+            width="74%"
             flexDirection="row"
             justifyContent="center"
             gap={10}
@@ -361,7 +358,7 @@ export const Combination: React.FC = () => {
           </XStack>
         ) : (
           <XStack
-            width={'88%'}
+            width="88%"
             flexDirection="row"
             justifyContent="center"
             gap={10}

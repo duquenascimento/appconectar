@@ -2,6 +2,7 @@ import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Text, View, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
 import React, { useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import CustomHeader from '@/src/components/header/customHeader';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomButton from '../src/components/button/customButton';
@@ -11,7 +12,6 @@ import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { createOrderPremium } from '@/src/services/orderService';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
 import { isBefore13Hours } from '@/src/utils/timeUtils';
@@ -200,7 +200,7 @@ export default function QuotationDetailsScreen() {
         const errors = await scheduleNotification(
           parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
         );
-        
+
         setShowErros(errors);
         if (errors.length) setBooleanErros(true);
         else setShowNotification(true);
@@ -217,7 +217,7 @@ export default function QuotationDetailsScreen() {
       const createdOrders = await createOrderPremium(body);
       if (createdOrders && createdOrders.status === 201) {
         deleteMultiStorage(['cartOrder', 'cart']);
-        const deliveryDateFormated = createdOrders.data.data[0].deliveryDateFormated;
+        const { deliveryDateFormated } = createdOrders.data.data[0];
 
         const ordersBySupplier = createdOrders.data.data.map(
           (item: { orderId: string; externalId: string }) => ({
@@ -249,7 +249,7 @@ export default function QuotationDetailsScreen() {
 
   if (!suppliers || suppliers.length === 0) {
     return (
-      <PageContainer backgroundColor='white'>
+      <PageContainer backgroundColor="white">
         <CustomHeader title="Erro" onBackPress={handleBackPress} />
         <View flex={1} justifyContent="center" alignItems="center">
           <Text>Não foi possível carregar os dados da cotação.</Text>
@@ -258,9 +258,8 @@ export default function QuotationDetailsScreen() {
     );
   }
 
-
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <YStack
         flex={1}
         backgroundColor="#F9F9F9"
@@ -372,7 +371,7 @@ export default function QuotationDetailsScreen() {
           </View>
           {Platform.OS === 'web' ? (
             <XStack
-              width={'74%'}
+              width="74%"
               flexDirection="row"
               justifyContent="center"
               gap={10}
@@ -411,7 +410,7 @@ export default function QuotationDetailsScreen() {
             </XStack>
           ) : (
             <XStack
-              width={'88%'}
+              width="88%"
               flexDirection="row"
               justifyContent="center"
               gap={10}

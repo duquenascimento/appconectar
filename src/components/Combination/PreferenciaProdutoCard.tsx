@@ -1,10 +1,10 @@
+import Icons from '@expo/vector-icons/Ionicons';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
-import Icons from '@expo/vector-icons/Ionicons';
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
 import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
 import { SupplierData } from '../../types/types';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
@@ -132,7 +132,7 @@ export function PreferenciaProdutoCard({
     novasPreferencias[index].fornecedores = fornecedores;
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.map((p) => ({
       ...p,
-      fornecedores: fornecedores,
+      fornecedores,
     }));
     updateCampo('preferencias', novasPreferencias);
     setFornecedoresTouched(true);

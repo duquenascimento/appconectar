@@ -1,19 +1,19 @@
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
-import CustomSubtitle from './subtitle/customSubtitle';
 import { useEffect, useMemo, useState } from 'react';
-import CustomListItem from './list/customListItem';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { View } from 'tamagui';
+import { useRouter } from 'expo-router';
+import CustomSubtitle from './subtitle/customSubtitle';
+import CustomListItem from './list/customListItem';
 import { SupplierData } from '@/app/quotationDetailsScreen';
 import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
 import { getStorage, getToken } from '@/src/utils/utils';
-import { View } from 'tamagui';
 import CustomAlert from './modais/CustomAlert';
 import { useSupplier } from '../contexts/fornecedores.context';
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
 import { useCombinacao } from '../contexts/combinacao.context';
-import { useRouter } from 'expo-router';
 
 export interface Combination {
   id: string;
@@ -190,7 +190,7 @@ const CombinationList: React.FC = () => {
             missingItems={item.missingItems}
             createdAt={item.createdAt}
             supplierClosed={item.supplierClosed}
-            unavailable={unavailableCombinations.includes(item) ? true : false}
+            unavailable={!!unavailableCombinations.includes(item)}
             onPress={() => handleCombinationPress(item)}
           />
         )}
