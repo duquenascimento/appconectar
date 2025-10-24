@@ -53,7 +53,7 @@ const InfoContainer = styled(YStack, {
 });
 
 const ItemTitle = styled(Text, {
-  fontSize: 16,
+  fontSize: Platform.OS === 'web' ? 16 : 14,
   color: '#000',
 });
 

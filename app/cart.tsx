@@ -385,7 +385,6 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
-  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -394,7 +393,6 @@ export default function Cart() {
 
   useFocusEffect(
     useCallback(() => {
-      loadRestaurants();
       setLoading(false);
       return () => {};
     }, []),

@@ -617,8 +617,12 @@ export default function Prices() {
 
   if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
+      <View
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <ActivityIndicator size="large" color="#04BF7B"  />
       </View>
     );
   }
@@ -788,8 +792,6 @@ export default function Prices() {
             <CustomButton
               title="Minhas combinações"
               onPress={async () => {
-                await loadRestaurants();
-                await loadPrices();
                 router.push('/preferencesScreen');
               }}
             ></CustomButton>
@@ -894,12 +896,7 @@ export default function Prices() {
                 >
                   <Icons size={20} color="#04BF7B" name="location"></Icons>
                   <View marginLeft={20}></View>
-                  <Text
-                    numberOfLines={1}
-                    textOverflow="ellipsis"
-                    ellipsizeMode="tail"
-                    fontSize={12}
-                  >
+                  <Text numberOfLines={1} textOverflow='ellipsis' ellipsizeMode="tail" fontSize={12}>
                     {selectedRestaurant.addressInfos[0].localType}{' '}
                     {selectedRestaurant.addressInfos[0].address},{' '}
                     {selectedRestaurant.addressInfos[0].localNumber}.{' '}
@@ -1214,7 +1211,10 @@ export default function Prices() {
                               />
                             </KeyboardAvoidingView>
                           </View>
-                          <View flexDirection="row" marginTop={10}>
+                          <View
+                            flexDirection="row"
+                            marginTop={10}
+                          >
                             <View flex={1}>
                               <Text
                                 style={{
