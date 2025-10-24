@@ -173,13 +173,13 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         if (year && !orderYear.startsWith(year)) return false;
         return true;
       }
-      const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
+      const matchesId = order.id?.toLowerCase().includes(query.toLowerCase());
       const matchesTotal = order.totalConectar.toString().includes(query);
-      const matchExternalId = order.calcOrderAgain.data.find(
+      const matchExternalId = order.calcOrderAgain?.data?.find(
         (item: any) => item.supplier && item.supplier.externalId === order.supplierId,
       );
 
-      const matchesSupplier = matchExternalId.supplier.name
+      const matchesSupplier = matchExternalId?.supplier?.name
         .toLowerCase()
         .includes(query.toLowerCase());
 
