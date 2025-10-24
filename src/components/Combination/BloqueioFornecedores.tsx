@@ -17,12 +17,20 @@ export function BloqueioFornecedoresCampo({ error, onChange }: { error?: string;
 
   const fornecedoresContexto = useMemo(() => {
     const todosFornecedores = [...suppliers, ...unavailableSupplier]
-    const fornecedoresClassificados = todosFornecedores.sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+
+    const fornecedoresNaoSelecionados = todosFornecedores.filter(
+      (item) => !combinacao.fornecedores_especificos?.includes(item.supplier.externalId)
+    )
+
+    const fornecedoresClassificados = fornecedoresNaoSelecionados.sort((a, b) => 
+      a.supplier.name.localeCompare(b.supplier.name)
+    )
+
     return fornecedoresClassificados.map((item) => ({
       label: item.supplier.name,
       value: item.supplier.externalId
     }))
-  }, [suppliers, unavailableSupplier])
+  }, [suppliers, unavailableSupplier, combinacao.fornecedores_especificos])
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false)
@@ -30,34 +38,30 @@ export function BloqueioFornecedoresCampo({ error, onChange }: { error?: string;
     setShowModal(false)
   }
 
-  // Função que adiciona um 'check' ao lado do nome do fornecedor selecionado
-    const updateFornecedorLabel = (value: string) => {
-      setSelectFornecedoresContextoBloq(prevState => {
-        return prevState.map(obj => {
-          if(obj.value === value)
-            return {...obj, label: `${obj.label} 🚫`}
-          return obj
-        })
+  const updateFornecedorLabel = (value: string) => {
+    setSelectFornecedoresContextoBloq(prevState => {
+      return prevState.map(obj => {
+        if(obj.value === value)
+          return {...obj, label: `${obj.label} 🚫`}
+        return obj
       })
+    })
+  }
+  
+  useEffect(() => {
+    const combinacaoArray = Array.isArray(combinacao?.fornecedores_bloqueados) ? combinacao.fornecedores_bloqueados : [];
+
+    setSelectFornecedoresContextoBloq(fornecedoresContexto);
+
+    if(combinacaoArray.length > 0){
+      fornecedoresContexto.forEach(fornecedorLabel => {
+        combinacaoArray.forEach(combinacaoIndexValue => {
+          if(fornecedorLabel.value == combinacaoIndexValue)
+            updateFornecedorLabel(combinacaoIndexValue)
+        })
+      });
     }
-  
-    useEffect(() => {
-      // Array com todos os campos já selecionados para a combinação
-      const combinacaoArray = Array.isArray(combinacao?.fornecedores_bloqueados) ? combinacao.fornecedores_bloqueados : [];
-  
-      // Atualiza as opções do select de 'Fornecedores Específicos'
-      setSelectFornecedoresContextoBloq(fornecedoresContexto);
-  
-      // Caso um fornecedor específico seja selecionado, altera seu nome para mostrar um 'check' do lado
-      if(combinacaoArray.length > 0){
-        fornecedoresContexto.forEach(fornecedorLabel => {
-          combinacaoArray.forEach(combinacaoIndexValue => {
-            if(fornecedorLabel.value == combinacaoIndexValue)
-              updateFornecedorLabel(combinacaoIndexValue)
-          })
-        });
-      }
-    }, [combinacao])
+  }, [combinacao])
 
   const handleBloquearFornecedores = () => {
     if ((combinacao?.fornecedores_bloqueados || []).length !== 0) {

@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { filterCarts } from '../src/utils/filterCarts';
@@ -18,6 +18,7 @@ import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 type RootStackParamList = {
   Home: undefined;
@@ -389,6 +390,13 @@ export default function Cart() {
   useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then();
   }, [cart]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setLoading(false);
+      return () => {};
+    }, []),
+  );
 
   useBackHandler(() => {
     setLoading(true);

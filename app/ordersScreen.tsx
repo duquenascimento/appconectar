@@ -14,6 +14,7 @@ import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 interface Order {
   orderDocument: ReactNode;
@@ -55,7 +56,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
-  const { loadRestaurants } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -172,13 +173,13 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         if (year && !orderYear.startsWith(year)) return false;
         return true;
       }
-      const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
+      const matchesId = order.id?.toLowerCase().includes(query.toLowerCase());
       const matchesTotal = order.totalConectar.toString().includes(query);
-      const matchExternalId = order.calcOrderAgain.data.find(
+      const matchExternalId = order.calcOrderAgain?.data?.find(
         (item: any) => item.supplier && item.supplier.externalId === order.supplierId,
       );
 
-      const matchesSupplier = matchExternalId.supplier.name
+      const matchesSupplier = matchExternalId?.supplier?.name
         .toLowerCase()
         .includes(query.toLowerCase());
 

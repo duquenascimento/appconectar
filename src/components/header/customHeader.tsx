@@ -9,8 +9,8 @@ interface HeaderProps {
 }
 
 const HeaderContainer = styled(XStack, {
-  name: 'HeaderContainer',
-  width: Platform.OS === 'web' ? '74%' : '90%',
+  name: 'HeaderContainer', 
+  width: Platform.OS === 'web' ? '95%' : '90%', 
   alignItems: 'center',
   justifyContent: 'flex-start',
   paddingVertical: '$2',

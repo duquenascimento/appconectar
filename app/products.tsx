@@ -51,6 +51,7 @@ import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export type Product = {
   name: string;
@@ -681,7 +682,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 
 let classItems: { name: string }[] = [];
 
-interface Restaurant {
+export interface Restaurant {
   externalId: any;
   id: string;
   name: string;
@@ -708,12 +709,13 @@ export default function Products() {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { loadRestaurants } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(false);
+      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
+      // setLoading(false);
 
       return () => {};
     }, []),
@@ -1351,7 +1353,7 @@ export default function Products() {
     }
   }
 
-  if (loading || !selectedRestaurant) {
+  if (loading) {
     return (
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">

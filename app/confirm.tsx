@@ -27,6 +27,7 @@ import { useInactivityRedirect } from '@/src/utils/inativityTimer';
 import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -220,7 +221,8 @@ export default function Confirm() {
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
-  const { loadRestaurants, loadPrices } = useSupplier();
+  const { loadPrices } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -239,7 +241,7 @@ export default function Confirm() {
   }, [loadingToConfirm]);
 
   useInactivityRedirect({
-    timeout: 120000,
+    timeout: 110000,
     redirectPath: '/prices',
     enabled: true,
   });
@@ -552,7 +554,7 @@ export default function Confirm() {
           backgroundColor="white"
           flexDirection="row"
           style={{ width: Platform.OS === 'web' ? '74%' : '90%' }}
-          marginHorizontal="auto"
+          marginHorizontal={'auto'}
         >
           <View alignItems="center" flexDirection="row" paddingVertical="$4" gap="$4">
             <Icons
@@ -666,7 +668,8 @@ export default function Confirm() {
                         <Text color="gray">
                           |{' '}
                           {item.priceUniqueWithTaxAndDiscount
-                            ? `R$ ${item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')}`
+                            ? 'R$ ' +
+                              item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
                             : 'R$ ----'}
                           /{item.orderUnit.replace('Unid', 'Un')}
                         </Text>

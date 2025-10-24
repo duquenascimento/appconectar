@@ -10,6 +10,7 @@ import { SupplierData } from '../../types/types';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { DropdownCampo } from './DropdownCampo';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 type Props = {
   index: number;
@@ -33,7 +34,8 @@ export function PreferenciaProdutoCard({
 }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
-  const { suppliers, unavailableSupplier, loadRestaurants } = useSupplier();
+  const { suppliers, unavailableSupplier } = useSupplier();
+  const { loadRestaurants } = useRestaurantContext();
   const bloqueados = combinacao.fornecedores_bloqueados || [];
 
   const [busca, setBusca] = useState('');
@@ -222,14 +224,25 @@ export function PreferenciaProdutoCard({
         nome: f.supplier?.name ?? '',
       }))
       .filter((f) => f.id && !bloqueados.includes(f.id))
-      .sort((a, b) => a.nome.localeCompare(b.nome))
-      .map((f) => ({
-        label: f.nome,
-        value: f.id!,
-      }));
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+    let fornecedoresFiltrados = fornecedoresLocal;
 
-    return fornecedoresLocal;
-  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
+    if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
+      const especificos = new Set(combinacao.fornecedores_especificos || []);
+      fornecedoresFiltrados = fornecedoresLocal.filter((f) => especificos.has(f.id!));
+    }
+
+    return fornecedoresFiltrados.map((f) => ({
+      label: f.nome,
+      value: f.id!,
+    }));
+  }, [
+    suppliers,
+    unavailableSupplier,
+    combinacao.fornecedores_bloqueados,
+    combinacao.preferencia_fornecedor_tipo,
+    combinacao.fornecedores_especificos,
+  ]);
 
   useEffect(() => {
     if (!busca.trim()) {

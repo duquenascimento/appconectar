@@ -45,6 +45,7 @@ export const step1Validation = Yup.object().shape({
   .required('Bairro é obrigatório.')
   .min(3, 'Informe um bairro válido (mín. 3 letras)'),
 
+  localType: Yup.string().required('Tipo de local é obrigatório.'),
   street: Yup.string().required('Logradouro é obrigatório.'),
 
   localNumber: Yup.string().required('Número é obrigatório. Se não houver, digitar S/N'),
