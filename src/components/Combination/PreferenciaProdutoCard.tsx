@@ -1,10 +1,10 @@
+import Icons from '@expo/vector-icons/Ionicons';
+import { useEffect, useMemo, useState } from 'react';
+import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
-import Icons from '@expo/vector-icons/Ionicons';
-import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
 import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
 import { SupplierData } from '../../types/types';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
@@ -25,7 +25,13 @@ const tipoProdutoItems = [
   { label: 'Remover produtos por fornecedor', value: 'remover' },
 ];
 
-export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, triggerValidation }: Props) {
+export function PreferenciaProdutoCard({
+  index,
+  onMoveUp,
+  onMoveDown,
+  onRemove,
+  triggerValidation,
+}: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
   const { suppliers, unavailableSupplier } = useSupplier();
@@ -103,7 +109,9 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   const validateFornecedores = async () => {
     try {
       const validFornecedores = preferencia.produtos[index]?.fornecedores ?? [];
-      await preferenciaProdutoSchema.validateAt('fornecedores', { fornecedores: validFornecedores });
+      await preferenciaProdutoSchema.validateAt('fornecedores', {
+        fornecedores: validFornecedores,
+      });
       setFornecedoresValidationError('');
       setFornecedoresTouched(true);
     } catch (err: any) {
@@ -124,7 +132,7 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
     novasPreferencias[index].fornecedores = fornecedores;
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.map((p) => ({
       ...p,
-      fornecedores: fornecedores,
+      fornecedores,
     }));
     updateCampo('preferencias', novasPreferencias);
     setFornecedoresTouched(true);
@@ -133,12 +141,12 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
 
   const atualizarAcaoNaFalhaPreferencia = (acao_na_falha: string) => {
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
-    const produtosAtualizados = novasPreferencias[index].produtos.filter(
-      (p) => !(p.produto_sku && p.classe),
-    ).map((produto) => ({
-      ...produto,
-      acao_na_falha: acao_na_falha as AcaoNaFalha,
-    }));
+    const produtosAtualizados = novasPreferencias[index].produtos
+      .filter((p) => !(p.produto_sku && p.classe))
+      .map((produto) => ({
+        ...produto,
+        acao_na_falha: acao_na_falha as AcaoNaFalha,
+      }));
 
     novasPreferencias[index].produtos = produtosAtualizados;
     updateCampo('preferencias', novasPreferencias);
@@ -147,7 +155,11 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
   const fornecedoresComuns = useMemo(() => {
     if (preferencia.produtos.length === 0) return [];
     const fornecedoresUnicos = Array.from(
-      new Set(preferencia.produtos.flatMap((p) => p.fornecedores).filter((f) => f !== undefined && f !== null)),
+      new Set(
+        preferencia.produtos
+          .flatMap((p) => p.fornecedores)
+          .filter((f) => f !== undefined && f !== null),
+      ),
     );
 
     return fornecedoresUnicos;
@@ -212,14 +224,25 @@ export function PreferenciaProdutoCard({ index, onMoveUp, onMoveDown, onRemove, 
         nome: f.supplier?.name ?? '',
       }))
       .filter((f) => f.id && !bloqueados.includes(f.id))
-      .sort((a, b) => a.nome.localeCompare(b.nome))
-      .map((f) => ({
-        label: f.nome,
-        value: f.id!,
-      }));
-      
-      return fornecedoresLocal;
-  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+    let fornecedoresFiltrados = fornecedoresLocal;
+
+    if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
+      const especificos = new Set(combinacao.fornecedores_especificos || []);
+      fornecedoresFiltrados = fornecedoresLocal.filter((f) => especificos.has(f.id!));
+    }
+
+    return fornecedoresFiltrados.map((f) => ({
+      label: f.nome,
+      value: f.id!,
+    }));
+  }, [
+    suppliers,
+    unavailableSupplier,
+    combinacao.fornecedores_bloqueados,
+    combinacao.preferencia_fornecedor_tipo,
+    combinacao.fornecedores_especificos,
+  ]);
 
   useEffect(() => {
     if (!busca.trim()) {

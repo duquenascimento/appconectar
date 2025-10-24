@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon'
+import { DateTime } from 'luxon';
 
 export function isBefore13Hours(): boolean {
   const now = DateTime.now().setZone('America/Sao_Paulo'); // Data e hora atual
@@ -28,4 +28,3 @@ export function getDeliveryWindow(data: any) {
   const endTime = addr.finalDeliveryTime.substring(11, 16);
   return `Entre ${startTime} e ${endTime}`;
 }
-

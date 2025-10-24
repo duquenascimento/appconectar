@@ -34,7 +34,7 @@ export function ProductItemCard({ product, missing = false }: ProductItemCardPro
       <YStack alignItems="flex-end">
         {product.price ? (
           <>
-            <Text fontWeight="bold" fontSize={14} color={'$gray12'}>
+            <Text fontWeight="bold" fontSize={14} color="$gray12">
               {formatCurrency(product.price)}
             </Text>
             <Text fontSize={12} color="$gray10">
@@ -44,8 +44,8 @@ export function ProductItemCard({ product, missing = false }: ProductItemCardPro
             </Text>
           </>
         ) : (
-          <Text fontWeight="bold" fontSize={14} color={'$red10'}>
-            {'Indisponível'}
+          <Text fontWeight="bold" fontSize={14} color="$red10">
+            Indisponível
           </Text>
         )}
       </YStack>

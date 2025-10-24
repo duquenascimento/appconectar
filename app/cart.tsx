@@ -10,8 +10,8 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-import { useFocusEffect, useRouter } from 'expo-router';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { filterCarts } from '../src/utils/filterCarts';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
@@ -385,20 +385,11 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
-  const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
 
   useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then();
   }, [cart]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadRestaurants();
-      setLoading(false);
-      return () => {};
-    }, []),
-  );
 
   useBackHandler(() => {
     setLoading(true);
@@ -640,9 +631,9 @@ export default function Cart() {
 
   const MemoizedProductBox = React.memo(ProductBox);
 
-  if (loading || displayedProducts.length === 0) {
+  if (loading) {
     return (
-      <PageContainer backgroundColor='white'>
+      <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
         </View>
@@ -651,20 +642,16 @@ export default function Cart() {
   }
 
   return (
-    <PageContainer backgroundColor='gray'>
-      <Stack
-        backgroundColor="#F0F2F6"
-        height="100%"
-        position="relative"
-      >
+    <PageContainer backgroundColor="gray">
+      <Stack backgroundColor="#F0F2F6" height="100%" position="relative">
         <View height={50} flex={1}>
           <View
-            alignItems= 'center' 
-            flexDirection='row' 
-            paddingVertical= '$2' 
-            gap= '$4' 
-            style={{width: Platform.OS === 'web' ? '70%' : '92%'}}
-            marginHorizontal={'auto'}
+            alignItems="center"
+            flexDirection="row"
+            paddingVertical="$2"
+            gap="$4"
+            style={{ width: Platform.OS === 'web' ? '70%' : '92%' }}
+            marginHorizontal="auto"
           >
             <Icons
               onPress={async () => {
@@ -674,7 +661,7 @@ export default function Cart() {
               }}
               size={30}
               name="chevron-back"
-            ></Icons>
+            />
             <Text flex={1} fontSize={16}>
               Meu carrinho
             </Text>
@@ -718,14 +705,16 @@ export default function Cart() {
               gap={5}
             >
               <View justifyContent="center" alignItems="center">
-                <Button
-                  backgroundColor="black"
-                  onPress={async () => {
-                    setConfirmDelete(true);
-                  }}
-                >
-                  <Icons name="trash" color="white" size={20}></Icons>
-                </Button>
+                {cart.size > 0 && (
+                  <Button
+                    backgroundColor="black"
+                    onPress={async () => {
+                      setConfirmDelete(true);
+                    }}
+                  >
+                    <Icons name="trash" color="white" size={20} />
+                  </Button>
+                )}
               </View>
               <Button
                 borderRadius={10}
@@ -744,12 +733,7 @@ export default function Cart() {
                 <Text fontSize={16} color="white">
                   Ver cotações
                 </Text>
-                <Icons
-                  size={18}
-                  style={{ paddingLeft: 10 }}
-                  color="white"
-                  name="arrow-forward"
-                ></Icons>
+                <Icons size={18} style={{ paddingLeft: 10 }} color="white" name="arrow-forward" />
               </Button>
             </View>
             <DialogInstanceNotification
@@ -765,7 +749,7 @@ export default function Cart() {
 
           {confirmDelte && (
             <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
-              <Modal transparent={true}>
+              <Modal transparent>
                 <View
                   flex={1}
                   justifyContent="center"
@@ -847,7 +831,7 @@ export default function Cart() {
           )}
           {confirmDeleteItem && (
             <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
-              <Modal transparent={true}>
+              <Modal transparent>
                 <View
                   flex={1}
                   justifyContent="center"
@@ -884,7 +868,10 @@ export default function Cart() {
                     </View>
                     <View gap={5} flexDirection="row" justifyContent="space-between" width="100%">
                       <TouchableOpacity style={{ flex: 1 }}>
-                        <Button backgroundColor="#04BF7B" onPress={() => setConfirmDeleteItem(false)}>
+                        <Button
+                          backgroundColor="#04BF7B"
+                          onPress={() => setConfirmDeleteItem(false)}
+                        >
                           <Text color="white" textAlign="center">
                             Cancelar
                           </Text>

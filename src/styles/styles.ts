@@ -1,41 +1,35 @@
 import { StyleSheet, Platform } from 'react-native';
 
 export const ordersScreenStyles = StyleSheet.create({
+  arrowIcon: {
+    marginLeft: 16,
+  },
+  checkboxContainer: {
+    alignItems: 'center',
+    borderColor: '#04BF7B',
+    borderRadius: 4,
+    borderWidth: 1,
+    height: 24,
+    justifyContent: 'center',
+    marginRight: 10,
+    width: 24,
+  },
   container: {
-    flex: 1,
-    padding: Platform.OS === 'web' ? 24 : 16,
     backgroundColor: '#fff',
-    marginTop: 10
-  },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F2F6',
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginTop: 20,
-    width: '100%', // Garante que o contêiner ocupe toda a largura
-  },
-  searchIcon: {
-    //marginRight: 8, // Espaçamento entre o ícone e o campo de busca
-  },
-  pickerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 5,
-    zIndex: 1000,
-    marginBottom: 10,
-    marginTop: 10,
-    borderColor: '#F0F2F6',
-    borderWidth: 1, // Adiciona borda para melhorar a aparência
-  },
-  picker: {
     flex: 1,
-    height: 40, // Altura ajustada para ficar consistente com o campo de busca
-    fontSize: 14,
-    color: '#000',
-    paddingHorizontal: 10,
+    marginTop: 10,
+    padding: Platform.OS === 'web' ? 24 : 16,
+  },
+  deliveryDate: {
+    color: '#666',
+    fontSize: Platform.select({ web: 14, default: 12 }),
+    fontWeight: 'bold',
+    width: 'auto',
+  },
+  downloadButton: {
+    alignItems: 'center',
+    borderRadius: 5,
+    padding: 10,
   },
   downloadButtonDisabled: {
     opacity: 0.5,
@@ -45,103 +39,105 @@ export const ordersScreenStyles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  topSection: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-  },
   dropdown: {
     marginVertical: 10,
     zIndex: 1000,
   },
   itemContainer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-  },
-  checkboxContainer: {
-    width: 24,
-    height: 24,
-    borderWidth: 1,
-    borderColor: '#04BF7B',
-    borderRadius: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    padding: 16,
   },
   leftColumn: {
-    marginLeft: 10,
-    flex: 1,
-    flexDirection: 'column',
     alignItems: 'flex-start',
-  },
-  rightColumn: {
     flex: 1,
     flexDirection: 'column',
-    alignItems: 'flex-end',
-  },
-  arrowIcon: {
-    marginLeft: 16,
-  },
-  downloadButton: {
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    
-  },
-  deliveryDate: {
-    width: 'auto',  
-    fontSize: Platform.select({ web: 14, default: 12 }),
-    color: '#666',
-    fontWeight: 'bold',
+    marginLeft: 10,
   },
   orderId: {
     fontSize: Platform.select({ web: 16, default: 14 }),
     fontWeight: 'bold',
   },
+  picker: {
+    flex: 1,
+    height: 40, // Altura ajustada para ficar consistente com o campo de busca
+    fontSize: 14,
+    color: '#000',
+    paddingHorizontal: 10,
+  },
+  pickerContainer: {
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#F0F2F6',
+    borderRadius: 5,
+    borderWidth: 1,
+    flexDirection: 'row',
+    marginBottom: 10,
+    marginTop: 10,
+    zIndex: 1000, // Adiciona borda para melhorar a aparência
+  },
+  rightColumn: {
+    alignItems: 'flex-end',
+    flex: 1,
+    flexDirection: 'column',
+  },
+  searchContainer: {
+    alignItems: 'center',
+    backgroundColor: '#F0F2F6',
+    borderRadius: 5,
+    flexDirection: 'row',
+    marginTop: 20,
+    paddingHorizontal: 10,
+    width: '100%', // Garante que o contêiner ocupe toda a largura
+  },
+  searchIcon: {
+    // marginRight: 8, // Espaçamento entre o ícone e o campo de busca
+  },
+  supplierName: {
+    fontSize: Platform.select({ web: 14, default: 12 }),
+    color: '#666',
+    maxWidth: 100,
+    // Largura máxima para o nome do fornecedor
+    overflow: 'hidden', // Esconde o texto que ultrapassar
+    // whiteSpace: 'nowrap', // Impede a quebra de linha
+    // textOverflow: 'ellipsis', // Adiciona "..." ao final
+  },
 
-supplierName: {
-  fontSize: Platform.select({ web: 14, default: 12 }),
-  color: '#666',
-  maxWidth: 100, 
-  // Largura máxima para o nome do fornecedor
-  overflow: 'hidden', // Esconde o texto que ultrapassar
-  //whiteSpace: 'nowrap', // Impede a quebra de linha
-  //textOverflow: 'ellipsis', // Adiciona "..." ao final
-},
-totalConectar: {
-  marginRight: 10,
-  fontSize: Platform.select({ web: 16, default: 14 }),
-  fontWeight: 'bold',
-},
-total: {
-  fontSize: Platform.select({ web: 14, default: 12 }),
-  color: '#666',
-  maxWidth: 100, 
-  // Largura máxima para o nome do fornecedor
-  overflow: 'hidden', // Esconde o texto que ultrapassar
-  //whiteSpace: 'nowrap', // Impede a quebra de linha
-  //textOverflow: 'ellipsis', // Adiciona "..." ao final
-},
-  
+  topSection: {
+    paddingBottom: 10,
+    paddingHorizontal: 10,
+  },
+  total: {
+    fontSize: Platform.select({ web: 14, default: 12 }),
+    color: '#666',
+    maxWidth: 100,
+    // Largura máxima para o nome do fornecedor
+    overflow: 'hidden', // Esconde o texto que ultrapassar
+    // whiteSpace: 'nowrap', // Impede a quebra de linha
+    // textOverflow: 'ellipsis', // Adiciona "..." ao final
+  },
+  totalConectar: {
+    fontSize: Platform.select({ web: 16, default: 14 }),
+    fontWeight: 'bold',
+    marginRight: 10,
+  },
 });
 
 export const ordersDetailsScreenStyles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: Platform.OS === 'web' ? 24 : 16,
-        backgroundColor: '#F0F2F6',
-    },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 16,
-    },
-    detailText: {
-        fontSize: 16,
-        marginBottom: 8,
-    },
+  container: {
+    backgroundColor: '#F0F2F6',
+    flex: 1,
+    padding: Platform.OS === 'web' ? 24 : 16,
+  },
+  detailText: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
 });
-
-

@@ -11,11 +11,13 @@ import {
 } from 'react-native';
 import { DateTime } from 'luxon';
 import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { loadPermissionConectarPlus } from '../src/services/restaurantService';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { campoString } from '../src/utils/formatCampos';
 import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
 import CombinationList, { Combination } from '@/src/components/combinationList';
@@ -23,8 +25,8 @@ import CustomButton from '@/src/components/button/customButton';
 import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { TCart } from '@/src/types/cartTypes';
+import { loadCart } from '@/src/utils/cartUtils';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
@@ -93,11 +95,11 @@ const useScreenSize = () => {
 };
 
 const getScreenSize = () => {
-  const width = Dimensions.get('window').width;
+  const { width } = Dimensions.get('window');
   return width >= 1024 ? 'lg/xl' : 'sm/md';
 };
 
-const SupplierBox = ({
+function SupplierBox({
   supplier,
   available,
   goToConfirm,
@@ -108,7 +110,7 @@ const SupplierBox = ({
   available: boolean;
   selectedRestaurant: any;
   goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void;
-}) => {
+}) {
   const isOpen = () => {
     const currentDate = DateTime.now().setZone('America/Sao_Paulo');
     const currentHour = Number(
@@ -151,7 +153,7 @@ const SupplierBox = ({
         <View marginLeft={10} maxWidth="75%" justifyContent="center">
           <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
           <View flexDirection="row" alignItems="center">
-            <Icons color="orange" name="star"></Icons>
+            <Icons color="orange" name="star" />
             <Text paddingLeft={4}>{supplier.supplier.star}</Text>
           </View>
         </View>
@@ -204,11 +206,11 @@ const SupplierBox = ({
         justifyContent="center"
         style={{ paddingRight: Platform.OS === 'web' ? '10vw' : undefined }}
       >
-        {available && <Icons name="chevron-forward" size={24}></Icons>}
+        {available && <Icons name="chevron-forward" size={24} />}
       </View>
     </View>
   );
-};
+}
 
 export default function Prices() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -242,11 +244,12 @@ export default function Prices() {
   const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
-  const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null); //Escolha temporária do restaurante no dropdown.
+  const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null); // Escolha temporária do restaurante no dropdown.
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const screemSize = useScreenSize();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
+  const [cart, setCart] = useState<Map<string, TCart>>();
 
   const { modificado, setModificado } = useCombinacao();
   const router = useRouter();
@@ -277,6 +280,15 @@ export default function Prices() {
       fetchData();
     }
   });
+
+  useEffect(() => {
+    async function getCart() {
+      const getCartData = await loadCart();
+
+      if (getCartData) setCart(getCartData);
+    }
+    getCart();
+  }, []);
 
   useEffect(() => {
     const handleConectarPlus = async () => {
@@ -311,8 +323,8 @@ export default function Prices() {
 
   useEffect(() => {
     if (minHour) {
-      let [minHourValue, minMinuteValue] = minHour.split(':').map(Number);
-      let [currentMaxHourValue, currentMaxMinuteValue] = maxHour
+      const [minHourValue, minMinuteValue] = minHour.split(':').map(Number);
+      const [currentMaxHourValue, currentMaxMinuteValue] = maxHour
         ? maxHour.split(':').map(Number)
         : [0, 0];
 
@@ -617,8 +629,12 @@ export default function Prices() {
 
   if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
+      <View
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+      >
+        <ActivityIndicator size="large" color="#04BF7B"  />
       </View>
     );
   }
@@ -641,7 +657,7 @@ export default function Prices() {
               }}
               size={30}
               name="chevron-back"
-            ></Icons>
+            />
             <Text flex={1} fontSize={16}>
               Cotações
             </Text>
@@ -682,7 +698,7 @@ export default function Prices() {
                 height={1}
                 width="100%"
                 backgroundColor={tab === 'plus' ? '#04BF7B' : 'white'}
-              ></View>
+              />
             </View>
             <View
               onPress={async () => {
@@ -710,12 +726,12 @@ export default function Prices() {
                 height={1}
                 width="100%"
                 backgroundColor={tab === 'plus' ? 'white' : '#04BF7B'}
-              ></View>
+              />
             </View>
           </View>
           <View backgroundColor="white" flex={1} paddingHorizontal={5}>
             <View padding={10} paddingTop={0} height="100%">
-              {tab === 'onlySupplier' && (
+              {tab === 'onlySupplier' && cart && cart.size > 0 && (
                 <VirtualizedList
                   style={{ marginBottom: 5, flexGrow: 1 }}
                   data={combinedSuppliers}
@@ -728,9 +744,17 @@ export default function Prices() {
                   ItemSeparatorComponent={() => <View height={2} />}
                   initialNumToRender={10}
                   windowSize={4}
-                  scrollEnabled={true}
+                  scrollEnabled
                 />
               )}
+
+              {tab === 'onlySupplier' && !(cart && cart.size > 0) && (
+                <Stack flex={1} alignItems="center" justifyContent="center">
+                  <Text>Não há cotações disponíveis...</Text>
+                  <Text>Tente adicionar algo ao carrinho!</Text>
+                </Stack>
+              )}
+
               {tab !== 'onlySupplier' && !permissionConectarPlus && (
                 <View padding={20} marginTop={10}>
                   <DialogInstanceNotification
@@ -757,7 +781,7 @@ export default function Prices() {
                           },
                           body: JSON.stringify({
                             token: await getToken(),
-                            selectedRestaurant: selectedRestaurant,
+                            selectedRestaurant,
                           }),
                         },
                       );
@@ -788,8 +812,6 @@ export default function Prices() {
             <CustomButton
               title="Minhas combinações"
               onPress={async () => {
-                await loadRestaurants();
-                await loadPrices();
                 router.push('/preferencesScreen');
               }}
             ></CustomButton>
@@ -838,8 +860,8 @@ export default function Prices() {
                 alignItems="center"
                 overflow="hidden"
               >
-                <Icons size={20} color="#04BF7B" name="storefront"></Icons>
-                <View marginLeft={20}></View>
+                <Icons size={20} color="#04BF7B" name="storefront" />
+                <View marginLeft={20} />
                 <Text
                   numberOfLines={showRestInfo ? 1 : 1}
                   ellipsizeMode="tail"
@@ -862,8 +884,8 @@ export default function Prices() {
                 alignItems="center"
                 overflow="hidden"
               >
-                <Icons size={20} color="#04BF7B" name="time"></Icons>
-                <View marginLeft={20}></View>
+                <Icons size={20} color="#04BF7B" name="time" />
+                <View marginLeft={20} />
                 <Text fontSize={12}>
                   {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} -{' '}
                   {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
@@ -875,7 +897,7 @@ export default function Prices() {
                   setShowRestInfo(!showRestInfo);
                 }}
                 name={showRestInfo ? 'chevron-up' : 'chevron-down'}
-              ></Icons>
+              />
             </View>
             <View display={showRestInfo ? 'flex' : 'none'}>
               <View paddingTop={5} flexDirection="row" alignItems="center">
@@ -894,12 +916,7 @@ export default function Prices() {
                 >
                   <Icons size={20} color="#04BF7B" name="location"></Icons>
                   <View marginLeft={20}></View>
-                  <Text
-                    numberOfLines={1}
-                    textOverflow="ellipsis"
-                    ellipsizeMode="tail"
-                    fontSize={12}
-                  >
+                  <Text numberOfLines={1} textOverflow='ellipsis' ellipsizeMode="tail" fontSize={12}>
                     {selectedRestaurant.addressInfos[0].localType}{' '}
                     {selectedRestaurant.addressInfos[0].address},{' '}
                     {selectedRestaurant.addressInfos[0].localNumber}.{' '}
@@ -942,8 +959,8 @@ export default function Prices() {
                   alignItems="center"
                   overflow="hidden"
                 >
-                  <Icons size={20} color="#04BF7B" name="person"></Icons>
-                  <View marginLeft={20}></View>
+                  <Icons size={20} color="#04BF7B" name="person" />
+                  <View marginLeft={20} />
                   <Text fontSize={12}>
                     {selectedRestaurant.addressInfos[0].responsibleReceivingName}
                   </Text>
@@ -961,8 +978,8 @@ export default function Prices() {
                   alignItems="center"
                   overflow="hidden"
                 >
-                  <Icons size={20} color="#04BF7B" name="call"></Icons>
-                  <View marginLeft={20}></View>
+                  <Icons size={20} color="#04BF7B" name="call" />
+                  <View marginLeft={20} />
                   <Text fontSize={12}>
                     {selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}
                   </Text>
@@ -1214,7 +1231,10 @@ export default function Prices() {
                               />
                             </KeyboardAvoidingView>
                           </View>
-                          <View flexDirection="row" marginTop={10}>
+                          <View
+                            flexDirection="row"
+                            marginTop={10}
+                          >
                             <View flex={1}>
                               <Text
                                 style={{

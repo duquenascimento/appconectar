@@ -11,7 +11,7 @@ import {
   Stack,
   ScrollView,
 } from 'tamagui';
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Icons from '@expo/vector-icons/Ionicons';
 import {
   ActivityIndicator,
@@ -22,10 +22,13 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
-import React from 'react';
+
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
+import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
 import {
   clearStorage,
   deleteStorage,
@@ -34,8 +37,6 @@ import {
   getToken,
   setStorage,
 } from '../src/utils/utils';
-import DropDownPicker from 'react-native-dropdown-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
@@ -47,7 +48,6 @@ import { filterCarts } from '../src/utils/filterCarts';
 import { UpdateAppModal } from '@/src/components/UpdateAppModal';
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
-import { useFocusEffect, useRouter } from 'expo-router';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
@@ -143,7 +143,7 @@ const ProductBox = React.memo(
     setProductObservations,
     saveProductObservations,
   }: ProductBoxProps) => {
-    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1);
+    const [quant, setQuant] = useState<number>(firstUnit || 1);
     const [valueQuant, setValueQuant] = useState(0);
     const [obs, setObs] = useState(parentObs);
     const [open, setOpen] = useState<boolean>(false);
@@ -432,49 +432,47 @@ const ProductBox = React.memo(
                   </View>
                 )}
 
-                {/*botao verde */}
+                {/* botao verde */}
                 <Button
                   onPress={(e) => {
                     e.stopPropagation();
-                    handleQuantityChange(firstUnit ? firstUnit : 1);
+                    handleQuantityChange(firstUnit || 1);
                   }}
-                  backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={quant === (firstUnit || 1) ? '#0BC07D' : '#F0F2F6'}
                   height={30}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>
-                    {firstUnit ? firstUnit : 1}
-                  </Text>
+                  <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'}>{firstUnit || 1}</Text>
                 </Button>
                 <Button
                   onPress={(e) => {
                     e.stopPropagation();
-                    handleQuantityChange(secondUnit ? secondUnit : 5);
+                    handleQuantityChange(secondUnit || 5);
                   }}
-                  backgroundColor={quant === (secondUnit ? secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={quant === (secondUnit || 5) ? '#0BC07D' : '#F0F2F6'}
                   color={quant === secondUnit ? '#fff' : '#000'}
                   height={30}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'}>
-                    {secondUnit ? secondUnit : 5}
+                  <Text color={quant === (secondUnit || 5) ? '#fff' : '#000'}>
+                    {secondUnit || 5}
                   </Text>
                 </Button>
                 <Button
                   onPress={(e) => {
                     e.stopPropagation();
-                    handleQuantityChange(thirdUnit ? thirdUnit : 10);
+                    handleQuantityChange(thirdUnit || 10);
                   }}
-                  backgroundColor={quant === (thirdUnit ? thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={quant === (thirdUnit || 10) ? '#0BC07D' : '#F0F2F6'}
                   height={30}
                   color={quant === thirdUnit ? '#fff' : '#000'}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (thirdUnit ? thirdUnit : 10) ? '#fff' : '#000'}>
-                    {thirdUnit ? thirdUnit : 10}
+                  <Text color={quant === (thirdUnit || 10) ? '#fff' : '#000'}>
+                    {thirdUnit || 10}
                   </Text>
                 </Button>
               </View>
@@ -572,7 +570,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
       'selectedRestaurant',
       JSON.stringify({
         restaurant: items.filter((item) => {
-          if (typeof item.name != 'undefined' ? item.name : '' === value) return item;
+          if (typeof item.name !== 'undefined' ? item.name : value === '') return item;
         }),
       }),
     );
@@ -601,7 +599,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
         <Select.Value
           fontSize={16}
           fontWeight="900"
-          placeholder={typeof items[0].name != 'undefined' ? items[0].name : ''}
+          placeholder={typeof items[0].name !== 'undefined' ? items[0].name : ''}
         />
       </Select.Trigger>
 
@@ -636,11 +634,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
                 items.map((item, i) => (
                   <Select.Item
                     index={i}
-                    key={typeof item.name != 'undefined' ? item.name : ''}
-                    value={typeof item.name != 'undefined' ? item.name.toLowerCase() : ''}
+                    key={typeof item.name !== 'undefined' ? item.name : ''}
+                    value={typeof item.name !== 'undefined' ? item.name.toLowerCase() : ''}
                   >
                     <Select.ItemText>
-                      {typeof item.name != 'undefined' ? item.name : ''}
+                      {typeof item.name !== 'undefined' ? item.name : ''}
                     </Select.ItemText>
                     <Select.ItemIndicator marginLeft="auto">
                       <Icons name="checkmark" size={16} />
@@ -703,7 +701,6 @@ export default function Products() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState<string>('');
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
@@ -762,22 +759,12 @@ export default function Products() {
     return () => clearTimeout(timeout);
   }, [cart.size]);
 
-  //seguindo o padrão das orders
+  // seguindo o padrão das orders
   const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
   const [restaurantOpen, setRestaurantOpen] = useState(false);
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null);
   const flatListRef = useRef<FlatList<Product>>(null);
-
-  const handleScroll = () => {
-    if (!isScrolling) {
-      setIsScrolling(true);
-    }
-  };
-
-  const handleScrollEnd = () => {
-    setIsScrolling(false);
-  };
 
   const loadProducts = useCallback(async () => {
     if (isLoading) return;
@@ -956,7 +943,7 @@ export default function Products() {
       });
 
       setCartToExclude(new Map());
-      //modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
+      // modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
     },
     [saveCart, loadCart, loadProducts],
   );
@@ -1407,11 +1394,7 @@ export default function Products() {
         setRegisterInvalid={setShowFinanceBlock}
         rest={restaurantes}
       />
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={isModalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
           style={{
             flex: 1,
@@ -1433,7 +1416,7 @@ export default function Products() {
           >
             <ImageViewer
               imageUrls={[{ url: image }]}
-              enableSwipeDown={true}
+              enableSwipeDown
               onSwipeDown={() => setModalVisible(false)}
               style={{ width: '100%', height: '100%' }}
             />
@@ -1457,7 +1440,7 @@ export default function Products() {
         </TouchableOpacity>
       </Modal>
 
-      {/*Lista de restaurantes do usuário*/}
+      {/* Lista de restaurantes do usuário */}
       <Text
         style={{
           marginTop: 15,
@@ -1549,6 +1532,7 @@ export default function Products() {
           flex={1}
           paddingHorizontal={16}
           paddingTop={5}
+          paddingBottom={70}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
@@ -1574,9 +1558,6 @@ export default function Products() {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 listRef={virtualizedListRef}
-                onScroll={handleScroll}
-                onMomentumScrollBegin={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd}
               />
             ) : (
               <CustomFlatList
@@ -1584,9 +1565,6 @@ export default function Products() {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 onEndReached={loadProducts}
-                onScroll={handleScroll}
-                onMomentumScrollBegin={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd}
                 listRef={flatListRef}
               />
             )
@@ -1701,7 +1679,6 @@ export default function Products() {
 
       <CartButton
         cartSize={displayedCartSize}
-        isScrolling={isScrolling}
         visibleProducts={displayedProducts}
         selectedRestaurant={selectedRestaurant}
         onPress={async () => {

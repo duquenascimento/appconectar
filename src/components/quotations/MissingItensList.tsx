@@ -1,8 +1,8 @@
 import { YStack, Text } from 'tamagui';
+import { useMemo } from 'react';
 import { ProductItemCard } from './ProductItemCard';
 import { Product } from '@/src/types/types';
 import { useProductContext } from '@/src/contexts/produtos.context';
-import { useMemo } from 'react';
 
 interface MissingProductsListProps {
   missingProducts: string[];
@@ -47,7 +47,7 @@ export function MissingItemsList({ missingProducts }: MissingProductsListProps) 
         Itens faltantes
       </Text>
       {missingProductsData.map((product) => (
-        <ProductItemCard key={product.sku} product={product} missing={true} />
+        <ProductItemCard key={product.sku} product={product} missing />
       ))}
     </YStack>
   );

@@ -173,13 +173,13 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         if (year && !orderYear.startsWith(year)) return false;
         return true;
       }
-      const matchesId = order.id.toLowerCase().includes(query.toLowerCase());
+      const matchesId = order.id?.toLowerCase().includes(query.toLowerCase());
       const matchesTotal = order.totalConectar.toString().includes(query);
-      const matchExternalId = order.calcOrderAgain.data.find(
+      const matchExternalId = order.calcOrderAgain?.data?.find(
         (item: any) => item.supplier && item.supplier.externalId === order.supplierId,
       );
 
-      const matchesSupplier = matchExternalId.supplier.name
+      const matchesSupplier = matchExternalId?.supplier?.name
         .toLowerCase()
         .includes(query.toLowerCase());
 
@@ -195,9 +195,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     setSelectedOrders((prevSelected: any) => {
       if (prevSelected.includes(orderId)) {
         return prevSelected.filter((id: string) => id !== orderId);
-      } else {
-        return [...prevSelected, orderId];
       }
+      return [...prevSelected, orderId];
     });
   };
 
@@ -266,14 +265,14 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length > maxLength) {
-      return text.substring(0, maxLength) + '...';
+      return `${text.substring(0, maxLength)}...`;
     }
     return text;
   };
 
   if (loading) {
     return (
-      <PageContainer backgroundColor='white'>
+      <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
           <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
@@ -285,7 +284,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   }
 
   return (
-    <PageContainer backgroundColor='white'>
+    <PageContainer backgroundColor="white">
       <CustomAlert
         visible={showAlertVisible}
         title={customAlertTitle}
@@ -295,7 +294,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       <Text
         style={{
           width: Platform.OS === 'web' ? '70%' : '92%',
-          margin: 'auto'
+          margin: 'auto',
         }}
       >
         Meus Pedidos
@@ -434,7 +433,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
               <Icons
                 name="chevron-forward"
                 size={20}
-                color="#000" 
+                color="#000"
                 style={{
                   marginLeft: 10,
                 }}
