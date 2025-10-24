@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { filterCarts } from '../src/utils/filterCarts';
@@ -390,13 +390,6 @@ export default function Cart() {
   useEffect(() => {
     setStorage('cart', JSON.stringify(Array.from(cart.entries()))).then();
   }, [cart]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setLoading(false);
-      return () => {};
-    }, []),
-  );
 
   useBackHandler(() => {
     setLoading(true);
