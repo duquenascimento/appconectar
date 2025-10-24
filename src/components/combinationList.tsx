@@ -53,81 +53,77 @@ const CombinationList: React.FC = () => {
   const [combinationData, setCombinationData] = useState<QuotationApiResponse[]>([]);
 
   const { suppliers, unavailableSupplier } = useSupplier();
-  const { modificado } = useCombinacao();
   const router = useRouter();
 
-  const allSuppliers = useMemo(() => {
-    return [...suppliers, ...unavailableSupplier];
-  }, [suppliers, unavailableSupplier]);
+  const initialize = async () => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      const cartStoredValue = JSON.parse((await getStorage('cart')) || '[]');
+      const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
+      const selectedRestaurant = { ...restaurantStoredValue.restaurant };
+      const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
+        token,
+        selectedRestaurant,
+        cart: cartStoredValue,
+        prices: [...suppliers, ...unavailableCombinations],
+      });
+
+      const totalItens = cartStoredValue?.length || 0;
+      setCombinationData(combinationsData);
+
+      const transformed: Combination[] = combinationsData.map((item) => {
+        const suppliers =
+          item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') || 'N/A';
+        const cartItens =
+          item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
+            return acc + (cesta.cart?.length || 0);
+          }, 0) || 0;
+        const missingItems = totalItens - cartItens;
+
+        return {
+          id: item.id,
+          combination: item.nome,
+          supplier: suppliers,
+          totalValue: item.resultadoCotacao?.totalOrderValue,
+          missingItems: missingItems < 0 ? 0 : missingItems,
+          missingProducts: item.resultadoCotacao?.missingProducts || [],
+        };
+      });
+      const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
+
+      const unavailableCombinationList = transformed.filter(
+        (item) =>
+          item.totalValue === 0 ||
+          unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+      );
+
+      const availableCombinationList = transformed
+        .filter(
+          (item) =>
+            item.totalValue !== 0 &&
+            !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+        )
+        .sort((a, b) => {
+          if (a.missingItems !== b.missingItems) {
+            return (a.missingItems ?? 0) - (b.missingItems ?? 0);
+          }
+          return (a.totalValue ?? 0) - (b.totalValue ?? 0);
+        });
+
+      setUnavailableCombinations(unavailableCombinationList);
+      setMineCombinations(availableCombinationList);
+    } catch (error) {
+      setIsAlertVisible(true);
+      console.error('Erro ao inicializar:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const cartStoredValue = JSON.parse((await getStorage('cart')) || '[]');
-        const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
-        const selectedRestaurant = { ...restaurantStoredValue.restaurant };
-        const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
-          token,
-          selectedRestaurant,
-          cart: cartStoredValue,
-          prices: allSuppliers,
-        });
-
-        const totalItens = cartStoredValue?.length || 0;
-        setCombinationData(combinationsData);
-
-        const transformed: Combination[] = combinationsData.map((item) => {
-          const suppliers =
-            item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') || 'N/A';
-          const cartItens =
-            item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
-              return acc + (cesta.cart?.length || 0);
-            }, 0) || 0;
-          const missingItems = totalItens - cartItens;
-
-          return {
-            id: item.id,
-            combination: item.nome,
-            supplier: suppliers,
-            totalValue: item.resultadoCotacao?.totalOrderValue,
-            missingItems: missingItems < 0 ? 0 : missingItems,
-            missingProducts: item.resultadoCotacao?.missingProducts || [],
-          };
-        });
-        const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
-
-        const unavailableCombinationList = transformed.filter(
-          (item) =>
-            item.totalValue === 0 ||
-            unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-        );
-
-        const availableCombinationList = transformed
-          .filter(
-            (item) =>
-              item.totalValue !== 0 &&
-              !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-          )
-          .sort((a, b) => {
-            if (a.missingItems !== b.missingItems) {
-              return (a.missingItems ?? 0) - (b.missingItems ?? 0);
-            }
-            return (a.totalValue ?? 0) - (b.totalValue ?? 0);
-          });
-
-        setUnavailableCombinations(unavailableCombinationList);
-        setMineCombinations(availableCombinationList);
-      } catch (error) {
-        setIsAlertVisible(true);
-        console.error('Erro ao inicializar:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
     initialize();
-  }, [allSuppliers, modificado]);
+  }, []);
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
