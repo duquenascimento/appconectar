@@ -189,7 +189,7 @@ function SupplierBox({
                 <></>
               )}
               {supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-              !selectedRestaurant.allowMinimumOrder ? (
+                !selectedRestaurant.allowMinimumOrder ? (
                 <Text color="red" fontSize={12}>
                   Mínimo R$
                   {supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}
@@ -250,36 +250,38 @@ export default function Prices() {
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
-
-  const { modificado, setModificado } = useCombinacao();
   const router = useRouter();
-
   const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
+  const { modificado, setModificado } = useCombinacao();
+  const [mainDataLoaded, setMainDataLoaded] = useState(false);
 
-  useFocusEffect(() => {
-    if (tab === 'plus' && modificado) {
-      const fetchData = async () => {
-        try {
-          const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
+  useEffect(() => {
+    const loadCombinations = async () => {
+      if (!mainDataLoaded || tab !== 'plus') return;
+      try {
+        const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
+        if (!storedRestaurant) return;
 
-          if (!storedRestaurant) return;
+        const parsed = JSON.parse(storedRestaurant);
+        const restaurantId = parsed?.id;
 
-          const parsed = JSON.parse(storedRestaurant);
-          const restaurantId = parsed?.id;
-
-          if (restaurantId) {
-            const combinations = await getAllCombinationsByRestaurant(restaurantId);
-            setCombinations(combinations);
-          }
-        } catch (e) {
-          console.error('Erro ao ler selectedRestaurant:', e);
+        if (restaurantId) {
+          const fetchedCombinations = await getAllCombinationsByRestaurant(restaurantId);
+          setCombinations(fetchedCombinations);
         }
-        setModificado(false);
-      };
-      fetchData();
-    }
-  });
+      } catch (e) {
+        console.error('Erro ao carregar combinations:', e);
+      }
+
+      setModificado(false);
+
+    };
+
+    loadCombinations();
+  }, [mainDataLoaded, tab, modificado]);
+
+
 
   useEffect(() => {
     async function getCart() {
@@ -443,6 +445,7 @@ export default function Prices() {
         console.error(err);
       } finally {
         setLoading(false);
+        setMainDataLoaded(true);
       }
     };
 
@@ -627,7 +630,7 @@ export default function Prices() {
     );
   }
 
-  if (loading || suppliers.length === 0) {
+  if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -1035,7 +1038,7 @@ export default function Prices() {
                                 flex: 1,
                                 marginBottom: Platform.OS === 'web' ? 0 : 35,
                               }}
-                              setValue={() => {}}
+                              setValue={() => { }}
                               items={allRestaurants.map((item) => ({
                                 label: item?.name,
                                 value: item?.name,
@@ -1475,7 +1478,7 @@ export default function Prices() {
                                     flex: 1,
                                     marginBottom: Platform.OS === 'web' ? 0 : 5,
                                   }}
-                                  setValue={() => {}}
+                                  setValue={() => { }}
                                   items={allRestaurants.map((item) => ({
                                     label: item?.name,
                                     value: item?.name,
@@ -1978,12 +1981,12 @@ export default function Prices() {
                         </Button>
                         <Button
                           {...(zipCode?.length === 9 &&
-                          localNumber?.length &&
-                          street?.length &&
-                          responsibleReceivingName?.length &&
-                          responsibleReceivingPhoneNumber?.length &&
-                          localType?.length &&
-                          city?.length
+                            localNumber?.length &&
+                            street?.length &&
+                            responsibleReceivingName?.length &&
+                            responsibleReceivingPhoneNumber?.length &&
+                            localType?.length &&
+                            city?.length
                             ? {}
                             : { opacity: 0.4, disabled: true })}
                           onPress={async () => {
