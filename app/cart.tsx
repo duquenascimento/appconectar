@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 // import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   ActivityIndicator,
-  BackHandler,
   Modal,
   Platform,
   TouchableOpacity,
@@ -14,21 +13,9 @@ import { useRouter } from 'expo-router';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { filterCarts } from '../src/utils/filterCarts';
-import { CustomImageBadge } from '@/src/components/image/customImageBadge';
-import { useBackHandler } from '@/src/components/hooks/useBackHandler';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-
-type RootStackParamList = {
-  Home: undefined;
-  Products: undefined;
-  Prices: undefined;
-};
-
-/* type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-} */
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
+import { useBackHandler } from '../src/components/hooks/useBackHandler';
+import PageContainer from '../src/components/box/PageContainer';
 
 export type Product = {
   name: string;
@@ -460,11 +447,11 @@ export default function Cart() {
 
       if (!result.ok) return new Map();
 
-      const cart = await result.json();
-      if (!cart.data || cart.data.length < 1) return new Map();
+      const cartItem = await result.json();
+      if (!cartItem.data || cartItem.data.length < 1) return new Map();
 
       const cartMap = new Map<string, TCart>(
-        cart.data.map((item: TCart) => [item.productId, item]),
+        cartItem.data.map((item: TCart) => [item.productId, item]),
       );
 
       const localCartString = await getStorage('cart');
@@ -528,17 +515,17 @@ export default function Cart() {
         }),
       });
       if (!result.ok) return [];
-      const cart = await result.json();
-      if (cart.data.length < 1) return [];
+      const cartItem = await result.json();
+      if (cartItem.data.length < 1) return [];
 
-      const alertItems = cart.data.filter(
+      const alertItems = cartItem.data.filter(
         (item: Product) =>
           item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'),
       );
 
       setAlertItems(alertItems);
 
-      return cart.data;
+      return cartItem.data;
     } catch (error) {
       console.error('Erro ao carregar favoritos:', error);
       return [];
@@ -591,9 +578,15 @@ export default function Cart() {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const cart = await loadCart();
-        const products = await loadProducts();
-        if (cart.size > 0) setCart(cart);
+        const cartitem = await loadCart();
+        if (cartitem.size > 0) {
+          setCart(cartitem);
+          const products = await loadProducts();
+          if (products.length > 0) setProducts(products);
+        } else {
+          setCart(new Map());
+          setProducts([]);
+        }
         if (products.length > 0) setProducts(products);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
