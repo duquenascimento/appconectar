@@ -449,8 +449,6 @@ export default function Prices() {
     loadPricesAsync();
   }, [loadPrices]);
 
-  // console.log('MainDataLoaded: >>> ', mainDataLoaded, new Date());
-
   const combinedSuppliers = useMemo(() => {
     const itens: any[] = [];
 
