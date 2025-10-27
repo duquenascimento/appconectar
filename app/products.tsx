@@ -1532,7 +1532,6 @@ export default function Products() {
           flex={1}
           paddingHorizontal={16}
           paddingTop={5}
-          paddingBottom={70}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
