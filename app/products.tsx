@@ -120,7 +120,6 @@ const ProductBox = React.memo(
     favorites,
     saveCart,
     saveCartArray,
-    cartToExclude,
     cart,
     setImage,
     setModalVisible,
@@ -703,6 +702,9 @@ export default function Products() {
 
   useFocusEffect(
     useCallback(() => {
+      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
+      // setLoading(false);
+
       return () => {};
     }, []),
   );
