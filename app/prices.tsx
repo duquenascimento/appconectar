@@ -189,7 +189,7 @@ function SupplierBox({
                 <></>
               )}
               {supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-                !selectedRestaurant.allowMinimumOrder ? (
+              !selectedRestaurant.allowMinimumOrder ? (
                 <Text color="red" fontSize={12}>
                   Mínimo R$
                   {supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}
@@ -275,13 +275,10 @@ export default function Prices() {
       }
 
       setModificado(false);
-
     };
 
     loadCombinations();
   }, [mainDataLoaded, tab, modificado]);
-
-
 
   useEffect(() => {
     async function getCart() {
@@ -451,6 +448,8 @@ export default function Prices() {
 
     loadPricesAsync();
   }, [loadPrices]);
+
+  // console.log('MainDataLoaded: >>> ', mainDataLoaded, new Date());
 
   const combinedSuppliers = useMemo(() => {
     const itens: any[] = [];
@@ -804,7 +803,9 @@ export default function Prices() {
                   </Text>
                 </View>
               )}
-              {tab !== 'onlySupplier' && permissionConectarPlus && <CombinationList />}
+              {tab !== 'onlySupplier' && permissionConectarPlus && mainDataLoaded && (
+                <CombinationList />
+              )}
             </View>
           </View>
           {tab !== 'onlySupplier' && permissionConectarPlus && (
@@ -1038,7 +1039,7 @@ export default function Prices() {
                                 flex: 1,
                                 marginBottom: Platform.OS === 'web' ? 0 : 35,
                               }}
-                              setValue={() => { }}
+                              setValue={() => {}}
                               items={allRestaurants.map((item) => ({
                                 label: item?.name,
                                 value: item?.name,
@@ -1478,7 +1479,7 @@ export default function Prices() {
                                     flex: 1,
                                     marginBottom: Platform.OS === 'web' ? 0 : 5,
                                   }}
-                                  setValue={() => { }}
+                                  setValue={() => {}}
                                   items={allRestaurants.map((item) => ({
                                     label: item?.name,
                                     value: item?.name,
@@ -1981,12 +1982,12 @@ export default function Prices() {
                         </Button>
                         <Button
                           {...(zipCode?.length === 9 &&
-                            localNumber?.length &&
-                            street?.length &&
-                            responsibleReceivingName?.length &&
-                            responsibleReceivingPhoneNumber?.length &&
-                            localType?.length &&
-                            city?.length
+                          localNumber?.length &&
+                          street?.length &&
+                          responsibleReceivingName?.length &&
+                          responsibleReceivingPhoneNumber?.length &&
+                          localType?.length &&
+                          city?.length
                             ? {}
                             : { opacity: 0.4, disabled: true })}
                           onPress={async () => {
