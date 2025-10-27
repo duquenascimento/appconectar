@@ -15,7 +15,6 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons';
 import {
   ActivityIndicator,
-  BackHandler,
   FlatList,
   Modal,
   Platform,
@@ -40,17 +39,16 @@ import {
 import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
+import { DialogComercialInstance } from '../src/components/dialogComercialInstance';
 import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
-import { CartButton } from '@/src/components/cartButton';
+import { CartButton } from '../src/components/cartButton';
 import { useProductContext } from '@/src/contexts/produtos.context';
 import { filterCarts } from '../src/utils/filterCarts';
-import { UpdateAppModal } from '@/src/components/UpdateAppModal';
-import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance';
-import { CustomImageBadge } from '@/src/components/image/customImageBadge';
-import { useBackHandler } from '@/src/components/hooks/useBackHandler';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import PageContainer from '@/src/components/box/PageContainer';
+import { UpdateAppModal } from '../src/components/UpdateAppModal';
+import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
+import { useBackHandler } from '../src/components/hooks/useBackHandler';
+import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export type Product = {
@@ -73,14 +71,6 @@ export type Product = {
   secondUnit: number;
   thirdUnit: number;
   obs: string;
-};
-
-type RootStackParamList = {
-  Home: undefined;
-  Products: undefined;
-  Cart: undefined;
-  Sign: undefined;
-  Orders: undefined;
 };
 
 type Cart = {
@@ -122,7 +112,6 @@ const ProductBox = React.memo(
     id,
     name,
     image,
-    mediumWeight,
     firstUnit,
     secondUnit,
     thirdUnit,
@@ -714,9 +703,6 @@ export default function Products() {
 
   useFocusEffect(
     useCallback(() => {
-      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
-      // setLoading(false);
-
       return () => {};
     }, []),
   );
@@ -745,10 +731,6 @@ export default function Products() {
       }
     };
     runCheck();
-  }, []);
-
-  useEffect(() => {
-    SaveUserAppInfo();
   }, []);
 
   useEffect(() => {
@@ -826,12 +808,11 @@ export default function Products() {
         ? new Map<string, Cart>(JSON.parse(localCartString))
         : new Map();
 
-      // Merge local cart with server cart
       localCart.forEach((value, key) => {
         if (value.amount > 0) {
           cartMap.set(key, value);
         } else {
-          cartMap.delete(key); // remove se estiver com amount 0
+          cartMap.delete(key);
         }
       });
 
@@ -844,31 +825,6 @@ export default function Products() {
       return new Map();
     }
   };
-  // const loadRestaurants = useCallback(async () => {
-  //   try {
-  //     const token = await getToken()
-  //     if (token == null) return []
-  //     const result = await fetch(
-  //       `${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`,
-  //       {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json'
-  //         },
-  //         body: JSON.stringify({
-  //           token
-  //         })
-  //       }
-  //     )
-  //     if (!result.ok) return []
-  //     const restaurants = await result.json()
-  //     if (restaurants.data.length < 1) return []
-  //     return restaurants.data
-  //   } catch (error) {
-  //     console.error('Erro ao carregar restaurantes:', error)
-  //     return []
-  //   }
-  // }, [])
 
   const saveCart = useCallback(async (cart: Cart, isCart: boolean) => {
     let newCart = new Map();
@@ -971,11 +927,13 @@ export default function Products() {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        // Carrega restaurantes uma única vez
-        const restaurants = await loadRestaurants();
         const savedRestaurant = await getSavedRestaurant();
+        const restaurants = await loadRestaurants();
+        if (savedRestaurant) {
+          await SaveUserAppInfo();
+        }
         const cartMap = await loadCart();
-        await loadProducts(); // já está no contexto, mas ok
+        await loadProducts();
 
         const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true);
         // Extraindo categorias
@@ -1370,7 +1328,6 @@ export default function Products() {
         setOpenModal={setShowRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
-        // navigation={navigation}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
           const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp);
@@ -1381,7 +1338,6 @@ export default function Products() {
             );
             setSelectedRestaurant(availableRestaurant.externalId);
             setShowRegistrationReleasedNewApp(false);
-            // Recarregar os dados do novo restaurante
             loadProducts();
             loadFavorites();
             loadCart();
