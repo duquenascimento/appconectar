@@ -591,9 +591,15 @@ export default function Cart() {
     const loadInitialData = async () => {
       setLoading(true);
       try {
-        const cart = await loadCart();
-        const products = await loadProducts();
-        if (cart.size > 0) setCart(cart);
+        const cartitem = await loadCart();
+        if (cartitem.size > 0) {
+          setCart(cartitem);
+          const products = await loadProducts();
+          if (products.length > 0) setProducts(products);
+        } else {
+          setCart(new Map());
+          setProducts([]);
+        }
         if (products.length > 0) setProducts(products);
       } catch (error) {
         console.error('Erro ao carregar dados:', error);
