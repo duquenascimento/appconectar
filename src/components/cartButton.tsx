@@ -184,7 +184,7 @@ export const CartButton: React.FC<Props> = ({
           },
           animatedStyle,
         ]}
-        pointerEvents="none"
+        pointerEvents="box-none"
       >
         <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
           <View
