@@ -450,7 +450,7 @@ export default function Prices() {
   }, [loadPrices]);
 
   const combinedSuppliers = useMemo(() => {
-    const itens: any[] = [];
+    const initialItens: any[] = [];
 
     const filteredSuppliers = suppliers.filter(
       (item) => item.supplier.hour.substring(0, 5) !== '06:00',
@@ -458,16 +458,23 @@ export default function Prices() {
 
     const filteredUnavailableSuppliers = unavailableSupplier;
 
-    if (filteredSuppliers.length) itens.push({ initialSeparator: true });
-    itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })));
+    if (filteredSuppliers.length) initialItens.push({ initialSeparator: true });
+    initialItens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })));
 
-    if (filteredUnavailableSuppliers.length) itens.push({ separator: true });
-    itens.push(
+    if (filteredUnavailableSuppliers.length) initialItens.push({ separator: true });
+    initialItens.push(
       ...filteredUnavailableSuppliers.map((item) => ({
         ...item,
         available: false,
       })),
     );
+
+    const itens: any[] = initialItens.splice(1).sort((a, b) => {
+      if ((a.supplier.discount.product.length - a.supplier.missingItens) !== (b.supplier.discount.product.length - b.supplier.missingItens)) {
+        return (a.supplier.discount.product.length - a.supplier.missingItens) - (b.supplier.discount.product.length - b.supplier.missingItens);
+      }
+      return (a.supplier.discount.orderValueFinish) - (b.supplier.discount.orderValueFinish);
+    })
 
     return itens;
   }, [suppliers, unavailableSupplier]);
@@ -733,7 +740,7 @@ export default function Prices() {
                   data={combinedSuppliers}
                   getItemCount={getItemCount}
                   getItem={getItem}
-                  keyExtractor={(item, index) =>
+                  keyExtractor={(item, index) => 
                     item.supplier ? item.supplier.name : `separator-${index}`
                   }
                   renderItem={renderItem}
