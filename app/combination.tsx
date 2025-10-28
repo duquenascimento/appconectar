@@ -19,6 +19,7 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { Combinacao } from '../src/types/combinationTypes';
 
 export interface SuplierCombination {
   id: string;
@@ -82,7 +83,7 @@ export function Combination(): JSX.Element {
     router.push('preferencesScreen');
   };
 
-  const createCombination = async (combinacaoFiltrada?: any) => {
+  const createCombination = async (combinacaoFiltrada?: Combinacao) => {
     try {
       const dadosParaEnviar = combinacaoFiltrada || combinacao;
 
@@ -113,7 +114,7 @@ export function Combination(): JSX.Element {
     }
   };
 
-  const updateCombination = async (combinacaoFiltrada?: any) => {
+  const updateCombination = async (combinacaoFiltrada?: Combinacao) => {
     try {
       const dadosParaEnviar = combinacaoFiltrada || combinacao;
 
@@ -143,8 +144,8 @@ export function Combination(): JSX.Element {
   };
 
   const updateCampoAndValidate = useCallback(
-    async (campo: string, valor: any) => {
-      updateCampo(campo as any, valor);
+    async <K extends keyof Combinacao>(campo: K, valor: Combinacao[K]) => {
+      updateCampo(campo, valor);
       try {
         const tempObj = { ...combinacao, [campo]: valor };
         await combinacaoValidationSchema.validateAt(campo, tempObj);
@@ -199,13 +200,13 @@ export function Combination(): JSX.Element {
       } else {
         await createCombination(combinacaoParaValidar);
       }
-    } catch (validationErrors) {
+    } catch (error) {
       // Reset trigger validation even on error
       setTimeout(() => setTriggerValidation(false), 100);
 
-      if (validationErrors instanceof Yup.ValidationError) {
+      if (error instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {};
-        validationErrors.inner.forEach((err) => {
+        error.inner.forEach((err) => {
           if (err.path) {
             newErrors[err.path] = err.message;
           }
