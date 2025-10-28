@@ -1136,7 +1136,7 @@ export default function Prices() {
                                     color: 'gray',
                                   }}
                                 >
-                                  Cep
+                                  Cep <Text color="red"> *</Text>
                                 </Text>
                                 <Input
                                   maxLength={9}
@@ -1185,7 +1185,7 @@ export default function Prices() {
                               <View zIndex={-1} flex={1} marginTop={10}>
                                 <KeyboardAvoidingView>
                                   <Text paddingLeft={5} fontSize={12} color="gray">
-                                    Cidade
+                                    Cidade <Text color="red"> *</Text>
                                   </Text>
                                   <Input
                                     color="gray"
@@ -1213,7 +1213,7 @@ export default function Prices() {
                           <View flex={1}>
                             <KeyboardAvoidingView>
                               <Text paddingLeft={5} fontSize={12} color="gray">
-                                Bairro
+                                Bairro <Text color="red"> *</Text>
                               </Text>
                               <Input
                                 color="gray"
@@ -1243,7 +1243,7 @@ export default function Prices() {
                                   color: 'gray',
                                 }}
                               >
-                                Rua
+                                Rua <Text color="red"> *</Text>
                               </Text>
                               <KeyboardAvoidingView>
                                 <Input
@@ -1288,7 +1288,7 @@ export default function Prices() {
                             <View flex={1}>
                               <KeyboardAvoidingView style={{ flex: 1 }}>
                                 <Text paddingLeft={5} fontSize={12} color="gray">
-                                  Nº
+                                  Nº <Text color="red"> *</Text>
                                 </Text>
                                 <Input
                                   height={43}
@@ -1351,8 +1351,8 @@ export default function Prices() {
                             flexDirection="row"
                           >
                             <View flex={1}>
-                              <Text paddingLeft={5} fontSize={12} color="gray">
-                                Resp. recebimento <Text color="red">*</Text>
+                              <Text fontSize={12} color="gray">
+                                Resp. recebimento <Text color="red"> *</Text>
                               </Text>
                               <KeyboardAvoidingView style={{ flex: 1 }}>
                                 <Input
@@ -1378,8 +1378,8 @@ export default function Prices() {
                               </KeyboardAvoidingView>
                             </View>
                             <View flex={1}>
-                              <Text paddingLeft={5} fontSize={12} color="gray">
-                                Cel Resp. recebimento <Text color="red">*</Text>
+                              <Text fontSize={12} color="gray">
+                                Cel Resp. recebimento <Text color="red"> *</Text>
                               </Text>
                               <KeyboardAvoidingView style={{ flex: 1 }}>
                                 <Input
@@ -1620,7 +1620,7 @@ export default function Prices() {
                                       color: 'gray',
                                     }}
                                   >
-                                    Cep
+                                    Cep <Text color="red"> *</Text>
                                   </Text>
                                   <Input
                                     maxLength={9}
@@ -1669,7 +1669,7 @@ export default function Prices() {
 
                                 <View style={{ flex: 1 }}>
                                   <Text paddingTop={10} paddingLeft={5} fontSize={12} color="gray">
-                                    Cidade
+                                    Cidade <Text color="red"> *</Text>
                                   </Text>
                                   <Input
                                     marginBottom={10}
@@ -1694,7 +1694,7 @@ export default function Prices() {
 
                               <View>
                                 <Text paddingLeft={5} fontSize={12} color="gray">
-                                  Bairro
+                                  Bairro <Text color="red"> *</Text>
                                 </Text>
                                 <Input
                                   marginBottom={10}
@@ -1731,7 +1731,7 @@ export default function Prices() {
                                       color: 'gray',
                                     }}
                                   >
-                                    Rua
+                                    Rua <Text color="red"> *</Text>
                                   </Text>
                                   <KeyboardAvoidingView>
                                     <Input
@@ -1772,7 +1772,7 @@ export default function Prices() {
                               >
                                 <View flex={1} position="relative">
                                   <Text paddingLeft={5} fontSize={12} color="gray">
-                                    Nº
+                                    Nº <Text color="red"> *</Text>
                                   </Text>
                                   <Input
                                     fontSize={14}
@@ -1831,8 +1831,8 @@ export default function Prices() {
                                 flexDirection="row"
                               >
                                 <View flex={1}>
-                                  <Text paddingLeft={5} fontSize={12} color="gray">
-                                    Resp. recebimento <Text color="red">*</Text>
+                                  <Text fontSize={12} color="gray">
+                                    Resp. recebimento <Text color="red"> *</Text>
                                   </Text>
                                   <KeyboardAvoidingView style={{ flex: 1 }}>
                                     <Input
@@ -1858,8 +1858,8 @@ export default function Prices() {
                                   </KeyboardAvoidingView>
                                 </View>
                                 <View flex={1}>
-                                  <Text paddingLeft={5} fontSize={12} color="gray">
-                                    Cel Resp. recebimento <Text color="red">*</Text>
+                                  <Text fontSize={12} color="gray">
+                                    Cel Resp. recebimento <Text color="red"> *</Text>
                                   </Text>
                                   <KeyboardAvoidingView style={{ flex: 1 }}>
                                     <Input
