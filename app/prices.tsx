@@ -1477,7 +1477,9 @@ export default function Prices() {
                                     flex: 1,
                                     marginBottom: Platform.OS === 'web' ? 0 : 5,
                                   }}
-                                  setValue={() => {}}
+                                  zIndex={5000}
+                                  zIndexInverse={5000}
+                                  setValue={() => { }}
                                   items={allRestaurants.map((item) => ({
                                     label: item?.name,
                                     value: item?.name,
@@ -1507,13 +1509,11 @@ export default function Prices() {
                                   paddingTop: 5,
                                   flexDirection: 'row',
                                   justifyContent: 'space-between',
-                                  zIndex: 10,
                                 }}
                               >
                                 <View
                                   style={{
                                     flex: 1,
-                                    zIndex: 10,
                                     marginRight: 5,
                                   }}
                                 >
@@ -1554,12 +1554,12 @@ export default function Prices() {
                                       borderColor: 'lightgray',
                                       borderRadius: 5,
                                     }}
-                                    zIndex={10}
-                                    zIndexInverse={5}
+                                    zIndex={4000}
+                                    zIndexInverse={4000}
                                   />
                                 </View>
 
-                                <View style={{ flex: 1, zIndex: 9, marginLeft: 5 }}>
+                                <View style={{ flex: 1, marginLeft: 5 }}>
                                   <Text
                                     style={{
                                       paddingLeft: 5,
@@ -1598,8 +1598,8 @@ export default function Prices() {
                                       borderColor: 'lightgray',
                                       borderRadius: 5,
                                     }}
-                                    zIndex={9}
-                                    zIndexInverse={4}
+                                    zIndex={4000}
+                                    zIndexInverse={4000}
                                   />
                                 </View>
                               </View>
