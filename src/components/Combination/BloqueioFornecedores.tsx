@@ -107,6 +107,7 @@ export function BloqueioFornecedoresCampo({
           checked={!!combinacao.bloquear_fornecedores}
           onCheckedChange={handleSwitchChange}
           backgroundColor={combinacao.bloquear_fornecedores ? '$green10' : '#7c7c7dff'}
+          padding={0}
         >
           <Switch.Thumb backgroundColor="white" animation="quick" scale={0.9} />
         </Switch>

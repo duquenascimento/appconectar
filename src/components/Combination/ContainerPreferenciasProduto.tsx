@@ -117,6 +117,7 @@ export function ContainerPreferenciasProduto({
           checked={combinacao.definir_preferencia_produto}
           onCheckedChange={handleToggle}
           backgroundColor={combinacao.definir_preferencia_produto ? '$green10' : '#7c7c7dff'}
+          padding={0}
         >
           <Switch.Thumb backgroundColor="white" animation="quick" scale={0.9} />
         </Switch>

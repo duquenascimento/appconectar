@@ -151,6 +151,7 @@ export function PreferenciaFornecedorCampo({
           backgroundColor={
             combinacao.preferencia_fornecedor_tipo === 'especifico' ? '$green10' : '#7c7c7dff'
           }
+          padding={0}
         >
           <Switch.Thumb backgroundColor="white" animation="quick" scale={0.9} />
         </Switch>
