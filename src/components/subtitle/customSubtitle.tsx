@@ -10,7 +10,7 @@ const CustomSubtitle: React.FC<SubtitleProps> = ({
 }) => {
   return (
     <Text
-      fontSize={15}
+      fontSize={13}
       marginTop={10}
       marginBottom={10}
       color={'rgba(0, 0, 0, 0.6)'}
