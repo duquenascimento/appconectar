@@ -271,6 +271,14 @@ const ProductBox = React.memo(
       }
     }, [addObservation, id, obs]);
 
+    /* console.log('cart', cart)
+    console.log('id', id) */
+
+    useEffect(() => {
+      if(cart.get(id))
+        console.log(id)
+    }, [cart])
+
     return (
       <Stack
         onPress={toggleOpen}
@@ -291,7 +299,7 @@ const ProductBox = React.memo(
           paddingHorizontal={8}
           flexDirection="row"
           minHeight={40}
-          backgroundColor="white"
+          backgroundColor="red"
           borderRadius={12}
           borderBottomLeftRadius={
             open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12
@@ -1215,6 +1223,10 @@ export default function Products() {
     setDisplayedProducts(filteredProducts);
     setSkeletonLoading(false);
   }, [filteredProducts]);
+
+  /* console.log('displayedProd', displayedProducts)
+  console.log('filteredProd', filteredProducts) */
+
 
   const handlePress = useCallback(
     (name: string) => {
