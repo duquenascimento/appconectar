@@ -282,7 +282,7 @@ const ProductBox = React.memo(
       >
         <View
           style={{
-            width: Platform.OS === 'web' ? '60%' : '92%',
+            width: Platform.OS === 'web' ? '50%' : '92%',
             alignSelf: 'center',
           }}
           flex={1}
@@ -371,7 +371,7 @@ const ProductBox = React.memo(
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
-              width: Platform.OS === 'web' ? '60%' : '92%',
+              width: Platform.OS === 'web' ? '50%' : '92%',
               alignSelf: 'center',
             }}
           >
@@ -1244,6 +1244,7 @@ export default function Products() {
           color={currentClass.toLowerCase() !== item.name.toLowerCase() ? '#aaa' : '#04BF7B'}
           fontSize={14}
           paddingHorizontal={8}
+          maxWidth={120}
           textAlign="center"
         >
           {item.name}
@@ -1403,7 +1404,7 @@ export default function Products() {
       <Text
         style={{
           marginTop: 15,
-          width: Platform.OS === 'web' ? '60%' : '92%',
+          width: Platform.OS === 'web' ? '50%' : '92%',
           alignSelf: 'center',
         }}
       >
@@ -1424,11 +1425,11 @@ export default function Products() {
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
         dropDownContainerStyle={{
-          width: Platform.OS === 'web' ? '60%' : '92%',
+          width: Platform.OS === 'web' ? '50%' : '92%',
           alignSelf: 'center',
         }}
         style={{
-          width: Platform.OS === 'web' ? '60%' : '92%',
+          width: Platform.OS === 'web' ? '50%' : '92%',
           alignSelf: 'center',
           marginTop: 10,
           marginHorizontal: 15,
@@ -1451,7 +1452,7 @@ export default function Products() {
           flexDirection="row"
           margin={10}
           style={{
-            width: Platform.OS === 'web' ? '60%' : '92%',
+            width: Platform.OS === 'web' ? '50%' : '92%',
             alignSelf: 'center',
           }}
         >
@@ -1475,7 +1476,7 @@ export default function Products() {
             marginTop: -5,
             maxHeight: Platform.OS === 'web' ? 50 : 55,
             minHeight: Platform.OS === 'web' ? 50 : undefined,
-            width: Platform.OS === 'web' ? '60%' : undefined,
+            width: Platform.OS === 'web' ? '50%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined,
           }}
           contentContainerStyle={{
