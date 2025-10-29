@@ -271,14 +271,6 @@ const ProductBox = React.memo(
       }
     }, [addObservation, id, obs]);
 
-    /* console.log('cart', cart)
-    console.log('id', id) */
-
-    useEffect(() => {
-      if(cart.get(id))
-        console.log(id)
-    }, [cart])
-
     return (
       <Stack
         onPress={toggleOpen}
@@ -290,7 +282,7 @@ const ProductBox = React.memo(
       >
         <View
           style={{
-            width: Platform.OS === 'web' ? '70%' : '100%',
+            width: Platform.OS === 'web' ? '60%' : '92%',
             alignSelf: 'center',
           }}
           flex={1}
@@ -299,7 +291,7 @@ const ProductBox = React.memo(
           paddingHorizontal={8}
           flexDirection="row"
           minHeight={40}
-          backgroundColor="red"
+          backgroundColor={cart.get(id) ? '#0BC07D' : 'white'}
           borderRadius={12}
           borderBottomLeftRadius={
             open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12
@@ -378,7 +370,7 @@ const ProductBox = React.memo(
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
-              width: Platform.OS === 'web' ? '70%' : '100%',
+              width: Platform.OS === 'web' ? '60%' : '92%',
               alignSelf: 'center',
             }}
           >
@@ -1224,10 +1216,6 @@ export default function Products() {
     setSkeletonLoading(false);
   }, [filteredProducts]);
 
-  /* console.log('displayedProd', displayedProducts)
-  console.log('filteredProd', filteredProducts) */
-
-
   const handlePress = useCallback(
     (name: string) => {
       setSearchQuery('');
@@ -1414,8 +1402,8 @@ export default function Products() {
       <Text
         style={{
           marginTop: 15,
-          width: Platform.OS === 'web' ? '60%' : '',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start',
+          width: Platform.OS === 'web' ? '60%' : '92%',
+          alignSelf: 'center',
         }}
       >
         Meus Restaurantes
@@ -1462,7 +1450,7 @@ export default function Products() {
           flexDirection="row"
           margin={10}
           style={{
-            width: Platform.OS === 'web' ? '60%' : '',
+            width: Platform.OS === 'web' ? '60%' : '92%',
             alignSelf: 'center',
           }}
         >
@@ -1499,11 +1487,10 @@ export default function Products() {
         <View
           backgroundColor="#F0F2F6"
           flex={1}
-          width={Platform.OS === 'web' ? '60%' : '100%'}
+          width={'100%'}
           display='flex'
           justifyContent='center'
           alignSelf='center'
-          paddingHorizontal={16}
           paddingTop={5}
           paddingBottom={70}
           borderTopColor="#aaa"
@@ -1583,6 +1570,7 @@ export default function Products() {
           height={50}
           borderTopWidth={0.4}
           borderTopColor="lightgray"
+          backgroundColor={'white'}
         >
           <View
             onPress={() => router.push('/products')}

@@ -20,7 +20,6 @@ export default function PageContainer({ children, backgroundColor }: PageContain
         backgroundColor: `${colorMapping[backgroundColor]}`,
         paddingTop: 40,
         paddingBottom: 10,
-        paddingHorizontal: 15,
       }}
     >
       {children}
