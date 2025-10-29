@@ -1402,8 +1402,7 @@ export default function Products() {
       <Text
         style={{
           marginTop: 15,
-          marginLeft: Platform.OS === 'web' ? 23 : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
+          width: Platform.OS === 'web' ? '60%' : '',
           alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start',
         }}
       >
@@ -1424,11 +1423,11 @@ export default function Products() {
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
         dropDownContainerStyle={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
+          width: Platform.OS === 'web' ? '60%' : '92%',
           alignSelf: 'center',
         }}
         style={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
+          width: Platform.OS === 'web' ? '60%' : '92%',
           alignSelf: 'center',
           marginTop: 10,
           marginHorizontal: 15,
@@ -1451,7 +1450,7 @@ export default function Products() {
           flexDirection="row"
           margin={10}
           style={{
-            width: Platform.OS === 'web' ? '68.4%' : '',
+            width: Platform.OS === 'web' ? '60%' : '',
             alignSelf: 'center',
           }}
         >
@@ -1475,7 +1474,7 @@ export default function Products() {
             marginTop: -5,
             maxHeight: Platform.OS === 'web' ? 50 : 55,
             minHeight: Platform.OS === 'web' ? 50 : undefined,
-            width: Platform.OS === 'web' ? '68%' : undefined,
+            width: Platform.OS === 'web' ? '60%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined,
           }}
           data={classItems}
@@ -1488,6 +1487,10 @@ export default function Products() {
         <View
           backgroundColor="#F0F2F6"
           flex={1}
+          width={Platform.OS === 'web' ? '60%' : '100%'}
+          display='flex'
+          justifyContent='center'
+          alignSelf='center'
           paddingHorizontal={16}
           paddingTop={5}
           paddingBottom={70}
