@@ -291,7 +291,7 @@ const ProductBox = React.memo(
           paddingHorizontal={8}
           flexDirection="row"
           minHeight={40}
-          backgroundColor={cart.get(id) ? '#0BC07D' : 'white'}
+          backgroundColor={cart.get(id) ? '#04BF7B' : 'white'}
           borderRadius={12}
           borderBottomLeftRadius={
             open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12
@@ -303,6 +303,7 @@ const ProductBox = React.memo(
           <View flexDirection="row" alignItems="center">
             <View
               padding={Platform.OS === 'web' ? 10 : 0}
+              paddingVertical={4}
               onPress={(e) => {
                 e.stopPropagation();
                 setImage(image[0]);
@@ -1242,7 +1243,7 @@ export default function Products() {
         <Text
           color={currentClass.toLowerCase() !== item.name.toLowerCase() ? '#aaa' : '#04BF7B'}
           fontSize={14}
-          width={90}
+          paddingHorizontal={8}
           textAlign="center"
         >
           {item.name}
@@ -1476,6 +1477,10 @@ export default function Products() {
             minHeight: Platform.OS === 'web' ? 50 : undefined,
             width: Platform.OS === 'web' ? '60%' : undefined,
             alignSelf: Platform.OS === 'web' ? 'center' : undefined,
+          }}
+          contentContainerStyle={{
+            flexGrow: 1,
+            justifyContent: 'space-between'
           }}
           data={classItems}
           horizontal
