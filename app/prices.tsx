@@ -469,7 +469,7 @@ export default function Prices() {
       })),
     );
 
-    const itens: any[] = initialItens.splice(1).sort((a, b) => {
+    const itens: any[] = initialItens.filter((item) => item.supplier).sort((a, b) => {
       if ((a.supplier.discount.product.length - a.supplier.missingItens) !== (b.supplier.discount.product.length - b.supplier.missingItens)) {
         return (a.supplier.discount.product.length - a.supplier.missingItens) - (b.supplier.discount.product.length - b.supplier.missingItens);
       }
