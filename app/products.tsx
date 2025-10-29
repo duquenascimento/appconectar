@@ -291,7 +291,7 @@ const ProductBox = React.memo(
           paddingHorizontal={8}
           flexDirection="row"
           minHeight={40}
-          backgroundColor={cart.get(id) ? '#04BF7B' : 'white'}
+          backgroundColor={cart.get(id) ? '#c4fcc6ff' : 'white'}
           borderRadius={12}
           borderBottomLeftRadius={
             open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12
@@ -367,7 +367,7 @@ const ProductBox = React.memo(
             borderBottomWidth={0}
             borderBottomLeftRadius={12}
             borderBottomRightRadius={12}
-            backgroundColor="white"
+            backgroundColor={cart.get(id) ? '#a7e9a7ff' : 'white'}
             justifyContent="center"
             transform={[{ translateY: 0 }]}
             style={{
@@ -431,6 +431,7 @@ const ProductBox = React.memo(
                   height={30}
                   minWidth={48}
                   borderRadius={12}
+                  borderColor={'white'}
                 >
                   <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'}>{firstUnit || 1}</Text>
                 </Button>
@@ -469,6 +470,7 @@ const ProductBox = React.memo(
                 alignItems="center"
                 borderColor="#F0F2F6"
                 borderWidth={1}
+                backgroundColor={'white'}
                 padding={4}
                 borderRadius={18}
                 flexDirection="row"
