@@ -50,7 +50,11 @@ export function ContainerSelecaoItemsComFornecedor<T extends string>({ label, it
   }
 
   return (
-    <YStack style={{ zIndex }} gap="$2" minHeight={open ? 150 : 100}>
+    <YStack
+      style={{ zIndex }}
+      gap="$2"
+      minHeight={open ? Math.min(150 + items.length * 15, 450) : 100}
+    >
       <Label>{label}</Label>
       <DropDownPicker
         open={open}
