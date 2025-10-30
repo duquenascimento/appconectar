@@ -44,7 +44,7 @@ export const Combination: React.FC = () => {
 
   useEffect(() => {
     const carregarCombinacao = async () => {
-      setLoading(false)
+      setLoading(false);
       await loadPrices();
       await loadRestaurants();
       if (!id) return;
@@ -235,7 +235,7 @@ export const Combination: React.FC = () => {
   };
 
   const handleDeleteCombination = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       if (!id) {
         console.warn('ID da combinação não encontrado.');
@@ -251,7 +251,7 @@ export const Combination: React.FC = () => {
     } catch (error) {
       console.error('Erro ao excluir combinação:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -262,14 +262,6 @@ export const Combination: React.FC = () => {
     }
     setAlertCallback(null);
   };
-
-  if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    );
-  }
 
   return (
     <PageContainer backgroundColor="white">
@@ -409,6 +401,24 @@ export const Combination: React.FC = () => {
           </XStack>
         )}
       </ScrollView>
+
+      {loading && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)', // ← pouca opacidade
+            zIndex: 999,
+          }}
+        >
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      )}
     </PageContainer>
   );
 };
