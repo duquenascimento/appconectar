@@ -446,7 +446,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         justifyContent="center"
         alignItems="center"
         flexDirection="row"
-        gap={30}
+        gap={15}
         height={55}
         borderTopWidth={0.4}
         borderTopColor="lightgray"
@@ -459,7 +459,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={80}
+          width={50}
           height={70}
         >
           <Icons name="home" size={20} color="gray" />
@@ -490,8 +490,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         <View
           onPress={async () => {
             setLoading(true);
-            await Promise.all([clearStorage(), deleteToken()]);
-            router.push('/');
+            setLoading(false);
+            router.push('/userInfo');
           }}
           padding={10}
           marginVertical={10}
@@ -503,13 +503,34 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           width={80}
           height={70}
         >
+          <Icons name="person" size={20} color="gray" />
+          <Text fontSize={12} color="gray">
+            Perfil
+          </Text>
+        </View>
+        <View
+          onPress={async () => {
+            setLoading(true);
+            await Promise.all([clearStorage(), deleteToken()]);
+            router.push('/');
+          }}
+          padding={10}
+          marginVertical={10}
+          borderRadius={8}
+          flexWrap="nowrap"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          width={50}
+          height={70}
+        >
           <Icons name="log-out" size={20} color="gray" />
           <Text fontSize={12} color="gray">
             Sair
           </Text>
         </View>
-        <VersionInfo />
       </View>
+      <VersionInfo />
       <DialogComercialInstance
         openModal={showBlockedModal}
         setOpenModal={setShowBlockedModal}
