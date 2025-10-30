@@ -1,4 +1,4 @@
-import { Input, Label, Text, YStack } from 'tamagui'
+import { Input, Label, Text, YStack } from 'tamagui';
 
 interface InputNomeProps {
   value: string;
@@ -15,6 +15,7 @@ export function InputNome({ error, onChangeText, value }: InputNomeProps) {
         value={value}
         onChangeText={onChangeText}
         borderColor={error ? 'red' : 'lightgray'}
+        backgroundColor="white"
       />
       {error && (
         <Text padding={'$1'} color="red">
@@ -22,5 +23,5 @@ export function InputNome({ error, onChangeText, value }: InputNomeProps) {
         </Text>
       )}
     </YStack>
-  )
+  );
 }

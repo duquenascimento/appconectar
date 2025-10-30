@@ -15,7 +15,7 @@ import { ActivityIndicator, Platform } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
 import { DateTime } from 'luxon';
 import * as Notifications from 'expo-notifications';
-import { useRouter } from 'expo-router';
+import { usePathname, useRouter } from 'expo-router';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -224,6 +224,7 @@ export default function Confirm() {
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -241,9 +242,9 @@ export default function Confirm() {
   }, [loadingToConfirm]);
 
   useInactivityRedirect({
-    timeout: 110000,
+    timeout: 120000,
     redirectPath: '/prices',
-    enabled: true,
+    enabled: pathname === '/confirm',
   });
 
   const loadSupplier = useCallback(async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { YStack, Separator, Text } from 'tamagui';
+import { YStack, Separator, Text, XStack, Switch } from 'tamagui';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { DropdownCampo } from './DropdownCampo';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
@@ -85,28 +85,36 @@ export function PreferenciaFornecedorCampo({
     setShowModal(false);
   };
 
-  const handleFornecedorTipo = (value: TipoFornecedor) => {
+  const handleFornecedorTipo = (value: boolean) => {
     if (combinacao.dividir_em_maximo < 2) {
       setShowValidationAlert(true);
       return;
     }
 
+    const fornecedorTipo = value ? TipoFornecedor.ESPECIFICO : TipoFornecedor.QUALQUER;
     const vaiDeixarDeSerEspecifico =
-      combinacao.preferencia_fornecedor_tipo === 'especifico' && value !== 'especifico';
+      combinacao.preferencia_fornecedor_tipo === 'especifico' && fornecedorTipo !== 'especifico';
     const haDados =
       (combinacao.preferencias?.length ?? 0) > 0 ||
       (combinacao.fornecedores_especificos?.length ?? 0) > 0;
 
     if (vaiDeixarDeSerEspecifico && haDados) {
-      setTipoTemporario(value);
+      setTipoTemporario(fornecedorTipo);
       setShowModal(true);
     } else {
-      updateCampo('preferencia_fornecedor_tipo', value);
+      updateCampo('preferencia_fornecedor_tipo', fornecedorTipo);
     }
   };
 
   return (
-    <YStack borderWidth={1} borderColor="$gray6" padding="$4" gap={3} borderRadius="$4" zIndex={1000}>
+    <YStack
+      borderWidth={1}
+      borderColor="$gray6"
+      padding="$4"
+      gap={3}
+      borderRadius="$4"
+      zIndex={1000}
+    >
       <CustomAlert
         visible={showValidationAlert}
         title="Atenção!"
@@ -129,23 +137,29 @@ export function PreferenciaFornecedorCampo({
           setShowModal(false);
         }}
       />
-      <Text fontWeight="bold">Preferência de fornecedor</Text>
-      <CustomSubtitle>Escolha como os fornecedores serão priorizados na combinação</CustomSubtitle>
       <Separator marginHorizontal="$3" />
 
-      <DropdownCampo
-        campo="preferencia_fornecedor_tipo"
-        label="Tipo de preferência"
-        items={tipoFornecedorItems}
-        value={combinacao.preferencia_fornecedor_tipo ?? ''}
-        placeholder="Selecione..."
-        onChange={(val) => handleFornecedorTipo(val as TipoFornecedor)}
-        zIndex={4000}
-      />
+      <XStack justifyContent="space-between" alignItems="center">
+        <YStack flexShrink={1} maxWidth="85%">
+          <Text fontWeight="bold">Priorizar fornecedores</Text>
+          <CustomSubtitle>Defina com quem você deseja comprar</CustomSubtitle>
+        </YStack>
+        <Switch
+          size="$3"
+          checked={combinacao.preferencia_fornecedor_tipo === 'especifico'}
+          onCheckedChange={handleFornecedorTipo}
+          backgroundColor={
+            combinacao.preferencia_fornecedor_tipo === 'especifico' ? '$green10' : '#7c7c7dff'
+          }
+          padding={0}
+        >
+          <Switch.Thumb backgroundColor="white" animation="quick" scale={0.9} />
+        </Switch>
+      </XStack>
 
       {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems
-          label="Fornecedores específicos"
+          label="Considerar SOMENTE os fornecedores"
           items={selectFornecedoresContexto}
           value={
             Array.isArray(combinacao?.fornecedores_especificos)
