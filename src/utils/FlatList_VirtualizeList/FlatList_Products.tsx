@@ -11,6 +11,7 @@ type Props = {
   onMomentumScrollBegin?: (event: any) => void;
   onMomentumScrollEnd?: (event: any) => void;
   listRef?: React.RefObject<FlatList<any>>;
+  contentContainerStyle?: object;
 };
 
 const CustomFlatList = ({
@@ -22,6 +23,7 @@ const CustomFlatList = ({
   onMomentumScrollBegin,
   onMomentumScrollEnd,
   listRef,
+  contentContainerStyle
 }: Props) => {
   return (
     <FlatList
@@ -32,6 +34,7 @@ const CustomFlatList = ({
       onEndReachedThreshold={0.5}
       onEndReached={onEndReached}
       onScroll={onScroll}
+      contentContainerStyle={contentContainerStyle}
       onMomentumScrollBegin={onMomentumScrollBegin}
       onMomentumScrollEnd={onMomentumScrollEnd}
       keyboardShouldPersistTaps="handled"
