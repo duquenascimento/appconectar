@@ -15,7 +15,6 @@ import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons';
 import {
   ActivityIndicator,
-  BackHandler,
   FlatList,
   Modal,
   Platform,
@@ -49,9 +48,10 @@ import { UpdateAppModal } from '@/src/components/UpdateAppModal';
 import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { useBackHandler } from '@/src/components/hooks/useBackHandler';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { loadFavorites } from '../src/utils/loadFavorite';
+import { getSavedRestaurant } from '../src/utils/savedRestaurant';
 
 export type Product = {
   name: string;
@@ -777,32 +777,6 @@ export default function Products() {
     }
   }, [productsContext]);
 
-  const loadFavorites = useCallback(async () => {
-    try {
-      const token = await getToken();
-      const restaurant = await getSavedRestaurant();
-
-      if (token == null || !restaurant) return [];
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          restaurantId: restaurant.id,
-        }),
-      });
-      if (!result.ok) return [];
-      const favorites = await result.json();
-      if (favorites.data.length < 1) return [];
-      return favorites.data;
-    } catch (error) {
-      console.error('Erro ao carregar favoritos:', error);
-      return [];
-    }
-  }, []);
-
   const loadCart = async (): Promise<Map<string, Cart>> => {
     try {
       const token = await getToken();
@@ -947,25 +921,6 @@ export default function Products() {
     },
     [saveCart, loadCart, loadProducts],
   );
-
-  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
-    try {
-      const data = await AsyncStorage.getItem('selectedRestaurant');
-      if (!data) return null;
-
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
-
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  };
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -1557,6 +1512,7 @@ export default function Products() {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 listRef={virtualizedListRef}
+                contentContainerStyle={{ paddingBottom: 90 }}
               />
             ) : (
               <CustomFlatList
@@ -1565,6 +1521,7 @@ export default function Products() {
                 keyExtractor={(item) => item.id}
                 onEndReached={loadProducts}
                 listRef={flatListRef}
+                contentContainerStyle={{ paddingBottom: 90 }}
               />
             )
           ) : (
