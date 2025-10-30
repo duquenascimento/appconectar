@@ -1564,7 +1564,7 @@ export default function Products() {
           justifyContent="center"
           alignItems="center"
           flexDirection="row"
-          gap={30}
+          gap={15}
           height={50}
           borderTopWidth={0.4}
           borderTopColor="lightgray"
@@ -1577,7 +1577,7 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={80}
+            width={50}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
@@ -1610,6 +1610,28 @@ export default function Products() {
           <View
             onPress={async () => {
               setLoading(true);
+              saveCartArray(cart, cartToExclude).catch(console.error);
+              setLoading(false);
+              router.push('/userInfo');
+            }}
+            padding={10}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width={100}
+            height={70}
+          >
+            <Icons name="settings" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Minha Conta
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              setLoading(true);
               await saveCartArray(cart, cartToExclude);
               await Promise.all([clearStorage(), deleteToken()]);
               setLoading(false);
@@ -1623,7 +1645,7 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={80}
+            width={50}
             height={70}
           >
             <Icons name="log-out" size={20} color="gray" />
