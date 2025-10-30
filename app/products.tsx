@@ -1621,12 +1621,12 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={100}
+            width={80}
             height={70}
           >
-            <Icons name="settings" size={20} color="gray" />
+            <Icons name="person" size={20} color="gray" />
             <Text fontSize={12} color="gray">
-              Minha Conta
+              Perfil
             </Text>
           </View>
           <View
@@ -1654,8 +1654,8 @@ export default function Products() {
             </Text>
           </View>
         </View>
-        <VersionInfo />
       </View>
+      <VersionInfo />
 
       <CartButton
         cartSize={displayedCartSize}
