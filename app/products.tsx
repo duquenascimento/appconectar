@@ -1617,7 +1617,6 @@ export default function Products() {
 
       <CartButton
         cartSize={displayedCartSize}
-        visibleProducts={displayedProducts}
         selectedRestaurant={selectedRestaurant}
         onPress={async () => {
           setLoading(true);
