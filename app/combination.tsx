@@ -201,12 +201,30 @@ export function Combination(): JSX.Element {
         abortEarly: false,
       });
 
+      const combinacaoParaEnviar = {
+        ...combinacaoParaValidar,
+        preferencias: combinacaoParaValidar.preferencias?.map((pref) => {
+          if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
+            const permitidos = new Set(combinacao.fornecedores_especificos || []);
+            return {
+              ...pref,
+              fornecedores: pref.fornecedores.filter((f) => permitidos.has(f)),
+              produtos: pref.produtos.map((p) => ({
+                ...p,
+                fornecedores: p.fornecedores.filter((f) => permitidos.has(f)),
+              })),
+            };
+          }
+          return pref;
+        }),
+      };
+
       setTimeout(() => setTriggerValidation(false), 100);
 
       if (id) {
-        await updateCombination(combinacaoParaValidar);
+        await updateCombination(combinacaoParaEnviar);
       } else {
-        await createCombination(combinacaoParaValidar);
+        await createCombination(combinacaoParaEnviar);
       }
     } catch (error) {
       // Reset trigger validation even on error

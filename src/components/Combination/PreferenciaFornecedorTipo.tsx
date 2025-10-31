@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { YStack, Separator, Text, XStack, Switch } from 'tamagui';
 import CustomSubtitle from '../subtitle/customSubtitle';
-import { DropdownCampo } from './DropdownCampo';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { TipoFornecedor } from '../../types/combinationTypes';
@@ -78,8 +77,7 @@ export function PreferenciaFornecedorCampo({
     if (!tipoTemporario) return;
 
     updateCampo('preferencia_fornecedor_tipo', tipoTemporario);
-    updateCampo('definir_preferencia_produto', false);
-    updateCampo('preferencias', []);
+    updateCampo('definir_preferencia_produto', true);
     updateCampo('fornecedores_especificos', []);
     setTipoTemporario(null);
     setShowModal(false);
@@ -94,11 +92,9 @@ export function PreferenciaFornecedorCampo({
     const fornecedorTipo = value ? TipoFornecedor.ESPECIFICO : TipoFornecedor.QUALQUER;
     const vaiDeixarDeSerEspecifico =
       combinacao.preferencia_fornecedor_tipo === 'especifico' && fornecedorTipo !== 'especifico';
-    const haDados =
-      (combinacao.preferencias?.length ?? 0) > 0 ||
-      (combinacao.fornecedores_especificos?.length ?? 0) > 0;
+    const haFornecedoresSelecionados = (combinacao.fornecedores_especificos?.length ?? 0) > 0;
 
-    if (vaiDeixarDeSerEspecifico && haDados) {
+    if (vaiDeixarDeSerEspecifico && haFornecedoresSelecionados) {
       setTipoTemporario(fornecedorTipo);
       setShowModal(true);
     } else {
@@ -123,10 +119,8 @@ export function PreferenciaFornecedorCampo({
       />
       <TwoButtonCustomAlert
         visible={showModal}
-        title={'Tem certeza de que quer realizar esta ação?'}
-        message={
-          'Ao fazer isto, os fornecedores específicos e preferências selecionados serão removidos'
-        }
+        title="Tem certeza de que quer realizar esta ação?"
+        message="Ao desativar, os fornecedores específicos selecionados serão removidos. As preferências de produtos serão mantidas."
         onConfirm={() => {
           setIgnorarValidacao(false);
           resetarPreferenciaFornecedor();
