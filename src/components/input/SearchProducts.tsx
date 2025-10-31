@@ -9,7 +9,6 @@ type SearchProductsProps = {
 export const SearchProductsXStackStyled = styled(XStack, {
 	width: '92%', 
 	paddingRight: 14,
-	marginTop:30,
 	borderWidth:0,
 	borderRadius: 20,
 	backgroundColor: '#F0F2F6',

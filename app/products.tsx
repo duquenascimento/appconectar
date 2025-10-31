@@ -49,7 +49,7 @@ import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { ProductCardBottomStyled, ProductCardObsUnitContainerStyled, ProductCardStyled } from '../src/components/card/ProductCard';
+import { ProductCardBottomStyled, ProductCardObsUnitContainerStyled, ProductCardStyled } from '../src/components/card/productCard';
 import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
 import { HeaderText } from '../src/components/text/HeaderText';
 import { SearchProducts } from '../src/components/input/SearchProducts';
@@ -437,7 +437,7 @@ const ProductBox = React.memo(
                     padding={4}
                     borderRadius={18}
                     flexDirection="row"
-                    gap={12}
+                    gap={10}
                     backgroundColor='white'
                   >
                     <Icons
