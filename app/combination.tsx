@@ -2,36 +2,35 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import { ScrollView, XStack, YStack, Button, View } from 'tamagui';
 import * as Yup from 'yup';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
-import CustomButton from '@/src/components/button/customButton';
-import CustomHeader from '@/src/components/header/customHeader';
-import { getStorage } from '@/src/utils/utils';
-import { InputNome } from '@/src/components/Combination/InputNome';
-import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
-import { BloqueioFornecedoresCampo } from '@/src/components/Combination/BloqueioFornecedores';
-import { PreferenciaFornecedorCampo } from '@/src/components/Combination/PreferenciaFornecedorTipo';
+import CustomButton from '../src/components/button/customButton';
+import CustomHeader from '../src/components/header/customHeader';
+import { getStorage } from '../src/utils/utils';
+import { InputNome } from '../src/components/Combination/InputNome';
+import { DropdownCampo } from '../src/components/Combination/DropdownCampo';
+import { BloqueioFornecedoresCampo } from '../src/components/Combination/BloqueioFornecedores';
+import { PreferenciaFornecedorCampo } from '../src/components/Combination/PreferenciaFornecedorTipo';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { ContainerPreferenciasProduto } from '../src/components/Combination/ContainerPreferenciasProduto';
-import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { getCombinationsByRestaurant } from '../src/services/combinationsService';
+import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import PageContainer from '../src/components/box/PageContainer';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { Combinacao } from '../src/types/combinationTypes';
 
 export interface SuplierCombination {
   id: string;
   nomefornecedor: string;
 }
 
-export const Combination: React.FC = () => {
-  const navigation = useNavigation();
+export function Combination(): JSX.Element {
   const route = useRoute();
-  const { id } = route.params as { id?: string };
+  const params = route.params as { id?: string } | undefined;
+  const id = params?.id;
   const { combinacao, updateCampo } = useCombinacao();
-  const [isModaltVisible, setIsModalVisible] = useState<boolean>(false);
-
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertTitle, setAlertTitle] = useState('');
@@ -153,8 +152,8 @@ export const Combination: React.FC = () => {
   };
 
   const updateCampoAndValidate = useCallback(
-    async (campo: string, valor: any) => {
-      updateCampo(campo as any, valor);
+    async <K extends keyof Combinacao>(campo: K, valor: Combinacao[K]) => {
+      updateCampo(campo, valor);
       try {
         const tempObj = { ...combinacao, [campo]: valor };
         await combinacaoValidationSchema.validateAt(campo, tempObj);
@@ -193,7 +192,7 @@ export const Combination: React.FC = () => {
         preferencias: combinacao.preferencias?.map((preferencia) => ({
           ...preferencia,
           produtos: preferencia.produtos?.filter(
-            (produto) => produto.produto_sku || produto.classe, // Mantém apenas produtos com dados
+            (produto) => produto.produto_sku || produto.classe,
           ),
         })),
       };
@@ -202,22 +201,20 @@ export const Combination: React.FC = () => {
         abortEarly: false,
       });
 
-      // Reset trigger validation after a short delay
       setTimeout(() => setTriggerValidation(false), 100);
 
-      // Enviar a combinação filtrada para o backend
       if (id) {
-        await updateCombination(combinacaoParaValidar); // Passe a combinação filtrada
+        await updateCombination(combinacaoParaValidar);
       } else {
-        await createCombination(combinacaoParaValidar); // Passe a combinação filtrada
+        await createCombination(combinacaoParaValidar);
       }
-    } catch (validationErrors) {
+    } catch (error) {
       // Reset trigger validation even on error
       setTimeout(() => setTriggerValidation(false), 100);
 
-      if (validationErrors instanceof Yup.ValidationError) {
+      if (error instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {};
-        validationErrors.inner.forEach((err) => {
+        error.inner.forEach((err) => {
           if (err.path) {
             newErrors[err.path] = err.message;
           }
@@ -421,6 +418,6 @@ export const Combination: React.FC = () => {
       )}
     </PageContainer>
   );
-};
+}
 
 export default Combination;
