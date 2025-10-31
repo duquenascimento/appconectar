@@ -1,28 +1,21 @@
-import { styled, Text, View } from "tamagui"
-
-type productCardProps = {
-	selected: boolean, 
-	bottom: boolean,
-	children: React.ReactNode
-}
+import { styled, View } from "tamagui"
 
 export const ProductCardStyled = styled(View, {
-	paddingHorizontal: 8,
+	width: '92%',
 	minHeight: 40,
+	paddingHorizontal: 8,
 	flex: 1,
 	justifyContent: 'space-between',
-	alignItems: 'center',
-	alignSelf: 'center',
 	flexDirection: 'row',
+	alignSelf: 'center',
 	borderRadius: 12,
 
-	"$platform-web": {
-		width: '50%',
-		cursor: 'pointer',
+	$gtSm: {
+		width: '50%'
 	},
 
-	"$platform-native": {
-		width: '92%'
+	"$platform-web": {
+		cursor: 'pointer',
 	},
 
 	variants: {
@@ -44,12 +37,44 @@ export const ProductCardStyled = styled(View, {
 	} as const
 })
 
-export default function ProductCard({ children, selected, bottom }: productCardProps) {
-	return (
-		<View>
-			<ProductCardStyled selected={selected} resetBottomBorderRadius={bottom}>
-				{ children }
-			</ProductCardStyled>
-		</View>
-	)
-}
+export const ProductCardBottomStyled = styled(View, {
+	width: '92%', 
+	minHeight: 85, 
+	paddingHorizontal: 8, 
+	justifyContent: 'center', 
+	alignSelf: 'center', 
+	gap: 8, 
+	borderTopWidth: 1, 
+	borderTopColor: '#ccc',
+	borderBottomWidth: 0, 
+	borderBottomLeftRadius: 12, 
+	borderBottomRightRadius: 12, 
+	transform: [{translateY: 0}],
+
+	$gtSm: {
+		width: '50%'
+	},
+
+	variants: {
+		selected: {
+			true: {
+				backgroundColor: '#a7e9a7ff'
+			},
+			false: {
+				backgroundColor: 'white'
+			}
+		}
+	} as const
+})
+
+export const ProductCardObsUnitContainerStyled = styled(View, {
+	paddingVertical: 8,
+	flex: 1,
+	alignItems: 'center',
+	flexDirection: 'column-reverse',
+	gap: 8,
+
+	$gtMd: {
+		flexDirection: 'row'
+	}
+})
