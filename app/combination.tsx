@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Platform, SafeAreaView } from 'react-native';
-import { ScrollView, XStack, YStack, Button } from 'tamagui';
+import { ActivityIndicator, Platform } from 'react-native';
+import { ScrollView, XStack, YStack, Button, View } from 'tamagui';
 import * as Yup from 'yup';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
@@ -40,9 +40,11 @@ export const Combination: React.FC = () => {
   const [triggerValidation, setTriggerValidation] = useState(false);
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
+      setLoading(false);
       await loadPrices();
       await loadRestaurants();
       if (!id) return;
@@ -85,6 +87,7 @@ export const Combination: React.FC = () => {
   };
 
   const createCombination = async (combinacaoFiltrada?: any) => {
+    setLoading(true);
     try {
       const dadosParaEnviar = combinacaoFiltrada || combinacao;
 
@@ -112,10 +115,13 @@ export const Combination: React.FC = () => {
       setAlertTitle('Erro!');
       setAlertMessage('Ocorreu um erro inesperado ao criar a combinação.');
       setIsAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateCombination = async (combinacaoFiltrada?: any) => {
+    setLoading(true);
     try {
       const dadosParaEnviar = combinacaoFiltrada || combinacao;
 
@@ -141,6 +147,8 @@ export const Combination: React.FC = () => {
       setAlertTitle('Erro!');
       setAlertMessage('Ocorreu um erro inesperado ao atualizar a combinação.');
       setIsAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -227,6 +235,7 @@ export const Combination: React.FC = () => {
   };
 
   const handleDeleteCombination = async () => {
+    setLoading(true);
     try {
       if (!id) {
         console.warn('ID da combinação não encontrado.');
@@ -235,13 +244,14 @@ export const Combination: React.FC = () => {
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/delete`, {
         method: 'DELETE',
       });
-    } catch (error) {
-      console.error('Erro ao excluir combinação:', error);
-    } finally {
       setAlertTitle('Sucesso!');
       setAlertMessage('Combinação excluída com sucesso!');
       setIsAlertVisible(true);
       setAlertCallback(() => handleGoBack);
+    } catch (error) {
+      console.error('Erro ao excluir combinação:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -329,6 +339,7 @@ export const Combination: React.FC = () => {
                     handleGoBack();
                   }
                 }}
+                disabled={loading}
                 hoverStyle={{
                   backgroundColor: '#f84949ff',
                   opacity: 0.9,
@@ -338,12 +349,13 @@ export const Combination: React.FC = () => {
                 borderColor="#A9A9A9"
                 borderWidth={1}
               >
-                {id ? 'Excluir combinação' : 'Cancelar'}
+                {loading ? 'Processando...' : id ? 'Excluir combinação' : 'Cancelar'}
               </Button>
             </YStack>
             <YStack flex={1}>
               <Button
                 onPress={handleSaveCombination}
+                disabled={loading}
                 hoverStyle={{
                   backgroundColor: '#1DC588',
                   opacity: 0.9,
@@ -352,7 +364,7 @@ export const Combination: React.FC = () => {
                 color="#FFFFFF"
                 borderColor="#A9A9A9"
               >
-                Salvar combinação
+                {loading ? 'Salvando...' : 'Salvar combinação'}
               </Button>
             </YStack>
           </XStack>
@@ -366,7 +378,7 @@ export const Combination: React.FC = () => {
           >
             <YStack flex={1}>
               <CustomButton
-                title={id ? 'Excluir' : 'Cancelar'}
+                title={loading ? 'Processando...' : id ? 'Excluir' : 'Cancelar'}
                 onPress={() => {
                   if (id) {
                     handleDeleteCombination();
@@ -380,7 +392,7 @@ export const Combination: React.FC = () => {
             </YStack>
             <YStack flex={1}>
               <CustomButton
-                title="Salvar"
+                title={loading ? 'Salvando...' : 'Salvar'}
                 onPress={handleSaveCombination}
                 backgroundColor="#1DC588"
                 textColor="#FFFFFF"
@@ -389,6 +401,24 @@ export const Combination: React.FC = () => {
           </XStack>
         )}
       </ScrollView>
+
+      {loading && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)', // ← pouca opacidade
+            zIndex: 999,
+          }}
+        >
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      )}
     </PageContainer>
   );
 };
