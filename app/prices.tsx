@@ -99,6 +99,27 @@ const getScreenSize = () => {
   return width >= 1024 ? 'lg/xl' : 'sm/md';
 };
 
+const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
+  return suppliers.sort((a, b) => {
+    // First, sort by star rating (descending)
+    if (a.supplier.star !== b.supplier.star) {
+      const starA = getStarValue(a.supplier.star);
+      const starB = getStarValue(b.supplier.star);
+      return starB - starA;
+    }
+    
+    // Second, sort by missing items (ascending)
+    const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
+    const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
+    if (missingA !== missingB) {
+      return missingA - missingB;
+    }
+
+    // Third, sort by order value (ascending)
+    return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
+  });
+};
+
 function SupplierBox({
   supplier,
   available,
@@ -464,31 +485,8 @@ export default function Prices() {
     tempSuppliers.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
     tempUnavailableSuppliers.push(...filteredUnavailableSuppliers.map((item) => ({ ...item, available: false })))
 
-    const finalSortedSuppliers = tempSuppliers.sort((a, b) => {
-      if ((a.supplier.discount.product.length - a.supplier.missingItens) !== (b.supplier.discount.product.length - b.supplier.missingItens)) {
-        return (a.supplier.discount.product.length - a.supplier.missingItens) - (b.supplier.discount.product.length - b.supplier.missingItens);
-      }
-      if(a.supplier.star !== b.supplier.star) {
-        const starA = getStarValue(a.supplier.star)
-        const starB = getStarValue(b.supplier.star)
-
-        return starB - starA
-      }
-      return (a.supplier.discount.orderValueFinish) - (b.supplier.discount.orderValueFinish);
-    })
-
-    const finalSortedUnavailableSuppliers = tempUnavailableSuppliers.sort((a, b) => {
-      if ((a.supplier.discount.product.length - a.supplier.missingItens) !== (b.supplier.discount.product.length - b.supplier.missingItens)) {
-        return (a.supplier.discount.product.length - a.supplier.missingItens) - (b.supplier.discount.product.length - b.supplier.missingItens);
-      }
-      if(a.supplier.star !== b.supplier.star) {
-        const starA = getStarValue(a.supplier.star)
-        const starB = getStarValue(b.supplier.star)
-
-        return starB - starA
-      }
-      return (a.supplier.discount.orderValueFinish) - (b.supplier.discount.orderValueFinish);
-    })
+    const finalSortedSuppliers = sortSuppliers(tempSuppliers);
+    const finalSortedUnavailableSuppliers = sortSuppliers(tempUnavailableSuppliers);
 
     setSortedSuppliers(finalSortedSuppliers)
     setSortedUnavailableSuppliers(finalSortedUnavailableSuppliers)    
