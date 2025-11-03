@@ -58,33 +58,3 @@ export function DropDownPickerRestaurant({ restaurants, currentSelectedRestauran
 		/>
 	)
 }
-
-{/* <DropDownPicker
-	open={restaurantOpen}
-	setOpen={setRestaurantOpen}
-	value={selectedRestaurant}
-	items={restaurantes.map((restaurant) => ({
-		label: restaurant.name,
-		value: restaurant.externalId,
-	}))}
-	setValue={setSelectedRestaurant}
-	onChangeValue={handleRestaurantChoice}
-	placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
-	listMode="SCROLLVIEW"
-	dropDownDirection="BOTTOM"
-	dropDownContainerStyle={{
-		width: Platform.OS === 'web' ? '50%' : '92%',
-		alignSelf: 'center',
-	}}
-	style={{
-		width: Platform.OS === 'web' ? '50%' : '92%',
-		alignSelf: 'center',
-		marginTop: 10,
-		marginHorizontal: 15,
-		marginRight: 20,
-		borderColor: '#ccc',
-		borderWidth: 1,
-		borderRadius: 5,
-		height: 40,
-	}}
-/> */}

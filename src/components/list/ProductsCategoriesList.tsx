@@ -35,22 +35,3 @@ export function ProductsCategoriesList({ dataItems, renderItemsFunction, keyExtr
 		/>
 	)
 }
-
-{/* <FlatList
-	style={{
-		marginTop: -5,
-		maxHeight: Platform.OS === 'web' ? 50 : 55,
-		minHeight: Platform.OS === 'web' ? 50 : undefined,
-		width: Platform.OS === 'web' ? '50%' : undefined,
-		alignSelf: Platform.OS === 'web' ? 'center' : undefined,
-	}}
-	contentContainerStyle={{
-		flexGrow: 1,
-		justifyContent: 'space-between'
-	}}
-	data={classItems}
-	horizontal
-	showsHorizontalScrollIndicator={false}
-	keyExtractor={(item: any) => item.name}
-	renderItem={renderClassItem}
-/> */}

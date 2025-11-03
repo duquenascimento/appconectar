@@ -2,7 +2,6 @@ import { styled, View } from "tamagui"
 
 export const ProductCardStyled = styled(View, {
 	width: '92%',
-	minHeight: 40,
 	paddingHorizontal: 8,
 	flex: 1,
 	justifyContent: 'space-between',

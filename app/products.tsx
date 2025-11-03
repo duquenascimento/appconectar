@@ -398,6 +398,7 @@ const ProductBox = React.memo(
                       height={30}
                       minWidth={42}
                       borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
                     >
                       <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'} fontSize={12}>{firstUnit || 1}</Text>
                     </Button>
@@ -411,6 +412,7 @@ const ProductBox = React.memo(
                       height={30}
                       minWidth={48}
                       borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
                     >
                       <Text color={quant === (secondUnit || 5) ? '#fff' : '#000'} fontSize={12}>
                         {secondUnit || 5}
@@ -426,6 +428,7 @@ const ProductBox = React.memo(
                       color={quant === thirdUnit ? '#fff' : '#000'}
                       minWidth={48}
                       borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
                     >
                       <Text color={quant === (thirdUnit || 10) ? '#fff' : '#000'} fontSize={12}>
                         {thirdUnit || 10}
