@@ -275,7 +275,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
-          <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
+          <Text fontSize={16} marginTop={5} color="gray" textAlign="center" width={'90%'}>
             Carregando histórico de pedidos. Por favor Aguarde...
           </Text>
         </View>

@@ -42,14 +42,19 @@ import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/Virtuali
 import { DialogComercialInstance } from '../src/components/dialogComercialInstance';
 import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
 import { CartButton } from '../src/components/cartButton';
-import { useProductContext } from '@/src/contexts/produtos.context';
+import { useProductContext } from '../src/contexts/produtos.context';
 import { filterCarts } from '../src/utils/filterCarts';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { ProductCardBottomStyled, ProductCardObsUnitContainerStyled, ProductCardStyled } from '../src/components/card/productCard';
+import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
+import { HeaderText } from '../src/components/text/HeaderText';
+import { SearchProducts } from '../src/components/input/SearchProducts';
+import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { getSavedRestaurant } from '../src/utils/savedRestaurant';
 
@@ -282,29 +287,13 @@ const ProductBox = React.memo(
         borderRadius={12}
         borderColor="#F0F2F6"
       >
-        <View
-          style={{
-            width: Platform.OS === 'web' ? '70%' : '100%',
-            alignSelf: 'center',
-          }}
-          flex={1}
-          justifyContent="space-between"
-          alignItems="center"
-          paddingHorizontal={8}
-          flexDirection="row"
-          minHeight={40}
-          backgroundColor="white"
-          borderRadius={12}
-          borderBottomLeftRadius={
-            open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12
-          }
-          borderBottomRightRadius={
-            open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12
-          }
+        <ProductCardStyled 
+          selected={cart.get(id) ? true : false}
+          resetBottomBorderRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? true : false}
         >
           <View flexDirection="row" alignItems="center">
             <View
-              padding={Platform.OS === 'web' ? 10 : 0}
+              paddingVertical={10}
               onPress={(e) => {
                 e.stopPropagation();
                 setImage(image[0]);
@@ -318,7 +307,7 @@ const ProductBox = React.memo(
                 badgeTextSize={10}
               />
             </View>
-            <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 130 : 130}>
+            <View marginLeft={8} maxWidth={130}>
               <Text fontSize={12}>{name}</Text>
             </View>
           </View>
@@ -356,55 +345,31 @@ const ProductBox = React.memo(
               <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
             )}
           </View>
-        </View>
+        </ProductCardStyled>
         {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
-          <View
+          <ProductCardBottomStyled
+            selected={cart.get(id) ? true : false}
             onPress={(e) => e.stopPropagation()}
-            minHeight={Platform.OS === 'web' ? 50 : 85}
-            borderTopWidth={1}
-            borderTopColor="#ccc"
-            paddingHorizontal={8}
-            gap={8}
-            borderBottomWidth={0}
-            borderBottomLeftRadius={12}
-            borderBottomRightRadius={12}
-            backgroundColor="white"
-            justifyContent="center"
-            transform={[{ translateY: 0 }]}
-            style={{
-              width: Platform.OS === 'web' ? '70%' : '100%',
-              alignSelf: 'center',
-            }}
           >
             <View
-              paddingHorizontal={Platform.OS === 'web' ? 10 : 0}
               flexDirection="row"
               alignItems="center"
-              marginTop={Platform.OS === 'web' ? 0 : 10}
             >
-              <View
-                justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'}
-                alignItems="center"
-                flex={1}
-                marginRight={Platform.OS === 'web' ? 5 : 5}
-                flexDirection="row"
-                gap={8}
-              >
-                {Platform.OS === 'web' && (
-                  <View alignSelf="flex-start" flex={1}>
+              <ProductCardObsUnitContainerStyled>
+                <View flex={1} width={'100%'}>
+                  <View flex={1} width={'100%'}>
                     <XStack
                       backgroundColor="#F0F2F6"
-                      flex={1}
-                      paddingRight={14}
                       borderWidth={0}
                       borderRadius={20}
                       alignItems="center"
                       flexDirection="row"
                       height={36}
+                      flex={1}
                     >
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
-                        placeholder="Observação para entrega..."
+                        placeholder="Observação de entrega..."
                         backgroundColor="transparent"
                         borderWidth={0}
                         borderColor="transparent"
@@ -420,116 +385,92 @@ const ProductBox = React.memo(
                       />
                     </XStack>
                   </View>
-                )}
+                </View>
 
-                {/* botao verde */}
-                <Button
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleQuantityChange(firstUnit || 1);
-                  }}
-                  backgroundColor={quant === (firstUnit || 1) ? '#0BC07D' : '#F0F2F6'}
-                  height={30}
-                  minWidth={48}
-                  borderRadius={12}
-                >
-                  <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'}>{firstUnit || 1}</Text>
-                </Button>
-                <Button
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleQuantityChange(secondUnit || 5);
-                  }}
-                  backgroundColor={quant === (secondUnit || 5) ? '#0BC07D' : '#F0F2F6'}
-                  color={quant === secondUnit ? '#fff' : '#000'}
-                  height={30}
-                  minWidth={48}
-                  borderRadius={12}
-                >
-                  <Text color={quant === (secondUnit || 5) ? '#fff' : '#000'}>
-                    {secondUnit || 5}
-                  </Text>
-                </Button>
-                <Button
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleQuantityChange(thirdUnit || 10);
-                  }}
-                  backgroundColor={quant === (thirdUnit || 10) ? '#0BC07D' : '#F0F2F6'}
-                  height={30}
-                  color={quant === thirdUnit ? '#fff' : '#000'}
-                  minWidth={48}
-                  borderRadius={12}
-                >
-                  <Text color={quant === (thirdUnit || 10) ? '#fff' : '#000'}>
-                    {thirdUnit || 10}
-                  </Text>
-                </Button>
-              </View>
-              <View
-                alignItems="center"
-                borderColor="#F0F2F6"
-                borderWidth={1}
-                padding={4}
-                borderRadius={18}
-                flexDirection="row"
-                gap={16}
-              >
-                <Icons
-                  name="remove"
-                  color="#04BF7B"
-                  size={24}
-                  onPress={async (e) => {
-                    e.stopPropagation();
-                    handleValueQuantChange(-quant);
-                  }}
-                />
-                <Text>
-                  {valueQuant} {orderUnit.replace('Unid', 'Un')}
-                </Text>
-                <Icons
-                  name="add"
-                  color="#04BF7B"
-                  size={24}
-                  onPress={async (e) => {
-                    e.stopPropagation();
-                    handleValueQuantChange(+quant);
-                  }}
-                />
-              </View>
+                <View flexDirection='row' alignItems='center' gap={16}>
+                  <View flex={1} flexDirection='row' gap={8}>
+                    <Button
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(firstUnit || 1);
+                      }}
+                      backgroundColor={quant === (firstUnit || 1) ? '#0BC07D' : '#F0F2F6'}
+                      height={30}
+                      minWidth={42}
+                      borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
+                    >
+                      <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'} fontSize={12}>{firstUnit || 1}</Text>
+                    </Button>
+                    <Button
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(secondUnit || 5);
+                      }}
+                      backgroundColor={quant === (secondUnit || 5) ? '#0BC07D' : '#F0F2F6'}
+                      color={quant === secondUnit ? '#fff' : '#000'}
+                      height={30}
+                      minWidth={48}
+                      borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
+                    >
+                      <Text color={quant === (secondUnit || 5) ? '#fff' : '#000'} fontSize={12}>
+                        {secondUnit || 5}
+                      </Text>
+                    </Button>
+                    <Button
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(thirdUnit || 10);
+                      }}
+                      backgroundColor={quant === (thirdUnit || 10) ? '#0BC07D' : '#F0F2F6'}
+                      height={30}
+                      color={quant === thirdUnit ? '#fff' : '#000'}
+                      minWidth={48}
+                      borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
+                    >
+                      <Text color={quant === (thirdUnit || 10) ? '#fff' : '#000'} fontSize={12}>
+                        {thirdUnit || 10}
+                      </Text>
+                    </Button>
+                  </View>
+                  <View
+                    alignItems="center"
+                    borderColor="#F0F2F6"
+                    borderWidth={1}
+                    padding={4}
+                    borderRadius={18}
+                    flexDirection="row"
+                    gap={10}
+                    backgroundColor='white'
+                  >
+                    <Icons
+                      name="remove"
+                      color="#04BF7B"
+                      size={24}
+                      onPress={async (e) => {
+                        e.stopPropagation();
+                        handleValueQuantChange(-quant);
+                      }}
+                    />
+                    <Text fontSize={14}>
+                      {valueQuant} {orderUnit.replace('Unid', 'Un')}
+                    </Text>
+                    <Icons
+                      name="add"
+                      color="#04BF7B"
+                      size={24}
+                      onPress={async (e) => {
+                        e.stopPropagation();
+                        handleValueQuantChange(+quant);
+                      }}
+                    />
+                  </View>
+                </View>
+              </ProductCardObsUnitContainerStyled>
             </View>
-            {Platform.OS !== 'web' && (
-              <View>
-                <XStack
-                  backgroundColor="#F0F2F6"
-                  paddingRight={14}
-                  borderWidth={0}
-                  borderRadius={20}
-                  alignItems="center"
-                  flexDirection="row"
-                  marginBottom={10}
-                  height={36}
-                >
-                  <Input
-                    focusVisibleStyle={{ outlineWidth: 0 }}
-                    placeholder="Observação para entrega..."
-                    backgroundColor="transparent"
-                    borderWidth={0}
-                    borderColor="transparent"
-                    flex={1}
-                    fontSize={10}
-                    maxLength={999}
-                    onPressIn={(e) => {
-                      e.stopPropagation();
-                    }}
-                    onChangeText={handleObsChange}
-                    onBlur={handleBlur}
-                    value={obs}
-                  />
-                </XStack>
-              </View>
-            )}
-          </View>
+          </ProductCardBottomStyled>
         )}
       </Stack>
     );
@@ -1199,7 +1140,8 @@ export default function Products() {
         <Text
           color={currentClass.toLowerCase() !== item.name.toLowerCase() ? '#aaa' : '#04BF7B'}
           fontSize={14}
-          width={90}
+          paddingHorizontal={8}
+          maxWidth={120}
           textAlign="center"
         >
           {item.name}
@@ -1355,97 +1297,35 @@ export default function Products() {
         </TouchableOpacity>
       </Modal>
 
-      {/* Lista de restaurantes do usuário */}
-      <Text
-        style={{
-          marginTop: 15,
-          marginLeft: Platform.OS === 'web' ? 23 : 15,
-          width: Platform.OS === 'web' ? '70%' : '',
-          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start',
-        }}
-      >
+      <HeaderText>
         Meus Restaurantes
-      </Text>
+      </HeaderText>
 
-      <DropDownPicker
-        open={restaurantOpen}
-        setOpen={setRestaurantOpen}
-        value={selectedRestaurant}
-        items={restaurantes.map((restaurant) => ({
-          label: restaurant.name,
-          value: restaurant.externalId,
-        }))}
-        setValue={setSelectedRestaurant}
-        onChangeValue={handleRestaurantChoice}
-        placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
-        listMode="SCROLLVIEW"
-        dropDownDirection="BOTTOM"
-        dropDownContainerStyle={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center',
-        }}
-        style={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center',
-          marginTop: 10,
-          marginHorizontal: 15,
-          marginRight: 20,
-          borderColor: '#ccc',
-          borderWidth: 1,
-          borderRadius: 5,
-          height: 40,
-        }}
+      <DropDownPickerRestaurant
+        restaurants={restaurantes}
+        currentSelectedRestaurant={selectedRestaurant}
+        onChangeValueFunction={handleRestaurantChoice}
       />
 
       <View height={40} flex={1} paddingTop={8}>
-        <XStack
-          backgroundColor="#F0F2F6"
-          marginTop={30}
-          paddingRight={14}
-          borderWidth={0}
-          borderRadius={20}
-          alignItems="center"
-          flexDirection="row"
-          margin={10}
-          style={{
-            width: Platform.OS === 'web' ? '68.4%' : '',
-            alignSelf: 'center',
-          }}
-        >
-          <Input
-            placeholder="Buscar produtos..."
-            backgroundColor="transparent"
-            borderWidth={0}
-            borderColor="transparent"
-            focusVisibleStyle={{ outlineWidth: 0 }}
-            outlineStyle="none"
-            flex={1}
-            maxLength={50}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          <Icons name="search" size={24} color="#04BF7B" />
-        </XStack>
+        <SearchProducts
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
 
-        <FlatList
-          style={{
-            marginTop: -5,
-            maxHeight: Platform.OS === 'web' ? 50 : 55,
-            minHeight: Platform.OS === 'web' ? 50 : undefined,
-            width: Platform.OS === 'web' ? '68%' : undefined,
-            alignSelf: Platform.OS === 'web' ? 'center' : undefined,
-          }}
-          data={classItems}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item: any) => item.name}
-          renderItem={renderClassItem}
+        <ProductsCategoriesList
+          dataItems={classItems} 
+          renderItemsFunction={renderClassItem} 
+          keyExtractorFunction={(item: any) => item.name}
         />
 
         <View
           backgroundColor="#F0F2F6"
           flex={1}
-          paddingHorizontal={16}
+          width={'100%'}
+          display='flex'
+          justifyContent='center'
+          alignSelf='center'
           paddingTop={5}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
@@ -1526,6 +1406,7 @@ export default function Products() {
           height={50}
           borderTopWidth={0.4}
           borderTopColor="lightgray"
+          backgroundColor={'white'}
         >
           <View
             onPress={() => router.push('/products')}
