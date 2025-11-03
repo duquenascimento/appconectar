@@ -1,11 +1,12 @@
 import Icons from '@expo/vector-icons/Ionicons';
-import { YStack, Text, Button, Separator, XStack } from 'tamagui';
+import { YStack, Text, Button, Separator, XStack, Switch } from 'tamagui';
 import { useEffect, useState } from 'react';
 import { PreferenciaProdutoCard } from './PreferenciaProdutoCard';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { CustomRadioButton } from '../button/customRadioButton';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import { resetarPreferencias } from '../../utils/preferenciaUtils';
+import CustomSubtitle from '../subtitle/customSubtitle';
 
 export function ContainerPreferenciasProduto({
   error,
@@ -81,8 +82,23 @@ export function ContainerPreferenciasProduto({
     updateCampo('preferencias', reordenadas);
   };
 
+  const handleToggle = (value: boolean) => {
+    if (value) {
+      updateCampo('definir_preferencia_produto', true);
+    } else {
+      handleDefinirPreferencias();
+    }
+  };
+
   return (
-    <YStack gap="$4" mt="$4">
+    <YStack
+      borderWidth={1}
+      borderColor="$gray6"
+      padding="$4"
+      gap={3}
+      borderRadius="$4"
+      zIndex={1000}
+    >
       <TwoButtonCustomAlert
         visible={showModal}
         title="Tem certeza de que quer realizar esta ação?"
@@ -91,20 +107,20 @@ export function ContainerPreferenciasProduto({
         onCancel={() => setShowModal(false)}
       />
 
-      <Text fontSize="$6" fontWeight="bold">
-        Definir preferência de produtos para um ou mais fornecedores?
-      </Text>
-      <XStack>
-        <CustomRadioButton
-          selected={combinacao.definir_preferencia_produto}
-          onPress={() => updateCampo('definir_preferencia_produto', true)}
-          label="Sim"
-        />
-        <CustomRadioButton
-          selected={!combinacao.definir_preferencia_produto}
-          onPress={handleDefinirPreferencias}
-          label="Não"
-        />
+      <XStack justifyContent="space-between" alignItems="center">
+        <YStack flexShrink={1} maxWidth="85%">
+          <Text fontWeight="bold">Criar preferências de produtos</Text>
+          <CustomSubtitle>Defina quem deve entregar determinados produtos</CustomSubtitle>
+        </YStack>
+        <Switch
+          size="$3"
+          checked={combinacao.definir_preferencia_produto}
+          onCheckedChange={handleToggle}
+          backgroundColor={combinacao.definir_preferencia_produto ? '$green10' : '#7c7c7dff'}
+          padding={0}
+        >
+          <Switch.Thumb backgroundColor="white" animation="quick" scale={0.9} />
+        </Switch>
       </XStack>
 
       <Separator />

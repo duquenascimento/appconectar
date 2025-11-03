@@ -1,37 +1,36 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Platform, SafeAreaView } from 'react-native';
-import { ScrollView, XStack, YStack, Button } from 'tamagui';
+import { ActivityIndicator, Platform } from 'react-native';
+import { ScrollView, XStack, YStack, Button, View } from 'tamagui';
 import * as Yup from 'yup';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
-import CustomButton from '@/src/components/button/customButton';
-import CustomHeader from '@/src/components/header/customHeader';
-import { getStorage } from '@/src/utils/utils';
-import { InputNome } from '@/src/components/Combination/InputNome';
-import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
-import { BloqueioFornecedoresCampo } from '@/src/components/Combination/BloqueioFornecedores';
-import { PreferenciaFornecedorCampo } from '@/src/components/Combination/PreferenciaFornecedorTipo';
+import CustomButton from '../src/components/button/customButton';
+import CustomHeader from '../src/components/header/customHeader';
+import { getStorage } from '../src/utils/utils';
+import { InputNome } from '../src/components/Combination/InputNome';
+import { DropdownCampo } from '../src/components/Combination/DropdownCampo';
+import { BloqueioFornecedoresCampo } from '../src/components/Combination/BloqueioFornecedores';
+import { PreferenciaFornecedorCampo } from '../src/components/Combination/PreferenciaFornecedorTipo';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { ContainerPreferenciasProduto } from '../src/components/Combination/ContainerPreferenciasProduto';
-import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { getCombinationsByRestaurant } from '../src/services/combinationsService';
+import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import PageContainer from '../src/components/box/PageContainer';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { Combinacao } from '../src/types/combinationTypes';
 
 export interface SuplierCombination {
   id: string;
   nomefornecedor: string;
 }
 
-export const Combination: React.FC = () => {
-  const navigation = useNavigation();
+export function Combination(): JSX.Element {
   const route = useRoute();
-  const { id } = route.params as { id?: string };
+  const params = route.params as { id?: string } | undefined;
+  const id = params?.id;
   const { combinacao, updateCampo } = useCombinacao();
-  const [isModaltVisible, setIsModalVisible] = useState<boolean>(false);
-
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertTitle, setAlertTitle] = useState('');
@@ -40,9 +39,11 @@ export const Combination: React.FC = () => {
   const [triggerValidation, setTriggerValidation] = useState(false);
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
+      setLoading(false);
       await loadPrices();
       await loadRestaurants();
       if (!id) return;
@@ -85,6 +86,7 @@ export const Combination: React.FC = () => {
   };
 
   const createCombination = async (combinacaoFiltrada?: any) => {
+    setLoading(true);
     try {
       const dadosParaEnviar = combinacaoFiltrada || combinacao;
 
@@ -112,10 +114,13 @@ export const Combination: React.FC = () => {
       setAlertTitle('Erro!');
       setAlertMessage('Ocorreu um erro inesperado ao criar a combinação.');
       setIsAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateCombination = async (combinacaoFiltrada?: any) => {
+    setLoading(true);
     try {
       const dadosParaEnviar = combinacaoFiltrada || combinacao;
 
@@ -141,12 +146,14 @@ export const Combination: React.FC = () => {
       setAlertTitle('Erro!');
       setAlertMessage('Ocorreu um erro inesperado ao atualizar a combinação.');
       setIsAlertVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateCampoAndValidate = useCallback(
-    async (campo: string, valor: any) => {
-      updateCampo(campo as any, valor);
+    async <K extends keyof Combinacao>(campo: K, valor: Combinacao[K]) => {
+      updateCampo(campo, valor);
       try {
         const tempObj = { ...combinacao, [campo]: valor };
         await combinacaoValidationSchema.validateAt(campo, tempObj);
@@ -185,7 +192,7 @@ export const Combination: React.FC = () => {
         preferencias: combinacao.preferencias?.map((preferencia) => ({
           ...preferencia,
           produtos: preferencia.produtos?.filter(
-            (produto) => produto.produto_sku || produto.classe, // Mantém apenas produtos com dados
+            (produto) => produto.produto_sku || produto.classe,
           ),
         })),
       };
@@ -194,22 +201,20 @@ export const Combination: React.FC = () => {
         abortEarly: false,
       });
 
-      // Reset trigger validation after a short delay
       setTimeout(() => setTriggerValidation(false), 100);
 
-      // Enviar a combinação filtrada para o backend
       if (id) {
-        await updateCombination(combinacaoParaValidar); // Passe a combinação filtrada
+        await updateCombination(combinacaoParaValidar);
       } else {
-        await createCombination(combinacaoParaValidar); // Passe a combinação filtrada
+        await createCombination(combinacaoParaValidar);
       }
-    } catch (validationErrors) {
+    } catch (error) {
       // Reset trigger validation even on error
       setTimeout(() => setTriggerValidation(false), 100);
 
-      if (validationErrors instanceof Yup.ValidationError) {
+      if (error instanceof Yup.ValidationError) {
         const newErrors: Record<string, string> = {};
-        validationErrors.inner.forEach((err) => {
+        error.inner.forEach((err) => {
           if (err.path) {
             newErrors[err.path] = err.message;
           }
@@ -227,6 +232,7 @@ export const Combination: React.FC = () => {
   };
 
   const handleDeleteCombination = async () => {
+    setLoading(true);
     try {
       if (!id) {
         console.warn('ID da combinação não encontrado.');
@@ -235,13 +241,14 @@ export const Combination: React.FC = () => {
       await fetch(`${process.env.EXPO_PUBLIC_API_URL}/combination/${id}/delete`, {
         method: 'DELETE',
       });
-    } catch (error) {
-      console.error('Erro ao excluir combinação:', error);
-    } finally {
       setAlertTitle('Sucesso!');
       setAlertMessage('Combinação excluída com sucesso!');
       setIsAlertVisible(true);
       setAlertCallback(() => handleGoBack);
+    } catch (error) {
+      console.error('Erro ao excluir combinação:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -329,6 +336,7 @@ export const Combination: React.FC = () => {
                     handleGoBack();
                   }
                 }}
+                disabled={loading}
                 hoverStyle={{
                   backgroundColor: '#f84949ff',
                   opacity: 0.9,
@@ -338,12 +346,13 @@ export const Combination: React.FC = () => {
                 borderColor="#A9A9A9"
                 borderWidth={1}
               >
-                {id ? 'Excluir combinação' : 'Cancelar'}
+                {loading ? 'Processando...' : id ? 'Excluir combinação' : 'Cancelar'}
               </Button>
             </YStack>
             <YStack flex={1}>
               <Button
                 onPress={handleSaveCombination}
+                disabled={loading}
                 hoverStyle={{
                   backgroundColor: '#1DC588',
                   opacity: 0.9,
@@ -352,7 +361,7 @@ export const Combination: React.FC = () => {
                 color="#FFFFFF"
                 borderColor="#A9A9A9"
               >
-                Salvar combinação
+                {loading ? 'Salvando...' : 'Salvar combinação'}
               </Button>
             </YStack>
           </XStack>
@@ -366,7 +375,7 @@ export const Combination: React.FC = () => {
           >
             <YStack flex={1}>
               <CustomButton
-                title={id ? 'Excluir' : 'Cancelar'}
+                title={loading ? 'Processando...' : id ? 'Excluir' : 'Cancelar'}
                 onPress={() => {
                   if (id) {
                     handleDeleteCombination();
@@ -380,7 +389,7 @@ export const Combination: React.FC = () => {
             </YStack>
             <YStack flex={1}>
               <CustomButton
-                title="Salvar"
+                title={loading ? 'Salvando...' : 'Salvar'}
                 onPress={handleSaveCombination}
                 backgroundColor="#1DC588"
                 textColor="#FFFFFF"
@@ -389,8 +398,26 @@ export const Combination: React.FC = () => {
           </XStack>
         )}
       </ScrollView>
+
+      {loading && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.7)', // ← pouca opacidade
+            zIndex: 999,
+          }}
+        >
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      )}
     </PageContainer>
   );
-};
+}
 
 export default Combination;

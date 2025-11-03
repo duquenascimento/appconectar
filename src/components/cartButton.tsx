@@ -1,15 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Platform, TouchableOpacity } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { View, Text } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
-import { Product } from '@/app/products';
 import { AbandonedCartWatcher } from '../utils/abandonedCart';
 import { getStorage } from '../utils/utils';
 
 type Props = {
   cartSize: number;
-  visibleProducts: Product[];
   selectedRestaurant: string | null;
   onPress: () => void;
 };
@@ -23,27 +21,18 @@ interface Restaurant {
 
 export const CartButton: React.FC<Props> = ({
   cartSize,
-  visibleProducts,
   selectedRestaurant,
   onPress,
 }) => {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(50);
-  const hideTimeout = useRef<NodeJS.Timeout | null>(null);
   const [watcherRestaurant, setWatcherRestaurant] = useState<Restaurant | null>(null);
   const [showWatcher, setShowWatcher] = useState(false);
 
   useEffect(() => {
-    if (visibleProducts.length < 4) {
-      opacity.value = withTiming(1, { duration: 100 });
-      translateY.value = withTiming(0, { duration: 100 });
-      return;
-    }
-
-    return () => {
-      if (hideTimeout.current) clearTimeout(hideTimeout.current);
-    };
-  }, [cartSize, visibleProducts]);
+    opacity.value = withTiming(1, { duration: 100 });
+    translateY.value = withTiming(0, { duration: 100 });
+  }, [cartSize]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

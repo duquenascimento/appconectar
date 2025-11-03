@@ -55,6 +55,8 @@ import { HeaderText } from '../src/components/text/HeaderText';
 import { SearchProducts } from '../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
 import { CustomImageBadge } from '../src/components/image/customImageBadge';
+import { loadFavorites } from '../src/utils/loadFavorite';
+import { getSavedRestaurant } from '../src/utils/savedRestaurant';
 
 export type Product = {
   name: string;
@@ -699,32 +701,6 @@ export default function Products() {
     }
   }, [productsContext]);
 
-  const loadFavorites = useCallback(async () => {
-    try {
-      const token = await getToken();
-      const restaurant = await getSavedRestaurant();
-
-      if (token == null || !restaurant) return [];
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          restaurantId: restaurant.id,
-        }),
-      });
-      if (!result.ok) return [];
-      const favorites = await result.json();
-      if (favorites.data.length < 1) return [];
-      return favorites.data;
-    } catch (error) {
-      console.error('Erro ao carregar favoritos:', error);
-      return [];
-    }
-  }, []);
-
   const loadCart = async (): Promise<Map<string, Cart>> => {
     try {
       const token = await getToken();
@@ -843,25 +819,6 @@ export default function Products() {
     },
     [saveCart, loadCart, loadProducts],
   );
-
-  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
-    try {
-      const data = await AsyncStorage.getItem('selectedRestaurant');
-      if (!data) return null;
-
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
-
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  };
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -1367,7 +1324,6 @@ export default function Products() {
           justifyContent='center'
           alignSelf='center'
           paddingTop={5}
-          paddingBottom={70}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
@@ -1393,6 +1349,7 @@ export default function Products() {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 listRef={virtualizedListRef}
+                contentContainerStyle={{ paddingBottom: 90 }}
               />
             ) : (
               <CustomFlatList
@@ -1401,6 +1358,7 @@ export default function Products() {
                 keyExtractor={(item) => item.id}
                 onEndReached={loadProducts}
                 listRef={flatListRef}
+                contentContainerStyle={{ paddingBottom: 90 }}
               />
             )
           ) : (
@@ -1441,7 +1399,7 @@ export default function Products() {
           justifyContent="center"
           alignItems="center"
           flexDirection="row"
-          gap={20}
+          gap={15}
           height={50}
           borderTopWidth={0.4}
           borderTopColor="lightgray"
@@ -1455,7 +1413,7 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={80}
+            width={50}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
@@ -1488,6 +1446,28 @@ export default function Products() {
           <View
             onPress={async () => {
               setLoading(true);
+              saveCartArray(cart, cartToExclude).catch(console.error);
+              setLoading(false);
+              router.push('/userInfo');
+            }}
+            padding={10}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width={80}
+            height={70}
+          >
+            <Icons name="person" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Perfil
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              setLoading(true);
               await saveCartArray(cart, cartToExclude);
               await Promise.all([clearStorage(), deleteToken()]);
               setLoading(false);
@@ -1501,7 +1481,7 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={80}
+            width={50}
             height={70}
           >
             <Icons name="log-out" size={20} color="gray" />
@@ -1510,12 +1490,11 @@ export default function Products() {
             </Text>
           </View>
         </View>
-        <VersionInfo />
       </View>
+      <VersionInfo />
 
       <CartButton
         cartSize={displayedCartSize}
-        visibleProducts={displayedProducts}
         selectedRestaurant={selectedRestaurant}
         onPress={async () => {
           setLoading(true);

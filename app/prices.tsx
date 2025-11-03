@@ -1,4 +1,4 @@
-import { Stack, Text, View, Image, Button, Input, ScrollView } from 'tamagui';
+import { Stack, Text, View, Image, Button, Input, ScrollView, YStack } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -12,7 +12,6 @@ import {
 import { DateTime } from 'luxon';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
@@ -29,6 +28,7 @@ import { TCart } from '@/src/types/cartTypes';
 import { loadCart } from '@/src/utils/cartUtils';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { getStarValue } from '@/src/utils/getStarValue';
 
 export interface Product {
   price: number;
@@ -97,6 +97,27 @@ const useScreenSize = () => {
 const getScreenSize = () => {
   const { width } = Dimensions.get('window');
   return width >= 1024 ? 'lg/xl' : 'sm/md';
+};
+
+const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
+  return suppliers.sort((a, b) => {
+    // First, sort by star rating (descending)
+    if (a.supplier.star !== b.supplier.star) {
+      const starA = getStarValue(a.supplier.star);
+      const starB = getStarValue(b.supplier.star);
+      return starB - starA;
+    }
+    
+    // Second, sort by missing items (ascending)
+    const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
+    const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
+    if (missingA !== missingB) {
+      return missingA - missingB;
+    }
+
+    // Third, sort by order value (ascending)
+    return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
+  });
 };
 
 function SupplierBox({
@@ -255,6 +276,8 @@ export default function Prices() {
   const { loadRestaurants } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
+  const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([])
+  const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([])
 
   useEffect(() => {
     const loadCombinations = async () => {
@@ -449,8 +472,9 @@ export default function Prices() {
     loadPricesAsync();
   }, [loadPrices]);
 
-  const combinedSuppliers = useMemo(() => {
-    const itens: any[] = [];
+  useEffect(() => {
+    let tempSuppliers: any[] = []
+    let tempUnavailableSuppliers: any[] = []
 
     const filteredSuppliers = suppliers.filter(
       (item) => item.supplier.hour.substring(0, 5) !== '06:00',
@@ -458,19 +482,16 @@ export default function Prices() {
 
     const filteredUnavailableSuppliers = unavailableSupplier;
 
-    if (filteredSuppliers.length) itens.push({ initialSeparator: true });
-    itens.push(...filteredSuppliers.map((item) => ({ ...item, available: true })));
+    tempSuppliers.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
+    tempUnavailableSuppliers.push(...filteredUnavailableSuppliers.map((item) => ({ ...item, available: false })))
 
-    if (filteredUnavailableSuppliers.length) itens.push({ separator: true });
-    itens.push(
-      ...filteredUnavailableSuppliers.map((item) => ({
-        ...item,
-        available: false,
-      })),
-    );
+    const finalSortedSuppliers = sortSuppliers(tempSuppliers);
+    const finalSortedUnavailableSuppliers = sortSuppliers(tempUnavailableSuppliers);
 
-    return itens;
-  }, [suppliers, unavailableSupplier]);
+    setSortedSuppliers(finalSortedSuppliers)
+    setSortedUnavailableSuppliers(finalSortedUnavailableSuppliers)    
+    
+  }, [suppliers, unavailableSupplier])
 
   useEffect(() => {
     if (selectedRestaurant) {
@@ -523,32 +544,6 @@ export default function Prices() {
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
   const renderItem = ({ item }: { item: any }) => {
-    if (item.separator) {
-      return (
-        <Text
-          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
-          paddingBottom={10}
-          paddingTop={30}
-          opacity={60}
-          fontSize={16}
-        >
-          Fornecedores indisponíveis
-        </Text>
-      );
-    }
-    if (item.initialSeparator) {
-      return (
-        <Text
-          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
-          paddingBottom={5}
-          opacity={60}
-          marginTop={10}
-          fontSize={16}
-        >
-          Fornecedores disponíveis
-        </Text>
-      );
-    }
     return (
       <SupplierBox
         supplier={item}
@@ -728,20 +723,61 @@ export default function Prices() {
           <View backgroundColor="white" flex={1} paddingHorizontal={5}>
             <View padding={10} paddingTop={0} height="100%">
               {tab === 'onlySupplier' && cart && cart.size > 0 && (
-                <VirtualizedList
-                  style={{ marginBottom: 5, flexGrow: 1 }}
-                  data={combinedSuppliers}
-                  getItemCount={getItemCount}
-                  getItem={getItem}
-                  keyExtractor={(item, index) =>
-                    item.supplier ? item.supplier.name : `separator-${index}`
-                  }
-                  renderItem={renderItem}
-                  ItemSeparatorComponent={() => <View height={2} />}
-                  initialNumToRender={10}
-                  windowSize={4}
-                  scrollEnabled
-                />
+                <ScrollView flex={1} overflow='scroll' padding={3}>
+                    <Text
+                      style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+                      paddingBottom={5}
+                      marginTop={10}
+                      fontSize={16}
+                      color={'gray'}
+                    >
+                      Fornecedores disponíveis
+                    </Text>
+
+                    <VirtualizedList
+                      style={{ marginBottom: 5}}
+                      data={sortedSuppliers}
+                      getItemCount={getItemCount}
+                      getItem={getItem}
+                      keyExtractor={(item, index) => 
+                        item.supplier ? item.supplier.name : `separator-${index}`
+                      }
+                      renderItem={renderItem}
+                      ItemSeparatorComponent={() => <View height={2} />}
+                      initialNumToRender={sortedSuppliers.length}
+                      /* windowSize={4} */
+                      scrollEnabled={false}
+                    />
+
+                  {unavailableSupplier.length > 0 && (
+                    <>
+                      <Text
+                        style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+                        paddingBottom={5}
+                        marginTop={10}
+                        fontSize={16}
+                        color={'gray'}
+                      >
+                        Fornecedores indisponíveis
+                      </Text>
+
+                      <VirtualizedList
+                        style={{ marginBottom: 5 }}
+                        data={sortedUnavailableSuppliers}
+                        getItemCount={getItemCount}
+                        getItem={getItem}
+                        keyExtractor={(item, index) => 
+                          item.supplier ? item.supplier.name : `separator-${index}`
+                        }
+                        renderItem={renderItem}
+                        ItemSeparatorComponent={() => <View height={2} />}
+                        initialNumToRender={sortedUnavailableSuppliers.length}
+                        /* windowSize={4} */
+                        scrollEnabled={false}
+                      />
+                    </>
+                  )}
+                </ScrollView>
               )}
 
               {tab === 'onlySupplier' && !(cart && cart.size > 0) && (
