@@ -20,6 +20,7 @@ import { useSupplier } from '../src/contexts/fornecedores.context';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { Combinacao } from '../src/types/combinationTypes';
+import { getDivideSuppliersOptions } from '../src/services/combinationsService';
 
 export interface SuplierCombination {
   id: string;
@@ -40,6 +41,7 @@ export function Combination(): JSX.Element {
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const [loading, setLoading] = useState<boolean>(true);
+  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<Array<{ label: string; value: number }>>([]);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -81,6 +83,18 @@ export function Combination(): JSX.Element {
     fetchStoredRestaurant();
   }, []);
 
+  useEffect(() => {
+    const fetchDivideSuppliersOptions = async () => {
+      try {
+        const resp = await getDivideSuppliersOptions();
+        setAvailableSuppliersOptions(resp)
+      } catch {
+        setAvailableSuppliersOptions([])
+      }
+    }
+    fetchDivideSuppliersOptions()
+  }, [])
+  
   const handleGoBack = () => {
     router.push('preferencesScreen');
   };
@@ -290,11 +304,7 @@ export function Combination(): JSX.Element {
           <DropdownCampo
             campo="dividir_em_maximo"
             label="Dividir em no máximo:"
-            items={[
-              { label: '2 fornecedores', value: 2 },
-              { label: '3 fornecedores', value: 3 },
-              { label: '4 fornecedores', value: 4 },
-            ]}
+            items={availableSuppliersOptions}
             value={combinacao.dividir_em_maximo}
             onChange={(val) => updateCampoAndValidate('dividir_em_maximo', val)}
             zIndex={3000}
