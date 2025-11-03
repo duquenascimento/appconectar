@@ -38,7 +38,6 @@ export const ProductCardStyled = styled(View, {
 
 export const ProductCardBottomStyled = styled(View, {
 	width: '92%', 
-	minHeight: 85, 
 	paddingHorizontal: 8, 
 	justifyContent: 'center', 
 	alignSelf: 'center', 
@@ -67,7 +66,7 @@ export const ProductCardBottomStyled = styled(View, {
 })
 
 export const ProductCardObsUnitContainerStyled = styled(View, {
-	paddingVertical: 8,
+	paddingVertical: 16,
 	flex: 1,
 	alignItems: 'center',
 	flexDirection: 'column-reverse',
