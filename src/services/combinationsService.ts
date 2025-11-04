@@ -78,13 +78,3 @@ export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
   );
   return response.data;
 };
-
-export const getDivideSuppliersOptions = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/combination/get-divide-suppliers-options`)
-    return response.data.data
-  } catch (error) {
-    console.error('Erro ao buscar lista de fornecedores:', error)
-    throw error
-  }
-}

@@ -20,7 +20,8 @@ import { useSupplier } from '../src/contexts/fornecedores.context';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { Combinacao } from '../src/types/combinationTypes';
-import { getDivideSuppliersOptions } from '../src/services/combinationsService';
+import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
+import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 
 export interface SuplierCombination {
   id: string;
@@ -84,15 +85,20 @@ export function Combination(): JSX.Element {
   }, []);
 
   useEffect(() => {
-    const fetchDivideSuppliersOptions = async () => {
+    const fetchMaxSpecificSuppliers = async () => {
       try {
-        const resp = await getDivideSuppliersOptions();
-        setAvailableSuppliersOptions(resp)
+        const selectedRestaurant = await getStorage('selectedRestaurant')
+        const parsedSelectedRestaurant = selectedRestaurant ? JSON.parse(selectedRestaurant) : null;
+        if(parsedSelectedRestaurant) {
+          const resp = await getMaxSpecificSuppliersNumber(parsedSelectedRestaurant.restaurant.externalId)
+          const options = mapMaxSpecificSuppliers(resp)
+          setAvailableSuppliersOptions(options)
+        }
       } catch {
         setAvailableSuppliersOptions([])
       }
     }
-    fetchDivideSuppliersOptions()
+    fetchMaxSpecificSuppliers()
   }, [])
   
   const handleGoBack = () => {
