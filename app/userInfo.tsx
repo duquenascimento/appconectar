@@ -5,10 +5,11 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { View, Text, XStack, YStack, Button } from 'tamagui';
 import { Linking } from 'react-native';
 import PageContainer from '@/src/components/box/PageContainer';
-import { getUserData } from '@/src/utils/userUtils';
+import { deleteUser, getUserData } from '@/src/utils/userUtils';
 import { VersionInfo } from '@/src/utils/VersionApp';
 import { clearStorage, deleteToken } from '@/src/utils/utils';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
+import CustomAlert from '@/src/components/modais/CustomAlert';
 
 interface User {
   name: string;
@@ -21,6 +22,8 @@ export default function UserInfo() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [deleted, setDeleted] = useState<boolean>(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -44,27 +47,40 @@ export default function UserInfo() {
     };
   }, []);
 
-  const handleCancelRequest = async () => {
+  const handleDeleteRequest = async () => {
     try {
       setShowModal(false);
-
-      const text = encodeURIComponent(
-        `Olá! Gostaria de solicitar o cancelamento da minha conta no aplicativo.\n\nNome: ${user?.name}\nE-mail: ${user?.email}\nTelefone: ${user?.phone || 'não informado'}\n\nPoderiam me ajudar com isso?`,
-      );
-
-      await Linking.openURL(`https://wa.me/5521999954372?text=${text}`);
+      setIsDeleting(true);
+      await deleteUser();
+      setDeleted(true);
     } catch (error) {
-      console.error('Erro ao abrir o WhatsApp:', error);
+      console.error('Falha ao excluir conta de usuário', error);
+    } finally {
+      setIsDeleting(false);
     }
   };
-  if (loading) {
+
+  const handleLogout = async () => {
+    await Promise.all([clearStorage(), deleteToken()]);
+    setDeleted(false);
+    router.dismissAll();
+    router.replace('/');
+  };
+
+  if (loading || isDeleting) {
     return (
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
-          <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-            Carregando informações do usuário...
-          </Text>
+          {isDeleting ? (
+            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
+              Excluíndo sua conta...
+            </Text>
+          ) : (
+            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
+              Carregando informações...
+            </Text>
+          )}
         </View>
       </PageContainer>
     );
@@ -72,12 +88,18 @@ export default function UserInfo() {
 
   return (
     <PageContainer backgroundColor="white">
+      <CustomAlert
+        visible={deleted}
+        title="Obrigado por usar nosso app!"
+        message="Aguardamos pelo seu retorno em breve!"
+        onConfirm={handleLogout}
+      />
+
       <TwoButtonCustomAlert
         visible={showModal}
         title="Tem certeza que deseja nos deixar?"
-        message="Ao fazer isto você será redirecionado 
-        para nosso canal de atendimento para solicitar o encerramento de sua conta"
-        onConfirm={handleCancelRequest}
+        message="Ao confirmar, sua conta será removida e você será redirecionado para a página de login"
+        onConfirm={handleDeleteRequest}
         onCancel={() => setShowModal(false)}
       />
       <View
@@ -133,15 +155,15 @@ export default function UserInfo() {
 
       <View width="100%" padding={20} alignItems="center">
         <Button
-          width={Platform.OS === 'web' ? '60%' : '90%'}
-          backgroundColor="#ff4d4d"
+          width={Platform.OS === 'web' ? '40%' : '70%'}
+          backgroundColor="#ff6d6d"
           borderRadius={12}
           height={45}
           onPress={() => setShowModal(true)}
         >
           <XStack alignItems="center" justifyContent="center" gap={8}>
             <Text color="white" fontWeight="700">
-              Solicitar Cancelamento
+              Excluir conta
             </Text>
           </XStack>
         </Button>
