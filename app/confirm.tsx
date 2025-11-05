@@ -28,6 +28,7 @@ import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { sendMissingItemsAlert } from '../src/services/slackAlertsService';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -488,6 +489,18 @@ export default function Confirm() {
 
       if (result.ok) {
         const response = await result.json();
+        if (supplier.supplier.missingItens > 0) {
+          const missingItems = supplier.supplier.discount.product
+            .filter((p: any) => !p.price)
+            .map((p: any) => p.name);
+
+          await sendMissingItemsAlert({
+            externalId: selectedRestaurant.restaurant.externalId,
+            restaurantName: selectedRestaurant.restaurant.name,
+            orderId: response.data.orderId,
+            missingItems,
+          });
+        }
         await setStorage('finalConfirmData', JSON.stringify(response.data));
         router.push('/finalConfirm');
       } else {
