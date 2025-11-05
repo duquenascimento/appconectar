@@ -49,7 +49,11 @@ import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { ProductCardBottomStyled, ProductCardObsUnitContainerStyled, ProductCardStyled } from '../src/components/card/productCard';
+import {
+  ProductCardBottomStyled,
+  ProductCardObsUnitContainerStyled,
+  ProductCardStyled,
+} from '../src/components/card/productCard';
 import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
 import { HeaderText } from '../src/components/text/HeaderText';
 import { SearchProducts } from '../src/components/input/SearchProducts';
@@ -287,9 +291,11 @@ const ProductBox = React.memo(
         borderRadius={12}
         borderColor="#F0F2F6"
       >
-        <ProductCardStyled 
+        <ProductCardStyled
           selected={cart.get(id) ? true : false}
-          resetBottomBorderRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? true : false}
+          resetBottomBorderRadius={
+            open || isCart || (isFavorite && currentClass === 'Favoritos') ? true : false
+          }
         >
           <View flexDirection="row" alignItems="center">
             <View
@@ -351,10 +357,7 @@ const ProductBox = React.memo(
             selected={cart.get(id) ? true : false}
             onPress={(e) => e.stopPropagation()}
           >
-            <View
-              flexDirection="row"
-              alignItems="center"
-            >
+            <View flexDirection="row" alignItems="center">
               <ProductCardObsUnitContainerStyled>
                 <View flex={1} width={'100%'}>
                   <View flex={1} width={'100%'}>
@@ -387,8 +390,8 @@ const ProductBox = React.memo(
                   </View>
                 </View>
 
-                <View flexDirection='row' alignItems='center' gap={16}>
-                  <View flex={1} flexDirection='row' gap={8}>
+                <View flexDirection="row" alignItems="center" gap={16}>
+                  <View flex={1} flexDirection="row" gap={8}>
                     <Button
                       onPress={(e) => {
                         e.stopPropagation();
@@ -400,7 +403,9 @@ const ProductBox = React.memo(
                       borderRadius={12}
                       hoverStyle={{ backgroundColor: 'none' }}
                     >
-                      <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'} fontSize={12}>{firstUnit || 1}</Text>
+                      <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'} fontSize={12}>
+                        {firstUnit || 1}
+                      </Text>
                     </Button>
                     <Button
                       onPress={(e) => {
@@ -443,7 +448,7 @@ const ProductBox = React.memo(
                     borderRadius={18}
                     flexDirection="row"
                     gap={10}
-                    backgroundColor='white'
+                    backgroundColor="white"
                   >
                     <Icons
                       name="remove"
@@ -1297,9 +1302,7 @@ export default function Products() {
         </TouchableOpacity>
       </Modal>
 
-      <HeaderText>
-        Meus Restaurantes
-      </HeaderText>
+      <HeaderText>Meus Restaurantes</HeaderText>
 
       <DropDownPickerRestaurant
         restaurants={restaurantes}
@@ -1308,14 +1311,11 @@ export default function Products() {
       />
 
       <View height={40} flex={1} paddingTop={8}>
-        <SearchProducts
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+        <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
         <ProductsCategoriesList
-          dataItems={classItems} 
-          renderItemsFunction={renderClassItem} 
+          dataItems={classItems}
+          renderItemsFunction={renderClassItem}
           keyExtractorFunction={(item: any) => item.name}
         />
 
@@ -1323,9 +1323,9 @@ export default function Products() {
           backgroundColor="#F0F2F6"
           flex={1}
           width={'100%'}
-          display='flex'
-          justifyContent='center'
-          alignSelf='center'
+          display="flex"
+          justifyContent="center"
+          alignSelf="center"
           paddingTop={5}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
@@ -1416,7 +1416,7 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={50}
+            width={60}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
