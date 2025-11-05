@@ -72,15 +72,9 @@ export default function UserInfo() {
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
-          {isDeleting ? (
-            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-              Excluíndo sua conta...
-            </Text>
-          ) : (
-            <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
-              Carregando informações...
-            </Text>
-          )}
+          <Text fontSize={16} marginTop={5} color="gray" textAlign="center">
+            {isDeleting ? 'Excluindo sua conta...' : 'Carregando informações'}
+          </Text>
         </View>
       </PageContainer>
     );
