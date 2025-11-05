@@ -20,3 +20,19 @@ export async function getUserData(): Promise<any> {
     throw error;
   }
 }
+
+export async function deleteUser(): Promise<any> {
+  try {
+    const token = await getToken();
+
+    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/delete-user`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    console.error('Falha ao buscar dados do usuáiro', error);
+    throw error;
+  }
+}
