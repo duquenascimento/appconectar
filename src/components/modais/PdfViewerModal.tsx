@@ -116,7 +116,7 @@ export default function PdfViewerModal({pdfUrl, open, onClose}: { pdfUrl: string
               onPress={onClose}
               width="50%"
             >
-              <Text pl={5} fontSize={12} color="white">
+              <Text paddingLeft={5} fontSize={12} color="white">
                 Fechar
               </Text>
             </Button>
@@ -126,7 +126,7 @@ export default function PdfViewerModal({pdfUrl, open, onClose}: { pdfUrl: string
               onPress={handleDownload}
               width="50%"
             >
-              <Text pl={5} fontSize={12} color="white">
+              <Text paddingLeft={5} fontSize={12} color="white">
                 Download
               </Text>
             </Button>

@@ -1,49 +1,63 @@
-import { useFonts } from 'expo-font';
+import 'react-native-gesture-handler';
+import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
+import { SupplierProvider } from '@/src/contexts/fornecedores.context';
+import { ProductProvider } from '@/src/contexts/produtos.context';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
-import { Sign } from './index';
-import { Products } from './screens/products';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Cart } from './screens/cart';
-import { Prices } from './screens/prices';
-import { Confirm } from './screens/confirm';
-import { FinalConfirm } from './screens/finalConfirm';
-import { Register } from './screens/register';
-import { RegisterFinished } from './screens/registerFinished';
-import { OrdersScreen } from './screens/OrdersScreen';
-import {OrderDetailsScreen } from './screens/OrderDetailsScreen';
-// import 'react-native-reanimated';
-import 'react-native-gesture-handler';
+import { useFonts } from 'expo-font';
+import { useEffect } from 'react';
+import { ActivityIndicator, BackHandler, View } from 'react-native';
+import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
+import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 
-const Navigation = createNativeStackNavigator();
-
-export default function App() {
+export default function RootLayout() {
   const [loaded] = useFonts({
-    Inter: require("@tamagui/font-inter/otf/Inter-Medium.otf"),
-    InterBold: require("@tamagui/font-inter/otf/Inter-Bold.otf"),
+    Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
+    InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
 
-  if (!loaded) {
-    return null;
+  const { isAuthenticated } = useAuth();
+  const segments = useSegments();
+
+  useEffect(() => {
+    const backAction = () => {
+      return false;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, []);
+
+  if (
+    !loaded ||
+    isAuthenticated === null ||
+    (isAuthenticated === false && isProtectedRoute(segments))
+  ) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#04BF7B" />
+      </View>
+    );
   }
 
   return (
-    <NavigationContainer independent={true}>
-      <TamaguiProvider config={config}>
-        <Navigation.Navigator screenOptions={{ headerShown: false }} initialRouteName="Home">
-          <Navigation.Screen name="Sign" component={Sign} />
-          <Navigation.Screen name="Products" component={Products} />
-          <Navigation.Screen name="Cart" component={Cart} />
-          <Navigation.Screen name="Prices" component={Prices} />
-          <Navigation.Screen name="Confirm" component={Confirm} />
-          <Navigation.Screen name="FinalConfirm" component={FinalConfirm} />
-          <Navigation.Screen name="Register" component={Register} />
-          <Navigation.Screen name="RegisterFinished" component={RegisterFinished} />
-          <Navigation.Screen name="Orders" component={OrdersScreen} />
-          <Navigation.Screen name="OrderDetails" component={OrderDetailsScreen} />
-        </Navigation.Navigator>
-      </TamaguiProvider>
-    </ NavigationContainer>
-  )
+    <TamaguiProvider config={config}>
+      <RestaurantProvider>
+        <ProductProvider>
+          <CombinacaoProvider>
+            <SupplierProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                  gestureEnabled: true,
+                }}
+              ></Stack>
+            </SupplierProvider>
+          </CombinacaoProvider>
+        </ProductProvider>
+      </RestaurantProvider>
+    </TamaguiProvider>
+  );
 }
