@@ -1,22 +1,23 @@
-import React from 'react'
-import { TouchableOpacity, Platform } from 'react-native'
-import Icons from '@expo/vector-icons/Ionicons'
-import { Text, View, styled, XStack, YStack } from 'tamagui'
-import { formatCurrency } from '@/app/utils/formatCurrency'
+import React from 'react';
+import { TouchableOpacity, Platform } from 'react-native';
+import Icons from '@expo/vector-icons/Ionicons';
+import { Text, View, styled, XStack, YStack } from 'tamagui';
+import { formatCurrency } from '@/src/utils/formatCurrency';
 
 export interface Combination {
-  id: string
-  combination: string
-  supplier?: string
-  createdAt?: string
-  delivery?: string
-  missingItems?: number
-  totalValue?: number
-  supplierClosed?: string
+  id: string;
+  combination: string;
+  supplier?: string;
+  createdAt?: string;
+  delivery?: string;
+  missingItems?: number;
+  totalValue?: number;
+  supplierClosed?: string;
+  unavailable?: boolean;
 }
 
 interface ListItemProps extends Combination {
-  onPress: (id: string) => void
+  onPress: (id: string) => void;
 }
 
 const ItemContainer = styled(XStack, {
@@ -24,65 +25,66 @@ const ItemContainer = styled(XStack, {
   alignItems: 'center',
   justifyContent: 'space-between',
   paddingVertical: '$4',
-  paddingHorizontal: Platform.OS === 'web' ? '$4' : '$2',
+  paddingHorizontal: Platform.OS === 'web' ? '$4' : '$5',
   backgroundColor: '#fff',
   borderBottomWidth: 1,
   borderBottomColor: '#eee',
-  flexDirection: 'row'
-})
+  flexDirection: 'row',
+});
 
 const LeftContent = styled(XStack, {
   name: 'LeftContent',
   alignItems: 'center',
   flex: 1,
-  space: '$3'
-})
+  space: '$3',
+  marginRight: Platform.OS === 'web' ? 0 : 20,
+});
 
 const Circle = styled(View, {
   width: 40,
   height: 40,
   borderRadius: 9999,
-  backgroundColor: '#e0e0e0'
-})
+  backgroundColor: '#e0e0e0',
+});
 
 const InfoContainer = styled(YStack, {
   flexShrink: 1,
-  space: '$1'
-})
+  space: '$1',
+});
 
 const ItemTitle = styled(Text, {
-  fontSize: 16,
-  color: '#000'
-})
+  fontSize: Platform.OS === 'web' ? 16 : 14,
+  color: '#000',
+});
 
 const ItemSubTitle = styled(Text, {
   fontSize: 12,
-  color: '#555'
-})
+  color: '#555',
+});
 
 const RightContent = styled(YStack, {
   alignItems: 'flex-end',
   space: '$1',
-  marginRight: 10
-})
+  marginRight: Platform.OS === 'web' ? 10 : 0,
+});
 
 const ItemTotalValue = styled(Text, {
   fontSize: 15,
   fontWeight: 'bold',
   color: '#000',
-  textAlign: 'right'
-})
+  textAlign: 'right',
+});
 
 const ItemMissing = styled(Text, {
   fontSize: 12,
-  color: '#666',
-  textAlign: 'right'
-})
+  color: 'red',
+  textAlign: 'right',
+});
 
 const IconContent = styled(View, {
   justifyContent: 'center',
-  paddingRight: Platform.OS === 'web' ? '1%' : 0
-})
+  paddingRight: Platform.OS === 'web' ? '1%' : 0,
+});
 
 const CustomListItem: React.FC<ListItemProps> = ({
   id,
@@ -93,14 +95,15 @@ const CustomListItem: React.FC<ListItemProps> = ({
   totalValue,
   missingItems,
   supplierClosed,
-  onPress
+  unavailable,
+  onPress,
 }) => {
   return (
     <TouchableOpacity
-      disabled={totalValue === 0 ? true : false}
+      disabled={totalValue === 0 || unavailable ? true : false}
       onPress={() => onPress(id)}
     >
-      <ItemContainer opacity={totalValue === 0 ? 0.5 : 1}>
+      <ItemContainer opacity={totalValue === 0 || unavailable ? 0.5 : 1}>
         <LeftContent>
           <Circle />
           <InfoContainer>
@@ -113,13 +116,17 @@ const CustomListItem: React.FC<ListItemProps> = ({
         </LeftContent>
 
         <RightContent>
-          {totalValue !== undefined && (
+          {totalValue !== undefined && !unavailable && (
             <ItemTotalValue>{formatCurrency(totalValue)}</ItemTotalValue>
           )}
-          {missingItems !== undefined && (
-            <ItemMissing>{`${missingItems} faltante${
-              missingItems !== 1 ? 's' : ''
-            }`}</ItemMissing>
+          {(missingItems !== undefined || unavailable) && (
+            <ItemMissing color={!unavailable && missingItems === 0 ? '#666' : 'red'}>
+              {supplier === 'N/A'
+                ? `Indisponível`
+                : unavailable
+                  ? `Fornecedor(es) \nfechado(s) ou \nabaixo do \nvalor mínimo`
+                  : `${missingItems} faltante${missingItems !== 1 ? 's' : ''}`}
+            </ItemMissing>
           )}
         </RightContent>
 
@@ -128,7 +135,7 @@ const CustomListItem: React.FC<ListItemProps> = ({
         </IconContent>
       </ItemContainer>
     </TouchableOpacity>
-  )
-}
+  );
+};
 
-export default CustomListItem
+export default CustomListItem;

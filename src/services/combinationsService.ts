@@ -1,17 +1,18 @@
-import axios from 'axios'
-const API_URL = process.env.EXPO_PUBLIC_API_URL
+import axios from 'axios';
+
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export interface CombinationApiResponse {
-  id: string
-  nome: string
-  restaurant_id: string
-  created_at: string
-  updated_at: string
-  bloquear_fornecedores: boolean
-  dividir_em_maximo: number
-  preferencia_fornecedor_tipo: string[]
-  definir_preferencia_produto: boolean
-  preferencias_hard: boolean
+  id: string;
+  nome: string;
+  restaurant_id: string;
+  created_at: string;
+  updated_at: string;
+  bloquear_fornecedores: boolean;
+  dividir_em_maximo: number;
+  preferencia_fornecedor_tipo: string[];
+  definir_preferencia_produto: boolean;
+  preferencias_hard: boolean;
 }
 
 export interface QuotationApiResponse {
@@ -27,7 +28,7 @@ export interface QuotationApiResponse {
         orderValueWithoutFee: number;
         feeUsed: number;
         discountUsed: number;
-        cart:[
+        cart: [
           {
             productId: string;
             amount: number;
@@ -35,10 +36,11 @@ export interface QuotationApiResponse {
             valueWithoutFee: number;
             unitValue: number;
             unitValueWithoutFee: number;
-          }
-        ]
-      }
-    ]
+          },
+        ];
+      },
+    ];
+    missingProducts: string[];
     status: string;
     terminationCondition: string;
   };
@@ -62,10 +64,7 @@ export const getCombinationsByRestaurant = async (restaurantId: string) => {
 
 export const getAllQuotationByRestaurant = async (body: QuotationApiRequest) => {
   try {
-    const response = await axios.post(
-      `${process.env.EXPO_PUBLIC_API_URL}/cotacao/calcular`,
-      body
-    );
+    const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/cotacao/calcular`, body);
     return response.data;
   } catch (error) {
     console.error('Erro ao obter cotações por restaurante:', error);
@@ -74,6 +73,8 @@ export const getAllQuotationByRestaurant = async (body: QuotationApiRequest) => 
 };
 
 export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
-  const response = await axios.get(`${process.env.EXPO_PUBLIC_API_URL}/combination/${restaurantId}`)
-  return response.data
-}
+  const response = await axios.get(
+    `${process.env.EXPO_PUBLIC_API_URL}/combination/${restaurantId}`,
+  );
+  return response.data;
+};

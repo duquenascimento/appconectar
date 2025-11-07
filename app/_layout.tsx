@@ -1,87 +1,63 @@
-import { useFonts } from 'expo-font'
-import { TamaguiProvider } from 'tamagui'
-import config from '../tamagui.config'
-import { Sign } from './index'
-import { Products } from './products'
-import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { Cart } from './cart'
-import { Prices } from './screens/prices'
-import { Confirm } from './screens/confirm'
-import { FinalConfirm } from './screens/finalConfirm'
-import { Register } from './screens/register'
-import { RegisterFinished } from './screens/registerFinished'
-import { OrdersScreen } from './screens/OrdersScreen'
-import { OrderDetailsScreen } from './orderDetailsScreen'
-import { Combination } from '@/src/components/Combination/combination'
-import PreferencesScreen from './screens/PreferencesScreen'
-import { QuotationDetailsScreen } from './quotationDetailsScreen'
-import { OrderConfirmedScreen } from './screens/OrderConfirmedScreen'
-// import 'react-native-reanimated';
-import 'react-native-gesture-handler'
-import { CombinacaoProvider } from '@/src/contexts/combinacao.context'
-import { SupplierProvider } from '@/src/contexts/fornecedores.context'
-import { ProductProvider } from '@/src/contexts/produtos.context'
+import 'react-native-gesture-handler';
+import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
+import { SupplierProvider } from '@/src/contexts/fornecedores.context';
+import { ProductProvider } from '@/src/contexts/produtos.context';
+import { Stack, useRouter, useSegments } from 'expo-router';
+import { TamaguiProvider } from 'tamagui';
+import config from '../tamagui.config';
+import { useFonts } from 'expo-font';
+import { useEffect } from 'react';
+import { ActivityIndicator, BackHandler, View } from 'react-native';
+import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
+import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 
-const Navigation = createNativeStackNavigator()
-
-export default function App() {
+export default function RootLayout() {
   const [loaded] = useFonts({
     Inter: require('@tamagui/font-inter/otf/Inter-Medium.otf'),
-    InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf')
-  })
+    InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
+  });
 
-  if (!loaded) {
-    return null
+  const { isAuthenticated } = useAuth();
+  const segments = useSegments();
+
+  useEffect(() => {
+    const backAction = () => {
+      return false;
+    };
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+
+    return () => backHandler.remove();
+  }, []);
+
+  if (
+    !loaded ||
+    isAuthenticated === null ||
+    (isAuthenticated === false && isProtectedRoute(segments))
+  ) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#04BF7B" />
+      </View>
+    );
   }
 
   return (
-    <NavigationContainer independent={true}>
-      <TamaguiProvider config={config}>
+    <TamaguiProvider config={config}>
+      <RestaurantProvider>
         <ProductProvider>
           <CombinacaoProvider>
             <SupplierProvider>
-              <Navigation.Navigator
-                screenOptions={{ headerShown: false }}
-                initialRouteName="Home"
-              >
-                <Navigation.Screen name="Sign" component={Sign} />
-                <Navigation.Screen name="Products" component={Products} />
-                <Navigation.Screen name="Cart" component={Cart} />
-                <Navigation.Screen name="Prices" component={Prices} />
-                <Navigation.Screen name="Confirm" component={Confirm} />
-                <Navigation.Screen
-                  name="FinalConfirm"
-                  component={FinalConfirm}
-                />
-                <Navigation.Screen name="Register" component={Register} />
-                <Navigation.Screen
-                  name="RegisterFinished"
-                  component={RegisterFinished}
-                />
-                <Navigation.Screen name="Orders" component={OrdersScreen} />
-                <Navigation.Screen
-                  name="OrderDetails"
-                  component={OrderDetailsScreen}
-                />
-                <Navigation.Screen name="Combination" component={Combination} />
-                <Navigation.Screen
-                  name="Preferences"
-                  component={PreferencesScreen}
-                />
-                <Navigation.Screen
-                  name="QuotationDetails"
-                  component={QuotationDetailsScreen}
-                />
-                <Navigation.Screen
-                  name="OrderConfirmed"
-                  component={OrderConfirmedScreen}
-                />
-              </Navigation.Navigator>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  animation: 'slide_from_right',
+                  gestureEnabled: true,
+                }}
+              ></Stack>
             </SupplierProvider>
           </CombinacaoProvider>
         </ProductProvider>
-      </TamaguiProvider>
-    </NavigationContainer>
-  )
+      </RestaurantProvider>
+    </TamaguiProvider>
+  );
 }

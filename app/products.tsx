@@ -1,7 +1,6 @@
 import {
   View,
   Select,
-  Image,
   YStack,
   XStack,
   Text,
@@ -11,225 +10,121 @@ import {
   Button,
   Stack,
   ScrollView,
-  Dialog
-} from 'tamagui'
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
-import Icons from '@expo/vector-icons/Ionicons'
+} from 'tamagui';
+import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import Icons from '@expo/vector-icons/Ionicons';
 import {
   ActivityIndicator,
   FlatList,
   Modal,
   Platform,
   TouchableOpacity,
-  VirtualizedList
-} from 'react-native'
-import React from 'react'
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import ImageViewer from 'react-native-image-zoom-viewer'
-import { MotiView } from 'moti'
-import { Skeleton } from 'moti/skeleton'
-import { clearStorage, deleteToken, getToken, setStorage } from './utils/utils'
-import * as Linking from 'expo-linking'
-import DropDownPicker from 'react-native-dropdown-picker'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo, SaveUserAppInfo } from './utils/VersionApp'
-import CustomFlatList from './utils/FlatList_VirtualizeList/FlatList_Products'
-import CustomVirtualizedList from './utils/FlatList_VirtualizeList/VirtualizeList_Products'
-import DialogComercialInstance from '@/src/components/dialogComercialInstance'
+  VirtualizedList,
+} from 'react-native';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import ImageViewer from 'react-native-image-zoom-viewer';
+import { MotiView } from 'moti';
+import { Skeleton } from 'moti/skeleton';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
+import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
+import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
+import { CartButton } from '../src/components/cartButton';
+import { useProductContext } from '../src/contexts/produtos.context';
+import { RefreshCartButton } from '../src/components/refreshButton';
+import { useCart } from '../src/components/useCart';
+import { getSavedRestaurant } from '../src/components/savedRestaurant';
+import { loadFavorites } from '../src/utils/loadFavorite';
 import {
-  saveProductObservations,
-  loadProductObservations
-} from './utils/productObservation'
-import { CartButton } from '@/src/components/cartButton'
-import { useProductContext } from '@/src/contexts/produtos.context'
-import { RefreshCartButton } from '@/src/components/refreshButton'
-import { useCart } from '@/src/components/useCart'
-import { getSavedRestaurant } from '@/src/components/savedRestaurant'
+  ProductCardBottomStyled,
+  ProductCardObsUnitContainerStyled,
+  ProductCardStyled,
+} from '../src/components/card/productCard';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { useBackHandler } from '../src/components/hooks/useBackHandler';
+import PageContainer from '../src/components/box/PageContainer';
+import { UpdateAppModal } from '../src/components/UpdateAppModal';
+import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
+import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 
 export type Product = {
-  name: string
-  orderUnit: string
-  quotationUnit: string
-  convertedWeight: number
-  class: string
-  sku: string
-  id: string
-  active: true
-  createdBy: string
-  createdAt: string
-  changedBy: string
-  updatedAt: string
-  image: string[]
-  favorite?: boolean
-  mediumWeight: number
-  firstUnit: number
-  secondUnit: number
-  thirdUnit: number
-  obs: string
-}
+  name: string;
+  orderUnit: string;
+  quotationUnit: string;
+  convertedWeight: number;
+  class: string;
+  sku: string;
+  id: string;
+  active: true;
+  createdBy: string;
+  createdAt: string;
+  changedBy: string;
+  updatedAt: string;
+  image: string[];
+  favorite?: boolean;
+  mediumWeight: number;
+  firstUnit: number;
+  secondUnit: number;
+  thirdUnit: number;
+  obs: string;
+};
 
 type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
+};
 
 type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Cart: undefined
-  Sign: undefined
-  Orders: undefined
-}
+  Home: undefined;
+  Products: undefined;
+  Cart: undefined;
+  Sign: undefined;
+  Orders: undefined;
+};
 
 type Cart = {
-  productId: string
-  amount: number
-  obs: string
-}
+  productId: string;
+  amount: number;
+  obs: string;
+};
 
 type SelectItem = {
-  name: string
-}
+  name: string;
+};
 
 type ProductBoxProps = Product & {
-  toggleFavorite: (productId: string) => void
-  favorites: Product[]
-  saveCart: (cart: Cart, isCart: boolean) => Promise<void>
-  saveCartArray: (
-    cart: Map<string, Cart>,
-    exclude: Map<string, Cart>
-  ) => Promise<void>
-  cartToExclude: Map<string, Cart>
-  setLoading: (status: boolean) => void
-  cart: Map<string, Cart>
-  setImage: (imageString: string) => void
-  setModalVisible: (status: boolean) => void
-  mediumWeight: number
-  firstUnit: number
-  secondUnit: number
-  thirdUnit: number
-  currentClass: string
-  obs: string
-  addObservation: (
-    productId: string,
-    observation: string
-  ) => Promise<void | null | undefined>
-  onObsChange: (text: string) => void
-  productObservations: Map<string, string>
-  setProductObservations: React.Dispatch<
-    React.SetStateAction<Map<string, string>>
-  >
-  saveProductObservations?: (map: Map<string, string>) => Promise<void>
-  loadCart: () => Promise<Map<string, Cart>>
-}
-
-export function DialogFinanceInstance(props: {
-  openModal: boolean
-  setRegisterInvalid: Function
-  rest: any
-}) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true
-              }
-            }
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title mx="auto">Conta bloqueada</Dialog.Title>
-          <Dialog.Description>
-            Informamos que sua conta está bloqueada devido a pendências com a
-            plataforma. Por favor, entre em contato agora para desbloquear a sua
-            conta
-          </Dialog.Description>
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="$red9"
-                color="$white1"
-                onPress={async () => {
-                  const text =
-                    encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
-${props.rest.map(
-  (item: any) => `
-- ${item.name}`
-)}
-
-Consegue me ajudar?`)
-                      .replace('!', '%21')
-                      .replace("'", '%27')
-                      .replace('(', '%28')
-                      .replace(')', '%29')
-                      .replace('*', '%2A')
-                  await Linking.openURL(
-                    `https://wa.me/5521999954372?text=${text}`
-                  )
-                }}
-              >
-                Entre em contato
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  )
-}
+  toggleFavorite: (productId: string) => void;
+  favorites: Product[];
+  saveCart: (cart: Cart, isCart: boolean) => Promise<void>;
+  saveCartArray: (cart: Map<string, Cart>, exclude: Map<string, Cart>) => Promise<void>;
+  cartToExclude: Map<string, Cart>;
+  setLoading: (status: boolean) => void;
+  cart: Map<string, Cart>;
+  setImage: (imageString: string) => void;
+  setModalVisible: (status: boolean) => void;
+  mediumWeight: number;
+  firstUnit: number;
+  secondUnit: number;
+  thirdUnit: number;
+  currentClass: string;
+  obs: string;
+  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>;
+  onObsChange: (text: string) => void;
+  productObservations: Map<string, string>;
+  setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>;
+  saveProductObservations?: (map: Map<string, string>) => Promise<void>;
+  loadCart: () => Promise<Map<string, Cart>>;
+};
 
 const ProductBox = React.memo(
   ({
     id,
     name,
     image,
-    mediumWeight,
     firstUnit,
     secondUnit,
     thirdUnit,
@@ -238,7 +133,6 @@ const ProductBox = React.memo(
     favorites,
     saveCart,
     saveCartArray,
-    cartToExclude,
     cart,
     setImage,
     setModalVisible,
@@ -249,50 +143,48 @@ const ProductBox = React.memo(
     productObservations,
     setProductObservations,
     saveProductObservations,
-    loadCart
   }: ProductBoxProps) => {
-    const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
-    const [valueQuant, setValueQuant] = useState(0)
-    const [obs, setObs] = useState(parentObs)
-    const [open, setOpen] = useState<boolean>(false)
+    const [quant, setQuant] = useState<number>(firstUnit || 1);
+    const [valueQuant, setValueQuant] = useState(0);
+    const [obs, setObs] = useState(parentObs);
+    const [open, setOpen] = useState<boolean>(false);
 
-    const obsRef = useRef('')
-    const quantRef = useRef<number>(firstUnit)
-    const previousCartRef = useRef<Map<string, Cart>>(new Map())
-    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
+    const obsRef = useRef('');
+    const quantRef = useRef<number>(firstUnit);
+    const previousCartRef = useRef<Map<string, Cart>>(new Map());
+    const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const isFavorite = useMemo(
       () => favorites.some((favorite) => favorite.id === id),
-      [favorites, id]
-    )
-    const isCart = useMemo(() => cart.has(id), [cart, id])
+      [favorites, id],
+    );
+    const isCart = useMemo(() => cart.has(id), [cart, id]);
 
-    const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
+    const toggleOpen = useCallback(() => setOpen((prev) => !prev), []);
 
     useEffect(() => {
-      const latestObs = productObservations.get(id)
+      const latestObs = productObservations.get(id);
 
       if (latestObs) {
-        setObs(latestObs)
-        onObsChange(latestObs)
+        setObs(latestObs);
+        onObsChange(latestObs);
       } else {
-        const cartProduct = cart.get(id)
-        const favoriteProduct = favorites.find((f) => f.id === id)
+        const cartProduct = cart.get(id);
+        const favoriteProduct = favorites.find((f) => f.id === id);
 
         if (favoriteProduct?.obs) {
-          setObs(favoriteProduct.obs)
-          onObsChange(favoriteProduct.obs)
+          setObs(favoriteProduct.obs);
+          onObsChange(favoriteProduct.obs);
         } else if (cartProduct?.obs) {
-          setObs(cartProduct.obs)
-          onObsChange(cartProduct.obs)
+          setObs(cartProduct.obs);
+          onObsChange(cartProduct.obs);
         }
       }
-    }, [favorites, cart.get(id)?.obs, productObservations])
+    }, [favorites, cart.get(id)?.obs, productObservations]);
 
     useEffect(() => {
-      const currentCartItem = cart.get(id)
-      const previousCartItem = previousCartRef.current.get(id)
-
+      const currentCartItem = cart.get(id);
+      const previousCartItem = previousCartRef.current.get(id);
       if (
         (!currentCartItem && !previousCartItem) ||
         (currentCartItem &&
@@ -300,103 +192,94 @@ const ProductBox = React.memo(
           currentCartItem.amount === previousCartItem.amount &&
           currentCartItem.obs === previousCartItem.obs)
       ) {
-        return
+        return;
       }
 
       if (currentCartItem) {
-        setValueQuant(Number(currentCartItem.amount))
-        setObs(currentCartItem.obs || '')
-        onObsChange(currentCartItem.obs || '')
+        setValueQuant(Number(currentCartItem.amount));
+        setObs(currentCartItem.obs || '');
+        onObsChange(currentCartItem.obs || '');
       } else {
-        setValueQuant(0)
-        const storedObs = productObservations.get(id) || ''
-        setObs(storedObs)
-        onObsChange(storedObs)
+        setValueQuant(0);
+        const storedObs = productObservations.get(id) || '';
+        setObs(storedObs);
+        onObsChange(storedObs);
       }
 
-      previousCartRef.current = new Map(cart)
-    }, [cart])
+      previousCartRef.current = new Map(cart);
+    }, [cart]);
 
     const handlePersistCart = useCallback(() => {
-      const currentItem = { amount: valueQuant, productId: id, obs }
-      const previousItem = previousCartRef.current.get(id)
-
+      const currentItem = { amount: valueQuant, productId: id, obs };
+      const previousItem = previousCartRef.current.get(id);
       const shouldPersist =
         valueQuant > 0 ||
         (previousItem && valueQuant !== previousItem.amount) ||
-        (previousItem && obs !== previousItem.obs)
+        (previousItem && obs !== previousItem.obs);
 
       if (shouldPersist) {
-        saveCart(currentItem, !!previousItem)
-        previousCartRef.current.set(id, currentItem)
+        saveCart(currentItem, !!previousItem);
+        previousCartRef.current.set(id, currentItem);
       }
-    }, [valueQuant, obs, id, saveCart])
+    }, [valueQuant, obs, id, saveCart]);
 
     useEffect(() => {
-      const timer = setTimeout(handlePersistCart, 1000)
-      return () => clearTimeout(timer)
-    }, [valueQuant, obs, handlePersistCart])
+      const timer = setTimeout(handlePersistCart, 1000);
+      return () => clearTimeout(timer);
+    }, [valueQuant, obs, handlePersistCart]);
 
     const handleQuantityChange = (newQuant: number) => {
-      setQuant(newQuant)
-      quantRef.current = newQuant
-    }
+      setQuant(newQuant);
+      quantRef.current = newQuant;
+    };
 
     const handleObsChange = (text: string) => {
-      setObs(text)
-      onObsChange(text)
+      setObs(text);
+      onObsChange(text);
 
       setProductObservations((prev) => {
-        const updated = new Map(prev)
-        updated.set(id, text)
+        const updated = new Map(prev);
+        updated.set(id, text);
         if (saveProductObservations) {
-          saveProductObservations(updated)
+          saveProductObservations(updated);
         }
-        return updated
-      })
-
-      if (isFavorite) {
-        addObservation(id, text)
-      }
-    }
+        return updated;
+      });
+    };
 
     const handleValueQuantChange = async (delta: number) => {
+      const newAmount = Math.max(0, Number((valueQuant + delta).toFixed(3)));
+      setValueQuant(newAmount);
+
       if (debounceTimerRef.current) {
-        clearTimeout(debounceTimerRef.current)
+        clearTimeout(debounceTimerRef.current);
       }
-      setValueQuant((prev) => {
-        const newAmount = Math.max(0, Number((prev + delta).toFixed(3)))
 
-        debounceTimerRef.current = setTimeout(async () => {
-          const updatedItem: Cart = { productId: id, amount: newAmount, obs }
-          const mapItem = new Map([[id, updatedItem]])
-          const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map()
+      debounceTimerRef.current = setTimeout(async () => {
+        const updatedItem = { productId: id, amount: newAmount, obs };
+        const mapItem = new Map([[id, updatedItem]]);
+        const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map();
 
-          await saveCart(updatedItem, true)
-          await saveCartArray(mapItem, mapToRemove)
-        }, 300)
-
-        return newAmount
-      })
-    }
-
+        await saveCart(updatedItem, true);
+        await saveCartArray(mapItem, mapToRemove);
+      }, 500);
+    };
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
-          const updatedItem = { productId: id, amount: valueQuant, obs }
-          const updatedMap = new Map([[id, updatedItem]])
-          const emptyMap = new Map()
+          const updatedItem = { productId: id, amount: valueQuant, obs };
+          const updatedMap = new Map([[id, updatedItem]]);
+          const emptyMap = new Map();
 
-          await saveCart(updatedItem, true)
-          await saveCartArray(updatedMap, emptyMap)
-          await addObservation(id, obs)
-          obsRef.current = obs
+          await saveCart(updatedItem, true);
+          await saveCartArray(updatedMap, emptyMap);
+          await addObservation(id, obs);
+          obsRef.current = obs;
         } catch (error) {
-          console.error('Failed to save observation:', error)
+          console.error('Failed to save observation:', error);
         }
       }
-    }, [addObservation, id, obs])
-
+    }, [addObservation, id, obs]);
     return (
       <Stack
         onPress={toggleOpen}
@@ -406,60 +289,38 @@ const ProductBox = React.memo(
         borderRadius={12}
         borderColor="#F0F2F6"
       >
-        <View
-          style={{
-            width: Platform.OS === 'web' ? '70%' : '',
-            alignSelf: 'center'
-          }}
-          flex={1}
-          justifyContent="space-between"
-          alignItems="center"
-          paddingHorizontal={8}
-          flexDirection="row"
-          minHeight={40}
-          backgroundColor={isCart ? '#fbffc3ff' : 'white'}
-          borderRadius={12}
-          borderBottomLeftRadius={
-            open || isCart || (isFavorite && currentClass === 'Favoritos')
-              ? 0
-              : 12
-          }
-          borderBottomRightRadius={
-            open || isCart || (isFavorite && currentClass === 'Favoritos')
-              ? 0
-              : 12
+        <ProductCardStyled
+          selected={cart.get(id) ? true : false}
+          resetBottomBorderRadius={
+            open || isCart || (isFavorite && currentClass === 'Favoritos') ? true : false
           }
         >
           <View flexDirection="row" alignItems="center">
             <View
-              p={Platform.OS === 'web' ? 10 : 0}
+              paddingVertical={10}
               onPress={(e) => {
-                e.stopPropagation()
-                setImage(image[0])
-                setModalVisible(true)
+                e.stopPropagation();
+                setImage(image[0]);
+                setModalVisible(true);
               }}
             >
-              <Image source={{ uri: image[0] }} width={60} height={60} />
+              <CustomImageBadge
+                uri={image[0]}
+                badgeText={orderUnit}
+                badgeColor="#0BC07D"
+                badgeTextSize={10}
+              />
             </View>
-            <View marginLeft={8} maxWidth={Platform.OS === 'web' ? 130 : 130}>
+            <View marginLeft={8} maxWidth={130}>
               <Text fontSize={12}>{name}</Text>
             </View>
           </View>
-          <View
-            mr={10}
-            flexDirection="row"
-            alignItems="center"
-            gap={16}
-            cursor="pointer"
-          >
+          <View marginRight={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
             <Icons
               size={24}
               name={isFavorite ? 'heart' : 'heart-outline'}
               color="red"
-              onPress={async () => {
-                toggleFavorite(id)
-                await loadCart()
-              }}
+              onPress={() => toggleFavorite(id)}
             />
             {(isFavorite && currentClass === 'Favoritos') || isCart ? (
               <></>
@@ -471,7 +332,7 @@ const ProductBox = React.memo(
                 gap={8}
                 justifyContent="center"
                 alignItems="center"
-                p={8}
+                padding={8}
                 height={36}
                 width={80}
                 flexDirection="row"
@@ -485,273 +346,175 @@ const ProductBox = React.memo(
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
               </View>
             ) : (
-              <Icons
-                name={open ? 'chevron-up' : 'chevron-down'}
-                size={30}
-                color="#0BC07D"
-              />
+              <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
             )}
           </View>
-        </View>
+        </ProductCardStyled>
         {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
-          <View
+          <ProductCardBottomStyled
+            selected={cart.get(id) ? true : false}
             onPress={(e) => e.stopPropagation()}
-            minHeight={Platform.OS === 'web' ? 50 : 85}
-            borderTopWidth={1}
-            borderTopColor="#ccc"
-            paddingHorizontal={8}
-            gap={8}
-            borderBottomWidth={0}
-            borderBottomLeftRadius={12}
-            borderBottomRightRadius={12}
-            backgroundColor="white"
-            justifyContent="center"
-            transform={[{ translateY: 0 }]}
-            style={{
-              width: Platform.OS === 'web' ? '70%' : '100%',
-              alignSelf: 'center'
-            }}
           >
-            <View
-              paddingHorizontal={Platform.OS === 'web' ? 10 : 0}
-              flexDirection="row"
-              alignItems="center"
-              marginTop={Platform.OS === 'web' ? 0 : 10}
-            >
-              <View
-                justifyContent={
-                  Platform.OS === 'web' ? 'flex-end' : 'flex-start'
-                }
-                alignItems="center"
-                flex={1}
-                mr={Platform.OS === 'web' ? 5 : 5}
-                flexDirection="row"
-                gap={8}
-              >
-                {Platform.OS === 'web' && (
-                  <View alignSelf="flex-start" flex={1}>
+            <View flexDirection="row" alignItems="center">
+              <ProductCardObsUnitContainerStyled>
+                <View flex={1} width={'100%'}>
+                  <View flex={1} width={'100%'}>
                     <XStack
                       backgroundColor="#F0F2F6"
-                      flex={1}
-                      paddingRight={14}
                       borderWidth={0}
                       borderRadius={20}
                       alignItems="center"
                       flexDirection="row"
                       height={36}
+                      flex={1}
                     >
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
-                        placeholder="Observação para entrega..."
+                        placeholder="Observação de entrega..."
                         backgroundColor="transparent"
                         borderWidth={0}
                         borderColor="transparent"
                         flex={1}
                         fontSize={10}
                         maxLength={999}
-                        onPressIn={async (e) => {
-                          e.stopPropagation()
-                          await loadCart()
+                        onPressIn={(e) => {
+                          e.stopPropagation();
                         }}
                         onChangeText={handleObsChange}
-                        onBlur={async () => {
-                          handleBlur()
-                          await loadCart()
-                        }}
+                        onBlur={handleBlur}
                         value={obs}
                       />
                     </XStack>
                   </View>
-                )}
+                </View>
 
-                {/*botao verde */}
-                <Button
-                  onPress={async (e) => {
-                    e.stopPropagation()
-                    handleQuantityChange(firstUnit ? firstUnit : 1)
-                  }}
-                  backgroundColor={
-                    quant === (firstUnit ? firstUnit : 1)
-                      ? '#0BC07D'
-                      : '#F0F2F6'
-                  }
-                  height={30}
-                  minWidth={48}
-                  borderRadius={12}
-                >
-                  <Text
-                    color={
-                      quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'
-                    }
+                <View flexDirection="row" alignItems="center" gap={16}>
+                  <View flex={1} flexDirection="row" gap={8}>
+                    <Button
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(firstUnit || 1);
+                      }}
+                      backgroundColor={quant === (firstUnit || 1) ? '#0BC07D' : '#F0F2F6'}
+                      height={30}
+                      minWidth={42}
+                      borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
+                    >
+                      <Text color={quant === (firstUnit || 1) ? '#fff' : '#000'} fontSize={12}>
+                        {firstUnit || 1}
+                      </Text>
+                    </Button>
+                    <Button
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(secondUnit || 5);
+                      }}
+                      backgroundColor={quant === (secondUnit || 5) ? '#0BC07D' : '#F0F2F6'}
+                      color={quant === secondUnit ? '#fff' : '#000'}
+                      height={30}
+                      minWidth={48}
+                      borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
+                    >
+                      <Text color={quant === (secondUnit || 5) ? '#fff' : '#000'} fontSize={12}>
+                        {secondUnit || 5}
+                      </Text>
+                    </Button>
+                    <Button
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleQuantityChange(thirdUnit || 10);
+                      }}
+                      backgroundColor={quant === (thirdUnit || 10) ? '#0BC07D' : '#F0F2F6'}
+                      height={30}
+                      color={quant === thirdUnit ? '#fff' : '#000'}
+                      minWidth={48}
+                      borderRadius={12}
+                      hoverStyle={{ backgroundColor: 'none' }}
+                    >
+                      <Text color={quant === (thirdUnit || 10) ? '#fff' : '#000'} fontSize={12}>
+                        {thirdUnit || 10}
+                      </Text>
+                    </Button>
+                  </View>
+                  <View
+                    alignItems="center"
+                    borderColor="#F0F2F6"
+                    borderWidth={1}
+                    padding={4}
+                    borderRadius={18}
+                    flexDirection="row"
+                    gap={10}
+                    backgroundColor="white"
                   >
-                    {firstUnit ? firstUnit : 1}
-                  </Text>
-                </Button>
-                <Button
-                  onPress={async (e) => {
-                    e.stopPropagation()
-                    handleQuantityChange(secondUnit ? secondUnit : 5)
-                  }}
-                  backgroundColor={
-                    quant === (secondUnit ? secondUnit : 5)
-                      ? '#0BC07D'
-                      : '#F0F2F6'
-                  }
-                  color={quant === secondUnit ? '#fff' : '#000'}
-                  height={30}
-                  minWidth={48}
-                  borderRadius={12}
-                >
-                  <Text
-                    color={
-                      quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'
-                    }
-                  >
-                    {secondUnit ? secondUnit : 5}
-                  </Text>
-                </Button>
-                <Button
-                  onPress={async (e) => {
-                    e.stopPropagation()
-                    handleQuantityChange(thirdUnit ? thirdUnit : 10)
-                  }}
-                  backgroundColor={
-                    quant === (thirdUnit ? thirdUnit : 10)
-                      ? '#0BC07D'
-                      : '#F0F2F6'
-                  }
-                  height={30}
-                  color={quant === thirdUnit ? '#fff' : '#000'}
-                  minWidth={48}
-                  borderRadius={12}
-                >
-                  <Text
-                    color={
-                      quant === (thirdUnit ? thirdUnit : 10) ? '#fff' : '#000'
-                    }
-                  >
-                    {thirdUnit ? thirdUnit : 10}
-                  </Text>
-                </Button>
-              </View>
-              <View
-                alignItems="center"
-                borderColor="#F0F2F6"
-                borderWidth={1}
-                p={4}
-                borderRadius={18}
-                flexDirection="row"
-                gap={16}
-              >
-                <Icons
-                  name="remove"
-                  color="#04BF7B"
-                  size={24}
-                  onPress={async (e) => {
-                    e.stopPropagation()
-                    handleValueQuantChange(-quant)
-                  }}
-                />
-                <Text>
-                  {valueQuant} {orderUnit.replace('Unid', 'Un')}
-                </Text>
-                <Icons
-                  name="add"
-                  color="#04BF7B"
-                  size={24}
-                  onPress={async (e) => {
-                    e.stopPropagation()
-                    handleValueQuantChange(+quant)
-                  }}
-                />
-              </View>
+                    <Icons
+                      name="remove"
+                      color="#04BF7B"
+                      size={24}
+                      onPress={async (e) => {
+                        e.stopPropagation();
+                        handleValueQuantChange(-quant);
+                      }}
+                    />
+                    <Text fontSize={14}>
+                      {valueQuant} {orderUnit.replace('Unid', 'Un')}
+                    </Text>
+                    <Icons
+                      name="add"
+                      color="#04BF7B"
+                      size={24}
+                      onPress={async (e) => {
+                        e.stopPropagation();
+                        handleValueQuantChange(+quant);
+                      }}
+                    />
+                  </View>
+                </View>
+              </ProductCardObsUnitContainerStyled>
             </View>
-            {Platform.OS !== 'web' && (
-              <View>
-                <XStack
-                  backgroundColor="#F0F2F6"
-                  paddingRight={14}
-                  borderWidth={0}
-                  borderRadius={20}
-                  alignItems="center"
-                  flexDirection="row"
-                  marginBottom={10}
-                  height={36}
-                >
-                  <Input
-                    focusVisibleStyle={{ outlineWidth: 0 }}
-                    placeholder="Observação para entrega..."
-                    backgroundColor="transparent"
-                    borderWidth={0}
-                    borderColor="transparent"
-                    flex={1}
-                    fontSize={10}
-                    maxLength={999}
-                    onPressIn={async (e) => {
-                      e.stopPropagation()
-                      await loadCart()
-                    }}
-                    onChangeText={handleObsChange}
-                    onBlur={async () => {
-                      handleBlur()
-                      await loadCart()
-                    }}
-                    value={obs}
-                  />
-                </XStack>
-              </View>
-            )}
-          </View>
+          </ProductCardBottomStyled>
         )}
       </Stack>
-    )
+    );
   },
   (prevProps, nextProps) => {
-    if (prevProps.id !== nextProps.id) return false
-    if (prevProps.currentClass !== nextProps.currentClass) return false
-    if (prevProps.favorites.length !== nextProps.favorites.length) return false
+    return (
+      prevProps.id === nextProps.id &&
+      prevProps.currentClass === nextProps.currentClass &&
+      prevProps.favorites.length === nextProps.favorites.length &&
+      prevProps.cart.size === nextProps.cart.size
+    );
+  },
+);
 
-    const prevItem = prevProps.cart.get(prevProps.id)
-    const nextItem = nextProps.cart.get(nextProps.id)
-
-    const amountEqual = (prevItem?.amount ?? 0) === (nextItem?.amount ?? 0)
-    const obsEqual = (prevItem?.obs ?? '') === (nextItem?.obs ?? '')
-
-    return amountEqual && obsEqual
-  }
-)
-
-ProductBox.displayName = 'ProductBox'
+ProductBox.displayName = 'ProductBox';
 
 type CustomSelectProps = {
-  items: SelectItem[]
-  native?: boolean
-}
+  items: SelectItem[];
+  native?: boolean;
+};
 
-export const CustomSelect: React.FC<CustomSelectProps> = ({
-  items,
-  ...props
-}) => {
-  const [val, setVal] = useState('')
+export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) => {
+  const [val, setVal] = useState('');
 
   const handleChange = async (value: string) => {
-    setVal(value)
+    setVal(value);
     await setStorage(
       'selectedRestaurant',
       JSON.stringify({
         restaurant: items.filter((item) => {
-          if (typeof item.name != 'undefined' ? item.name : '' === value)
-            return item
-        })
-      })
-    )
-  }
+          if (typeof item.name !== 'undefined' ? item.name : value === '') return item;
+        }),
+      }),
+    );
+  };
 
   return (
     <Select
       value={val}
       onValueChange={(value) => {
-        handleChange(value)
+        handleChange(value);
       }}
       disablePreventBodyScroll
       {...props}
@@ -770,17 +533,12 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         <Select.Value
           fontSize={16}
           fontWeight="900"
-          placeholder={typeof items[0].name != 'undefined' ? items[0].name : ''}
+          placeholder={typeof items[0].name !== 'undefined' ? items[0].name : ''}
         />
       </Select.Trigger>
 
-      <Adapt when="sm" platform="touch">
-        <Sheet
-          native={!!props.native}
-          modal
-          dismissOnSnapToBottom
-          animation="bouncy"
-        >
+      <Adapt /* when="sm" */ platform="touch">
+        <Sheet native={!!props.native} modal dismissOnSnapToBottom animation="bouncy">
           <Sheet.Overlay />
           <Sheet.Frame>
             <Sheet.ScrollView>
@@ -810,22 +568,18 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                 items.map((item, i) => (
                   <Select.Item
                     index={i}
-                    key={typeof item.name != 'undefined' ? item.name : ''}
-                    value={
-                      typeof item.name != 'undefined'
-                        ? item.name.toLowerCase()
-                        : ''
-                    }
+                    key={typeof item.name !== 'undefined' ? item.name : ''}
+                    value={typeof item.name !== 'undefined' ? item.name.toLowerCase() : ''}
                   >
                     <Select.ItemText>
-                      {typeof item.name != 'undefined' ? item.name : ''}
+                      {typeof item.name !== 'undefined' ? item.name : ''}
                     </Select.ItemText>
                     <Select.ItemIndicator marginLeft="auto">
                       <Icons name="checkmark" size={16} />
                     </Select.ItemIndicator>
                   </Select.Item>
                 )),
-              [items]
+              [items],
             )}
           </Select.Group>
           {props.native && (
@@ -857,33 +611,35 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         </Select.ScrollDownButton>
       </Select.Content>
     </Select>
-  )
+  );
+};
+
+let classItems: { name: string }[] = [];
+
+export interface Restaurant {
+  externalId: any;
+  id: string;
+  name: string;
+  registrationReleasedNewApp: boolean;
 }
 
-let classItems: { name: string }[] = []
-
-interface Restaurant {
-  externalId: any
-  id: string
-  name: string
-  registrationReleasedNewApp: boolean
-}
-
-export function Products({ navigation }: HomeScreenProps) {
-  const [currentClass, setCurrentClass] = useState('Favoritos')
-  const [productsList, setProductsList] = useState<Product[] | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
-  const [favorites, setFavorites] = useState<Product[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [isModalVisible, setModalVisible] = useState(false)
-  const [image, setImage] = useState<string>('')
-  const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false)
-  const [isScrolling, setIsScrolling] = useState(false)
-  const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] =
-    useState(false)
-  const [showFinanceBlock, setShowFinanceBlock] = useState(false)
-  const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
+export default function Products() {
+  const [currentClass, setCurrentClass] = useState('Favoritos');
+  const [productsList, setProductsList] = useState<Product[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
+  const [favorites, setFavorites] = useState<Product[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [image, setImage] = useState<string>('');
+  const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
+  const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
+  const [showFinanceBlock, setShowFinanceBlock] = useState(false);
+  const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
+  const [updateRequired, setUpdateRequired] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState('');
+  const { productsContext, isLoading } = useProductContext();
+  const { loadRestaurants } = useRestaurantContext();
   const {
     cart,
     setCart,
@@ -894,125 +650,86 @@ export function Products({ navigation }: HomeScreenProps) {
     setDisplayedCartSize,
     loadCart,
     saveCart,
-    saveCartArray
-  } = useCart()
-  const { productsContext, isLoading } = useProductContext()
+    saveCartArray,
+  } = useCart();
+  const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
+      // setLoading(false);
+
+      return () => {};
+    }, []),
+  );
+
+  useBackHandler(() => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace('/');
+    }
+    return true;
+  });
 
   useEffect(() => {
-    SaveUserAppInfo()
-  }, [])
+    if (Platform.OS === 'web') return;
+
+    const runCheck = async () => {
+      const result = await checkVersion();
+
+      if (result?.result?.updateRequired) {
+        setUpdateRequired(true);
+        setUpdateMessage(result.result.message ?? '');
+      } else {
+        setUpdateRequired(false);
+        setUpdateMessage('');
+      }
+    };
+    runCheck();
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      setDisplayedCartSize(cart.size)
-    }, 100)
+      setDisplayedCartSize(cart.size);
+    }, 100);
 
-    return () => clearTimeout(timeout)
-  }, [cart.size])
+    return () => clearTimeout(timeout);
+  }, [cart.size]);
 
-  //seguindo o padrão das orders
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
-    null
-  )
-  const [restaurantOpen, setRestaurantOpen] = useState(false)
+  // seguindo o padrão das orders
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+  const [restaurantOpen, setRestaurantOpen] = useState(false);
 
-  const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
-  const flatListRef = useRef<FlatList<Product>>(null)
-
-  const handleScroll = () => {
-    if (!isScrolling) {
-      setIsScrolling(true)
-    }
-  }
-
-  const handleScrollEnd = () => {
-    setIsScrolling(false)
-  }
+  const virtualizedListRef = useRef<VirtualizedList<Product>>(null);
+  const flatListRef = useRef<FlatList<Product>>(null);
 
   const loadProducts = useCallback(async () => {
-    if (isLoading) return
+    if (isLoading) return;
     try {
-      const productsList = productsContext
+      const productsList = productsContext;
 
-      setProductsList(productsList)
+      setProductsList(productsList);
     } catch (error) {
-      console.error('Error loading products:', error)
+      console.error('Error loading products:', error);
     }
-  }, [productsContext])
-
-  const loadFavorites = useCallback(async () => {
-    try {
-      const token = await getToken()
-      const restaurant = await getSavedRestaurant()
-
-      if (token == null || !restaurant) return []
-      const result = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/favorite/list`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            token,
-            restaurantId: restaurant.id
-          })
-        }
-      )
-      if (!result.ok) return []
-      const favorites = await result.json()
-      if (favorites.data.length < 1) return []
-      return favorites.data
-    } catch (error) {
-      console.error('Erro ao carregar favoritos:', error)
-      return []
-    }
-  }, [])
-
-  const loadRestaurants = useCallback(async () => {
-    try {
-      const token = await getToken()
-      if (token == null) return []
-      const result = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            token
-          })
-        }
-      )
-      if (!result.ok) return []
-      const restaurants = await result.json()
-      if (restaurants.data.length < 1) return []
-      return restaurants.data
-    } catch (error) {
-      console.error('Erro ao carregar restaurantes:', error)
-      return []
-    }
-  }, [])
+  }, [productsContext]);
 
   useEffect(() => {
     const loadInitialData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const [restaurants, savedRestaurant, cartMap] = await Promise.all([
-          loadRestaurants(),
-          getSavedRestaurant(),
-          loadCart(),
-          loadProducts()
-        ])
+        const savedRestaurant = await getSavedRestaurant();
+        const restaurants = await loadRestaurants();
+        if (savedRestaurant) {
+          await SaveUserAppInfo();
+        }
+        const cartMap = await loadCart();
+        await loadProducts();
 
-        const verduraKg = restaurants.filter(
-          (rest: any) => rest.verduraKg === true
-        )
+        const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
         // Extraindo categorias
-        const categories = restaurants.flatMap(
-          (rest: any) => rest.categories || []
-        )
+        const categories = restaurants?.flatMap((rest: any) => rest.categories || []);
         if (verduraKg.length && categories.length === 0) {
           classItems = [
             { name: 'Favoritos' },
@@ -1022,8 +739,8 @@ export function Products({ navigation }: HomeScreenProps) {
             { name: 'Especiarias' },
             { name: 'Granja' },
             { name: 'Cogumelos e trufas' },
-            { name: 'Higienizados' }
-          ]
+            { name: 'Higienizados' },
+          ];
         } else if (categories.length === 0) {
           classItems = [
             { name: 'Favoritos' },
@@ -1033,258 +750,229 @@ export function Products({ navigation }: HomeScreenProps) {
             { name: 'Especiarias' },
             { name: 'Granja' },
             { name: 'Cogumelos e trufas' },
-            { name: 'Higienizados' }
-          ]
+            { name: 'Higienizados' },
+          ];
         } else {
           classItems = [
             { name: 'Favoritos' },
-            ...categories.map((category: any) => ({ name: category }))
-          ]
+            ...categories.map((category: any) => ({ name: category })),
+          ];
         }
 
-        const validRestaurants = Array.isArray(restaurants) ? restaurants : []
+        const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
 
-        setRestaurantes(validRestaurants)
+        setRestaurantes(validRestaurants);
 
-        const availableRestaurants = validRestaurants.filter(
-          (r) => !r.registrationReleasedNewApp
-        )
-        const allRestaurantBlocked = availableRestaurants.length === 0
+        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
+        const allRestaurantBlocked = availableRestaurants.length === 0;
 
-        let initialRestaurant = null
+        let initialRestaurant = null;
         if (!allRestaurantBlocked) {
-          initialRestaurant = availableRestaurants[0]
+          initialRestaurant = availableRestaurants[0];
 
           if (savedRestaurant) {
-            const found = availableRestaurants.find(
-              (r) => r.id === savedRestaurant.id
-            )
+            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id);
             if (found) {
-              initialRestaurant = found
+              initialRestaurant = found;
             }
           }
-          setSelectedRestaurant(initialRestaurant.externalId)
-          setStorage(
-            'selectedRestaurant',
-            JSON.stringify({ restaurant: initialRestaurant })
-          )
+          setSelectedRestaurant(initialRestaurant.externalId);
+          await setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }));
         }
 
-        const restFilteredComercial =
-          initialRestaurant?.registrationReleasedNewApp === true
-        const restFilteredFinance = restaurants.filter(
-          (item: any) => item.financeBlock
-        )
+        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
+        const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
         if (restFilteredComercial || allRestaurantBlocked) {
-          setShowRegistrationReleasedNewApp(true)
+          setShowRegistrationReleasedNewApp(true);
         }
 
         if (restFilteredFinance.length) {
-          setShowFinanceBlock(true)
+          setShowFinanceBlock(true);
         }
 
-        const favs = await loadFavorites()
+        const favs = await loadFavorites();
         if (favs.length > 0) {
-          setFavorites(favs)
+          setFavorites(favs);
         }
         if (cartMap.size > 0) {
-          setCart(cartMap)
+          setCart(cartMap);
         }
-        const newObservations = new Map()
+        const newObservations = new Map();
         cart.forEach((item) => {
-          if (item.obs) newObservations.set(item.productId, item.obs)
-        })
-        setProductObservations(newObservations)
+          if (item.obs) newObservations.set(item.productId, item.obs);
+        });
+        setProductObservations(newObservations);
       } catch (error) {
-        console.error('Erro ao carregar dados:', error)
+        console.error('Erro ao carregar dados:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
 
-      const storedObs = await loadProductObservations()
-      setProductObservations(storedObs)
-    }
-    loadInitialData()
-  }, [loadFavorites, loadProducts, loadRestaurants])
+      const storedObs = await loadProductObservations();
+      setProductObservations(storedObs);
+    };
+    loadInitialData();
+  }, [loadFavorites, loadProducts, selectedRestaurant]);
 
   useEffect(() => {
     const realoadFavs = async () => {
-      const storedRestaurant = await getSavedRestaurant()
-      if (storedRestaurant?.externalId === selectedRestaurant) return
+      const storedRestaurant = await getSavedRestaurant();
+      if (storedRestaurant?.externalId === selectedRestaurant) return;
       if (selectedRestaurant) {
         loadFavorites().then((favs) => {
-          if (favs.length > 0) setFavorites(favs)
-          if (favs.length === 0) setFavorites(favs)
-        })
+          if (favs.length > 0) setFavorites(favs);
+          if (favs.length === 0) setFavorites(favs);
+        });
       }
-    }
-    realoadFavs()
-  }, [selectedRestaurant])
+    };
+    realoadFavs();
+  }, [selectedRestaurant]);
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
       try {
-        const token = await getToken()
-        const restaurant = await getSavedRestaurant()
-        if (token == null || !restaurant) return
-        const productToAdd = productsList?.find(
-          (product) => product.id === productId
-        )
+        const token = await getToken();
+        const restaurant = await getSavedRestaurant();
+        if (token == null || !restaurant) return;
+        const productToAdd = productsList?.find((product) => product.id === productId);
         if (productToAdd) {
-          setFavorites([...favorites, { ...productToAdd, obs }])
+          setFavorites([...favorites, { ...productToAdd, obs }]);
         }
-        const storedRestaurant = await getSavedRestaurant()
+        const storedRestaurant = await getSavedRestaurant();
 
-        const result = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/favorite/save`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              productId,
-              restaurantId: storedRestaurant?.id,
-              token,
-              obs
-            })
-          }
-        )
-        if (!result.ok) return null
+        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/save`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId,
+            restaurantId: storedRestaurant?.id,
+            token,
+            obs,
+          }),
+        });
+        if (!result.ok) return null;
       } catch (error) {
-        console.error('Erro ao adicionar aos favoritos:', error)
+        console.error('Erro ao adicionar aos favoritos:', error);
       }
     },
-    [favorites, productsList, selectedRestaurant]
-  )
+    [favorites, productsList, selectedRestaurant],
+  );
 
   const addObservation = useCallback(
-    async (
-      productId: string,
-      observation: string
-    ): Promise<void | null | undefined> => {
+    async (productId: string, observation: string): Promise<void | null | undefined> => {
       try {
-        const token = await getToken()
-        const restaurant = await getSavedRestaurant()
-        if (token == null || !restaurant) return
-        const productToAdd = productsList?.find(
-          (product) => product.id === productId
-        )
-        const storedRestaurant = await getSavedRestaurant()
+        const token = await getToken();
+        const restaurant = await getSavedRestaurant();
+        if (token == null || !restaurant) return;
+        const productToAdd = productsList?.find((product) => product.id === productId);
+        const storedRestaurant = await getSavedRestaurant();
 
-        const isFavorite = favorites.some((fav) => fav.id === productId)
+        const isFavorite = favorites.some((fav) => fav.id === productId);
         if (!isFavorite) {
-          return
+          return;
         }
 
-        const result = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              productId,
-              restaurantId: storedRestaurant?.id,
-              token,
-              obs: observation
-            })
-          }
-        )
-        if (!result.ok) return null
+        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/update`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId,
+            restaurantId: storedRestaurant?.id,
+            token,
+            obs: observation,
+          }),
+        });
+        if (!result.ok) return null;
       } catch (error) {
-        console.error('Erro ao adicionar aos favoritos:', error)
+        console.error('Erro ao adicionar aos favoritos:', error);
       }
     },
-    [favorites, productsList, selectedRestaurant]
-  )
+    [favorites, productsList, selectedRestaurant],
+  );
 
   const removeFromFavorites = useCallback(
     async (productId: string) => {
       try {
-        const token = await getToken()
-        const restaurant = await getSavedRestaurant()
-        setFavorites(favorites.filter((favorite) => favorite.id !== productId))
-        if (token == null || !restaurant) return
-        const storedRestaurant = await getSavedRestaurant()
+        const token = await getToken();
+        const restaurant = await getSavedRestaurant();
+        setFavorites(favorites.filter((favorite) => favorite.id !== productId));
+        if (token == null || !restaurant) return;
+        const storedRestaurant = await getSavedRestaurant();
 
-        const result = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/favorite/del`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              productId,
-              restaurantId: storedRestaurant?.id,
-              token
-            })
-          }
-        )
-        if (!result.ok) return null
+        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/del`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            productId,
+            restaurantId: storedRestaurant?.id,
+            token,
+          }),
+        });
+        if (!result.ok) return null;
       } catch (error) {
-        console.error('Erro ao remover dos favoritos:', error)
+        console.error('Erro ao remover dos favoritos:', error);
       }
     },
-    [favorites]
-  )
+    [favorites],
+  );
 
   const toggleFavorite = useCallback(
     async (productId: string) => {
-      const product = productsList?.find((p) => p.id === productId)
-      const isCurrentlyFavorite = favorites.some((f) => f.id === productId)
+      const product = productsList?.find((p) => p.id === productId);
+      const isCurrentlyFavorite = favorites.some((f) => f.id === productId);
 
       if (isCurrentlyFavorite) {
-        await removeFromFavorites(productId)
+        await removeFromFavorites(productId);
       } else {
-        const currentObs = productObservations.get(productId) || ''
-        await addToFavorites(productId, currentObs)
+        // Adiciona a observação atual ao favoritar
+        const currentObs = productObservations.get(productId) || '';
+        await addToFavorites(productId, currentObs);
 
-        const cartItem = cart.get(productId)
+        // Se houver uma observação no carrinho, sincroniza com os favoritos
+        const cartItem = cart.get(productId);
         if (cartItem?.obs && cartItem.obs !== currentObs) {
-          await addObservation(productId, cartItem.obs)
-          setProductObservations((prev) =>
-            new Map(prev).set(productId, cartItem.obs)
-          )
+          await addObservation(productId, cartItem.obs);
+          setProductObservations((prev) => new Map(prev).set(productId, cartItem.obs));
         }
       }
     },
-    [favorites, productObservations, cart]
-  )
+    [favorites, productObservations, cart],
+  );
 
   useEffect(() => {
     if (virtualizedListRef.current) {
-      virtualizedListRef.current.scrollToOffset({ animated: true, offset: 0 })
+      virtualizedListRef.current.scrollToOffset({ animated: true, offset: 0 });
     } else if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ animated: true, offset: 0 })
+      flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
     }
-  }, [currentClass, searchQuery])
+  }, [currentClass, searchQuery]);
 
   useEffect(() => {
     if (productsList) {
-      productsList.sort((a, b) =>
-        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-      )
+      productsList.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
     }
-  }, [productsList])
+  }, [productsList]);
 
   const filteredProducts = useMemo(() => {
-    let products = productsList || []
+    let products = productsList || [];
 
     // Favoritos
     if (currentClass === 'Favoritos') {
-      products = favorites
+      products = favorites;
     } else {
       products =
         productsList?.filter(
-          (product) =>
-            product.class.toLowerCase() === currentClass.toLowerCase()
-        ) || []
+          (product) => product.class.toLowerCase() === currentClass.toLowerCase(),
+        ) || [];
     }
 
     // Normalizar a pesquisa (remover acentos e caracteres especiais)
@@ -1292,51 +980,42 @@ export function Products({ navigation }: HomeScreenProps) {
       text
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
+        .toLowerCase();
 
     if (searchQuery) {
-      const excludeClass =
-        classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG'
-      const normalizedQuery = normalizeText(searchQuery)
-      const queryWords = normalizedQuery
-        .split(' ')
-        .filter((word) => word !== '')
+      const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+      const normalizedQuery = normalizeText(searchQuery);
+      const queryWords = normalizedQuery.split(' ').filter((word) => word !== '');
 
       products =
         productsList?.filter((product) => {
-          const normalizedProductName = normalizeText(product.name)
-          const productNameWords = normalizedProductName.split(' ')
+          const normalizedProductName = normalizeText(product.name);
+          const productNameWords = normalizedProductName.split(' ');
           const isMatchingName = queryWords.every((queryWord) =>
-            productNameWords.some((productWord) =>
-              productWord.includes(queryWord)
-            )
-          )
-          const isNotExcludedClass =
-            normalizeText(product.class) !== normalizeText(excludeClass)
-          return isMatchingName && isNotExcludedClass
-        }) ?? []
+            productNameWords.some((productWord) => productWord.includes(queryWord)),
+          );
+          const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
+          return isMatchingName && isNotExcludedClass;
+        }) ?? [];
     }
-    return products.sort((a, b) =>
-      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
-    )
-  }, [currentClass, productsList, favorites, searchQuery])
+    return products.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+  }, [currentClass, productsList, favorites, searchQuery]);
 
   useEffect(() => {
-    setDisplayedProducts(filteredProducts)
-    setSkeletonLoading(false)
-  }, [filteredProducts])
+    setDisplayedProducts(filteredProducts);
+    setSkeletonLoading(false);
+  }, [filteredProducts]);
 
   const handlePress = useCallback(
     (name: string) => {
-      setSearchQuery('')
+      setSearchQuery('');
       if (name !== currentClass) {
-        setSkeletonLoading(true)
-        setCurrentClass(name)
+        setSkeletonLoading(true);
+        setCurrentClass(name);
       }
     },
-    [currentClass]
-  )
-
+    [currentClass],
+  );
   const renderClassItem = useCallback(
     ({ item }: { item: SelectItem }) => (
       <TouchableOpacity
@@ -1345,38 +1024,31 @@ export function Products({ navigation }: HomeScreenProps) {
           ...(currentClass.toLowerCase() === item.name.toLowerCase()
             ? { borderBottomWidth: 1.5, borderBottomColor: '#04BF7B' }
             : {}),
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
-        onPress={async () => {
-          handlePress(item.name)
-          await loadCart()
-        }}
+        onPress={() => handlePress(item.name)}
       >
         <Text
-          color={
-            currentClass.toLowerCase() !== item.name.toLowerCase()
-              ? '#aaa'
-              : '#04BF7B'
-          }
+          color={currentClass.toLowerCase() !== item.name.toLowerCase() ? '#aaa' : '#04BF7B'}
           fontSize={14}
-          width={90}
+          paddingHorizontal={8}
+          maxWidth={120}
           textAlign="center"
         >
           {item.name}
         </Text>
       </TouchableOpacity>
     ),
-    [currentClass, handlePress, loadCart]
-  )
+    [currentClass, handlePress],
+  );
 
   const handleSetImage = (imageString: string): void => {
-    setImage(imageString)
-  }
+    setImage(imageString);
+  };
 
   const handleSetModalVisible = (status: boolean): void => {
-    setModalVisible(status)
-  }
-
+    setModalVisible(status);
+  };
   const renderProduct = useCallback(
     ({ item }: { item: Product }) => (
       <ProductBox
@@ -1395,104 +1067,87 @@ export function Products({ navigation }: HomeScreenProps) {
         obs={productObservations.get(item.id) || ''}
         onObsChange={(newObs: any) => {
           setProductObservations((prev) => {
-            const newMap = new Map(prev)
-            newMap.set(item.id, newObs)
-            return newMap
-          })
+            const newMap = new Map(prev);
+            newMap.set(item.id, newObs);
+            return newMap;
+          });
         }}
         addObservation={addObservation}
         productObservations={productObservations}
         setProductObservations={setProductObservations}
         saveProductObservations={saveProductObservations}
-        loadCart={loadCart}
       />
     ),
-    [
-      cart,
-      currentClass,
-      favorites,
-      saveCart,
-      toggleFavorite,
-      productObservations,
-      addObservation,
-      loadCart
-    ]
-  )
+    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation],
+  );
 
   async function handleRestaurantChoice(value: string | null) {
     try {
-      if (!value) return
+      if (!value) return;
 
-      const storedRestaurant = await getSavedRestaurant()
+      const storedRestaurant = await getSavedRestaurant();
       if (storedRestaurant?.externalId === value) {
-        return
+        return;
       }
 
-      const restaurant = restaurantes.find((r) => r.externalId === value)
-      if (!restaurant) return
+      const restaurant = restaurantes.find((r) => r.externalId === value);
+      if (!restaurant) return;
       if (restaurant.registrationReleasedNewApp === true) {
-        setShowRegistrationReleasedNewApp(true)
-        return
+        setShowRegistrationReleasedNewApp(true);
+        return;
       }
-      await AsyncStorage.setItem(
-        'selectedRestaurant',
-        JSON.stringify({ restaurant })
-      )
+      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }));
     } catch (error) {
-      console.error('Falha na escolha de restaurante:', error)
+      console.error('Falha na escolha de restaurante:', error);
     }
   }
 
   if (loading) {
     return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
+      <PageContainer backgroundColor="white">
+        <View flex={1} justifyContent="center" alignItems="center">
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      </PageContainer>
+    );
   }
 
   return (
-    <Stack pt={20} backgroundColor="#f9f9f9" height="100%" position="relative">
+    <PageContainer backgroundColor="white">
       <DialogComercialInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurantes}
-        navigation={navigation}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
-          const availableRestaurant = restaurantes.find(
-            (r) => !r.registrationReleasedNewApp
-          )
+          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
             AsyncStorage.setItem(
               'selectedRestaurant',
-              JSON.stringify({ restaurant: availableRestaurant })
-            )
-            setSelectedRestaurant(availableRestaurant.externalId)
-            setShowRegistrationReleasedNewApp(false)
-            loadProducts()
-            loadFavorites()
-            loadCart()
+              JSON.stringify({ restaurant: availableRestaurant }),
+            );
+            setSelectedRestaurant(availableRestaurant.externalId);
+            setShowRegistrationReleasedNewApp(false);
+            loadProducts();
+            loadFavorites();
+            loadCart();
           }
         }}
       />
+      <UpdateAppModal openModal={updateRequired} message={updateMessage} />
       <DialogFinanceInstance
         openModal={showFinanceBlock}
         setRegisterInvalid={setShowFinanceBlock}
         rest={restaurantes}
       />
-      <Modal
-        visible={isModalVisible}
-        transparent={true}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal visible={isModalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
           style={{
             flex: 1,
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
             justifyContent: 'center',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
           activeOpacity={1}
           onPress={() => setModalVisible(false)}
@@ -1508,7 +1163,7 @@ export function Products({ navigation }: HomeScreenProps) {
           >
             <ImageViewer
               imageUrls={[{ url: image }]}
-              enableSwipeDown={true}
+              enableSwipeDown
               onSwipeDown={() => setModalVisible(false)}
               style={{ width: '100%', height: '100%' }}
             />
@@ -1520,7 +1175,7 @@ export function Products({ navigation }: HomeScreenProps) {
                 backgroundColor: 'rgba(0, 0, 0, 0.6)',
                 borderRadius: 20,
                 padding: 10,
-                zIndex: 1
+                zIndex: 1,
               }}
               onPress={() => setModalVisible(false)}
             >
@@ -1541,41 +1196,37 @@ export function Products({ navigation }: HomeScreenProps) {
         justifyContent="space-between"
         flexDirection="row"
       >
-        <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>
-          Meus Restaurantes
-        </Text>
+        <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>Meus Restaurantes</Text>
 
         <RefreshCartButton
           onPress={async () => {
-            setLoading(true)
-            await loadCart()
-            await loadProducts()
-            setLoading(false)
+            setLoading(true);
+            await loadCart();
+            await loadProducts();
+            setLoading(false);
           }}
         />
       </View>
 
       <DropDownPicker
         onPress={async () => {
-          await loadCart()
+          await loadCart();
         }}
         open={restaurantOpen}
         setOpen={setRestaurantOpen}
         value={selectedRestaurant}
         items={restaurantes.map((restaurant) => ({
           label: restaurant.name,
-          value: restaurant.externalId
+          value: restaurant.externalId,
         }))}
         setValue={setSelectedRestaurant}
         onChangeValue={handleRestaurantChoice}
-        placeholder={
-          selectedRestaurant ? undefined : 'Selecione um restaurante'
-        }
+        placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
         dropDownContainerStyle={{
           width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center'
+          alignSelf: 'center',
         }}
         style={{
           width: Platform.OS === 'web' ? '68%' : '92%',
@@ -1586,7 +1237,7 @@ export function Products({ navigation }: HomeScreenProps) {
           borderColor: '#ccc',
           borderWidth: 1,
           borderRadius: 5,
-          height: 40
+          height: 40,
         }}
       />
 
@@ -1602,7 +1253,7 @@ export function Products({ navigation }: HomeScreenProps) {
           margin={10}
           style={{
             width: Platform.OS === 'web' ? '68.4%' : '',
-            alignSelf: 'center'
+            alignSelf: 'center',
           }}
         >
           <Input
@@ -1617,7 +1268,7 @@ export function Products({ navigation }: HomeScreenProps) {
             value={searchQuery}
             onChangeText={setSearchQuery}
             onPressIn={async () => {
-              await loadCart()
+              await loadCart();
             }}
           />
           <Icons name="search" size={24} color="#04BF7B" />
@@ -1629,7 +1280,7 @@ export function Products({ navigation }: HomeScreenProps) {
             maxHeight: Platform.OS === 'web' ? 50 : 40,
             minHeight: Platform.OS === 'web' ? 50 : undefined,
             width: Platform.OS === 'web' ? '68%' : undefined,
-            alignSelf: Platform.OS === 'web' ? 'center' : undefined
+            alignSelf: Platform.OS === 'web' ? 'center' : undefined,
           }}
           data={classItems}
           horizontal
@@ -1641,28 +1292,28 @@ export function Products({ navigation }: HomeScreenProps) {
         <View
           backgroundColor="#F0F2F6"
           flex={1}
-          paddingHorizontal={16}
+          width={'100%'}
+          display="flex"
+          justifyContent="center"
+          alignSelf="center"
           paddingTop={5}
           borderTopColor="#aaa"
           borderTopWidth={0.5}
         >
-          {currentClass === 'Favoritos' &&
-          favorites.length < 1 &&
-          !searchQuery ? (
+          {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
               <Text
-                pl={15}
+                paddingLeft={15}
                 marginBottom={5}
                 alignSelf="center"
                 fontSize={14}
                 color="#A9A9A9"
                 textAlign="center"
               >
-                Busque os produtos da sua culinária e clique no coração para
-                favoritar.
+                Busque os produtos da sua culinária e clique no coração para favoritar.
                 <Text> </Text>
               </Text>
-              <Icons name="heart-outline" size={25} color="gray" />
+              <Icons name="heart-outline" size={25} color="green" />
             </View>
           ) : !skeletonLoading ? (
             Platform.OS === 'android' ? (
@@ -1671,9 +1322,7 @@ export function Products({ navigation }: HomeScreenProps) {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 listRef={virtualizedListRef}
-                onScroll={handleScroll}
-                onMomentumScrollBegin={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd}
+                contentContainerStyle={{ paddingBottom: 90 }}
               />
             ) : (
               <CustomFlatList
@@ -1681,21 +1330,13 @@ export function Products({ navigation }: HomeScreenProps) {
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
                 onEndReached={loadProducts}
-                onScroll={handleScroll}
-                onMomentumScrollBegin={handleScroll}
-                onMomentumScrollEnd={handleScrollEnd}
                 listRef={flatListRef}
+                contentContainerStyle={{ paddingBottom: 90 }}
               />
             )
           ) : (
             <ScrollView>
-              <View
-                flex={1}
-                minHeight={40}
-                borderWidth={1}
-                borderRadius={12}
-                borderColor="#F0F2F6"
-              >
+              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
                 {[...Array(7)].map((_, index) => (
                   <View
                     key={index}
@@ -1712,7 +1353,7 @@ export function Products({ navigation }: HomeScreenProps) {
                       style={{
                         flexDirection: 'row',
                         alignItems: 'center',
-                        marginLeft: Platform.OS === 'web' ? 10 : 0
+                        marginLeft: Platform.OS === 'web' ? 10 : 0,
                       }}
                     >
                       <Skeleton colorMode="light" height={60} width={60} />
@@ -1731,20 +1372,21 @@ export function Products({ navigation }: HomeScreenProps) {
           justifyContent="center"
           alignItems="center"
           flexDirection="row"
-          gap={30}
-          height={55}
-          borderTopWidth={0.2}
+          gap={15}
+          height={50}
+          borderTopWidth={0.4}
           borderTopColor="lightgray"
+          backgroundColor={'white'}
         >
           <View
-            onPress={() => navigation.replace('Products')}
+            onPress={() => router.push('/products')}
             padding={10}
             marginVertical={10}
             borderRadius={8}
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={80}
+            width={50}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
@@ -1754,10 +1396,10 @@ export function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              setLoading(true)
-              saveCartArray(cart, cartToExclude).catch(console.error)
-              setLoading(false)
-              navigation.replace('Orders')
+              setLoading(true);
+              saveCartArray(cart, cartToExclude).catch(console.error);
+              setLoading(false);
+              router.push('/ordersScreen');
             }}
             padding={10}
             marginVertical={10}
@@ -1776,11 +1418,10 @@ export function Products({ navigation }: HomeScreenProps) {
           </View>
           <View
             onPress={async () => {
-              setLoading(true)
-              await saveCartArray(cart, cartToExclude)
-              await Promise.all([clearStorage(), deleteToken()])
-              setLoading(false)
-              navigation.replace('Sign')
+              setLoading(true);
+              saveCartArray(cart, cartToExclude).catch(console.error);
+              setLoading(false);
+              router.push('/userInfo');
             }}
             padding={10}
             marginVertical={10}
@@ -1792,24 +1433,47 @@ export function Products({ navigation }: HomeScreenProps) {
             width={80}
             height={70}
           >
+            <Icons name="person" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Perfil
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              setLoading(true);
+              await saveCartArray(cart, cartToExclude);
+              await Promise.all([clearStorage(), deleteToken()]);
+              setLoading(false);
+              router.dismissAll();
+              router.replace('/');
+            }}
+            padding={10}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width={50}
+            height={70}
+          >
             <Icons name="log-out" size={20} color="gray" />
             <Text fontSize={12} color="gray">
               Sair
             </Text>
           </View>
         </View>
-        <VersionInfo />
       </View>
+      <VersionInfo />
 
       <CartButton
         cartSize={displayedCartSize}
-        isScrolling={isScrolling}
-        visibleProducts={displayedProducts}
+        selectedRestaurant={selectedRestaurant}
         onPress={async () => {
-          setLoading(true)
-          navigation.replace('Cart')
+          setLoading(true);
+          router.push('cart');
         }}
       />
-    </Stack>
-  )
+    </PageContainer>
+  );
 }

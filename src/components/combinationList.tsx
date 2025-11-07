@@ -1,174 +1,169 @@
-import {
-  ActivityIndicator,
-  Platform,
-  SectionList,
-  StyleSheet
-} from 'react-native'
-import CustomSubtitle from './subtitle/customSubtitle'
-import { useEffect, useMemo, useState } from 'react'
-import CustomListItem from './list/customListItem'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useNavigation } from '@react-navigation/native'
-import { SupplierData } from '@/app/quotationDetailsScreen'
-import {
-  getAllQuotationByRestaurant,
-  QuotationApiResponse
-} from '../services/combinationsService'
-import { getStorage, getToken } from '@/app/utils/utils'
-import { View } from 'tamagui'
-import CustomAlert from './modais/CustomAlert'
-import { useSupplier } from '../contexts/fornecedores.context'
-import { mergeSupplierData } from '@/app/utils/mergeSuppliersData'
-import {
-  AvailableSupplier,
-  ChosenSupplierQuote
-} from '../types/suppliersDataTypes'
-import { useCombinacao } from '../contexts/combinacao.context'
-import { getSavedRestaurant } from './savedRestaurant'
+import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+import { View } from 'tamagui';
+import { useRouter } from 'expo-router';
+import CustomSubtitle from './subtitle/customSubtitle';
+import CustomListItem from './list/customListItem';
+import { SupplierData } from '@/app/quotationDetailsScreen';
+import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
+import { getStorage, getToken } from '@/src/utils/utils';
+import CustomAlert from './modais/CustomAlert';
+import { useSupplier } from '../contexts/fornecedores.context';
+import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
+import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
+import { useCombinacao } from '../contexts/combinacao.context';
 
 export interface Combination {
-  id: string
-  combination: string
-  supplier?: string
-  totalValue?: number
-  delivery?: string
-  missingItems?: number
-  createdAt?: string
-  supplierClosed?: string
-  combinationAvailable?: boolean
+  id: string;
+  combination: string;
+  supplier?: string;
+  totalValue?: number;
+  delivery?: string;
+  missingItems?: number;
+  missingProducts?: string[];
+  createdAt?: string;
+  supplierClosed?: string;
+  combinationAvailable?: boolean;
 }
 
 export type RootStackParamList = {
-  Sign: undefined
-  Products: undefined
-  Preferences: undefined
-  CombinationDetail: { id: string }
-  CreateCombination: undefined
+  Sign: undefined;
+  Products: undefined;
+  Preferences: undefined;
+  CombinationDetail: { id: string };
+  CreateCombination: undefined;
   QuotationDetails: {
-    combinationId: string
-    combinationName?: string
-    suppliersData: SupplierData[]
-    toalValue?: number
-    missingItems?: number
-  }
-}
+    combinationId: string;
+    combinationName?: string;
+    suppliersData: SupplierData[];
+    toalValue?: number;
+    missingItems?: number;
+    missingProducts?: string[];
+  };
+};
 
 const CombinationList: React.FC = () => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([])
-  const [unavailableCombinations, setUnavailableCombinations] = useState<
-    Combination[]
-  >([])
-  const [loading, setLoading] = useState<boolean>(false)
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false)
-  const [combinationData, setCombinationData] = useState<
-    QuotationApiResponse[]
-  >([])
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
+  const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
+  const [combinationData, setCombinationData] = useState<QuotationApiResponse[]>([]);
 
-  const { suppliers, unavailableSupplier } = useSupplier()
-  const { modificado } = useCombinacao()
+  const { suppliers, unavailableSupplier } = useSupplier();
+  const router = useRouter();
 
-  const allSuppliers = useMemo(() => {
-    return [...suppliers, ...unavailableSupplier]
-  }, [suppliers, unavailableSupplier])
+  const initialize = async () => {
+    try {
+      setLoading(true);
+      const token = await getToken();
+      const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
+      const selectedRestaurant = { ...restaurantStoredValue.restaurant };
+      const cartStoredValue = JSON.parse(
+        (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
+      );
+      const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
+        token,
+        selectedRestaurant,
+        cart: cartStoredValue,
+        prices: [...suppliers, ...unavailableCombinations],
+      });
+
+      const totalItens = cartStoredValue?.length || 0;
+      setCombinationData(combinationsData);
+
+      const transformed: Combination[] = combinationsData.map((item) => {
+        const suppliers =
+          item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') || 'N/A';
+        const cartItens =
+          item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
+            return acc + (cesta.cart?.length || 0);
+          }, 0) || 0;
+        const missingItems = totalItens - cartItens;
+
+        return {
+          id: item.id,
+          combination: item.nome,
+          supplier: suppliers,
+          totalValue: item.resultadoCotacao?.totalOrderValue,
+          missingItems: missingItems < 0 ? 0 : missingItems,
+          missingProducts: item.resultadoCotacao?.missingProducts || [],
+        };
+      });
+      const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
+
+      const unavailableCombinationList = transformed.filter(
+        (item) =>
+          item.totalValue === 0 ||
+          unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+      );
+
+      const availableCombinationList = transformed
+        .filter(
+          (item) =>
+            item.totalValue !== 0 &&
+            !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+        )
+        .sort((a, b) => {
+          if (a.missingItems !== b.missingItems) {
+            return (a.missingItems ?? 0) - (b.missingItems ?? 0);
+          }
+          return (a.totalValue ?? 0) - (b.totalValue ?? 0);
+        });
+
+      setUnavailableCombinations(unavailableCombinationList);
+      setMineCombinations(availableCombinationList);
+    } catch (error) {
+      setIsAlertVisible(true);
+      console.error('Erro ao inicializar:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        setLoading(true)
-        const token = await getToken()
-        const restaurantStoredValue = JSON.parse(
-          (await getStorage('selectedRestaurant')) || '[]'
-        )
-        const cartStoredValue = JSON.parse(
-          (await getStorage(
-            `cart_${restaurantStoredValue?.restaurant.externalId}`
-          )) || '[]'
-        )
-        const selectedRestaurant = { ...restaurantStoredValue.restaurant }
-        const combinationsData: QuotationApiResponse[] =
-          await getAllQuotationByRestaurant({
-            token,
-            selectedRestaurant,
-            cart: cartStoredValue,
-            prices: allSuppliers
-          })
-
-        const totalItens = cartStoredValue?.length || 0
-        setCombinationData(combinationsData)
-
-        const transformed: Combination[] = combinationsData.map((item) => {
-          const suppliers =
-            item.resultadoCotacao?.supplier
-              ?.map((c) => c.name.split('-')[0])
-              .join(' + ') || 'N/A'
-          const cartItens =
-            item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
-              return acc + (cesta.cart?.length || 0)
-            }, 0) || 0
-          const missingItems = totalItens - cartItens
-
-          return {
-            id: item.id,
-            combination: item.nome,
-            supplier: suppliers,
-            totalValue: item.resultadoCotacao?.totalOrderValue,
-            missingItems: missingItems < 0 ? 0 : missingItems
-          }
-        })
-
-        const unavailableCombinationList = transformed.filter(
-          (item) => item.totalValue === 0
-        )
-        const availableCombinationList = transformed.filter(
-          (item) => item.totalValue !== 0
-        )
-
-        setUnavailableCombinations(unavailableCombinationList)
-        setMineCombinations(availableCombinationList)
-      } catch (error) {
-        setIsAlertVisible(true)
-        console.error('Erro ao inicializar:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-    initialize()
-  }, [allSuppliers, modificado])
+    initialize();
+  }, []);
 
   const handleCombinationPress = async (item: Combination) => {
-    const selectedCombination = combinationData.filter(
-      (data) => data.id === item.id
-    )
-    const combinationSelected = selectedCombination as ChosenSupplierQuote[]
+    const selectedCombination = combinationData.filter((data) => data.id === item.id);
+    const combinationSelected = selectedCombination as ChosenSupplierQuote[];
     const mergedData: any = mergeSupplierData(
       combinationSelected,
-      suppliers as AvailableSupplier[]
-    )
+      suppliers as AvailableSupplier[],
+    );
 
-    navigation.navigate('QuotationDetails', {
+    const params = {
       combinationId: item.id,
       combinationName: item.combination,
-      suppliersData: mergedData
-    })
-  }
+      totalValue: String(item.totalValue),
+      missingItems: String(item.missingItems),
+      suppliersData: JSON.stringify(mergedData),
+      missingProducts: item.missingProducts,
+    };
+
+    router.push({
+      pathname: '/quotationDetailsScreen',
+      params,
+    });
+  };
 
   const sections = [
     { title: 'Minhas combinações', data: minecombinations },
     {
-      title:
-        unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
-      data: unavailableCombinations
-    }
-  ]
+      title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
+      data: unavailableCombinations,
+    },
+  ];
 
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
-    )
+    );
   }
 
   return (
@@ -193,32 +188,31 @@ const CombinationList: React.FC = () => {
             missingItems={item.missingItems}
             createdAt={item.createdAt}
             supplierClosed={item.supplierClosed}
+            unavailable={!!unavailableCombinations.includes(item)}
             onPress={() => handleCombinationPress(item)}
           />
         )}
-        renderSectionHeader={({ section: { title } }) => (
-          <CustomSubtitle>{title}</CustomSubtitle>
-        )}
+        renderSectionHeader={({ section: { title } }) => <CustomSubtitle>{title}</CustomSubtitle>}
         contentContainerStyle={styles.listContentContainer}
         style={[
           styles.container,
           {
-            width: Platform.OS === 'web' ? '70%' : '90%',
-            alignSelf: 'center'
-          }
+            width: Platform.OS === 'web' ? '70%' : '100%',
+            alignSelf: 'center',
+          },
         ]}
       />
     </>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
   },
   listContentContainer: {
-    paddingBottom: 100
-  }
-})
+    paddingBottom: 100,
+  },
+});
 
-export default CombinationList
+export default CombinationList;

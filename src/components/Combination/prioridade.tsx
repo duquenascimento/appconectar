@@ -2,9 +2,9 @@ import { getAllProducts, ProductResponse } from '@/src/services/productsService'
 import React, { useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { View, Text, XStack, YStack, Separator, Card, Label, Button } from 'tamagui'
-import { SuplierCombination } from './combination'
+import { SuplierCombination } from '@/app/combination'
 import { getIn, useFormikContext } from 'formik'
-import { getFieldError } from '@/app/utils/formikUtils'
+import { getFieldError } from '@/src/utils/formikUtils'
 
 export interface ProrityProductsCombination {
   id: string
@@ -95,15 +95,15 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
   }, [searchText])
 
   return (
-    <Card bordered backgroundColor="white" borderColor="$gray5" p="$2" my="$4">
-      <YStack gap="$3" p="$2">
+    <Card bordered backgroundColor="white" borderColor="$gray5" padding="$2" marginVertical="$4">
+      <YStack gap="$3" padding="$2">
         {/* Cabeçalho Prioridade */}
-        <XStack alignItems="center" borderBottomWidth={1} pb={'$4'}>
+        <XStack alignItems="center" borderBottomWidth={1} paddingBottom={'$4'}>
           <Text fontSize="$7">Prioridade {index + 1}</Text>
         </XStack>
 
         {/* Descrição */}
-        <View mb={'$2'}>
+        <View marginBottom={'$2'}>
           <Label fontSize={'$6'}>Eu quero</Label>
           <DropDownPicker
             open={euQueroOpen}
@@ -152,13 +152,13 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
             zIndexInverse={10}
           />
           {specificProducts.length > 0 && (
-            <YStack mt="$2" p="$2" borderWidth={1} borderRadius={8} borderColor="$gray5" gap="$2">
+            <YStack marginTop="$2" padding="$2" borderWidth={1} borderRadius={8} borderColor="$gray5" gap="$2">
               <Text>Produtos selecionados:</Text>
               <XStack flexWrap="wrap" gap="$2">
                 {specificProducts.map((id) => {
                   const label = itemsDropdown.find((s) => s.value === id)?.label ?? id
                   return (
-                    <XStack key={id} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
+                    <XStack key={id} borderRadius={6} paddingHorizontal="$2" paddingVertical="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
                       <Button
                         size="$1"
                         circular
@@ -185,7 +185,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
         <Separator borderColor="$gray5" />
 
         {/* Com fornecedor(es) */}
-        <View my={'$2'}>
+        <View marginVertical={'$2'}>
           <Label>Com fornecedor(es)</Label>
           <DropDownPicker
             open={fornecedorOpen}
@@ -203,13 +203,13 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
             placeholderStyle={{ color: 'gray' }}
           />
           {fornecedorValue.length > 0 && (
-            <YStack mt="$2" p="$2" borderWidth={1} borderRadius={8} borderColor="$gray5" gap="$2">
+            <YStack marginTop="$2" padding="$2" borderWidth={1} borderRadius={8} borderColor="$gray5" gap="$2">
               <Text>Fornecedores específicos selecionados:</Text>
               <XStack flexWrap="wrap" gap="$2">
                 {fornecedorValue.map((id) => {
                   const label = selectedSupplierOptions.find((s) => s.value === id)?.label ?? id
                   return (
-                    <XStack key={id} borderRadius={6} px="$2" py="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
+                    <XStack key={id} borderRadius={6} paddingHorizontal="$2" paddingVertical="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
                       <Button
                         size="$1"
                         circular
@@ -236,7 +236,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
         <Separator borderColor="$gray5" />
 
         {/* Não sendo possível */}
-        <View my={'$2'}>
+        <View marginVertical={'$2'}>
           <Label>Não sendo possível</Label>
           <DropDownPicker
             open={naoPossivelOpen}

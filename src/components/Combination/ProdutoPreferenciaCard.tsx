@@ -1,4 +1,4 @@
-import { YStack, XStack, Input, Button, Text } from 'tamagui'
+/* import { YStack, XStack, Input, Button, Text } from 'tamagui'
 import { DropdownCampo } from './DropdownCampo'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useEffect, useMemo, useState } from 'react'
@@ -6,6 +6,7 @@ import { useCombinacao } from '@/src/contexts/combinacao.context'
 import { Product, Classe, useProductContext } from '@/src/contexts/produtos.context'
 import { useSupplier } from '@/src/contexts/fornecedores.context'
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor'
+import { loadRestaurants } from '@/src/services/restaurantService'
 
 const acaoNaFalhaItems = [
   { label: 'Ignorar e pular', value: 'ignorar' },
@@ -32,21 +33,65 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
   const [busca, setBusca] = useState('')
   const [sugestoes, setSugestoes] = useState<(Product | Classe)[]>([])
   const [selecionados, setSelecionados] = useState<Product[]>([])
+  const [availableProducts, setAvailableProducts] = useState<Product[]>([])
+  const [availableClasses, setAvailableClasses] = useState<Classe[]>([])
 
   const { suppliers, unavailableSupplier } = useSupplier()
 
   const fornecedoresContexto = useMemo(() => {
     const todosFornecedores = [...suppliers, ...unavailableSupplier]
+
+    const bloqueados = combinacao.fornecedores_bloqueados || []
+
+    const fornecedoresFiltrados = todosFornecedores.filter((f) => !bloqueados.includes(f.supplier.externalId))
+
     const fornecedoresSelecionados = combinacao.fornecedores_especificos || []
 
-    return todosFornecedores
+    if (combinacao.preferencia_fornecedor_tipo === 'qualquer') {
+      return fornecedoresFiltrados
+        .sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
+        .map((f) => ({
+          label: f.supplier.name,
+          value: f.supplier.externalId
+        }))
+    }
+
+    return fornecedoresFiltrados
       .filter((f) => fornecedoresSelecionados.includes(f.supplier.externalId))
       .sort((a, b) => a.supplier.name.localeCompare(b.supplier.name))
       .map((f) => ({
         label: f.supplier.name,
         value: f.supplier.externalId
       }))
-  }, [combinacao.fornecedores_especificos, suppliers, unavailableSupplier])
+  }, [combinacao.preferencia_fornecedor_tipo, combinacao.fornecedores_especificos, combinacao.fornecedores_bloqueados, suppliers, unavailableSupplier])
+  
+  useEffect(() => {
+    async function getRestaurants() {
+      const restaurants = await loadRestaurants()
+
+      const verduraKg = restaurants.filter(
+        (rest: any) => rest.verduraKg === true
+      )
+
+      if(verduraKg.length) {
+        setAvailableProducts(productsContext.filter(item => {
+          return !(item.class.trim() === 'VERDURAS')
+        }))
+        setAvailableClasses(classe.filter(c => {
+          return !(c.nome.trim() === 'VERDURAS')
+        }))
+      }
+      else{
+        setAvailableProducts(productsContext.filter(item => {
+          return !(item.class.trim() == 'VERDURAS - KG')
+        }))
+        setAvailableClasses(classe.filter(c => {
+          return !(c.nome.trim() == 'VERDURAS - KG')
+        }))
+      }
+    }
+    getRestaurants()
+  }, [])
 
   useEffect(() => {
     if (!busca.trim()) {
@@ -55,17 +100,17 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
     }
 
     const termo = busca.toLowerCase()
-    const matchesProduto = productsContext.filter((produto) => {
+    const matchesProduto = availableProducts.filter((produto) => {
       return produto.name.toLowerCase().includes(termo)
     })
-    const matchesClasse = classe.filter((classe) => {
-      return classe.nome.toLowerCase().includes(termo)
+    const matchesClasse = availableClasses.filter((c) => {
+      return c.nome.toLowerCase().includes(termo)
     })
 
     const sugestoesCombinadas = [...matchesProduto, ...matchesClasse].slice(0, 5)
 
     setSugestoes(sugestoesCombinadas)
-  }, [busca, productsContext, classe])
+  }, [busca, availableProducts, availableClasses])
 
   function selecionarProduto(itemSelecionado: Product | Classe) {
     if ('nome' in itemSelecionado) {
@@ -89,7 +134,6 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
 
     preferencias[preferenciaIndex].produtos = produtos
     updateCampo('preferencias', preferencias)
-    
   }
 
   const limparBuscaMutua = (tipo: 'name' | 'classe', valor: string) => {
@@ -103,7 +147,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
   }
 
   return (
-    <YStack borderWidth={1} borderColor="$gray4" borderRadius="$4" p="$3" gap="$2">
+    <YStack borderWidth={1} borderColor="$gray4" borderRadius="$4" padding="$3" gap="$2">
       <Text>Fixar produtos e/ou classes</Text>
 
       <XStack alignItems="center" gap="$2">
@@ -114,12 +158,12 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
 
             const valor = busca.trim().toLowerCase()
 
-            const matchClasse = classe.find((c) => c.nome.toUpperCase().includes(valor))
+            const matchClasse = availableClasses.find((c) => c.nome.toUpperCase().includes(valor))
 
             if (matchClasse) {
               limparBuscaMutua('classe', matchClasse.nome)
             } else {
-              const matchProduto = productsContext.find((p) => p.name.toLowerCase().includes(valor))
+              const matchProduto = availableProducts.find((p) => p.name.toLowerCase().includes(valor))
 
               if (matchProduto) {
                 limparBuscaMutua('name', matchProduto.name)
@@ -136,7 +180,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
       </XStack>
 
       {busca.length > 0 && sugestoes.length > 0 && (
-        <YStack mt="$2" gap="$1">
+        <YStack marginTop="$2" gap="$1">
           {sugestoes.map((item) => {
             const isClasse = 'nome' in item
 
@@ -150,7 +194,7 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
       )}
 
       {selecionados.length > 0 && (
-        <YStack mt="$4" gap="$1">
+        <YStack marginTop="$4" gap="$1">
           <Text fontWeight="bold">Produtos selecionados:</Text>
           {selecionados.map((produto) => (
             <Text key={produto.id}>• {produto.name}</Text>
@@ -161,17 +205,17 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
       {(produto.produto_sku || produto.classe) && (
         <XStack flexWrap="wrap" gap="$2">
           {produto.produto_sku && (
-            <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
-              <Text>{productsContext.find((p) => p.sku === produto.produto_sku)?.name ?? produto.produto_sku}</Text>
-              <Button size="$1" circular ml="$2" backgroundColor="transparent" onPress={() => updateProduto('produto_sku', undefined)}>
+            <XStack paddingHorizontal="$2" paddingVertical="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
+              <Text>{availableProducts.find((p) => p.sku === produto.produto_sku)?.name ?? produto.produto_sku}</Text>
+              <Button size="$1" circular marginLeft="$2" backgroundColor="transparent" onPress={() => updateProduto('produto_sku', undefined)}>
                 ×
               </Button>
             </XStack>
           )}
           {produto.classe && (
-            <XStack px="$2" py="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
+            <XStack paddingHorizontal="$2" paddingVertical="$1" borderRadius={8} backgroundColor="$gray3" alignItems="center">
               <Text>{produto.classe}</Text>
-              <Button size="$1" circular ml="$2" backgroundColor="transparent" onPress={() => updateProduto('classe', undefined)}>
+              <Button size="$1" circular marginLeft="$2" backgroundColor="transparent" onPress={() => updateProduto('classe', undefined)}>
                 ×
               </Button>
             </XStack>
@@ -185,3 +229,4 @@ export function ProdutoPreferenciaCard({ preferenciaIndex, produtoIndex, produto
     </YStack>
   )
 }
+ */
