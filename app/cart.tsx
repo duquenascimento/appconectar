@@ -1,10 +1,25 @@
-import { View, Text, Stack, Button, XStack, Input, Image, debounce } from 'tamagui'
+import {
+  View,
+  Text,
+  Stack,
+  Button,
+  XStack,
+  Input,
+  Image,
+  debounce
+} from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { ActivityIndicator, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
-import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils'
-import DialogInstanceNotification from '../../src/components/modais/DialogInstanceNotification'
+import {
+  ActivityIndicator,
+  Modal,
+  Platform,
+  TouchableOpacity,
+  VirtualizedList
+} from 'react-native'
+import { deleteStorage, getStorage, getToken, setStorage } from './utils/utils'
+import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification'
 
 type RootStackParamList = {
   Home: undefined
@@ -46,7 +61,12 @@ type TCart = {
   obs: string
 }
 
-type ProductBoxProps = Product & { saveCart: (cart: TCart, isCart: boolean) => Promise<void>; cart: Map<string, TCart>; cartInside: Map<string, TCart>; setConfirmDeleteItem: (cart: TCart) => void }
+type ProductBoxProps = Product & {
+  saveCart: (cart: TCart, isCart: boolean) => Promise<void>
+  cart: Map<string, TCart>
+  cartInside: Map<string, TCart>
+  setConfirmDeleteItem: (cart: TCart) => void
+}
 
 const ProductBox = React.memo((produto: ProductBoxProps) => {
   const [open, setOpen] = useState(false)
@@ -80,7 +100,11 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
       if (newValue > 0) {
         return newValue
       }
-      produto.setConfirmDeleteItem({ amount: valueQuant, productId: produto.id, obs: obsRef.current })
+      produto.setConfirmDeleteItem({
+        amount: valueQuant,
+        productId: produto.id,
+        obs: obsRef.current
+      })
       return prevValue
     })
   }
@@ -89,14 +113,23 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
   const prevAmountRef = useRef<number>(valueQuant)
   const prevObsRef = useRef<string | undefined>(obsC)
-  const debouncedSaveCart = useMemo(() => debounce(produto.saveCart, 300), [produto.saveCart])
+  const debouncedSaveCart = useMemo(
+    () => debounce(produto.saveCart, 300),
+    [produto.saveCart]
+  )
 
   useEffect(() => {
-    if (isCart && (prevAmountRef.current !== valueQuant || prevObsRef.current !== obsC)) {
+    if (
+      isCart &&
+      (prevAmountRef.current !== valueQuant || prevObsRef.current !== obsC)
+    ) {
       prevAmountRef.current = valueQuant
       prevObsRef.current = obsC
 
-      debouncedSaveCart({ amount: valueQuant, productId: produto.id, obs: obsC ?? '' }, isCart)
+      debouncedSaveCart(
+        { amount: valueQuant, productId: produto.id, obs: obsC ?? '' },
+        isCart
+      )
     }
     return () => {
       debouncedSaveCart.cancel?.()
@@ -109,7 +142,13 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
   }
 
   return (
-    <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+    <View
+      flex={1}
+      minHeight={40}
+      borderWidth={1}
+      borderRadius={12}
+      borderColor="#F0F2F6"
+    >
       <View
         onPress={toggleOpen}
         flex={1}
@@ -131,12 +170,20 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
         <View flexDirection="row" alignItems="center">
           <View p={Platform.OS === 'web' ? 10 : 5}>
             <View>
-              <Image source={{ uri: produto.image[0] }} width={60} height={60} />
+              <Image
+                source={{ uri: produto.image[0] }}
+                width={60}
+                height={60}
+              />
             </View>
             <View
               ml={Platform.OS === 'web' ? 10 : 5}
               onPress={() => {
-                produto.setConfirmDeleteItem({ amount: valueQuant, productId: produto.id, obs: obsRef.current })
+                produto.setConfirmDeleteItem({
+                  amount: valueQuant,
+                  productId: produto.id,
+                  obs: obsRef.current
+                })
               }}
               backgroundColor="black"
               borderRadius={10}
@@ -161,44 +208,202 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             </Text>
           </View>
         </View>
-        <View mr={Platform.OS === 'web' ? 10 : 5} gap={Platform.OS === 'web' ? 15 : 0} flexDirection="row" alignItems="center">
+        <View
+          mr={Platform.OS === 'web' ? 10 : 5}
+          gap={Platform.OS === 'web' ? 15 : 0}
+          flexDirection="row"
+          alignItems="center"
+        >
           <Text fontWeight="800">
             {valueQuant} {produto.orderUnit.replace('Unid', 'Un')}
           </Text>
-          <Icons name={open ? 'chevron-up' : 'chevron-down'} paddingLeft={10} size={25} color="lightgray" />
+          <Icons
+            name={open ? 'chevron-up' : 'chevron-down'}
+            paddingLeft={10}
+            size={25}
+            color="lightgray"
+          />
         </View>
       </View>
       {open && (
-        <View borderTopColor="#ccc" borderTopWidth={1} minHeight={Platform.OS === 'web' ? 50 : 85} width={Platform.OS === 'web' ? '70%' : '92%'} alignSelf="center" gap={8} borderBottomWidth={0} borderBottomLeftRadius={12} borderBottomRightRadius={12} backgroundColor="white" justifyContent="center">
-          <View paddingHorizontal={Platform.OS === 'web' ? 10 : 5} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
-            <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} flex={1} alignItems="center" mr={Platform.OS === 'web' ? 35 : 0} flexDirection="row" gap={8}>
+        <View
+          borderTopColor="#ccc"
+          borderTopWidth={1}
+          minHeight={Platform.OS === 'web' ? 50 : 85}
+          width={Platform.OS === 'web' ? '70%' : '92%'}
+          alignSelf="center"
+          gap={8}
+          borderBottomWidth={0}
+          borderBottomLeftRadius={12}
+          borderBottomRightRadius={12}
+          backgroundColor="white"
+          justifyContent="center"
+        >
+          <View
+            paddingHorizontal={Platform.OS === 'web' ? 10 : 5}
+            flexDirection="row"
+            alignItems="center"
+            marginTop={Platform.OS === 'web' ? 0 : 10}
+          >
+            <View
+              justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'}
+              flex={1}
+              alignItems="center"
+              mr={Platform.OS === 'web' ? 35 : 0}
+              flexDirection="row"
+              gap={8}
+            >
               {Platform.OS === 'web' && (
                 <View alignSelf="flex-start" flex={1}>
-                  <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" zIndex={20} height={36}>
-                    <Input focusVisibleStyle={{ outlineWidth: 0 }} placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onChangeText={handleObsChange} value={obsC} />
+                  <XStack
+                    backgroundColor="#F0F2F6"
+                    paddingRight={14}
+                    borderWidth={0}
+                    borderRadius={20}
+                    alignItems="center"
+                    flexDirection="row"
+                    zIndex={20}
+                    height={36}
+                  >
+                    <Input
+                      focusVisibleStyle={{ outlineWidth: 0 }}
+                      placeholder="Observação para entrega..."
+                      backgroundColor="transparent"
+                      borderWidth={0}
+                      borderColor="transparent"
+                      flex={1}
+                      fontSize={10}
+                      maxLength={999}
+                      onChangeText={handleObsChange}
+                      value={obsC}
+                    />
                   </XStack>
                 </View>
               )}
-              <Button onPress={() => handleQuantityChange(produto.firstUnit ? produto.firstUnit : 1)} backgroundColor={quant === (produto.firstUnit ? produto.firstUnit : 1) ? '#0BC07D' : '#F0F2F6'} height={30} minWidth={48} borderRadius={12}>
-                <Text color={quant === (produto.firstUnit ? produto.firstUnit : 1) ? '#fff' : '#000'}>{produto.firstUnit ? produto.firstUnit : 1}</Text>
+              <Button
+                onPress={() =>
+                  handleQuantityChange(
+                    produto.firstUnit ? produto.firstUnit : 1
+                  )
+                }
+                backgroundColor={
+                  quant === (produto.firstUnit ? produto.firstUnit : 1)
+                    ? '#0BC07D'
+                    : '#F0F2F6'
+                }
+                height={30}
+                minWidth={48}
+                borderRadius={12}
+              >
+                <Text
+                  color={
+                    quant === (produto.firstUnit ? produto.firstUnit : 1)
+                      ? '#fff'
+                      : '#000'
+                  }
+                >
+                  {produto.firstUnit ? produto.firstUnit : 1}
+                </Text>
               </Button>
-              <Button onPress={() => handleQuantityChange(produto.secondUnit ? produto.secondUnit : 5)} backgroundColor={quant === (produto.secondUnit ? produto.secondUnit : 5) ? '#0BC07D' : '#F0F2F6'} height={30} minWidth={48} borderRadius={12}>
-                <Text color={quant === (produto.secondUnit ? produto.secondUnit : 5) ? '#fff' : '#000'}>{produto.secondUnit ? produto.secondUnit : 5}</Text>
+              <Button
+                onPress={() =>
+                  handleQuantityChange(
+                    produto.secondUnit ? produto.secondUnit : 5
+                  )
+                }
+                backgroundColor={
+                  quant === (produto.secondUnit ? produto.secondUnit : 5)
+                    ? '#0BC07D'
+                    : '#F0F2F6'
+                }
+                height={30}
+                minWidth={48}
+                borderRadius={12}
+              >
+                <Text
+                  color={
+                    quant === (produto.secondUnit ? produto.secondUnit : 5)
+                      ? '#fff'
+                      : '#000'
+                  }
+                >
+                  {produto.secondUnit ? produto.secondUnit : 5}
+                </Text>
               </Button>
-              <Button onPress={() => handleQuantityChange(produto.thirdUnit ? produto.thirdUnit : 10)} backgroundColor={quant === (produto.thirdUnit ? produto.thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'} height={30} minWidth={48} borderRadius={12}>
-                <Text color={quant === (produto.thirdUnit ? produto.thirdUnit : 10) ? '#fff' : '#000'}>{produto.thirdUnit ? produto.thirdUnit : 10}</Text>
+              <Button
+                onPress={() =>
+                  handleQuantityChange(
+                    produto.thirdUnit ? produto.thirdUnit : 10
+                  )
+                }
+                backgroundColor={
+                  quant === (produto.thirdUnit ? produto.thirdUnit : 10)
+                    ? '#0BC07D'
+                    : '#F0F2F6'
+                }
+                height={30}
+                minWidth={48}
+                borderRadius={12}
+              >
+                <Text
+                  color={
+                    quant === (produto.thirdUnit ? produto.thirdUnit : 10)
+                      ? '#fff'
+                      : '#000'
+                  }
+                >
+                  {produto.thirdUnit ? produto.thirdUnit : 10}
+                </Text>
               </Button>
             </View>
-            <View borderColor="#F0F2F6" borderWidth={1} p={3} borderRadius={18} flexDirection="row" justifyContent="flex-end" gap={16}>
-              <Icons name="remove" color="#04BF7B" size={24} onPress={() => handleValueQuantChange(-quant)} />
+            <View
+              borderColor="#F0F2F6"
+              borderWidth={1}
+              p={3}
+              borderRadius={18}
+              flexDirection="row"
+              justifyContent="flex-end"
+              gap={16}
+            >
+              <Icons
+                name="remove"
+                color="#04BF7B"
+                size={24}
+                onPress={() => handleValueQuantChange(-quant)}
+              />
               <Text>{valueQuant}</Text>
-              <Icons name="add" color="#04BF7B" size={24} onPress={() => handleValueQuantChange(quant)} />
+              <Icons
+                name="add"
+                color="#04BF7B"
+                size={24}
+                onPress={() => handleValueQuantChange(quant)}
+              />
             </View>
           </View>
           {Platform.OS !== 'web' && (
             <View>
-              <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36} marginBottom={5}>
-                <Input focusVisibleStyle={{ outlineWidth: 0 }} placeholder="Observação para entrega..." backgroundColor="transparent" borderWidth={0} borderColor="transparent" flex={1} fontSize={10} maxLength={999} onChangeText={handleObsChange} value={obsC} />
+              <XStack
+                backgroundColor="#F0F2F6"
+                paddingRight={14}
+                borderWidth={0}
+                borderRadius={20}
+                alignItems="center"
+                flexDirection="row"
+                height={36}
+                marginBottom={5}
+              >
+                <Input
+                  focusVisibleStyle={{ outlineWidth: 0 }}
+                  placeholder="Observação para entrega..."
+                  backgroundColor="transparent"
+                  borderWidth={0}
+                  borderColor="transparent"
+                  flex={1}
+                  fontSize={10}
+                  maxLength={999}
+                  onChangeText={handleObsChange}
+                  value={obsC}
+                />
               </XStack>
             </View>
           )}
@@ -215,7 +420,9 @@ export function Cart({ navigation }: HomeScreenProps) {
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
   const [cart, setCart] = useState<Map<string, TCart>>(new Map())
   const [products, setProducts] = useState<Product[]>([])
-  const [cartToExclude, setCartToExclude] = useState<Map<string, TCart>>(new Map())
+  const [cartToExclude, setCartToExclude] = useState<Map<string, TCart>>(
+    new Map()
+  )
   const [cartInside, setCartInside] = useState<Map<string, TCart>>(new Map())
   const [confirmDelte, setConfirmDelete] = useState<boolean>(false)
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<boolean>(false)
@@ -231,7 +438,10 @@ export function Cart({ navigation }: HomeScreenProps) {
   useEffect(() => {
     const fetchRestaurant = async () => {
       const restaurant = await getSavedRestaurant()
-      setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(cart.entries()))).then()
+      setStorage(
+        `cart_${restaurant?.externalId}`,
+        JSON.stringify(Array.from(cart.entries()))
+      ).then()
     }
     fetchRestaurant()
   }, [cart])
@@ -274,7 +484,10 @@ export function Cart({ navigation }: HomeScreenProps) {
         return newCartToExclude
       })
 
-      setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
+      setStorage(
+        `cart_${restaurant?.externalId}`,
+        JSON.stringify(Array.from(newCart.entries()))
+      )
 
       setProducts((prevProducts) => {
         return prevProducts.filter((item) => item.id !== cartToDelete.productId)
@@ -314,26 +527,33 @@ export function Cart({ navigation }: HomeScreenProps) {
       const restaurant = await getSavedRestaurant()
       if (!token || !restaurant) return new Map()
 
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token,
-          selectedRestaurant: { id: restaurant.id }
-        })
-      })
+      const result = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/cart/list`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token,
+            selectedRestaurant: { id: restaurant.id }
+          })
+        }
+      )
 
       if (!result.ok) return new Map()
 
       const cart = await result.json()
       if (!cart.data || cart.data.length < 1) return new Map()
 
-      const cartMap = new Map<string, TCart>(cart.data.map((item: TCart) => [item.productId, item]))
+      const cartMap = new Map<string, TCart>(
+        cart.data.map((item: TCart) => [item.productId, item])
+      )
 
       const localCartString = await getStorage(`cart_${restaurant?.externalId}`)
-      const localCart = localCartString ? new Map<string, TCart>(JSON.parse(localCartString)) : new Map()
+      const localCart = localCartString
+        ? new Map<string, TCart>(JSON.parse(localCartString))
+        : new Map()
       localCart.forEach((value, key) => {
         cartMap.set(key, value)
       })
@@ -375,7 +595,10 @@ export function Cart({ navigation }: HomeScreenProps) {
       })
     }
     await attCart()
-    await setStorage(`cart_${restaurant?.externalId}`, JSON.stringify(Array.from(newCart.entries())))
+    await setStorage(
+      `cart_${restaurant?.externalId}`,
+      JSON.stringify(Array.from(newCart.entries()))
+    )
   }, [])
 
   const loadProducts = useCallback(async () => {
@@ -384,21 +607,28 @@ export function Cart({ navigation }: HomeScreenProps) {
       const restaurant = await getSavedRestaurant()
       if (!token || !restaurant) return []
 
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token,
-          selectedRestaurant: { id: restaurant.id }
-        })
-      })
+      const result = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token,
+            selectedRestaurant: { id: restaurant.id }
+          })
+        }
+      )
       if (!result.ok) return []
       const cart = await result.json()
       if (cart.data.length < 1) return []
 
-      const alertItems = cart.data.filter((item: Product) => item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'))
+      const alertItems = cart.data.filter(
+        (item: Product) =>
+          item.name.toLowerCase().includes('caixa') ||
+          item.name.toLowerCase().includes('saca')
+      )
 
       setAlertItems(alertItems)
 
@@ -410,7 +640,11 @@ export function Cart({ navigation }: HomeScreenProps) {
   }, [])
 
   const checkAlertItems = (products: Product[]) => {
-    products.filter((item: Product) => item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'))
+    products.filter(
+      (item: Product) =>
+        item.name.toLowerCase().includes('caixa') ||
+        item.name.toLowerCase().includes('saca')
+    )
   }
 
   useEffect(() => {
@@ -424,24 +658,27 @@ export function Cart({ navigation }: HomeScreenProps) {
     setConfirmDeleteItem(true)
   }
 
-  const saveCartArray = useCallback(async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
-    const token = await getToken()
-    const restaurant = await getSavedRestaurant()
-    if (!token || restaurant == null) return
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        token,
-        carts: Array.from(carts.values()),
-        cartToExclude: Array.from(cartsToExclude.values()),
-        selectedRestaurant: { id: restaurant.id }
+  const saveCartArray = useCallback(
+    async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
+      const token = await getToken()
+      const restaurant = await getSavedRestaurant()
+      if (!token || restaurant == null) return
+      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token,
+          carts: Array.from(carts.values()),
+          cartToExclude: Array.from(cartsToExclude.values()),
+          selectedRestaurant: { id: restaurant.id }
+        })
       })
-    })
-    setCartToExclude(new Map())
-  }, [])
+      setCartToExclude(new Map())
+    },
+    []
+  )
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -462,13 +699,30 @@ export function Cart({ navigation }: HomeScreenProps) {
 
   useEffect(() => {
     if (!products || products.length === 0) return
-    const orderedProducts = [...products].sort((a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0))
+    const orderedProducts = [...products].sort(
+      (a, b) => (a.addOrder ?? 0) - (b.addOrder ?? 0)
+    )
     setDisplayedProducts(orderedProducts)
-    const orderCart = orderedProducts.map((item: any) => ({ sku: item.sku, addOrder: item.addOrder }))
+    const orderCart = orderedProducts.map((item: any) => ({
+      sku: item.sku,
+      addOrder: item.addOrder
+    }))
     setStorage('cartOrder', JSON.stringify(orderCart))
   }, [products, cart, cartInside])
 
-  const renderProduct = useCallback(({ item }: { item: Product }) => <ProductBox key={item.id} {...item} saveCart={saveCart} cart={cart} cartInside={cartInside} setConfirmDeleteItem={handleTrashItemState} />, [saveCart, cart, cartInside])
+  const renderProduct = useCallback(
+    ({ item }: { item: Product }) => (
+      <ProductBox
+        key={item.id}
+        {...item}
+        saveCart={saveCart}
+        cart={cart}
+        cartInside={cartInside}
+        setConfirmDeleteItem={handleTrashItemState}
+      />
+    ),
+    [saveCart, cart, cartInside]
+  )
 
   const MemoizedProductBox = React.memo(ProductBox)
 
@@ -483,7 +737,13 @@ export function Cart({ navigation }: HomeScreenProps) {
   return (
     <Stack pt={20} backgroundColor="#F0F2F6" height="100%" position="relative">
       <View height={50} flex={1} paddingTop={20}>
-        <View height={50} alignItems="center" paddingLeft={20} paddingRight={20} flexDirection="row">
+        <View
+          height={50}
+          alignItems="center"
+          paddingLeft={20}
+          paddingRight={20}
+          flexDirection="row"
+        >
           <Icons
             onPress={async () => {
               setLoading(true)
@@ -499,11 +759,42 @@ export function Cart({ navigation }: HomeScreenProps) {
         </View>
 
         <View backgroundColor="#F0F2F6" flex={1} padding={16}>
-          <VirtualizedList ref={flatListRef} style={{ flex: 1 }} data={MemoizedProductBox} getItemCount={() => displayedProducts.length} getItem={(data, index) => displayedProducts[index]} keyExtractor={(item) => item.id} renderItem={renderProduct} ItemSeparatorComponent={() => <View height={8} />} initialNumToRender={10} windowSize={4} />
+          <VirtualizedList
+            ref={flatListRef}
+            style={{ flex: 1 }}
+            data={MemoizedProductBox}
+            getItemCount={() => displayedProducts.length}
+            getItem={(data, index) => displayedProducts[index]}
+            keyExtractor={(item) => item.id}
+            renderItem={renderProduct}
+            ItemSeparatorComponent={() => <View height={8} />}
+            initialNumToRender={10}
+            windowSize={4}
+          />
         </View>
 
-        <View backgroundColor="#F0F2F6" display={confirmDelte ? 'none' : 'flex'} px={20} justifyContent="center" alignItems="center" flexDirection="row" gap={20} height={70}>
-          <View backgroundColor="#F0F2F6" {...(Platform.OS === 'web' ? { minWidth: '50%', width: Platform.OS === 'web' ? '70%' : '92%' } : {})} flexDirection="row" justifyContent="center" gap={5}>
+        <View
+          backgroundColor="#F0F2F6"
+          display={confirmDelte ? 'none' : 'flex'}
+          px={20}
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="row"
+          gap={20}
+          height={70}
+        >
+          <View
+            backgroundColor="#F0F2F6"
+            {...(Platform.OS === 'web'
+              ? {
+                  minWidth: '50%',
+                  width: Platform.OS === 'web' ? '70%' : '92%'
+                }
+              : {})}
+            flexDirection="row"
+            justifyContent="center"
+            gap={5}
+          >
             <View justifyContent="center" alignItems="center">
               <Button
                 backgroundColor="black"
@@ -531,33 +822,80 @@ export function Cart({ navigation }: HomeScreenProps) {
               <Text fontSize={16} color="white">
                 Ver cotações
               </Text>
-              <Icons size={18} style={{ paddingLeft: 10 }} color="white" name="arrow-forward"></Icons>
+              <Icons
+                size={18}
+                style={{ paddingLeft: 10 }}
+                color="white"
+                name="arrow-forward"
+              ></Icons>
             </Button>
           </View>
-          <DialogInstanceNotification openModal={showNotification} setOpenModal={setShowNotification} title={modalTitle} subtitle={modalSubtitle} description={modalDescription} buttonText={modalButtonText} onConfirm={modalOnConfirm} />
+          <DialogInstanceNotification
+            openModal={showNotification}
+            setOpenModal={setShowNotification}
+            title={modalTitle}
+            subtitle={modalSubtitle}
+            description={modalDescription}
+            buttonText={modalButtonText}
+            onConfirm={modalOnConfirm}
+          />
         </View>
 
         {confirmDelte && (
-          <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
+          <View
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor="white"
+          >
             <Modal transparent={true}>
-              <View flex={1} justifyContent="center" alignItems="center" backgroundColor="rgba(0, 0, 0, 0.9)">
-                <View maxWidth={400} width="90%" backgroundColor="white" padding={20} borderRadius={10} alignItems="center" justifyContent="center">
-                  <View flexDirection="row" marginBottom={15} alignItems="flex-start" justifyContent="flex-start" width="100%">
+              <View
+                flex={1}
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor="rgba(0, 0, 0, 0.9)"
+              >
+                <View
+                  maxWidth={400}
+                  width="90%"
+                  backgroundColor="white"
+                  padding={20}
+                  borderRadius={10}
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <View
+                    flexDirection="row"
+                    marginBottom={15}
+                    alignItems="flex-start"
+                    justifyContent="flex-start"
+                    width="100%"
+                  >
                     <View flex={1}>
                       <Text fontSize={22}>Apagar carrinho</Text>
                     </View>
                   </View>
                   <View marginBottom={20} width="100%">
                     <Text fontSize={16} marginBottom={5}>
-                      Deseja apagar o carrinho e remover todos os produtos adicionados?
+                      Deseja apagar o carrinho e remover todos os produtos
+                      adicionados?
                     </Text>
                     <Text fontSize={10} color="gray" textAlign="left">
                       Esta ação não poderá ser desfeita
                     </Text>
                   </View>
-                  <View gap={5} flexDirection="row" justifyContent="space-between" width="100%" alignItems="center">
+                  <View
+                    gap={5}
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    width="100%"
+                    alignItems="center"
+                  >
                     <TouchableOpacity style={{ flex: 1 }}>
-                      <Button backgroundColor="#04BF7B" onPress={() => setConfirmDelete(false)}>
+                      <Button
+                        backgroundColor="#04BF7B"
+                        onPress={() => setConfirmDelete(false)}
+                      >
                         <Text color="white" textAlign="center">
                           Cancelar
                         </Text>
@@ -572,16 +910,19 @@ export function Cart({ navigation }: HomeScreenProps) {
                           const restaurant = await getSavedRestaurant()
 
                           if (!token || !restaurant) return []
-                          await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`, {
-                            method: 'POST',
-                            headers: {
-                              'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                              token,
-                              selectedRestaurant: { id: restaurant.id }
-                            })
-                          })
+                          await fetch(
+                            `${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`,
+                            {
+                              method: 'POST',
+                              headers: {
+                                'Content-Type': 'application/json'
+                              },
+                              body: JSON.stringify({
+                                token,
+                                selectedRestaurant: { id: restaurant.id }
+                              })
+                            }
+                          )
                           deleteStorage(`cart_${restaurant?.externalId}`)
                           navigation.replace('Products')
                         }}
@@ -598,11 +939,35 @@ export function Cart({ navigation }: HomeScreenProps) {
           </View>
         )}
         {confirmDeleteItem && (
-          <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
+          <View
+            flex={1}
+            justifyContent="center"
+            alignItems="center"
+            backgroundColor="white"
+          >
             <Modal transparent={true}>
-              <View flex={1} justifyContent="center" alignItems="center" backgroundColor="rgba(0, 0, 0, 0.9)">
-                <View maxWidth={400} width="90%" backgroundColor="white" padding={20} borderRadius={10} alignItems="center" justifyContent="center">
-                  <View flexDirection="row" marginBottom={15} alignItems="flex-start" justifyContent="flex-start" width="100%">
+              <View
+                flex={1}
+                justifyContent="center"
+                alignItems="center"
+                backgroundColor="rgba(0, 0, 0, 0.9)"
+              >
+                <View
+                  maxWidth={400}
+                  width="90%"
+                  backgroundColor="white"
+                  padding={20}
+                  borderRadius={10}
+                  alignItems="center"
+                  justifyContent="center"
+                >
+                  <View
+                    flexDirection="row"
+                    marginBottom={15}
+                    alignItems="flex-start"
+                    justifyContent="flex-start"
+                    width="100%"
+                  >
                     <Text flex={1} fontSize={22}>
                       Remover item
                     </Text>
@@ -615,9 +980,17 @@ export function Cart({ navigation }: HomeScreenProps) {
                       Esta ação não poderá ser desfeita
                     </Text>
                   </View>
-                  <View gap={5} flexDirection="row" justifyContent="space-between" width="100%">
+                  <View
+                    gap={5}
+                    flexDirection="row"
+                    justifyContent="space-between"
+                    width="100%"
+                  >
                     <TouchableOpacity style={{ flex: 1 }}>
-                      <Button backgroundColor="#04BF7B" onPress={() => setConfirmDeleteItem(false)}>
+                      <Button
+                        backgroundColor="#04BF7B"
+                        onPress={() => setConfirmDeleteItem(false)}
+                      >
                         <Text color="white" textAlign="center">
                           Cancelar
                         </Text>
@@ -628,7 +1001,8 @@ export function Cart({ navigation }: HomeScreenProps) {
                         backgroundColor="black"
                         onPress={async () => {
                           setLoading(true)
-                          if (itemToDelete != null) deleteItemFromCart(itemToDelete)
+                          if (itemToDelete != null)
+                            deleteItemFromCart(itemToDelete)
                         }}
                       >
                         <Text color="white" textAlign="center">

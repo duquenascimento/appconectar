@@ -1,21 +1,45 @@
-import { View, Select, Image, YStack, XStack, Text, Adapt, Sheet, Input, Button, Stack, ScrollView, Dialog } from 'tamagui'
+import {
+  View,
+  Select,
+  Image,
+  YStack,
+  XStack,
+  Text,
+  Adapt,
+  Sheet,
+  Input,
+  Button,
+  Stack,
+  ScrollView,
+  Dialog
+} from 'tamagui'
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import Icons from '@expo/vector-icons/Ionicons'
-import { ActivityIndicator, FlatList, Modal, Platform, TouchableOpacity, VirtualizedList } from 'react-native'
+import {
+  ActivityIndicator,
+  FlatList,
+  Modal,
+  Platform,
+  TouchableOpacity,
+  VirtualizedList
+} from 'react-native'
 import React from 'react'
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { MotiView } from 'moti'
 import { Skeleton } from 'moti/skeleton'
-import { clearStorage, deleteToken, getToken, setStorage } from '../utils/utils'
+import { clearStorage, deleteToken, getToken, setStorage } from './utils/utils'
 import * as Linking from 'expo-linking'
 import DropDownPicker from 'react-native-dropdown-picker'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { VersionInfo, SaveUserAppInfo } from '../utils/VersionApp'
-import CustomFlatList from '../utils/FlatList_VirtualizeList/FlatList_Products'
-import CustomVirtualizedList from '../utils/FlatList_VirtualizeList/VirtualizeList_Products'
+import { VersionInfo, SaveUserAppInfo } from './utils/VersionApp'
+import CustomFlatList from './utils/FlatList_VirtualizeList/FlatList_Products'
+import CustomVirtualizedList from './utils/FlatList_VirtualizeList/VirtualizeList_Products'
 import DialogComercialInstance from '@/src/components/dialogComercialInstance'
-import { saveProductObservations, loadProductObservations } from '../utils/productObservation'
+import {
+  saveProductObservations,
+  loadProductObservations
+} from './utils/productObservation'
 import { CartButton } from '@/src/components/cartButton'
 import { useProductContext } from '@/src/contexts/produtos.context'
 import { RefreshCartButton } from '@/src/components/refreshButton'
@@ -70,7 +94,10 @@ type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void
   favorites: Product[]
   saveCart: (cart: Cart, isCart: boolean) => Promise<void>
-  saveCartArray: (cart: Map<string, Cart>, exclude: Map<string, Cart>) => Promise<void>
+  saveCartArray: (
+    cart: Map<string, Cart>,
+    exclude: Map<string, Cart>
+  ) => Promise<void>
   cartToExclude: Map<string, Cart>
   setLoading: (status: boolean) => void
   cart: Map<string, Cart>
@@ -82,15 +109,24 @@ type ProductBoxProps = Product & {
   thirdUnit: number
   currentClass: string
   obs: string
-  addObservation: (productId: string, observation: string) => Promise<void | null | undefined>
+  addObservation: (
+    productId: string,
+    observation: string
+  ) => Promise<void | null | undefined>
   onObsChange: (text: string) => void
   productObservations: Map<string, string>
-  setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>
+  setProductObservations: React.Dispatch<
+    React.SetStateAction<Map<string, string>>
+  >
   saveProductObservations?: (map: Map<string, string>) => Promise<void>
   loadCart: () => Promise<Map<string, Cart>>
 }
 
-export function DialogFinanceInstance(props: { openModal: boolean; setRegisterInvalid: Function; rest: any }) {
+export function DialogFinanceInstance(props: {
+  openModal: boolean
+  setRegisterInvalid: Function
+  rest: any
+}) {
   return (
     <Dialog modal open={props.openModal}>
       <Adapt when="sm" platform="touch">
@@ -110,12 +146,22 @@ export function DialogFinanceInstance(props: { openModal: boolean; setRegisterIn
           <Sheet.Frame padding="$4" gap="$4">
             <Adapt.Contents />
           </Sheet.Frame>
-          <Sheet.Overlay animation="quickest" enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+          <Sheet.Overlay
+            animation="quickest"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+          />
         </Sheet>
       </Adapt>
 
       <Dialog.Portal>
-        <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} enterStyle={{ opacity: 0 }} exitStyle={{ opacity: 0 }} />
+        <Dialog.Overlay
+          key="overlay"
+          animation="quick"
+          opacity={0.5}
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
 
         <Dialog.Content
           bordered
@@ -135,7 +181,11 @@ export function DialogFinanceInstance(props: { openModal: boolean; setRegisterIn
           gap="$4"
         >
           <Dialog.Title mx="auto">Conta bloqueada</Dialog.Title>
-          <Dialog.Description>Informamos que sua conta está bloqueada devido a pendências com a plataforma. Por favor, entre em contato agora para desbloquear a sua conta</Dialog.Description>
+          <Dialog.Description>
+            Informamos que sua conta está bloqueada devido a pendências com a
+            plataforma. Por favor, entre em contato agora para desbloquear a sua
+            conta
+          </Dialog.Description>
 
           <XStack alignSelf="center" gap="$4">
             <Dialog.Close displayWhenAdapted asChild>
@@ -146,19 +196,22 @@ export function DialogFinanceInstance(props: { openModal: boolean; setRegisterIn
                 backgroundColor="$red9"
                 color="$white1"
                 onPress={async () => {
-                  const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
+                  const text =
+                    encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
 ${props.rest.map(
   (item: any) => `
 - ${item.name}`
 )}
 
 Consegue me ajudar?`)
-                    .replace('!', '%21')
-                    .replace("'", '%27')
-                    .replace('(', '%28')
-                    .replace(')', '%29')
-                    .replace('*', '%2A')
-                  await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
+                      .replace('!', '%21')
+                      .replace("'", '%27')
+                      .replace('(', '%28')
+                      .replace(')', '%29')
+                      .replace('*', '%2A')
+                  await Linking.openURL(
+                    `https://wa.me/5521999954372?text=${text}`
+                  )
                 }}
               >
                 Entre em contato
@@ -172,7 +225,32 @@ Consegue me ajudar?`)
 }
 
 const ProductBox = React.memo(
-  ({ id, name, image, mediumWeight, firstUnit, secondUnit, thirdUnit, orderUnit, toggleFavorite, favorites, saveCart, saveCartArray, cartToExclude, cart, setImage, setModalVisible, currentClass, obs: parentObs, addObservation, onObsChange, productObservations, setProductObservations, saveProductObservations, loadCart }: ProductBoxProps) => {
+  ({
+    id,
+    name,
+    image,
+    mediumWeight,
+    firstUnit,
+    secondUnit,
+    thirdUnit,
+    orderUnit,
+    toggleFavorite,
+    favorites,
+    saveCart,
+    saveCartArray,
+    cartToExclude,
+    cart,
+    setImage,
+    setModalVisible,
+    currentClass,
+    obs: parentObs,
+    addObservation,
+    onObsChange,
+    productObservations,
+    setProductObservations,
+    saveProductObservations,
+    loadCart
+  }: ProductBoxProps) => {
     const [quant, setQuant] = useState<number>(firstUnit ? firstUnit : 1)
     const [valueQuant, setValueQuant] = useState(0)
     const [obs, setObs] = useState(parentObs)
@@ -183,7 +261,10 @@ const ProductBox = React.memo(
     const previousCartRef = useRef<Map<string, Cart>>(new Map())
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
-    const isFavorite = useMemo(() => favorites.some((favorite) => favorite.id === id), [favorites, id])
+    const isFavorite = useMemo(
+      () => favorites.some((favorite) => favorite.id === id),
+      [favorites, id]
+    )
     const isCart = useMemo(() => cart.has(id), [cart, id])
 
     const toggleOpen = useCallback(() => setOpen((prev) => !prev), [])
@@ -212,7 +293,13 @@ const ProductBox = React.memo(
       const currentCartItem = cart.get(id)
       const previousCartItem = previousCartRef.current.get(id)
 
-      if ((!currentCartItem && !previousCartItem) || (currentCartItem && previousCartItem && currentCartItem.amount === previousCartItem.amount && currentCartItem.obs === previousCartItem.obs)) {
+      if (
+        (!currentCartItem && !previousCartItem) ||
+        (currentCartItem &&
+          previousCartItem &&
+          currentCartItem.amount === previousCartItem.amount &&
+          currentCartItem.obs === previousCartItem.obs)
+      ) {
         return
       }
 
@@ -234,7 +321,10 @@ const ProductBox = React.memo(
       const currentItem = { amount: valueQuant, productId: id, obs }
       const previousItem = previousCartRef.current.get(id)
 
-      const shouldPersist = valueQuant > 0 || (previousItem && valueQuant !== previousItem.amount) || (previousItem && obs !== previousItem.obs)
+      const shouldPersist =
+        valueQuant > 0 ||
+        (previousItem && valueQuant !== previousItem.amount) ||
+        (previousItem && obs !== previousItem.obs)
 
       if (shouldPersist) {
         saveCart(currentItem, !!previousItem)
@@ -308,8 +398,38 @@ const ProductBox = React.memo(
     }, [addObservation, id, obs])
 
     return (
-      <Stack onPress={toggleOpen} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
-        <View style={{ width: Platform.OS === 'web' ? '70%' : '', alignSelf: 'center' }} flex={1} justifyContent="space-between" alignItems="center" paddingHorizontal={8} flexDirection="row" minHeight={40} backgroundColor={isCart ? '#fbffc3ff' : 'white'} borderRadius={12} borderBottomLeftRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12} borderBottomRightRadius={open || isCart || (isFavorite && currentClass === 'Favoritos') ? 0 : 12}>
+      <Stack
+        onPress={toggleOpen}
+        flex={1}
+        minHeight={40}
+        borderWidth={1}
+        borderRadius={12}
+        borderColor="#F0F2F6"
+      >
+        <View
+          style={{
+            width: Platform.OS === 'web' ? '70%' : '',
+            alignSelf: 'center'
+          }}
+          flex={1}
+          justifyContent="space-between"
+          alignItems="center"
+          paddingHorizontal={8}
+          flexDirection="row"
+          minHeight={40}
+          backgroundColor={isCart ? '#fbffc3ff' : 'white'}
+          borderRadius={12}
+          borderBottomLeftRadius={
+            open || isCart || (isFavorite && currentClass === 'Favoritos')
+              ? 0
+              : 12
+          }
+          borderBottomRightRadius={
+            open || isCart || (isFavorite && currentClass === 'Favoritos')
+              ? 0
+              : 12
+          }
+        >
           <View flexDirection="row" alignItems="center">
             <View
               p={Platform.OS === 'web' ? 10 : 0}
@@ -325,7 +445,13 @@ const ProductBox = React.memo(
               <Text fontSize={12}>{name}</Text>
             </View>
           </View>
-          <View mr={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
+          <View
+            mr={10}
+            flexDirection="row"
+            alignItems="center"
+            gap={16}
+            cursor="pointer"
+          >
             <Icons
               size={24}
               name={isFavorite ? 'heart' : 'heart-outline'}
@@ -338,7 +464,18 @@ const ProductBox = React.memo(
             {(isFavorite && currentClass === 'Favoritos') || isCart ? (
               <></>
             ) : isCart ? (
-              <View borderColor="#FFA500" borderWidth={1} borderRadius={50} gap={8} justifyContent="center" alignItems="center" p={8} height={36} width={80} flexDirection="row">
+              <View
+                borderColor="#FFA500"
+                borderWidth={1}
+                borderRadius={50}
+                gap={8}
+                justifyContent="center"
+                alignItems="center"
+                p={8}
+                height={36}
+                width={80}
+                flexDirection="row"
+              >
                 <Text fontSize={12} fontWeight="800">
                   {valueQuant}
                   <Text fontSize={8} color="gray">
@@ -348,7 +485,11 @@ const ProductBox = React.memo(
                 <Icons name="pencil-sharp" color="#FFA500" size={15} />
               </View>
             ) : (
-              <Icons name={open ? 'chevron-up' : 'chevron-down'} size={30} color="#0BC07D" />
+              <Icons
+                name={open ? 'chevron-up' : 'chevron-down'}
+                size={30}
+                color="#0BC07D"
+              />
             )}
           </View>
         </View>
@@ -371,11 +512,34 @@ const ProductBox = React.memo(
               alignSelf: 'center'
             }}
           >
-            <View paddingHorizontal={Platform.OS === 'web' ? 10 : 0} flexDirection="row" alignItems="center" marginTop={Platform.OS === 'web' ? 0 : 10}>
-              <View justifyContent={Platform.OS === 'web' ? 'flex-end' : 'flex-start'} alignItems="center" flex={1} mr={Platform.OS === 'web' ? 5 : 5} flexDirection="row" gap={8}>
+            <View
+              paddingHorizontal={Platform.OS === 'web' ? 10 : 0}
+              flexDirection="row"
+              alignItems="center"
+              marginTop={Platform.OS === 'web' ? 0 : 10}
+            >
+              <View
+                justifyContent={
+                  Platform.OS === 'web' ? 'flex-end' : 'flex-start'
+                }
+                alignItems="center"
+                flex={1}
+                mr={Platform.OS === 'web' ? 5 : 5}
+                flexDirection="row"
+                gap={8}
+              >
                 {Platform.OS === 'web' && (
                   <View alignSelf="flex-start" flex={1}>
-                    <XStack backgroundColor="#F0F2F6" flex={1} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" height={36}>
+                    <XStack
+                      backgroundColor="#F0F2F6"
+                      flex={1}
+                      paddingRight={14}
+                      borderWidth={0}
+                      borderRadius={20}
+                      alignItems="center"
+                      flexDirection="row"
+                      height={36}
+                    >
                       <Input
                         focusVisibleStyle={{ outlineWidth: 0 }}
                         placeholder="Observação para entrega..."
@@ -406,41 +570,79 @@ const ProductBox = React.memo(
                     e.stopPropagation()
                     handleQuantityChange(firstUnit ? firstUnit : 1)
                   }}
-                  backgroundColor={quant === (firstUnit ? firstUnit : 1) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={
+                    quant === (firstUnit ? firstUnit : 1)
+                      ? '#0BC07D'
+                      : '#F0F2F6'
+                  }
                   height={30}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'}>{firstUnit ? firstUnit : 1}</Text>
+                  <Text
+                    color={
+                      quant === (firstUnit ? firstUnit : 1) ? '#fff' : '#000'
+                    }
+                  >
+                    {firstUnit ? firstUnit : 1}
+                  </Text>
                 </Button>
                 <Button
                   onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(secondUnit ? secondUnit : 5)
                   }}
-                  backgroundColor={quant === (secondUnit ? secondUnit : 5) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={
+                    quant === (secondUnit ? secondUnit : 5)
+                      ? '#0BC07D'
+                      : '#F0F2F6'
+                  }
                   color={quant === secondUnit ? '#fff' : '#000'}
                   height={30}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'}>{secondUnit ? secondUnit : 5}</Text>
+                  <Text
+                    color={
+                      quant === (secondUnit ? secondUnit : 5) ? '#fff' : '#000'
+                    }
+                  >
+                    {secondUnit ? secondUnit : 5}
+                  </Text>
                 </Button>
                 <Button
                   onPress={async (e) => {
                     e.stopPropagation()
                     handleQuantityChange(thirdUnit ? thirdUnit : 10)
                   }}
-                  backgroundColor={quant === (thirdUnit ? thirdUnit : 10) ? '#0BC07D' : '#F0F2F6'}
+                  backgroundColor={
+                    quant === (thirdUnit ? thirdUnit : 10)
+                      ? '#0BC07D'
+                      : '#F0F2F6'
+                  }
                   height={30}
                   color={quant === thirdUnit ? '#fff' : '#000'}
                   minWidth={48}
                   borderRadius={12}
                 >
-                  <Text color={quant === (thirdUnit ? thirdUnit : 10) ? '#fff' : '#000'}>{thirdUnit ? thirdUnit : 10}</Text>
+                  <Text
+                    color={
+                      quant === (thirdUnit ? thirdUnit : 10) ? '#fff' : '#000'
+                    }
+                  >
+                    {thirdUnit ? thirdUnit : 10}
+                  </Text>
                 </Button>
               </View>
-              <View alignItems="center" borderColor="#F0F2F6" borderWidth={1} p={4} borderRadius={18} flexDirection="row" gap={16}>
+              <View
+                alignItems="center"
+                borderColor="#F0F2F6"
+                borderWidth={1}
+                p={4}
+                borderRadius={18}
+                flexDirection="row"
+                gap={16}
+              >
                 <Icons
                   name="remove"
                   color="#04BF7B"
@@ -466,7 +668,16 @@ const ProductBox = React.memo(
             </View>
             {Platform.OS !== 'web' && (
               <View>
-                <XStack backgroundColor="#F0F2F6" paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" marginBottom={10} height={36}>
+                <XStack
+                  backgroundColor="#F0F2F6"
+                  paddingRight={14}
+                  borderWidth={0}
+                  borderRadius={20}
+                  alignItems="center"
+                  flexDirection="row"
+                  marginBottom={10}
+                  height={36}
+                >
                   <Input
                     focusVisibleStyle={{ outlineWidth: 0 }}
                     placeholder="Observação para entrega..."
@@ -517,7 +728,10 @@ type CustomSelectProps = {
   native?: boolean
 }
 
-export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) => {
+export const CustomSelect: React.FC<CustomSelectProps> = ({
+  items,
+  ...props
+}) => {
   const [val, setVal] = useState('')
 
   const handleChange = async (value: string) => {
@@ -526,7 +740,8 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
       'selectedRestaurant',
       JSON.stringify({
         restaurant: items.filter((item) => {
-          if (typeof item.name != 'undefined' ? item.name : '' === value) return item
+          if (typeof item.name != 'undefined' ? item.name : '' === value)
+            return item
         })
       })
     )
@@ -541,12 +756,31 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
       disablePreventBodyScroll
       {...props}
     >
-      <Select.Trigger backgroundColor="$colorTransparent" paddingRight={20} alignItems="flex-start" paddingLeft={0} paddingVertical={0} borderWidth={0} width={220} pressStyle={{ backgroundColor: 'transparent' }} iconAfter={<Icons name="chevron-down" />}>
-        <Select.Value fontSize={16} fontWeight="900" placeholder={typeof items[0].name != 'undefined' ? items[0].name : ''} />
+      <Select.Trigger
+        backgroundColor="$colorTransparent"
+        paddingRight={20}
+        alignItems="flex-start"
+        paddingLeft={0}
+        paddingVertical={0}
+        borderWidth={0}
+        width={220}
+        pressStyle={{ backgroundColor: 'transparent' }}
+        iconAfter={<Icons name="chevron-down" />}
+      >
+        <Select.Value
+          fontSize={16}
+          fontWeight="900"
+          placeholder={typeof items[0].name != 'undefined' ? items[0].name : ''}
+        />
       </Select.Trigger>
 
       <Adapt when="sm" platform="touch">
-        <Sheet native={!!props.native} modal dismissOnSnapToBottom animation="bouncy">
+        <Sheet
+          native={!!props.native}
+          modal
+          dismissOnSnapToBottom
+          animation="bouncy"
+        >
           <Sheet.Overlay />
           <Sheet.Frame>
             <Sheet.ScrollView>
@@ -557,7 +791,13 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
       </Adapt>
 
       <Select.Content zIndex={200_000}>
-        <Select.ScrollUpButton alignItems="center" justifyContent="center" position="relative" width="100%" height={12}>
+        <Select.ScrollUpButton
+          alignItems="center"
+          justifyContent="center"
+          position="relative"
+          width="100%"
+          height={12}
+        >
           <YStack zIndex={10}>
             <Icons name="chevron-up" size={20} />
           </YStack>
@@ -568,8 +808,18 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
             {useMemo(
               () =>
                 items.map((item, i) => (
-                  <Select.Item index={i} key={typeof item.name != 'undefined' ? item.name : ''} value={typeof item.name != 'undefined' ? item.name.toLowerCase() : ''}>
-                    <Select.ItemText>{typeof item.name != 'undefined' ? item.name : ''}</Select.ItemText>
+                  <Select.Item
+                    index={i}
+                    key={typeof item.name != 'undefined' ? item.name : ''}
+                    value={
+                      typeof item.name != 'undefined'
+                        ? item.name.toLowerCase()
+                        : ''
+                    }
+                  >
+                    <Select.ItemText>
+                      {typeof item.name != 'undefined' ? item.name : ''}
+                    </Select.ItemText>
                     <Select.ItemIndicator marginLeft="auto">
                       <Icons name="checkmark" size={16} />
                     </Select.ItemIndicator>
@@ -579,13 +829,28 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
             )}
           </Select.Group>
           {props.native && (
-            <YStack position="absolute" right={0} top={0} bottom={0} alignItems="center" justifyContent="center" width={16} pointerEvents="none">
+            <YStack
+              position="absolute"
+              right={0}
+              top={0}
+              bottom={0}
+              alignItems="center"
+              justifyContent="center"
+              width={16}
+              pointerEvents="none"
+            >
               <Icons name="chevron-down" />
             </YStack>
           )}
         </Select.Viewport>
 
-        <Select.ScrollDownButton alignItems="center" justifyContent="center" position="relative" width="100%" height={12}>
+        <Select.ScrollDownButton
+          alignItems="center"
+          justifyContent="center"
+          position="relative"
+          width="100%"
+          height={12}
+        >
           <YStack zIndex={10}>
             <Icons name="chevron-down" size={20} />
           </YStack>
@@ -605,7 +870,7 @@ interface Restaurant {
 }
 
 export function Products({ navigation }: HomeScreenProps) {
-   const [currentClass, setCurrentClass] = useState('Favoritos')
+  const [currentClass, setCurrentClass] = useState('Favoritos')
   const [productsList, setProductsList] = useState<Product[] | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([])
@@ -615,10 +880,22 @@ export function Products({ navigation }: HomeScreenProps) {
   const [image, setImage] = useState<string>('')
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false)
   const [isScrolling, setIsScrolling] = useState(false)
-  const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false)
+  const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] =
+    useState(false)
   const [showFinanceBlock, setShowFinanceBlock] = useState(false)
   const [restaurantes, setRestaurantes] = useState<Restaurant[]>([])
-  const { cart, setCart, cartToExclude, productObservations, setProductObservations, displayedCartSize, setDisplayedCartSize, loadCart, saveCart, saveCartArray } = useCart()
+  const {
+    cart,
+    setCart,
+    cartToExclude,
+    productObservations,
+    setProductObservations,
+    displayedCartSize,
+    setDisplayedCartSize,
+    loadCart,
+    saveCart,
+    saveCartArray
+  } = useCart()
   const { productsContext, isLoading } = useProductContext()
 
   useEffect(() => {
@@ -634,7 +911,9 @@ export function Products({ navigation }: HomeScreenProps) {
   }, [cart.size])
 
   //seguindo o padrão das orders
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null)
+  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(
+    null
+  )
   const [restaurantOpen, setRestaurantOpen] = useState(false)
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null)
@@ -667,16 +946,19 @@ export function Products({ navigation }: HomeScreenProps) {
       const restaurant = await getSavedRestaurant()
 
       if (token == null || !restaurant) return []
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token,
-          restaurantId: restaurant.id
-        })
-      })
+      const result = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/favorite/list`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token,
+            restaurantId: restaurant.id
+          })
+        }
+      )
       if (!result.ok) return []
       const favorites = await result.json()
       if (favorites.data.length < 1) return []
@@ -691,15 +973,18 @@ export function Products({ navigation }: HomeScreenProps) {
     try {
       const token = await getToken()
       if (token == null) return []
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          token
-        })
-      })
+      const result = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token
+          })
+        }
+      )
       if (!result.ok) return []
       const restaurants = await result.json()
       if (restaurants.data.length < 1) return []
@@ -714,24 +999,56 @@ export function Products({ navigation }: HomeScreenProps) {
     const loadInitialData = async () => {
       setLoading(true)
       try {
-        const [restaurants, savedRestaurant, cartMap] = await Promise.all([loadRestaurants(), getSavedRestaurant(), loadCart(), loadProducts()])
+        const [restaurants, savedRestaurant, cartMap] = await Promise.all([
+          loadRestaurants(),
+          getSavedRestaurant(),
+          loadCart(),
+          loadProducts()
+        ])
 
-        const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true)
+        const verduraKg = restaurants.filter(
+          (rest: any) => rest.verduraKg === true
+        )
         // Extraindo categorias
-        const categories = restaurants.flatMap((rest: any) => rest.categories || [])
+        const categories = restaurants.flatMap(
+          (rest: any) => rest.categories || []
+        )
         if (verduraKg.length && categories.length === 0) {
-          classItems = [{ name: 'Favoritos' }, { name: 'Fruta' }, { name: 'Legumes' }, { name: 'Verduras - KG' }, { name: 'Especiarias' }, { name: 'Granja' }, { name: 'Cogumelos e trufas' }, { name: 'Higienizados' }]
+          classItems = [
+            { name: 'Favoritos' },
+            { name: 'Fruta' },
+            { name: 'Legumes' },
+            { name: 'Verduras - KG' },
+            { name: 'Especiarias' },
+            { name: 'Granja' },
+            { name: 'Cogumelos e trufas' },
+            { name: 'Higienizados' }
+          ]
         } else if (categories.length === 0) {
-          classItems = [{ name: 'Favoritos' }, { name: 'Fruta' }, { name: 'Legumes' }, { name: 'Verduras' }, { name: 'Especiarias' }, { name: 'Granja' }, { name: 'Cogumelos e trufas' }, { name: 'Higienizados' }]
+          classItems = [
+            { name: 'Favoritos' },
+            { name: 'Fruta' },
+            { name: 'Legumes' },
+            { name: 'Verduras' },
+            { name: 'Especiarias' },
+            { name: 'Granja' },
+            { name: 'Cogumelos e trufas' },
+            { name: 'Higienizados' }
+          ]
         } else {
-          classItems = [{ name: 'Favoritos' }, ...categories.map((category: any) => ({ name: category }))]
+          classItems = [
+            { name: 'Favoritos' },
+            ...categories.map((category: any) => ({ name: category }))
+          ]
         }
 
         const validRestaurants = Array.isArray(restaurants) ? restaurants : []
 
         setRestaurantes(validRestaurants)
 
-        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp)
+        const availableRestaurants = validRestaurants.filter(
+          (r) => !r.registrationReleasedNewApp
+        )
         const allRestaurantBlocked = availableRestaurants.length === 0
 
         let initialRestaurant = null
@@ -739,17 +1056,25 @@ export function Products({ navigation }: HomeScreenProps) {
           initialRestaurant = availableRestaurants[0]
 
           if (savedRestaurant) {
-            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id)
+            const found = availableRestaurants.find(
+              (r) => r.id === savedRestaurant.id
+            )
             if (found) {
               initialRestaurant = found
             }
           }
           setSelectedRestaurant(initialRestaurant.externalId)
-          setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }))
+          setStorage(
+            'selectedRestaurant',
+            JSON.stringify({ restaurant: initialRestaurant })
+          )
         }
 
-        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true
-        const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock)
+        const restFilteredComercial =
+          initialRestaurant?.registrationReleasedNewApp === true
+        const restFilteredFinance = restaurants.filter(
+          (item: any) => item.financeBlock
+        )
         if (restFilteredComercial || allRestaurantBlocked) {
           setShowRegistrationReleasedNewApp(true)
         }
@@ -802,25 +1127,30 @@ export function Products({ navigation }: HomeScreenProps) {
         const token = await getToken()
         const restaurant = await getSavedRestaurant()
         if (token == null || !restaurant) return
-        const productToAdd = productsList?.find((product) => product.id === productId)
+        const productToAdd = productsList?.find(
+          (product) => product.id === productId
+        )
         if (productToAdd) {
           setFavorites([...favorites, { ...productToAdd, obs }])
         }
         const storedRestaurant = await getSavedRestaurant()
 
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/save`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            productId,
-            restaurantId: storedRestaurant?.id,
-            token,
-            obs
-          })
-        })
+        const result = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/favorite/save`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              productId,
+              restaurantId: storedRestaurant?.id,
+              token,
+              obs
+            })
+          }
+        )
         if (!result.ok) return null
       } catch (error) {
         console.error('Erro ao adicionar aos favoritos:', error)
@@ -830,12 +1160,17 @@ export function Products({ navigation }: HomeScreenProps) {
   )
 
   const addObservation = useCallback(
-    async (productId: string, observation: string): Promise<void | null | undefined> => {
+    async (
+      productId: string,
+      observation: string
+    ): Promise<void | null | undefined> => {
       try {
         const token = await getToken()
         const restaurant = await getSavedRestaurant()
         if (token == null || !restaurant) return
-        const productToAdd = productsList?.find((product) => product.id === productId)
+        const productToAdd = productsList?.find(
+          (product) => product.id === productId
+        )
         const storedRestaurant = await getSavedRestaurant()
 
         const isFavorite = favorites.some((fav) => fav.id === productId)
@@ -843,19 +1178,22 @@ export function Products({ navigation }: HomeScreenProps) {
           return
         }
 
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/update`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            productId,
-            restaurantId: storedRestaurant?.id,
-            token,
-            obs: observation
-          })
-        })
+        const result = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/favorite/update`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              productId,
+              restaurantId: storedRestaurant?.id,
+              token,
+              obs: observation
+            })
+          }
+        )
         if (!result.ok) return null
       } catch (error) {
         console.error('Erro ao adicionar aos favoritos:', error)
@@ -873,18 +1211,21 @@ export function Products({ navigation }: HomeScreenProps) {
         if (token == null || !restaurant) return
         const storedRestaurant = await getSavedRestaurant()
 
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/del`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            productId,
-            restaurantId: storedRestaurant?.id,
-            token
-          })
-        })
+        const result = await fetch(
+          `${process.env.EXPO_PUBLIC_API_URL}/favorite/del`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              productId,
+              restaurantId: storedRestaurant?.id,
+              token
+            })
+          }
+        )
         if (!result.ok) return null
       } catch (error) {
         console.error('Erro ao remover dos favoritos:', error)
@@ -907,7 +1248,9 @@ export function Products({ navigation }: HomeScreenProps) {
         const cartItem = cart.get(productId)
         if (cartItem?.obs && cartItem.obs !== currentObs) {
           await addObservation(productId, cartItem.obs)
-          setProductObservations((prev) => new Map(prev).set(productId, cartItem.obs))
+          setProductObservations((prev) =>
+            new Map(prev).set(productId, cartItem.obs)
+          )
         }
       }
     },
@@ -924,7 +1267,9 @@ export function Products({ navigation }: HomeScreenProps) {
 
   useEffect(() => {
     if (productsList) {
-      productsList.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+      productsList.sort((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      )
     }
   }, [productsList])
 
@@ -935,7 +1280,11 @@ export function Products({ navigation }: HomeScreenProps) {
     if (currentClass === 'Favoritos') {
       products = favorites
     } else {
-      products = productsList?.filter((product) => product.class.toLowerCase() === currentClass.toLowerCase()) || []
+      products =
+        productsList?.filter(
+          (product) =>
+            product.class.toLowerCase() === currentClass.toLowerCase()
+        ) || []
     }
 
     // Normalizar a pesquisa (remover acentos e caracteres especiais)
@@ -946,20 +1295,30 @@ export function Products({ navigation }: HomeScreenProps) {
         .toLowerCase()
 
     if (searchQuery) {
-      const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG'
+      const excludeClass =
+        classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG'
       const normalizedQuery = normalizeText(searchQuery)
-      const queryWords = normalizedQuery.split(' ').filter((word) => word !== '')
+      const queryWords = normalizedQuery
+        .split(' ')
+        .filter((word) => word !== '')
 
       products =
         productsList?.filter((product) => {
           const normalizedProductName = normalizeText(product.name)
           const productNameWords = normalizedProductName.split(' ')
-          const isMatchingName = queryWords.every((queryWord) => productNameWords.some((productWord) => productWord.includes(queryWord)))
-          const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass)
+          const isMatchingName = queryWords.every((queryWord) =>
+            productNameWords.some((productWord) =>
+              productWord.includes(queryWord)
+            )
+          )
+          const isNotExcludedClass =
+            normalizeText(product.class) !== normalizeText(excludeClass)
           return isMatchingName && isNotExcludedClass
         }) ?? []
     }
-    return products.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+    return products.sort((a, b) =>
+      a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+    )
   }, [currentClass, productsList, favorites, searchQuery])
 
   useEffect(() => {
@@ -983,7 +1342,9 @@ export function Products({ navigation }: HomeScreenProps) {
       <TouchableOpacity
         style={{
           padding: 8,
-          ...(currentClass.toLowerCase() === item.name.toLowerCase() ? { borderBottomWidth: 1.5, borderBottomColor: '#04BF7B' } : {}),
+          ...(currentClass.toLowerCase() === item.name.toLowerCase()
+            ? { borderBottomWidth: 1.5, borderBottomColor: '#04BF7B' }
+            : {}),
           justifyContent: 'center'
         }}
         onPress={async () => {
@@ -991,7 +1352,16 @@ export function Products({ navigation }: HomeScreenProps) {
           await loadCart()
         }}
       >
-        <Text color={currentClass.toLowerCase() !== item.name.toLowerCase() ? '#aaa' : '#04BF7B'} fontSize={14} width={90} textAlign="center">
+        <Text
+          color={
+            currentClass.toLowerCase() !== item.name.toLowerCase()
+              ? '#aaa'
+              : '#04BF7B'
+          }
+          fontSize={14}
+          width={90}
+          textAlign="center"
+        >
           {item.name}
         </Text>
       </TouchableOpacity>
@@ -1037,7 +1407,16 @@ export function Products({ navigation }: HomeScreenProps) {
         loadCart={loadCart}
       />
     ),
-    [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation, loadCart]
+    [
+      cart,
+      currentClass,
+      favorites,
+      saveCart,
+      toggleFavorite,
+      productObservations,
+      addObservation,
+      loadCart
+    ]
   )
 
   async function handleRestaurantChoice(value: string | null) {
@@ -1055,7 +1434,10 @@ export function Products({ navigation }: HomeScreenProps) {
         setShowRegistrationReleasedNewApp(true)
         return
       }
-      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }))
+      await AsyncStorage.setItem(
+        'selectedRestaurant',
+        JSON.stringify({ restaurant })
+      )
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error)
     }
@@ -1079,9 +1461,14 @@ export function Products({ navigation }: HomeScreenProps) {
         navigation={navigation}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
-          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp)
+          const availableRestaurant = restaurantes.find(
+            (r) => !r.registrationReleasedNewApp
+          )
           if (availableRestaurant) {
-            AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }))
+            AsyncStorage.setItem(
+              'selectedRestaurant',
+              JSON.stringify({ restaurant: availableRestaurant })
+            )
             setSelectedRestaurant(availableRestaurant.externalId)
             setShowRegistrationReleasedNewApp(false)
             loadProducts()
@@ -1090,8 +1477,16 @@ export function Products({ navigation }: HomeScreenProps) {
           }
         }}
       />
-      <DialogFinanceInstance openModal={showFinanceBlock} setRegisterInvalid={setShowFinanceBlock} rest={restaurantes} />
-      <Modal visible={isModalVisible} transparent={true} onRequestClose={() => setModalVisible(false)}>
+      <DialogFinanceInstance
+        openModal={showFinanceBlock}
+        setRegisterInvalid={setShowFinanceBlock}
+        rest={restaurantes}
+      />
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
         <TouchableOpacity
           style={{
             flex: 1,
@@ -1102,8 +1497,21 @@ export function Products({ navigation }: HomeScreenProps) {
           activeOpacity={1}
           onPress={() => setModalVisible(false)}
         >
-          <View width="100%" height="80%" backgroundColor="white" borderRadius={10} overflow="hidden" justifyContent="center" alignItems="center">
-            <ImageViewer imageUrls={[{ url: image }]} enableSwipeDown={true} onSwipeDown={() => setModalVisible(false)} style={{ width: '100%', height: '100%' }} />
+          <View
+            width="100%"
+            height="80%"
+            backgroundColor="white"
+            borderRadius={10}
+            overflow="hidden"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <ImageViewer
+              imageUrls={[{ url: image }]}
+              enableSwipeDown={true}
+              onSwipeDown={() => setModalVisible(false)}
+              style={{ width: '100%', height: '100%' }}
+            />
             <TouchableOpacity
               style={{
                 position: 'absolute',
@@ -1129,11 +1537,13 @@ export function Products({ navigation }: HomeScreenProps) {
         alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
         width={Platform.OS === 'web' ? '68%' : '95%'}
         marginTop={15}
-        alignItems='center'
-        justifyContent='space-between'
+        alignItems="center"
+        justifyContent="space-between"
         flexDirection="row"
       >
-        <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>Meus Restaurantes</Text>
+        <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>
+          Meus Restaurantes
+        </Text>
 
         <RefreshCartButton
           onPress={async () => {
@@ -1158,7 +1568,9 @@ export function Products({ navigation }: HomeScreenProps) {
         }))}
         setValue={setSelectedRestaurant}
         onChangeValue={handleRestaurantChoice}
-        placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
+        placeholder={
+          selectedRestaurant ? undefined : 'Selecione um restaurante'
+        }
         listMode="SCROLLVIEW"
         dropDownDirection="BOTTOM"
         dropDownContainerStyle={{
@@ -1179,7 +1591,20 @@ export function Products({ navigation }: HomeScreenProps) {
       />
 
       <View height={40} flex={1} paddingTop={8}>
-        <XStack backgroundColor="#F0F2F6" marginTop={30} paddingRight={14} borderWidth={0} borderRadius={20} alignItems="center" flexDirection="row" margin={10} style={{ width: Platform.OS === 'web' ? '68.4%' : '', alignSelf: 'center' }}>
+        <XStack
+          backgroundColor="#F0F2F6"
+          marginTop={30}
+          paddingRight={14}
+          borderWidth={0}
+          borderRadius={20}
+          alignItems="center"
+          flexDirection="row"
+          margin={10}
+          style={{
+            width: Platform.OS === 'web' ? '68.4%' : '',
+            alignSelf: 'center'
+          }}
+        >
           <Input
             placeholder="Buscar produtos..."
             backgroundColor="transparent"
@@ -1198,28 +1623,91 @@ export function Products({ navigation }: HomeScreenProps) {
           <Icons name="search" size={24} color="#04BF7B" />
         </XStack>
 
-        <FlatList style={{ marginTop: -5, maxHeight: Platform.OS === 'web' ? 50 : 40, minHeight: Platform.OS === 'web' ? 50 : undefined, width: Platform.OS === 'web' ? '68%' : undefined, alignSelf: Platform.OS === 'web' ? 'center' : undefined }} data={classItems} horizontal showsHorizontalScrollIndicator={false} keyExtractor={(item: any) => item.name} renderItem={renderClassItem} />
+        <FlatList
+          style={{
+            marginTop: -5,
+            maxHeight: Platform.OS === 'web' ? 50 : 40,
+            minHeight: Platform.OS === 'web' ? 50 : undefined,
+            width: Platform.OS === 'web' ? '68%' : undefined,
+            alignSelf: Platform.OS === 'web' ? 'center' : undefined
+          }}
+          data={classItems}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item: any) => item.name}
+          renderItem={renderClassItem}
+        />
 
-        <View backgroundColor="#F0F2F6" flex={1} paddingHorizontal={16} paddingTop={5} borderTopColor="#aaa" borderTopWidth={0.5}>
-          {currentClass === 'Favoritos' && favorites.length < 1 && !searchQuery ? (
+        <View
+          backgroundColor="#F0F2F6"
+          flex={1}
+          paddingHorizontal={16}
+          paddingTop={5}
+          borderTopColor="#aaa"
+          borderTopWidth={0.5}
+        >
+          {currentClass === 'Favoritos' &&
+          favorites.length < 1 &&
+          !searchQuery ? (
             <View flex={1} paddingTop={50} alignItems="center">
-              <Text pl={15} marginBottom={5} alignSelf="center" fontSize={14} color="#A9A9A9" textAlign="center">
-                Busque os produtos da sua culinária e clique no coração para favoritar.
+              <Text
+                pl={15}
+                marginBottom={5}
+                alignSelf="center"
+                fontSize={14}
+                color="#A9A9A9"
+                textAlign="center"
+              >
+                Busque os produtos da sua culinária e clique no coração para
+                favoritar.
                 <Text> </Text>
               </Text>
               <Icons name="heart-outline" size={25} color="gray" />
             </View>
           ) : !skeletonLoading ? (
             Platform.OS === 'android' ? (
-              <CustomVirtualizedList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} listRef={virtualizedListRef} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} />
+              <CustomVirtualizedList
+                data={displayedProducts}
+                renderItem={renderProduct}
+                keyExtractor={(item) => item.id}
+                listRef={virtualizedListRef}
+                onScroll={handleScroll}
+                onMomentumScrollBegin={handleScroll}
+                onMomentumScrollEnd={handleScrollEnd}
+              />
             ) : (
-              <CustomFlatList data={displayedProducts} renderItem={renderProduct} keyExtractor={(item) => item.id} onEndReached={loadProducts} onScroll={handleScroll} onMomentumScrollBegin={handleScroll} onMomentumScrollEnd={handleScrollEnd} listRef={flatListRef} />
+              <CustomFlatList
+                data={displayedProducts}
+                renderItem={renderProduct}
+                keyExtractor={(item) => item.id}
+                onEndReached={loadProducts}
+                onScroll={handleScroll}
+                onMomentumScrollBegin={handleScroll}
+                onMomentumScrollEnd={handleScrollEnd}
+                listRef={flatListRef}
+              />
             )
           ) : (
             <ScrollView>
-              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+              <View
+                flex={1}
+                minHeight={40}
+                borderWidth={1}
+                borderRadius={12}
+                borderColor="#F0F2F6"
+              >
                 {[...Array(7)].map((_, index) => (
-                  <View key={index} justifyContent="space-between" alignItems="center" marginTop={8} paddingHorizontal={8} flexDirection="row" minHeight={80} backgroundColor="white" borderRadius={12}>
+                  <View
+                    key={index}
+                    justifyContent="space-between"
+                    alignItems="center"
+                    marginTop={8}
+                    paddingHorizontal={8}
+                    flexDirection="row"
+                    minHeight={80}
+                    backgroundColor="white"
+                    borderRadius={12}
+                  >
                     <MotiView
                       style={{
                         flexDirection: 'row',
@@ -1239,8 +1727,26 @@ export function Products({ navigation }: HomeScreenProps) {
             </ScrollView>
           )}
         </View>
-        <View justifyContent="center" alignItems="center" flexDirection="row" gap={30} height={55} borderTopWidth={0.2} borderTopColor="lightgray">
-          <View onPress={() => navigation.replace('Products')} padding={10} marginVertical={10} borderRadius={8} flexDirection="column" justifyContent="center" alignItems="center" width={80} height={70}>
+        <View
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="row"
+          gap={30}
+          height={55}
+          borderTopWidth={0.2}
+          borderTopColor="lightgray"
+        >
+          <View
+            onPress={() => navigation.replace('Products')}
+            padding={10}
+            marginVertical={10}
+            borderRadius={8}
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width={80}
+            height={70}
+          >
             <Icons name="home" size={20} color="#04BF7B" />
             <Text fontSize={12} color="#04BF7B">
               Home

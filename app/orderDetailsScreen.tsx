@@ -6,27 +6,27 @@ import {
   Text,
   View,
   XStack,
-  YStack,
-} from "tamagui";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "../../src/types/navigationTypes";
-import { useEffect, useState } from "react";
-import { cancelOrder, getOrder } from "../../src/services/orderService";
-import { OrderData } from "../../src/types/IOrder";
-import { ActivityIndicator, Linking, Platform } from "react-native";
-import Icons from "@expo/vector-icons/Ionicons";
-import LabelAndBoxContent from "../../src/components/box/LabelAndBoxContent";
-import { openURL } from "expo-linking";
-import CustomAlert from "../../src/components/modais/CustomAlert";
-import { NativeStackNavigationProp } from "react-native-screens/lib/typescript/native-stack/types";
+  YStack
+} from 'tamagui'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RootStackParamList } from '../src/types/navigationTypes'
+import { useEffect, useState } from 'react'
+import { cancelOrder, getOrder } from '../src/services/orderService'
+import { OrderData } from '../src/types/IOrder'
+import { ActivityIndicator, Linking, Platform } from 'react-native'
+import Icons from '@expo/vector-icons/Ionicons'
+import LabelAndBoxContent from '../src/components/box/LabelAndBoxContent'
+import { openURL } from 'expo-linking'
+import CustomAlert from '../src/components/modais/CustomAlert'
+import { NativeStackNavigationProp } from 'react-native-screens/lib/typescript/native-stack/types'
 
-import { TouchableOpacity } from "react-native";
-import { clearStorage, deleteToken } from "../utils/utils";
-import PdfViewerModal from "@/src/components/modais/PdfViewerModal"
+import { TouchableOpacity } from 'react-native'
+import { clearStorage, deleteToken } from './utils/utils'
+import PdfViewerModal from '@/src/components/modais/PdfViewerModal'
 
 export function ModalDocumentsAndInvoices(props: {
-  openModal: boolean;
-  setRegisterInvalid: Function;
+  openModal: boolean
+  setRegisterInvalid: Function
 }) {
   return (
     <Dialog modal open={props.openModal}>
@@ -34,10 +34,10 @@ export function ModalDocumentsAndInvoices(props: {
       <Adapt when="sm" platform="touch">
         <Sheet
           animationConfig={{
-            type: "spring",
+            type: 'spring',
             damping: 20,
             mass: 0.5,
-            stiffness: 200,
+            stiffness: 200
           }}
           animation="medium"
           zIndex={200000}
@@ -70,14 +70,14 @@ export function ModalDocumentsAndInvoices(props: {
           bordered
           elevate
           key="content"
-          animateOnly={["transform", "opacity"]}
+          animateOnly={['transform', 'opacity']}
           animation={[
-            "quicker",
+            'quicker',
             {
               opacity: {
-                overshootClamping: true,
-              },
-            },
+                overshootClamping: true
+              }
+            }
           ]}
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
@@ -94,7 +94,7 @@ export function ModalDocumentsAndInvoices(props: {
               Documento ainda não disponível
             </Dialog.Title>
             <Dialog.Description textAlign="center">
-             O documento ainda não foi disponibilizado.
+              O documento ainda não foi disponibilizado.
             </Dialog.Description>
 
             <XStack justifyContent="center" alignSelf="center" gap="$4">
@@ -115,61 +115,61 @@ export function ModalDocumentsAndInvoices(props: {
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
-  );
+  )
 }
 
 export function OrderDetailsScreen() {
-  const route = useRoute<RouteProp<RootStackParamList, "OrderDetails">>();
-  const navigation = useNavigation();
+  const route = useRoute<RouteProp<RootStackParamList, 'OrderDetails'>>()
+  const navigation = useNavigation()
   /*type OrderDetailsScreenProps = {
       navigation: NativeStackNavigationProp<RootStackParamList, 'OrderDetails'>;
   }*/
 
-  const [order, setOrder] = useState<OrderData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [modalErrorVisibility, setModalErrorVisibility] = useState(false);
+  const [order, setOrder] = useState<OrderData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [modalErrorVisibility, setModalErrorVisibility] = useState(false)
   const [modalCancelOrderVisibility, setModalCancelOrderVisibility] =
-    useState(false);
+    useState(false)
   const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] =
-    useState(false);
-  const [showDocumentsModal, setShowDocumentsModal] = useState(false);
+    useState(false)
+  const [showDocumentsModal, setShowDocumentsModal] = useState(false)
   const [pdfUrl, setPdfUrl] = useState<string | null>(null)
   const [showPdfModal, setShowPdfModal] = useState<boolean>(false)
 
-  const orderId = route.params?.orderId;
+  const orderId = route.params?.orderId
 
   useEffect(() => {
     const loadOrders = async () => {
       if (!orderId) {
-        console.error("orderId não encontrado nos parâmetros da rota");
-        setLoading(false);
-        return;
+        console.error('orderId não encontrado nos parâmetros da rota')
+        setLoading(false)
+        return
       }
 
       try {
-        const orderData: OrderData = await getOrder(orderId);
-        setOrder(orderData);
+        const orderData: OrderData = await getOrder(orderId)
+        setOrder(orderData)
       } catch (error) {
-        console.error("Erro ao carregar pedidos:", error);
+        console.error('Erro ao carregar pedidos:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    loadOrders();
-  }, [orderId]);
+    loadOrders()
+  }, [orderId])
 
   const formatDate = (isoDate: string) => {
-    const date = new Date(isoDate);
-    return date.toLocaleDateString("pt-BR");
-  };
+    const date = new Date(isoDate)
+    return date.toLocaleDateString('pt-BR')
+  }
 
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
-    );
+    )
   }
 
   if (!order) {
@@ -177,14 +177,14 @@ export function OrderDetailsScreen() {
       <View flex={1} justifyContent="center" alignItems="center">
         <Text>Pedido não encontrado</Text>
       </View>
-    );
+    )
   }
 
   const supplier = order.calcOrderAgain?.data?.find(
     (item: any) => item.supplier.externalId === order.supplierId
-  )?.supplier;
+  )?.supplier
 
-  const supplierName = supplier ? supplier.name : "Fornecedor não encontrado";
+  const supplierName = supplier ? supplier.name : 'Fornecedor não encontrado'
 
   return (
     <View flex={1} backgroundColor="#F0F2F6">
@@ -197,16 +197,16 @@ export function OrderDetailsScreen() {
           key={pdfUrl}
           pdfUrl={pdfUrl}
           open={showPdfModal}
-          onClose={()=> setShowPdfModal(false)}
+          onClose={() => setShowPdfModal(false)}
         />
       )}
 
       <Text
         style={{
           marginTop: 35,
-          marginLeft: Platform.OS === "web" ? 30 : 15,
-          width: Platform.OS === "web" ? "70%" : "92%",
-          alignSelf: Platform.OS === "web" ? "center" : "flex-start",
+          marginLeft: Platform.OS === 'web' ? 30 : 15,
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          alignSelf: Platform.OS === 'web' ? 'center' : 'flex-start'
         }}
       >
         Detalhamento
@@ -215,7 +215,7 @@ export function OrderDetailsScreen() {
         message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
         title="Ops!"
         onConfirm={() => {
-          setModalErrorVisibility(false);
+          setModalErrorVisibility(false)
         }}
         visible={modalErrorVisibility}
       />
@@ -223,7 +223,7 @@ export function OrderDetailsScreen() {
         message="Seu pedido foi cancelado com sucesso!"
         title="Pedido cancelado"
         onConfirm={() => {
-          navigation.goBack();
+          navigation.goBack()
         }}
         visible={modalSuccessCanceledVisibility}
       />
@@ -232,13 +232,13 @@ export function OrderDetailsScreen() {
         title="Cancelar pedido?"
         onConfirm={async () => {
           try {
-            setLoading(true);
-            const orderCanceled = await cancelOrder(order.id);
-            if (orderCanceled === "too late") setModalErrorVisibility(true);
-            else setModalSuccessCanceledVisbility(true);
+            setLoading(true)
+            const orderCanceled = await cancelOrder(order.id)
+            if (orderCanceled === 'too late') setModalErrorVisibility(true)
+            else setModalSuccessCanceledVisbility(true)
           } finally {
-            setModalCancelOrderVisibility(false);
-            setLoading(false);
+            setModalCancelOrderVisibility(false)
+            setLoading(false)
           }
         }}
         visible={modalCancelOrderVisibility}
@@ -255,7 +255,7 @@ export function OrderDetailsScreen() {
         borderBottomColor="lightgray"
       >
         <Icons
-          onPress={() => navigation.replace("Orders")}
+          onPress={() => navigation.replace('Orders')}
           size={25}
           name="chevron-back"
         ></Icons>
@@ -271,8 +271,8 @@ export function OrderDetailsScreen() {
         flex={1}
         gap={6}
         style={{
-          width: Platform.OS === "web" ? "70%" : "92%",
-          alignSelf: "center",
+          width: Platform.OS === 'web' ? '70%' : '92%',
+          alignSelf: 'center'
         }}
       >
         <Text fontSize={10} color="gray">
@@ -280,10 +280,10 @@ export function OrderDetailsScreen() {
         </Text>
         <TouchableOpacity
           onPress={async () => {
-            const url = order.orderDocument;
+            const url = order.orderDocument
             if (!url) {
-              setShowDocumentsModal(true);
-              return;
+              setShowDocumentsModal(true)
+              return
             }
 
             try {
@@ -291,18 +291,18 @@ export function OrderDetailsScreen() {
                 `${process.env.EXPO_PUBLIC_API_URL}/verify-link?url=${encodeURIComponent(
                   url
                 )}`
-              );
-              const data = await res.json();
+              )
+              const data = await res.json()
               console.log(data)
               if (data && data.status === 200) {
-               setPdfUrl(url)
-               setShowPdfModal(true)
+                setPdfUrl(url)
+                setShowPdfModal(true)
               } else {
-                setShowDocumentsModal(true);
+                setShowDocumentsModal(true)
               }
             } catch (err) {
-              console.error("Erro na verificação:", err);
-              setShowDocumentsModal(true);
+              console.error('Erro na verificação:', err)
+              setShowDocumentsModal(true)
             }
           }}
         >
@@ -316,10 +316,10 @@ export function OrderDetailsScreen() {
         <Text fontSize={10} color="gray"></Text>
         <TouchableOpacity
           onPress={async () => {
-            const url = order.orderInvoices?.filePath[0];
+            const url = order.orderInvoices?.filePath[0]
             if (!url) {
-              setShowDocumentsModal(true);
-              return;
+              setShowDocumentsModal(true)
+              return
             }
 
             try {
@@ -327,17 +327,17 @@ export function OrderDetailsScreen() {
                 `${process.env.EXPO_PUBLIC_API_URL}/verify-link?url=${encodeURIComponent(
                   url
                 )}`
-              );
-              const data = await res.json();
+              )
+              const data = await res.json()
               if (data && data.status === 200) {
-               setPdfUrl(url)
-               setShowPdfModal(true)
+                setPdfUrl(url)
+                setShowPdfModal(true)
               } else {
-                setShowDocumentsModal(true);
+                setShowDocumentsModal(true)
               }
             } catch (err) {
-              console.error("Erro na verificação:", err);
-              setShowDocumentsModal(true);
+              console.error('Erro na verificação:', err)
+              setShowDocumentsModal(true)
             }
           }}
         >
@@ -358,5 +358,5 @@ export function OrderDetailsScreen() {
         </Button>*/}
       </View>
     </View>
-  );
+  )
 }

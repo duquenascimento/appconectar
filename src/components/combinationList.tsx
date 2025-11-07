@@ -9,7 +9,7 @@ import { useEffect, useMemo, useState } from 'react'
 import CustomListItem from './list/customListItem'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
-import { SupplierData } from '@/app/screens/QuotationDetailsScreen'
+import { SupplierData } from '@/app/quotationDetailsScreen'
 import {
   getAllQuotationByRestaurant,
   QuotationApiResponse
@@ -81,7 +81,11 @@ const CombinationList: React.FC = () => {
         const restaurantStoredValue = JSON.parse(
           (await getStorage('selectedRestaurant')) || '[]'
         )
-        const cartStoredValue = JSON.parse((await getStorage(`cart_${restaurantStoredValue?.restaurant.externalId}`)) || '[]')
+        const cartStoredValue = JSON.parse(
+          (await getStorage(
+            `cart_${restaurantStoredValue?.restaurant.externalId}`
+          )) || '[]'
+        )
         const selectedRestaurant = { ...restaurantStoredValue.restaurant }
         const combinationsData: QuotationApiResponse[] =
           await getAllQuotationByRestaurant({
