@@ -51,6 +51,10 @@ import PageContainer from '../src/components/box/PageContainer';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
+import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
+import { SearchProducts } from '@/src/components/input/SearchProducts';
+import { ProductsCategoriesList } from '@/src/components/list/ProductsCategoriesList';
+import { HeaderText } from '@/src/components/text/HeaderText';
 
 export type Product = {
   name: string;
@@ -657,7 +661,7 @@ export default function Products() {
   useFocusEffect(
     useCallback(() => {
       // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
-      // setLoading(false);
+      //setLoading(false);
 
       return () => {};
     }, []),
@@ -724,7 +728,6 @@ export default function Products() {
         if (savedRestaurant) {
           await SaveUserAppInfo();
         }
-        const cartMap = await loadCart();
         await loadProducts();
 
         const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
@@ -780,6 +783,8 @@ export default function Products() {
           await setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }));
         }
 
+        const cartMap = await loadCart();
+
         const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
         const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
         if (restFilteredComercial || allRestaurantBlocked) {
@@ -826,7 +831,7 @@ export default function Products() {
       }
     };
     realoadFavs();
-  }, [selectedRestaurant]);
+  }, []);
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
@@ -858,7 +863,7 @@ export default function Products() {
         console.error('Erro ao adicionar aos favoritos:', error);
       }
     },
-    [favorites, productsList, selectedRestaurant],
+    [favorites, productsList],
   );
 
   const addObservation = useCallback(
@@ -893,7 +898,7 @@ export default function Products() {
         console.error('Erro ao adicionar aos favoritos:', error);
       }
     },
-    [favorites, productsList, selectedRestaurant],
+    [favorites, productsList],
   );
 
   const removeFromFavorites = useCallback(
@@ -1084,7 +1089,6 @@ export default function Products() {
   async function handleRestaurantChoice(value: string | null) {
     try {
       if (!value) return;
-
       const storedRestaurant = await getSavedRestaurant();
       if (storedRestaurant?.externalId === value) {
         return;
@@ -1097,6 +1101,8 @@ export default function Products() {
         return;
       }
       await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }));
+
+      setSelectedRestaurant(value);
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error);
     }
@@ -1187,8 +1193,9 @@ export default function Products() {
         </TouchableOpacity>
       </Modal>
 
-      {/*Lista de restaurantes do usuário*/}
-      <View
+      <HeaderText>Meus Restaurantes</HeaderText>
+
+      {/* <View
         alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
         width={Platform.OS === 'web' ? '68%' : '95%'}
         marginTop={15}
@@ -1206,9 +1213,14 @@ export default function Products() {
             setLoading(false);
           }}
         />
-      </View>
+      </View> */}
 
-      <DropDownPicker
+      <DropDownPickerRestaurant
+        restaurants={restaurantes}
+        currentSelectedRestaurant={selectedRestaurant}
+        onChangeValueFunction={handleRestaurantChoice}
+      />
+      {/*   <DropDownPicker
         onPress={async () => {
           await loadCart();
         }}
@@ -1240,9 +1252,9 @@ export default function Products() {
           height: 40,
         }}
       />
-
+ */}
       <View height={40} flex={1} paddingTop={8}>
-        <XStack
+        {/*    <XStack
           backgroundColor="#F0F2F6"
           marginTop={30}
           paddingRight={14}
@@ -1272,9 +1284,10 @@ export default function Products() {
             }}
           />
           <Icons name="search" size={24} color="#04BF7B" />
-        </XStack>
+        </XStack> */}
+        <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-        <FlatList
+        {/*  <FlatList
           style={{
             marginTop: -5,
             maxHeight: Platform.OS === 'web' ? 50 : 40,
@@ -1287,6 +1300,12 @@ export default function Products() {
           showsHorizontalScrollIndicator={false}
           keyExtractor={(item: any) => item.name}
           renderItem={renderClassItem}
+        /> */}
+
+        <ProductsCategoriesList
+          dataItems={classItems}
+          renderItemsFunction={renderClassItem}
+          keyExtractorFunction={(item: any) => item.name}
         />
 
         <View
