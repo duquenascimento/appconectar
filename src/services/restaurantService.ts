@@ -30,7 +30,7 @@ export const loadPermissionConectarPlus = async (externalId: string) => {
 export const getMaxSpecificSuppliersNumber = async (externalId: string) => {
   try {
     const response = await axios.get(`${API_URL}/restaurant/get-max-specific-suppliers/${externalId}`);
-    return response.data.data
+    return response.data.data;
   } catch (error) {
     console.error('Erro ao buscar lista de fornecedores:', error)
     throw error
