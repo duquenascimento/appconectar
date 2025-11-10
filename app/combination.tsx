@@ -42,7 +42,9 @@ export function Combination(): JSX.Element {
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const [loading, setLoading] = useState<boolean>(true);
-  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<Array<{ label: string; value: number }>>([]);
+  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
+    Array<{ label: string; value: number }>
+  >([]);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -87,20 +89,22 @@ export function Combination(): JSX.Element {
   useEffect(() => {
     const fetchMaxSpecificSuppliers = async () => {
       try {
-        const selectedRestaurant = await getStorage('selectedRestaurant')
+        const selectedRestaurant = await getStorage('selectedRestaurant');
         const parsedSelectedRestaurant = selectedRestaurant ? JSON.parse(selectedRestaurant) : null;
-        if(parsedSelectedRestaurant) {
-          const resp = await getMaxSpecificSuppliersNumber(parsedSelectedRestaurant.restaurant.externalId)
-          const options = mapMaxSpecificSuppliers(resp)
-          setAvailableSuppliersOptions(options)
+        if (parsedSelectedRestaurant) {
+          const resp = await getMaxSpecificSuppliersNumber(
+            parsedSelectedRestaurant.restaurant.externalId,
+          );
+          const options = mapMaxSpecificSuppliers(resp);
+          setAvailableSuppliersOptions(options);
         }
       } catch {
-        setAvailableSuppliersOptions([])
+        setAvailableSuppliersOptions([]);
       }
-    }
-    fetchMaxSpecificSuppliers()
-  }, [])
-  
+    };
+    fetchMaxSpecificSuppliers();
+  }, []);
+
   const handleGoBack = () => {
     router.push('preferencesScreen');
   };
@@ -280,6 +284,8 @@ export function Combination(): JSX.Element {
     setAlertCallback(null);
   };
 
+  const isAvailableSuppliersOptionsEmpty = availableSuppliersOptions.length === 0;
+
   return (
     <PageContainer backgroundColor="white">
       <CustomHeader
@@ -315,6 +321,8 @@ export function Combination(): JSX.Element {
             onChange={(val) => updateCampoAndValidate('dividir_em_maximo', val)}
             zIndex={3000}
             error={validationErrors.dividir_em_maximo}
+            placeholder={isAvailableSuppliersOptionsEmpty ? 'Carregando...' : 'Selecione...'}
+            isLoading={isAvailableSuppliersOptionsEmpty}
           />
 
           <BloqueioFornecedoresCampo
