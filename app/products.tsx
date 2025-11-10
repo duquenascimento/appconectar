@@ -94,6 +94,7 @@ type Cart = {
   productId: string;
   amount: number;
   obs: string;
+  addOrder: number;
 };
 
 type SelectItem = {
@@ -1195,112 +1196,13 @@ export default function Products() {
 
       <HeaderText>Meus Restaurantes</HeaderText>
 
-      {/* <View
-        alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
-        width={Platform.OS === 'web' ? '68%' : '95%'}
-        marginTop={15}
-        alignItems="center"
-        justifyContent="space-between"
-        flexDirection="row"
-      >
-        <Text style={{ marginLeft: Platform.OS === 'web' ? 0 : 15 }}>Meus Restaurantes</Text>
-
-        <RefreshCartButton
-          onPress={async () => {
-            setLoading(true);
-            await loadCart();
-            await loadProducts();
-            setLoading(false);
-          }}
-        />
-      </View> */}
-
       <DropDownPickerRestaurant
         restaurants={restaurantes}
         currentSelectedRestaurant={selectedRestaurant}
         onChangeValueFunction={handleRestaurantChoice}
       />
-      {/*   <DropDownPicker
-        onPress={async () => {
-          await loadCart();
-        }}
-        open={restaurantOpen}
-        setOpen={setRestaurantOpen}
-        value={selectedRestaurant}
-        items={restaurantes.map((restaurant) => ({
-          label: restaurant.name,
-          value: restaurant.externalId,
-        }))}
-        setValue={setSelectedRestaurant}
-        onChangeValue={handleRestaurantChoice}
-        placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
-        listMode="SCROLLVIEW"
-        dropDownDirection="BOTTOM"
-        dropDownContainerStyle={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center',
-        }}
-        style={{
-          width: Platform.OS === 'web' ? '68%' : '92%',
-          alignSelf: 'center',
-          marginTop: 10,
-          marginHorizontal: 15,
-          marginRight: 20,
-          borderColor: '#ccc',
-          borderWidth: 1,
-          borderRadius: 5,
-          height: 40,
-        }}
-      />
- */}
       <View height={40} flex={1} paddingTop={8}>
-        {/*    <XStack
-          backgroundColor="#F0F2F6"
-          marginTop={30}
-          paddingRight={14}
-          borderWidth={0}
-          borderRadius={20}
-          alignItems="center"
-          flexDirection="row"
-          margin={10}
-          style={{
-            width: Platform.OS === 'web' ? '68.4%' : '',
-            alignSelf: 'center',
-          }}
-        >
-          <Input
-            placeholder="Buscar produtos..."
-            backgroundColor="transparent"
-            borderWidth={0}
-            borderColor="transparent"
-            focusVisibleStyle={{ outlineWidth: 0 }}
-            outlineStyle="none"
-            flex={1}
-            maxLength={50}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onPressIn={async () => {
-              await loadCart();
-            }}
-          />
-          <Icons name="search" size={24} color="#04BF7B" />
-        </XStack> */}
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
-        {/*  <FlatList
-          style={{
-            marginTop: -5,
-            maxHeight: Platform.OS === 'web' ? 50 : 40,
-            minHeight: Platform.OS === 'web' ? 50 : undefined,
-            width: Platform.OS === 'web' ? '68%' : undefined,
-            alignSelf: Platform.OS === 'web' ? 'center' : undefined,
-          }}
-          data={classItems}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(item: any) => item.name}
-          renderItem={renderClassItem}
-        /> */}
 
         <ProductsCategoriesList
           dataItems={classItems}

@@ -8,6 +8,7 @@ type Cart = {
   productId: string;
   amount: number;
   obs: string;
+  addOrder: number;
 };
 
 export function useCart() {
@@ -91,6 +92,17 @@ export function useCart() {
               });
             }
           } else {
+            if (!newCart.has(cart.productId)) {
+              const items = [...newCart].sort((a, b) => a[1].addOrder - b[1].addOrder);
+              if (items.length === 0) {
+                cart.addOrder = 1;
+              } else {
+                const lastItem = items[items.length - 1];
+                cart.addOrder = lastItem[1].addOrder + 1;
+              }
+            } else {
+              cart.addOrder = newCart.get(cart.productId)!.addOrder;
+            }
             newCart.set(cart.productId, cart);
             setCartToExclude((prevCartToExclude) => {
               const newCartToExclude = new Map(prevCartToExclude);
