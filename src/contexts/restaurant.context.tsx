@@ -5,7 +5,7 @@ import { Restaurant } from '../../app/products';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
-  loadRestaurants: () => Promise<void>;
+  loadRestaurants: () => Promise<any | null>;
   loading: boolean;
 }
 
