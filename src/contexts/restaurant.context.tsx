@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useCallback, useState, useMemo, ReactNode } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useCallback,
+  useState,
+  useMemo,
+  ReactNode,
+  useEffect,
+} from 'react';
 import { getToken, setStorage } from '../utils/utils';
 import { Restaurant } from '../types/restaurantTypes';
 import { getSavedRestaurant } from '../utils/savedRestaurant';
@@ -18,24 +26,27 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   const [, setLoading] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
 
-  const handleRestaurantChange = async (restaurant: Restaurant | null) => {
-    try {
-      if (!restaurant) return;
+  const handleRestaurantChange = useCallback(
+    async (restaurant: Restaurant | null) => {
+      try {
+        if (!restaurant) return;
 
-      const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant && storedRestaurant.externalId === restaurant.externalId) return;
+        const storedRestaurant = await getSavedRestaurant();
+        if (storedRestaurant && storedRestaurant.externalId === restaurant.externalId) return;
 
-      const selected = restaurants.find((r) => r.externalId === restaurant.externalId);
-      if (!selected) {
-        throw new Error('Restaurante não encontrado');
+        const selected = restaurants.find((r) => r.externalId === restaurant.externalId);
+        if (!selected) {
+          throw new Error('Restaurante não encontrado');
+        }
+
+        await setStorage('selectedRestaurant', JSON.stringify(selected));
+        setSelectedRestaurant(selected);
+      } catch (error) {
+        console.error('Falha ao selecionar restaurante:', error);
       }
-
-      await setStorage('selectedRestaurant', JSON.stringify(selected));
-      setSelectedRestaurant(selected);
-    } catch (error) {
-      console.error('Falha ao selecionar restaurante:', error);
-    }
-  };
+    },
+    [restaurants],
+  );
 
   const loadRestaurants = useCallback(async (): Promise<Restaurant[]> => {
     setLoading(true);
@@ -58,9 +69,16 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       }
 
       const data = await result.json();
-      setRestaurants(data?.data ?? []);
-      setSelectedRestaurant(data?.data?.length > 0 ? data.data[0] : null);
-      return data?.data ?? [];
+      const list = data?.data ?? [];
+
+      setRestaurants(list);
+
+      if (!selectedRestaurant && list.length > 0) {
+        const stored = await getSavedRestaurant();
+        setSelectedRestaurant(stored ?? list[0]);
+      }
+
+      return list;
     } catch (error) {
       console.error('Erro ao carregar restaurantes:', error);
       setRestaurants([]);
@@ -69,6 +87,22 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
+  }, [selectedRestaurant]);
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        const stored = await getSavedRestaurant();
+        if (stored) {
+          setSelectedRestaurant(stored);
+        } else {
+          await loadRestaurants();
+        }
+      } catch (error) {
+        console.error('Erro ao inicializar restaurante:', error);
+      }
+    };
+    initialize();
   }, []);
 
   const value = useMemo(
@@ -79,7 +113,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       setSelectedRestaurant,
       handleRestaurantChange,
     }),
-    [loadRestaurants, restaurants, selectedRestaurant, setSelectedRestaurant],
+    [loadRestaurants, restaurants, selectedRestaurant, handleRestaurantChange],
   );
 
   return <RestaurantContext.Provider value={value}>{children}</RestaurantContext.Provider>;

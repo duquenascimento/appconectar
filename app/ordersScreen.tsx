@@ -12,7 +12,6 @@ import { clearStorage, deleteToken } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import CustomAlert from '../src/components/modais/CustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
@@ -29,13 +28,13 @@ interface Order {
     }[];
   };
 }
-
+/* 
 interface Restaurant {
   externalId: any;
   id: string;
   name: string;
   registrationReleasedNewApp: boolean;
-}
+} */
 
 const formatDate = (isoDate: string) => {
   const date = new Date(isoDate);
@@ -49,17 +48,21 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState('');
+  // const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  // const [selectedRestaurant, setSelectedRestaurant] = useState('');
+  const { restaurants, selectedRestaurant, handleRestaurantChange } = useRestaurantContext();
+  const [dropdownValue, setDropdownValue] = useState<string | null>(
+    selectedRestaurant?.externalId ?? '',
+  );
   const [restaurantOpen, setRestaurantOpen] = useState(false);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
-  const { loadRestaurants } = useRestaurantContext();
+
   const router = useRouter();
 
-  useEffect(() => {
+  /*   useEffect(() => {
     const LoadRestaurants = async () => {
       try {
         const restaurantsData = await loadRestaurants();
@@ -76,7 +79,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     };
     LoadRestaurants();
   }, []);
-
+ */
   useEffect(() => {
     const loadOrders = async () => {
       if (!selectedRestaurant) {
@@ -84,7 +87,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       }
       setLoading(true);
       try {
-        const result = await getOrders(1, 100, selectedRestaurant);
+        const result = await getOrders(1, 100, selectedRestaurant.externalId);
 
         const ordersData = result.map((order: any) => {
           const filteredSupplier =
@@ -117,7 +120,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     rest: restaurants.filter((r) => r.registrationReleasedNewApp),
   };
 
-  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
+  /*  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
     try {
       const data = await AsyncStorage.getItem('selectedRestaurant');
       if (!data) return null;
@@ -157,7 +160,17 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     } catch (error) {
       console.error('Falha na escolha de restaurante:', error);
     }
-  }
+  } */
+
+  const handleRestaurantSelect = async (value: string | null) => {
+    const rest = restaurants.find((r) => r.externalId === value);
+    if (rest?.registrationReleasedNewApp) {
+      setShowBlockedModal(true);
+      return;
+    }
+
+    await handleRestaurantChange(rest);
+  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -300,9 +313,11 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         Meus Pedidos
       </Text>
       <DropDownPicker
-        value={selectedRestaurant}
-        setValue={(value) => setSelectedRestaurant(value)}
-        onChangeValue={handleRestaurantChoice}
+        value={dropdownValue}
+        setValue={setDropdownValue} // deixa o DropDownPicker controlar seu valor visual
+        onChangeValue={async (value) => {
+          handleRestaurantSelect(dropdownValue);
+        }}
         items={restaurants.map((restaurant) => ({
           label: restaurant.name,
           value: restaurant.externalId,
