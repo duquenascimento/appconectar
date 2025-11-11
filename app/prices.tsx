@@ -101,20 +101,20 @@ const getScreenSize = () => {
 
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
   return suppliers.sort((a, b) => {
-    // First, sort by star rating (descending)
-    if (a.supplier.star !== b.supplier.star) {
-      const starA = getStarValue(a.supplier.star);
-      const starB = getStarValue(b.supplier.star);
-      return starB - starA;
-    }
-    
-    // Second, sort by missing items (ascending)
+    // First, sort by missing items (ascending)
     const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
     const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
     if (missingA !== missingB) {
       return missingA - missingB;
     }
 
+    // Second, sort by star rating (descending)
+    if (a.supplier.star !== b.supplier.star) {
+      const starA = getStarValue(a.supplier.star);
+      const starB = getStarValue(b.supplier.star);
+      return starB - starA;
+    }
+    
     // Third, sort by order value (ascending)
     return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
   });
