@@ -481,9 +481,8 @@ export default function Confirm() {
 
       const result = await confirmOrder(body);
 
-      if (result.data.success) {
-        const response = await result.data.json();
-        await setStorage('finalConfirmData', JSON.stringify(response.data));
+      if (result.status === 201) {
+        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
         router.push('/finalConfirm');
       } else {
         setLoadingToConfirm(false);
