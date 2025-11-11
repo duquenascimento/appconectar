@@ -34,7 +34,7 @@ interface SupplierProduct {
   image: string[];
   quant: number;
   orderQuant: number;
-  quotationUnit?: string;
+  quotationUnit: string;
   obs: string;
   priceUnique: number;
   orderUnit: string;
@@ -74,6 +74,7 @@ export interface FinalProductItem {
   priceUniqueWithTaxAndDiscount: number;
   image: string[];
   orderUnit: string;
+  quotationUnit: string;
 }
 
 export interface OutputSupplier {

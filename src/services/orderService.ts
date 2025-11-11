@@ -1,4 +1,5 @@
-import { Supplier } from '@/app/quotationDetailsScreen'
+import { Supplier as PremiumSupplier } from '@/app/quotationDetailsScreen'
+import { Supplier } from '@/app/prices'
 import axios from 'axios'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
@@ -54,11 +55,33 @@ export const cancelOrder = async (orderId: string) => {
   }
 }
 
-export const createOrderPremium = async (body: {
-  token: string
-  suppliers: Supplier[]
-  restaurant: any
-}) => {
+export interface ConfirmOrderRequestBody {
+  token: string;
+  supplier: Supplier;
+  restaurant: any;
+}
+
+export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/confirm`,
+      body,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return response;
+  } catch (error) {
+    console.error('Erro ao obter cotações por restaurante:', error)
+    throw error
+  }
+}
+
+export interface ConfirmOrderPremiumRequestBody {
+  token: string;
+  suppliers: PremiumSupplier[];
+  restaurant: any;
+}
+
+export const confirmOrderPremium = async (body: ConfirmOrderPremiumRequestBody) => {
   try {
     const response = await axios.post(
       `${API_URL}/confirm/conectar-plus`,
