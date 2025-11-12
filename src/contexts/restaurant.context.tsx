@@ -93,10 +93,13 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     const initialize = async () => {
       try {
         const stored = await getSavedRestaurant();
+        const list = await loadRestaurants();
+
         if (stored) {
-          setSelectedRestaurant(stored);
+          const exists = list.find((r) => r.externalId === stored.externalId);
+          setSelectedRestaurant(exists ?? list[0] ?? null);
         } else {
-          await loadRestaurants();
+          setSelectedRestaurant(list[0] ?? null);
         }
       } catch (error) {
         console.error('Erro ao inicializar restaurante:', error);

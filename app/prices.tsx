@@ -236,7 +236,6 @@ function SupplierBox({
 
 export default function Prices() {
   const [loading, setLoading] = useState<boolean>(true);
-  // const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
   const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
   const [minhours, setMinhours] = useState<string[]>([]);
   const [maxhours, setMaxhours] = useState<string[]>([]);
@@ -274,7 +273,8 @@ export default function Prices() {
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
   const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
-  const { restaurants, selectedRestaurant, handleRestaurantChange } = useRestaurantContext();
+  const { restaurants, selectedRestaurant, handleRestaurantChange, loadRestaurants } =
+    useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
@@ -284,11 +284,6 @@ export default function Prices() {
     const loadCombinations = async () => {
       if (!mainDataLoaded || tab !== 'plus') return;
       try {
-        /* const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
-        const storedRestaurant = await getStorage('selectedRestaurant');
-        if (!storedRestaurant) return;
-
-        const parsed = JSON.parse(storedRestaurant); */
         const restaurantId = selectedRestaurant?.id;
 
         if (restaurantId) {
@@ -304,6 +299,12 @@ export default function Prices() {
 
     loadCombinations();
   }, [mainDataLoaded, tab, modificado]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadRestaurants();
+    }, [loadRestaurants]),
+  );
 
   useEffect(() => {
     async function getCart() {
@@ -431,9 +432,6 @@ export default function Prices() {
     useCallback(() => {
       const loadPricesAsync = async () => {
         try {
-          // const restaurants = await loadRestaurants();
-          // const restaurantSelected = await getSavedRestaurant();
-
           setAllRestaurants(restaurants);
 
           if (!selectedRestaurant) return;
@@ -448,10 +446,6 @@ export default function Prices() {
             setShowBlockedModal(true);
           }
 
-          /* const currentRestaurant = validRestaurant;
-        if (!currentRestaurant) return; */
-
-          // setSelectedRestaurant(currentRestaurant);
           if (selectedRestaurant.conectarPlusAuthorization) {
             const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
             setPermissionConectarPlus(permissionResult.authorized);
@@ -677,7 +671,6 @@ export default function Prices() {
                 if (!selectedRestaurant.premium || loading) return;
                 try {
                   setLoading(true);
-                  // await loadRestaurants();
                   await loadPrices();
                   setTab('plus');
                 } catch (err) {
@@ -705,7 +698,6 @@ export default function Prices() {
                 if (loading) return;
                 try {
                   setLoading(true);
-                  // await loadRestaurants();
                   await loadPrices();
                   setTab('onlySupplier');
                 } catch (err) {
@@ -2006,7 +1998,6 @@ export default function Prices() {
                           onPress={async () => {
                             try {
                               setLoading(true);
-                              await loadRestaurants();
                               await loadPrices();
                               setEditInfos(false);
                               setDraftSelectedRestaurant(null);
@@ -2016,7 +2007,7 @@ export default function Prices() {
                               setLoading(false);
                             }
                           }}
-                          backgroundColor="black"
+                          backgroundColor="#ff6d6d"
                           flex={1}
                         >
                           <Text paddingLeft={5} fontSize={12} color="white">
@@ -2036,7 +2027,6 @@ export default function Prices() {
                           onPress={async () => {
                             if (!validateFields()) return; // Valida os campos antes de prosseguir
 
-                            //setLoading(true);
                             const rest: SelectItem = JSON.parse(
                               JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant),
                             );
@@ -2059,9 +2049,7 @@ export default function Prices() {
                             setEditInfos(false);
 
                             await handleRestaurantChange(rest);
-                            /* setSelectedRestaurant(rest);
 
-                            setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest })); */
                             await Promise.all([
                               loadPrices(rest),
                               fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {

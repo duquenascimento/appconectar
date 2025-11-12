@@ -29,7 +29,7 @@ export function DropDownPickerRestaurant() {
     <DropDownPickerRestaurantStyled
       open={restaurantOpen}
       setOpen={setRestaurantOpen}
-      value={selectedRestaurant?.externalId ?? null}
+      value={selectedRestaurant?.externalId ?? ''}
       setValue={async (callback) => {
         const value =
           typeof callback === 'function' ? callback(selectedRestaurant?.externalId) : callback;
