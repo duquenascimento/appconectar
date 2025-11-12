@@ -1,6 +1,6 @@
 import { Stack, Text, View, Image, Button, Input, ScrollView, YStack } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,7 +12,7 @@ import {
 import { DateTime } from 'luxon';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import CustomAlert from '../src/components/modais/CustomAlert';
@@ -29,6 +29,7 @@ import { loadCart } from '../src/utils/cartUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getStarValue } from '../src/utils/getStarValue';
+import { Restaurant } from '@/src/types/restaurantTypes';
 
 export interface Product {
   price: number;
@@ -235,14 +236,14 @@ function SupplierBox({
 
 export default function Prices() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
+  // const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
   const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
   const [minhours, setMinhours] = useState<string[]>([]);
   const [maxhours, setMaxhours] = useState<string[]>([]);
   const [minHour, setMinHour] = useState<string>('');
   const [maxHour, setMaxHour] = useState<string>('');
   const [editInfos, setEditInfos] = useState<boolean>(false);
-  const [allRestaurants, setAllRestaurants] = useState<SelectItem[]>([]);
+  const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
   const [city, setCity] = useState<string>();
   const [zipCode, setZipCode] = useState<string>();
   const [localType, setLocalType] = useState<string>();
@@ -273,7 +274,7 @@ export default function Prices() {
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
   const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
-  const { loadRestaurants } = useRestaurantContext();
+  const { restaurants, selectedRestaurant, handleRestaurantChange } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
@@ -283,12 +284,12 @@ export default function Prices() {
     const loadCombinations = async () => {
       if (!mainDataLoaded || tab !== 'plus') return;
       try {
-        // const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
+        /* const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
         const storedRestaurant = await getStorage('selectedRestaurant');
         if (!storedRestaurant) return;
 
-        const parsed = JSON.parse(storedRestaurant);
-        const restaurantId = parsed?.id;
+        const parsed = JSON.parse(storedRestaurant); */
+        const restaurantId = selectedRestaurant?.id;
 
         if (restaurantId) {
           const fetchedCombinations = await getAllCombinationsByRestaurant(restaurantId);
@@ -393,7 +394,8 @@ export default function Prices() {
     }
   }, [minHour, maxHour]);
 
-  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
+  // TODO verificar chamada
+  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: Restaurant) => {
     try {
       setLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
@@ -406,7 +408,7 @@ export default function Prices() {
     }
   };
 
-  const getSavedRestaurant = async () => {
+  /* const getSavedRestaurant = async () => {
     try {
       const data = await AsyncStorage.getItem('selectedRestaurant');
       if (!data) return null;
@@ -423,55 +425,60 @@ export default function Prices() {
       console.error('Erro ao parsear dados:', error);
       return null;
     }
-  };
+  }; */
 
-  useEffect(() => {
-    const loadPricesAsync = async () => {
-      try {
-        const restaurants = await loadRestaurants();
-        const restaurantSelected = await getSavedRestaurant();
+  useFocusEffect(
+    useCallback(() => {
+      const loadPricesAsync = async () => {
+        try {
+          // const restaurants = await loadRestaurants();
+          // const restaurantSelected = await getSavedRestaurant();
 
-        setAllRestaurants(restaurants);
+          setAllRestaurants(restaurants);
 
-        // Verifica se o restaurante salvo ainda existe na lista
-        const validRestaurant = restaurants.find(
-          (r: any) => r.externalId === restaurantSelected?.externalId,
-        );
+          if (!selectedRestaurant) return;
+          // Verifica se o restaurante salvo ainda existe na lista
+          const validRestaurant = restaurants.find(
+            (r: any) => r.externalId === selectedRestaurant.externalId,
+          );
 
-        if (restaurantSelected?.registrationReleasedNewApp) {
-          setShowBlockedModal(true);
+          if (!validRestaurant) return;
+
+          if (selectedRestaurant.registrationReleasedNewApp) {
+            setShowBlockedModal(true);
+          }
+
+          /* const currentRestaurant = validRestaurant;
+        if (!currentRestaurant) return; */
+
+          // setSelectedRestaurant(currentRestaurant);
+          if (selectedRestaurant.conectarPlusAuthorization) {
+            const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
+            setPermissionConectarPlus(permissionResult.authorized);
+          }
+          setTab(selectedRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+          setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
+          setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
+
+          await loadPrices();
+          const hours = [];
+          for (let hour = 0; hour < 22; hour++) {
+            hours.push(`${String(hour).padStart(2, '0')}:00`);
+            hours.push(`${String(hour).padStart(2, '0')}:30`);
+          }
+          hours.push('22:00');
+          setMinhours(hours);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+          setMainDataLoaded(true);
         }
+      };
 
-        const currentRestaurant = validRestaurant;
-        if (!currentRestaurant) return;
-
-        setSelectedRestaurant(currentRestaurant);
-        if (currentRestaurant.conectarPlusAuthorization) {
-          const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
-          setPermissionConectarPlus(permissionResult.authorized);
-        }
-        setTab(currentRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
-        setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
-        setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
-
-        await loadPrices();
-        const hours = [];
-        for (let hour = 0; hour < 22; hour++) {
-          hours.push(`${String(hour).padStart(2, '0')}:00`);
-          hours.push(`${String(hour).padStart(2, '0')}:30`);
-        }
-        hours.push('22:00');
-        setMinhours(hours);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-        setMainDataLoaded(true);
-      }
-    };
-
-    loadPricesAsync();
-  }, [loadPrices]);
+      loadPricesAsync();
+    }, [selectedRestaurant]),
+  );
 
   useEffect(() => {
     let tempSuppliers: any[] = [];
@@ -624,7 +631,7 @@ export default function Prices() {
     );
   }
 
-  if (loading) {
+  if (loading || !selectedRestaurant) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -670,7 +677,7 @@ export default function Prices() {
                 if (!selectedRestaurant.premium || loading) return;
                 try {
                   setLoading(true);
-                  await loadRestaurants();
+                  // await loadRestaurants();
                   await loadPrices();
                   setTab('plus');
                 } catch (err) {
@@ -698,7 +705,7 @@ export default function Prices() {
                 if (loading) return;
                 try {
                   setLoading(true);
-                  await loadRestaurants();
+                  // await loadRestaurants();
                   await loadPrices();
                   setTab('onlySupplier');
                 } catch (err) {
@@ -2051,9 +2058,10 @@ export default function Prices() {
 
                             setEditInfos(false);
 
-                            setSelectedRestaurant(rest);
+                            await handleRestaurantChange(rest);
+                            /* setSelectedRestaurant(rest);
 
-                            setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }));
+                            setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest })); */
                             await Promise.all([
                               loadPrices(rest),
                               fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
@@ -2068,7 +2076,7 @@ export default function Prices() {
                             ]);
                             try {
                               setLoading(true);
-                              await loadRestaurants();
+                              // await loadRestaurants();
                               await loadPrices();
                             } catch (err) {
                               console.error(err);
@@ -2119,14 +2127,15 @@ export default function Prices() {
                   // 1. Fechar o modal
                   setShowBlockedModal(false);
 
-                  // 2. Salvar o novo restaurante selecionado
+                  handleRestaurantChange(availableRestaurant);
+                  /*  // 2. Salvar o novo restaurante selecionado
                   await AsyncStorage.setItem(
                     'selectedRestaurant',
                     JSON.stringify({ restaurant: availableRestaurant }),
                   );
 
                   // 3. Atualizar o estado local
-                  setSelectedRestaurant(availableRestaurant);
+                  setSelectedRestaurant(availableRestaurant); */
 
                   // 4. Recarregar os preços para o novo restaurante
                   await loadPrices(availableRestaurant);

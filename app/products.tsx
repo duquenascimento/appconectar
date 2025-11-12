@@ -38,7 +38,6 @@ import { CartButton } from '../src/components/cartButton';
 import { useProductContext } from '../src/contexts/produtos.context';
 import { RefreshCartButton } from '../src/components/refreshButton';
 import { useCart } from '../src/components/useCart';
-import { getSavedRestaurant } from '../src/components/savedRestaurant';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import {
   ProductCardBottomStyled,
@@ -55,6 +54,8 @@ import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerR
 import { SearchProducts } from '@/src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '@/src/components/list/ProductsCategoriesList';
 import { HeaderText } from '@/src/components/text/HeaderText';
+import { getSavedRestaurant } from '@/src/utils/savedRestaurant';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
 
 export type Product = {
   name: string;
@@ -633,18 +634,19 @@ export default function Products() {
   const [productsList, setProductsList] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [favorites, setFavorites] = useState<Product[]>([]);
+  // const [favorites, setFavorites] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState<string>('');
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
   const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
-  const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
+  // const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { loadRestaurants } = useRestaurantContext();
+  const { selectedRestaurant, restaurants } = useRestaurantContext();
+  const { favorites, setFavorites } = useFavoritesContext();
   const {
     cart,
     setCart,
@@ -658,15 +660,6 @@ export default function Products() {
     saveCartArray,
   } = useCart();
   const router = useRouter();
-
-  useFocusEffect(
-    useCallback(() => {
-      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
-      //setLoading(false);
-
-      return () => {};
-    }, []),
-  );
 
   useBackHandler(() => {
     if (router.canGoBack()) {
@@ -703,8 +696,8 @@ export default function Products() {
   }, [cart.size]);
 
   // seguindo o padrão das orders
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
-  const [restaurantOpen, setRestaurantOpen] = useState(false);
+  // const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+  // const [restaurantOpen, setRestaurantOpen] = useState(false);
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null);
   const flatListRef = useRef<FlatList<Product>>(null);
@@ -720,13 +713,25 @@ export default function Products() {
     }
   }, [productsContext]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedRestaurant) {
+        // força atualização de dados sempre que voltar pra tela
+        loadProducts();
+      }
+    }, [selectedRestaurant]),
+  );
+
   useEffect(() => {
     const loadInitialData = async () => {
+      setProductsList([]);
+      setDisplayedProducts([]);
       setLoading(true);
       try {
-        const savedRestaurant = await getSavedRestaurant();
-        const restaurants = await loadRestaurants();
-        if (savedRestaurant) {
+        if (restaurants.length === 0 || !restaurants) {
+          return;
+        }
+        if (selectedRestaurant?.externalId) {
           await SaveUserAppInfo();
         }
         await loadProducts();
@@ -765,22 +770,19 @@ export default function Products() {
 
         const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
 
-        setRestaurantes(validRestaurants);
-
         const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
         const allRestaurantBlocked = availableRestaurants.length === 0;
 
-        let initialRestaurant = null;
+        let initialRestaurant = selectedRestaurant;
         if (!allRestaurantBlocked) {
-          initialRestaurant = availableRestaurants[0];
+          initialRestaurant = restaurants[0];
 
-          if (savedRestaurant) {
-            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id);
+          if (selectedRestaurant) {
+            const found = availableRestaurants.find((r) => r.id === selectedRestaurant.id);
             if (found) {
               initialRestaurant = found;
             }
           }
-          setSelectedRestaurant(initialRestaurant.externalId);
           await setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }));
         }
 
@@ -796,10 +798,6 @@ export default function Products() {
           setShowFinanceBlock(true);
         }
 
-        const favs = await loadFavorites();
-        if (favs.length > 0) {
-          setFavorites(favs);
-        }
         if (cartMap.size > 0) {
           setCart(cartMap);
         }
@@ -818,21 +816,7 @@ export default function Products() {
       setProductObservations(storedObs);
     };
     loadInitialData();
-  }, [loadFavorites, loadProducts, selectedRestaurant]);
-
-  useEffect(() => {
-    const realoadFavs = async () => {
-      const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant?.externalId === selectedRestaurant) return;
-      if (selectedRestaurant) {
-        loadFavorites().then((favs) => {
-          if (favs.length > 0) setFavorites(favs);
-          if (favs.length === 0) setFavorites(favs);
-        });
-      }
-    };
-    realoadFavs();
-  }, []);
+  }, [selectedRestaurant, restaurants]);
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
@@ -1087,29 +1071,7 @@ export default function Products() {
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation],
   );
 
-  async function handleRestaurantChoice(value: string | null) {
-    try {
-      if (!value) return;
-      const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant?.externalId === value) {
-        return;
-      }
-
-      const restaurant = restaurantes.find((r) => r.externalId === value);
-      if (!restaurant) return;
-      if (restaurant.registrationReleasedNewApp === true) {
-        setShowRegistrationReleasedNewApp(true);
-        return;
-      }
-      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }));
-
-      setSelectedRestaurant(value);
-    } catch (error) {
-      console.error('Falha na escolha de restaurante:', error);
-    }
-  }
-
-  if (loading) {
+  if (loading || !selectedRestaurant) {
     return (
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
@@ -1125,10 +1087,10 @@ export default function Products() {
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
-        rest={restaurantes}
+        rest={restaurants}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
-          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp);
+          const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
             AsyncStorage.setItem(
               'selectedRestaurant',
@@ -1146,7 +1108,7 @@ export default function Products() {
       <DialogFinanceInstance
         openModal={showFinanceBlock}
         setRegisterInvalid={setShowFinanceBlock}
-        rest={restaurantes}
+        rest={restaurants}
       />
       <Modal visible={isModalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
@@ -1196,11 +1158,7 @@ export default function Products() {
 
       <HeaderText>Meus Restaurantes</HeaderText>
 
-      <DropDownPickerRestaurant
-        restaurants={restaurantes}
-        currentSelectedRestaurant={selectedRestaurant}
-        onChangeValueFunction={handleRestaurantChoice}
-      />
+      <DropDownPickerRestaurant />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 

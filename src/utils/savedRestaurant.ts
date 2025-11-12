@@ -7,7 +7,7 @@ interface Restaurant {
   registrationReleasedNewApp: boolean;
 }
 
-export const getSavedRestaurant = async (): Promise<Restaurant | null> => {
+export const getSavedRestaurant = async (): Promise<Restaurant | null | undefined> => {
   try {
     const data = await getStorage('selectedRestaurant');
     if (!data) return null;

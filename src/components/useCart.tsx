@@ -3,6 +3,7 @@ import { Alert } from 'react-native';
 import { getToken, getStorage, setStorage, deleteStorage } from '../utils/utils';
 import { saveProductObservations } from '../utils/productObservation';
 import { getSavedRestaurant } from './savedRestaurant';
+import { useRestaurantContext } from '../contexts/restaurant.context';
 
 type Cart = {
   productId: string;
@@ -16,7 +17,7 @@ export function useCart() {
   const [cartToExclude, setCartToExclude] = useState<Map<string, Cart>>(new Map());
   const [productObservations, setProductObservations] = useState(new Map<string, string>());
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size);
-
+  const { selectedRestaurant } = useRestaurantContext();
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDisplayedCartSize(cart.size);
@@ -28,13 +29,14 @@ export function useCart() {
   const loadCart = useCallback(async (): Promise<Map<string, Cart>> => {
     try {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
-      if (!token || !restaurant) return new Map();
+      // const restaurant = await getSavedRestaurant();
+
+      if (!token || !selectedRestaurant) return new Map();
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, selectedRestaurant: { id: restaurant.id } }),
+        body: JSON.stringify({ token, selectedRestaurant: { id: selectedRestaurant.id } }),
       });
 
       if (!result.ok) return new Map();
@@ -42,7 +44,7 @@ export function useCart() {
       const cart = await result.json();
       const cartMap = new Map<string, Cart>(cart.data.map((item: Cart) => [item.productId, item]));
 
-      const localCartString = await getStorage(`cart_${restaurant?.externalId}`);
+      const localCartString = await getStorage(`cart_${selectedRestaurant?.externalId}`);
       const localCart = localCartString
         ? new Map<string, Cart>(JSON.parse(localCartString))
         : new Map();
@@ -57,7 +59,7 @@ export function useCart() {
 
       await deleteStorage('cart-inside');
       await setStorage(
-        `cart_${restaurant?.externalId}`,
+        `cart_${selectedRestaurant?.externalId}`,
         JSON.stringify(Array.from(cartMap.entries())),
       );
       setCart(cartMap);
@@ -67,7 +69,7 @@ export function useCart() {
       console.error('Erro ao carregar carrinho:', error);
       return new Map();
     }
-  }, []);
+  }, [selectedRestaurant]);
 
   const saveCart = useCallback(async (cart: Cart, isCart: boolean) => {
     try {

@@ -1,6 +1,62 @@
+interface Address {
+  id: string;
+  restaurant: string[];
+  active: boolean;
+  address: string;
+  neighborhood: string;
+  initialDeliveryTime: string;
+  finalDeliveryTime: string;
+  deliveryInformation: string;
+  closedDoorDelivery: boolean;
+  responsibleReceivingName: string;
+  responsibleReceivingPhoneNumber: string;
+  zipCode: string;
+  deliveryReference: string;
+  createdAt: string;
+  updatedAt: string;
+  city: string;
+  complement: string;
+  localNumber: string;
+  localType: string;
+}
+
 export interface Restaurant {
-  externalId: string;
   id: string;
   name: string;
+  active: boolean;
+  user: string[];
+  address: string[];
+  favorite: any[];
+  companyRegistrationNumber: string;
+  createdAt: string;
+  stateRegistrationNumber: string;
+  updatedAt: string;
+  companyRegistrationNumberForBilling: string;
+  alternativeEmail: string;
+  alternativePhone: string;
+  cityRegistrationNumber: string;
+  closeDoor: boolean;
+  email: string;
+  legalName: string;
+  orderValue: string;
+  weeklyOrderAmount: number;
+  tax: string;
+  paymentWay: string;
+  verduraKg: string | null;
+  externalId: string;
+  premium: boolean;
+  comercialBlock: boolean;
+  financeBlock: boolean;
+  allowClosedSupplier: boolean;
+  allowMinimumOrder: boolean;
+  categories: any[];
   registrationReleasedNewApp: boolean;
+  blockedBySuppliers: string[];
+  emailBilling: string;
+  financeResponsibleName: string;
+  financeResponsiblePhoneNumber: string;
+  asaasCustomerId: string | null;
+  conectarPlusAuthorization: boolean;
+  max_specific_suppliers: number;
+  addressInfos: Address[];
 }
