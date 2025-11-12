@@ -1,22 +1,27 @@
 import PageContainer from '@/src/components/box/PageContainer';
+import CustomButton from '@/src/components/button/customButton';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomHeader from '@/src/components/header/customHeader';
 import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
-import { confirmOrderPremium, ConfirmOrderPremiumRequestBody } from '@/src/services/orderService';
+import { useDeliveryDate } from '@/src/hooks/useDeliveryDate';
+import {
+  confirmConectarPlusOrder,
+  ConfirmConectarPlusOrderRequestBody,
+} from '@/src/services/orderService';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
+import { formatCurrency } from '@/src/utils/formatCurrency';
+import { processOrderResponse } from '@/src/utils/processOrderResponse';
 import { isBefore13Hours } from '@/src/utils/timeUtils';
+import { deleteMultiStorage, getStorage, getToken } from '@/src/utils/utils';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { DateTime } from 'luxon';
 import React, { useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
-import CustomButton from '../src/components/button/customButton';
-import { formatCurrency } from '../src/utils/formatCurrency';
-import { processOrderResponse } from '../src/utils/processOrderResponse';
-import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -110,6 +115,8 @@ export default function QuotationDetailsScreen() {
   const [showErros, setShowErros] = useState<string[]>([]);
   const [booleanErros, setBooleanErros] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const [showSundayWarning, setShowSundayWarning] = useState(false);
+  const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
 
   const parsedMissingProducts = useMemo(() => {
     if (!missingProducts) return [];
@@ -192,8 +199,12 @@ export default function QuotationDetailsScreen() {
         Alert.alert('Erro', 'Restaurante não encontrado.');
         return;
       }
-
       const parsedRestaurant = JSON.parse(storedRestaurant);
+
+      if (DateTime.fromISO(deliveryDate).weekday === 7 && !showSundayWarning) {
+        setShowSundayWarning(true);
+        return;
+      }
 
       if (isBefore13h) {
         const errors = await scheduleNotification(
@@ -207,13 +218,14 @@ export default function QuotationDetailsScreen() {
         return;
       }
 
-      const body: ConfirmOrderPremiumRequestBody = {
+      const body: ConfirmConectarPlusOrderRequestBody = {
         token,
         suppliers: suppliers.map((s) => s.supplier),
         restaurant: parsedRestaurant,
+        deliveryDate: deliveryDate,
       };
 
-      const createdOrders = await confirmOrderPremium(body);
+      const createdOrders = await confirmConectarPlusOrder(body);
       if (createdOrders && createdOrders.status === 201) {
         deleteMultiStorage(['cartOrder', 'cart']);
         const { deliveryDateFormated } = createdOrders.data.data[0];
@@ -226,6 +238,8 @@ export default function QuotationDetailsScreen() {
         );
 
         const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
+
+        resetDeliveryDate();
 
         router.push({
           pathname: '/orderConfirmedScreen',
@@ -436,6 +450,13 @@ export default function QuotationDetailsScreen() {
         </View>
       </YStack>
       <LoadingConfirm loading={isLoading} />
+      <CustomAlert
+        visible={showSundayWarning}
+        title="Pedido para domingo"
+        message="O pedido está sendo agendado para domingo. Você tem certeza que deseja continuar?"
+        onConfirm={handleConfirm}
+        width="75%"
+      />
     </PageContainer>
   );
 }

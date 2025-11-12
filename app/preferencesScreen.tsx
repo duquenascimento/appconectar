@@ -1,28 +1,28 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, YStack } from 'tamagui';
 import { router } from 'expo-router';
-import CustomSubtitle from '../src/components/subtitle/customSubtitle';
-import CustomHeader from '../src/components/header/customHeader';
-import CustomListItem from '../src/components/list/customListItem';
+import { ScrollView, YStack } from 'tamagui';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
+import CustomHeader from '../src/components/header/customHeader';
+import CustomListItem from '../src/components/list/customListItem';
+import CustomSubtitle from '../src/components/subtitle/customSubtitle';
 
-import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { mapCombination } from '../src/utils/mapCombination';
 import CustomAlert from '@/src/components/modais/CustomAlert';
-import { getStorage } from '../src/utils/utils';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { Combinacao } from '@/src/types/combinationTypes';
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
+import { mapCombination } from '../src/utils/mapCombination';
+import { getStorage } from '../src/utils/utils';
 
-import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { Restaurant } from '@/src/types/restaurant';
 
 export interface Combination {
   id: string;
@@ -32,11 +32,6 @@ export interface Combination {
   createdAt?: string;
   missingItems?: number;
   totalValue?: number;
-}
-
-export interface Restaurant {
-  id: string;
-  name: string;
 }
 
 export type RootStackParamList = {

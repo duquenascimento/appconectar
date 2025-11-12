@@ -1,5 +1,10 @@
 import { DateTime } from 'luxon';
 
+export function getTomorrowDate(): DateTime {
+  const tomorrow = DateTime.now().setZone('America/Sao_Paulo').plus({ days: 1 });
+  return tomorrow;
+}
+
 export function isBefore13Hours(): boolean {
   const now = DateTime.now().setZone('America/Sao_Paulo'); // Data e hora atual
   const targetTime = now.set({ hour: 13, minute: 0, second: 0, millisecond: 0 }); // Define 13h00 no mesmo dia

@@ -1,18 +1,5 @@
-import {
-  View,
-  Select,
-  YStack,
-  XStack,
-  Text,
-  Adapt,
-  Sheet,
-  Input,
-  Button,
-  Stack,
-  ScrollView,
-} from 'tamagui';
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import Icons from '@expo/vector-icons/Ionicons';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -21,13 +8,45 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
+import {
+  Adapt,
+  Button,
+  Input,
+  ScrollView,
+  Select,
+  Sheet,
+  Stack,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from 'tamagui';
 
-import ImageViewer from 'react-native-image-zoom-viewer';
-import { MotiView } from 'moti';
-import { Skeleton } from 'moti/skeleton';
-import DropDownPicker from 'react-native-dropdown-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
+import PageContainer from '@/src/components/box/PageContainer';
+import {
+  ProductCardBottomStyled,
+  ProductCardObsUnitContainerStyled,
+  ProductCardStyled,
+} from '@/src/components/card/productCard';
+import { CartButton } from '@/src/components/cartButton';
+import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
+import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance';
+import { useBackHandler } from '@/src/components/hooks/useBackHandler';
+import { CustomImageBadge } from '@/src/components/image/customImageBadge';
+import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
+import { SearchProducts } from '@/src/components/input/SearchProducts';
+import { ProductsCategoriesList } from '@/src/components/list/ProductsCategoriesList';
+import { HeaderText } from '@/src/components/text/HeaderText';
+import { UpdateAppModal } from '@/src/components/UpdateAppModal';
+import { useProductContext } from '@/src/contexts/produtos.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { Restaurant } from '@/src/types/restaurant';
+import { filterCarts } from '@/src/utils/filterCarts';
+import CustomFlatList from '@/src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '@/src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import { loadFavorites } from '@/src/utils/loadFavorite';
+import { loadProductObservations, saveProductObservations } from '@/src/utils/productObservation';
+import { getSavedRestaurant } from '@/src/utils/savedRestaurant';
 import {
   clearStorage,
   deleteStorage,
@@ -35,32 +54,13 @@ import {
   getStorage,
   getToken,
   setStorage,
-} from '../src/utils/utils';
-import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
-import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
-import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import { DialogComercialInstance } from '../src/components/dialogComercialInstance';
-import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
-import { CartButton } from '../src/components/cartButton';
-import { useProductContext } from '../src/contexts/produtos.context';
-import { filterCarts } from '../src/utils/filterCarts';
-import { UpdateAppModal } from '../src/components/UpdateAppModal';
-import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { useBackHandler } from '../src/components/hooks/useBackHandler';
-import PageContainer from '../src/components/box/PageContainer';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import {
-  ProductCardBottomStyled,
-  ProductCardObsUnitContainerStyled,
-  ProductCardStyled,
-} from '../src/components/card/productCard';
-import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '../src/components/text/HeaderText';
-import { SearchProducts } from '../src/components/input/SearchProducts';
-import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
-import { CustomImageBadge } from '../src/components/image/customImageBadge';
-import { loadFavorites } from '../src/utils/loadFavorite';
-import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+} from '@/src/utils/utils';
+import { SaveUserAppInfo, VersionInfo, checkVersion } from '@/src/utils/VersionApp';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { MotiView } from 'moti';
+import { Skeleton } from 'moti/skeleton';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 export type Product = {
   name: string;
@@ -617,13 +617,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 };
 
 let classItems: { name: string }[] = [];
-
-export interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
-  registrationReleasedNewApp: boolean;
-}
 
 export default function Products() {
   const [currentClass, setCurrentClass] = useState('Favoritos');

@@ -1,9 +1,22 @@
+import { type SupplierData } from '@/app/prices';
+import PageContainer from '@/src/components/box/PageContainer';
+import CustomAlert from '@/src/components/modais/CustomAlert';
+import MissingItemsDialog from '@/src/components/modais/MissingItemsDialog';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { useDeliveryDate } from '@/src/hooks/useDeliveryDate';
+import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
+import { scheduleNotification } from '@/src/utils/agendamentoUtils';
+import { useInactivityRedirect } from '@/src/utils/inativityTimer';
+import { isBefore13Hours } from '@/src/utils/timeUtils';
+import { deleteStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
+import { validateAddress } from '@/src/utils/validateAddress';
 import Icons from '@expo/vector-icons/Ionicons';
 import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator, Alert, Platform } from 'react-native';
 import {
   Adapt,
   Button,
@@ -16,19 +29,6 @@ import {
   View,
   XStack,
 } from 'tamagui';
-import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
-import { scheduleNotification } from '@/src/utils/agendamentoUtils';
-import { useInactivityRedirect } from '@/src/utils/inativityTimer';
-import { isBefore13Hours } from '@/src/utils/timeUtils';
-import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
-import { validateAddress } from '../src/utils/validateAddress';
-import { type SupplierData } from './prices';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -219,11 +219,13 @@ export default function Confirm() {
   const [booleanErros, setBooleanErros] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false);
+  const [showSundayWarning, setShowSundayWarning] = useState(false);
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
+  const { deliveryDate, getFormattedDate, resetDeliveryDate } = useDeliveryDate();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -445,20 +447,32 @@ export default function Confirm() {
 
   // Nova lógica de confirmação (A que estava antes dentro do else)
   const handleConfirmOrder = useCallback(async () => {
-    setShowMissingItemsModal(false);
     setLoadingToConfirm(true);
 
     try {
       const token = await getToken();
       if (!token) {
-        setLoadingToConfirm(false);
+        Alert.alert('Erro', 'Token de autenticação não encontrado.');
         return;
       }
+
+      if (displayMissingItems > 0 && !showMissingItemsModal) {
+        setShowMissingItemsModal(true);
+        return;
+      }
+      setShowMissingItemsModal(false);
+
+      if (DateTime.fromISO(deliveryDate).weekday === 7 && !showSundayWarning) {
+        setShowSundayWarning(true);
+        return;
+      }
+      setShowSundayWarning(false);
 
       const body: ConfirmOrderRequestBody = {
         token,
         supplier: supplier.supplier,
         restaurant: selectedRestaurant,
+        deliveryDate: deliveryDate,
       };
 
       const erros = [];
@@ -475,7 +489,6 @@ export default function Confirm() {
       if (erros.length > 0) {
         setShowErros(erros);
         setBooleanErros(true);
-        setLoadingToConfirm(false);
         return;
       }
 
@@ -483,17 +496,18 @@ export default function Confirm() {
 
       if (result.status === 201) {
         await setStorage('finalConfirmData', JSON.stringify(result.data.data));
+        resetDeliveryDate();
         router.push('/finalConfirm');
       } else {
-        setLoadingToConfirm(false);
         setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
         setBooleanErros(true);
       }
     } catch (error) {
       console.error('Erro em handleConfirmOrder:', error);
-      setLoadingToConfirm(false);
       setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
       setBooleanErros(true);
+    } finally {
+      setLoadingToConfirm(false);
     }
   }, [supplier, selectedRestaurant, router]);
 
@@ -544,6 +558,13 @@ export default function Confirm() {
           message={alertMessage}
           onConfirm={() => setIsAlertVisible(false)}
           width="80%"
+        />
+        <CustomAlert
+          visible={showSundayWarning}
+          title="Pedido para domingo"
+          message="O pedido está sendo agendado para domingo. Você tem certeza que deseja continuar?"
+          onConfirm={() => handleConfirmOrder()}
+          width="75%"
         />
         <View
           backgroundColor="white"
@@ -807,6 +828,24 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Data:</Text>
+              <View
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                <Text>{getFormattedDate()}</Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingTop: 10,
+                alignItems: 'center',
+              }}
+            >
               <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
               <View
                 style={{
@@ -931,11 +970,7 @@ export default function Confirm() {
                     return;
                   }
 
-                  if (displayMissingItems > 0) {
-                    setShowMissingItemsModal(true);
-                  } else {
-                    await handleConfirmOrder();
-                  }
+                  await handleConfirmOrder();
                 }
               } catch (error) {
                 console.error('Erro no botão de confirmação:', error);

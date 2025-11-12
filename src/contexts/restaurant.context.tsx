@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useCallback, useState } from 'react';
-import { getToken } from '../utils/utils';
-import { Restaurant } from '../../app/products';
-
+import { Restaurant } from '@/src/types/restaurant';
+import { getToken } from '@/src/utils/utils';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
