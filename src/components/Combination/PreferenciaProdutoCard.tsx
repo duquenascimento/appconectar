@@ -108,7 +108,7 @@ export function PreferenciaProdutoCard({
 
   const validateFornecedores = async () => {
     try {
-      const validFornecedores = preferencia.produtos[index]?.fornecedores ?? [];
+      const validFornecedores = preferencia.fornecedores ?? [];
       await preferenciaProdutoSchema.validateAt('fornecedores', {
         fornecedores: validFornecedores,
       });
