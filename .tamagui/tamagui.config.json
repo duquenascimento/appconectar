@@ -8,15 +8,6 @@
             "acceptsClassName": true,
             "defaultProps": {},
             "validStyles": {
-<<<<<<< HEAD
-=======
-              "enterStyle": true,
-              "exitStyle": true,
-              "hoverStyle": true,
-              "pressStyle": true,
-              "focusStyle": true,
-              "disabledStyle": true,
->>>>>>> main
               "backfaceVisibility": true,
               "borderBottomEndRadius": true,
               "borderBottomStartRadius": true,
