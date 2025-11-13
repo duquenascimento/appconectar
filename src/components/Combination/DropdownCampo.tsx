@@ -1,26 +1,37 @@
-import { useState } from 'react'
-import { Platform } from 'react-native'
-import DropDownPicker from 'react-native-dropdown-picker'
-import { YStack, Label, Text } from 'tamagui'
+import { useState } from 'react';
+import { Platform } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { Label, Text, YStack } from 'tamagui';
 
 type DropdownCampoProps<T extends string | number> = {
-  campo: string
-  label: string
-  items: { label: string; value: T }[]
-  zIndex?: number
-  placeholder?: string
-  schemaPath?: string
-  value: T
-  onChange: (val: T) => void
-  error?: string 
-}
+  campo: string;
+  label: string;
+  items: { label: string; value: T }[];
+  zIndex?: number;
+  placeholder?: string;
+  schemaPath?: string;
+  value: T;
+  onChange: (val: T) => void;
+  error?: string;
+  isLoading?: boolean;
+};
 
-export function DropdownCampo<T extends string | number>({ campo, label, items, zIndex = 3000, placeholder, value, onChange, error }: DropdownCampoProps<T>) {
-  const [open, setOpen] = useState(false)
+export function DropdownCampo<T extends string | number>({
+  campo,
+  label,
+  items,
+  zIndex = 3000,
+  placeholder,
+  value,
+  onChange,
+  error,
+  isLoading = false,
+}: DropdownCampoProps<T>) {
+  const [open, setOpen] = useState(false);
 
   const handleChange = (val: T | T[]) => {
-    onChange(val as T)
-  }
+    onChange(val as T);
+  };
 
   return (
     <YStack style={{ zIndex }}>
@@ -30,9 +41,9 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         setOpen={setOpen}
         value={value}
         setValue={(val) => {
-          const resolved = typeof val === 'function' ? val(value) : val
-          handleChange(resolved)
-          setTimeout(() => setOpen(false), 200)
+          const resolved = typeof val === 'function' ? val(value) : val;
+          handleChange(resolved);
+          setTimeout(() => setOpen(false), 200);
         }}
         items={items}
         placeholder={placeholder ?? 'Selecione...'}
@@ -41,10 +52,12 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         dropDownDirection="BOTTOM"
         listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
         style={{ borderColor: error ? 'red' : 'lightgray' }}
+        textStyle={{ color: isLoading ? 'gray' : 'black' }}
         modalProps={{
           animationType: 'slide',
-          transparent: false
+          transparent: false,
         }}
+        disabled={isLoading}
       />
       {error && (
         <Text padding={'$1'} color="red">
@@ -52,5 +65,5 @@ export function DropdownCampo<T extends string | number>({ campo, label, items, 
         </Text>
       )}
     </YStack>
-  )
+  );
 }
