@@ -1,6 +1,6 @@
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, ListItem, Separator, Text, XStack, YStack } from 'tamagui';
+import { Button, Input, ListItem, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
@@ -12,6 +12,7 @@ import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFo
 import { DropdownCampo } from './DropdownCampo';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { normalizeText } from '@/src/utils/stringUtils';
+import { TouchableWithoutFeedback } from 'react-native';
 
 type Props = {
   index: number;
@@ -282,6 +283,21 @@ export function PreferenciaProdutoCard({
 
   return (
     <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
+      {busca.length > 0 && sugestoes.length > 0 && (
+          <TouchableWithoutFeedback onPress={() => setBusca('')}>
+            <View
+              position="absolute"
+              top={0}
+              left={0}
+              right={0}
+              bottom={0}
+              // Use a transparent background so it doesn't block content visually, 
+              // but still captures touches/clicks.
+              backgroundColor="transparent" 
+              zIndex={1000} // Ensure the overlay is above other content but below the list/modal itself
+            />
+          </TouchableWithoutFeedback>
+        )}
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontWeight="bold">Prioridade {index + 1}</Text>
         <XStack gap="$2">
@@ -340,34 +356,36 @@ export function PreferenciaProdutoCard({
         >
           <Icons name="add" size={20} />
         </Button>
+        
         {busca.length > 0 && sugestoes.length > 0 && (
-        <YStack 
-          gap="$1"
-          position="absolute"
-          top={50} // ajuste se seu input for maior/menor
-          width="100%"
-          maxHeight={200}
-          borderRadius={4}
-          overflow="scroll"
-          backgroundColor="#fff"
-          zIndex={2000}
-          borderWidth={1}
-          borderColor="#ccc"
-          style={{overflowX: "hidden"}}
-        >
-          {sugestoes.map((item) => (
-            <ListItem
-              key={item.id}
-              onPress={() => adicionarProduto(item)}
-              paddingVertical="$2"
-              paddingHorizontal="$3"
-              borderBottomWidth={1}
-              backgroundColor="white"
-            >
-              {'nome' in item ? item.nome : item.name}
-            </ListItem>
-          ))}
-        </YStack>
+        <ScrollView height={200} top={45} position="absolute" zIndex={2000} width="100%" backgroundColor="white" nestedScrollEnabled={true} > 
+          <YStack 
+            gap="$1"
+            // position="absolute"
+            // top={50} // ajuste se seu input for maior/menor
+            // zIndex={2000}
+            // width="100%"
+            // maxHeight={200}
+            borderRadius={4}
+            // overflow='scroll'
+            backgroundColor="#fff"
+            borderWidth={1}
+            borderColor="#ccc"
+          >
+            {sugestoes.map((item) => (
+              <ListItem
+                key={item.id}
+                onPress={() => adicionarProduto(item)}
+                paddingVertical="$2"
+                paddingHorizontal="$3"
+                borderBottomWidth={1}
+                backgroundColor="white"
+              >
+                {'nome' in item ? item.nome : item.name}
+              </ListItem>
+            ))}
+          </YStack>
+        </ScrollView>
       )}
       </XStack>
 
