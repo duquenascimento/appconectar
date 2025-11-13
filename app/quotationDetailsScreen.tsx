@@ -211,7 +211,7 @@ export default function QuotationDetailsScreen() {
           ...overrideWarnings,
         };
 
-        if (DateTime.fromISO(deliveryDate).weekday === 5 && !effectiveWarnings.sundayWarning) {
+        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
           setShowSundayWarning(true);
           return;
         }
