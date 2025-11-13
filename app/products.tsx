@@ -53,6 +53,7 @@ import { getSavedRestaurant } from '../src/utils/savedRestaurant';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { normalizeText } from '@/src/utils/stringUtils';
 
 export type Product = {
   name: string;
@@ -949,13 +950,6 @@ export default function Products() {
           (product) => product.class.toLowerCase() === currentClass.toLowerCase(),
         ) || [];
     }
-
-    // Normalizar a pesquisa (remover acentos e caracteres especiais)
-    const normalizeText = (text: string) =>
-      text
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase();
 
     if (searchQuery) {
       const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
