@@ -1,34 +1,34 @@
-import { Stack, Text, View, Image, Button, Input, ScrollView, YStack } from 'tamagui';
+import PageContainer from '@/src/components/box/PageContainer';
+import CustomButton from '@/src/components/button/customButton';
+import CombinationList, { Combination } from '@/src/components/combinationList';
+import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService';
+import { TCart } from '@/src/types/cartTypes';
+import { loadCart } from '@/src/utils/cartUtils';
+import { getStarValue } from '@/src/utils/getStarValue';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useEffect, useMemo, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
+import { DateTime } from 'luxon';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   KeyboardAvoidingView,
   Modal,
   Platform,
   VirtualizedList,
-  Dimensions,
 } from 'react-native';
-import { DateTime } from 'luxon';
 import DropDownPicker from 'react-native-dropdown-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
-import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
+import { Button, Image, Input, ScrollView, Stack, Text, View } from 'tamagui';
 import CustomAlert from '../src/components/modais/CustomAlert';
+import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import { campoString } from '../src/utils/formatCampos';
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
-import CombinationList, { Combination } from '@/src/components/combinationList';
-import CustomButton from '@/src/components/button/customButton';
-import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { TCart } from '@/src/types/cartTypes';
-import { loadCart } from '@/src/utils/cartUtils';
-import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { getStarValue } from '@/src/utils/getStarValue';
+import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -101,20 +101,21 @@ const getScreenSize = () => {
 
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
   return suppliers.sort((a, b) => {
-    // First, sort by star rating (descending)
-    if (a.supplier.star !== b.supplier.star) {
-      const starA = getStarValue(a.supplier.star);
-      const starB = getStarValue(b.supplier.star);
-      return starB - starA;
-    }
-    
-    // Second, sort by missing items (ascending)
+
+    // First, sort by missing items (ascending)
     const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
     const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
     if (missingA !== missingB) {
       return missingA - missingB;
     }
 
+    // Second, sort by star rating (descending)
+    if (a.supplier.star !== b.supplier.star) {
+      const starA = getStarValue(a.supplier.star);
+      const starB = getStarValue(b.supplier.star);
+      return starB - starA;
+    }
+    
     // Third, sort by order value (ascending)
     return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
   });
@@ -276,8 +277,8 @@ export default function Prices() {
   const { loadRestaurants } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
-  const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([])
-  const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([])
+  const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
+  const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([]);
 
   useEffect(() => {
     const loadCombinations = async () => {
@@ -473,8 +474,8 @@ export default function Prices() {
   }, [loadPrices]);
 
   useEffect(() => {
-    let tempSuppliers: any[] = []
-    let tempUnavailableSuppliers: any[] = []
+    let tempSuppliers: any[] = [];
+    let tempUnavailableSuppliers: any[] = [];
 
     const filteredSuppliers = suppliers.filter(
       (item) => item.supplier.hour.substring(0, 5) !== '06:00',
@@ -482,16 +483,17 @@ export default function Prices() {
 
     const filteredUnavailableSuppliers = unavailableSupplier;
 
-    tempSuppliers.push(...filteredSuppliers.map((item) => ({ ...item, available: true })))
-    tempUnavailableSuppliers.push(...filteredUnavailableSuppliers.map((item) => ({ ...item, available: false })))
+    tempSuppliers.push(...filteredSuppliers.map((item) => ({ ...item, available: true })));
+    tempUnavailableSuppliers.push(
+      ...filteredUnavailableSuppliers.map((item) => ({ ...item, available: false })),
+    );
 
     const finalSortedSuppliers = sortSuppliers(tempSuppliers);
     const finalSortedUnavailableSuppliers = sortSuppliers(tempUnavailableSuppliers);
 
-    setSortedSuppliers(finalSortedSuppliers)
-    setSortedUnavailableSuppliers(finalSortedUnavailableSuppliers)    
-    
-  }, [suppliers, unavailableSupplier])
+    setSortedSuppliers(finalSortedSuppliers);
+    setSortedUnavailableSuppliers(finalSortedUnavailableSuppliers);
+  }, [suppliers, unavailableSupplier]);
 
   useEffect(() => {
     if (selectedRestaurant) {
@@ -723,31 +725,31 @@ export default function Prices() {
           <View backgroundColor="white" flex={1} paddingHorizontal={5}>
             <View padding={10} paddingTop={0} height="100%">
               {tab === 'onlySupplier' && cart && cart.size > 0 && (
-                <ScrollView flex={1} overflow='scroll' padding={3}>
-                    <Text
-                      style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
-                      paddingBottom={5}
-                      marginTop={10}
-                      fontSize={16}
-                      color={'gray'}
-                    >
-                      Fornecedores disponíveis
-                    </Text>
+                <ScrollView flex={1} overflow="scroll" padding={3}>
+                  <Text
+                    style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+                    paddingBottom={5}
+                    marginTop={10}
+                    fontSize={16}
+                    color={'gray'}
+                  >
+                    Fornecedores disponíveis
+                  </Text>
 
-                    <VirtualizedList
-                      style={{ marginBottom: 5}}
-                      data={sortedSuppliers}
-                      getItemCount={getItemCount}
-                      getItem={getItem}
-                      keyExtractor={(item, index) => 
-                        item.supplier ? item.supplier.name : `separator-${index}`
-                      }
-                      renderItem={renderItem}
-                      ItemSeparatorComponent={() => <View height={2} />}
-                      initialNumToRender={sortedSuppliers.length}
-                      /* windowSize={4} */
-                      scrollEnabled={false}
-                    />
+                  <VirtualizedList
+                    style={{ marginBottom: 5 }}
+                    data={sortedSuppliers}
+                    getItemCount={getItemCount}
+                    getItem={getItem}
+                    keyExtractor={(item, index) =>
+                      item.supplier ? item.supplier.name : `separator-${index}`
+                    }
+                    renderItem={renderItem}
+                    ItemSeparatorComponent={() => <View height={2} />}
+                    initialNumToRender={sortedSuppliers.length}
+                    /* windowSize={4} */
+                    scrollEnabled={false}
+                  />
 
                   {unavailableSupplier.length > 0 && (
                     <>
@@ -766,7 +768,7 @@ export default function Prices() {
                         data={sortedUnavailableSuppliers}
                         getItemCount={getItemCount}
                         getItem={getItem}
-                        keyExtractor={(item, index) => 
+                        keyExtractor={(item, index) =>
                           item.supplier ? item.supplier.name : `separator-${index}`
                         }
                         renderItem={renderItem}
@@ -1515,7 +1517,7 @@ export default function Prices() {
                                   }}
                                   zIndex={5000}
                                   zIndexInverse={5000}
-                                  setValue={() => { }}
+                                  setValue={() => {}}
                                   items={allRestaurants.map((item) => ({
                                     label: item?.name,
                                     value: item?.name,

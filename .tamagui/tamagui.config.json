@@ -178,6 +178,7 @@
               "zIndex": true,
               "zoom": true,
               "scaleZ": true,
+<<<<<<< HEAD
               "shadowOpacity": true,
               "boxShadow": true,
               "filter": true,
@@ -187,6 +188,9 @@
               "outlineStyle": true,
               "outlineSpread": true,
               "outlineColor": true
+=======
+              "shadowOpacity": true
+>>>>>>> main
             }
           }
         },
@@ -214,6 +218,15 @@
               }
             },
             "validStyles": {
+<<<<<<< HEAD
+=======
+              "enterStyle": true,
+              "exitStyle": true,
+              "hoverStyle": true,
+              "pressStyle": true,
+              "focusStyle": true,
+              "disabledStyle": true,
+>>>>>>> main
               "backfaceVisibility": true,
               "borderBottomEndRadius": true,
               "borderBottomStartRadius": true,
@@ -385,8 +398,11 @@
               "zoom": true,
               "scaleZ": true,
               "shadowOpacity": true,
+<<<<<<< HEAD
               "boxShadow": true,
               "filter": true,
+=======
+>>>>>>> main
               "fontFamily": true,
               "fontSize": true,
               "fontStyle": true,
@@ -410,6 +426,15 @@
             "acceptsClassName": true,
             "defaultProps": {},
             "validStyles": {
+<<<<<<< HEAD
+=======
+              "enterStyle": true,
+              "exitStyle": true,
+              "hoverStyle": true,
+              "pressStyle": true,
+              "focusStyle": true,
+              "disabledStyle": true,
+>>>>>>> main
               "backfaceVisibility": true,
               "borderBottomEndRadius": true,
               "borderBottomStartRadius": true,
@@ -580,6 +605,7 @@
               "zIndex": true,
               "zoom": true,
               "scaleZ": true,
+<<<<<<< HEAD
               "shadowOpacity": true,
               "boxShadow": true,
               "filter": true,
@@ -589,6 +615,9 @@
               "outlineStyle": true,
               "outlineSpread": true,
               "outlineColor": true
+=======
+              "shadowOpacity": true
+>>>>>>> main
             }
           }
         },
@@ -598,6 +627,15 @@
             "memo": true,
             "componentName": "Spacer",
             "validStyles": {
+<<<<<<< HEAD
+=======
+              "enterStyle": true,
+              "exitStyle": true,
+              "hoverStyle": true,
+              "pressStyle": true,
+              "focusStyle": true,
+              "disabledStyle": true,
+>>>>>>> main
               "backfaceVisibility": true,
               "borderBottomEndRadius": true,
               "borderBottomStartRadius": true,
@@ -768,6 +806,7 @@
               "zIndex": true,
               "zoom": true,
               "scaleZ": true,
+<<<<<<< HEAD
               "shadowOpacity": true,
               "boxShadow": true,
               "filter": true,
@@ -777,6 +816,9 @@
               "outlineStyle": true,
               "outlineSpread": true,
               "outlineColor": true
+=======
+              "shadowOpacity": true
+>>>>>>> main
             },
             "defaultProps": {
               "tag": "span",
