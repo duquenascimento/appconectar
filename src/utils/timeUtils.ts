@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 export function isBefore13Hours(): boolean {
   const now = DateTime.now().setZone('America/Sao_Paulo'); // Data e hora atual
   const targetTime = now.set({ hour: 13, minute: 0, second: 0, millisecond: 0 }); // Define 13h00 no mesmo dia
-  return now.valueOf() > targetTime.valueOf(); // Compara os timestamps em milissegundos
+  return now.valueOf() < targetTime.valueOf(); // Compara os timestamps em milissegundos
 }
 
 export function getSecondsUntil13h() {
