@@ -1,6 +1,6 @@
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
+import { Button, Input, ListItem, Separator, Text, XStack, YStack } from 'tamagui';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
@@ -11,6 +11,7 @@ import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { DropdownCampo } from './DropdownCampo';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { normalizeText } from '@/src/utils/stringUtils';
 
 type Props = {
   index: number;
@@ -250,14 +251,14 @@ export function PreferenciaProdutoCard({
       return;
     }
 
-    const termo = busca.toLowerCase();
+    const termo = normalizeText(busca);
 
     const matchesProduto = availableProducts.filter((produto) =>
-      produto.name.toLowerCase().includes(termo),
+      normalizeText(produto.name).includes(termo),
     );
-    const matchesClasse = availableClasses.filter((c) => c.nome.toLowerCase().includes(termo));
+    const matchesClasse = availableClasses.filter((c) => normalizeText(c.nome).includes(termo));
 
-    const sugestoesLocal = [...matchesProduto, ...matchesClasse].slice(0, 5);
+    const sugestoesLocal = [...matchesProduto, ...matchesClasse];
 
     setSugestoes(sugestoesLocal);
   }, [busca, availableProducts, availableClasses]);
@@ -305,7 +306,7 @@ export function PreferenciaProdutoCard({
         value={preferencia.tipo}
         onChange={(val) => atualizarCampoLocal('tipo', val)}
         schemaPath={`preferencias[${index}].tipo`}
-        zIndex={3000}
+        zIndex={1000}
       />
 
       <Text fontWeight="bold" marginTop="$3">
@@ -317,6 +318,8 @@ export function PreferenciaProdutoCard({
           flex={1}
           placeholder="Buscar produto ou classe"
           value={busca}
+          backgroundColor="white"
+          borderColor="#ccc"
           onChangeText={setBusca}
         />
         <Button
@@ -335,26 +338,38 @@ export function PreferenciaProdutoCard({
             setBusca('');
           }}
         >
-          <Icons name="search" size={20} />
+          <Icons name="add" size={20} />
         </Button>
-      </XStack>
-
-      {busca.length > 0 && sugestoes.length > 0 && (
-        <YStack marginTop="$2" gap="$1">
+        {busca.length > 0 && sugestoes.length > 0 && (
+        <YStack 
+          gap="$1"
+          position="absolute"
+          top={50} // ajuste se seu input for maior/menor
+          width="100%"
+          maxHeight={200}
+          borderRadius={4}
+          overflow="scroll"
+          backgroundColor="#fff"
+          zIndex={2000}
+          borderWidth={1}
+          borderColor="#ccc"
+          style={{overflowX: "hidden"}}
+        >
           {sugestoes.map((item) => (
-            <Text
+            <ListItem
               key={item.id}
               onPress={() => adicionarProduto(item)}
-              paddingVertical="$3"
-              paddingHorizontal="$4"
+              paddingVertical="$2"
+              paddingHorizontal="$3"
               borderBottomWidth={1}
-              borderColor="$gray4"
+              backgroundColor="white"
             >
               {'nome' in item ? item.nome : item.name}
-            </Text>
+            </ListItem>
           ))}
         </YStack>
       )}
+      </XStack>
 
       {preferencia.produtos.length > 0 && (
         <XStack flexWrap="wrap" gap="$2" marginTop="$2">
@@ -404,7 +419,7 @@ export function PreferenciaProdutoCard({
         value={fornecedoresComuns}
         onChange={atualizarFornecedoresPreferencia}
         schemaPath={`preferencias[${index}].fornecedores`}
-        zIndex={30000}
+        zIndex={1000}
       />
 
       {fornecedoresTouched && fornecedoresValidationError && (
@@ -423,7 +438,7 @@ export function PreferenciaProdutoCard({
         ]}
         value={acaoNaFalhaComum}
         onChange={atualizarAcaoNaFalhaPreferencia}
-        zIndex={2500}
+        zIndex={500}
       />
     </YStack>
   );
