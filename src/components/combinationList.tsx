@@ -1,19 +1,16 @@
-import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
-import { View } from 'tamagui';
-import { useRouter } from 'expo-router';
-import CustomSubtitle from './subtitle/customSubtitle';
-import CustomListItem from './list/customListItem';
 import { SupplierData } from '@/app/quotationDetailsScreen';
-import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
-import { getStorage, getToken } from '@/src/utils/utils';
-import CustomAlert from './modais/CustomAlert';
-import { useSupplier } from '../contexts/fornecedores.context';
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
+import { getStorage, getToken } from '@/src/utils/utils';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
+import { View } from 'tamagui';
+import { useSupplier } from '../contexts/fornecedores.context';
+import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
 import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
-import { useCombinacao } from '../contexts/combinacao.context';
+import CustomListItem from './list/customListItem';
+import CustomAlert from './modais/CustomAlert';
+import CustomSubtitle from './subtitle/customSubtitle';
 
 export interface Combination {
   id: string;
@@ -45,7 +42,6 @@ export type RootStackParamList = {
 };
 
 const CombinationList: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
   const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);

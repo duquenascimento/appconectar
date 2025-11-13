@@ -21,13 +21,11 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { MotiView } from 'moti';
 import { Skeleton } from 'moti/skeleton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect, useRouter } from 'expo-router';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
 import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
@@ -36,7 +34,6 @@ import DialogComercialInstance from '../src/components/dialogComercialInstance';
 import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
 import { CartButton } from '../src/components/cartButton';
 import { useProductContext } from '../src/contexts/produtos.context';
-import { RefreshCartButton } from '../src/components/refreshButton';
 import { useCart } from '../src/components/useCart';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import {
@@ -47,14 +44,14 @@ import {
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
+import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
+import { HeaderText } from '../src/components/text/HeaderText';
+import { SearchProducts } from '../src/components/input/SearchProducts';
+import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
+import { getSavedRestaurant } from '../src/utils/savedRestaurant';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { CustomImageBadge } from '@/src/components/image/customImageBadge';
-import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
-import { SearchProducts } from '@/src/components/input/SearchProducts';
-import { ProductsCategoriesList } from '@/src/components/list/ProductsCategoriesList';
-import { HeaderText } from '@/src/components/text/HeaderText';
-import { getSavedRestaurant } from '@/src/utils/savedRestaurant';
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
 
 export type Product = {
@@ -77,18 +74,6 @@ export type Product = {
   secondUnit: number;
   thirdUnit: number;
   obs: string;
-};
-
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
-};
-
-type RootStackParamList = {
-  Home: undefined;
-  Products: undefined;
-  Cart: undefined;
-  Sign: undefined;
-  Orders: undefined;
 };
 
 type Cart = {
@@ -1265,7 +1250,7 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={50}
+            width={60}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />

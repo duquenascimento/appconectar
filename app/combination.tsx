@@ -20,6 +20,8 @@ import { useSupplier } from '../src/contexts/fornecedores.context';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { Combinacao } from '../src/types/combinationTypes';
+import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
+import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 
 export interface SuplierCombination {
   id: string;
@@ -40,6 +42,9 @@ export function Combination(): JSX.Element {
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const [loading, setLoading] = useState<boolean>(true);
+  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
+    Array<{ label: string; value: number }>
+  >([]);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -79,6 +84,25 @@ export function Combination(): JSX.Element {
       }
     };
     fetchStoredRestaurant();
+  }, []);
+
+  useEffect(() => {
+    const fetchMaxSpecificSuppliers = async () => {
+      try {
+        const selectedRestaurant = await getStorage('selectedRestaurant');
+        const parsedSelectedRestaurant = selectedRestaurant ? JSON.parse(selectedRestaurant) : null;
+        if (parsedSelectedRestaurant) {
+          const resp = await getMaxSpecificSuppliersNumber(
+            parsedSelectedRestaurant.restaurant.externalId,
+          );
+          const options = mapMaxSpecificSuppliers(resp);
+          setAvailableSuppliersOptions(options);
+        }
+      } catch {
+        setAvailableSuppliersOptions([]);
+      }
+    };
+    fetchMaxSpecificSuppliers();
   }, []);
 
   const handleGoBack = () => {
@@ -201,12 +225,30 @@ export function Combination(): JSX.Element {
         abortEarly: false,
       });
 
+      const combinacaoParaEnviar = {
+        ...combinacaoParaValidar,
+        preferencias: combinacaoParaValidar.preferencias?.map((pref) => {
+          if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
+            const permitidos = new Set(combinacao.fornecedores_especificos || []);
+            return {
+              ...pref,
+              fornecedores: pref.fornecedores.filter((f) => permitidos.has(f)),
+              produtos: pref.produtos.map((p) => ({
+                ...p,
+                fornecedores: p.fornecedores.filter((f) => permitidos.has(f)),
+              })),
+            };
+          }
+          return pref;
+        }),
+      };
+
       setTimeout(() => setTriggerValidation(false), 100);
 
       if (id) {
-        await updateCombination(combinacaoParaValidar);
+        await updateCombination(combinacaoParaEnviar);
       } else {
-        await createCombination(combinacaoParaValidar);
+        await createCombination(combinacaoParaEnviar);
       }
     } catch (error) {
       // Reset trigger validation even on error
@@ -260,6 +302,8 @@ export function Combination(): JSX.Element {
     setAlertCallback(null);
   };
 
+  const isAvailableSuppliersOptionsEmpty = availableSuppliersOptions.length === 0;
+
   return (
     <PageContainer backgroundColor="white">
       <CustomHeader
@@ -290,15 +334,13 @@ export function Combination(): JSX.Element {
           <DropdownCampo
             campo="dividir_em_maximo"
             label="Dividir em no máximo:"
-            items={[
-              { label: '2 fornecedores', value: 2 },
-              { label: '3 fornecedores', value: 3 },
-              { label: '4 fornecedores', value: 4 },
-            ]}
+            items={availableSuppliersOptions}
             value={combinacao.dividir_em_maximo}
             onChange={(val) => updateCampoAndValidate('dividir_em_maximo', val)}
             zIndex={3000}
             error={validationErrors.dividir_em_maximo}
+            placeholder={isAvailableSuppliersOptionsEmpty ? 'Carregando...' : 'Selecione...'}
+            isLoading={isAvailableSuppliersOptionsEmpty}
           />
 
           <BloqueioFornecedoresCampo

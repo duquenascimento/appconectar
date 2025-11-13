@@ -1,33 +1,34 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  View,
-  Image,
-  Text,
-  Stack,
-  ScrollView,
-  Button,
-  Dialog,
-  XStack,
-  Sheet,
-  Adapt,
-} from 'tamagui';
-import { ActivityIndicator, Platform } from 'react-native';
 import Icons from '@expo/vector-icons/Ionicons';
-import { DateTime } from 'luxon';
 import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
+import { DateTime } from 'luxon';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
+import {
+  Adapt,
+  Button,
+  Dialog,
+  Image,
+  ScrollView,
+  Sheet,
+  Stack,
+  Text,
+  View,
+  XStack,
+} from 'tamagui';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 
-import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
+import PageContainer from '@/src/components/box/PageContainer';
 import CustomAlert from '@/src/components/modais/CustomAlert';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
+import { scheduleNotification } from '@/src/utils/agendamentoUtils';
+import { useInactivityRedirect } from '@/src/utils/inativityTimer';
+import { isBefore13Hours } from '@/src/utils/timeUtils';
+import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useInactivityRedirect } from '@/src/utils/inativityTimer';
-import { getSecondsUntil13h, isBefore13Hours } from '@/src/utils/timeUtils';
-import { scheduleNotification } from '@/src/utils/agendamentoUtils';
-import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -454,7 +455,7 @@ export default function Confirm() {
         return;
       }
 
-      const body = {
+      const body: ConfirmOrderRequestBody = {
         token,
         supplier: supplier.supplier,
         restaurant: selectedRestaurant,
@@ -478,17 +479,10 @@ export default function Confirm() {
         return;
       }
 
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/confirm`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
+      const result = await confirmOrder(body);
 
-      if (result.ok) {
-        const response = await result.json();
-        await setStorage('finalConfirmData', JSON.stringify(response.data));
+      if (result.status === 201) {
+        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
         router.push('/finalConfirm');
       } else {
         setLoadingToConfirm(false);

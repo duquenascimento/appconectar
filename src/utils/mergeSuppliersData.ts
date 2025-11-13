@@ -43,6 +43,7 @@ export function mergeSupplierData(
               priceUniqueWithTaxAndDiscount: chosenProduct.unitValue,
               image: matchingProduct.image,
               orderUnit: matchingProduct.orderUnit,
+              quotationUnit: matchingProduct.quotationUnit,
             };
             finalProducts.push(newProduct);
           }

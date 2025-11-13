@@ -1,22 +1,22 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Text, View, ScrollView, XStack, YStack, Separator, Button } from 'tamagui';
-import React, { useMemo, useState } from 'react';
-import { Alert, Platform } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import CustomHeader from '@/src/components/header/customHeader';
+import PageContainer from '@/src/components/box/PageContainer';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
-import CustomButton from '../src/components/button/customButton';
-import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
-import CustomAlert from '@/src/components/modais/CustomAlert';
+import CustomHeader from '@/src/components/header/customHeader';
 import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
-import { formatCurrency } from '../src/utils/formatCurrency';
-import { createOrderPremium } from '@/src/services/orderService';
-import { processOrderResponse } from '../src/utils/processOrderResponse';
+import CustomAlert from '@/src/components/modais/CustomAlert';
 import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
-import { isBefore13Hours } from '@/src/utils/timeUtils';
+import { confirmOrderPremium, ConfirmOrderPremiumRequestBody } from '@/src/services/orderService';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
-import PageContainer from '@/src/components/box/PageContainer';
+import { isBefore13Hours } from '@/src/utils/timeUtils';
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useMemo, useState } from 'react';
+import { Alert, Platform } from 'react-native';
+import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
+import CustomButton from '../src/components/button/customButton';
+import { formatCurrency } from '../src/utils/formatCurrency';
+import { processOrderResponse } from '../src/utils/processOrderResponse';
+import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -30,6 +30,7 @@ export interface Product {
   priceUniqueWithTaxAndDiscount: number;
   image: string[];
   orderUnit: string;
+  quotationUnit: string;
 }
 
 export interface Discount {
@@ -175,8 +176,6 @@ export default function QuotationDetailsScreen() {
     );
   }, [suppliers]);
 
-  const formatUnit = (unit: string) => (unit || '').replace('Unid', 'UN');
-
   const isBefore13h = isBefore13Hours();
 
   const handleBackPress = () => router.back();
@@ -209,13 +208,13 @@ export default function QuotationDetailsScreen() {
         return;
       }
 
-      const body = {
+      const body: ConfirmOrderPremiumRequestBody = {
         token,
         suppliers: suppliers.map((s) => s.supplier),
         restaurant: parsedRestaurant,
       };
 
-      const createdOrders = await createOrderPremium(body);
+      const createdOrders = await confirmOrderPremium(body);
       if (createdOrders && createdOrders.status === 201) {
         deleteMultiStorage(['cartOrder', `cart_${parsedRestaurant?.restaurant.externalId}`]);
         const { deliveryDateFormated } = createdOrders.data.data[0];

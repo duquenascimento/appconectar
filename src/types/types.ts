@@ -10,6 +10,7 @@ export interface Product {
   priceUniqueWithTaxAndDiscount: number;
   image: string[];
   orderUnit: string;
+  quotationUnit: string;
 }
 
 export interface Discount {

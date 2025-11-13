@@ -1,23 +1,22 @@
-import { Stack, Text, View, Image, Button, Input, ScrollView, YStack } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DateTime } from 'luxon';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Dimensions,
   KeyboardAvoidingView,
   Modal,
   Platform,
   VirtualizedList,
-  Dimensions,
 } from 'react-native';
-import { DateTime } from 'luxon';
 import DropDownPicker from 'react-native-dropdown-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Button, Image, Input, ScrollView, Stack, Text, View } from 'tamagui';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import CustomAlert from '../src/components/modais/CustomAlert';
+import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import { campoString } from '../src/utils/formatCampos';
+import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogComercialInstance from '../src/components/dialogComercialInstance';
 import CombinationList, { Combination } from '../src/components/combinationList';
 import CustomButton from '../src/components/button/customButton';
@@ -29,7 +28,7 @@ import { loadCart } from '../src/utils/cartUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getStarValue } from '../src/utils/getStarValue';
-import { Restaurant } from '@/src/types/restaurantTypes';
+import { Restaurant } from '../src/types/restaurantTypes';
 
 export interface Product {
   price: number;
@@ -79,6 +78,11 @@ type SelectItem = {
   registrationReleasedNewApp: boolean;
 };
 
+const getScreenSize = () => {
+  const { width } = Dimensions.get('window');
+  return width >= 1024 ? 'lg/xl' : 'sm/md';
+};
+
 const useScreenSize = () => {
   const [screenSize, setScreenSize] = useState(getScreenSize());
 
@@ -95,25 +99,20 @@ const useScreenSize = () => {
   return screenSize;
 };
 
-const getScreenSize = () => {
-  const { width } = Dimensions.get('window');
-  return width >= 1024 ? 'lg/xl' : 'sm/md';
-};
-
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
   return suppliers.sort((a, b) => {
-    // First, sort by star rating (descending)
-    if (a.supplier.star !== b.supplier.star) {
-      const starA = getStarValue(a.supplier.star);
-      const starB = getStarValue(b.supplier.star);
-      return starB - starA;
-    }
-
-    // Second, sort by missing items (ascending)
+    // First, sort by missing items (ascending)
     const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
     const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
     if (missingA !== missingB) {
       return missingA - missingB;
+    }
+
+    // Second, sort by star rating (descending)
+    if (a.supplier.star !== b.supplier.star) {
+      const starA = getStarValue(a.supplier.star);
+      const starB = getStarValue(b.supplier.star);
+      return starB - starA;
     }
 
     // Third, sort by order value (ascending)
@@ -293,7 +292,6 @@ export default function Prices() {
       } catch (e) {
         console.error('Erro ao carregar combinations:', e);
       }
-
       setModificado(false);
     };
 
@@ -314,29 +312,6 @@ export default function Prices() {
     }
     getCart();
   }, []);
-
-  useEffect(() => {
-    const handleConectarPlus = async () => {
-      const stored = await getStorage('hasAccessedConectarPlus');
-      const alreadyAccessed = stored === 'true';
-      setHasAccessedConectarPlus(alreadyAccessed);
-
-      if (selectedRestaurant?.conectarPlusAuthorization) {
-        await setStorage('hasAccessedConectarPlus', 'true');
-        setHasAccessedConectarPlus(true);
-      }
-
-      if (
-        tab === 'plus' &&
-        selectedRestaurant?.conectarPlusAuthorization === false &&
-        alreadyAccessed
-      ) {
-        setIsConectarAlertVisible(true);
-      }
-    };
-
-    handleConectarPlus();
-  }, [selectedRestaurant, tab]);
 
   const handleConfirm = () => {
     setFinalCotacao(true);
@@ -408,25 +383,6 @@ export default function Prices() {
       setLoading(false);
     }
   };
-
-  /* const getSavedRestaurant = async () => {
-    try {
-      const data = await AsyncStorage.getItem('selectedRestaurant');
-      if (!data) return null;
-
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
-
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  }; */
 
   useFocusEffect(
     useCallback(() => {
@@ -543,6 +499,29 @@ export default function Prices() {
     setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16));
     setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
   }, [draftSelectedRestaurant]);
+
+  useEffect(() => {
+    const handleConectarPlus = async () => {
+      const stored = await getStorage('hasAccessedConectarPlus');
+      const alreadyAccessed = stored === 'true';
+      setHasAccessedConectarPlus(alreadyAccessed);
+
+      if (selectedRestaurant?.conectarPlusAuthorization) {
+        await setStorage('hasAccessedConectarPlus', 'true');
+        setHasAccessedConectarPlus(true);
+      }
+
+      if (
+        tab === 'plus' &&
+        selectedRestaurant?.conectarPlusAuthorization === false &&
+        alreadyAccessed
+      ) {
+        setIsConectarAlertVisible(true);
+      }
+    };
+
+    handleConectarPlus();
+  }, [selectedRestaurant, tab]);
 
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
