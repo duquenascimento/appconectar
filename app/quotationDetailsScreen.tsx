@@ -4,6 +4,7 @@ import CustomInfoCard from '@/src/components/card/customInfoCard';
 import CustomHeader from '@/src/components/header/customHeader';
 import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
 import CustomAlert from '@/src/components/modais/CustomAlert';
+import SundayOrderAlert from '@/src/components/modais/SundayOrderAlert';
 import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
 import { useDeliveryDate } from '@/src/hooks/useDeliveryDate';
@@ -19,7 +20,7 @@ import { deleteMultiStorage, getStorage, getToken } from '@/src/utils/utils';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 
@@ -116,6 +117,9 @@ export default function QuotationDetailsScreen() {
   const [booleanErros, setBooleanErros] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [showSundayWarning, setShowSundayWarning] = useState(false);
+  const [confirmedWarnings, setConfirmedWarnings] = useState<{ sundayWarning: boolean }>({
+    sundayWarning: false,
+  });
   const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
 
   const parsedMissingProducts = useMemo(() => {
@@ -185,80 +189,102 @@ export default function QuotationDetailsScreen() {
   const isBefore13h = isBefore13Hours();
 
   const handleBackPress = () => router.back();
-  const handleConfirm = async () => {
-    setIsLoading(true);
-    try {
-      const token = await getToken();
-      if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.');
-        return;
+
+  const handleConfirm = useCallback(
+    async (overrideWarnings?: { sundayWarning?: boolean }) => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          Alert.alert('Erro', 'Token de autenticação não encontrado.');
+          return;
+        }
+
+        const storedRestaurant = await getStorage('selectedRestaurant');
+        if (!storedRestaurant) {
+          Alert.alert('Erro', 'Restaurante não encontrado.');
+          return;
+        }
+        const parsedRestaurant = JSON.parse(storedRestaurant);
+
+        const effectiveWarnings = {
+          ...confirmedWarnings,
+          ...overrideWarnings,
+        };
+
+        if (DateTime.fromISO(deliveryDate).weekday === 5 && !effectiveWarnings.sundayWarning) {
+          setShowSundayWarning(true);
+          return;
+        }
+
+        if (isBefore13h) {
+          const errors = await scheduleNotification(
+            parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+          );
+
+          setShowErros(errors);
+          if (errors.length) setBooleanErros(true);
+          else setShowNotification(true);
+
+          return;
+        }
+
+        setIsLoading(true);
+
+        const body: ConfirmConectarPlusOrderRequestBody = {
+          token,
+          suppliers: suppliers.map((s) => s.supplier),
+          restaurant: parsedRestaurant,
+          deliveryDate: deliveryDate,
+        };
+
+        const createdOrders = await confirmConectarPlusOrder(body);
+        if (createdOrders && createdOrders.status === 201) {
+          deleteMultiStorage(['cartOrder', 'cart']);
+          const { deliveryDateFormated } = createdOrders.data.data[0];
+
+          const ordersBySupplier = createdOrders.data.data.map(
+            (item: { orderId: string; externalId: string }) => ({
+              orderId: item.orderId,
+              externalId: item.externalId,
+            }),
+          );
+
+          const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
+
+          setConfirmedWarnings({ sundayWarning: false });
+          resetDeliveryDate();
+
+          router.push({
+            pathname: '/orderConfirmedScreen',
+            params: {
+              suppliers: JSON.stringify(supplierWithOrderId),
+              deliveryDate: deliveryDateFormated,
+            },
+          });
+        } else {
+          Alert.alert('Erro', 'Erro ao confirmar a combinação.');
+          setIsAlertVisible(true);
+        }
+      } catch (error) {
+        console.error('Erro ao confirmar a combinação:', error);
+        Alert.alert('Erro', 'Ocorreu um erro inesperado.');
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [suppliers, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
+  );
 
-      const storedRestaurant = await getStorage('selectedRestaurant');
-      if (!storedRestaurant) {
-        Alert.alert('Erro', 'Restaurante não encontrado.');
-        return;
-      }
-      const parsedRestaurant = JSON.parse(storedRestaurant);
+  const handleConfirmSundayWarning = useCallback(async () => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings((prev) => ({ ...prev, sundayWarning: true }));
+    await handleConfirm({ sundayWarning: true });
+  }, [handleConfirm]);
 
-      if (DateTime.fromISO(deliveryDate).weekday === 7 && !showSundayWarning) {
-        setShowSundayWarning(true);
-        return;
-      }
-
-      if (isBefore13h) {
-        const errors = await scheduleNotification(
-          parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
-        );
-
-        setShowErros(errors);
-        if (errors.length) setBooleanErros(true);
-        else setShowNotification(true);
-
-        return;
-      }
-
-      const body: ConfirmConectarPlusOrderRequestBody = {
-        token,
-        suppliers: suppliers.map((s) => s.supplier),
-        restaurant: parsedRestaurant,
-        deliveryDate: deliveryDate,
-      };
-
-      const createdOrders = await confirmConectarPlusOrder(body);
-      if (createdOrders && createdOrders.status === 201) {
-        deleteMultiStorage(['cartOrder', 'cart']);
-        const { deliveryDateFormated } = createdOrders.data.data[0];
-
-        const ordersBySupplier = createdOrders.data.data.map(
-          (item: { orderId: string; externalId: string }) => ({
-            orderId: item.orderId,
-            externalId: item.externalId,
-          }),
-        );
-
-        const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
-
-        resetDeliveryDate();
-
-        router.push({
-          pathname: '/orderConfirmedScreen',
-          params: {
-            suppliers: JSON.stringify(supplierWithOrderId),
-            deliveryDate: deliveryDateFormated,
-          },
-        });
-      } else {
-        Alert.alert('Erro', 'Erro ao confirmar a combinação.');
-        setIsAlertVisible(true);
-      }
-    } catch (error) {
-      console.error('Erro ao confirmar a combinação:', error);
-      Alert.alert('Erro', 'Ocorreu um erro inesperado.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleCloseSundayWarning = useCallback(() => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings({ sundayWarning: false });
+  }, []);
 
   if (!suppliers || suppliers.length === 0) {
     return (
@@ -358,6 +384,11 @@ export default function QuotationDetailsScreen() {
           onConfirm={() => setIsAlertVisible(false)}
           width="35%"
         />
+        <SundayOrderAlert
+          visible={showSundayWarning}
+          onCancel={handleCloseSundayWarning}
+          onConfirm={handleConfirmSundayWarning}
+        />
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View
           position="absolute"
@@ -407,7 +438,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  onPress={handleConfirm}
+                  onPress={() => handleConfirm()}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
                     opacity: 0.9,
@@ -440,7 +471,7 @@ export default function QuotationDetailsScreen() {
               <YStack flex={1}>
                 <CustomButton
                   title={isBefore13h ? 'Agendar' : 'Confirmar'}
-                  onPress={handleConfirm}
+                  onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"
                   textColor="#FFFFFF"
                 />
@@ -450,13 +481,6 @@ export default function QuotationDetailsScreen() {
         </View>
       </YStack>
       <LoadingConfirm loading={isLoading} />
-      <CustomAlert
-        visible={showSundayWarning}
-        title="Pedido para domingo"
-        message="O pedido está sendo agendado para domingo. Você tem certeza que deseja continuar?"
-        onConfirm={handleConfirm}
-        width="75%"
-      />
     </PageContainer>
   );
 }

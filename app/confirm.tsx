@@ -2,6 +2,7 @@ import { type SupplierData } from '@/app/prices';
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import MissingItemsDialog from '@/src/components/modais/MissingItemsDialog';
+import SundayOrderAlert from '@/src/components/modais/SundayOrderAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { useDeliveryDate } from '@/src/hooks/useDeliveryDate';
@@ -223,6 +224,13 @@ export default function Confirm() {
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
+  const [confirmedWarnings, setConfirmedWarnings] = useState<{
+    missingItems: boolean;
+    sundayWarning: boolean;
+  }>({
+    missingItems: false,
+    sundayWarning: false,
+  });
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const { deliveryDate, getFormattedDate, resetDeliveryDate } = useDeliveryDate();
@@ -445,71 +453,112 @@ export default function Confirm() {
     return paymentDescriptions[paymentWay] || '';
   };
 
-  // Nova lógica de confirmação (A que estava antes dentro do else)
-  const handleConfirmOrder = useCallback(async () => {
-    setLoadingToConfirm(true);
+  const actualMissingItemsCount =
+    supplier?.supplier?.discount?.product?.length - (supplier?.supplier?.missingItens ?? 0);
+  const displayMissingItems = Math.max(0, actualMissingItemsCount);
 
-    try {
-      const token = await getToken();
-      if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.');
-        return;
-      }
+  const handleConfirmOrder = useCallback(
+    async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          Alert.alert('Erro', 'Token de autenticação não encontrado.');
+          return;
+        }
 
-      if (displayMissingItems > 0 && !showMissingItemsModal) {
-        setShowMissingItemsModal(true);
-        return;
-      }
-      setShowMissingItemsModal(false);
+        const effectiveWarnings = {
+          ...confirmedWarnings,
+          ...overrideWarnings,
+        };
 
-      if (DateTime.fromISO(deliveryDate).weekday === 7 && !showSundayWarning) {
-        setShowSundayWarning(true);
-        return;
-      }
-      setShowSundayWarning(false);
+        if (displayMissingItems > 0 && !effectiveWarnings.missingItems) {
+          setShowMissingItemsModal(true);
+          return;
+        }
 
-      const body: ConfirmOrderRequestBody = {
-        token,
-        supplier: supplier.supplier,
-        restaurant: selectedRestaurant,
-        deliveryDate: deliveryDate,
-      };
+        if (DateTime.fromISO(deliveryDate).weekday === 5 && !effectiveWarnings.sundayWarning) {
+          setShowSundayWarning(true);
+          return;
+        }
 
-      const erros = [];
-      if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) {
-        erros.push('O fornecedor está fechado');
-      }
-      if (
-        supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-        !selectedRestaurant.restaurant.allowMinimumOrder
-      ) {
-        erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
-      }
+        setLoadingToConfirm(true);
+        const body: ConfirmOrderRequestBody = {
+          token,
+          supplier: supplier.supplier,
+          restaurant: selectedRestaurant,
+          deliveryDate: deliveryDate,
+        };
 
-      if (erros.length > 0) {
-        setShowErros(erros);
+        const erros = [];
+        if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) {
+          erros.push('O fornecedor está fechado');
+        }
+        if (
+          supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+          !selectedRestaurant.restaurant.allowMinimumOrder
+        ) {
+          erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
+        }
+
+        if (erros.length > 0) {
+          setShowErros(erros);
+          setBooleanErros(true);
+          setLoadingToConfirm(false);
+          return;
+        }
+
+        const result = await confirmOrder(body);
+
+        if (result.status === 201) {
+          await setStorage('finalConfirmData', JSON.stringify(result.data.data));
+          resetDeliveryDate();
+          setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+          router.push('/finalConfirm');
+        } else {
+          setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
+          setBooleanErros(true);
+        }
+      } catch (error) {
+        console.error('Erro em handleConfirmOrder:', error);
+        setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
         setBooleanErros(true);
-        return;
+      } finally {
+        console.log('Finalizando confirmação...');
+        setLoadingToConfirm(false);
       }
+    },
+    [
+      supplier,
+      selectedRestaurant,
+      router,
+      confirmedWarnings,
+      displayMissingItems,
+      deliveryDate,
+      resetDeliveryDate,
+    ],
+  );
 
-      const result = await confirmOrder(body);
+  const handleConfirmMissingItems = useCallback(async () => {
+    setShowMissingItemsModal(false);
+    setConfirmedWarnings((prev) => ({ ...prev, missingItems: true }));
+    await handleConfirmOrder({ missingItems: true });
+  }, [handleConfirmOrder]);
 
-      if (result.status === 201) {
-        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
-        resetDeliveryDate();
-        router.push('/finalConfirm');
-      } else {
-        setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
-        setBooleanErros(true);
-      }
-    } catch (error) {
-      console.error('Erro em handleConfirmOrder:', error);
-      setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
-      setBooleanErros(true);
-    } finally {
-      setLoadingToConfirm(false);
-    }
-  }, [supplier, selectedRestaurant, router]);
+  const handleConfirmSundayWarning = useCallback(async () => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings((prev) => ({ ...prev, sundayWarning: true }));
+    await handleConfirmOrder({ sundayWarning: true });
+  }, [handleConfirmOrder]);
+
+  const handleCloseMissingItems = useCallback(() => {
+    setShowMissingItemsModal(false);
+    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+  }, []);
+
+  const handleCloseSundayWarning = useCallback(() => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+  }, []);
 
   if (loading) {
     return (
@@ -530,9 +579,6 @@ export default function Confirm() {
     );
   }
 
-  const actualMissingItemsCount =
-    supplier.supplier.discount.product.length - supplier.supplier.missingItens;
-  const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
     <PageContainer backgroundColor="white">
       <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
@@ -548,8 +594,8 @@ export default function Confirm() {
         />
         <MissingItemsDialog
           open={showMissingItemsModal}
-          onClose={() => setShowMissingItemsModal(false)}
-          onConfirm={handleConfirmOrder}
+          onClose={handleCloseMissingItems}
+          onConfirm={handleConfirmMissingItems}
           missingItemsCount={displayMissingItems}
         />
         <CustomAlert
@@ -559,12 +605,10 @@ export default function Confirm() {
           onConfirm={() => setIsAlertVisible(false)}
           width="80%"
         />
-        <CustomAlert
+        <SundayOrderAlert
           visible={showSundayWarning}
-          title="Pedido para domingo"
-          message="O pedido está sendo agendado para domingo. Você tem certeza que deseja continuar?"
-          onConfirm={() => handleConfirmOrder()}
-          width="75%"
+          onCancel={handleCloseSundayWarning}
+          onConfirm={handleConfirmSundayWarning}
         />
         <View
           backgroundColor="white"
