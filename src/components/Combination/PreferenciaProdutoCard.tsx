@@ -361,13 +361,7 @@ export function PreferenciaProdutoCard({
         <ScrollView height={200} top={45} position="absolute" zIndex={2000} width="100%" backgroundColor="white" nestedScrollEnabled={true} > 
           <YStack 
             gap="$1"
-            // position="absolute"
-            // top={50} // ajuste se seu input for maior/menor
-            // zIndex={2000}
-            // width="100%"
-            // maxHeight={200}
             borderRadius={4}
-            // overflow='scroll'
             backgroundColor="#fff"
             borderWidth={1}
             borderColor="#ccc"
