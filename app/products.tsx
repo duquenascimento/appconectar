@@ -61,6 +61,7 @@ import { ProductsCategoriesList } from '../src/components/list/ProductsCategorie
 import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+import { normalizeText } from '@/src/utils/stringUtils';
 
 export type Product = {
   name: string;
@@ -1087,13 +1088,6 @@ export default function Products() {
           (product) => product.class.toLowerCase() === currentClass.toLowerCase(),
         ) || [];
     }
-
-    // Normalizar a pesquisa (remover acentos e caracteres especiais)
-    const normalizeText = (text: string) =>
-      text
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase();
 
     if (searchQuery) {
       const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
