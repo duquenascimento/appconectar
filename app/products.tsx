@@ -1,4 +1,10 @@
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { normalizeText } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { MotiView } from 'moti';
+import { Skeleton } from 'moti/skeleton';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -8,6 +14,7 @@ import {
   TouchableOpacity,
   VirtualizedList,
 } from 'react-native';
+import ImageViewer from 'react-native-image-zoom-viewer';
 import {
   Adapt,
   Button,
@@ -21,46 +28,33 @@ import {
   XStack,
   YStack,
 } from 'tamagui';
-
-import PageContainer from '@/src/components/box/PageContainer';
+import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
   ProductCardObsUnitContainerStyled,
   ProductCardStyled,
-} from '@/src/components/card/productCard';
-import { CartButton } from '@/src/components/cartButton';
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
-import { DialogFinanceInstance } from '@/src/components/dialogFinanceInstance';
-import { useBackHandler } from '@/src/components/hooks/useBackHandler';
-import { CustomImageBadge } from '@/src/components/image/customImageBadge';
-import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
-import { SearchProducts } from '@/src/components/input/SearchProducts';
-import { ProductsCategoriesList } from '@/src/components/list/ProductsCategoriesList';
-import { HeaderText } from '@/src/components/text/HeaderText';
-import { UpdateAppModal } from '@/src/components/UpdateAppModal';
-import { useProductContext } from '@/src/contexts/produtos.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { Restaurant } from '@/src/types/restaurant';
-import { filterCarts } from '@/src/utils/filterCarts';
-import CustomFlatList from '@/src/utils/FlatList_VirtualizeList/FlatList_Products';
-import CustomVirtualizedList from '@/src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import { loadFavorites } from '@/src/utils/loadFavorite';
-import { loadProductObservations, saveProductObservations } from '@/src/utils/productObservation';
-import { getSavedRestaurant } from '@/src/utils/savedRestaurant';
-import {
-  clearStorage,
-  deleteStorage,
-  deleteToken,
-  getStorage,
-  getToken,
-  setStorage,
-} from '@/src/utils/utils';
-import { SaveUserAppInfo, VersionInfo, checkVersion } from '@/src/utils/VersionApp';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { MotiView } from 'moti';
-import { Skeleton } from 'moti/skeleton';
-import ImageViewer from 'react-native-image-zoom-viewer';
+} from '../src/components/card/productCard';
+import { CartButton } from '../src/components/cartButton';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
+import { useBackHandler } from '../src/components/hooks/useBackHandler';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
+import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
+import { SearchProducts } from '../src/components/input/SearchProducts';
+import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
+import { HeaderText } from '../src/components/text/HeaderText';
+import { UpdateAppModal } from '../src/components/UpdateAppModal';
+import { useCart } from '../src/components/useCart';
+import { useProductContext } from '../src/contexts/produtos.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import { loadFavorites } from '../src/utils/loadFavorite';
+import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
+import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
+import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
+
 
 export type Product = {
   name: string;
@@ -116,6 +110,7 @@ type ProductBoxProps = Product & {
   productObservations: Map<string, string>;
   setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>;
   saveProductObservations?: (map: Map<string, string>) => Promise<void>;
+  loadCart: () => Promise<Map<string, Cart>>;
 };
 
 const ProductBox = React.memo(
@@ -183,7 +178,6 @@ const ProductBox = React.memo(
     useEffect(() => {
       const currentCartItem = cart.get(id);
       const previousCartItem = previousCartRef.current.get(id);
-
       if (
         (!currentCartItem && !previousCartItem) ||
         (currentCartItem &&
@@ -211,7 +205,6 @@ const ProductBox = React.memo(
     const handlePersistCart = useCallback(() => {
       const currentItem = { amount: valueQuant, productId: id, obs };
       const previousItem = previousCartRef.current.get(id);
-
       const shouldPersist =
         valueQuant > 0 ||
         (previousItem && valueQuant !== previousItem.amount) ||
@@ -264,7 +257,6 @@ const ProductBox = React.memo(
         await saveCartArray(mapItem, mapToRemove);
       }, 500);
     };
-
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
@@ -281,7 +273,6 @@ const ProductBox = React.memo(
         }
       }
     }, [addObservation, id, obs]);
-
     return (
       <Stack
         onPress={toggleOpen}
@@ -623,32 +614,32 @@ export default function Products() {
   const [productsList, setProductsList] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [favorites, setFavorites] = useState<Product[]>([]);
+  // const [favorites, setFavorites] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [cart, setCart] = useState<Map<string, Cart>>(new Map());
-  const [cartToExclude, setCartToExclude] = useState<Map<string, Cart>>(new Map());
   const [isModalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState<string>('');
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
   const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
-  const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
-  const [productObservations, setProductObservations] = useState(new Map());
-  const [displayedCartSize, setDisplayedCartSize] = useState(cart.size);
+  // const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { loadRestaurants } = useRestaurantContext();
+  const { selectedRestaurant, restaurants } = useRestaurantContext();
+  const { favorites, setFavorites } = useFavoritesContext();
+  const {
+    cart,
+    setCart,
+    cartToExclude,
+    productObservations,
+    setProductObservations,
+    displayedCartSize,
+    setDisplayedCartSize,
+    loadCart,
+    saveCart,
+    saveCartArray,
+  } = useCart();
   const router = useRouter();
-
-  useFocusEffect(
-    useCallback(() => {
-      // TODO: Verificar para qual motivo existe esse setLoading (22/10/2025)
-      // setLoading(false);
-
-      return () => {};
-    }, []),
-  );
 
   useBackHandler(() => {
     if (router.canGoBack()) {
@@ -685,8 +676,8 @@ export default function Products() {
   }, [cart.size]);
 
   // seguindo o padrão das orders
-  const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
-  const [restaurantOpen, setRestaurantOpen] = useState(false);
+  // const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
+  // const [restaurantOpen, setRestaurantOpen] = useState(false);
 
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null);
   const flatListRef = useRef<FlatList<Product>>(null);
@@ -702,140 +693,32 @@ export default function Products() {
     }
   }, [productsContext]);
 
-  const loadCart = async (): Promise<Map<string, Cart>> => {
-    try {
-      const token = await getToken();
-      if (!token) return new Map();
-
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      });
-
-      if (!result.ok) return new Map();
-
-      const cart = await result.json();
-      const cartMap = new Map<string, Cart>(cart.data.map((item: Cart) => [item.productId, item]));
-
-      const localCartString = await getStorage('cart');
-      const localCart = localCartString
-        ? new Map<string, Cart>(JSON.parse(localCartString))
-        : new Map();
-
-      localCart.forEach((value, key) => {
-        if (value.amount > 0) {
-          cartMap.set(key, value);
-        } else {
-          cartMap.delete(key);
-        }
-      });
-
-      await deleteStorage('cart-inside');
-      await setStorage('cart', JSON.stringify(Array.from(cartMap.entries())));
-
-      return cartMap;
-    } catch (error) {
-      console.error('Erro ao carregar carrinho:', error);
-      return new Map();
-    }
-  };
-
-  const saveCart = useCallback(async (cart: Cart, isCart: boolean) => {
-    let newCart = new Map();
-    const attCart = async (): Promise<void> => {
-      setCart((prevCart) => {
-        newCart = new Map(prevCart);
-
-        if (cart.amount === 0) {
-          if (isCart) {
-            newCart.delete(cart.productId);
-            setCartToExclude((prevCartToExclude) => {
-              const newCartToExclude = new Map(prevCartToExclude);
-              newCartToExclude.set(cart.productId, cart);
-              return newCartToExclude;
-            });
-          }
-        } else {
-          if (!newCart.has(cart.productId)) {
-            const items = [...newCart].sort((a, b) => a[1].addOrder - b[1].addOrder);
-            if (items.length === 0) {
-              cart.addOrder = 1;
-            } else {
-              const lastItem = items[items.length - 1];
-              cart.addOrder = lastItem[1].addOrder + 1;
-            }
-          } else {
-            cart.addOrder = newCart.get(cart.productId)!.addOrder;
-          }
-          newCart.set(cart.productId, cart);
-          setCartToExclude((prevCartToExclude) => {
-            const newCartToExclude = new Map(prevCartToExclude);
-            newCartToExclude.delete(cart.productId);
-            return newCartToExclude;
-          });
-        }
-
-        if (cart.obs) {
-          setProductObservations((prev) => {
-            const updated = new Map(prev);
-            const latestObs = prev.get(cart.productId) ?? cart.obs;
-            updated.set(cart.productId, latestObs);
-            saveProductObservations(updated);
-            return updated;
-          });
-        }
-
-        return newCart;
-      });
-    };
-    await attCart();
-    await setStorage('cart', JSON.stringify(Array.from(newCart.entries())));
-  }, []);
-
-  const saveCartArray = useCallback(
-    async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>): Promise<void> => {
-      const token = await getToken();
-      if (token == null) return;
-      const cartsArray = Array.from(carts.values());
-      const cartsToExcludeArray = Array.from(cartsToExclude.values());
-      const cartsFiltered = filterCarts(cartsArray, cartsToExcludeArray);
-
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          carts: cartsFiltered.carts,
-          cartToExclude: cartsFiltered.cartToExclude,
-        }),
-      });
-
-      setCartToExclude(new Map());
-      // modificado, reduzido a 3 ganchos para nao duplicar itens no carrinho
-    },
-    [saveCart, loadCart, loadProducts],
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedRestaurant) {
+        // força atualização de dados sempre que voltar pra tela
+        loadProducts();
+      }
+    }, [selectedRestaurant]),
   );
 
   useEffect(() => {
     const loadInitialData = async () => {
+      setProductsList([]);
+      setDisplayedProducts([]);
       setLoading(true);
       try {
-        const savedRestaurant = await getSavedRestaurant();
-        const restaurants = await loadRestaurants();
-        if (savedRestaurant) {
+        if (restaurants.length === 0 || !restaurants) {
+          return;
+        }
+        if (selectedRestaurant?.externalId) {
           await SaveUserAppInfo();
         }
-        const cartMap = await loadCart();
         await loadProducts();
 
-        const verduraKg = restaurants.filter((rest: any) => rest.verduraKg === true);
+        const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
         // Extraindo categorias
-        const categories = restaurants.flatMap((rest: any) => rest.categories || []);
+        const categories = restaurants?.flatMap((rest: any) => rest.categories || []);
         if (verduraKg.length && categories.length === 0) {
           classItems = [
             { name: 'Favoritos' },
@@ -867,24 +750,23 @@ export default function Products() {
 
         const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
 
-        setRestaurantes(validRestaurants);
-
         const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
         const allRestaurantBlocked = availableRestaurants.length === 0;
 
-        let initialRestaurant = null;
+        let initialRestaurant = selectedRestaurant;
         if (!allRestaurantBlocked) {
-          initialRestaurant = availableRestaurants[0];
+          initialRestaurant = restaurants[0];
 
-          if (savedRestaurant) {
-            const found = availableRestaurants.find((r) => r.id === savedRestaurant.id);
+          if (selectedRestaurant) {
+            const found = availableRestaurants.find((r) => r.id === selectedRestaurant.id);
             if (found) {
               initialRestaurant = found;
             }
           }
-          setSelectedRestaurant(initialRestaurant.externalId);
           await setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }));
         }
+
+        const cartMap = await loadCart();
 
         const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
         const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
@@ -896,10 +778,6 @@ export default function Products() {
           setShowFinanceBlock(true);
         }
 
-        const favs = await loadFavorites();
-        if (favs.length > 0) {
-          setFavorites(favs);
-        }
         if (cartMap.size > 0) {
           setCart(cartMap);
         }
@@ -918,21 +796,7 @@ export default function Products() {
       setProductObservations(storedObs);
     };
     loadInitialData();
-  }, [loadFavorites, loadProducts]);
-
-  useEffect(() => {
-    const realoadFavs = async () => {
-      const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant?.externalId === selectedRestaurant) return;
-      if (selectedRestaurant) {
-        loadFavorites().then((favs) => {
-          if (favs.length > 0) setFavorites(favs);
-          if (favs.length === 0) setFavorites(favs);
-        });
-      }
-    };
-    realoadFavs();
-  }, [selectedRestaurant]);
+  }, [selectedRestaurant, restaurants]);
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
@@ -964,7 +828,7 @@ export default function Products() {
         console.error('Erro ao adicionar aos favoritos:', error);
       }
     },
-    [favorites, productsList, selectedRestaurant],
+    [favorites, productsList],
   );
 
   const addObservation = useCallback(
@@ -999,7 +863,7 @@ export default function Products() {
         console.error('Erro ao adicionar aos favoritos:', error);
       }
     },
-    [favorites, productsList, selectedRestaurant],
+    [favorites, productsList],
   );
 
   const removeFromFavorites = useCallback(
@@ -1081,13 +945,6 @@ export default function Products() {
         ) || [];
     }
 
-    // Normalizar a pesquisa (remover acentos e caracteres especiais)
-    const normalizeText = (text: string) =>
-      text
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase();
-
     if (searchQuery) {
       const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
       const normalizedQuery = normalizeText(searchQuery);
@@ -1122,7 +979,6 @@ export default function Products() {
     },
     [currentClass],
   );
-
   const renderClassItem = useCallback(
     ({ item }: { item: SelectItem }) => (
       <TouchableOpacity
@@ -1156,7 +1012,6 @@ export default function Products() {
   const handleSetModalVisible = (status: boolean): void => {
     setModalVisible(status);
   };
-
   const renderProduct = useCallback(
     ({ item }: { item: Product }) => (
       <ProductBox
@@ -1189,28 +1044,7 @@ export default function Products() {
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation],
   );
 
-  async function handleRestaurantChoice(value: string | null) {
-    try {
-      if (!value) return;
-
-      const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant?.externalId === value) {
-        return;
-      }
-
-      const restaurant = restaurantes.find((r) => r.externalId === value);
-      if (!restaurant) return;
-      if (restaurant.registrationReleasedNewApp === true) {
-        setShowRegistrationReleasedNewApp(true);
-        return;
-      }
-      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }));
-    } catch (error) {
-      console.error('Falha na escolha de restaurante:', error);
-    }
-  }
-
-  if (loading) {
+  if (loading || !selectedRestaurant) {
     return (
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
@@ -1226,10 +1060,10 @@ export default function Products() {
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
         setRegisterInvalid={setShowRegistrationReleasedNewApp}
-        rest={restaurantes}
+        rest={restaurants}
         messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
         onSelectAvailable={() => {
-          const availableRestaurant = restaurantes.find((r) => !r.registrationReleasedNewApp);
+          const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
             AsyncStorage.setItem(
               'selectedRestaurant',
@@ -1247,7 +1081,7 @@ export default function Products() {
       <DialogFinanceInstance
         openModal={showFinanceBlock}
         setRegisterInvalid={setShowFinanceBlock}
-        rest={restaurantes}
+        rest={restaurants}
       />
       <Modal visible={isModalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
@@ -1297,12 +1131,7 @@ export default function Products() {
 
       <HeaderText>Meus Restaurantes</HeaderText>
 
-      <DropDownPickerRestaurant
-        restaurants={restaurantes}
-        currentSelectedRestaurant={selectedRestaurant}
-        onChangeValueFunction={handleRestaurantChoice}
-      />
-
+      <DropDownPickerRestaurant />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 

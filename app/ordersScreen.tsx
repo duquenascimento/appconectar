@@ -1,9 +1,9 @@
-import React, { ReactNode, useEffect, useState } from 'react';
-import { View, Text, XStack, Input } from 'tamagui';
+import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import { View, Text, XStack, Input, Header } from 'tamagui';
 import { FlatList, TouchableOpacity, ActivityIndicator, Platform, Linking } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DialogComercialInstance from '../src/components/modais/DialogInstanceNotification';
 import { getOrders } from '../src/services/orderService';
@@ -12,9 +12,10 @@ import { clearStorage, deleteToken } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import CustomAlert from '../src/components/modais/CustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
+import { HeaderText } from '@/src/components/text/HeaderText';
 
 interface Order {
   orderDocument: ReactNode;
@@ -30,13 +31,6 @@ interface Order {
   };
 }
 
-interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
-  registrationReleasedNewApp: boolean;
-}
-
 const formatDate = (isoDate: string) => {
   const date = new Date(isoDate);
   return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
@@ -49,115 +43,56 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
-  const [selectedRestaurant, setSelectedRestaurant] = useState('');
-  const [restaurantOpen, setRestaurantOpen] = useState(false);
+  const { restaurants, selectedRestaurant } = useRestaurantContext();
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
-  const { loadRestaurants } = useRestaurantContext();
+
   const router = useRouter();
 
-  useEffect(() => {
-    const LoadRestaurants = async () => {
-      try {
-        const restaurantsData = await loadRestaurants();
-        setRestaurants(restaurantsData);
-        if (restaurantsData.length > 0) {
-          const restaurant = await getSavedRestaurant();
-          if (restaurant) {
-            setSelectedRestaurant(restaurant.externalId);
-          } else {
-            setSelectedRestaurant(restaurantsData[0].externalId);
-          }
+  // Só carrega pedidos ao entrar na tela e se restaurante mudar
+  useFocusEffect(
+    useCallback(() => {
+      const loadOrders = async () => {
+        if (!selectedRestaurant) {
+          return;
         }
-      } catch (error) {}
-    };
-    LoadRestaurants();
-  }, []);
+        setLoading(true);
+        try {
+          const result = await getOrders(1, 100, selectedRestaurant.externalId);
 
-  useEffect(() => {
-    const loadOrders = async () => {
-      if (!selectedRestaurant) {
-        return;
-      }
-      setLoading(true);
-      try {
-        const result = await getOrders(1, 100, selectedRestaurant);
+          const ordersData = result.map((order: any) => {
+            const filteredSupplier =
+              order.calcOrderAgain?.data?.filter(
+                (item: any) => item.supplier?.externalId === order.supplierId,
+              ) || [];
 
-        const ordersData = result.map((order: any) => {
-          const filteredSupplier =
-            order.calcOrderAgain?.data?.filter(
-              (item: any) => item.supplier?.externalId === order.supplierId,
-            ) || [];
-
-          return {
-            ...order,
-            calcOrderAgain: {
-              ...order.calcOrderAgain,
-              data: filteredSupplier,
-            },
-          };
-        });
-        setOrders(ordersData);
-        setFilteredOrders(ordersData);
-      } catch (error) {
-        console.error('Erro ao carregar pedidos:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadOrders();
-  }, [selectedRestaurant]);
+            return {
+              ...order,
+              calcOrderAgain: {
+                ...order.calcOrderAgain,
+                data: filteredSupplier,
+              },
+            };
+          });
+          setOrders(ordersData);
+          setFilteredOrders(ordersData);
+        } catch (error) {
+          console.error('Erro ao carregar pedidos:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      loadOrders();
+    }, [selectedRestaurant]),
+  );
 
   const dialogProps = {
     openModal: showBlockedModal,
     setRegisterInvalid: setShowBlockedModal,
     rest: restaurants.filter((r) => r.registrationReleasedNewApp),
   };
-
-  const getSavedRestaurant = async (): Promise<Restaurant | null> => {
-    try {
-      const data = await AsyncStorage.getItem('selectedRestaurant');
-      if (!data) return null;
-
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
-
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  };
-
-  async function handleRestaurantChoice(value: string | null) {
-    try {
-      if (!value) return;
-
-      const restaurant = restaurants.find((r) => r.externalId === value);
-      if (!restaurant) return;
-
-      if (restaurant.registrationReleasedNewApp) {
-        setShowBlockedModal(true);
-        return;
-      }
-      const storedRestaurant = await getSavedRestaurant();
-      if (storedRestaurant?.externalId === value) {
-        return;
-      }
-      await AsyncStorage.setItem('selectedRestaurant', JSON.stringify({ restaurant }));
-      setSelectedRestaurant(value);
-      setShowBlockedModal(false);
-    } catch (error) {
-      console.error('Falha na escolha de restaurante:', error);
-    }
-  }
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -291,55 +226,13 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         message={customAlertMessage}
         onConfirm={() => setShowAlertVisible(false)}
       />
-      <Text
-        style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          margin: 'auto',
-        }}
-      >
-        Meus Pedidos
-      </Text>
-      <DropDownPicker
-        value={selectedRestaurant}
-        setValue={(value) => setSelectedRestaurant(value)}
-        onChangeValue={handleRestaurantChoice}
-        items={restaurants.map((restaurant) => ({
-          label: restaurant.name,
-          value: restaurant.externalId,
-        }))}
-        open={restaurantOpen}
-        setOpen={setRestaurantOpen}
-        placeholder="Selecione um restaurante"
-        onSelectItem={(value) => {
-          const rest = restaurants.find((item) => item?.externalId === value.value);
-          if (rest?.registrationReleasedNewApp) {
-            setShowBlockedModal(true);
-          } else {
-            setShowBlockedModal(false);
-          }
-        }}
-        listMode="SCROLLVIEW"
-        dropDownContainerStyle={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: 'center',
-        }}
-        style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
-          alignSelf: 'center',
-          marginTop: 10,
-          marginHorizontal: 15,
-          marginRight: 20,
-          borderColor: '#ccc',
-          borderWidth: 1,
-          borderRadius: 5,
-          height: 40,
-        }}
-      />
+      <HeaderText>Meus Restaurantes</HeaderText>
+      <DropDownPickerRestaurant />
 
       <XStack
         backgroundColor="#FFF"
         borderRadius={20}
-        width={Platform.OS === 'web' ? '70%' : '92%'}
+        width={Platform.OS === 'web' ? '50%' : '92%'}
         marginTop={20}
         alignSelf="center"
         alignItems="center"
@@ -367,7 +260,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         onPress={handleDownloadSelectedOrders}
         disabled={selectedOrders.length === 0 || isDownloading}
         style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
+          width: Platform.OS === 'web' ? '50%' : '92%',
           backgroundColor: selectedOrders.length > 0 ? '#04BF7B' : '#ccc',
           paddingVertical: 10,
           paddingHorizontal: 20,
@@ -390,7 +283,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
       <FlatList
         style={{
-          width: Platform.OS === 'web' ? '70%' : '92%',
+          width: Platform.OS === 'web' ? '50%' : '92%',
           alignSelf: 'center',
         }}
         data={filteredOrders}

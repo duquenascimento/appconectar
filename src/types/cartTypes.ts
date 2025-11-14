@@ -1,5 +1,6 @@
 export type TCart = {
-  productId: string
-  amount: number
-  obs: string
-}
+  productId: string;
+  amount: number;
+  obs: string;
+  addOrder: number;
+};

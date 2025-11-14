@@ -181,6 +181,7 @@ export default function QuotationDetailsScreen() {
         discount: 0,
         grandTotal: 0,
         totalItems: 0,
+
         missingItems: 0,
       },
     );
@@ -239,7 +240,7 @@ export default function QuotationDetailsScreen() {
 
         const createdOrders = await confirmConectarPlusOrder(body);
         if (createdOrders && createdOrders.status === 201) {
-          deleteMultiStorage(['cartOrder', 'cart']);
+          deleteMultiStorage(['cartOrder', `cart_${parsedRestaurant?.restaurant.externalId}`]);
           const { deliveryDateFormated } = createdOrders.data.data[0];
 
           const ordersBySupplier = createdOrders.data.data.map(

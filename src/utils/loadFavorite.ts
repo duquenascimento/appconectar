@@ -1,11 +1,12 @@
 import { getToken } from './utils';
 import { getSavedRestaurant } from './savedRestaurant';
+import { Favorites } from '../types/favoriteTypes';
 
 /**
  * Carrega a lista de favoritos do usuário para um restaurante específico.
  * @returns {Promise<any[]>} Lista de produtos favoritos ou array vazio em caso de erro.
  */
-export const loadFavorites = async (): Promise<any[]> => {
+export const loadFavorites = async (): Promise<Favorites[]> => {
   try {
     const token = await getToken();
     const restaurant = await getSavedRestaurant();
@@ -30,6 +31,7 @@ export const loadFavorites = async (): Promise<any[]> => {
     }
 
     const data = await response.json();
+
     return Array.isArray(data.data) ? data.data : [];
   } catch (error) {
     console.error('Erro ao carregar favoritos:', error);

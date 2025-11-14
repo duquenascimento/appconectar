@@ -1,71 +1,66 @@
-import { Button, Dialog, XStack, YStack } from 'tamagui'
-import { Linking } from 'react-native'
-import { clearStorage, deleteToken, setStorage } from '@/src/utils/utils'
-import { BaseDialog } from './BaseDialog'
-import { useRouter } from 'expo-router'
+import { Button, Dialog, XStack, YStack } from 'tamagui';
+import { Linking } from 'react-native';
+import { clearStorage, deleteToken, setStorage } from '@/src/utils/utils';
+import { BaseDialog } from './BaseDialog';
+import { useRouter } from 'expo-router';
 
 type DialogComercialInstanceProps = {
-  openModal: boolean
-  setOpenModal: (open: boolean) => void
-  setRegisterInvalid: Function
-  rest: any[]
-  messageText?: string
-  onSelectAvailable?: () => void
-}
+  openModal: boolean;
+  setOpenModal: (open: boolean) => void;
+  setRegisterInvalid: Function;
+  rest: any[];
+  messageText?: string;
+  onSelectAvailable?: () => void;
+};
 
-export function DialogComercialInstance({
+export default function DialogComercialInstance({
   openModal,
   setOpenModal,
   onSelectAvailable,
   rest,
-  messageText
+  messageText,
 }: DialogComercialInstanceProps) {
-  const hasAvailableRestaurant = rest.some((r) => !r.registrationReleasedNewApp)
-  const router = useRouter()
+  const hasAvailableRestaurant = rest.some((r) => !r.registrationReleasedNewApp);
+  const router = useRouter();
 
   const handleSelectAvailable = async () => {
     if (onSelectAvailable) {
-      onSelectAvailable()
+      onSelectAvailable();
     } else {
-      const availableRestaurant = rest.find(
-        (r) => !r.registrationReleasedNewApp
-      )
+      const availableRestaurant = rest.find((r) => !r.registrationReleasedNewApp);
       if (availableRestaurant) {
-        await setStorage(
-          'selectedRestaurant',
-          JSON.stringify({ restaurant: availableRestaurant })
-        )
-        setOpenModal(false)
+        await setStorage('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }));
+        setOpenModal(false);
       }
     }
-  }
+  };
 
   const handleLogout = async () => {
     try {
-      await Promise.all([clearStorage(), deleteToken()])
-      setOpenModal(false)
-      router.push('/')
+      await Promise.all([clearStorage(), deleteToken()]);
+      setOpenModal(false);
+      router.push('/');
     } catch (error) {
-      console.error('Erro ao deslogar:', error)
+      console.error('Erro ao deslogar:', error);
     }
-  }
+  };
 
   const handleBackButton = async () => {
     if (!hasAvailableRestaurant) {
-      await handleLogout()
+      await handleLogout();
     } else {
-      await handleSelectAvailable()
+      await handleSelectAvailable();
     }
-  }
+  };
 
   const handleContactPress = async () => {
     const text = encodeURIComponent(
       `Olá! gostaria de liberar o meu acesso, represento os seguintes restaurantes:
-${rest.map((item: any) => `\n- ${item.name}`)}\n\nConsegue me ajudar?`
-    )
-    await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
-    setTimeout(() => handleLogout(), 2000)
-  }
+${rest.map((item: any) => `\n- ${item.name}`)}\n\nConsegue me ajudar?`,
+    );
+    await Linking.openURL(`https://wa.me/5521999954372?text=${text}`);
+    setTimeout(() => handleLogout(), 2000);
+  };
 
   return (
     <BaseDialog
@@ -147,5 +142,5 @@ ${rest.map((item: any) => `\n- ${item.name}`)}\n\nConsegue me ajudar?`
         </Dialog.Close>
       </YStack>
     </BaseDialog>
-  )
+  );
 }

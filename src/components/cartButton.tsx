@@ -19,11 +19,7 @@ interface Restaurant {
   user: string;
 }
 
-export const CartButton: React.FC<Props> = ({
-  cartSize,
-  selectedRestaurant,
-  onPress,
-}) => {
+export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPress }) => {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(50);
   const [watcherRestaurant, setWatcherRestaurant] = useState<Restaurant | null>(null);
