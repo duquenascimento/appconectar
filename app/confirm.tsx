@@ -22,7 +22,6 @@ import PageContainer from '@/src/components/box/PageContainer';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { sendMissingItemsAlert } from '../src/services/slackAlertsService';
 import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
@@ -456,10 +455,15 @@ export default function Confirm() {
         return;
       }
 
+      const missingItems = supplier.supplier.discount.product
+        .filter((p: any) => !p.price || p.price === 0)
+        .map((p: any) => p.name);
+
       const body: ConfirmOrderRequestBody = {
         token,
         supplier: supplier.supplier,
         restaurant: selectedRestaurant,
+        missingItems,
       };
 
       const erros = [];
@@ -483,18 +487,6 @@ export default function Confirm() {
       const result = await confirmOrder(body);
 
       if (result.status === 201) {
-        if (supplier.supplier.missingItens > 0) {
-          const missingItems = supplier.supplier.discount.product
-            .filter((p: any) => !p.price)
-            .map((p: any) => p.name);
-
-          await sendMissingItemsAlert({
-            externalId: selectedRestaurant.restaurant.externalId,
-            restaurantName: selectedRestaurant.restaurant.name,
-            orderId: result.data.orderId,
-            missingItems,
-          });
-        }
         await setStorage('finalConfirmData', JSON.stringify(result.data.data));
         router.push('/finalConfirm');
       } else {

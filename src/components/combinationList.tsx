@@ -1,4 +1,4 @@
-import { SupplierData } from '@/app/quotationDetailsScreen';
+import { SupplierData } from '../types/types';
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
 import { useRouter } from 'expo-router';
@@ -12,6 +12,11 @@ import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import CustomSubtitle from './subtitle/customSubtitle';
 
+export interface CombinationMissingProducts {
+  code: string;
+  name: string;
+}
+
 export interface Combination {
   id: string;
   combination: string;
@@ -19,7 +24,7 @@ export interface Combination {
   totalValue?: number;
   delivery?: string;
   missingItems?: number;
-  missingProducts?: string[];
+  missingProducts?: CombinationMissingProducts[];
   createdAt?: string;
   supplierClosed?: string;
   combinationAvailable?: boolean;
@@ -51,6 +56,17 @@ const CombinationList: React.FC = () => {
   const { suppliers, unavailableSupplier } = useSupplier();
   const router = useRouter();
 
+  const getProductNameBySku = (sku: string, suppliers: SupplierData[]) => {
+    for (const supplier of suppliers) {
+      const product = supplier.supplier.discount.product.find((p) => p.sku === sku);
+      if (product) {
+        return product.name;
+      }
+    }
+
+    return 'Produto desconhecido';
+  };
+
   const initialize = async () => {
     try {
       setLoading(true);
@@ -69,7 +85,7 @@ const CombinationList: React.FC = () => {
       setCombinationData(combinationsData);
 
       const transformed: Combination[] = combinationsData.map((item) => {
-        const suppliers =
+        const suppliersNames =
           item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') || 'N/A';
         const cartItens =
           item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
@@ -77,13 +93,22 @@ const CombinationList: React.FC = () => {
           }, 0) || 0;
         const missingItems = totalItens - cartItens;
 
+        const missingProducts: CombinationMissingProducts[] = item.resultadoCotacao?.missingProducts.map(
+          (sku) => ({
+            code: sku,
+            name: getProductNameBySku(sku, suppliers),
+          })
+        );
+
+        console.log('missingProducts:', missingProducts);
+
         return {
           id: item.id,
           combination: item.nome,
-          supplier: suppliers,
+          supplier: suppliersNames,
           totalValue: item.resultadoCotacao?.totalOrderValue,
           missingItems: missingItems < 0 ? 0 : missingItems,
-          missingProducts: item.resultadoCotacao?.missingProducts || [],
+          missingProducts: missingProducts,
         };
       });
       const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
@@ -135,8 +160,12 @@ const CombinationList: React.FC = () => {
       totalValue: String(item.totalValue),
       missingItems: String(item.missingItems),
       suppliersData: JSON.stringify(mergedData),
-      missingProducts: item.missingProducts,
+      missingProducts: JSON.stringify(item.missingProducts),
     };
+
+    console.log('Missing Items:', item.missingItems);
+    console.log('Missing Products:', item.missingProducts);
+    console.log('Suppliers:', mergedData);
 
     router.push({
       pathname: '/quotationDetailsScreen',

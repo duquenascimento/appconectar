@@ -816,6 +816,7 @@ export default function Prices() {
                           body: JSON.stringify({
                             token: await getToken(),
                             selectedRestaurant,
+                            missingItems,
                           }),
                         },
                       );

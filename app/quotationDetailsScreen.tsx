@@ -17,6 +17,7 @@ import CustomButton from '../src/components/button/customButton';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
+import { CombinationMissingProducts } from '@/src/components/combinationList';
 
 export interface Product {
   price: number;
@@ -45,7 +46,7 @@ export interface Discount {
   sku: string;
 }
 
-export interface Supplier {
+export interface ConectarPlusSupplier {
   name: string;
   externalId: string;
   image: string;
@@ -54,10 +55,11 @@ export interface Supplier {
   hour: string;
   discount: Discount;
   star: string;
+  missingItems: string[];
 }
 
 export interface SupplierData {
-  supplier: Supplier;
+  supplier: ConectarPlusSupplier;
 }
 
 type RootStackParamList = {
@@ -70,7 +72,7 @@ type RootStackParamList = {
     combinationId: string;
     combinationName?: string;
     suppliersData: SupplierData[];
-    missingProducts: string[];
+    missingProducts: CombinationMissingProducts[];
   };
 };
 
@@ -207,37 +209,42 @@ export default function QuotationDetailsScreen() {
         return;
       }
 
-      const body: ConfirmOrderPremiumRequestBody = {
-        token,
-        suppliers: suppliers.map((s) => s.supplier),
-        restaurant: parsedRestaurant,
-      };
+      console.log(
+        'Confirming missing items:',
+        suppliers.map((s) => s.supplier.missingItems),
+      );
 
-      const createdOrders = await confirmOrderPremium(body);
-      if (createdOrders && createdOrders.status === 201) {
-        deleteMultiStorage(['cartOrder', 'cart']);
-        const { deliveryDateFormated } = createdOrders.data.data[0];
+      // const body: ConfirmOrderPremiumRequestBody = {
+      //   token,
+      //   suppliers: suppliers.map((s) => s.supplier),
+      //   restaurant: parsedRestaurant,
+      // };
 
-        const ordersBySupplier = createdOrders.data.data.map(
-          (item: { orderId: string; externalId: string }) => ({
-            orderId: item.orderId,
-            externalId: item.externalId,
-          }),
-        );
+      // const createdOrders = await confirmOrderPremium(body);
+      // if (createdOrders && createdOrders.status === 201) {
+      //   deleteMultiStorage(['cartOrder', 'cart']);
+      //   const { deliveryDateFormated } = createdOrders.data.data[0];
 
-        const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
+      //   const ordersBySupplier = createdOrders.data.data.map(
+      //     (item: { orderId: string; externalId: string }) => ({
+      //       orderId: item.orderId,
+      //       externalId: item.externalId,
+      //     }),
+      //   );
 
-        router.push({
-          pathname: '/orderConfirmedScreen',
-          params: {
-            suppliers: JSON.stringify(supplierWithOrderId),
-            deliveryDate: deliveryDateFormated,
-          },
-        });
-      } else {
-        Alert.alert('Erro', 'Erro ao confirmar a combinação.');
-        setIsAlertVisible(true);
-      }
+      //   const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
+
+      //   router.push({
+      //     pathname: '/orderConfirmedScreen',
+      //     params: {
+      //       suppliers: JSON.stringify(supplierWithOrderId),
+      //       deliveryDate: deliveryDateFormated,
+      //     },
+      //   });
+      // } else {
+      //   Alert.alert('Erro', 'Erro ao confirmar a combinação.');
+      //   setIsAlertVisible(true);
+      // }
     } catch (error) {
       console.error('Erro ao confirmar a combinação:', error);
       Alert.alert('Erro', 'Ocorreu um erro inesperado.');
