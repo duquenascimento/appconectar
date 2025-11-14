@@ -22,6 +22,7 @@ import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { Combinacao } from '../src/types/combinationTypes';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
+import { Supplier } from '@/src/types/types';
 
 export interface SuplierCombination {
   id: string;
@@ -45,6 +46,30 @@ export function Combination(): JSX.Element {
   const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
     Array<{ label: string; value: number }>
   >([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  
+  useEffect(() => {
+    const suppliersFn = async () => {
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/fornecedores`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!result.ok) {
+        setSuppliers([]);
+        return [];
+      }
+      
+      const data = await result.json();
+      setSuppliers((data?.data ?? []).map((item: any) => ({ 
+        name: item.nomefornecedor, 
+        externalId: item.idexterno, 
+        start: item.nota, 
+      })));
+
+      return data?.data ?? [];
+    }
+    suppliersFn();
+  }, []);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -344,17 +369,20 @@ export function Combination(): JSX.Element {
           />
 
           <BloqueioFornecedoresCampo
+            suppliers={suppliers}
             error={validationErrors.fornecedores_bloqueados}
             onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)}
           />
 
           <PreferenciaFornecedorCampo
+            suppliers={suppliers}
             error={validationErrors.fornecedores_especificos}
             onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)}
           />
 
           {['especifico', 'qualquer'].includes(combinacao.preferencia_fornecedor_tipo ?? '') && (
             <ContainerPreferenciasProduto
+              suppliers={suppliers}
               error={validationErrors.preferencias}
               onClearErrors={clearPreferenceErrors}
               triggerValidation={triggerValidation}
