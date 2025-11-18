@@ -23,6 +23,7 @@ import { Combinacao } from '../src/types/combinationTypes';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 import { Supplier } from '@/src/types/types';
+import { getAllSuppliers } from '@/src/services/supplierService';
 
 export interface SuplierCombination {
   id: string;
@@ -50,23 +51,14 @@ export function Combination(): JSX.Element {
   
   useEffect(() => {
     const suppliersFn = async () => {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_DBCONECTAR_URL}/system/fornecedores`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      });
-      if (!result.ok) {
-        setSuppliers([]);
-        return [];
-      }
+      const result = await getAllSuppliers();
       
-      const data = await result.json();
-      setSuppliers((data?.data ?? []).map((item: any) => ({ 
+      setSuppliers(result.map((item: any) => ({ 
         name: item.nomefornecedor, 
         externalId: item.idexterno, 
         start: item.nota, 
       })));
 
-      return data?.data ?? [];
     }
     suppliersFn();
   }, []);
