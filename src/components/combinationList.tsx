@@ -11,6 +11,7 @@ import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTy
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import CustomSubtitle from './subtitle/customSubtitle';
+import { useRestaurantContext } from '../contexts/restaurant.context';
 
 export interface Combination {
   id: string;
@@ -49,14 +50,16 @@ const CombinationList: React.FC = () => {
   const [combinationData, setCombinationData] = useState<QuotationApiResponse[]>([]);
 
   const { suppliers, unavailableSupplier } = useSupplier();
+  const { selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
 
   const initialize = async () => {
+    if (!selectedRestaurant) return;
     try {
       setLoading(true);
       const token = await getToken();
-      const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
-      const selectedRestaurant = { ...restaurantStoredValue.restaurant };
+      /* const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
+      const selectedRestaurant = { ...restaurantStoredValue.restaurant }; */
       const cartStoredValue = JSON.parse(
         (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
       );

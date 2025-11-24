@@ -272,8 +272,13 @@ export default function Prices() {
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
   const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
-  const { restaurants, selectedRestaurant, handleRestaurantChange, loadRestaurants } =
-    useRestaurantContext();
+  const {
+    restaurants,
+    selectedRestaurant,
+    handleRestaurantChange,
+    updateRestaurant,
+    loadRestaurants,
+  } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
@@ -2029,21 +2034,9 @@ export default function Prices() {
 
                             await handleRestaurantChange(rest);
 
-                            await Promise.all([
-                              loadPrices(rest),
-                              fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
-                                body: JSON.stringify({
-                                  ...rest,
-                                }),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                method: 'POST',
-                              }),
-                            ]);
+                            await Promise.all([loadPrices(rest), updateRestaurant(rest)]);
                             try {
                               setLoading(true);
-                              // await loadRestaurants();
                               await loadPrices();
                             } catch (err) {
                               console.error(err);

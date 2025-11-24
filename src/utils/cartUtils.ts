@@ -16,11 +16,11 @@ export async function loadCart(): Promise<Map<string, TCart>> {
       },
       body: JSON.stringify({ token, selectedRestaurant: { id: restaurant.id } }),
     });
-    console.log('Dados do carrinho:', result);
 
     if (!result.ok) return new Map();
 
     const cart = await result.json();
+    console.log('Dados do carrinho:', cart);
     if (!cart.data || cart.data.length < 1) return new Map();
 
     const cartMap = new Map<string, TCart>(cart.data.map((item: TCart) => [item.productId, item]));
