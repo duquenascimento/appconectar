@@ -1,8 +1,8 @@
 import { SupplierData } from '@/app/quotationDetailsScreen';
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
 import { View } from 'tamagui';
 import { useSupplier } from '../contexts/fornecedores.context';
@@ -53,78 +53,80 @@ const CombinationList: React.FC = () => {
   const { selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
 
-  const initialize = async () => {
-    if (!selectedRestaurant) return;
-    try {
-      setLoading(true);
-      const token = await getToken();
-      /* const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
+  useFocusEffect(
+    useCallback(() => {
+      const initialize = async () => {
+        if (!selectedRestaurant) return;
+        try {
+          setLoading(true);
+          const token = await getToken();
+          /* const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
       const selectedRestaurant = { ...restaurantStoredValue.restaurant }; */
-      const cartStoredValue = JSON.parse(
-        (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
-      );
-      const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
-        token,
-        selectedRestaurant,
-        cart: cartStoredValue,
-        prices: [...suppliers, ...unavailableCombinations],
-      });
+          const cartStoredValue = JSON.parse(
+            (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
+          );
+          const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
+            token,
+            selectedRestaurant,
+            cart: cartStoredValue,
+            prices: [...suppliers],
+          });
 
-      const totalItens = cartStoredValue?.length || 0;
-      setCombinationData(combinationsData);
+          const totalItens = cartStoredValue?.length || 0;
+          setCombinationData(combinationsData);
 
-      const transformed: Combination[] = combinationsData.map((item) => {
-        const suppliers =
-          item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') || 'N/A';
-        const cartItens =
-          item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
-            return acc + (cesta.cart?.length || 0);
-          }, 0) || 0;
-        const missingItems = totalItens - cartItens;
+          const transformed: Combination[] = combinationsData.map((item) => {
+            const suppliers =
+              item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') ||
+              'N/A';
+            const cartItens =
+              item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
+                return acc + (cesta.cart?.length || 0);
+              }, 0) || 0;
+            const missingItems = totalItens - cartItens;
 
-        return {
-          id: item.id,
-          combination: item.nome,
-          supplier: suppliers,
-          totalValue: item.resultadoCotacao?.totalOrderValue,
-          missingItems: missingItems < 0 ? 0 : missingItems,
-          missingProducts: item.resultadoCotacao?.missingProducts || [],
-        };
-      });
-      const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
+            return {
+              id: item.id,
+              combination: item.nome,
+              supplier: suppliers,
+              totalValue: item.resultadoCotacao?.totalOrderValue,
+              missingItems: missingItems < 0 ? 0 : missingItems,
+              missingProducts: item.resultadoCotacao?.missingProducts || [],
+            };
+          });
+          const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
 
-      const unavailableCombinationList = transformed.filter(
-        (item) =>
-          item.totalValue === 0 ||
-          unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-      );
+          const unavailableCombinationList = transformed.filter(
+            (item) =>
+              item.totalValue === 0 ||
+              unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+          );
 
-      const availableCombinationList = transformed
-        .filter(
-          (item) =>
-            item.totalValue !== 0 &&
-            !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-        )
-        .sort((a, b) => {
-          if (a.missingItems !== b.missingItems) {
-            return (a.missingItems ?? 0) - (b.missingItems ?? 0);
-          }
-          return (a.totalValue ?? 0) - (b.totalValue ?? 0);
-        });
+          const availableCombinationList = transformed
+            .filter(
+              (item) =>
+                item.totalValue !== 0 &&
+                !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+            )
+            .sort((a, b) => {
+              if (a.missingItems !== b.missingItems) {
+                return (a.missingItems ?? 0) - (b.missingItems ?? 0);
+              }
+              return (a.totalValue ?? 0) - (b.totalValue ?? 0);
+            });
 
-      setUnavailableCombinations(unavailableCombinationList);
-      setMineCombinations(availableCombinationList);
-    } catch (error) {
-      setIsAlertVisible(true);
-      console.error('Erro ao inicializar:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    initialize();
-  }, []);
+          setUnavailableCombinations(unavailableCombinationList);
+          setMineCombinations(availableCombinationList);
+        } catch (error) {
+          setIsAlertVisible(true);
+          console.error('Erro ao inicializar:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      initialize();
+    }, [selectedRestaurant, suppliers]),
+  );
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
