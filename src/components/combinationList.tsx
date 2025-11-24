@@ -60,8 +60,6 @@ const CombinationList: React.FC = () => {
         try {
           setLoading(true);
           const token = await getToken();
-          /* const restaurantStoredValue = JSON.parse((await getStorage('selectedRestaurant')) || '[]');
-      const selectedRestaurant = { ...restaurantStoredValue.restaurant }; */
           const cartStoredValue = JSON.parse(
             (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
           );
