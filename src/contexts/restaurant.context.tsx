@@ -10,6 +10,7 @@ import React, {
 import { getToken, setStorage } from '../utils/utils';
 import { Restaurant } from '../types/restaurantTypes';
 import { getSavedRestaurant } from '../utils/savedRestaurant';
+import { updateRestaurantInfo } from '../services/restaurantService';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
@@ -53,16 +54,8 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     async (data: Partial<Restaurant>) => {
       if (!selectedRestaurant) return;
 
+      await updateRestaurantInfo(selectedRestaurant.id, data);
       const newRestaurant = { ...selectedRestaurant, ...data };
-
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          restaurantId: selectedRestaurant.id,
-          ...data,
-        }),
-      });
 
       await setStorage('selectedRestaurant', JSON.stringify(newRestaurant));
 
