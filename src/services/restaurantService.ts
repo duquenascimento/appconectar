@@ -40,9 +40,12 @@ export const getMaxSpecificSuppliersNumber = async (externalId: string) => {
   }
 };
 
-export const updateRestaurantInfo = async (restaurantId: string, data: Partial<Restaurant>) => {
+export const updateRestaurantDeliveryInfo = async (
+  restaurantId: string,
+  data: Partial<Restaurant>,
+) => {
   try {
-    await fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
+    await fetch(`${API_URL}/address/update`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

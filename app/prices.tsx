@@ -2088,17 +2088,10 @@ export default function Prices() {
                   // 1. Fechar o modal
                   setShowBlockedModal(false);
 
+                  // 2. Troca restaurante
                   handleRestaurantChange(availableRestaurant);
-                  /*  // 2. Salvar o novo restaurante selecionado
-                  await AsyncStorage.setItem(
-                    'selectedRestaurant',
-                    JSON.stringify({ restaurant: availableRestaurant }),
-                  );
 
-                  // 3. Atualizar o estado local
-                  setSelectedRestaurant(availableRestaurant); */
-
-                  // 4. Recarregar os preços para o novo restaurante
+                  // 3. Recarregar os preços para o novo restaurante
                   await loadPrices(availableRestaurant);
 
                   setDraftSelectedRestaurant(null);

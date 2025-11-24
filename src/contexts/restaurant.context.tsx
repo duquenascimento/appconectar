@@ -10,7 +10,7 @@ import React, {
 import { getToken, setStorage } from '../utils/utils';
 import { Restaurant } from '../types/restaurantTypes';
 import { getSavedRestaurant } from '../utils/savedRestaurant';
-import { updateRestaurantInfo } from '../services/restaurantService';
+import { updateRestaurantDeliveryInfo } from '../services/restaurantService';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
@@ -54,7 +54,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     async (data: Partial<Restaurant>) => {
       if (!selectedRestaurant) return;
 
-      await updateRestaurantInfo(selectedRestaurant.id, data);
+      await updateRestaurantDeliveryInfo(selectedRestaurant.id, data);
       const newRestaurant = { ...selectedRestaurant, ...data };
 
       await setStorage('selectedRestaurant', JSON.stringify(newRestaurant));
