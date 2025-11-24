@@ -505,28 +505,29 @@ export default function Prices() {
     setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
   }, [draftSelectedRestaurant]);
 
-  useEffect(() => {
-    const handleConectarPlus = async () => {
-      const stored = await getStorage('hasAccessedConectarPlus');
-      const alreadyAccessed = stored === 'true';
-      setHasAccessedConectarPlus(alreadyAccessed);
+  useFocusEffect(
+    useCallback(() => {
+      const handleConectarPlus = async () => {
+        const stored = await getStorage('hasAccessedConectarPlus');
+        const alreadyAccessed = stored === 'true';
+        setHasAccessedConectarPlus(alreadyAccessed);
 
-      if (selectedRestaurant?.conectarPlusAuthorization) {
-        await setStorage('hasAccessedConectarPlus', 'true');
-        setHasAccessedConectarPlus(true);
-      }
+        if (selectedRestaurant?.conectarPlusAuthorization) {
+          await setStorage('hasAccessedConectarPlus', 'true');
+          setHasAccessedConectarPlus(true);
+        }
 
-      if (
-        tab === 'plus' &&
-        selectedRestaurant?.conectarPlusAuthorization === false &&
-        alreadyAccessed
-      ) {
-        setIsConectarAlertVisible(true);
-      }
-    };
-
-    handleConectarPlus();
-  }, [selectedRestaurant, tab]);
+        if (
+          tab === 'plus' &&
+          selectedRestaurant?.conectarPlusAuthorization === false &&
+          alreadyAccessed
+        ) {
+          setIsConectarAlertVisible(true);
+        }
+      };
+      handleConectarPlus();
+    }, [selectedRestaurant]),
+  );
 
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
