@@ -16,7 +16,6 @@ export async function loadCart(): Promise<Map<string, TCart>> {
       },
       body: JSON.stringify({ token, selectedRestaurant: { id: restaurant.id } }),
     });
-    console.log('Dados do carrinho:', result);
 
     if (!result.ok) return new Map();
 

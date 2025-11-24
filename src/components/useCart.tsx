@@ -2,8 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { Alert } from 'react-native';
 import { getToken, getStorage, setStorage, deleteStorage } from '../utils/utils';
 import { saveProductObservations } from '../utils/productObservation';
-import { getSavedRestaurant } from './savedRestaurant';
 import { useRestaurantContext } from '../contexts/restaurant.context';
+import { getSavedRestaurant } from '../utils/savedRestaurant';
 
 type Cart = {
   productId: string;
