@@ -1060,7 +1060,6 @@ export default function Products() {
             );
             setSelectedRestaurant(availableRestaurant.externalId);
             setShowRegistrationReleasedNewApp(false);
-            // loadProducts(); CHECAR SE QUEBRA iOS
             loadFavorites();
             loadCart();
           }
@@ -1171,7 +1170,6 @@ export default function Products() {
                 data={displayedProducts}
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
-                // onEndReached={loadProducts}  CHECAR SE QUEBRA iOS
                 listRef={flatListRef}
                 contentContainerStyle={{ paddingBottom: 90 }}
               />
