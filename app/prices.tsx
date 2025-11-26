@@ -275,8 +275,13 @@ export default function Prices() {
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
   const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
-  const { restaurants, selectedRestaurant, handleRestaurantChange, loadRestaurants } =
-    useRestaurantContext();
+  const {
+    restaurants,
+    selectedRestaurant,
+    handleRestaurantChange,
+    updateRestaurant,
+    loadRestaurants,
+  } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
@@ -518,28 +523,29 @@ export default function Prices() {
     setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
   }, [draftSelectedRestaurant]);
 
-  useEffect(() => {
-    const handleConectarPlus = async () => {
-      const stored = await getStorage('hasAccessedConectarPlus');
-      const alreadyAccessed = stored === 'true';
-      setHasAccessedConectarPlus(alreadyAccessed);
+  useFocusEffect(
+    useCallback(() => {
+      const handleConectarPlus = async () => {
+        const stored = await getStorage('hasAccessedConectarPlus');
+        const alreadyAccessed = stored === 'true';
+        setHasAccessedConectarPlus(alreadyAccessed);
 
-      if (selectedRestaurant?.conectarPlusAuthorization) {
-        await setStorage('hasAccessedConectarPlus', 'true');
-        setHasAccessedConectarPlus(true);
-      }
+        if (selectedRestaurant?.conectarPlusAuthorization) {
+          await setStorage('hasAccessedConectarPlus', 'true');
+          setHasAccessedConectarPlus(true);
+        }
 
-      if (
-        tab === 'plus' &&
-        selectedRestaurant?.conectarPlusAuthorization === false &&
-        alreadyAccessed
-      ) {
-        setIsConectarAlertVisible(true);
-      }
-    };
-
-    handleConectarPlus();
-  }, [selectedRestaurant, tab]);
+        if (
+          tab === 'plus' &&
+          selectedRestaurant?.conectarPlusAuthorization === false &&
+          alreadyAccessed
+        ) {
+          setIsConectarAlertVisible(true);
+        }
+      };
+      handleConectarPlus();
+    }, [selectedRestaurant]),
+  );
 
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
@@ -2106,21 +2112,9 @@ export default function Prices() {
 
                             await handleRestaurantChange(rest);
 
-                            await Promise.all([
-                              loadPrices(rest),
-                              fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
-                                body: JSON.stringify({
-                                  ...rest,
-                                }),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                method: 'POST',
-                              }),
-                            ]);
+                            await Promise.all([loadPrices(rest), updateRestaurant(rest)]);
                             try {
                               setLoading(true);
-                              // await loadRestaurants();
                               await loadPrices();
                             } catch (err) {
                               console.error(err);
@@ -2171,17 +2165,10 @@ export default function Prices() {
                   // 1. Fechar o modal
                   setShowBlockedModal(false);
 
+                  // 2. Troca restaurante
                   handleRestaurantChange(availableRestaurant);
-                  /*  // 2. Salvar o novo restaurante selecionado
-                  await AsyncStorage.setItem(
-                    'selectedRestaurant',
-                    JSON.stringify({ restaurant: availableRestaurant }),
-                  );
 
-                  // 3. Atualizar o estado local
-                  setSelectedRestaurant(availableRestaurant); */
-
-                  // 4. Recarregar os preços para o novo restaurante
+                  // 3. Recarregar os preços para o novo restaurante
                   await loadPrices(availableRestaurant);
 
                   setDraftSelectedRestaurant(null);

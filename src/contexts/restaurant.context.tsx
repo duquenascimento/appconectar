@@ -11,12 +11,14 @@ import {
 } from 'react';
 import { getSavedRestaurant } from '../utils/savedRestaurant';
 import { setStorage } from '../utils/utils';
+import { updateRestaurantDeliveryInfo } from '../services/restaurantService';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
   selectedRestaurant?: Restaurant | null;
   setSelectedRestaurant: (restaurant: Restaurant | null) => void;
   handleRestaurantChange: (restaurant: Restaurant | null) => Promise<void>;
+  updateRestaurant: (restaurant: Restaurant) => Promise<void>;
   loadRestaurants: () => Promise<Restaurant[]>;
 }
 
@@ -47,6 +49,23 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       }
     },
     [restaurants],
+  );
+
+  const updateRestaurant = useCallback(
+    async (data: Partial<Restaurant>) => {
+      if (!selectedRestaurant) return;
+
+      await updateRestaurantDeliveryInfo(selectedRestaurant.id, data);
+      const newRestaurant = { ...selectedRestaurant, ...data };
+
+      await setStorage('selectedRestaurant', JSON.stringify(newRestaurant));
+
+      setRestaurants((prev) =>
+        prev.map((r) => (r.externalId === newRestaurant.externalId ? newRestaurant : r)),
+      );
+      setSelectedRestaurant(newRestaurant);
+    },
+    [selectedRestaurant],
   );
 
   const loadRestaurants = useCallback(async (): Promise<Restaurant[]> => {
@@ -116,6 +135,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       selectedRestaurant,
       setSelectedRestaurant,
       handleRestaurantChange,
+      updateRestaurant,
     }),
     [loadRestaurants, restaurants, selectedRestaurant, handleRestaurantChange],
   );
