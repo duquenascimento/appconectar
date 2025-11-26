@@ -1,7 +1,7 @@
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
 import CombinationList, { Combination } from '@/src/components/combinationList';
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
+import DialogComercialInstance  from '@/src/components/dialogComercialInstance';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import DialogInstanceNotification from '@/src/components/modais/DialogInstanceNotification';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
