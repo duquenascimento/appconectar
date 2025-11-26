@@ -620,14 +620,12 @@ export default function Products() {
   const [productsList, setProductsList] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  // const [favorites, setFavorites] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState<string>('');
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
   const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
-  // const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
@@ -657,7 +655,7 @@ export default function Products() {
   });
 
   useEffect(() => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || !selectedRestaurant) return;
 
     const runCheck = async () => {
       const result = await checkVersion();
@@ -681,129 +679,114 @@ export default function Products() {
     return () => clearTimeout(timeout);
   }, [cart.size]);
 
-  // seguindo o padrão das orders
-  // const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
-  // const [restaurantOpen, setRestaurantOpen] = useState(false);
-
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null);
   const flatListRef = useRef<FlatList<Product>>(null);
 
-  const loadProducts = useCallback(async () => {
-    if (isLoading) return;
-    try {
-      const productsList = productsContext;
-
-      setProductsList(productsList);
-    } catch (error) {
-      console.error('Error loading products:', error);
+  useEffect(() => {
+    if (!isLoading && productsContext.length > 0) {
+      setProductsList(productsContext);
     }
-  }, [productsContext]);
+  }, [isLoading, productsContext]);
 
   useFocusEffect(
     useCallback(() => {
-      if (selectedRestaurant) {
-        // força atualização de dados sempre que voltar pra tela
-        loadProducts();
-      }
-    }, [selectedRestaurant]),
-  );
-
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setProductsList([]);
-      setDisplayedProducts([]);
-      setLoading(true);
-      try {
-        if (restaurants.length === 0 || !restaurants) {
-          return;
-        }
-        if (selectedRestaurant?.externalId) {
-          await SaveUserAppInfo();
-        }
-        await loadProducts();
-
-        const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
-        // Extraindo categorias
-        const categories = restaurants?.flatMap((rest: any) => rest.categories || []);
-        if (verduraKg.length && categories.length === 0) {
-          classItems = [
-            { name: 'Favoritos' },
-            { name: 'Fruta' },
-            { name: 'Legumes' },
-            { name: 'Verduras - KG' },
-            { name: 'Especiarias' },
-            { name: 'Granja' },
-            { name: 'Cogumelos e trufas' },
-            { name: 'Higienizados' },
-          ];
-        } else if (categories.length === 0) {
-          classItems = [
-            { name: 'Favoritos' },
-            { name: 'Fruta' },
-            { name: 'Legumes' },
-            { name: 'Verduras' },
-            { name: 'Especiarias' },
-            { name: 'Granja' },
-            { name: 'Cogumelos e trufas' },
-            { name: 'Higienizados' },
-          ];
-        } else {
-          classItems = [
-            { name: 'Favoritos' },
-            ...categories.map((category: any) => ({ name: category })),
-          ];
-        }
-
-        const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
-
-        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
-        const allRestaurantBlocked = availableRestaurants.length === 0;
-
-        let initialRestaurant = selectedRestaurant;
-        if (!allRestaurantBlocked) {
-          initialRestaurant = restaurants[0];
-
-          if (selectedRestaurant) {
-            const found = availableRestaurants.find((r) => r.id === selectedRestaurant.id);
-            if (found) {
-              initialRestaurant = found;
-            }
+      const loadInitialData = async () => {
+        setLoading(true);
+        try {
+          if (restaurants.length === 0 || !restaurants) {
+            return;
           }
-          await setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }));
+          if (selectedRestaurant?.externalId) {
+            await SaveUserAppInfo();
+          }
+
+          const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
+          // Extraindo categorias
+          const categories = restaurants?.flatMap((rest: any) => rest.categories || []);
+          if (verduraKg.length && categories.length === 0) {
+            classItems = [
+              { name: 'Favoritos' },
+              { name: 'Fruta' },
+              { name: 'Legumes' },
+              { name: 'Verduras - KG' },
+              { name: 'Especiarias' },
+              { name: 'Granja' },
+              { name: 'Cogumelos e trufas' },
+              { name: 'Higienizados' },
+            ];
+          } else if (categories.length === 0) {
+            classItems = [
+              { name: 'Favoritos' },
+              { name: 'Fruta' },
+              { name: 'Legumes' },
+              { name: 'Verduras' },
+              { name: 'Especiarias' },
+              { name: 'Granja' },
+              { name: 'Cogumelos e trufas' },
+              { name: 'Higienizados' },
+            ];
+          } else {
+            classItems = [
+              { name: 'Favoritos' },
+              ...categories.map((category: any) => ({ name: category })),
+            ];
+          }
+
+          const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
+
+          const availableRestaurants = validRestaurants.filter(
+            (r) => !r.registrationReleasedNewApp,
+          );
+          const allRestaurantBlocked = availableRestaurants.length === 0;
+
+          let initialRestaurant = selectedRestaurant;
+          if (!allRestaurantBlocked) {
+            initialRestaurant = restaurants[0];
+
+            if (selectedRestaurant) {
+              const found = availableRestaurants.find((r) => r.id === selectedRestaurant.id);
+              if (found) {
+                initialRestaurant = found;
+              }
+            }
+            await setStorage(
+              'selectedRestaurant',
+              JSON.stringify({ restaurant: initialRestaurant }),
+            );
+          }
+
+          const cartMap = await loadCart();
+
+          const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
+          const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
+          if (restFilteredComercial || allRestaurantBlocked) {
+            setShowRegistrationReleasedNewApp(true);
+          }
+
+          if (restFilteredFinance.length) {
+            setShowFinanceBlock(true);
+          }
+
+          if (cartMap.size > 0) {
+            setCart(cartMap);
+          }
+          const newObservations = new Map();
+          cart.forEach((item) => {
+            if (item.obs) newObservations.set(item.productId, item.obs);
+          });
+          setProductObservations(newObservations);
+        } catch (error) {
+          console.error('Erro ao carregar dados:', error);
+        } finally {
+          setLoading(false);
         }
 
-        const cartMap = await loadCart();
-
-        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
-        const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
-        if (restFilteredComercial || allRestaurantBlocked) {
-          setShowRegistrationReleasedNewApp(true);
-        }
-
-        if (restFilteredFinance.length) {
-          setShowFinanceBlock(true);
-        }
-
-        if (cartMap.size > 0) {
-          setCart(cartMap);
-        }
-        const newObservations = new Map();
-        cart.forEach((item) => {
-          if (item.obs) newObservations.set(item.productId, item.obs);
-        });
-        setProductObservations(newObservations);
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-      } finally {
-        setLoading(false);
-      }
-
-      const storedObs = await loadProductObservations();
-      setProductObservations(storedObs);
-    };
-    loadInitialData();
-  }, [selectedRestaurant, restaurants]);
-
+        const storedObs = await loadProductObservations();
+        setProductObservations(storedObs);
+      };
+      loadInitialData();
+    }, [selectedRestaurant, restaurants]),
+  );
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
       try {
@@ -1077,7 +1060,6 @@ export default function Products() {
             );
             setSelectedRestaurant(availableRestaurant.externalId);
             setShowRegistrationReleasedNewApp(false);
-            loadProducts();
             loadFavorites();
             loadCart();
           }
@@ -1176,6 +1158,7 @@ export default function Products() {
           ) : !skeletonLoading ? (
             Platform.OS === 'android' ? (
               <CustomVirtualizedList
+                key={currentClass}
                 data={displayedProducts}
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
@@ -1187,7 +1170,6 @@ export default function Products() {
                 data={displayedProducts}
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
-                onEndReached={loadProducts}
                 listRef={flatListRef}
                 contentContainerStyle={{ paddingBottom: 90 }}
               />
