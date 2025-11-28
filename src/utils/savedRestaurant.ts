@@ -4,6 +4,7 @@ interface Restaurant {
   externalId: any;
   id: string;
   name: string;
+  premium: boolean;
   registrationReleasedNewApp: boolean;
 }
 

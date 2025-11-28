@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getToken } from '../utils/utils';
+import { Restaurant } from '../types/restaurantTypes';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -29,10 +30,27 @@ export const loadPermissionConectarPlus = async (externalId: string) => {
 
 export const getMaxSpecificSuppliersNumber = async (externalId: string) => {
   try {
-    const response = await axios.get(`${API_URL}/restaurant/get-max-specific-suppliers/${externalId}`);
+    const response = await axios.get(
+      `${API_URL}/restaurant/get-max-specific-suppliers/${externalId}`,
+    );
     return response.data.data;
   } catch (error) {
-    console.error('Erro ao buscar lista de fornecedores:', error)
-    throw error
+    console.error('Erro ao buscar lista de fornecedores:', error);
+    throw error;
+  }
+};
+
+export async function getUserRestaurants(): Promise<Restaurant[]> {
+  try {
+    const token = await getToken();
+    const response = await axios.post(`${API_URL}/restaurant/list`, JSON.stringify({ token }), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error('Erro ao buscar restaurantes:', error);
+    throw error;
   }
 }

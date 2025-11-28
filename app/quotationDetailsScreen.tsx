@@ -17,6 +17,7 @@ import CustomButton from '../src/components/button/customButton';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
+import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 
 export interface Product {
   price: number;
@@ -86,11 +87,13 @@ export default function QuotationDetailsScreen() {
     combinationName,
     suppliersData: suppliersDataParam,
     missingProducts,
+    scheduleId,
   } = useLocalSearchParams<{
     combinationId?: string;
     combinationName?: string;
     suppliersData?: string;
     missingProducts: string[];
+    scheduleId?: string;
   }>();
 
   const suppliersData = useMemo(() => {
@@ -205,6 +208,11 @@ export default function QuotationDetailsScreen() {
         if (errors.length) setBooleanErros(true);
         else setShowNotification(true);
 
+        return;
+      }
+
+      if (scheduleId) {
+        await confirmScheduleOrder(scheduleId, {});
         return;
       }
 
