@@ -54,3 +54,21 @@ export async function getUserRestaurants(): Promise<Restaurant[]> {
     throw error;
   }
 }
+
+export const updateRestaurantDeliveryInfo = async (
+  restaurantId: string,
+  data: Partial<Restaurant>,
+) => {
+  try {
+    await fetch(`${API_URL}/address/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        restaurantId,
+        ...data,
+      }),
+    });
+  } catch (error) {
+    console.error('Falha ao atualizar dados de restaurante', error);
+  }
+};
