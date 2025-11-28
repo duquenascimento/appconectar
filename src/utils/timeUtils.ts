@@ -44,7 +44,6 @@ export const getPaymentDate = (paymentWay: string, emergencyOrder: boolean): str
   );
 
   deliveryDay.setDate(emergencyOrder ? deliveryDay.getDate() : deliveryDay.getDate() + 1); // Se pedido de emergencia, mesmo dia, senão dia seguinte
-  console.log('Delivery Day', deliveryDay, emergencyOrder);
   const calculateNextWeekday = (date: Date, day: number): Date => {
     const resultDate = new Date(date);
     resultDate.setDate(date.getDate() + ((day + (7 - date.getDay())) % 7));

@@ -143,8 +143,6 @@ function SupplierBox({
     );
   };
 
-  console.log(available);
-
   return (
     <View
       opacity={available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
@@ -436,8 +434,6 @@ export default function Prices() {
       loadPricesAsync();
     }, [selectedRestaurant]),
   );
-
-  console.log(selectedRestaurant?.externalId, selectedRestaurant?.allowEmergencyOrder);
 
   useEffect(() => {
     let tempSuppliers: any[] = [];

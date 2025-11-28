@@ -215,7 +215,6 @@ function DialogInstanceNotification(props: { openModal: boolean; setRegisterInva
 export default function Confirm() {
   const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
   const [loading, setLoading] = useState<boolean>(true);
-  // const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
   const [loadingToConfirm, setLoadingToConfirm] = useState<boolean>(false);
   const [dots, setDots] = useState('');
   const [showErros, setShowErros] = useState<string[]>([]);
@@ -266,10 +265,6 @@ export default function Confirm() {
       try {
         if (!selectedRestaurant) return;
         await loadSupplier();
-        // const selectedRestaurantText = await getStorage('selectedRestaurant');
-        // if (!selectedRestaurantText) return;
-        // const selectedRestaurant = JSON.parse(selectedRestaurantText);
-        //setSelectedRestaurant(selectedRestaurant);
         const activateSchedule = !selectedRestaurant.allowEmergencyOrder
           ? isBefore13Hours()
           : false;
@@ -765,7 +760,6 @@ export default function Confirm() {
             color="red"
             fontSize={10}
             textAlign="center"
-            // display={isBefore13Hours() && !selectedRestaurant.allowEmergencyOrder ? 'flex' : 'none'}
             display={isBefore13h ? 'flex' : 'none'}
           >
             A confirmação só pode ser feita após as 13h
