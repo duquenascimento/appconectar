@@ -1,0 +1,20 @@
+export type Favorites = {
+  name: string;
+  orderUnit: string;
+  quotationUnit: string;
+  convertedWeight: number;
+  class: string;
+  sku: string;
+  image: string[];
+  firstUnit: number;
+  secondUnit: number;
+  thirdUnit: number;
+  mediumWeight: number;
+  id: string;
+  active: boolean;
+  createdBy: string;
+  createdAt: Date;
+  changedBy: string;
+  updatedAt: Date;
+  obs: string;
+};

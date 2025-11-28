@@ -8,7 +8,6 @@ import { OrderData } from '../src/types/IOrder';
 import LabelAndBoxContent from '../src/components/box/LabelAndBoxContent';
 import CustomAlert from '../src/components/modais/CustomAlert';
 
-import { clearStorage, deleteToken } from '../src/utils/utils';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import PageContainer from '@/src/components/box/PageContainer';
 
@@ -310,14 +309,6 @@ export default function OrderDetailsScreen() {
               subtitle={`Por ${supplierName}`}
             />
           </TouchableOpacity>
-          {/* <Button
-            borderColor="red"
-            borderWidth={1}
-            borderRadius={6}
-            onPress={async () => setModalCancelOrderVisibility(true)}
-          >
-            <Text color="red">Cancelar pedido</Text>
-          </Button> */}
         </View>
       </View>
     </PageContainer>

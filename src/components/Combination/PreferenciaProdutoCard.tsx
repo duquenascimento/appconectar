@@ -1,6 +1,16 @@
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, Input, Separator, Text, XStack, YStack } from 'tamagui';
+import {
+  Button,
+  Input,
+  ListItem,
+  ScrollView,
+  Separator,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from 'tamagui';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
@@ -11,6 +21,8 @@ import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { DropdownCampo } from './DropdownCampo';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { normalizeText } from '@/src/utils/stringUtils';
+import { TouchableWithoutFeedback } from 'react-native';
 
 type Props = {
   index: number;
@@ -250,14 +262,14 @@ export function PreferenciaProdutoCard({
       return;
     }
 
-    const termo = busca.toLowerCase();
+    const termo = normalizeText(busca);
 
     const matchesProduto = availableProducts.filter((produto) =>
-      produto.name.toLowerCase().includes(termo),
+      normalizeText(produto.name).includes(termo),
     );
-    const matchesClasse = availableClasses.filter((c) => c.nome.toLowerCase().includes(termo));
+    const matchesClasse = availableClasses.filter((c) => normalizeText(c.nome).includes(termo));
 
-    const sugestoesLocal = [...matchesProduto, ...matchesClasse].slice(0, 5);
+    const sugestoesLocal = [...matchesProduto, ...matchesClasse];
 
     setSugestoes(sugestoesLocal);
   }, [busca, availableProducts, availableClasses]);
@@ -281,6 +293,21 @@ export function PreferenciaProdutoCard({
 
   return (
     <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
+      {busca.length > 0 && sugestoes.length > 0 && (
+        <TouchableWithoutFeedback onPress={() => setBusca('')}>
+          <View
+            position="absolute"
+            top={0}
+            left={0}
+            right={0}
+            bottom={0}
+            // Use a transparent background so it doesn't block content visually,
+            // but still captures touches/clicks.
+            backgroundColor="transparent"
+            zIndex={1000} // Ensure the overlay is above other content but below the list/modal itself
+          />
+        </TouchableWithoutFeedback>
+      )}
       <XStack justifyContent="space-between" alignItems="center">
         <Text fontWeight="bold">Prioridade {index + 1}</Text>
         <XStack gap="$2">
@@ -305,7 +332,7 @@ export function PreferenciaProdutoCard({
         value={preferencia.tipo}
         onChange={(val) => atualizarCampoLocal('tipo', val)}
         schemaPath={`preferencias[${index}].tipo`}
-        zIndex={3000}
+        zIndex={1000}
       />
 
       <Text fontWeight="bold" marginTop="$3">
@@ -317,6 +344,8 @@ export function PreferenciaProdutoCard({
           flex={1}
           placeholder="Buscar produto ou classe"
           value={busca}
+          backgroundColor="white"
+          borderColor="#ccc"
           onChangeText={setBusca}
         />
         <Button
@@ -335,26 +364,39 @@ export function PreferenciaProdutoCard({
             setBusca('');
           }}
         >
-          <Icons name="search" size={20} />
+          <Icons name="add" size={20} />
         </Button>
-      </XStack>
 
-      {busca.length > 0 && sugestoes.length > 0 && (
-        <YStack marginTop="$2" gap="$1">
-          {sugestoes.map((item) => (
-            <Text
-              key={item.id}
-              onPress={() => adicionarProduto(item)}
-              paddingVertical="$3"
-              paddingHorizontal="$4"
-              borderBottomWidth={1}
-              borderColor="$gray4"
-            >
-              {'nome' in item ? item.nome : item.name}
-            </Text>
-          ))}
-        </YStack>
-      )}
+        {busca.length > 0 && sugestoes.length > 0 && (
+          <ScrollView
+            height={200}
+            top={45}
+            position="absolute"
+            zIndex={2000}
+            width="100%"
+            backgroundColor="white"
+            nestedScrollEnabled={true}
+            borderRadius={4}
+            borderWidth={1}
+            borderColor="#ccc"
+          >
+            <YStack gap="$1" backgroundColor="#fff">
+              {sugestoes.map((item) => (
+                <ListItem
+                  key={item.id}
+                  onPress={() => adicionarProduto(item)}
+                  paddingVertical="$2"
+                  paddingHorizontal="$3"
+                  borderBottomWidth={1}
+                  backgroundColor="white"
+                >
+                  {'nome' in item ? item.nome : item.name}
+                </ListItem>
+              ))}
+            </YStack>
+          </ScrollView>
+        )}
+      </XStack>
 
       {preferencia.produtos.length > 0 && (
         <XStack flexWrap="wrap" gap="$2" marginTop="$2">
@@ -404,7 +446,7 @@ export function PreferenciaProdutoCard({
         value={fornecedoresComuns}
         onChange={atualizarFornecedoresPreferencia}
         schemaPath={`preferencias[${index}].fornecedores`}
-        zIndex={30000}
+        zIndex={1000}
       />
 
       {fornecedoresTouched && fornecedoresValidationError && (
@@ -423,7 +465,7 @@ export function PreferenciaProdutoCard({
         ]}
         value={acaoNaFalhaComum}
         onChange={atualizarAcaoNaFalhaPreferencia}
-        zIndex={2500}
+        zIndex={500}
       />
     </YStack>
   );

@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { ActivityIndicator, BackHandler, View } from 'react-native';
 import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
+import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -44,19 +45,21 @@ export default function RootLayout() {
   return (
     <TamaguiProvider config={config}>
       <RestaurantProvider>
-        <ProductProvider>
-          <CombinacaoProvider>
-            <SupplierProvider>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  animation: 'slide_from_right',
-                  gestureEnabled: true,
-                }}
-              ></Stack>
-            </SupplierProvider>
-          </CombinacaoProvider>
-        </ProductProvider>
+        <FavoritesProvider>
+          <ProductProvider>
+            <CombinacaoProvider>
+              <SupplierProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    animation: 'slide_from_right',
+                    gestureEnabled: true,
+                  }}
+                />
+              </SupplierProvider>
+            </CombinacaoProvider>
+          </ProductProvider>
+        </FavoritesProvider>
       </RestaurantProvider>
     </TamaguiProvider>
   );

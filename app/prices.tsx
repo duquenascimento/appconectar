@@ -1,19 +1,6 @@
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomButton from '@/src/components/button/customButton';
-import CombinationList, { Combination } from '@/src/components/combinationList';
-import { DialogComercialInstance } from '@/src/components/dialogComercialInstance';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { TCart } from '@/src/types/cartTypes';
-import { loadCart } from '@/src/utils/cartUtils';
-import { getStarValue } from '@/src/utils/getStarValue';
 import Icons from '@expo/vector-icons/Ionicons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -24,11 +11,24 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Image, Input, ScrollView, Stack, Text, View } from 'tamagui';
+import { useFocusEffect, useRouter } from 'expo-router';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import { campoString } from '../src/utils/formatCampos';
 import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import CombinationList, { Combination } from '../src/components/combinationList';
+import CustomButton from '../src/components/button/customButton';
+import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import { useCombinacao } from '../src/contexts/combinacao.context';
+import { TCart } from '../src/types/cartTypes';
+import { loadCart } from '../src/utils/cartUtils';
+import PageContainer from '../src/components/box/PageContainer';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { getStarValue } from '../src/utils/getStarValue';
+import { Restaurant } from '../src/types/restaurantTypes';
 
 export interface Product {
   price: number;
@@ -78,6 +78,11 @@ type SelectItem = {
   registrationReleasedNewApp: boolean;
 };
 
+const getScreenSize = () => {
+  const { width } = Dimensions.get('window');
+  return width >= 1024 ? 'lg/xl' : 'sm/md';
+};
+
 const useScreenSize = () => {
   const [screenSize, setScreenSize] = useState(getScreenSize());
 
@@ -94,14 +99,8 @@ const useScreenSize = () => {
   return screenSize;
 };
 
-const getScreenSize = () => {
-  const { width } = Dimensions.get('window');
-  return width >= 1024 ? 'lg/xl' : 'sm/md';
-};
-
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
   return suppliers.sort((a, b) => {
-
     // First, sort by missing items (ascending)
     const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
     const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
@@ -115,7 +114,7 @@ const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
       const starB = getStarValue(b.supplier.star);
       return starB - starA;
     }
-    
+
     // Third, sort by order value (ascending)
     return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
   });
@@ -236,14 +235,13 @@ function SupplierBox({
 
 export default function Prices() {
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
   const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
   const [minhours, setMinhours] = useState<string[]>([]);
   const [maxhours, setMaxhours] = useState<string[]>([]);
   const [minHour, setMinHour] = useState<string>('');
   const [maxHour, setMaxHour] = useState<string>('');
   const [editInfos, setEditInfos] = useState<boolean>(false);
-  const [allRestaurants, setAllRestaurants] = useState<SelectItem[]>([]);
+  const [allRestaurants, setAllRestaurants] = useState<Restaurant[]>([]);
   const [city, setCity] = useState<string>();
   const [zipCode, setZipCode] = useState<string>();
   const [localType, setLocalType] = useState<string>();
@@ -274,7 +272,13 @@ export default function Prices() {
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
   const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
-  const { loadRestaurants } = useRestaurantContext();
+  const {
+    restaurants,
+    selectedRestaurant,
+    handleRestaurantChange,
+    updateRestaurant,
+    loadRestaurants,
+  } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
@@ -284,11 +288,7 @@ export default function Prices() {
     const loadCombinations = async () => {
       if (!mainDataLoaded || tab !== 'plus') return;
       try {
-        const storedRestaurant = await AsyncStorage.getItem('selectedRestaurant');
-        if (!storedRestaurant) return;
-
-        const parsed = JSON.parse(storedRestaurant);
-        const restaurantId = parsed?.id;
+        const restaurantId = selectedRestaurant?.id;
 
         if (restaurantId) {
           const fetchedCombinations = await getAllCombinationsByRestaurant(restaurantId);
@@ -297,12 +297,17 @@ export default function Prices() {
       } catch (e) {
         console.error('Erro ao carregar combinations:', e);
       }
-
       setModificado(false);
     };
 
     loadCombinations();
   }, [mainDataLoaded, tab, modificado]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadRestaurants();
+    }, [loadRestaurants]),
+  );
 
   useEffect(() => {
     async function getCart() {
@@ -312,29 +317,6 @@ export default function Prices() {
     }
     getCart();
   }, []);
-
-  useEffect(() => {
-    const handleConectarPlus = async () => {
-      const stored = await getStorage('hasAccessedConectarPlus');
-      const alreadyAccessed = stored === 'true';
-      setHasAccessedConectarPlus(alreadyAccessed);
-
-      if (selectedRestaurant?.conectarPlusAuthorization) {
-        await setStorage('hasAccessedConectarPlus', 'true');
-        setHasAccessedConectarPlus(true);
-      }
-
-      if (
-        tab === 'plus' &&
-        selectedRestaurant?.conectarPlusAuthorization === false &&
-        alreadyAccessed
-      ) {
-        setIsConectarAlertVisible(true);
-      }
-    };
-
-    handleConectarPlus();
-  }, [selectedRestaurant, tab]);
 
   const handleConfirm = () => {
     setFinalCotacao(true);
@@ -393,7 +375,8 @@ export default function Prices() {
     }
   }, [minHour, maxHour]);
 
-  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: any) => {
+  // TODO verificar chamada
+  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: Restaurant) => {
     try {
       setLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
@@ -406,72 +389,51 @@ export default function Prices() {
     }
   };
 
-  const getSavedRestaurant = async () => {
-    try {
-      const data = await AsyncStorage.getItem('selectedRestaurant');
-      if (!data) return null;
+  useFocusEffect(
+    useCallback(() => {
+      const loadPricesAsync = async () => {
+        try {
+          setAllRestaurants(restaurants);
 
-      const parsedData = JSON.parse(data);
+          if (!selectedRestaurant) return;
+          // Verifica se o restaurante salvo ainda existe na lista
+          const validRestaurant = restaurants.find(
+            (r: any) => r.externalId === selectedRestaurant.externalId,
+          );
 
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
+          if (!validRestaurant) return;
 
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  };
+          if (selectedRestaurant.registrationReleasedNewApp) {
+            setShowBlockedModal(true);
+          }
 
-  useEffect(() => {
-    const loadPricesAsync = async () => {
-      try {
-        const restaurants = await loadRestaurants();
-        const restaurantSelected = await getSavedRestaurant();
+          if (selectedRestaurant.conectarPlusAuthorization) {
+            const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
+            setPermissionConectarPlus(permissionResult.authorized);
+          }
+          setTab(selectedRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+          setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
+          setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
-        setAllRestaurants(restaurants);
-
-        // Verifica se o restaurante salvo ainda existe na lista
-        const validRestaurant = restaurants.find(
-          (r: any) => r.externalId === restaurantSelected?.externalId,
-        );
-
-        if (restaurantSelected?.registrationReleasedNewApp) {
-          setShowBlockedModal(true);
+          await loadPrices();
+          const hours = [];
+          for (let hour = 0; hour < 22; hour++) {
+            hours.push(`${String(hour).padStart(2, '0')}:00`);
+            hours.push(`${String(hour).padStart(2, '0')}:30`);
+          }
+          hours.push('22:00');
+          setMinhours(hours);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+          setMainDataLoaded(true);
         }
+      };
 
-        const currentRestaurant = validRestaurant;
-        if (!currentRestaurant) return;
-
-        setSelectedRestaurant(currentRestaurant);
-        if (currentRestaurant.conectarPlusAuthorization) {
-          const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
-          setPermissionConectarPlus(permissionResult.authorized);
-        }
-        setTab(currentRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
-        setMinHour(currentRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
-        setMaxHour(currentRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
-
-        await loadPrices();
-        const hours = [];
-        for (let hour = 0; hour < 22; hour++) {
-          hours.push(`${String(hour).padStart(2, '0')}:00`);
-          hours.push(`${String(hour).padStart(2, '0')}:30`);
-        }
-        hours.push('22:00');
-        setMinhours(hours);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-        setMainDataLoaded(true);
-      }
-    };
-
-    loadPricesAsync();
-  }, [loadPrices]);
+      loadPricesAsync();
+    }, [selectedRestaurant]),
+  );
 
   useEffect(() => {
     let tempSuppliers: any[] = [];
@@ -542,6 +504,30 @@ export default function Prices() {
     setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16));
     setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
   }, [draftSelectedRestaurant]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const handleConectarPlus = async () => {
+        const stored = await getStorage('hasAccessedConectarPlus');
+        const alreadyAccessed = stored === 'true';
+        setHasAccessedConectarPlus(alreadyAccessed);
+
+        if (selectedRestaurant?.conectarPlusAuthorization) {
+          await setStorage('hasAccessedConectarPlus', 'true');
+          setHasAccessedConectarPlus(true);
+        }
+
+        if (
+          tab === 'plus' &&
+          selectedRestaurant?.conectarPlusAuthorization === false &&
+          alreadyAccessed
+        ) {
+          setIsConectarAlertVisible(true);
+        }
+      };
+      handleConectarPlus();
+    }, [selectedRestaurant]),
+  );
 
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
@@ -624,7 +610,7 @@ export default function Prices() {
     );
   }
 
-  if (loading) {
+  if (loading || !selectedRestaurant) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -670,7 +656,6 @@ export default function Prices() {
                 if (!selectedRestaurant.premium || loading) return;
                 try {
                   setLoading(true);
-                  await loadRestaurants();
                   await loadPrices();
                   setTab('plus');
                 } catch (err) {
@@ -698,7 +683,6 @@ export default function Prices() {
                 if (loading) return;
                 try {
                   setLoading(true);
-                  await loadRestaurants();
                   await loadPrices();
                   setTab('onlySupplier');
                 } catch (err) {
@@ -2000,7 +1984,6 @@ export default function Prices() {
                           onPress={async () => {
                             try {
                               setLoading(true);
-                              await loadRestaurants();
                               await loadPrices();
                               setEditInfos(false);
                               setDraftSelectedRestaurant(null);
@@ -2010,7 +1993,7 @@ export default function Prices() {
                               setLoading(false);
                             }
                           }}
-                          backgroundColor="black"
+                          backgroundColor="#ff6d6d"
                           flex={1}
                         >
                           <Text paddingLeft={5} fontSize={12} color="white">
@@ -2030,7 +2013,6 @@ export default function Prices() {
                           onPress={async () => {
                             if (!validateFields()) return; // Valida os campos antes de prosseguir
 
-                            //setLoading(true);
                             const rest: SelectItem = JSON.parse(
                               JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant),
                             );
@@ -2052,24 +2034,11 @@ export default function Prices() {
 
                             setEditInfos(false);
 
-                            setSelectedRestaurant(rest);
+                            await handleRestaurantChange(rest);
 
-                            setStorage('selectedRestaurant', JSON.stringify({ restaurant: rest }));
-                            await Promise.all([
-                              loadPrices(rest),
-                              fetch(`${process.env.EXPO_PUBLIC_API_URL}/address/update`, {
-                                body: JSON.stringify({
-                                  ...rest,
-                                }),
-                                headers: {
-                                  'Content-Type': 'application/json',
-                                },
-                                method: 'POST',
-                              }),
-                            ]);
+                            await Promise.all([loadPrices(rest), updateRestaurant(rest)]);
                             try {
                               setLoading(true);
-                              await loadRestaurants();
                               await loadPrices();
                             } catch (err) {
                               console.error(err);
@@ -2120,16 +2089,10 @@ export default function Prices() {
                   // 1. Fechar o modal
                   setShowBlockedModal(false);
 
-                  // 2. Salvar o novo restaurante selecionado
-                  await AsyncStorage.setItem(
-                    'selectedRestaurant',
-                    JSON.stringify({ restaurant: availableRestaurant }),
-                  );
+                  // 2. Troca restaurante
+                  handleRestaurantChange(availableRestaurant);
 
-                  // 3. Atualizar o estado local
-                  setSelectedRestaurant(availableRestaurant);
-
-                  // 4. Recarregar os preços para o novo restaurante
+                  // 3. Recarregar os preços para o novo restaurante
                   await loadPrices(availableRestaurant);
 
                   setDraftSelectedRestaurant(null);

@@ -9941,9 +9941,9 @@ var require_VirtualizedList = __commonJS({
   }
 });
 
-// node_modules/react-native-web/node_modules/memoize-one/dist/memoize-one.cjs.js
+// node_modules/memoize-one/dist/memoize-one.cjs.js
 var require_memoize_one_cjs = __commonJS({
-  "node_modules/react-native-web/node_modules/memoize-one/dist/memoize-one.cjs.js"(exports2, module2) {
+  "node_modules/memoize-one/dist/memoize-one.cjs.js"(exports2, module2) {
     "use strict";
     var safeIsNaN = Number.isNaN || /* @__PURE__ */ __name(function ponyfill(value) {
       return typeof value === "number" && value !== value;
@@ -20855,7 +20855,6 @@ var require_cjs = __commonJS({
 var require_dist = __commonJS({
   "node_modules/tabbable/dist/index.js"(exports2) {
     "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
     var candidateSelectors = ["input:not([inert])", "select:not([inert])", "textarea:not([inert])", "a[href]:not([inert])", "button:not([inert])", "[tabindex]:not(slot):not([inert])", "audio[controls]:not([inert])", "video[controls]:not([inert])", '[contenteditable]:not([contenteditable="false"]):not([inert])', "details>summary:first-of-type:not([inert])", "details:not([inert])"];
     var candidateSelector = /* @__PURE__ */ candidateSelectors.join(",");
     var NoElement = typeof Element === "undefined";
@@ -20867,14 +20866,14 @@ var require_dist = __commonJS({
     } : function(element) {
       return element === null || element === void 0 ? void 0 : element.ownerDocument;
     };
-    var isInert = /* @__PURE__ */ __name(function isInert2(node, lookUp) {
+    var _isInert = /* @__PURE__ */ __name(function isInert(node, lookUp) {
       var _node$getAttribute;
       if (lookUp === void 0) {
         lookUp = true;
       }
       var inertAtt = node === null || node === void 0 ? void 0 : (_node$getAttribute = node.getAttribute) === null || _node$getAttribute === void 0 ? void 0 : _node$getAttribute.call(node, "inert");
       var inert = inertAtt === "" || inertAtt === "true";
-      var result = inert || lookUp && node && isInert2(node.parentNode);
+      var result = inert || lookUp && node && _isInert(node.parentNode);
       return result;
     }, "isInert");
     var isContentEditable = /* @__PURE__ */ __name(function isContentEditable2(node) {
@@ -20883,7 +20882,7 @@ var require_dist = __commonJS({
       return attValue === "" || attValue === "true";
     }, "isContentEditable");
     var getCandidates = /* @__PURE__ */ __name(function getCandidates2(el, includeContainer, filter) {
-      if (isInert(el)) {
+      if (_isInert(el)) {
         return [];
       }
       var candidates = Array.prototype.slice.apply(el.querySelectorAll(candidateSelector));
@@ -20893,18 +20892,18 @@ var require_dist = __commonJS({
       candidates = candidates.filter(filter);
       return candidates;
     }, "getCandidates");
-    var getCandidatesIteratively = /* @__PURE__ */ __name(function getCandidatesIteratively2(elements, includeContainer, options) {
+    var _getCandidatesIteratively = /* @__PURE__ */ __name(function getCandidatesIteratively(elements, includeContainer, options) {
       var candidates = [];
       var elementsToCheck = Array.from(elements);
       while (elementsToCheck.length) {
         var element = elementsToCheck.shift();
-        if (isInert(element, false)) {
+        if (_isInert(element, false)) {
           continue;
         }
         if (element.tagName === "SLOT") {
           var assigned = element.assignedElements();
           var content = assigned.length ? assigned : element.children;
-          var nestedCandidates = getCandidatesIteratively2(content, true, options);
+          var nestedCandidates = _getCandidatesIteratively(content, true, options);
           if (options.flatten) {
             candidates.push.apply(candidates, nestedCandidates);
           } else {
@@ -20920,9 +20919,9 @@ var require_dist = __commonJS({
           }
           var shadowRoot = element.shadowRoot || // check for an undisclosed shadow
           typeof options.getShadowRoot === "function" && options.getShadowRoot(element);
-          var validShadowRoot = !isInert(shadowRoot, false) && (!options.shadowRootFilter || options.shadowRootFilter(element));
+          var validShadowRoot = !_isInert(shadowRoot, false) && (!options.shadowRootFilter || options.shadowRootFilter(element));
           if (shadowRoot && validShadowRoot) {
-            var _nestedCandidates = getCandidatesIteratively2(shadowRoot === true ? element.children : shadowRoot.children, true, options);
+            var _nestedCandidates = _getCandidatesIteratively(shadowRoot === true ? element.children : shadowRoot.children, true, options);
             if (options.flatten) {
               candidates.push.apply(candidates, _nestedCandidates);
             } else {
@@ -21032,6 +21031,24 @@ var require_dist = __commonJS({
     }, "isZeroArea");
     var isHidden2 = /* @__PURE__ */ __name(function isHidden3(node, _ref) {
       var displayCheck = _ref.displayCheck, getShadowRoot = _ref.getShadowRoot;
+      if (displayCheck === "full-native") {
+        if ("checkVisibility" in node) {
+          var visible = node.checkVisibility({
+            // Checking opacity might be desirable for some use cases, but natively,
+            // opacity zero elements _are_ focusable and tabbable.
+            checkOpacity: false,
+            opacityProperty: false,
+            contentVisibilityAuto: true,
+            visibilityProperty: true,
+            // This is an alias for `visibilityProperty`. Contemporary browsers
+            // support both. However, this alias has wider browser support (Chrome
+            // >= 105 and Firefox >= 106, vs. Chrome >= 121 and Firefox >= 122), so
+            // we include it anyway.
+            checkVisibilityCSS: true
+          });
+          return !visible;
+        }
+      }
       if (getComputedStyle(node).visibility === "hidden") {
         return true;
       }
@@ -21040,7 +21057,9 @@ var require_dist = __commonJS({
       if (matches.call(nodeUnderDetails, "details:not([open]) *")) {
         return true;
       }
-      if (!displayCheck || displayCheck === "full" || displayCheck === "legacy-full") {
+      if (!displayCheck || displayCheck === "full" || // full-native can run this branch when it falls through in case
+      // Element#checkVisibility is unsupported
+      displayCheck === "full-native" || displayCheck === "legacy-full") {
         if (typeof getShadowRoot === "function") {
           var originalNode = node;
           while (node) {
@@ -21091,7 +21110,7 @@ var require_dist = __commonJS({
       if (node.disabled || // we must do an inert look up to filter out any elements inside an inert ancestor
       //  because we're limited in the type of selectors we can use in JSDom (see related
       //  note related to `candidateSelectors`)
-      isInert(node) || isHiddenInput(node) || isHidden2(node, options) || // For a details element with a summary, the summary element gets the focus
+      _isInert(node) || isHiddenInput(node) || isHidden2(node, options) || // For a details element with a summary, the summary element gets the focus
       isDetailsWithSummary(node) || isDisabledFromFieldset(node)) {
         return false;
       }
@@ -21103,21 +21122,21 @@ var require_dist = __commonJS({
       }
       return true;
     }, "isNodeMatchingSelectorTabbable");
-    var isValidShadowRootTabbable = /* @__PURE__ */ __name(function isValidShadowRootTabbable2(shadowHostNode) {
+    var isShadowRootTabbable = /* @__PURE__ */ __name(function isShadowRootTabbable2(shadowHostNode) {
       var tabIndex = parseInt(shadowHostNode.getAttribute("tabindex"), 10);
       if (isNaN(tabIndex) || tabIndex >= 0) {
         return true;
       }
       return false;
-    }, "isValidShadowRootTabbable");
-    var sortByOrder = /* @__PURE__ */ __name(function sortByOrder2(candidates) {
+    }, "isShadowRootTabbable");
+    var _sortByOrder = /* @__PURE__ */ __name(function sortByOrder(candidates) {
       var regularTabbables = [];
       var orderedTabbables = [];
       candidates.forEach(function(item, i) {
         var isScope = !!item.scopeParent;
         var element = isScope ? item.scopeParent : item;
         var candidateTabindex = getSortOrderTabIndex(element, isScope);
-        var elements = isScope ? sortByOrder2(item.candidates) : element;
+        var elements = isScope ? _sortByOrder(item.candidates) : element;
         if (candidateTabindex === 0) {
           isScope ? regularTabbables.push.apply(regularTabbables, elements) : regularTabbables.push(element);
         } else {
@@ -21139,22 +21158,22 @@ var require_dist = __commonJS({
       options = options || {};
       var candidates;
       if (options.getShadowRoot) {
-        candidates = getCandidatesIteratively([container], options.includeContainer, {
+        candidates = _getCandidatesIteratively([container], options.includeContainer, {
           filter: isNodeMatchingSelectorTabbable.bind(null, options),
           flatten: false,
           getShadowRoot: options.getShadowRoot,
-          shadowRootFilter: isValidShadowRootTabbable
+          shadowRootFilter: isShadowRootTabbable
         });
       } else {
         candidates = getCandidates(container, options.includeContainer, isNodeMatchingSelectorTabbable.bind(null, options));
       }
-      return sortByOrder(candidates);
+      return _sortByOrder(candidates);
     }, "tabbable");
     var focusable2 = /* @__PURE__ */ __name(function focusable3(container, options) {
       options = options || {};
       var candidates;
       if (options.getShadowRoot) {
-        candidates = getCandidatesIteratively([container], options.includeContainer, {
+        candidates = _getCandidatesIteratively([container], options.includeContainer, {
           filter: isNodeMatchingSelectorFocusable.bind(null, options),
           flatten: true,
           getShadowRoot: options.getShadowRoot
@@ -38359,7 +38378,7 @@ var import_core61 = require("@tamagui/core");
 
 tabbable/dist/index.js:
   (*!
-  * tabbable 6.2.0
+  * tabbable 6.3.0
   * @license MIT, https://github.com/focus-trap/tabbable/blob/master/LICENSE
   *)
 */

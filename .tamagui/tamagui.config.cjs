@@ -2373,6 +2373,7 @@ Expected a subset of: ${expected.join(", ")}
 var tamaguiOptions = {
   animations: animationsCSS,
   themes,
+  media,
   tokens: tokens2,
   fonts,
   selectionStyles,
