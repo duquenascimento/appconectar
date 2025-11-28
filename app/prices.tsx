@@ -2169,7 +2169,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await loadPrices(availableRestaurant);
+                  await loadPrices(availableRestaurant.externalId);
 
                   setDraftSelectedRestaurant(null);
                 }

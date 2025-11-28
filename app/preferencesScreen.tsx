@@ -49,7 +49,7 @@ const PreferencesScreen: React.FC = () => {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao();
-  const [combinationsFull, setCombinationsFull] = useState([]);
+  const [combinationsFull, setCombinationsFull] = useState<any[]>([]);
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
 

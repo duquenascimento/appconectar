@@ -1,5 +1,5 @@
-import { Supplier as ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
 import { Supplier } from '@/app/prices'
+import { Supplier as ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
 import axios from 'axios'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL

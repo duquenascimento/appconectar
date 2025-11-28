@@ -11,4 +11,6 @@ export interface Restaurant {
     registrationReleasedNewApp: boolean;
     conectarPlusAuthorization: boolean;
     deliveryPolicy: RestaurantDeliveryPolicy;
+    allowClosedSupplier: boolean;
+    allowMinimumOrder: boolean;
 }
