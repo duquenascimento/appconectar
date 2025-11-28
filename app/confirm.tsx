@@ -455,10 +455,17 @@ export default function Confirm() {
         return;
       }
 
+      // FIXME: This parameter will be changed to a proper attribute selected by the user.
+      //       There's already an implementation of this in the Sunday Order feature branch.
+      //       It's current usage is just a placeholder until then so the API works.
+      const deliveryDate = new Date();
+      deliveryDate.setDate(deliveryDate.getDate() + 1);
+
       const body: ConfirmOrderRequestBody = {
         token,
         supplier: supplier.supplier,
         restaurant: selectedRestaurant,
+        deliveryDate: deliveryDate.toISOString(),
       };
 
       const erros = [];

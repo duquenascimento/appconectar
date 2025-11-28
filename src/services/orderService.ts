@@ -1,5 +1,5 @@
-import { Supplier as PremiumSupplier } from '@/app/quotationDetailsScreen'
 import { Supplier } from '@/app/prices'
+import { Supplier as ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
 import axios from 'axios'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
@@ -59,6 +59,7 @@ export interface ConfirmOrderRequestBody {
   token: string;
   supplier: Supplier;
   restaurant: any;
+  deliveryDate: string;
 }
 
 export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
@@ -75,22 +76,19 @@ export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
   }
 }
 
-export interface ConfirmOrderPremiumRequestBody {
+export interface ConfirmOrderConectarPlusRequestBody {
   token: string;
-  suppliers: PremiumSupplier[];
+  suppliers: ConectarPlusSupplier[];
   restaurant: any;
+  deliveryDate: string;
 }
 
-export const confirmOrderPremium = async (body: ConfirmOrderPremiumRequestBody) => {
+export const confirmOrderConectarPlus = async (body: ConfirmOrderConectarPlusRequestBody) => {
   try {
     const response = await axios.post(
       `${API_URL}/confirm/conectar-plus`,
       body,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
+      { headers: { 'Content-Type': 'application/json' } }
     )
     return response
   } catch (error) {

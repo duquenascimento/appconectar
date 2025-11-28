@@ -5,7 +5,10 @@ import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
 import { SupplierList } from '@/src/components/quotations/SupplierList';
-import { confirmOrderPremium, ConfirmOrderPremiumRequestBody } from '@/src/services/orderService';
+import {
+  confirmOrderConectarPlus,
+  ConfirmOrderConectarPlusRequestBody,
+} from '@/src/services/orderService';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import { isBefore13Hours } from '@/src/utils/timeUtils';
 import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -208,13 +211,20 @@ export default function QuotationDetailsScreen() {
         return;
       }
 
-      const body: ConfirmOrderPremiumRequestBody = {
+      // FIXME: This parameter will be changed to a proper attribute selected by the user.
+      //       There's already an implementation of this in the Sunday Order feature branch.
+      //       It's current usage is just a placeholder until then so the API works.
+      const deliveryDate = new Date();
+      deliveryDate.setDate(deliveryDate.getDate() + 1);
+
+      const body: ConfirmOrderConectarPlusRequestBody = {
         token,
         suppliers: suppliers.map((s) => s.supplier),
         restaurant: parsedRestaurant,
+        deliveryDate: deliveryDate.toISOString(),
       };
 
-      const createdOrders = await confirmOrderPremium(body);
+      const createdOrders = await confirmOrderConectarPlus(body);
       if (createdOrders && createdOrders.status === 201) {
         deleteMultiStorage(['cartOrder', `cart_${parsedRestaurant?.restaurant.externalId}`]);
         const { deliveryDateFormated } = createdOrders.data.data[0];

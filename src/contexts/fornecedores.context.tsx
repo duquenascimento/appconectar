@@ -70,10 +70,20 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         if (!currentRestaurant) return;
 
+        // FIXME: This parameter will be changed to a proper attribute selected by the user.
+        //       There's already an implementation of this in the Sunday Order feature branch.
+        //       It's current usage is just a placeholder until then so the API works.
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 1);
+
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, selectedRestaurant: currentRestaurant }),
+          body: JSON.stringify({
+            token,
+            selectedRestaurant: currentRestaurant,
+            deliveryDate: deliveryDate.toISOString(),
+          }),
         });
 
         const response = await result.json();
