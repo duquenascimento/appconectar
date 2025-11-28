@@ -35,6 +35,8 @@ export interface Supplier {
   discount: Discount;
   star: string;
   orderId?: string;
+  // TODO: type orders properly
+  sameDayOrders: any[];
 }
 
 export interface SupplierData {

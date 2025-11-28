@@ -37,7 +37,9 @@ export interface QuotationApiResponse {
             unitValue: number;
             unitValueWithoutFee: number;
           },
-        ];
+        ],
+        // TODO: type orders properly
+        sameDayOrders: any[];
       },
     ];
     missingProducts: string[];

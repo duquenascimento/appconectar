@@ -24,6 +24,7 @@ export interface Combination {
   createdAt?: string;
   supplierClosed?: string;
   combinationAvailable?: boolean;
+  sameDayOrders: any[];
 }
 
 export type RootStackParamList = {
@@ -90,6 +91,8 @@ const CombinationList: React.FC = () => {
               totalValue: item.resultadoCotacao?.totalOrderValue,
               missingItems: missingItems < 0 ? 0 : missingItems,
               missingProducts: item.resultadoCotacao?.missingProducts || [],
+              // TODO: check if this feature will be implemented for conectar+ too
+              sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s => s.sameDayOrders) || []) || [],
             };
           });
           const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);

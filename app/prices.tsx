@@ -29,6 +29,7 @@ import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getStarValue } from '../src/utils/getStarValue';
 import { Restaurant } from '../src/types/restaurantTypes';
+import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 
 export interface Product {
   price: number;
@@ -65,6 +66,7 @@ export interface Supplier {
   hour: string;
   discount: Discount;
   star: string;
+  sameDayOrders: any[];
 }
 
 export interface SupplierData {
@@ -143,6 +145,8 @@ function SupplierBox({
     );
   };
 
+  const hasSameDayOrdersWithSupplier = (supplier.supplier.sameDayOrders?.length ?? 0) > 0;
+
   return (
     <View
       opacity={available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
@@ -162,17 +166,28 @@ function SupplierBox({
         flex={1}
       >
         <View padding={5}>
-          <Image
-            source={{
-              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`,
-            }}
-            width={50}
-            height={50}
-            borderRadius={50}
+          <ImageWithFallback
+            uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`}
           />
         </View>
         <View marginLeft={10} maxWidth="75%" justifyContent="center">
-          <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
+          <View flexDirection="row" alignItems="center" gap={8}>
+            <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
+            {hasSameDayOrdersWithSupplier && (
+              <View
+                paddingHorizontal={8}
+                paddingVertical={2}
+                borderRadius={12}
+                borderWidth={1.5}
+                borderColor="#04BF7B"
+                backgroundColor="transparent"
+              >
+                <Text fontSize={12} color="#04BF7B" fontWeight="600">
+                  Complementar
+                </Text>
+              </View>
+            )}
+          </View>
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star" />
             <Text paddingLeft={4}>{supplier.supplier.star}</Text>

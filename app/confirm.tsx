@@ -29,6 +29,7 @@ import { isBefore13Hours } from '@/src/utils/timeUtils';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
+import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -254,6 +255,7 @@ export default function Confirm() {
     const supplierText = await getStorage('supplierSelected');
     if (!supplierText) return;
     const supplier = JSON.parse(supplierText);
+    // TODO: adjust page to display the sameDayOrders
     setSupplier(supplier);
   }, []);
 
@@ -571,13 +573,8 @@ export default function Confirm() {
           </View>
           <View flexDirection="row" marginLeft={10} alignSelf="center">
             <View justifyContent="center">
-              <Image
-                source={{
-                  uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`,
-                }}
-                width={50}
-                height={50}
-                borderRadius={50}
+              <ImageWithFallback
+                uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`}
               />
             </View>
             <View marginLeft={10} justifyContent="center">
