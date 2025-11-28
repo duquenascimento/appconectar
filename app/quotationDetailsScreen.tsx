@@ -18,6 +18,7 @@ import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
+import { DateTime } from 'luxon';
 
 export interface Product {
   price: number;
@@ -213,6 +214,13 @@ export default function QuotationDetailsScreen() {
 
       if (scheduleId) {
         await confirmScheduleOrder(scheduleId, {});
+        router.push({
+          pathname: '/orderConfirmedScreen',
+          params: {
+            suppliers: suppliersDataParam,
+            deliveryDate: DateTime.now().plus({ days: 1 }).toFormat('dd/MM/yyyy'),
+          },
+        });
         return;
       }
 
