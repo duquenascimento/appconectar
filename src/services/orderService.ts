@@ -59,7 +59,6 @@ export interface ConfirmOrderRequestBody {
   token: string;
   supplier: Supplier;
   restaurant: any;
-  missingItems: string[];
 }
 
 export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
@@ -76,26 +75,22 @@ export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
   }
 }
 
-export interface ConfirmOrderPremiumRequestBody {
+export interface ConfirmConectarPlusOrderRequestBody {
   token: string;
   suppliers: ConectarPlusSupplier[];
   restaurant: any;
 }
 
-export const confirmOrderPremium = async (body: ConfirmOrderPremiumRequestBody) => {
+export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {
   try {
     const response = await axios.post(
       `${API_URL}/confirm/conectar-plus`,
       body,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     return response
   } catch (error) {
-    console.error('Erro ao obter cotações por restaurante:', error)
-    throw error
+    console.error('Erro ao confirmar pedido Conéctar+:', error);
+    throw error;
   }
 }

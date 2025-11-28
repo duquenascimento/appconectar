@@ -790,6 +790,7 @@ export default function Prices() {
                     onPress={async () => {
                       if (!validateFields()) return;
                       setLoading(true);
+                      // TODO: missingItems será necessário para o premium?
                       const result = await fetch(
                         `${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`,
                         {
@@ -800,7 +801,6 @@ export default function Prices() {
                           body: JSON.stringify({
                             token: await getToken(),
                             selectedRestaurant,
-                            missingItems,
                           }),
                         },
                       );
@@ -2093,7 +2093,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await loadPrices(availableRestaurant);
+                  await loadPrices(availableRestaurant.externalId);
 
                   setDraftSelectedRestaurant(null);
                 }

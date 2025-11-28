@@ -455,15 +455,10 @@ export default function Confirm() {
         return;
       }
 
-      const missingItems = supplier.supplier.discount.product
-        .filter((p: any) => !p.price || p.price === 0)
-        .map((p: any) => p.name);
-
       const body: ConfirmOrderRequestBody = {
         token,
         supplier: supplier.supplier,
         restaurant: selectedRestaurant,
-        missingItems,
       };
 
       const erros = [];
