@@ -25,10 +25,11 @@ import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
-import { isBefore13Hours } from '@/src/utils/timeUtils';
+import { getPaymentDate, isBefore13Hours } from '@/src/utils/timeUtils';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
+import { getPaymentDescription } from '@/src/utils/paymentUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -42,6 +43,7 @@ if (Platform.OS !== 'web') {
   });
 }
 
+// Componentizar?
 export function DialogInstance(props: {
   openModal: boolean;
   setRegisterInvalid: Function;
@@ -130,6 +132,7 @@ export function DialogInstance(props: {
   );
 }
 
+// Possível reaproveitamento em components
 function DialogInstanceNotification(props: { openModal: boolean; setRegisterInvalid: Function }) {
   return (
     <Dialog modal open={props.openModal}>
@@ -212,7 +215,7 @@ function DialogInstanceNotification(props: { openModal: boolean; setRegisterInva
 export default function Confirm() {
   const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
+  // const [selectedRestaurant, setSelectedRestaurant] = useState<any>();
   const [loadingToConfirm, setLoadingToConfirm] = useState<boolean>(false);
   const [dots, setDots] = useState('');
   const [showErros, setShowErros] = useState<string[]>([]);
@@ -222,8 +225,9 @@ export default function Confirm() {
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
+  const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
   const { loadPrices } = useSupplier();
-  const { loadRestaurants } = useRestaurantContext();
+  const { loadRestaurants, selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -260,11 +264,16 @@ export default function Confirm() {
   useEffect(() => {
     const loadSupplierAsync = async () => {
       try {
+        if (!selectedRestaurant) return;
         await loadSupplier();
-        const selectedRestaurantText = await getStorage('selectedRestaurant');
-        if (!selectedRestaurantText) return;
-        const selectedRestaurant = JSON.parse(selectedRestaurantText);
-        setSelectedRestaurant(selectedRestaurant);
+        // const selectedRestaurantText = await getStorage('selectedRestaurant');
+        // if (!selectedRestaurantText) return;
+        // const selectedRestaurant = JSON.parse(selectedRestaurantText);
+        //setSelectedRestaurant(selectedRestaurant);
+        const activateSchedule = !selectedRestaurant.allowEmergencyOrder
+          ? isBefore13Hours()
+          : false;
+        setIsBefore13h(activateSchedule);
       } catch (err) {
         console.error(err);
         router.push('/prices');
@@ -298,37 +307,6 @@ export default function Confirm() {
     [supplier, cartOrder],
   );
 
-  interface PaymentDescriptions {
-    [key: string]: string;
-  }
-
-  const getPaymentDescription = (paymentWay: string) => {
-    const paymentDescriptions: PaymentDescriptions = {
-      DI00: 'Diário: no dia da entrega',
-      DI01: 'Diário: 1 dia após entrega',
-      DI02: 'Diário: 2 dias após entrega',
-      DI07: 'Diário: 7 dias após entrega',
-      DI10: 'Diário: 10 dias após entrega',
-      DI14: 'Diário: 14 dias após entrega',
-      DI15: 'Diário: 15 dias após entrega',
-      DI28: 'Diário: 28 dias após entrega',
-      US08: 'Semanal: vencimento na segunda',
-      UQ10: 'Semanal: vencimento na quarta',
-      UX12: 'Semanal: vencimento na sexta',
-      BX10: 'Bissemanal: vencimento na segunda',
-      BX12: 'Bissemanal: vencimento na quarta',
-      BX16: 'Bissemanal: vencimento na sexta',
-      ME01: 'Mensal: vencimento dia 1',
-      ME05: 'Mensal: vencimento dia 5',
-      ME10: 'Mensal: vencimento dia 10',
-      ME15: 'Mensal: vencimento dia 15',
-      AV01: 'À Vista: pix no dia anterior à entrega',
-      AV00: 'À Vista: pix no dia da entrega',
-    };
-
-    return paymentDescriptions[paymentWay] || '';
-  };
-
   const isOpen = () => {
     const currentDate = DateTime.now().setZone('America/Sao_Paulo');
     const currentHour = Number(
@@ -343,106 +321,6 @@ export default function Confirm() {
     );
   };
 
-  const getPaymentDate = (paymentWay: string): string => {
-    const today = new Date();
-    const todayUTC = new Date(today.getTime() + today.getTimezoneOffset() * 60000);
-
-    const offset = -3; // Horário padrão de São Paulo é UTC-3
-    const deliveryDay = new Date(
-      todayUTC.getFullYear(),
-      todayUTC.getMonth(),
-      todayUTC.getDate(),
-      todayUTC.getHours() + offset,
-      todayUTC.getMinutes(),
-    );
-    deliveryDay.setDate(deliveryDay.getDate() + 1); // Definir o dia da entrega como 1 dia após o dia atual
-
-    const calculateNextWeekday = (date: Date, day: number): Date => {
-      const resultDate = new Date(date);
-      resultDate.setDate(date.getDate() + ((day + (7 - date.getDay())) % 7));
-      return resultDate;
-    };
-
-    const calculateNextBimonthly = (date: Date, day1: number, day2: number): Date => {
-      const day = date.getDate();
-      if (day < day1) {
-        return new Date(date.getFullYear(), date.getMonth(), day1);
-      }
-      if (day < day2) {
-        return new Date(date.getFullYear(), date.getMonth(), day2);
-      }
-      return new Date(date.getFullYear(), date.getMonth() + 1, day1);
-    };
-
-    const calculateNextMonthly = (date: Date, day: number): Date => {
-      const nextDate = new Date(date.getFullYear(), date.getMonth(), day);
-      if (date.getDate() >= day) {
-        nextDate.setMonth(date.getMonth() + 1);
-      }
-      if (nextDate.getMonth() !== (date.getMonth() + 1) % 12) {
-        nextDate.setDate(0);
-      }
-      return nextDate;
-    };
-
-    const paymentDescriptions: PaymentDescriptions = {
-      DI00: deliveryDay.toLocaleDateString('pt-BR'),
-      DI01: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 1,
-      ).toLocaleDateString('pt-BR'),
-      DI02: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 2,
-      ).toLocaleDateString('pt-BR'),
-      DI07: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 7,
-      ).toLocaleDateString('pt-BR'),
-      DI10: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 10,
-      ).toLocaleDateString('pt-BR'),
-      DI14: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 14,
-      ).toLocaleDateString('pt-BR'),
-      DI15: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 15,
-      ).toLocaleDateString('pt-BR'),
-      DI28: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() + 28,
-      ).toLocaleDateString('pt-BR'),
-      US08: calculateNextWeekday(deliveryDay, 1).toLocaleDateString('pt-BR'), // Próxima segunda-feira
-      UQ10: calculateNextWeekday(deliveryDay, 3).toLocaleDateString('pt-BR'), // Próxima quarta-feira
-      UX12: calculateNextWeekday(deliveryDay, 5).toLocaleDateString('pt-BR'), // Próxima sexta-feira
-      BX10: calculateNextBimonthly(deliveryDay, 10, 25).toLocaleDateString('pt-BR'), // Bissemanal nos dias 10 e 25
-      BX12: calculateNextBimonthly(deliveryDay, 12, 26).toLocaleDateString('pt-BR'), // Bissemanal nos dias 12 e 26
-      BX16: calculateNextBimonthly(deliveryDay, 16, 30).toLocaleDateString('pt-BR'), // Bissemanal nos dias 16 e 30
-      ME01: calculateNextMonthly(deliveryDay, 1).toLocaleDateString('pt-BR'), // Mensal no dia 1
-      ME05: calculateNextMonthly(deliveryDay, 5).toLocaleDateString('pt-BR'), // Mensal no dia 5
-      ME10: calculateNextMonthly(deliveryDay, 10).toLocaleDateString('pt-BR'), // Mensal no dia 10
-      ME15: calculateNextMonthly(deliveryDay, 15).toLocaleDateString('pt-BR'), // Mensal no dia 15
-      AV01: new Date(
-        deliveryDay.getFullYear(),
-        deliveryDay.getMonth(),
-        deliveryDay.getDate() - 1,
-      ).toLocaleDateString('pt-BR'), // À Vista: no dia anterior à entrega
-      AV00: deliveryDay.toLocaleDateString('pt-BR'), // À Vista: no dia da entrega
-    };
-
-    return paymentDescriptions[paymentWay] || '';
-  };
-
   // Nova lógica de confirmação (A que estava antes dentro do else)
   const handleConfirmOrder = useCallback(async () => {
     setShowMissingItemsModal(false);
@@ -450,34 +328,37 @@ export default function Confirm() {
 
     try {
       const token = await getToken();
-      if (!token) {
+
+      if (!token || !selectedRestaurant) {
         setLoadingToConfirm(false);
         return;
+      }
+      const erros = [];
+
+      if (!selectedRestaurant.allowEmergencyOrder) {
+        if (!isOpen() && !selectedRestaurant.allowClosedSupplier) {
+          erros.push('O fornecedor está fechado');
+        }
+        if (
+          supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+          !selectedRestaurant.allowMinimumOrder
+        ) {
+          erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
+        }
+
+        if (erros.length > 0) {
+          setShowErros(erros);
+          setBooleanErros(true);
+          setLoadingToConfirm(false);
+          return;
+        }
       }
 
       const body: ConfirmOrderRequestBody = {
         token,
         supplier: supplier.supplier,
-        restaurant: selectedRestaurant,
+        restaurant: { restaurant: selectedRestaurant },
       };
-
-      const erros = [];
-      if (!isOpen() && !selectedRestaurant.restaurant.allowClosedSupplier) {
-        erros.push('O fornecedor está fechado');
-      }
-      if (
-        supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-        !selectedRestaurant.restaurant.allowMinimumOrder
-      ) {
-        erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
-      }
-
-      if (erros.length > 0) {
-        setShowErros(erros);
-        setBooleanErros(true);
-        setLoadingToConfirm(false);
-        return;
-      }
 
       const result = await confirmOrder(body);
 
@@ -495,9 +376,9 @@ export default function Confirm() {
       setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
       setBooleanErros(true);
     }
-  }, [supplier, selectedRestaurant, router]);
+  }, [supplier, router]);
 
-  if (loading) {
+  if (loading || !selectedRestaurant) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -743,7 +624,7 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                {getPaymentDescription(selectedRestaurant.restaurant.paymentWay)}
+                {getPaymentDescription(selectedRestaurant.paymentWay)}
               </Text>
             </View>
             <View
@@ -760,7 +641,10 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                {getPaymentDate(selectedRestaurant.restaurant.paymentWay)}
+                {getPaymentDate(
+                  selectedRestaurant.paymentWay,
+                  selectedRestaurant.allowEmergencyOrder,
+                )}
               </Text>
             </View>
             <View marginVertical={20} borderWidth={0.5} borderColor="lightgray" />
@@ -772,7 +656,7 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                <Text>{selectedRestaurant.restaurant.name}</Text>
+                <Text>{selectedRestaurant.name}</Text>
               </View>
             </View>
             <View
@@ -790,12 +674,12 @@ export default function Confirm() {
                 }}
               >
                 <Text numberOfLines={3} ellipsizeMode="tail">
-                  {(selectedRestaurant.restaurant.addressInfos[0].localType ?? '').toUpperCase()}{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
-                  {selectedRestaurant.restaurant.addressInfos[0].localNumber},{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
-                  {(selectedRestaurant.restaurant.addressInfos[0].neighborhood ?? '').toUpperCase()}
-                  , {(selectedRestaurant.restaurant.addressInfos[0].city ?? '').toUpperCase()}
+                  {(selectedRestaurant.addressInfos[0].localType ?? '').toUpperCase()}{' '}
+                  {(selectedRestaurant.addressInfos[0].address ?? '').toUpperCase()},{' '}
+                  {selectedRestaurant.addressInfos[0].localNumber},{' '}
+                  {(selectedRestaurant.addressInfos[0].complement ?? '').toUpperCase()} -{' '}
+                  {(selectedRestaurant.addressInfos[0].neighborhood ?? '').toUpperCase()},{' '}
+                  {(selectedRestaurant.addressInfos[0].city ?? '').toUpperCase()}
                 </Text>
               </View>
             </View>
@@ -815,15 +699,8 @@ export default function Confirm() {
                 }}
               >
                 <Text>
-                  {selectedRestaurant.restaurant.addressInfos[0].initialDeliveryTime.substring(
-                    11,
-                    16,
-                  )}{' '}
-                  -{' '}
-                  {selectedRestaurant.restaurant.addressInfos[0].finalDeliveryTime.substring(
-                    11,
-                    16,
-                  )}
+                  {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} -{' '}
+                  {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
                 </Text>
               </View>
             </View>
@@ -843,7 +720,7 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                {selectedRestaurant.restaurant.addressInfos[0].deliveryInformation || '--'}
+                {selectedRestaurant.addressInfos[0].deliveryInformation || '--'}
               </Text>
             </View>
             <View
@@ -860,7 +737,7 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingName || '--'}
+                {selectedRestaurant.addressInfos[0].responsibleReceivingName || '--'}
               </Text>
             </View>
             <View
@@ -877,8 +754,7 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                {selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber ||
-                  '--'}
+                {selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber || '--'}
               </Text>
             </View>
           </View>
@@ -889,7 +765,8 @@ export default function Confirm() {
             color="red"
             fontSize={10}
             textAlign="center"
-            display={isBefore13Hours() ? 'flex' : 'none'}
+            // display={isBefore13Hours() && !selectedRestaurant.allowEmergencyOrder ? 'flex' : 'none'}
+            display={isBefore13h ? 'flex' : 'none'}
           >
             A confirmação só pode ser feita após as 13h
             {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário'}
@@ -915,9 +792,9 @@ export default function Confirm() {
           <Button
             onPress={async () => {
               try {
-                if (isBefore13Hours()) {
+                if (isBefore13h) {
                   const errors = await scheduleNotification(
-                    selectedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+                    selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
                   );
 
                   setShowErros(errors);
@@ -945,7 +822,7 @@ export default function Confirm() {
             backgroundColor="#04BF7B"
           >
             <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
-              {isBefore13Hours() ? 'Agendar notificação' : 'Confirmar pedido'}
+              {isBefore13h ? 'Agendar notificação' : 'Confirmar pedido'}
             </Text>
           </Button>
         </View>

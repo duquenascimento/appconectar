@@ -17,6 +17,7 @@ import CustomButton from '../src/components/button/customButton';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export interface Product {
   price: number;
@@ -110,6 +111,7 @@ export default function QuotationDetailsScreen() {
   const [showErros, setShowErros] = useState<string[]>([]);
   const [booleanErros, setBooleanErros] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const { selectedRestaurant } = useRestaurantContext();
 
   const parsedMissingProducts = useMemo(() => {
     if (!missingProducts) return [];
@@ -176,7 +178,7 @@ export default function QuotationDetailsScreen() {
     );
   }, [suppliers]);
 
-  const isBefore13h = isBefore13Hours();
+  const isBefore13h = selectedRestaurant?.allowEmergencyOrder ? false : isBefore13Hours();
 
   const handleBackPress = () => router.back();
   const handleConfirm = async () => {

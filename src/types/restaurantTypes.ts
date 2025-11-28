@@ -49,6 +49,7 @@ export interface Restaurant {
   financeBlock: boolean;
   allowClosedSupplier: boolean;
   allowMinimumOrder: boolean;
+  allowEmergencyOrder: boolean;
   categories: any[];
   registrationReleasedNewApp: boolean;
   blockedBySuppliers: string[];
