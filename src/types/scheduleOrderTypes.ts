@@ -38,6 +38,7 @@ export type ScheduleOrderResponse = {
     unit: string;
     quantity: number;
     obs?: string | null;
+    imageUrl: string;
   }[];
 };
 

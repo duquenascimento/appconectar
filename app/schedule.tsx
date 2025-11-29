@@ -1,7 +1,7 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { DateTime } from 'luxon';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useWindowDimensions } from 'react-native';
+import { ActivityIndicator, Modal, useWindowDimensions } from 'react-native';
 import { Button, Label, RadioGroup, ScrollView, Spacer, Text, View, XStack, YStack } from 'tamagui';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
@@ -79,6 +79,7 @@ export default function ScheduleScreen() {
     try {
       setIsSubmitting(true);
       const restaurant = await getSavedRestaurant();
+
       if (orderId) {
         const updateData: Partial<Omit<ScheduleOrderCreationBody, 'restaurantId'>> = {};
         if (
@@ -140,7 +141,6 @@ export default function ScheduleScreen() {
   }, []);
 
   const onConfirmScheduleOrder = useCallback(async () => {
-    console.log('currentOrder', currentOrder);
     if (!currentOrder) {
       return;
     }
@@ -151,13 +151,6 @@ export default function ScheduleScreen() {
       const currentRestaurant = userRestaurants.find(
         (r) => r.externalId === restaurant!.externalId,
       );
-      console.log('currentRestaurant', currentRestaurant);
-      const supplierPrices = await getSuppliersPrices({
-        restaurantId: currentRestaurant!.id,
-        restaurantExternalId: currentRestaurant!.externalId,
-        tax: Number(currentRestaurant!.tax),
-        addressInfos: currentRestaurant!.addressInfos,
-      });
 
       const pricesBySupplier = await getPricesBySupplierOrCombination({
         restaurantId: currentRestaurant!.id,
@@ -170,7 +163,6 @@ export default function ScheduleScreen() {
           obs: product.obs,
         })),
       });
-      console.log('pricesBySupplier', pricesBySupplier);
       const params: {
         combinationName?: string;
         suppliersData?: string;
@@ -187,7 +179,6 @@ export default function ScheduleScreen() {
         params: params,
       });
     } catch (error: any) {
-      console.log('error', error);
       setErrorMessage(error?.message ?? error);
     } finally {
       setIsSubmitting(false);
@@ -251,6 +242,7 @@ export default function ScheduleScreen() {
               obs: p.obs,
               sku: p.productSku,
               quotationUnit: p.unit,
+              image: [p.imageUrl],
             }) as CartProduct,
         ),
       );
@@ -442,7 +434,7 @@ export default function ScheduleScreen() {
               currentOrder && currentOrder?.status !== 'PENDENT' ? '$gray8' : '#04BF7B'
             }
             hoverStyle={{ backgroundColor: '$green9' }}
-            onPress={!isSubmitting ? undefined : onCreateSchedule}
+            onPress={isSubmitting ? undefined : onCreateSchedule}
           >
             <Text color={'white'} fontSize={16} letterSpacing={1} fontWeight={'500'}>
               {orderId ? 'Editar' : 'Agendar'}
@@ -461,6 +453,17 @@ export default function ScheduleScreen() {
           setErrorMessage('');
         }}
       />
+
+      <Modal transparent visible={isSubmitting} animationType="fade">
+        <View
+          flex={1}
+          justifyContent="center"
+          alignItems="center"
+          backgroundColor={'rgba(0, 0, 0, 0.4)'}
+        >
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      </Modal>
 
       <TwoButtonCustomAlert
         visible={openDeleteDialog}
