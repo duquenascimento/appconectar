@@ -700,10 +700,9 @@ export default function Products() {
             await SaveUserAppInfo();
           }
 
-          const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
           // Extraindo categorias
-          const categories = restaurants?.flatMap((rest: any) => rest.categories || []);
-          if (verduraKg.length && categories.length === 0) {
+          const categories = selectedRestaurant?.categories ?? [];
+          if ((selectedRestaurant?.verduraKg ?? false) && categories.length === 0) {
             classItems = [
               { name: 'Favoritos' },
               { name: 'Fruta' },
