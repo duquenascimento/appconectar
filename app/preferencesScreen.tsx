@@ -1,28 +1,28 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
-import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
 
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, YStack } from 'tamagui';
 import { router } from 'expo-router';
-import CustomSubtitle from '../src/components/subtitle/customSubtitle';
-import CustomHeader from '../src/components/header/customHeader';
-import CustomListItem from '../src/components/list/customListItem';
+import { ScrollView, YStack } from 'tamagui';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
+import CustomHeader from '../src/components/header/customHeader';
+import CustomListItem from '../src/components/list/customListItem';
+import CustomSubtitle from '../src/components/subtitle/customSubtitle';
 
-import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { mapCombination } from '../src/utils/mapCombination';
 import CustomAlert from '@/src/components/modais/CustomAlert';
-import { getStorage } from '../src/utils/utils';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { Combinacao } from '@/src/types/combinationTypes';
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
+import { mapCombination } from '../src/utils/mapCombination';
 
-import { useSupplier } from '@/src/contexts/fornecedores.context';
 import PageContainer from '@/src/components/box/PageContainer';
+import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { Restaurant } from '@/src/types/restaurantTypes';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 export interface Combination {
   id: string;
@@ -34,11 +34,6 @@ export interface Combination {
   totalValue?: number;
 }
 
-export interface Restaurant {
-  id: string;
-  name: string;
-}
-
 export type RootStackParamList = {
   Preferences: { restaurantId: string; restaurant: Restaurant };
   Combination: { id: string };
@@ -47,7 +42,6 @@ export type RootStackParamList = {
 type PreferencesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Preferences'>;
 
 const PreferencesScreen: React.FC = () => {
-  const navigation = useNavigation<PreferencesScreenNavigationProp>();
   const route = useRoute();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
@@ -62,19 +56,8 @@ const PreferencesScreen: React.FC = () => {
     const fetchStoredRestaurant = async () => {
       loadPrices();
       loadRestaurants();
-      const storedValue = await getStorage('selectedRestaurant');
-      let restaurantFromStorage = null;
-
-      if (storedValue) {
-        try {
-          const parsedValue = JSON.parse(storedValue);
-          restaurantFromStorage = parsedValue?.restaurant ?? parsedValue ?? null;
-        } catch {
-          restaurantFromStorage = null;
-        }
-      }
-
-      setRestaurant(restaurantFromStorage);
+      const restaurantData = await getStorageRestaurant();
+      setRestaurant(restaurantData);
     };
 
     fetchStoredRestaurant();

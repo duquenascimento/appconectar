@@ -1,14 +1,16 @@
-import { Button, Dialog, XStack, YStack } from 'tamagui';
-import { Linking } from 'react-native';
 import { clearStorage, deleteToken, setStorage } from '@/src/utils/utils';
-import { BaseDialog } from './BaseDialog';
 import { useRouter } from 'expo-router';
+import { Linking } from 'react-native';
+import { Button, Dialog, XStack, YStack } from 'tamagui';
+import { Restaurant } from '../types/restaurantTypes';
+import { setStorageRestaurant } from '../utils/restaurantUtils';
+import { BaseDialog } from './BaseDialog';
 
 type DialogComercialInstanceProps = {
   openModal: boolean;
   setOpenModal: (open: boolean) => void;
   setRegisterInvalid: Function;
-  rest: any[];
+  rest: Restaurant[];
   messageText?: string;
   onSelectAvailable?: () => void;
 };
@@ -29,7 +31,7 @@ export default function DialogComercialInstance({
     } else {
       const availableRestaurant = rest.find((r) => !r.registrationReleasedNewApp);
       if (availableRestaurant) {
-        await setStorage('selectedRestaurant', JSON.stringify({ restaurant: availableRestaurant }));
+        await setStorageRestaurant(availableRestaurant);
         setOpenModal(false);
       }
     }

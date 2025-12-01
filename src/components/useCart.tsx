@@ -1,9 +1,9 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import { getToken, getStorage, setStorage, deleteStorage } from '../utils/utils';
-import { saveProductObservations } from '../utils/productObservation';
 import { useRestaurantContext } from '../contexts/restaurant.context';
-import { getSavedRestaurant } from '../utils/savedRestaurant';
+import { saveProductObservations } from '../utils/productObservation';
+import { getStorageRestaurant } from '../utils/restaurantUtils';
+import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
 
 type Cart = {
   productId: string;
@@ -74,7 +74,7 @@ export function useCart() {
   const saveCart = useCallback(async (cart: Cart, isCart: boolean) => {
     try {
       let newCart = new Map();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!restaurant?.externalId) {
         console.warn('Restaurante não encontrado no storage.');
         return;
@@ -146,7 +146,7 @@ export function useCart() {
     async (carts: Map<string, Cart>, cartsToExclude: Map<string, Cart>) => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         if (!token || !restaurant) return;
 
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
