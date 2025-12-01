@@ -412,7 +412,7 @@ export default function Prices() {
             const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
             setPermissionConectarPlus(permissionResult.authorized);
           }
-          setTab(selectedRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+          setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier');
           setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
           setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
@@ -2069,7 +2069,7 @@ export default function Prices() {
           <CustomAlert
             visible={isConectarAlertVisible}
             title="Conéctar+ indisponível!"
-            message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação."
+            message="Parece que a cotação automática do Conectar+ ainda não está disponível para sua conta. Mas tudo bem! Solicite uma cotação e daremos continuidade ao seu pedido."
             onConfirm={() => setIsConectarAlertVisible(false)}
           />
           <DialogComercialInstance
