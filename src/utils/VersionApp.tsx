@@ -18,7 +18,7 @@ export const SaveUserAppInfo = async () => {
     const appOS = Platform.OS
     const data = await getStorage('selectedRestaurant')
     const restaurant = data ? JSON.parse(data) : null
-    const externalId = restaurant?.externalId ?? null
+    const externalId = restaurant?.restaurant?.externalId ?? null
     const statusId = restaurant?.restaurant?.registrationReleasedNewApp ? 8 : 4
 
     const userAppData = {
