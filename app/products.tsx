@@ -16,19 +16,7 @@ import {
   VirtualizedList,
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import {
-  Adapt,
-  Button,
-  Input,
-  ScrollView,
-  Select,
-  Sheet,
-  Stack,
-  Text,
-  View,
-  XStack,
-  YStack,
-} from 'tamagui';
+import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
@@ -52,7 +40,7 @@ import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Produc
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
-import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
+import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
 import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
 
 export type Product = {
@@ -482,127 +470,6 @@ const ProductBox = React.memo(
 
 ProductBox.displayName = 'ProductBox';
 
-type CustomSelectProps = {
-  items: SelectItem[];
-  native?: boolean;
-};
-
-export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) => {
-  const [val, setVal] = useState('');
-
-  const handleChange = async (value: string) => {
-    setVal(value);
-    // TODO: check this
-    const savedRestaurant = items.filter((item) => {
-      if (typeof item.name !== 'undefined' ? item.name : value === '') return item;
-    });
-    await setStorage('selectedRestaurant', JSON.stringify({ restaurant: savedRestaurant }));
-  };
-
-  return (
-    <Select
-      value={val}
-      onValueChange={(value) => {
-        handleChange(value);
-      }}
-      disablePreventBodyScroll
-      {...props}
-    >
-      <Select.Trigger
-        backgroundColor="$colorTransparent"
-        paddingRight={20}
-        alignItems="flex-start"
-        paddingLeft={0}
-        paddingVertical={0}
-        borderWidth={0}
-        width={220}
-        pressStyle={{ backgroundColor: 'transparent' }}
-        iconAfter={<Icons name="chevron-down" />}
-      >
-        <Select.Value
-          fontSize={16}
-          fontWeight="900"
-          placeholder={typeof items[0].name !== 'undefined' ? items[0].name : ''}
-        />
-      </Select.Trigger>
-
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet native={!!props.native} modal dismissOnSnapToBottom animation="bouncy">
-          <Sheet.Overlay />
-          <Sheet.Frame>
-            <Sheet.ScrollView>
-              <Adapt.Contents />
-            </Sheet.ScrollView>
-          </Sheet.Frame>
-        </Sheet>
-      </Adapt>
-
-      <Select.Content zIndex={200_000}>
-        <Select.ScrollUpButton
-          alignItems="center"
-          justifyContent="center"
-          position="relative"
-          width="100%"
-          height={12}
-        >
-          <YStack zIndex={10}>
-            <Icons name="chevron-up" size={20} />
-          </YStack>
-        </Select.ScrollUpButton>
-        <Select.Viewport minWidth={200}>
-          <Select.Group>
-            <Select.Label>Restaurantes</Select.Label>
-            {useMemo(
-              () =>
-                items.map((item, i) => (
-                  <Select.Item
-                    index={i}
-                    key={typeof item.name !== 'undefined' ? item.name : ''}
-                    value={typeof item.name !== 'undefined' ? item.name.toLowerCase() : ''}
-                  >
-                    <Select.ItemText>
-                      {typeof item.name !== 'undefined' ? item.name : ''}
-                    </Select.ItemText>
-                    <Select.ItemIndicator marginLeft="auto">
-                      <Icons name="checkmark" size={16} />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                )),
-              [items],
-            )}
-          </Select.Group>
-          {props.native && (
-            <YStack
-              position="absolute"
-              right={0}
-              top={0}
-              bottom={0}
-              alignItems="center"
-              justifyContent="center"
-              width={16}
-              pointerEvents="none"
-            >
-              <Icons name="chevron-down" />
-            </YStack>
-          )}
-        </Select.Viewport>
-
-        <Select.ScrollDownButton
-          alignItems="center"
-          justifyContent="center"
-          position="relative"
-          width="100%"
-          height={12}
-        >
-          <YStack zIndex={10}>
-            <Icons name="chevron-down" size={20} />
-          </YStack>
-        </Select.ScrollDownButton>
-      </Select.Content>
-    </Select>
-  );
-};
-
 let classItems: { name: string }[] = [];
 
 export default function Products() {
@@ -619,7 +486,7 @@ export default function Products() {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { selectedRestaurant, restaurants } = useRestaurantContext();
+  const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
   const { favorites, setFavorites } = useFavoritesContext();
   const {
     cart,
@@ -1051,8 +918,7 @@ export default function Products() {
           const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
             setStorageRestaurant(availableRestaurant);
-            // FIXME: versão já possuia erro na função, validar uso
-            setSelectedRestaurant(availableRestaurant.externalId);
+            setSelectedRestaurant(availableRestaurant);
             setShowRegistrationReleasedNewApp(false);
             loadFavorites();
             loadCart();

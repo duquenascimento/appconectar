@@ -1,22 +1,20 @@
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
-import { View, Text, XStack, Input, Header } from 'tamagui';
-import { FlatList, TouchableOpacity, ActivityIndicator, Platform, Linking } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
+import PageContainer from '@/src/components/box/PageContainer';
+import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
+import { HeaderText } from '@/src/components/text/HeaderText';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ReactNode, useCallback, useState } from 'react';
+import { ActivityIndicator, FlatList, Linking, Platform, TouchableOpacity } from 'react-native';
+import { Input, Text, View, XStack } from 'tamagui';
+import CustomAlert from '../src/components/modais/CustomAlert';
 import DialogComercialInstance from '../src/components/modais/DialogInstanceNotification';
 import { getOrders } from '../src/services/orderService';
 import { ordersScreenStyles as styles } from '../src/styles/styles';
+import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import { clearStorage, deleteToken } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
-import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
-import CustomAlert from '../src/components/modais/CustomAlert';
-import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '@/src/components/text/HeaderText';
-import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 interface Order {
   orderDocument: ReactNode;
@@ -44,7 +42,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const { restaurants, selectedRestaurant } = useRestaurantContext();
+  const { restaurants, selectedRestaurant, setSelectedRestaurant } = useRestaurantContext();
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
@@ -439,9 +437,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
             if (availableRestaurant) {
               setShowBlockedModal(false);
               await setStorageRestaurant(availableRestaurant);
-
-              // FIXME: função existia aqui com erro...
-              setSelectedRestaurant(availableRestaurant.externalId);
+              setSelectedRestaurant(availableRestaurant);
               setShowBlockedModal(false);
             }
           } catch (error) {
