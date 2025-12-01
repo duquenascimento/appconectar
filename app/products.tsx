@@ -1,18 +1,11 @@
-import {
-  View,
-  Select,
-  YStack,
-  XStack,
-  Text,
-  Adapt,
-  Sheet,
-  Input,
-  Button,
-  Stack,
-  ScrollView,
-} from 'tamagui';
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { getStorageRestaurant, setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { normalizeText } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { MotiView } from 'moti';
+import { Skeleton } from 'moti/skeleton';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -22,38 +15,44 @@ import {
   VirtualizedList,
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import { MotiView } from 'moti';
-import { Skeleton } from 'moti/skeleton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
-import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
-import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
-import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
-import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
-import { CartButton } from '../src/components/cartButton';
-import { useProductContext } from '../src/contexts/produtos.context';
-import { useCart } from '../src/components/useCart';
-import { loadFavorites } from '../src/utils/loadFavorite';
+import {
+  Adapt,
+  Button,
+  Input,
+  ScrollView,
+  Select,
+  Sheet,
+  Stack,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
   ProductCardObsUnitContainerStyled,
   ProductCardStyled,
 } from '../src/components/card/productCard';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { CartButton } from '../src/components/cartButton';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
-import PageContainer from '../src/components/box/PageContainer';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '../src/components/text/HeaderText';
 import { SearchProducts } from '../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
-import { CustomImageBadge } from '../src/components/image/customImageBadge';
-import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+import { HeaderText } from '../src/components/text/HeaderText';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
-import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { normalizeText } from '@/src/utils/stringUtils';
+import { useCart } from '../src/components/useCart';
+import { useProductContext } from '../src/contexts/produtos.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import { loadFavorites } from '../src/utils/loadFavorite';
+import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
+import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
+import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
 
 export type Product = {
   name: string;
@@ -492,14 +491,11 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 
   const handleChange = async (value: string) => {
     setVal(value);
-    await setStorage(
-      'selectedRestaurant',
-      JSON.stringify({
-        restaurant: items.filter((item) => {
-          if (typeof item.name !== 'undefined' ? item.name : value === '') return item;
-        }),
-      }),
-    );
+    // TODO: check this
+    const savedRestaurant = items.filter((item) => {
+      if (typeof item.name !== 'undefined' ? item.name : value === '') return item;
+    });
+    await setStorage('selectedRestaurant', JSON.stringify({ restaurant: savedRestaurant }));
   };
 
   return (
@@ -607,13 +603,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 };
 
 let classItems: { name: string }[] = [];
-
-export interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
-  registrationReleasedNewApp: boolean;
-}
 
 export default function Products() {
   const [currentClass, setCurrentClass] = useState('Favoritos');
@@ -748,10 +737,7 @@ export default function Products() {
                 initialRestaurant = found;
               }
             }
-            await setStorage(
-              'selectedRestaurant',
-              JSON.stringify({ restaurant: initialRestaurant }),
-            );
+            await setStorageRestaurant(initialRestaurant);
           }
 
           const cartMap = await loadCart();
@@ -790,13 +776,12 @@ export default function Products() {
     async (productId: string, obs: string) => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         if (token == null || !restaurant) return;
         const productToAdd = productsList?.find((product) => product.id === productId);
         if (productToAdd) {
           setFavorites([...favorites, { ...productToAdd, obs }]);
         }
-        const storedRestaurant = await getSavedRestaurant();
 
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/save`, {
           method: 'POST',
@@ -806,7 +791,7 @@ export default function Products() {
           },
           body: JSON.stringify({
             productId,
-            restaurantId: storedRestaurant?.id,
+            restaurantId: restaurant?.id,
             token,
             obs,
           }),
@@ -823,10 +808,9 @@ export default function Products() {
     async (productId: string, observation: string): Promise<void | null | undefined> => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         if (token == null || !restaurant) return;
         const productToAdd = productsList?.find((product) => product.id === productId);
-        const storedRestaurant = await getSavedRestaurant();
 
         const isFavorite = favorites.some((fav) => fav.id === productId);
         if (!isFavorite) {
@@ -841,7 +825,7 @@ export default function Products() {
           },
           body: JSON.stringify({
             productId,
-            restaurantId: storedRestaurant?.id,
+            restaurantId: restaurant?.id,
             token,
             obs: observation,
           }),
@@ -858,10 +842,9 @@ export default function Products() {
     async (productId: string) => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         setFavorites(favorites.filter((favorite) => favorite.id !== productId));
         if (token == null || !restaurant) return;
-        const storedRestaurant = await getSavedRestaurant();
 
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/del`, {
           method: 'POST',
@@ -871,7 +854,7 @@ export default function Products() {
           },
           body: JSON.stringify({
             productId,
-            restaurantId: storedRestaurant?.id,
+            restaurantId: restaurant?.id,
             token,
           }),
         });
@@ -1053,10 +1036,8 @@ export default function Products() {
         onSelectAvailable={() => {
           const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
-            AsyncStorage.setItem(
-              'selectedRestaurant',
-              JSON.stringify({ restaurant: availableRestaurant }),
-            );
+            setStorageRestaurant(availableRestaurant);
+            // FIXME: versão já possuia erro na função, validar uso
             setSelectedRestaurant(availableRestaurant.externalId);
             setShowRegistrationReleasedNewApp(false);
             loadFavorites();
@@ -1307,7 +1288,7 @@ export default function Products() {
 
       <CartButton
         cartSize={displayedCartSize}
-        selectedRestaurant={selectedRestaurant}
+        selectedRestaurant={selectedRestaurant.externalId}
         onPress={async () => {
           setLoading(true);
           router.push('cart');

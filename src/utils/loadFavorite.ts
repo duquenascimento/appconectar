@@ -1,6 +1,6 @@
-import { getToken } from './utils';
-import { getSavedRestaurant } from './savedRestaurant';
 import { Favorites } from '../types/favoriteTypes';
+import { getStorageRestaurant } from './restaurantUtils';
+import { getToken } from './utils';
 
 /**
  * Carrega a lista de favoritos do usuário para um restaurante específico.
@@ -9,7 +9,7 @@ import { Favorites } from '../types/favoriteTypes';
 export const loadFavorites = async (): Promise<Favorites[]> => {
   try {
     const token = await getToken();
-    const restaurant = await getSavedRestaurant();
+    const restaurant = await getStorageRestaurant();
     if (!token || !restaurant) {
       return [];
     }

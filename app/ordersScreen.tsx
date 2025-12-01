@@ -16,6 +16,7 @@ import PageContainer from '@/src/components/box/PageContainer';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
 import { HeaderText } from '@/src/components/text/HeaderText';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 interface Order {
   orderDocument: ReactNode;
@@ -437,11 +438,9 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
             if (availableRestaurant) {
               setShowBlockedModal(false);
-              await AsyncStorage.setItem(
-                'selectedRestaurant',
-                JSON.stringify({ restaurant: availableRestaurant }),
-              );
+              await setStorageRestaurant(availableRestaurant);
 
+              // FIXME: função existia aqui com erro...
               setSelectedRestaurant(availableRestaurant.externalId);
               setShowBlockedModal(false);
             }

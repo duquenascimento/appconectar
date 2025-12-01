@@ -29,6 +29,7 @@ import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getStarValue } from '../src/utils/getStarValue';
 import { Restaurant } from '../src/types/restaurantTypes';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 export interface Product {
   price: number;
@@ -380,7 +381,7 @@ export default function Prices() {
     try {
       setLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
-      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }));
+      await setStorageRestaurant(selectedRestaurant);
       router.push('/confirm');
     } catch (err) {
       console.error(err);
@@ -2092,7 +2093,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await loadPrices(availableRestaurant);
+                  await loadPrices(availableRestaurant.externalId);
 
                   setDraftSelectedRestaurant(null);
                 }
