@@ -17,7 +17,18 @@ type ContainerSelecaoItemsComFornecedorProps<T extends string> = {
   error?: string
 }
 
-export function ContainerSelecaoItemsComFornecedor<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error }: ContainerSelecaoItemsComFornecedorProps<T>) {
+export function ContainerSelecaoItemsComFornecedor<T extends string>({ 
+  label, 
+  items, 
+  value = [], 
+  onChange, 
+  zIndex = 3000, 
+  schemaPath, 
+  extraValidationContext = {}, 
+  ignoreValidation = false, 
+  onRemove, 
+  error 
+}: ContainerSelecaoItemsComFornecedorProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
   const [touched, setTouched] = useState(false)
@@ -41,7 +52,7 @@ export function ContainerSelecaoItemsComFornecedor<T extends string>({ label, it
   }
 
   const validate = async (val: T[]) => {
-    try {
+    try {    
       await combinacaoValidationSchema.validateAt(schemaPath ?? '', {
         [schemaPath ?? '']: val,
         ...extraValidationContext
