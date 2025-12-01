@@ -1,4 +1,5 @@
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { Restaurant } from '@/src/types/restaurantTypes';
 import { getStorageRestaurant, setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { normalizeText } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
@@ -647,6 +648,8 @@ export default function Products() {
     if (Platform.OS === 'web' || !selectedRestaurant) return;
 
     const runCheck = async () => {
+      await getInitialRestaurant(selectedRestaurant);
+
       const result = await checkVersion();
 
       if (result?.result?.updateRequired) {
@@ -658,7 +661,7 @@ export default function Products() {
       }
     };
     runCheck();
-  }, []);
+  }, [selectedRestaurant]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -677,21 +680,52 @@ export default function Products() {
     }
   }, [isLoading, productsContext]);
 
+  const getInitialRestaurant = async (
+    contextRestaurant: Restaurant | undefined | null,
+  ): Promise<{
+    initialRestaurant: Restaurant | undefined | null;
+    allRestaurantBlocked: boolean;
+  }> => {
+    if (restaurants.length === 0 || !restaurants) {
+      return { initialRestaurant: undefined, allRestaurantBlocked: false };
+    }
+
+    const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
+
+    const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
+    const allRestaurantBlocked = availableRestaurants.length === 0;
+
+    let initialRestaurant = contextRestaurant;
+    if (!allRestaurantBlocked) {
+      initialRestaurant = restaurants[0];
+
+      if (contextRestaurant) {
+        const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
+        if (found) initialRestaurant = found;
+      }
+
+      await setStorageRestaurant(initialRestaurant);
+    }
+
+    return { initialRestaurant, allRestaurantBlocked };
+  };
+
   useFocusEffect(
     useCallback(() => {
       const loadInitialData = async () => {
         setLoading(true);
         try {
-          if (restaurants.length === 0 || !restaurants) {
-            return;
-          }
-          if (selectedRestaurant?.externalId) {
+          const { initialRestaurant, allRestaurantBlocked } =
+            await getInitialRestaurant(selectedRestaurant);
+          if (!initialRestaurant) return;
+
+          if (initialRestaurant?.externalId) {
             await SaveUserAppInfo();
           }
 
           // Extraindo categorias
-          const categories = selectedRestaurant?.categories ?? [];
-          if ((selectedRestaurant?.verduraKg ?? false) && categories.length === 0) {
+          const categories = initialRestaurant?.categories ?? [];
+          if ((initialRestaurant?.verduraKg ?? false) && categories.length === 0) {
             classItems = [
               { name: 'Favoritos' },
               { name: 'Fruta' },
@@ -718,26 +752,6 @@ export default function Products() {
               { name: 'Favoritos' },
               ...categories.map((category: any) => ({ name: category })),
             ];
-          }
-
-          const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
-
-          const availableRestaurants = validRestaurants.filter(
-            (r) => !r.registrationReleasedNewApp,
-          );
-          const allRestaurantBlocked = availableRestaurants.length === 0;
-
-          let initialRestaurant = selectedRestaurant;
-          if (!allRestaurantBlocked) {
-            initialRestaurant = restaurants[0];
-
-            if (selectedRestaurant) {
-              const found = availableRestaurants.find((r) => r.id === selectedRestaurant.id);
-              if (found) {
-                initialRestaurant = found;
-              }
-            }
-            await setStorageRestaurant(initialRestaurant);
           }
 
           const cartMap = await loadCart();
