@@ -25,6 +25,7 @@ import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
 import { scheduleNotification } from '@/src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '@/src/utils/inativityTimer';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { isBefore13Hours } from '@/src/utils/timeUtils';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import { validateAddress } from '../src/utils/validateAddress';
@@ -263,10 +264,9 @@ export default function Confirm() {
     const loadSupplierAsync = async () => {
       try {
         await loadSupplier();
-        const selectedRestaurantText = await getStorage('selectedRestaurant');
-        if (!selectedRestaurantText) return;
-        const selectedRestaurant = JSON.parse(selectedRestaurantText);
-        setSelectedRestaurant(selectedRestaurant);
+        const restaurantData = await getStorageRestaurant();
+        if (!restaurantData) return;
+        setSelectedRestaurant(restaurantData);
       } catch (err) {
         console.error(err);
         router.push('/prices');

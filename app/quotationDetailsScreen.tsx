@@ -20,6 +20,7 @@ import CustomButton from '../src/components/button/customButton';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 export interface Product {
   price: number;
@@ -191,17 +192,15 @@ export default function QuotationDetailsScreen() {
         return;
       }
 
-      const storedRestaurant = await getStorage('selectedRestaurant');
-      if (!storedRestaurant) {
+      const restaurantData = await getStorageRestaurant();
+      if (!restaurantData) {
         Alert.alert('Erro', 'Restaurante não encontrado.');
         return;
       }
 
-      const parsedRestaurant = JSON.parse(storedRestaurant);
-
       if (isBefore13h) {
         const errors = await scheduleNotification(
-          parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+          restaurantData.addressInfos[0].responsibleReceivingPhoneNumber,
         );
 
         setShowErros(errors);
@@ -220,13 +219,13 @@ export default function QuotationDetailsScreen() {
       const body: ConfirmOrderConectarPlusRequestBody = {
         token,
         suppliers: suppliers.map((s) => s.supplier),
-        restaurant: parsedRestaurant,
+        restaurant: restaurantData,
         deliveryDate: deliveryDate.toISOString(),
       };
 
       const createdOrders = await confirmOrderConectarPlus(body);
       if (createdOrders && createdOrders.status === 201) {
-        deleteMultiStorage(['cartOrder', `cart_${parsedRestaurant?.restaurant.externalId}`]);
+        deleteMultiStorage(['cartOrder', `cart_${restaurantData.externalId}`]);
         const { deliveryDateFormated } = createdOrders.data.data[0];
 
         const ordersBySupplier = createdOrders.data.data.map(

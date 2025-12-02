@@ -1,4 +1,7 @@
+import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -10,26 +13,24 @@ import {
   VirtualizedList,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { Button, Image, Input, ScrollView, Stack, Text, View } from 'tamagui';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { Button, Input, ScrollView, Stack, Text, View } from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
+import CustomButton from '../src/components/button/customButton';
+import CombinationList, { Combination } from '../src/components/combinationList';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
-import { loadPermissionConectarPlus } from '../src/services/restaurantService';
-import { campoString } from '../src/utils/formatCampos';
-import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
-import CombinationList, { Combination } from '../src/components/combinationList';
-import CustomButton from '../src/components/button/customButton';
-import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
-import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useCombinacao } from '../src/contexts/combinacao.context';
-import { TCart } from '../src/types/cartTypes';
-import { loadCart } from '../src/utils/cartUtils';
-import PageContainer from '../src/components/box/PageContainer';
+import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { getStarValue } from '../src/utils/getStarValue';
+import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
+import { loadPermissionConectarPlus } from '../src/services/restaurantService';
+import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
-import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
+import { loadCart } from '../src/utils/cartUtils';
+import { campoString } from '../src/utils/formatCampos';
+import { getStarValue } from '../src/utils/getStarValue';
+import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -395,7 +396,7 @@ export default function Prices() {
     try {
       setLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
-      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }));
+      await setStorageRestaurant(selectedRestaurant);
       router.push('/confirm');
     } catch (err) {
       console.error(err);
@@ -426,7 +427,7 @@ export default function Prices() {
             const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
             setPermissionConectarPlus(permissionResult.authorized);
           }
-          setTab(selectedRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+          setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier');
           setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
           setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
@@ -2083,7 +2084,7 @@ export default function Prices() {
           <CustomAlert
             visible={isConectarAlertVisible}
             title="Conéctar+ indisponível!"
-            message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação."
+            message="Parece que a cotação automática do Conectar+ ainda não está disponível para sua conta. Mas tudo bem! Solicite uma cotação e daremos continuidade ao seu pedido."
             onConfirm={() => setIsConectarAlertVisible(false)}
           />
           <DialogComercialInstance
@@ -2107,7 +2108,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await loadPrices(availableRestaurant);
+                  await loadPrices(availableRestaurant.externalId);
 
                   setDraftSelectedRestaurant(null);
                 }
