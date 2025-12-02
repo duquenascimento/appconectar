@@ -1,6 +1,13 @@
+import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { DateTime } from 'luxon';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Alert, Platform } from 'react-native';
+import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
 import CustomInfoCard from '@/src/components/card/customInfoCard';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import CustomHeader from '@/src/components/header/customHeader';
 import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
 import CustomAlert from '@/src/components/modais/CustomAlert';
@@ -17,17 +24,6 @@ import { formatCurrency } from '@/src/utils/formatCurrency';
 import { processOrderResponse } from '@/src/utils/processOrderResponse';
 import { isBefore13Hours } from '@/src/utils/timeUtils';
 import { deleteMultiStorage, getStorage, getToken } from '@/src/utils/utils';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
-import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Platform } from 'react-native';
-import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
-import CustomButton from '../src/components/button/customButton';
-import { formatCurrency } from '../src/utils/formatCurrency';
-import { processOrderResponse } from '../src/utils/processOrderResponse';
-import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 export interface Product {
   price: number;

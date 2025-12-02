@@ -359,7 +359,9 @@ export default function Confirm() {
           token,
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
-          deliveryDate,
+          deliveryDate: selectedRestaurant.allowEmergencyOrder
+            ? DateTime.now().setZone('America/Sao_Paulo').toISODate()!
+            : deliveryDate,
         };
 
         const erros = [];
@@ -382,6 +384,7 @@ export default function Confirm() {
           }
         }
 
+        console.log('Body:', body);
         const result = await confirmOrder(body);
 
         if (result.status === 201) {
