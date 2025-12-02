@@ -308,7 +308,13 @@ export default function Confirm() {
           ...i,
           addOrder: cartOrder.find((o) => o.sku === i.sku)?.addOrder ?? Infinity,
         }))
-        .sort((a, b) => a.addOrder - b.addOrder) || [],
+        .sort((a, b) => {
+          // a.addOrder - b.addOrder
+          if (a.price === 0 && b.price !== 0) return -1;
+          if (a.price !== 0 && b.price === 0) return 1;
+
+          return a.addOrder - b.addOrder;
+        }) || [],
     [supplier, cartOrder],
   );
 
@@ -384,7 +390,6 @@ export default function Confirm() {
           }
         }
 
-        console.log('Body:', body);
         const result = await confirmOrder(body);
 
         if (result.status === 201) {

@@ -236,8 +236,8 @@ export default function QuotationDetailsScreen() {
         const body: ConfirmConectarPlusOrderRequestBody = {
           token,
           suppliers: suppliers.map((s) => s.supplier),
-          restaurant: parsedRestaurant,
-          deliveryDate: deliveryDate,
+          restaurant: parsedRestaurant.restaurant,
+          deliveryDate,
         };
 
         const createdOrders = await confirmConectarPlusOrder(body);

@@ -1,7 +1,7 @@
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
 import CombinationList, { Combination } from '@/src/components/combinationList';
-import DialogComercialInstance  from '@/src/components/dialogComercialInstance';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import DialogInstanceNotification from '@/src/components/modais/DialogInstanceNotification';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
@@ -195,8 +195,7 @@ function SupplierBox({
               }
               fontSize={12}
             >
-              {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s)
-              faltante(s)
+              {supplier.supplier.missingItens} iten(s) faltante(s)
             </Text>
           ) : (
             <>
@@ -255,7 +254,7 @@ export default function Prices() {
   const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>();
   const [deliveryInformation, setDeliveryInformation] = useState<string>();
   const [complement, setComplement] = useState<string>();
-  const [tab, setTab] = useState<string>('onlySupplier');
+  const [tab, setTab] = useState<string>('plus');
   const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
   const [deliveryDateOpen, setDeliveryDateOpen] = useState(false);
   const [minHourOpen, setMinHourOpen] = useState(false);
