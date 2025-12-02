@@ -3,7 +3,7 @@ import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator, Alert, Platform } from 'react-native';
 import {
   Adapt,
   Button,
@@ -17,19 +17,20 @@ import {
   XStack,
 } from 'tamagui';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { confirmOrder, ConfirmOrderRequestBody } from '@/src/services/orderService';
-import { scheduleNotification } from '@/src/utils/agendamentoUtils';
-import { useInactivityRedirect } from '@/src/utils/inativityTimer';
-import { getPaymentDate, isBefore13Hours } from '@/src/utils/timeUtils';
+import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
+import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
+import PageContainer from '../src/components/box/PageContainer';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
+import { scheduleNotification } from '../src/utils/agendamentoUtils';
+import { useInactivityRedirect } from '../src/utils/inativityTimer';
+import { getPaymentDate, isBefore13Hours } from '../src/utils/timeUtils';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
-import { getPaymentDescription } from '@/src/utils/paymentUtils';
+import { getPaymentDescription } from '../src/utils/paymentUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -221,12 +222,21 @@ export default function Confirm() {
   const [booleanErros, setBooleanErros] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false);
+  const [showSundayWarning, setShowSundayWarning] = useState(false);
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
+  const [confirmedWarnings, setConfirmedWarnings] = useState<{
+    missingItems: boolean;
+    sundayWarning: boolean;
+  }>({
+    missingItems: false,
+    sundayWarning: false,
+  });
   const { loadPrices } = useSupplier();
   const { loadRestaurants, selectedRestaurant } = useRestaurantContext();
+  const { deliveryDate, getFormattedDate, resetDeliveryDate } = useDeliveryDate();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -316,62 +326,114 @@ export default function Confirm() {
     );
   };
 
-  // Nova lógica de confirmação (A que estava antes dentro do else)
-  const handleConfirmOrder = useCallback(async () => {
-    setShowMissingItemsModal(false);
-    setLoadingToConfirm(true);
+  const actualMissingItemsCount =
+    supplier?.supplier?.discount?.product?.length - (supplier?.supplier?.missingItens ?? 0);
+  const displayMissingItems = Math.max(0, actualMissingItemsCount);
 
-    try {
-      const token = await getToken();
-
-      if (!token || !selectedRestaurant) {
-        setLoadingToConfirm(false);
-        return;
-      }
-      const erros = [];
-
-      if (!selectedRestaurant.allowEmergencyOrder) {
-        if (!isOpen() && !selectedRestaurant.allowClosedSupplier) {
-          erros.push('O fornecedor está fechado');
-        }
-        if (
-          supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-          !selectedRestaurant.allowMinimumOrder
-        ) {
-          erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
-        }
-
-        if (erros.length > 0) {
-          setShowErros(erros);
-          setBooleanErros(true);
-          setLoadingToConfirm(false);
+  const handleConfirmOrder = useCallback(
+    async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+      try {
+        const token = await getToken();
+        if (!token || !selectedRestaurant) {
+          Alert.alert('Erro', 'Token de autenticação não encontrado.');
           return;
         }
-      }
 
-      const body: ConfirmOrderRequestBody = {
-        token,
-        supplier: supplier.supplier,
-        restaurant: { restaurant: selectedRestaurant },
-      };
+        const effectiveWarnings = {
+          ...confirmedWarnings,
+          ...overrideWarnings,
+        };
 
-      const result = await confirmOrder(body);
+        if (displayMissingItems > 0 && !effectiveWarnings.missingItems) {
+          setShowMissingItemsModal(true);
+          return;
+        }
 
-      if (result.status === 201) {
-        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
-        router.push('/finalConfirm');
-      } else {
-        setLoadingToConfirm(false);
-        setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
+        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
+          setShowSundayWarning(true);
+          return;
+        }
+
+        setLoadingToConfirm(true);
+        const body: ConfirmOrderRequestBody = {
+          token,
+          supplier: supplier.supplier,
+          restaurant: selectedRestaurant,
+          deliveryDate,
+        };
+
+        const erros = [];
+        if (!selectedRestaurant.allowEmergencyOrder) {
+          if (!isOpen() && !selectedRestaurant.allowClosedSupplier) {
+            erros.push('O fornecedor está fechado');
+          }
+          if (
+            supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+            !selectedRestaurant.allowMinimumOrder
+          ) {
+            erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
+          }
+
+          if (erros.length > 0) {
+            setShowErros(erros);
+            setBooleanErros(true);
+            setLoadingToConfirm(false);
+            return;
+          }
+        }
+
+        const result = await confirmOrder(body);
+
+        if (result.status === 201) {
+          await setStorage('finalConfirmData', JSON.stringify(result.data.data));
+          resetDeliveryDate();
+          setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+          router.push('/finalConfirm');
+        } else {
+          setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
+          setBooleanErros(true);
+        }
+      } catch (error) {
+        console.error('Erro em handleConfirmOrder:', error);
+        setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
         setBooleanErros(true);
+      } finally {
+        console.log('Finalizando confirmação...');
+        setLoadingToConfirm(false);
       }
-    } catch (error) {
-      console.error('Erro em handleConfirmOrder:', error);
-      setLoadingToConfirm(false);
-      setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
-      setBooleanErros(true);
-    }
-  }, [supplier, router]);
+    },
+    [
+      supplier,
+      selectedRestaurant,
+      router,
+      confirmedWarnings,
+      displayMissingItems,
+      deliveryDate,
+      resetDeliveryDate,
+    ],
+  );
+
+  const handleConfirmMissingItems = useCallback(async () => {
+    setShowMissingItemsModal(false);
+    setConfirmedWarnings((prev) => ({ ...prev, missingItems: true }));
+    await handleConfirmOrder({ missingItems: true });
+  }, [handleConfirmOrder]);
+
+  const handleConfirmSundayWarning = useCallback(async () => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings((prev) => ({ ...prev, sundayWarning: true }));
+    await handleConfirmOrder({ sundayWarning: true });
+  }, [handleConfirmOrder]);
+
+  const handleCloseMissingItems = useCallback(() => {
+    setShowMissingItemsModal(false);
+    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+  }, []);
+
+  const handleCloseSundayWarning = useCallback(() => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+  }, []);
 
   if (loading || !selectedRestaurant) {
     return (
@@ -392,9 +454,6 @@ export default function Confirm() {
     );
   }
 
-  const actualMissingItemsCount =
-    supplier.supplier.discount.product.length - supplier.supplier.missingItens;
-  const displayMissingItems = Math.max(0, actualMissingItemsCount);
   return (
     <PageContainer backgroundColor="white">
       <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
@@ -410,8 +469,8 @@ export default function Confirm() {
         />
         <MissingItemsDialog
           open={showMissingItemsModal}
-          onClose={() => setShowMissingItemsModal(false)}
-          onConfirm={handleConfirmOrder}
+          onClose={handleCloseMissingItems}
+          onConfirm={handleConfirmMissingItems}
           missingItemsCount={displayMissingItems}
         />
         <CustomAlert
@@ -420,6 +479,11 @@ export default function Confirm() {
           message={alertMessage}
           onConfirm={() => setIsAlertVisible(false)}
           width="80%"
+        />
+        <SundayOrderAlert
+          visible={showSundayWarning}
+          onCancel={handleCloseSundayWarning}
+          onConfirm={handleConfirmSundayWarning}
         />
         <View
           backgroundColor="white"
@@ -686,6 +750,24 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Data:</Text>
+              <View
+                style={{
+                  flexGrow: 1,
+                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                }}
+              >
+                <Text>{getFormattedDate()}</Text>
+              </View>
+            </View>
+
+            <View
+              style={{
+                flexDirection: 'row',
+                paddingTop: 10,
+                alignItems: 'center',
+              }}
+            >
               <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
               <View
                 style={{
@@ -802,11 +884,7 @@ export default function Confirm() {
                     return;
                   }
 
-                  if (displayMissingItems > 0) {
-                    setShowMissingItemsModal(true);
-                  } else {
-                    await handleConfirmOrder();
-                  }
+                  await handleConfirmOrder();
                 }
               } catch (error) {
                 console.error('Erro no botão de confirmação:', error);

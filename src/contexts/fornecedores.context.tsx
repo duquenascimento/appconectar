@@ -11,6 +11,7 @@ import { SupplierData } from '../types/types';
 import { getStorage, getToken, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
 import { useRestaurantContext } from './restaurant.context';
+import { useDeliveryDate } from '../hooks/useDeliveryDate';
 
 interface SupplierContextType {
   suppliers: SupplierData[];
@@ -29,6 +30,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any | null>(null);
   const { loadRestaurants } = useRestaurantContext();
+  const { deliveryDate } = useDeliveryDate();
 
   const getSavedRestaurant = async () => {
     try {
@@ -56,7 +58,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   };
 
   const loadPrices = useCallback(
-    async (restaurantId?: string) => {
+    async (restaurantExternalId?: string) => {
       try {
         setLoadingSuppliers(true);
         const token = await getToken();
@@ -65,7 +67,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         const restaurantSelected = await getSavedRestaurant();
         const allRestaurants = await loadRestaurants();
         const currentRestaurant = allRestaurants.find(
-          (r: any) => r.externalId === (restaurantId ?? restaurantSelected?.externalId),
+          (r: any) => r.externalId === (restaurantExternalId ?? restaurantSelected?.externalId),
         );
 
         if (!currentRestaurant) return;
@@ -73,7 +75,11 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, selectedRestaurant: currentRestaurant }),
+          body: JSON.stringify({
+            token,
+            selectedRestaurant: currentRestaurant,
+            deliveryDate: deliveryDate,
+          }),
         });
 
         const response = await result.json();

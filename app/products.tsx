@@ -1,18 +1,11 @@
-import {
-  View,
-  Select,
-  YStack,
-  XStack,
-  Text,
-  Adapt,
-  Sheet,
-  Input,
-  Button,
-  Stack,
-  ScrollView,
-} from 'tamagui';
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { normalizeText } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { MotiView } from 'moti';
+import { Skeleton } from 'moti/skeleton';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -22,38 +15,46 @@ import {
   VirtualizedList,
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import { MotiView } from 'moti';
-import { Skeleton } from 'moti/skeleton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
-import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
-import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
-import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
-import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
-import { CartButton } from '../src/components/cartButton';
-import { useProductContext } from '../src/contexts/produtos.context';
-import { useCart } from '../src/components/useCart';
-import { loadFavorites } from '../src/utils/loadFavorite';
+import {
+  Adapt,
+  Button,
+  Input,
+  ScrollView,
+  Select,
+  Sheet,
+  Stack,
+  Text,
+  View,
+  XStack,
+  YStack,
+} from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
   ProductCardObsUnitContainerStyled,
   ProductCardStyled,
 } from '../src/components/card/productCard';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { CartButton } from '../src/components/cartButton';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
-import PageContainer from '../src/components/box/PageContainer';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '../src/components/text/HeaderText';
 import { SearchProducts } from '../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
-import { CustomImageBadge } from '../src/components/image/customImageBadge';
-import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+import { HeaderText } from '../src/components/text/HeaderText';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
-import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { normalizeText } from '@/src/utils/stringUtils';
+import { useCart } from '../src/components/useCart';
+import { useProductContext } from '../src/contexts/produtos.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import { loadFavorites } from '../src/utils/loadFavorite';
+import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
+import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
+import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
+
 
 export type Product = {
   name: string;
@@ -607,13 +608,6 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) =
 };
 
 let classItems: { name: string }[] = [];
-
-export interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
-  registrationReleasedNewApp: boolean;
-}
 
 export default function Products() {
   const [currentClass, setCurrentClass] = useState('Favoritos');

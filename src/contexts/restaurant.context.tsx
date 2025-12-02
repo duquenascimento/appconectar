@@ -1,14 +1,14 @@
-import React, {
+import {
   createContext,
-  useContext,
-  useCallback,
-  useState,
-  useMemo,
   ReactNode,
+  useCallback,
+  useContext,
   useEffect,
+  useMemo,
+  useState,
 } from 'react';
-import { getToken, setStorage } from '../utils/utils';
 import { Restaurant } from '../types/restaurantTypes';
+import { getToken, setStorage } from '../utils/utils';
 import { getSavedRestaurant } from '../utils/savedRestaurant';
 import { updateRestaurantDeliveryInfo } from '../services/restaurantService';
 
