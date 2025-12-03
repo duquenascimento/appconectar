@@ -340,7 +340,8 @@ export default function Confirm() {
     );
     return (
       Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour &&
-      supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish &&
+      (supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish ||
+        supplier.supplier.sameDayOrders.length > 0) &&
       supplier.supplier.missingItens > 0
     );
   };
@@ -476,7 +477,8 @@ export default function Confirm() {
       }
       if (
         supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-        !selectedRestaurant.restaurant.allowMinimumOrder
+        !selectedRestaurant.restaurant.allowMinimumOrder &&
+        supplier.supplier.sameDayOrders.length === 0
       ) {
         erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
       }

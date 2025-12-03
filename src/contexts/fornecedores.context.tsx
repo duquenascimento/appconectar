@@ -94,11 +94,15 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         if (!currentRestaurant?.allowMinimumOrder) {
           unavailable = unavailable.concat(
             available.filter(
-              (item) => item.supplier.minimumOrder > item.supplier.discount.orderValueFinish,
+              (item) =>
+                item.supplier.minimumOrder > item.supplier.discount.orderValueFinish &&
+                item.supplier.sameDayOrders.length === 0,
             ),
           );
           available = available.filter(
-            (item) => item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish,
+            (item) =>
+              item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish ||
+              item.supplier.sameDayOrders.length > 0,
           );
         }
 

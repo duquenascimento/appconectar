@@ -226,7 +226,8 @@ function SupplierBox({
                 <></>
               )}
               {supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-              !selectedRestaurant.allowMinimumOrder ? (
+              !selectedRestaurant.allowMinimumOrder &&
+              supplier.supplier.sameDayOrders.length === 0 ? (
                 <Text color="red" fontSize={12}>
                   Mínimo R$
                   {supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}
