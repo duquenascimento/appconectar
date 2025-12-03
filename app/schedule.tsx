@@ -108,7 +108,7 @@ export default function ScheduleScreen() {
           products: cartProducts.map((product) => ({
             productId: product.id,
             quantity: Number(product.amount ?? '1'),
-            obs: product.obs,
+            obs: !product.obs ? null : product.obs,
           })),
         };
         await createScheduleOrder(creationData);
@@ -160,7 +160,7 @@ export default function ScheduleScreen() {
           id: product.id,
           sku: product.sku,
           amount: Number(product.amount ?? '1'),
-          obs: product.obs,
+          obs: !product.obs ? null : product.obs,
         })),
       });
       const params: {

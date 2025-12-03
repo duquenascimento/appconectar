@@ -6,7 +6,7 @@ export type ScheduleOrderCreationBody = {
   products: {
     productId: string;
     quantity: number;
-    obs?: string;
+    obs?: string | null;
   }[];
 };
 
