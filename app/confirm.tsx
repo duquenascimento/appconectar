@@ -26,6 +26,7 @@ import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { getPaymentDate, isBefore13Hours } from '../src/utils/timeUtils';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import { validateAddress } from '../src/utils/validateAddress';

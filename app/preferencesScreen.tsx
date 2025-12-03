@@ -1,8 +1,6 @@
-import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
-
 import { router } from 'expo-router';
 import { ScrollView, YStack } from 'tamagui';
 import CustomButton from '../src/components/button/customButton';
@@ -10,39 +8,24 @@ import CustomInfoCard from '../src/components/card/customInfoCard';
 import CustomHeader from '../src/components/header/customHeader';
 import CustomListItem from '../src/components/list/customListItem';
 import CustomSubtitle from '../src/components/subtitle/customSubtitle';
-
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { Combinacao } from '@/src/types/combinationTypes';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { useCombinacao } from '../src/contexts/combinacao.context';
+import { getCombinationsByRestaurant } from '../src/services/combinationsService';
+import { Combinacao, Combination } from '../src/types/combinationTypes';
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
 import { mapCombination } from '../src/utils/mapCombination';
-import { getStorage } from '../src/utils/utils';
-
-import PageContainer from '@/src/components/box/PageContainer';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { Restaurant } from '@/src/types/restaurant';
-
-export interface Combination {
-  id: string;
-  combination: string;
-  supplier?: string;
-  delivery?: string;
-  createdAt?: string;
-  missingItems?: number;
-  totalValue?: number;
-}
+import PageContainer from '../src/components/box/PageContainer';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { Restaurant } from '../src/types/restaurantTypes';
+import { getStorageRestaurant } from '../src/utils/restaurantUtils';
 
 export type RootStackParamList = {
   Preferences: { restaurantId: string; restaurant: Restaurant };
   Combination: { id: string };
 };
 
-type PreferencesScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Preferences'>;
-
-const PreferencesScreen: React.FC = () => {
-  const navigation = useNavigation<PreferencesScreenNavigationProp>();
+export default function PreferencesScreen() {
   const route = useRoute();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
@@ -57,19 +40,8 @@ const PreferencesScreen: React.FC = () => {
     const fetchStoredRestaurant = async () => {
       loadPrices();
       loadRestaurants();
-      const storedValue = await getStorage('selectedRestaurant');
-      let restaurantFromStorage = null;
-
-      if (storedValue) {
-        try {
-          const parsedValue = JSON.parse(storedValue);
-          restaurantFromStorage = parsedValue?.restaurant ?? parsedValue ?? null;
-        } catch {
-          restaurantFromStorage = null;
-        }
-      }
-
-      setRestaurant(restaurantFromStorage);
+      const restaurantData = await getStorageRestaurant();
+      setRestaurant(restaurantData);
     };
 
     fetchStoredRestaurant();
@@ -182,6 +154,4 @@ const PreferencesScreen: React.FC = () => {
       <CustomButton title="Criar nova combinação" onPress={handleCreateNewCombination} />
     </PageContainer>
   );
-};
-
-export default PreferencesScreen;
+}

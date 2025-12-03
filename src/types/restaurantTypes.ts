@@ -1,3 +1,6 @@
+interface RestaurantDeliveryPolicy {
+  canCreateSundayOrders: boolean;
+}
 interface Address {
   id: string;
   restaurant: string[];
@@ -60,4 +63,5 @@ export interface Restaurant {
   conectarPlusAuthorization: boolean;
   max_specific_suppliers: number;
   addressInfos: Address[];
+  deliveryPolicy: RestaurantDeliveryPolicy;
 }

@@ -1,12 +1,12 @@
 import { TCart } from '../types/cartTypes';
-import { getSavedRestaurant } from './savedRestaurant';
+import { getStorageRestaurant } from './restaurantUtils';
 import { getStorage, getToken } from './utils';
 
 // Retorna os produtos do carrinho
 export async function loadCart(): Promise<Map<string, TCart>> {
   try {
     const token = await getToken();
-    const restaurant = await getSavedRestaurant();
+    const restaurant = await getStorageRestaurant();
     if (!token || !restaurant) return new Map();
 
     const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {

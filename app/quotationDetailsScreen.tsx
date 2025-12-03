@@ -1,29 +1,28 @@
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomButton from '@/src/components/button/customButton';
-import CustomInfoCard from '@/src/components/card/customInfoCard';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import CustomHeader from '@/src/components/header/customHeader';
-import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import SundayOrderAlert from '@/src/components/modais/SundayOrderAlert';
-import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
-import { SupplierList } from '@/src/components/quotations/SupplierList';
-import { useDeliveryDate } from '@/src/hooks/useDeliveryDate';
+import PageContainer from '../src/components/box/PageContainer';
+import CustomButton from '../src/components/button/customButton';
+import CustomInfoCard from '../src/components/card/customInfoCard';
+import CustomHeader from '../src/components/header/customHeader';
+import { LoadingConfirm } from '../src/components/loading/confirmOrder';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
+import { MissingItemsList } from '../src/components/quotations/MissingItensList';
+import { SupplierList } from '../src/components/quotations/SupplierList';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import {
   confirmConectarPlusOrder,
   ConfirmConectarPlusOrderRequestBody,
-} from '@/src/services/orderService';
-import { scheduleNotification } from '@/src/utils/agendamentoUtils';
-import { formatCurrency } from '@/src/utils/formatCurrency';
-import { processOrderResponse } from '@/src/utils/processOrderResponse';
-import { isBefore13Hours } from '@/src/utils/timeUtils';
-import { deleteMultiStorage, getStorage, getToken } from '@/src/utils/utils';
+} from '../src/services/orderService';
+import { scheduleNotification } from '../src/utils/agendamentoUtils';
+import { formatCurrency } from '../src/utils/formatCurrency';
+import { processOrderResponse } from '../src/utils/processOrderResponse';
+import { isBefore13Hours } from '../src/utils/timeUtils';
+import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -79,11 +78,6 @@ type RootStackParamList = {
     suppliersData: SupplierData[];
     missingProducts: string[];
   };
-};
-
-type QuotationDetailsScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
-  route: { params: RootStackParamList['QuotationDetails'] };
 };
 
 export default function QuotationDetailsScreen() {

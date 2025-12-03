@@ -1,22 +1,3 @@
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomButton from '@/src/components/button/customButton';
-import CombinationList, { Combination } from '@/src/components/combinationList';
-import DialogComercialInstance from '@/src/components/dialogComercialInstance';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import DialogInstanceNotification from '@/src/components/modais/DialogInstanceNotification';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { useDeliveryDate } from '@/src/hooks/useDeliveryDate';
-import { getAllCombinationsByRestaurant } from '@/src/services/combinationsService';
-import { confirmPremiumOrder } from '@/src/services/orderService';
-import { loadPermissionConectarPlus } from '@/src/services/restaurantService';
-import { TCart } from '@/src/types/cartTypes';
-import { Restaurant } from '@/src/types/restaurant';
-import { loadCart } from '@/src/utils/cartUtils';
-import { campoString } from '@/src/utils/formatCampos';
-import { getStarValue } from '@/src/utils/getStarValue';
-import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
@@ -31,6 +12,26 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Image, Input, ScrollView, Stack, Text, View } from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
+import CustomButton from '../src/components/button/customButton';
+import CombinationList, { Combination } from '../src/components/combinationList';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
+import { useCombinacao } from '../src/contexts/combinacao.context';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
+import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
+import { confirmPremiumOrder } from '../src/services/orderService';
+import { loadPermissionConectarPlus } from '../src/services/restaurantService';
+import { TCart } from '../src/types/cartTypes';
+import { loadCart } from '../src/utils/cartUtils';
+import { campoString } from '../src/utils/formatCampos';
+import { getStarValue } from '../src/utils/getStarValue';
+import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import { setStorageRestaurant } from '../src/utils/restaurantUtils';
+import { Restaurant } from '../src/types/restaurantTypes';
 
 export interface Product {
   price: number;
@@ -187,21 +188,13 @@ function SupplierBox({
             R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
           </Text>
           {available ? (
-            <Text
-              color={
-                supplier.supplier.discount.product.length - supplier.supplier.missingItens > 0
-                  ? 'red'
-                  : 'black'
-              }
-              fontSize={12}
-            >
+            <Text color={supplier.supplier.missingItens > 0 ? 'red' : 'black'} fontSize={12}>
               {supplier.supplier.missingItens} iten(s) faltante(s)
             </Text>
           ) : (
             <>
               <Text color="red" fontSize={12}>
-                {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s)
-                faltante(s)
+                {supplier.supplier.missingItens} iten(s) faltante(s)
               </Text>
               {isOpen() && !selectedRestaurant.allowClosedSupplier ? (
                 <Text color="red" fontSize={12}>
@@ -397,7 +390,7 @@ export default function Prices() {
     try {
       setLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
-      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }));
+      await setStorageRestaurant(selectedRestaurant);
       router.push('/confirm');
     } catch (err) {
       console.error(err);
@@ -428,7 +421,7 @@ export default function Prices() {
             const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
             setPermissionConectarPlus(permissionResult.authorized);
           }
-          setTab(selectedRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+          setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier');
           setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
           setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
@@ -549,11 +542,18 @@ export default function Prices() {
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
   const renderItem = ({ item }: { item: any }) => {
+    function availability(): boolean {
+      if (item.supplier.discount.orderValue === 0) return false;
+      if (selectedRestaurant?.allowClosedSupplier) return true;
+      return item.available;
+    }
+    const available = availability();
+
     return (
       <SupplierBox
         supplier={item}
         star={item.star}
-        available={selectedRestaurant?.allowEmergencyOrder ? true : item.available}
+        available={available}
         selectedRestaurant={selectedRestaurant}
         goToConfirm={goToConfirm}
       />
@@ -2144,7 +2144,7 @@ export default function Prices() {
           <CustomAlert
             visible={isConectarAlertVisible}
             title="Conéctar+ indisponível!"
-            message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação."
+            message="Parece que a cotação automática do Conectar+ ainda não está disponível para sua conta. Mas tudo bem! Solicite uma cotação e daremos continuidade ao seu pedido."
             onConfirm={() => setIsConectarAlertVisible(false)}
           />
           <DialogComercialInstance

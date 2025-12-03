@@ -1,15 +1,8 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-  useCallback,
-  SetStateAction,
-} from 'react';
-import { SupplierData } from '../types/types';
-import { getStorage, getToken, setStorage } from '@/src/utils/utils';
+import { getToken, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
+import { createContext, ReactNode, SetStateAction, useCallback, useContext, useState } from 'react';
+import { SupplierData } from '../types/types';
+import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
 import { useDeliveryDate } from '../hooks/useDeliveryDate';
 
@@ -32,18 +25,6 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const { loadRestaurants } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
 
-  const getSavedRestaurant = async () => {
-    try {
-      const data = await getStorage('selectedRestaurant');
-      if (!data) return null;
-      const parsedData = JSON.parse(data);
-      return parsedData?.restaurant ?? parsedData;
-    } catch (error) {
-      console.error('Erro ao parsear dados do restaurante:', error);
-      return null;
-    }
-  };
-
   const saveSuppliersToStorage = async (available: SupplierData[], unavailable: SupplierData[]) => {
     try {
       await setStorage('availableSuppliers', JSON.stringify(available)).catch(() => {
@@ -64,7 +45,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         const token = await getToken();
         if (!token) return;
 
-        const restaurantSelected = await getSavedRestaurant();
+        const restaurantSelected = await getStorageRestaurant();
         const allRestaurants = await loadRestaurants();
         const currentRestaurant = allRestaurants.find(
           (r: any) => r.externalId === (restaurantExternalId ?? restaurantSelected?.externalId),
@@ -92,7 +73,9 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         const allSuppliers = response.data as SupplierData[];
 
-        let available = allSuppliers.filter((item) => item.supplier.missingItens > 0);
+        let available = allSuppliers.filter(
+          (item) => item.supplier.missingItens > 0 && item.supplier.discount.orderValue > 0,
+        );
         let unavailable: SetStateAction<SupplierData[]> = [];
 
         if (!currentRestaurant?.allowClosedSupplier) {

@@ -1,15 +1,9 @@
 import { useEffect } from "react"
+import { Restaurant } from "../types/restaurantTypes"
 
 interface AbandonedCartWatcherProps {
   cartSize: number
-  selectedRestaurant: {
-    restaurant: {
-      id: string
-      externalId: string
-      name: string
-      user: string
-    }
-  }
+  selectedRestaurant: Restaurant
 }
 
 export function AbandonedCartWatcher({ cartSize, selectedRestaurant }: AbandonedCartWatcherProps) {
@@ -23,10 +17,10 @@ export function AbandonedCartWatcher({ cartSize, selectedRestaurant }: Abandoned
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              restaurantId: selectedRestaurant.restaurant.id,
-              externalId: selectedRestaurant.restaurant.externalId,
-              restaurantName: selectedRestaurant.restaurant.name,
-              userId: selectedRestaurant.restaurant.user,
+              restaurantId: selectedRestaurant.id,
+              externalId: selectedRestaurant.externalId,
+              restaurantName: selectedRestaurant.name,
+              userId: selectedRestaurant.user,
             }),
           })
 

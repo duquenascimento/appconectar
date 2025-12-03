@@ -1,11 +1,11 @@
-import { View, Image, Text, Button } from 'tamagui';
+import PageContainer from '@/src/components/box/PageContainer';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
-import { SupplierData } from './prices';
+import { useCallback, useEffect, useState } from 'react';
+import { Button, Image, Text, View } from 'tamagui';
 import { clearStorage, getStorage } from '../src/utils/utils';
 import { SaveUserAppInfo } from '../src/utils/VersionApp';
-import PageContainer from '@/src/components/box/PageContainer';
+import { SupplierData } from './prices';
 
 interface RestaurantInfo {
   restName: string;
