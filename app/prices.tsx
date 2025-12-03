@@ -29,6 +29,7 @@ import PageContainer from '../src/components/box/PageContainer';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getStarValue } from '../src/utils/getStarValue';
 import { Restaurant } from '../src/types/restaurantTypes';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 export interface Product {
   price: number;
@@ -380,7 +381,7 @@ export default function Prices() {
     try {
       setLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
-      await setStorage('selectedRestaurant', JSON.stringify({ restaurant: selectedRestaurant }));
+      await setStorageRestaurant(selectedRestaurant);
       router.push('/confirm');
     } catch (err) {
       console.error(err);
@@ -411,7 +412,7 @@ export default function Prices() {
             const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
             setPermissionConectarPlus(permissionResult.authorized);
           }
-          setTab(selectedRestaurant.conectarPlusAuthorization ? 'plus' : 'onlySupplier');
+          setTab(selectedRestaurant.premium ? 'plus' : 'onlySupplier');
           setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
           setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
@@ -2068,7 +2069,7 @@ export default function Prices() {
           <CustomAlert
             visible={isConectarAlertVisible}
             title="Conéctar+ indisponível!"
-            message="Serviço do Conéctar+ está indisponível no momento, por favor, solicite uma cotação."
+            message="Parece que a cotação automática do Conectar+ ainda não está disponível para sua conta. Mas tudo bem! Solicite uma cotação e daremos continuidade ao seu pedido."
             onConfirm={() => setIsConectarAlertVisible(false)}
           />
           <DialogComercialInstance
@@ -2092,7 +2093,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await loadPrices(availableRestaurant);
+                  await loadPrices(availableRestaurant.externalId);
 
                   setDraftSelectedRestaurant(null);
                 }

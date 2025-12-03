@@ -1,18 +1,12 @@
-import {
-  View,
-  Select,
-  YStack,
-  XStack,
-  Text,
-  Adapt,
-  Sheet,
-  Input,
-  Button,
-  Stack,
-  ScrollView,
-} from 'tamagui';
-import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { Restaurant } from '@/src/types/restaurantTypes';
+import { getStorageRestaurant, setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { normalizeText } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { MotiView } from 'moti';
+import { Skeleton } from 'moti/skeleton';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -22,38 +16,32 @@ import {
   VirtualizedList,
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import { MotiView } from 'moti';
-import { Skeleton } from 'moti/skeleton';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { clearStorage, deleteToken, getToken, setStorage } from '../src/utils/utils';
-import { VersionInfo, SaveUserAppInfo, checkVersion } from '../src/utils/VersionApp';
-import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
-import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
-import { saveProductObservations, loadProductObservations } from '../src/utils/productObservation';
-import { CartButton } from '../src/components/cartButton';
-import { useProductContext } from '../src/contexts/produtos.context';
-import { useCart } from '../src/components/useCart';
-import { loadFavorites } from '../src/utils/loadFavorite';
+import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
   ProductCardObsUnitContainerStyled,
   ProductCardStyled,
 } from '../src/components/card/productCard';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { CartButton } from '../src/components/cartButton';
+import DialogComercialInstance from '../src/components/dialogComercialInstance';
+import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
-import PageContainer from '../src/components/box/PageContainer';
+import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '../src/components/text/HeaderText';
 import { SearchProducts } from '../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
-import { CustomImageBadge } from '../src/components/image/customImageBadge';
-import { getSavedRestaurant } from '../src/utils/savedRestaurant';
+import { HeaderText } from '../src/components/text/HeaderText';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
-import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { normalizeText } from '@/src/utils/stringUtils';
+import { useCart } from '../src/components/useCart';
+import { useProductContext } from '../src/contexts/produtos.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import { loadFavorites } from '../src/utils/loadFavorite';
+import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
+import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
+import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
 
 export type Product = {
   name: string;
@@ -482,156 +470,23 @@ const ProductBox = React.memo(
 
 ProductBox.displayName = 'ProductBox';
 
-type CustomSelectProps = {
-  items: SelectItem[];
-  native?: boolean;
-};
-
-export const CustomSelect: React.FC<CustomSelectProps> = ({ items, ...props }) => {
-  const [val, setVal] = useState('');
-
-  const handleChange = async (value: string) => {
-    setVal(value);
-    await setStorage(
-      'selectedRestaurant',
-      JSON.stringify({
-        restaurant: items.filter((item) => {
-          if (typeof item.name !== 'undefined' ? item.name : value === '') return item;
-        }),
-      }),
-    );
-  };
-
-  return (
-    <Select
-      value={val}
-      onValueChange={(value) => {
-        handleChange(value);
-      }}
-      disablePreventBodyScroll
-      {...props}
-    >
-      <Select.Trigger
-        backgroundColor="$colorTransparent"
-        paddingRight={20}
-        alignItems="flex-start"
-        paddingLeft={0}
-        paddingVertical={0}
-        borderWidth={0}
-        width={220}
-        pressStyle={{ backgroundColor: 'transparent' }}
-        iconAfter={<Icons name="chevron-down" />}
-      >
-        <Select.Value
-          fontSize={16}
-          fontWeight="900"
-          placeholder={typeof items[0].name !== 'undefined' ? items[0].name : ''}
-        />
-      </Select.Trigger>
-
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet native={!!props.native} modal dismissOnSnapToBottom animation="bouncy">
-          <Sheet.Overlay />
-          <Sheet.Frame>
-            <Sheet.ScrollView>
-              <Adapt.Contents />
-            </Sheet.ScrollView>
-          </Sheet.Frame>
-        </Sheet>
-      </Adapt>
-
-      <Select.Content zIndex={200_000}>
-        <Select.ScrollUpButton
-          alignItems="center"
-          justifyContent="center"
-          position="relative"
-          width="100%"
-          height={12}
-        >
-          <YStack zIndex={10}>
-            <Icons name="chevron-up" size={20} />
-          </YStack>
-        </Select.ScrollUpButton>
-        <Select.Viewport minWidth={200}>
-          <Select.Group>
-            <Select.Label>Restaurantes</Select.Label>
-            {useMemo(
-              () =>
-                items.map((item, i) => (
-                  <Select.Item
-                    index={i}
-                    key={typeof item.name !== 'undefined' ? item.name : ''}
-                    value={typeof item.name !== 'undefined' ? item.name.toLowerCase() : ''}
-                  >
-                    <Select.ItemText>
-                      {typeof item.name !== 'undefined' ? item.name : ''}
-                    </Select.ItemText>
-                    <Select.ItemIndicator marginLeft="auto">
-                      <Icons name="checkmark" size={16} />
-                    </Select.ItemIndicator>
-                  </Select.Item>
-                )),
-              [items],
-            )}
-          </Select.Group>
-          {props.native && (
-            <YStack
-              position="absolute"
-              right={0}
-              top={0}
-              bottom={0}
-              alignItems="center"
-              justifyContent="center"
-              width={16}
-              pointerEvents="none"
-            >
-              <Icons name="chevron-down" />
-            </YStack>
-          )}
-        </Select.Viewport>
-
-        <Select.ScrollDownButton
-          alignItems="center"
-          justifyContent="center"
-          position="relative"
-          width="100%"
-          height={12}
-        >
-          <YStack zIndex={10}>
-            <Icons name="chevron-down" size={20} />
-          </YStack>
-        </Select.ScrollDownButton>
-      </Select.Content>
-    </Select>
-  );
-};
-
 let classItems: { name: string }[] = [];
-
-export interface Restaurant {
-  externalId: any;
-  id: string;
-  name: string;
-  registrationReleasedNewApp: boolean;
-}
 
 export default function Products() {
   const [currentClass, setCurrentClass] = useState('Favoritos');
   const [productsList, setProductsList] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  // const [favorites, setFavorites] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [image, setImage] = useState<string>('');
   const [skeletonLoading, setSkeletonLoading] = useState<boolean>(false);
   const [showRegistrationReleasedNewApp, setShowRegistrationReleasedNewApp] = useState(false);
   const [showFinanceBlock, setShowFinanceBlock] = useState(false);
-  // const [restaurantes, setRestaurantes] = useState<Restaurant[]>([]);
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { selectedRestaurant, restaurants } = useRestaurantContext();
+  const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
   const { favorites, setFavorites } = useFavoritesContext();
   const {
     cart,
@@ -657,9 +512,11 @@ export default function Products() {
   });
 
   useEffect(() => {
-    if (Platform.OS === 'web') return;
+    if (Platform.OS === 'web' || !selectedRestaurant) return;
 
     const runCheck = async () => {
+      await getInitialRestaurant(selectedRestaurant);
+
       const result = await checkVersion();
 
       if (result?.result?.updateRequired) {
@@ -671,7 +528,7 @@ export default function Products() {
       }
     };
     runCheck();
-  }, []);
+  }, [selectedRestaurant]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -681,140 +538,131 @@ export default function Products() {
     return () => clearTimeout(timeout);
   }, [cart.size]);
 
-  // seguindo o padrão das orders
-  // const [selectedRestaurant, setSelectedRestaurant] = useState<string | null>(null);
-  // const [restaurantOpen, setRestaurantOpen] = useState(false);
-
   const virtualizedListRef = useRef<VirtualizedList<Product>>(null);
   const flatListRef = useRef<FlatList<Product>>(null);
 
-  const loadProducts = useCallback(async () => {
-    if (isLoading) return;
-    try {
-      const productsList = productsContext;
-
-      setProductsList(productsList);
-    } catch (error) {
-      console.error('Error loading products:', error);
+  useEffect(() => {
+    if (!isLoading && productsContext.length > 0) {
+      setProductsList(productsContext);
     }
-  }, [productsContext]);
+  }, [isLoading, productsContext]);
+
+  const getInitialRestaurant = async (
+    contextRestaurant: Restaurant | undefined | null,
+  ): Promise<{
+    initialRestaurant: Restaurant | undefined | null;
+    allRestaurantBlocked: boolean;
+  }> => {
+    if (restaurants.length === 0 || !restaurants) {
+      return { initialRestaurant: undefined, allRestaurantBlocked: false };
+    }
+
+    const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
+
+    const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
+    const allRestaurantBlocked = availableRestaurants.length === 0;
+
+    let initialRestaurant = contextRestaurant;
+    if (!allRestaurantBlocked) {
+      initialRestaurant = restaurants[0];
+
+      if (contextRestaurant) {
+        const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
+        if (found) initialRestaurant = found;
+      }
+
+      await setStorageRestaurant(initialRestaurant);
+    }
+
+    return { initialRestaurant, allRestaurantBlocked };
+  };
 
   useFocusEffect(
     useCallback(() => {
-      if (selectedRestaurant) {
-        // força atualização de dados sempre que voltar pra tela
-        loadProducts();
-      }
-    }, [selectedRestaurant]),
-  );
+      const loadInitialData = async () => {
+        setLoading(true);
+        try {
+          const { initialRestaurant, allRestaurantBlocked } =
+            await getInitialRestaurant(selectedRestaurant);
+          if (!initialRestaurant) return;
 
-  useEffect(() => {
-    const loadInitialData = async () => {
-      setProductsList([]);
-      setDisplayedProducts([]);
-      setLoading(true);
-      try {
-        if (restaurants.length === 0 || !restaurants) {
-          return;
-        }
-        if (selectedRestaurant?.externalId) {
-          await SaveUserAppInfo();
-        }
-        await loadProducts();
-
-        const verduraKg = restaurants?.filter((rest: any) => rest.verduraKg === true);
-        // Extraindo categorias
-        const categories = restaurants?.flatMap((rest: any) => rest.categories || []);
-        if (verduraKg.length && categories.length === 0) {
-          classItems = [
-            { name: 'Favoritos' },
-            { name: 'Fruta' },
-            { name: 'Legumes' },
-            { name: 'Verduras - KG' },
-            { name: 'Especiarias' },
-            { name: 'Granja' },
-            { name: 'Cogumelos e trufas' },
-            { name: 'Higienizados' },
-          ];
-        } else if (categories.length === 0) {
-          classItems = [
-            { name: 'Favoritos' },
-            { name: 'Fruta' },
-            { name: 'Legumes' },
-            { name: 'Verduras' },
-            { name: 'Especiarias' },
-            { name: 'Granja' },
-            { name: 'Cogumelos e trufas' },
-            { name: 'Higienizados' },
-          ];
-        } else {
-          classItems = [
-            { name: 'Favoritos' },
-            ...categories.map((category: any) => ({ name: category })),
-          ];
-        }
-
-        const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
-
-        const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
-        const allRestaurantBlocked = availableRestaurants.length === 0;
-
-        let initialRestaurant = selectedRestaurant;
-        if (!allRestaurantBlocked) {
-          initialRestaurant = restaurants[0];
-
-          if (selectedRestaurant) {
-            const found = availableRestaurants.find((r) => r.id === selectedRestaurant.id);
-            if (found) {
-              initialRestaurant = found;
-            }
+          if (initialRestaurant?.externalId) {
+            await SaveUserAppInfo();
           }
-          await setStorage('selectedRestaurant', JSON.stringify({ restaurant: initialRestaurant }));
+
+          // Extraindo categorias
+          const categories = initialRestaurant?.categories ?? [];
+          if ((initialRestaurant?.verduraKg ?? false) && categories.length === 0) {
+            classItems = [
+              { name: 'Favoritos' },
+              { name: 'Fruta' },
+              { name: 'Legumes' },
+              { name: 'Verduras - KG' },
+              { name: 'Especiarias' },
+              { name: 'Granja' },
+              { name: 'Cogumelos e trufas' },
+              { name: 'Higienizados' },
+            ];
+          } else if (categories.length === 0) {
+            classItems = [
+              { name: 'Favoritos' },
+              { name: 'Fruta' },
+              { name: 'Legumes' },
+              { name: 'Verduras' },
+              { name: 'Especiarias' },
+              { name: 'Granja' },
+              { name: 'Cogumelos e trufas' },
+              { name: 'Higienizados' },
+            ];
+          } else {
+            classItems = [
+              { name: 'Favoritos' },
+              ...categories.map((category: any) => ({ name: category })),
+            ];
+          }
+
+          const cartMap = await loadCart();
+
+          const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
+          const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
+          if (restFilteredComercial || allRestaurantBlocked) {
+            setShowRegistrationReleasedNewApp(true);
+          }
+
+          if (restFilteredFinance.length) {
+            setShowFinanceBlock(true);
+          }
+
+          if (cartMap.size > 0) {
+            setCart(cartMap);
+          }
+          const newObservations = new Map();
+          cart.forEach((item) => {
+            if (item.obs) newObservations.set(item.productId, item.obs);
+          });
+          setProductObservations(newObservations);
+        } catch (error) {
+          console.error('Erro ao carregar dados:', error);
+        } finally {
+          setLoading(false);
         }
 
-        const cartMap = await loadCart();
-
-        const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
-        const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
-        if (restFilteredComercial || allRestaurantBlocked) {
-          setShowRegistrationReleasedNewApp(true);
-        }
-
-        if (restFilteredFinance.length) {
-          setShowFinanceBlock(true);
-        }
-
-        if (cartMap.size > 0) {
-          setCart(cartMap);
-        }
-        const newObservations = new Map();
-        cart.forEach((item) => {
-          if (item.obs) newObservations.set(item.productId, item.obs);
-        });
-        setProductObservations(newObservations);
-      } catch (error) {
-        console.error('Erro ao carregar dados:', error);
-      } finally {
-        setLoading(false);
-      }
-
-      const storedObs = await loadProductObservations();
-      setProductObservations(storedObs);
-    };
-    loadInitialData();
-  }, [selectedRestaurant, restaurants]);
-
+        const storedObs = await loadProductObservations();
+        setProductObservations(storedObs);
+      };
+      loadInitialData();
+    }, [selectedRestaurant, restaurants]),
+  );
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         if (token == null || !restaurant) return;
         const productToAdd = productsList?.find((product) => product.id === productId);
         if (productToAdd) {
           setFavorites([...favorites, { ...productToAdd, obs }]);
         }
-        const storedRestaurant = await getSavedRestaurant();
 
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/save`, {
           method: 'POST',
@@ -824,7 +672,7 @@ export default function Products() {
           },
           body: JSON.stringify({
             productId,
-            restaurantId: storedRestaurant?.id,
+            restaurantId: restaurant?.id,
             token,
             obs,
           }),
@@ -841,10 +689,9 @@ export default function Products() {
     async (productId: string, observation: string): Promise<void | null | undefined> => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         if (token == null || !restaurant) return;
         const productToAdd = productsList?.find((product) => product.id === productId);
-        const storedRestaurant = await getSavedRestaurant();
 
         const isFavorite = favorites.some((fav) => fav.id === productId);
         if (!isFavorite) {
@@ -859,7 +706,7 @@ export default function Products() {
           },
           body: JSON.stringify({
             productId,
-            restaurantId: storedRestaurant?.id,
+            restaurantId: restaurant?.id,
             token,
             obs: observation,
           }),
@@ -876,10 +723,9 @@ export default function Products() {
     async (productId: string) => {
       try {
         const token = await getToken();
-        const restaurant = await getSavedRestaurant();
+        const restaurant = await getStorageRestaurant();
         setFavorites(favorites.filter((favorite) => favorite.id !== productId));
         if (token == null || !restaurant) return;
-        const storedRestaurant = await getSavedRestaurant();
 
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/del`, {
           method: 'POST',
@@ -889,7 +735,7 @@ export default function Products() {
           },
           body: JSON.stringify({
             productId,
-            restaurantId: storedRestaurant?.id,
+            restaurantId: restaurant?.id,
             token,
           }),
         });
@@ -1071,13 +917,9 @@ export default function Products() {
         onSelectAvailable={() => {
           const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
-            AsyncStorage.setItem(
-              'selectedRestaurant',
-              JSON.stringify({ restaurant: availableRestaurant }),
-            );
-            setSelectedRestaurant(availableRestaurant.externalId);
+            setStorageRestaurant(availableRestaurant);
+            setSelectedRestaurant(availableRestaurant);
             setShowRegistrationReleasedNewApp(false);
-            loadProducts();
             loadFavorites();
             loadCart();
           }
@@ -1176,6 +1018,7 @@ export default function Products() {
           ) : !skeletonLoading ? (
             Platform.OS === 'android' ? (
               <CustomVirtualizedList
+                key={currentClass}
                 data={displayedProducts}
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
@@ -1187,7 +1030,6 @@ export default function Products() {
                 data={displayedProducts}
                 renderItem={renderProduct}
                 keyExtractor={(item) => item.id}
-                onEndReached={loadProducts}
                 listRef={flatListRef}
                 contentContainerStyle={{ paddingBottom: 90 }}
               />
@@ -1326,7 +1168,7 @@ export default function Products() {
 
       <CartButton
         cartSize={displayedCartSize}
-        selectedRestaurant={selectedRestaurant}
+        selectedRestaurant={selectedRestaurant.externalId}
         onPress={async () => {
           setLoading(true);
           router.push('cart');

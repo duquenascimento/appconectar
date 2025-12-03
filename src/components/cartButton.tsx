@@ -1,23 +1,17 @@
+import Icons from '@expo/vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
 import { Platform, TouchableOpacity } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { View, Text } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
+import { Text, View } from 'tamagui';
+import { Restaurant } from '../types/restaurantTypes';
 import { AbandonedCartWatcher } from '../utils/abandonedCart';
-import { getStorage } from '../utils/utils';
+import { getStorageRestaurant } from '../utils/restaurantUtils';
 
 type Props = {
   cartSize: number;
   selectedRestaurant: string | null;
   onPress: () => void;
 };
-
-interface Restaurant {
-  id: string;
-  externalId: string;
-  name: string;
-  user: string;
-}
 
 export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPress }) => {
   const opacity = useSharedValue(0);
@@ -49,21 +43,19 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
       }
 
       try {
-        const data = await getStorage('selectedRestaurant');
-        if (!data) {
+        const restaurantData = await getStorageRestaurant();
+        if (!restaurantData) {
           if (mounted) setShowWatcher(false);
           return;
         }
-        const parsed = JSON.parse(data);
-        const { restaurant } = parsed;
 
-        if (restaurant.externalId !== selectedRestaurant) {
+        if (restaurantData.externalId !== selectedRestaurant) {
           if (mounted) setShowWatcher(false);
           return;
         }
 
         if (mounted) {
-          setWatcherRestaurant(restaurant);
+          setWatcherRestaurant(restaurantData);
           setShowWatcher(true);
         }
       } catch (error) {
@@ -83,10 +75,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
     return (
       <>
         {showWatcher && watcherRestaurant && (
-          <AbandonedCartWatcher
-            cartSize={cartSize}
-            selectedRestaurant={{ restaurant: watcherRestaurant }}
-          />
+          <AbandonedCartWatcher cartSize={cartSize} selectedRestaurant={watcherRestaurant} />
         )}
         <div
           style={{
@@ -162,10 +151,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
   return (
     <>
       {showWatcher && watcherRestaurant && (
-        <AbandonedCartWatcher
-          cartSize={cartSize}
-          selectedRestaurant={{ restaurant: watcherRestaurant }}
-        />
+        <AbandonedCartWatcher cartSize={cartSize} selectedRestaurant={watcherRestaurant} />
       )}
       <Animated.View
         style={[

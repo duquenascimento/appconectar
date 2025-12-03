@@ -1,15 +1,8 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-  useCallback,
-  SetStateAction,
-} from 'react';
-import { SupplierData } from '../types/types';
-import { getStorage, getToken, setStorage } from '@/src/utils/utils';
+import { getToken, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
+import { createContext, ReactNode, SetStateAction, useCallback, useContext, useState } from 'react';
+import { SupplierData } from '../types/types';
+import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
 
 interface SupplierContextType {
@@ -29,18 +22,6 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any | null>(null);
   const { loadRestaurants } = useRestaurantContext();
-
-  const getSavedRestaurant = async () => {
-    try {
-      const data = await getStorage('selectedRestaurant');
-      if (!data) return null;
-      const parsedData = JSON.parse(data);
-      return parsedData?.restaurant ?? parsedData;
-    } catch (error) {
-      console.error('Erro ao parsear dados do restaurante:', error);
-      return null;
-    }
-  };
 
   const saveSuppliersToStorage = async (available: SupplierData[], unavailable: SupplierData[]) => {
     try {
@@ -62,7 +43,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         const token = await getToken();
         if (!token) return;
 
-        const restaurantSelected = await getSavedRestaurant();
+        const restaurantSelected = await getStorageRestaurant();
         const allRestaurants = await loadRestaurants();
         const currentRestaurant = allRestaurants.find(
           (r: any) => r.externalId === (restaurantId ?? restaurantSelected?.externalId),
