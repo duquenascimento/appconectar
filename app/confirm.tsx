@@ -275,9 +275,7 @@ export default function Confirm() {
       try {
         if (!selectedRestaurant) return;
         await loadSupplier();
-        const activateSchedule = !selectedRestaurant.allowEmergencyOrder
-          ? isBefore13Hours()
-          : false;
+        const activateSchedule = selectedRestaurant.allowEmergencyOrder ? false : isBefore13Hours();
         setIsBefore13h(activateSchedule);
       } catch (err) {
         console.error(err);
@@ -309,7 +307,6 @@ export default function Confirm() {
           addOrder: cartOrder.find((o) => o.sku === i.sku)?.addOrder ?? Infinity,
         }))
         .sort((a, b) => {
-          // a.addOrder - b.addOrder
           if (a.price === 0 && b.price !== 0) return -1;
           if (a.price !== 0 && b.price === 0) return 1;
 
