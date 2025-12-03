@@ -71,28 +71,48 @@ export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
     );
     return response;
   } catch (error) {
-    console.error('Erro ao obter cotações por restaurante:', error)
-    throw error
+    console.error('Erro ao confirmar pedido:', error);
+    throw error;
   }
 }
 
-export interface ConfirmOrderConectarPlusRequestBody {
+export interface ConfirmPremiumOrderRequestBody {
+  token: string | null | undefined;
+  selectedRestaurant: any;
+  deliveryDate: string;
+}
+
+export const confirmPremiumOrder = async (body: ConfirmPremiumOrderRequestBody) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/confirm/premium`,
+      body,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return response;
+  } catch (error) {
+    console.error('Erro ao confirmar pedido Premium:', error);
+    throw error;
+  }
+}
+
+export interface ConfirmConectarPlusOrderRequestBody {
   token: string;
   suppliers: ConectarPlusSupplier[];
   restaurant: any;
   deliveryDate: string;
 }
 
-export const confirmOrderConectarPlus = async (body: ConfirmOrderConectarPlusRequestBody) => {
+export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {
   try {
     const response = await axios.post(
       `${API_URL}/confirm/conectar-plus`,
       body,
       { headers: { 'Content-Type': 'application/json' } }
-    )
+    );
     return response
   } catch (error) {
-    console.error('Erro ao obter cotações por restaurante:', error)
-    throw error
+    console.error('Erro ao confirmar pedido Conéctar+:', error);
+    throw error;
   }
 }

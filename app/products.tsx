@@ -1,7 +1,3 @@
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { Restaurant } from '@/src/types/restaurantTypes';
-import { getStorageRestaurant, setStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { normalizeText } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -17,6 +13,10 @@ import {
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { Restaurant } from '../src/types/restaurantTypes';
+import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
+import { normalizeText } from '../src/utils/stringUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
@@ -511,6 +511,36 @@ export default function Products() {
     return true;
   });
 
+  const getInitialRestaurant = async (
+    contextRestaurant: Restaurant | undefined | null,
+  ): Promise<{
+    initialRestaurant: Restaurant | undefined | null;
+    allRestaurantBlocked: boolean;
+  }> => {
+    if (restaurants.length === 0 || !restaurants) {
+      return { initialRestaurant: undefined, allRestaurantBlocked: false };
+    }
+
+    const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
+
+    const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
+    const allRestaurantBlocked = availableRestaurants.length === 0;
+
+    let initialRestaurant = contextRestaurant;
+    if (!allRestaurantBlocked) {
+      initialRestaurant = restaurants[0];
+
+      if (contextRestaurant) {
+        const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
+        if (found) initialRestaurant = found;
+      }
+
+      await setStorageRestaurant(initialRestaurant);
+    }
+
+    return { initialRestaurant, allRestaurantBlocked };
+  };
+
   useEffect(() => {
     if (Platform.OS === 'web' || !selectedRestaurant) return;
 
@@ -546,36 +576,6 @@ export default function Products() {
       setProductsList(productsContext);
     }
   }, [isLoading, productsContext]);
-
-  const getInitialRestaurant = async (
-    contextRestaurant: Restaurant | undefined | null,
-  ): Promise<{
-    initialRestaurant: Restaurant | undefined | null;
-    allRestaurantBlocked: boolean;
-  }> => {
-    if (restaurants.length === 0 || !restaurants) {
-      return { initialRestaurant: undefined, allRestaurantBlocked: false };
-    }
-
-    const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
-
-    const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
-    const allRestaurantBlocked = availableRestaurants.length === 0;
-
-    let initialRestaurant = contextRestaurant;
-    if (!allRestaurantBlocked) {
-      initialRestaurant = restaurants[0];
-
-      if (contextRestaurant) {
-        const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
-        if (found) initialRestaurant = found;
-      }
-
-      await setStorageRestaurant(initialRestaurant);
-    }
-
-    return { initialRestaurant, allRestaurantBlocked };
-  };
 
   useFocusEffect(
     useCallback(() => {

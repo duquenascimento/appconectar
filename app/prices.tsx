@@ -1,5 +1,9 @@
+import PageContainer from '@/src/components/box/PageContainer';
+import CustomButton from '@/src/components/button/customButton';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
@@ -14,23 +18,21 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Input, ScrollView, Stack, Text, View } from 'tamagui';
-import PageContainer from '../src/components/box/PageContainer';
-import CustomButton from '../src/components/button/customButton';
 import CombinationList, { Combination } from '../src/components/combinationList';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { useCombinacao } from '../src/contexts/combinacao.context';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
+import { confirmPremiumOrder } from '../src/services/orderService';
 import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
 import { campoString } from '../src/utils/formatCampos';
 import { getStarValue } from '../src/utils/getStarValue';
-import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -201,22 +203,13 @@ function SupplierBox({
             R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
           </Text>
           {available ? (
-            <Text
-              color={
-                supplier.supplier.discount.product.length - supplier.supplier.missingItens > 0
-                  ? 'red'
-                  : 'black'
-              }
-              fontSize={12}
-            >
-              {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s)
-              faltante(s)
+            <Text color={supplier.supplier.missingItens > 0 ? 'red' : 'black'} fontSize={12}>
+              {supplier.supplier.missingItens} iten(s) faltante(s)
             </Text>
           ) : (
             <>
               <Text color="red" fontSize={12}>
-                {supplier.supplier.discount.product.length - supplier.supplier.missingItens} iten(s)
-                faltante(s)
+                {supplier.supplier.missingItens} iten(s) faltante(s)
               </Text>
               {isOpen() && !selectedRestaurant.allowClosedSupplier ? (
                 <Text color="red" fontSize={12}>
@@ -270,8 +263,9 @@ export default function Prices() {
   const [responsibleReceivingPhoneNumber, setResponsibleReceivingPhoneNumber] = useState<string>();
   const [deliveryInformation, setDeliveryInformation] = useState<string>();
   const [complement, setComplement] = useState<string>();
-  const [tab, setTab] = useState<string>('onlySupplier');
+  const [tab, setTab] = useState<string>('plus');
   const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
+  const [deliveryDateOpen, setDeliveryDateOpen] = useState(false);
   const [minHourOpen, setMinHourOpen] = useState(false);
   const [maxHourOpen, setMaxHourOpen] = useState(false);
   const [restOpen, setRestOpen] = useState(false);
@@ -300,6 +294,21 @@ export default function Prices() {
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
   const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([]);
+  const {
+    deliveryDate,
+    deliveryDates,
+    initializeDeliveryDates,
+    getFormattedDate,
+    canChangeDeliveryDate,
+    deliveryDatesDropdownOptions,
+    setDropdownDeliveryDate,
+  } = useDeliveryDate();
+
+  useEffect(() => {
+    if (!selectedRestaurant) return;
+
+    initializeDeliveryDates(selectedRestaurant);
+  }, []);
 
   useEffect(() => {
     const loadCombinations = async () => {
@@ -549,11 +558,18 @@ export default function Prices() {
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
   const renderItem = ({ item }: { item: any }) => {
+    function availability(): boolean {
+      if (item.supplier.discount.orderValue === 0) return false;
+      if (selectedRestaurant?.allowClosedSupplier) return true;
+      return item.available;
+    }
+    const available = availability();
+
     return (
       <SupplierBox
         supplier={item}
         star={item.star}
-        available={item.available}
+        available={available}
         selectedRestaurant={selectedRestaurant}
         goToConfirm={goToConfirm}
       />
@@ -667,10 +683,10 @@ export default function Prices() {
             alignSelf="center"
           >
             <View
-              disabled={!selectedRestaurant.premium}
-              opacity={selectedRestaurant.premium ? 1 : 0.4}
+              disabled={!selectedRestaurant?.premium}
+              opacity={selectedRestaurant?.premium ? 1 : 0.4}
               onPress={async () => {
-                if (!selectedRestaurant.premium || loading) return;
+                if (!selectedRestaurant?.premium || loading) return;
                 try {
                   setLoading(true);
                   await loadPrices();
@@ -807,26 +823,17 @@ export default function Prices() {
                     onPress={async () => {
                       if (!validateFields()) return;
                       setLoading(true);
-                      const result = await fetch(
-                        `${process.env.EXPO_PUBLIC_API_URL}/confirm/premium`,
-                        {
-                          method: 'POST',
-                          headers: {
-                            'Content-Type': 'application/json',
-                          },
-                          body: JSON.stringify({
-                            token: await getToken(),
-                            selectedRestaurant,
-                          }),
-                        },
-                      );
 
-                      if (result.ok) {
-                        await result.json();
+                      const result = await confirmPremiumOrder({
+                        token: await getToken(),
+                        selectedRestaurant,
+                        deliveryDate: deliveryDate,
+                      });
+
+                      if (result.status === 201) {
                         setLoading(false);
                         setShowNotification(true);
                       } else {
-                        await result.json();
                         setLoading(false);
                       }
                     }}
@@ -855,24 +862,20 @@ export default function Prices() {
           )}
           <View
             onPress={async () => {
-              setNeighborhood(selectedRestaurant.addressInfos[0].neighborhood);
-              setCity(selectedRestaurant.addressInfos[0].city);
-              setLocalType(selectedRestaurant.addressInfos[0].localType);
-              setLocalNumber(selectedRestaurant.addressInfos[0].localNumber);
-              setResponsibleReceivingName(
-                selectedRestaurant.addressInfos[0].responsibleReceivingName,
-              );
-              setResponsibleReceivingPhoneNumber(
-                selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
-              );
+              const addressInfos = selectedRestaurant?.addressInfos[0];
+
+              setNeighborhood(addressInfos.neighborhood);
+              setCity(addressInfos.city);
+              setLocalType(addressInfos.localType);
+              setLocalNumber(addressInfos.localNumber);
+              setResponsibleReceivingName(addressInfos.responsibleReceivingName);
+              setResponsibleReceivingPhoneNumber(addressInfos.responsibleReceivingPhoneNumber);
               setZipCode(
-                selectedRestaurant.addressInfos[0].zipCode
-                  .replace(/\D/g, '')
-                  .replace(/(\d{5})(\d{3})/, '$1-$2'),
+                addressInfos.zipCode.replace(/\D/g, '').replace(/(\d{5})(\d{3})/, '$1-$2'),
               );
-              setStreet(selectedRestaurant.addressInfos[0].address);
-              setComplement(selectedRestaurant.addressInfos[0].complement);
-              setDeliveryInformation(selectedRestaurant.addressInfos[0].deliveryInformation);
+              setStreet(addressInfos.address);
+              setComplement(addressInfos.complement);
+              setDeliveryInformation(addressInfos.deliveryInformation);
               setEditInfos(true);
             }}
             backgroundColor="white"
@@ -921,11 +924,28 @@ export default function Prices() {
                 alignItems="center"
                 overflow="hidden"
               >
+                <Icons size={20} color="#04BF7B" name="calendar" />
+                <View marginLeft={20} />
+                <Text fontSize={12}>{getFormattedDate()}</Text>
+              </View>
+              <View
+                padding={10}
+                marginRight={10}
+                flexDirection="row"
+                flex={1}
+                borderColor="lightgray"
+                borderRadius={5}
+                borderWidth={1}
+                paddingHorizontal={10}
+                backgroundColor="white"
+                alignItems="center"
+                overflow="hidden"
+              >
                 <Icons size={20} color="#04BF7B" name="time" />
                 <View marginLeft={20} />
                 <Text fontSize={12}>
-                  {selectedRestaurant.addressInfos[0].initialDeliveryTime.substring(11, 16)} -{' '}
-                  {selectedRestaurant.addressInfos[0].finalDeliveryTime.substring(11, 16)}
+                  {selectedRestaurant?.addressInfos[0].initialDeliveryTime.substring(11, 16)} -{' '}
+                  {selectedRestaurant?.addressInfos[0].finalDeliveryTime.substring(11, 16)}
                 </Text>
               </View>
               <Icons
@@ -959,12 +979,12 @@ export default function Prices() {
                     ellipsizeMode="tail"
                     fontSize={12}
                   >
-                    {selectedRestaurant.addressInfos[0].localType}{' '}
-                    {selectedRestaurant.addressInfos[0].address},{' '}
-                    {selectedRestaurant.addressInfos[0].localNumber}.{' '}
-                    {selectedRestaurant.addressInfos[0].complement} -{' '}
-                    {selectedRestaurant.addressInfos[0].neighborhood},{' '}
-                    {selectedRestaurant.addressInfos[0].city}
+                    {selectedRestaurant?.addressInfos[0].localType}{' '}
+                    {selectedRestaurant?.addressInfos[0].address},{' '}
+                    {selectedRestaurant?.addressInfos[0].localNumber}.{' '}
+                    {selectedRestaurant?.addressInfos[0].complement} -{' '}
+                    {selectedRestaurant?.addressInfos[0].neighborhood},{' '}
+                    {selectedRestaurant?.addressInfos[0].city}
                   </Text>
                 </View>
                 <View
@@ -983,7 +1003,7 @@ export default function Prices() {
                   <Icons size={20} color="#04BF7B" name="chatbox"></Icons>
                   <View marginLeft={20}></View>
                   <Text fontSize={12}>
-                    {selectedRestaurant.addressInfos[0].deliveryInformation}
+                    {selectedRestaurant?.addressInfos[0].deliveryInformation}
                   </Text>
                 </View>
               </View>
@@ -1004,7 +1024,7 @@ export default function Prices() {
                   <Icons size={20} color="#04BF7B" name="person" />
                   <View marginLeft={20} />
                   <Text fontSize={12}>
-                    {selectedRestaurant.addressInfos[0].responsibleReceivingName}
+                    {selectedRestaurant?.addressInfos[0].responsibleReceivingName}
                   </Text>
                 </View>
                 <View
@@ -1023,7 +1043,7 @@ export default function Prices() {
                   <Icons size={20} color="#04BF7B" name="call" />
                   <View marginLeft={20} />
                   <Text fontSize={12}>
-                    {selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber}
+                    {selectedRestaurant?.addressInfos[0].responsibleReceivingPhoneNumber}
                   </Text>
                 </View>
               </View>
@@ -1067,7 +1087,7 @@ export default function Prices() {
                               value={
                                 draftSelectedRestaurant
                                   ? draftSelectedRestaurant.name
-                                  : selectedRestaurant.name
+                                  : selectedRestaurant?.name
                               }
                               style={{
                                 borderWidth: 1,
@@ -1109,6 +1129,31 @@ export default function Prices() {
                             flexDirection="row"
                             zIndex={100}
                           >
+                            <View flex={1}>
+                              <Text paddingLeft={5} fontSize={12} color="gray">
+                                Data de entrega
+                              </Text>
+                              <DropDownPicker
+                                value={deliveryDate}
+                                zIndex={2}
+                                disabled={!canChangeDeliveryDate}
+                                style={{
+                                  borderWidth: 1,
+                                  borderColor: 'lightgray',
+                                  borderRadius: 5,
+                                  flex: 1,
+                                }}
+                                textStyle={{ color: canChangeDeliveryDate ? 'black' : 'gray' }}
+                                setValue={setDropdownDeliveryDate}
+                                items={deliveryDatesDropdownOptions}
+                                multiple={false}
+                                open={deliveryDateOpen}
+                                setOpen={setDeliveryDateOpen}
+                                placeholder=""
+                                listMode="SCROLLVIEW"
+                                showArrowIcon={canChangeDeliveryDate}
+                              ></DropDownPicker>
+                            </View>
                             <View flex={1}>
                               <Text paddingLeft={5} fontSize={12} color="gray">
                                 A partir de
@@ -1550,6 +1595,36 @@ export default function Prices() {
                                   justifyContent: 'space-between',
                                 }}
                               >
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    marginRight: 5,
+                                  }}
+                                >
+                                  <Text paddingLeft={5} fontSize={12} color="gray">
+                                    Data de entrega
+                                  </Text>
+                                  <DropDownPicker
+                                    value={deliveryDate}
+                                    zIndex={2}
+                                    disabled={!canChangeDeliveryDate}
+                                    style={{
+                                      borderWidth: 1,
+                                      borderColor: 'lightgray',
+                                      borderRadius: 5,
+                                      flex: 1,
+                                    }}
+                                    textStyle={{ color: canChangeDeliveryDate ? 'black' : 'gray' }}
+                                    setValue={setDropdownDeliveryDate}
+                                    items={deliveryDatesDropdownOptions}
+                                    multiple={false}
+                                    open={deliveryDateOpen}
+                                    setOpen={setDeliveryDateOpen}
+                                    placeholder=""
+                                    listMode="SCROLLVIEW"
+                                    showArrowIcon={canChangeDeliveryDate}
+                                  ></DropDownPicker>
+                                </View>
                                 <View
                                   style={{
                                     flex: 1,

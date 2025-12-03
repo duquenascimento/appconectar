@@ -1,26 +1,29 @@
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomInfoCard from '@/src/components/card/customInfoCard';
-import CustomHeader from '@/src/components/header/customHeader';
-import { LoadingConfirm } from '@/src/components/loading/confirmOrder';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { MissingItemsList } from '@/src/components/quotations/MissingItensList';
-import { SupplierList } from '@/src/components/quotations/SupplierList';
-import {
-  confirmOrderConectarPlus,
-  ConfirmOrderConectarPlusRequestBody,
-} from '@/src/services/orderService';
-import { scheduleNotification } from '@/src/utils/agendamentoUtils';
-import { isBefore13Hours } from '@/src/utils/timeUtils';
-import { type NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import { DateTime } from 'luxon';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
+import CustomInfoCard from '../src/components/card/customInfoCard';
+import CustomHeader from '../src/components/header/customHeader';
+import { LoadingConfirm } from '../src/components/loading/confirmOrder';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
+import { MissingItemsList } from '../src/components/quotations/MissingItensList';
+import { SupplierList } from '../src/components/quotations/SupplierList';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
+import {
+  confirmConectarPlusOrder,
+  ConfirmConectarPlusOrderRequestBody,
+} from '../src/services/orderService';
+import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
-import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
-import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { isBefore13Hours } from '../src/utils/timeUtils';
+import { deleteMultiStorage, getToken } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -78,11 +81,6 @@ type RootStackParamList = {
   };
 };
 
-type QuotationDetailsScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'QuotationDetails'>;
-  route: { params: RootStackParamList['QuotationDetails'] };
-};
-
 export default function QuotationDetailsScreen() {
   const router = useRouter();
   const {
@@ -114,6 +112,12 @@ export default function QuotationDetailsScreen() {
   const [showErros, setShowErros] = useState<string[]>([]);
   const [booleanErros, setBooleanErros] = useState(false);
   const [showNotification, setShowNotification] = useState(false);
+  const { selectedRestaurant } = useRestaurantContext();
+  const [showSundayWarning, setShowSundayWarning] = useState(false);
+  const [confirmedWarnings, setConfirmedWarnings] = useState<{ sundayWarning: boolean }>({
+    sundayWarning: false,
+  });
+  const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
 
   const parsedMissingProducts = useMemo(() => {
     if (!missingProducts) return [];
@@ -180,81 +184,104 @@ export default function QuotationDetailsScreen() {
     );
   }, [suppliers]);
 
-  const isBefore13h = isBefore13Hours();
+  const isBefore13h = selectedRestaurant?.allowEmergencyOrder ? false : isBefore13Hours();
 
   const handleBackPress = () => router.back();
-  const handleConfirm = async () => {
-    setIsLoading(true);
-    try {
-      const token = await getToken();
-      if (!token) {
-        Alert.alert('Erro', 'Token de autenticação não encontrado.');
-        return;
+
+  const handleConfirm = useCallback(
+    async (overrideWarnings?: { sundayWarning?: boolean }) => {
+      try {
+        const token = await getToken();
+        if (!token) {
+          Alert.alert('Erro', 'Token de autenticação não encontrado.');
+          return;
+        }
+
+        const restaurantData = await getStorageRestaurant();
+        if (!restaurantData) {
+          Alert.alert('Erro', 'Restaurante não encontrado.');
+          return;
+        }
+
+        const effectiveWarnings = {
+          ...confirmedWarnings,
+          ...overrideWarnings,
+        };
+
+        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
+          setShowSundayWarning(true);
+          return;
+        }
+
+        if (isBefore13h) {
+          const errors = await scheduleNotification(
+            restaurantData.addressInfos[0].responsibleReceivingPhoneNumber,
+          );
+
+          setShowErros(errors);
+          if (errors.length) setBooleanErros(true);
+          else setShowNotification(true);
+
+          return;
+        }
+
+        setIsLoading(true);
+
+        const body: ConfirmConectarPlusOrderRequestBody = {
+          token,
+          suppliers: suppliers.map((s) => s.supplier),
+          restaurant: restaurantData,
+          deliveryDate,
+        };
+
+        const createdOrders = await confirmConectarPlusOrder(body);
+        if (createdOrders && createdOrders.status === 201) {
+          deleteMultiStorage(['cartOrder', `cart_${restaurantData?.externalId}`]);
+          const { deliveryDateFormated } = createdOrders.data.data[0];
+
+          const ordersBySupplier = createdOrders.data.data.map(
+            (item: { orderId: string; externalId: string }) => ({
+              orderId: item.orderId,
+              externalId: item.externalId,
+            }),
+          );
+
+          const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
+
+          setConfirmedWarnings({ sundayWarning: false });
+          resetDeliveryDate();
+
+          router.push({
+            pathname: '/orderConfirmedScreen',
+            params: {
+              suppliers: JSON.stringify(supplierWithOrderId),
+              deliveryDate: deliveryDateFormated,
+            },
+          });
+        } else {
+          Alert.alert('Erro', 'Erro ao confirmar a combinação.');
+          setIsAlertVisible(true);
+        }
+      } catch (error) {
+        console.error('Erro ao confirmar a combinação:', error);
+        Alert.alert('Erro', 'Ocorreu um erro inesperado.');
+      } finally {
+        setIsLoading(false);
       }
+    },
+    [suppliers, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
+  );
 
-      const restaurantData = await getStorageRestaurant();
-      if (!restaurantData) {
-        Alert.alert('Erro', 'Restaurante não encontrado.');
-        return;
-      }
+  const handleConfirmSundayWarning = useCallback(async () => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings((prev) => ({ ...prev, sundayWarning: true }));
+    await handleConfirm({ sundayWarning: true });
+  }, [handleConfirm]);
 
-      if (isBefore13h) {
-        const errors = await scheduleNotification(
-          restaurantData.addressInfos[0].responsibleReceivingPhoneNumber,
-        );
-
-        setShowErros(errors);
-        if (errors.length) setBooleanErros(true);
-        else setShowNotification(true);
-
-        return;
-      }
-
-      // FIXME: This parameter will be changed to a proper attribute selected by the user.
-      //       There's already an implementation of this in the Sunday Order feature branch.
-      //       It's current usage is just a placeholder until then so the API works.
-      const deliveryDate = new Date();
-      deliveryDate.setDate(deliveryDate.getDate() + 1);
-
-      const body: ConfirmOrderConectarPlusRequestBody = {
-        token,
-        suppliers: suppliers.map((s) => s.supplier),
-        restaurant: restaurantData,
-        deliveryDate: deliveryDate.toISOString(),
-      };
-
-      const createdOrders = await confirmOrderConectarPlus(body);
-      if (createdOrders && createdOrders.status === 201) {
-        deleteMultiStorage(['cartOrder', `cart_${restaurantData.externalId}`]);
-        const { deliveryDateFormated } = createdOrders.data.data[0];
-
-        const ordersBySupplier = createdOrders.data.data.map(
-          (item: { orderId: string; externalId: string }) => ({
-            orderId: item.orderId,
-            externalId: item.externalId,
-          }),
-        );
-
-        const supplierWithOrderId = processOrderResponse(suppliers, ordersBySupplier);
-
-        router.push({
-          pathname: '/orderConfirmedScreen',
-          params: {
-            suppliers: JSON.stringify(supplierWithOrderId),
-            deliveryDate: deliveryDateFormated,
-          },
-        });
-      } else {
-        Alert.alert('Erro', 'Erro ao confirmar a combinação.');
-        setIsAlertVisible(true);
-      }
-    } catch (error) {
-      console.error('Erro ao confirmar a combinação:', error);
-      Alert.alert('Erro', 'Ocorreu um erro inesperado.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const handleCloseSundayWarning = useCallback(() => {
+    setShowSundayWarning(false);
+    setConfirmedWarnings({ sundayWarning: false });
+  }, []);
 
   if (!suppliers || suppliers.length === 0) {
     return (
@@ -354,6 +381,11 @@ export default function QuotationDetailsScreen() {
           onConfirm={() => setIsAlertVisible(false)}
           width="35%"
         />
+        <SundayOrderAlert
+          visible={showSundayWarning}
+          onCancel={handleCloseSundayWarning}
+          onConfirm={handleConfirmSundayWarning}
+        />
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View
           position="absolute"
@@ -403,7 +435,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  onPress={handleConfirm}
+                  onPress={() => handleConfirm()}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
                     opacity: 0.9,
@@ -436,7 +468,7 @@ export default function QuotationDetailsScreen() {
               <YStack flex={1}>
                 <CustomButton
                   title={isBefore13h ? 'Agendar' : 'Confirmar'}
-                  onPress={handleConfirm}
+                  onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"
                   textColor="#FFFFFF"
                 />

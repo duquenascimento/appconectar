@@ -7,6 +7,7 @@ import { TipoFornecedor } from '../../types/combinationTypes';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import { useSupplier } from '@/src/contexts/fornecedores.context';
 import CustomAlert from '../modais/CustomAlert';
+import { Supplier } from '@/src/types/types';
 
 const tipoFornecedorItems = [
   { label: 'Qualquer', value: 'qualquer' },
@@ -14,9 +15,11 @@ const tipoFornecedorItems = [
 ];
 
 export function PreferenciaFornecedorCampo({
+  suppliers,
   error,
   onChange,
 }: {
+  suppliers: Supplier[];
   error?: string;
   onChange: (val: string[]) => void;
 }) {
@@ -29,23 +32,22 @@ export function PreferenciaFornecedorCampo({
     { label: string; value: string }[]
   >([]);
 
-  const { suppliers, unavailableSupplier } = useSupplier();
 
   const fornecedoresContexto = useMemo(() => {
-    const todosFornecedores = [...suppliers, ...unavailableSupplier];
+    const todosFornecedores = [...suppliers];
 
     const fornecedoresNaoBloqueados = todosFornecedores.filter(
-      (item) => !combinacao.fornecedores_bloqueados?.includes(item.supplier.externalId),
+      (supplier) => !combinacao.fornecedores_bloqueados?.includes(supplier.externalId),
     );
     const fornecedoresClassificados = fornecedoresNaoBloqueados.sort((a, b) =>
-      a.supplier.name.localeCompare(b.supplier.name),
+      a.name.localeCompare(b.name),
     );
 
-    return fornecedoresClassificados.map((item) => ({
-      label: item.supplier.name,
-      value: item.supplier.externalId,
+    return fornecedoresClassificados.map((supplier) => ({
+      label: supplier.name,
+      value: supplier.externalId,
     }));
-  }, [suppliers, unavailableSupplier, combinacao.fornecedores_bloqueados]);
+  }, [suppliers, combinacao.fornecedores_bloqueados]);
 
   const updateFornecedorLabel = (value: string) => {
     setSelectFornecedoresContexto((prevState) => {
@@ -71,7 +73,7 @@ export function PreferenciaFornecedorCampo({
         });
       });
     }
-  }, [combinacao]);
+  }, [combinacao, suppliers]);
 
   const resetarPreferenciaFornecedor = () => {
     if (!tipoTemporario) return;

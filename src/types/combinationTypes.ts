@@ -41,3 +41,12 @@ export interface Combinacao {
   preferencias?: PreferenciaProduto[];
   preferencias_hard?: boolean;
 }
+export interface Combination {
+  id: string;
+  combination: string;
+  supplier?: string;
+  delivery?: string;
+  createdAt?: string;
+  missingItems?: number;
+  totalValue?: number;
+}
