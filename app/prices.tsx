@@ -2,6 +2,7 @@ import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
 import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
+import { SameDayOrder } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
@@ -69,7 +70,7 @@ export interface Supplier {
   hour: string;
   discount: Discount;
   star: string;
-  sameDayOrders: any[];
+  sameDayOrders: SameDayOrder[];
 }
 
 export interface SupplierData {
@@ -106,21 +107,28 @@ const useScreenSize = () => {
 
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
   return suppliers.sort((a, b) => {
-    // First, sort by missing items (ascending)
+    // First, sort by complementary order
+    const isComplementaryA = a.supplier.sameDayOrders.length > 0;
+    const isComplementaryB = b.supplier.sameDayOrders.length > 0;
+    if (isComplementaryA !== isComplementaryB) {
+      return isComplementaryA ? -1 : 1;
+    }
+
+    // Second, sort by missing items (ascending)
     const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
     const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
     if (missingA !== missingB) {
       return missingA - missingB;
     }
 
-    // Second, sort by star rating (descending)
+    // Third, sort by star rating (descending)
     if (a.supplier.star !== b.supplier.star) {
       const starA = getStarValue(a.supplier.star);
       const starB = getStarValue(b.supplier.star);
       return starB - starA;
     }
 
-    // Third, sort by order value (ascending)
+    // Fourth, sort by order value (ascending)
     return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
   });
 };
@@ -142,19 +150,16 @@ function SupplierBox({
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
-    return (
-      Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour &&
-      supplier.supplier.missingItens > 0
-    );
+    return Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour;
   };
 
-  const hasSameDayOrdersWithSupplier = (supplier.supplier.sameDayOrders?.length ?? 0) > 0;
+  const hasSameDayOrdersWithSupplier = supplier.supplier.sameDayOrders.length > 0;
 
   return (
     <View
-      opacity={available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
+      opacity={available ? 1.0 : 0.4}
       onPress={() => {
-        if (available && supplier.supplier.missingItens > 0) {
+        if (available) {
           goToConfirm(supplier, selectedRestaurant);
         }
       }}
@@ -186,7 +191,7 @@ function SupplierBox({
                 backgroundColor="transparent"
               >
                 <Text fontSize={12} color="#04BF7B" fontWeight="600">
-                  Complementar
+                  Complementar pedido
                 </Text>
               </View>
             )}
@@ -208,9 +213,13 @@ function SupplierBox({
             </Text>
           ) : (
             <>
-              <Text color="red" fontSize={12}>
-                {supplier.supplier.missingItens} iten(s) faltante(s)
-              </Text>
+              {supplier.supplier.missingItens > 0 ? (
+                <Text color="red" fontSize={12}>
+                  {supplier.supplier.missingItens} iten(s) faltante(s)
+                </Text>
+              ) : (
+                <></>
+              )}
               {isOpen() && !selectedRestaurant.allowClosedSupplier ? (
                 <Text color="red" fontSize={12}>
                   Fechado às {supplier.supplier.hour.substring(0, 5)}
@@ -558,18 +567,11 @@ export default function Prices() {
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
   const renderItem = ({ item }: { item: any }) => {
-    function availability(): boolean {
-      if (item.supplier.discount.orderValue === 0) return false;
-      if (selectedRestaurant?.allowClosedSupplier) return true;
-      return item.available;
-    }
-    const available = availability();
-
     return (
       <SupplierBox
         supplier={item}
         star={item.star}
-        available={available}
+        available={item.available}
         selectedRestaurant={selectedRestaurant}
         goToConfirm={goToConfirm}
       />

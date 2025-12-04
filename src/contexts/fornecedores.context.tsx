@@ -1,10 +1,10 @@
 import { getToken, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
-import { createContext, ReactNode, SetStateAction, useCallback, useContext, useState } from 'react';
+import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import { useDeliveryDate } from '../hooks/useDeliveryDate';
 import { SupplierData } from '../types/types';
 import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
-import { useDeliveryDate } from '../hooks/useDeliveryDate';
 
 interface SupplierContextType {
   suppliers: SupplierData[];
@@ -73,36 +73,49 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         const allSuppliers = response.data as SupplierData[];
 
-        let available = allSuppliers.filter(
-          (item) => item.supplier.missingItens > 0 && item.supplier.discount.orderValue > 0,
+        const isSupplierAvailable = (supplier: SupplierData): boolean => {
+          // Check basic availability criteria
+          const hasAvailableProducts =
+            supplier.supplier.missingItens < supplier.supplier.discount.product.length;
+          const hasPositiveOrderValue = supplier.supplier.discount.orderValue > 0;
+
+          if (!hasAvailableProducts || !hasPositiveOrderValue) {
+            return false;
+          }
+
+          // Check if supplier is closed (based on hour)
+          if (!currentRestaurant?.allowClosedSupplier) {
+            const supplierHour = Number(supplier.supplier.hour.replaceAll(':', ''));
+            if (supplierHour < currentHour) {
+              return false;
+            }
+          }
+
+          // Check minimum order requirements
+          if (!currentRestaurant?.allowMinimumOrder) {
+            const meetsMinimumOrder =
+              supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish;
+            const hasSameDayOrders = supplier.supplier.sameDayOrders.length > 0;
+
+            if (!meetsMinimumOrder && !hasSameDayOrders) {
+              return false;
+            }
+          }
+
+          return true;
+        };
+
+        const { available, unavailable } = allSuppliers.reduce(
+          (acc, supplier) => {
+            if (isSupplierAvailable(supplier)) {
+              acc.available.push(supplier);
+            } else {
+              acc.unavailable.push(supplier);
+            }
+            return acc;
+          },
+          { available: [] as SupplierData[], unavailable: [] as SupplierData[] },
         );
-        let unavailable: SetStateAction<SupplierData[]> = [];
-
-        if (!currentRestaurant?.allowClosedSupplier) {
-          unavailable = unavailable.concat(
-            available.filter(
-              (item) => Number(item.supplier.hour.replaceAll(':', '')) < currentHour,
-            ),
-          );
-          available = available.filter(
-            (item) => Number(item.supplier.hour.replaceAll(':', '')) >= currentHour,
-          );
-        }
-
-        if (!currentRestaurant?.allowMinimumOrder) {
-          unavailable = unavailable.concat(
-            available.filter(
-              (item) =>
-                item.supplier.minimumOrder > item.supplier.discount.orderValueFinish &&
-                item.supplier.sameDayOrders.length === 0,
-            ),
-          );
-          available = available.filter(
-            (item) =>
-              item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish ||
-              item.supplier.sameDayOrders.length > 0,
-          );
-        }
 
         setSuppliers(available);
         setUnavailableSupplier(unavailable);
@@ -122,6 +135,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
     loadingSuppliers,
     selectedRestaurant,
     loadPrices,
+    loadRestaurants,
   };
 
   return <SupplierContext.Provider value={value}>{children}</SupplierContext.Provider>;
