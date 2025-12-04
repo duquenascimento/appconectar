@@ -99,7 +99,7 @@ export function SupplierCard({ supplier, deliveryDate, onShowPdf }: SupplierCard
                             paddingVertical={8}
                           >
                             <Text fontSize={12} color="white" fontWeight="600">
-                              Mostrar PDF
+                              Ver recibo
                             </Text>
                           </Button>
                         )}

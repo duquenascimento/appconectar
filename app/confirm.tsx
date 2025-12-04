@@ -281,7 +281,6 @@ export default function Confirm() {
     const supplierText = await getStorage('supplierSelected');
     if (!supplierText) return;
     const supplier = JSON.parse(supplierText);
-    // TODO: adjust page to display the sameDayOrders
     setSupplier(supplier);
   }, []);
 
@@ -581,7 +580,7 @@ export default function Confirm() {
                                   paddingVertical={8}
                                 >
                                   <Text fontSize={12} color="white" fontWeight="600">
-                                    Mostrar PDF
+                                    Ver recibo
                                   </Text>
                                 </Button>
                               )}
@@ -694,7 +693,7 @@ export default function Confirm() {
             alignSelf="center"
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -711,7 +710,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -723,7 +722,7 @@ export default function Confirm() {
             </View>
             <View style={{ flexDirection: 'column', paddingTop: 10 }}>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total:</Text>
+                <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total: </Text>
                 <Text
                   style={{
                     flexGrow: 1,
@@ -746,7 +745,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -763,7 +762,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -778,7 +777,7 @@ export default function Confirm() {
             </View>
             <View marginVertical={20} borderWidth={0.5} borderColor="lightgray" />
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -795,7 +794,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -820,7 +819,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Data:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Data: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -838,7 +837,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -859,7 +858,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega: </Text>
               <Text
                 style={{
                   maxWidth: 200,
@@ -877,7 +876,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -894,7 +893,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone: </Text>
               <Text
                 style={{
                   flexGrow: 1,

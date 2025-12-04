@@ -181,7 +181,7 @@ function SupplierBox({
         <View marginLeft={10} maxWidth="75%" justifyContent="center">
           <View flexDirection="row" alignItems="center" gap={8}>
             <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
-            {hasSameDayOrdersWithSupplier && (
+            {hasSameDayOrdersWithSupplier && Platform.OS === 'web' && (
               <View
                 paddingHorizontal={8}
                 paddingVertical={2}
@@ -200,6 +200,20 @@ function SupplierBox({
             <Icons color="orange" name="star" />
             <Text paddingLeft={4}>{supplier.supplier.star}</Text>
           </View>
+          {hasSameDayOrdersWithSupplier && Platform.OS !== 'web' && (
+            <View
+              paddingHorizontal={8}
+              paddingVertical={2}
+              borderRadius={12}
+              borderWidth={1.5}
+              borderColor="#04BF7B"
+              backgroundColor="transparent"
+            >
+              <Text fontSize={10} color="#04BF7B" fontWeight="600">
+                Complementar pedido
+              </Text>
+            </View>
+          )}
         </View>
       </View>
       <View style={{ paddingRight: Platform.OS === 'web' ? '10vw' : '' }} justifyContent="center">

@@ -1,5 +1,5 @@
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
-import useWindowDimensions from '@/src/hooks/useWindowDimensions';
+import { Platform } from 'react-native';
 
 interface SundayOrderAlertProps {
   visible: boolean;
@@ -8,8 +8,6 @@ interface SundayOrderAlertProps {
 }
 
 export default function SundayOrderAlert({ visible, onCancel, onConfirm }: SundayOrderAlertProps) {
-  const { isMobile } = useWindowDimensions();
-
   return (
     <TwoButtonCustomAlert
       visible={visible}
@@ -19,7 +17,7 @@ export default function SundayOrderAlert({ visible, onCancel, onConfirm }: Sunda
       cancelText="Cancelar"
       onConfirm={onConfirm}
       confirmText="Continuar"
-      width={isMobile ? '90%' : '30%'}
+      width={Platform.OS !== 'web' ? '90%' : '30%'}
     />
   );
 }

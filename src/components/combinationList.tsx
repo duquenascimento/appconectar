@@ -92,7 +92,6 @@ const CombinationList: React.FC = () => {
               totalValue: item.resultadoCotacao?.totalOrderValue,
               missingItems: missingItems < 0 ? 0 : missingItems,
               missingProducts: item.resultadoCotacao?.missingProducts || [],
-              // TODO: fix to send sameDayOrders by supplier
               sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
             };
           });
