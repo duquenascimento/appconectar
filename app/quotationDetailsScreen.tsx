@@ -1,3 +1,4 @@
+import { SameDayOrder } from '@/src/types/types';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
@@ -11,6 +12,7 @@ import CustomHeader from '../src/components/header/customHeader';
 import { LoadingConfirm } from '../src/components/loading/confirmOrder';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
+import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { MissingItemsList } from '../src/components/quotations/MissingItensList';
 import { SupplierList } from '../src/components/quotations/SupplierList';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
@@ -61,6 +63,7 @@ export interface Supplier {
   hour: string;
   discount: Discount;
   star: string;
+  sameDayOrders: SameDayOrder[];
 }
 
 export interface SupplierData {
@@ -118,6 +121,13 @@ export default function QuotationDetailsScreen() {
     sundayWarning: false,
   });
   const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
+  const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
+  const [showPdfModal, setShowPdfModal] = useState(false);
+
+  const handleShowPdf = (pdfUrl: string) => {
+    setSelectedPdfUrl(pdfUrl);
+    setShowPdfModal(true);
+  };
 
   const parsedMissingProducts = useMemo(() => {
     if (!missingProducts) return [];
@@ -316,7 +326,7 @@ export default function QuotationDetailsScreen() {
             />
 
             <MissingItemsList missingProducts={parsedMissingProducts} />
-            <SupplierList suppliers={suppliers} />
+            <SupplierList suppliers={suppliers} deliveryDate={deliveryDate} onShowPdf={handleShowPdf} />
 
             <YStack
               backgroundColor="white"
@@ -386,6 +396,15 @@ export default function QuotationDetailsScreen() {
           onCancel={handleCloseSundayWarning}
           onConfirm={handleConfirmSundayWarning}
         />
+        {/* PDF Modal */}
+        {selectedPdfUrl && showPdfModal && (
+          <PdfViewerModal
+            key={selectedPdfUrl}
+            pdfUrl={selectedPdfUrl}
+            open={showPdfModal}
+            onClose={() => setShowPdfModal(false)}
+          />
+        )}
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View
           position="absolute"

@@ -1,22 +1,21 @@
-import { useState } from 'react';
-import { Platform } from 'react-native';
-import { View, Text } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
+import { Text, View } from 'tamagui';
 
 interface AccordionInfoProps {
   title: string;
   subtitle?: string;
   content: React.ReactNode;
+  marginBottom?: number;
 }
 
-export function AccordionInfo({ title, subtitle, content }: AccordionInfoProps) {
+export function AccordionInfo({ title, subtitle, content, marginBottom = 15 }: AccordionInfoProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <View
-      marginBottom={15}
-      marginLeft={Platform.OS === 'web' ? 10 : 0}
-      width={Platform.OS === 'web' ? '70.5vw' : '100%'}
+      marginBottom={marginBottom}
+      width="100%"
       alignSelf="center"
       borderWidth={1}
       borderColor="#04BF7B"

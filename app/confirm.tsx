@@ -550,46 +550,52 @@ export default function Confirm() {
         <ScrollView backgroundColor="white">
           <View backgroundColor="white" padding={15}>
             {hasSameDayOrdersWithSupplier && (
-              <AccordionInfo
-                title={`Você já possui ${supplier.supplier.sameDayOrders.length} pedido${supplier.supplier.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
-                content={
-                  <>
-                    {supplier.supplier.sameDayOrders.map((order, index) => (
-                      <View key={order.id || index}>
-                        <View padding={12} backgroundColor="#F9F9F9" borderRadius={8} gap={8}>
-                          <View
-                            flexDirection="row"
-                            justifyContent="space-between"
-                            alignItems="center"
-                          >
-                            <View>
-                              <Text fontSize={14} fontWeight="600">
-                                Pedido {order.id || 'N/A'}
-                              </Text>
-                            </View>
-                            {order.orderDocument && (
-                              <Button
-                                onPress={() => handleShowPdf(order.orderDocument!)}
-                                backgroundColor="#04BF7B"
-                                size="$3"
-                                paddingHorizontal={16}
-                                paddingVertical={8}
-                              >
-                                <Text fontSize={12} color="white" fontWeight="600">
-                                  Mostrar PDF
+              <View
+                marginLeft={Platform.OS === 'web' ? 10 : 0}
+                width={Platform.OS === 'web' ? '70.5vw' : '100%'}
+                alignSelf="center"
+              >
+                <AccordionInfo
+                  title={`Você já possui ${supplier.supplier.sameDayOrders.length} pedido${supplier.supplier.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
+                  content={
+                    <>
+                      {supplier.supplier.sameDayOrders.map((order, index) => (
+                        <View key={order.id || index}>
+                          <View padding={12} backgroundColor="#F9F9F9" borderRadius={8} gap={8}>
+                            <View
+                              flexDirection="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                            >
+                              <View>
+                                <Text fontSize={14} fontWeight="600">
+                                  Pedido {order.id || 'N/A'}
                                 </Text>
-                              </Button>
-                            )}
+                              </View>
+                              {order.orderDocument && (
+                                <Button
+                                  onPress={() => handleShowPdf(order.orderDocument!)}
+                                  backgroundColor="#04BF7B"
+                                  size="$3"
+                                  paddingHorizontal={16}
+                                  paddingVertical={8}
+                                >
+                                  <Text fontSize={12} color="white" fontWeight="600">
+                                    Mostrar PDF
+                                  </Text>
+                                </Button>
+                              )}
+                            </View>
                           </View>
+                          {index < supplier.supplier.sameDayOrders.length - 1 && (
+                            <View height={1} backgroundColor="#E0E0E0" marginVertical={8} />
+                          )}
                         </View>
-                        {index < supplier.supplier.sameDayOrders.length - 1 && (
-                          <View height={1} backgroundColor="#E0E0E0" marginVertical={8} />
-                        )}
-                      </View>
-                    ))}
-                  </>
-                }
-              />
+                      ))}
+                    </>
+                  }
+                />
+              </View>
             )}
             <View
               alignItems="center"
