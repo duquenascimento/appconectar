@@ -1,16 +1,18 @@
+import { SupplierData } from '@/src/types/types';
 import { YStack } from 'tamagui';
 import { SupplierCard } from './SupplierCard';
-import { SupplierData } from '@/src/types/types';
 
 interface SupplierListProps {
   suppliers: SupplierData[];
+  deliveryDate: string;
+  onShowPdf: (pdfUrl: string) => void;
 }
 
-export function SupplierList({ suppliers }: SupplierListProps) {
+export function SupplierList({ suppliers, deliveryDate, onShowPdf }: SupplierListProps) {
   return (
     <YStack gap="$3">
       {suppliers.map(({ supplier }) => (
-        <SupplierCard key={supplier.externalId} supplier={supplier} />
+        <SupplierCard key={supplier.externalId} supplier={supplier} deliveryDate={deliveryDate} onShowPdf={onShowPdf} />
       ))}
     </YStack>
   );

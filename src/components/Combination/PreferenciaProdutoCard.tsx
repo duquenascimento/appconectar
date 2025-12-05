@@ -16,7 +16,7 @@ import { useSupplier } from '@/src/contexts/fornecedores.context';
 import { Classe, useProductContext } from '@/src/contexts/produtos.context';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
 import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
-import { SupplierData } from '../../types/types';
+import { Supplier } from '../../types/types';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { DropdownCampo } from './DropdownCampo';
@@ -30,6 +30,7 @@ type Props = {
   onMoveDown: () => void;
   onRemove: () => void;
   triggerValidation?: boolean;
+  suppliers: Supplier[];
 };
 
 const tipoProdutoItems = [
@@ -42,11 +43,11 @@ export function PreferenciaProdutoCard({
   onMoveUp,
   onMoveDown,
   onRemove,
+  suppliers,
   triggerValidation,
 }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
-  const { suppliers, unavailableSupplier } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const bloqueados = combinacao.fornecedores_bloqueados || [];
 
@@ -225,15 +226,14 @@ export function PreferenciaProdutoCard({
   };
 
   const fornecedoresDisponiveis = useMemo(() => {
-    const todosFornecedores: SupplierData[] = [
-      ...(suppliers ?? []),
-      ...(unavailableSupplier ?? []),
+    const todosFornecedores: Supplier[] = [
+      ...suppliers,
     ];
 
     const fornecedoresLocal = todosFornecedores
       .map((f) => ({
-        id: f.supplier?.externalId ?? null,
-        nome: f.supplier?.name ?? '',
+        id: f.externalId ?? null,
+        nome: f.name ?? '',
       }))
       .filter((f) => f.id && !bloqueados.includes(f.id))
       .sort((a, b) => a.nome.localeCompare(b.nome));
@@ -250,7 +250,6 @@ export function PreferenciaProdutoCard({
     }));
   }, [
     suppliers,
-    unavailableSupplier,
     combinacao.fornecedores_bloqueados,
     combinacao.preferencia_fornecedor_tipo,
     combinacao.fornecedores_especificos,
@@ -439,7 +438,7 @@ export function PreferenciaProdutoCard({
           {produtosValidationError}
         </Text>
       )}
-
+      
       <ContainerSelecaoItemsComFornecedor
         label="Com fornecedor(es)"
         items={fornecedoresDisponiveis}

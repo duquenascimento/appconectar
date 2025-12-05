@@ -68,15 +68,15 @@ export default function PdfViewerModal({pdfUrl, open, onClose}: { pdfUrl: string
        <Dialog.Content
         key="content"
         style={{
-          position:'absolute',
-          top: 0,
-          left: 0,
-          marginTop: Platform.OS === "web" ? 20:0
+          position: Platform.OS === "web" ? 'fixed' : 'absolute',
+          top: Platform.OS === "web" ? '50%' : 0,
+          left: Platform.OS === "web" ? '50%' : 0,
+          transform: Platform.OS === "web" ? 'translate(-50%, -50%)' : undefined,
         }}
         bordered
         elevate
-        width= {Platform.OS === "web" ? "75%" : '100%'}
-        height={Platform.OS === "web" ? "95%" : '100%'}
+        width= {Platform.OS === "web" ? "80%" : '100%'}
+        height={Platform.OS === "web" ? "90%" : '100%'}
         zIndex={101}
       >
         <YStack flex={1} gap="$3">

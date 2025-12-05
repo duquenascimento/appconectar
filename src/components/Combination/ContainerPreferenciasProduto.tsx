@@ -3,17 +3,19 @@ import { YStack, Text, Button, Separator, XStack, Switch } from 'tamagui';
 import { useEffect, useState } from 'react';
 import { PreferenciaProdutoCard } from './PreferenciaProdutoCard';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { CustomRadioButton } from '../button/customRadioButton';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import { resetarPreferencias } from '../../utils/preferenciaUtils';
 import CustomSubtitle from '../subtitle/customSubtitle';
+import { Supplier } from '@/src/types/types';
 
 export function ContainerPreferenciasProduto({
   error,
+  suppliers,
   onClearErrors,
   triggerValidation,
 }: {
   error?: string;
+  suppliers: Supplier[];
   onClearErrors: () => void;
   triggerValidation?: boolean;
 }) {
@@ -136,6 +138,7 @@ export function ContainerPreferenciasProduto({
           <PreferenciaProdutoCard
             key={index}
             index={index}
+            suppliers={suppliers}
             onRemove={() => removerPreferencia(index)}
             onMoveUp={() => moverPreferencia(index, index - 1)}
             onMoveDown={() => moverPreferencia(index, index + 1)}

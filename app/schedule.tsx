@@ -10,7 +10,6 @@ import { getAllSuppliers } from '@/src/services/supplierService';
 import { CartProduct } from '@/src/types/cartTypes';
 import { useCart } from '@/src/components/useCart';
 import { getCartProducts } from '@/src/services/cartService';
-import { getSavedRestaurant } from '@/src/utils/savedRestaurant';
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import {
   createScheduleOrder,
@@ -22,8 +21,14 @@ import { ScheduleOrderCreationBody, ScheduleOrderResponse } from '@/src/types/sc
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { isTomorrow } from '@/src/utils/dateUtils';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
-import { getPricesBySupplierOrCombination, getSuppliersPrices } from '@/src/services/pricesService';
+import {
+  getPricesBySupplierOrCombination,
+  getSuppliersPrices,
+  SupplierPriceRequestBody,
+} from '@/src/services/pricesService';
 import { getUserRestaurants } from '@/src/services/restaurantService';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { Supplier, SupplierData } from './quotationDetailsScreen';
 
 function capitalizeFirstLetter(str: string) {
   if (typeof str !== 'string' || str.length === 0) {
@@ -32,19 +37,34 @@ function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+function convertFromDaysUpFront(daysUpfront: number): DateTime {
+  return DateTime.now().plus({ days: daysUpfront }).startOf('day');
+}
+
+function convertToDaysUpFront(date: DateTime): number {
+  return Math.ceil(date.diff(DateTime.now(), 'days').days);
+}
+
+type ComboOption = {
+  label: string;
+  value: string;
+};
+
 export default function ScheduleScreen() {
   const { orderId } = useLocalSearchParams<{ orderId?: string }>();
   const { width: screenWidth } = useWindowDimensions();
 
   const [daysUpfront, setDaysUpfront] = useState<number>(0);
   const [selectedSupplier, setSelectedSupplier] = useState<string>('');
-  const [suppliers, setSuppliers] = useState<any[]>([]);
+  const [allSuppliers, setAllSuppliers] = useState<ComboOption[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<ComboOption[]>([]);
   const [currentOrder, setCurrentOrder] = useState<ScheduleOrderResponse | undefined>();
   const [cartProducts, setCartProducts] = useState<CartProduct[]>([]);
-  const [combinations, setCombinations] = useState<any[]>([]);
+  const [combinations, setCombinations] = useState<ComboOption[]>([]);
   const [selectedCombination, setSelectedCombination] = useState<string>('');
   const [showCombinationDropdown, setShowCombinationDropdown] = useState<boolean>(false);
   const [defaultDeliveryDateText, setDefaultDeliveryDateText] = useState<string>('Selecione...');
+  const [defaultSupplierText, setDefaultSupplierText] = useState<string>('Selecione...');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
   const [isPremium, setIsPremium] = useState<boolean>(false);
@@ -76,17 +96,24 @@ export default function ScheduleScreen() {
   }, []);
 
   const onCreateSchedule = useCallback(async () => {
+    if (showCombinationDropdown && !selectedCombination) {
+      setErrorMessage('Selecione uma combinação.');
+      return;
+    } else if (!showCombinationDropdown && !selectedSupplier) {
+      setErrorMessage('Selecione um fornecedor.');
+      return;
+    } else if (!daysUpfront) {
+      setErrorMessage('Selecione uma data de entrega.');
+      return;
+    }
+
     try {
       setIsSubmitting(true);
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
 
       if (orderId) {
         const updateData: Partial<Omit<ScheduleOrderCreationBody, 'restaurantId'>> = {};
-        if (
-          Math.ceil(
-            DateTime.fromISO(currentOrder!.deliveryDate).diff(DateTime.now(), 'days').days,
-          ) !== daysUpfront
-        ) {
+        if (convertToDaysUpFront(DateTime.fromISO(currentOrder!.deliveryDate)) !== daysUpfront) {
           updateData.deliveryDate = DateTime.now().plus({ days: daysUpfront }).toISO();
         }
 
@@ -101,7 +128,7 @@ export default function ScheduleScreen() {
         await editScheduleOrder(orderId, updateData);
       } else {
         const creationData: ScheduleOrderCreationBody = {
-          deliveryDate: DateTime.now().plus({ days: daysUpfront }).toISO(),
+          deliveryDate: convertFromDaysUpFront(daysUpfront).toISO() ?? '',
           restaurantId: restaurant!.id,
           combinationId: showCombinationDropdown ? selectedCombination : undefined,
           supplierId: selectedSupplier,
@@ -146,7 +173,7 @@ export default function ScheduleScreen() {
     }
     setIsSubmitting(true);
     try {
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       const userRestaurants = await getUserRestaurants();
       const currentRestaurant = userRestaurants.find(
         (r) => r.externalId === restaurant!.externalId,
@@ -156,6 +183,7 @@ export default function ScheduleScreen() {
         restaurantId: currentRestaurant!.id,
         supplierExternalId: currentOrder.supplier?.externalId,
         combinationId: currentOrder.combination?.id,
+        deliveryDate: currentOrder.deliveryDate,
         products: cartProducts.map((product) => ({
           id: product.id,
           sku: product.sku,
@@ -183,41 +211,47 @@ export default function ScheduleScreen() {
     } finally {
       setIsSubmitting(false);
     }
-  }, []);
+  }, [currentOrder]);
 
   useEffect(() => {
+    // fetch if user is conectar+
+    const loadIsPremium = async () => {
+      const restaurant = await getStorageRestaurant();
+      setIsPremium(restaurant?.premium ?? false);
+    };
+
     // fetch supplier options
     const featchAllSuppliers = async () => {
       const allSuppliers = await getAllSuppliers();
-      setSuppliers(allSuppliers);
+      setAllSuppliers(allSuppliers.map((s: any) => ({label: s.nomefornecedor, value: s.idexterno} as ComboOption)));
     };
     featchAllSuppliers();
 
     // fetch combination options
     const loadCombinations = async () => {
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!restaurant) return;
 
       const res = await getCombinationsByRestaurant(restaurant.id);
       if (Array.isArray(res.return)) {
-        setCombinations(res.return);
+        setCombinations(res.return.map((c: any) => ({ label: c.nome, value: c.id } as ComboOption)));
       }
     };
     loadCombinations();
 
     // fetch current order if is editing
     const loadCurrentOrder = async () => {
-      const restaurant = await getSavedRestaurant();
-      setIsPremium(restaurant?.premium ?? false);
+      const restaurant = await getStorageRestaurant();
       const order = await getScheduleOrder(orderId!);
       setCurrentOrder(order);
 
       const deliveryDate = DateTime.fromISO(order.deliveryDate);
-      const diffDays = Math.ceil(deliveryDate.diff(DateTime.now(), 'days').days);
+      const diffDays = convertToDaysUpFront(deliveryDate);
 
       if (diffDays > 1 && deliveryDate.weekday !== 7) {
         setDaysUpfront(diffDays);
       } else {
+        setDaysUpfront(diffDays);
         setDefaultDeliveryDateText(
           capitalizeFirstLetter(
             DateTime.now().setLocale('pt-BR').plus({ days: diffDays }).toFormat('EEEE • dd/MM'),
@@ -231,6 +265,7 @@ export default function ScheduleScreen() {
       }
       if (order.supplier) {
         setSelectedSupplier(order.supplier.externalId);
+        setDefaultSupplierText(order.supplier.name);
       }
       setCartProducts(
         order.products.map(
@@ -247,6 +282,7 @@ export default function ScheduleScreen() {
         ),
       );
     };
+    loadIsPremium();
     if (orderId) {
       loadCurrentOrder();
     } else {
@@ -258,7 +294,7 @@ export default function ScheduleScreen() {
 
   useEffect(() => {
     const loadProducts = async () => {
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       const products = await getCartProducts(restaurant!.id);
       setCartProducts(products);
     };
@@ -266,6 +302,29 @@ export default function ScheduleScreen() {
       loadProducts();
     }
   }, [cart]);
+
+  useEffect(() => {
+    const loadSupplierByDeliveryDate = async () => {
+      if(daysUpfront <= 0) return;
+
+      const restaurant = await getStorageRestaurant();
+      const availableSuppliersResult = await getSuppliersPrices({
+        restaurant: {
+          id: restaurant!.id,
+          externalId: restaurant!.externalId,
+          tax: Number(restaurant!.tax),
+          addressInfos: restaurant?.addressInfos,
+        },
+        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO(),
+      } as SupplierPriceRequestBody);
+      if (!availableSuppliersResult.map((s) => s.supplier.externalId).includes(selectedSupplier) && selectedSupplier !== currentOrder?.supplier?.externalId) {
+        setSelectedSupplier('');
+      }
+
+      setAvailableSuppliers(availableSuppliersResult.map((s) => ({label: s.supplier.name, value: s.supplier.externalId} as ComboOption)));
+    };
+    loadSupplierByDeliveryDate();
+  }, [daysUpfront]);
 
   return (
     <View
@@ -336,10 +395,7 @@ export default function ScheduleScreen() {
 
             {showCombinationDropdown ? (
               <DropdownCampo
-                items={combinations.map((c) => ({
-                  label: c.nome,
-                  value: c.id,
-                }))}
+                items={combinations}
                 isLoading={!isPremium}
                 label="Combinação"
                 value={selectedCombination}
@@ -348,11 +404,9 @@ export default function ScheduleScreen() {
               />
             ) : (
               <DropdownCampo
-                items={suppliers.map((supplier) => ({
-                  label: supplier.nomefornecedor,
-                  value: supplier.idexterno,
-                }))}
+                items={(availableSuppliers.length == 0 ? allSuppliers : availableSuppliers)}
                 label="Fornecedor"
+                placeholder={defaultSupplierText}
                 value={selectedSupplier}
                 onChange={(val) => setSelectedSupplier(val)}
                 campo="fornecedor"

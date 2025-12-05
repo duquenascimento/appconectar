@@ -16,6 +16,7 @@ import { filterCarts } from '../src/utils/filterCarts';
 import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 export type Product = {
   name: string;
@@ -379,7 +380,7 @@ export default function Cart() {
 
   useEffect(() => {
     const fetchRestaurant = async () => {
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       setStorage(
         `cart_${restaurant?.externalId}`,
         JSON.stringify(Array.from(cart.entries())),
@@ -398,28 +399,9 @@ export default function Cart() {
 
   const flatListRef = useRef<VirtualizedList<Product>>(null);
 
-  const getSavedRestaurant = async () => {
-    try {
-      const data = await getStorage('selectedRestaurant');
-      if (!data) return null;
-
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
-
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  };
-
   const deleteItemFromCart = debounce(async (cartToDelete: TCart) => {
     const token = await getToken();
-    const restaurant = await getSavedRestaurant();
+    const restaurant = await getStorageRestaurant();
 
     if (!token || !restaurant) return;
 
@@ -471,7 +453,7 @@ export default function Cart() {
   const loadCart = useCallback(async (): Promise<Map<string, TCart>> => {
     try {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!token || !restaurant) return new Map();
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
@@ -512,7 +494,7 @@ export default function Cart() {
 
   const saveCart = useCallback(async (cart: TCart, isCart: boolean) => {
     let newCart = new Map();
-    const restaurant = await getSavedRestaurant();
+    const restaurant = await getStorageRestaurant();
     const attCart = async (): Promise<void> => {
       setCart((prevCart) => {
         newCart = new Map(prevCart);
@@ -548,7 +530,7 @@ export default function Cart() {
   const loadProducts = useCallback(async () => {
     try {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!token || !restaurant) return [];
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`, {
@@ -600,7 +582,7 @@ export default function Cart() {
   const saveCartArray = useCallback(
     async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!token || restaurant == null) return;
 
       const cartsArray = Array.from(carts.values());
@@ -890,7 +872,7 @@ export default function Cart() {
                           onPress={async () => {
                             setLoading(true);
                             const token = await getToken();
-                            const restaurant = await getSavedRestaurant();
+                            const restaurant = await getStorageRestaurant();
                             if (!token || !restaurant) return [];
                             await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`, {
                               method: 'POST',

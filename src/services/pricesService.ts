@@ -4,22 +4,26 @@ import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-type SupplierPriceRequestBody = {
-  restaurantId: string;
-  restaurantExternalId: string;
-  tax: number;
-  addressInfos: {
+export type SupplierPriceRequestBody = {
+  deliveryDate: string;
+  restaurant: {
     id: string;
-    neighborhood: string;
-    initialDeliveryTime: string;
-    finalDeliveryTime: string;
-  }[];
+    externalId: string;
+    tax: number;
+    addressInfos: {
+      id: string;
+      neighborhood: string;
+      initialDeliveryTime: string;
+      finalDeliveryTime: string;
+    }[];
+  };
 };
 
 export type PricesBySupplierOrCombinationBody = {
   restaurantId: string;
   supplierExternalId?: string;
   combinationId?: string;
+  deliveryDate: string;
   products: {
     id: string;
     sku: string;
@@ -37,10 +41,9 @@ export async function getSuppliersPrices(data: SupplierPriceRequestBody): Promis
       body: JSON.stringify({
         token,
         selectedRestaurant: {
-          ...data,
-          id: data.restaurantId,
-          externalId: data.restaurantExternalId,
+          ...data.restaurant,
         },
+        deliveryDate: data.deliveryDate,
       }),
     });
 
@@ -60,12 +63,11 @@ export async function getPricesBySupplierOrCombination(
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` },
       body: JSON.stringify(data),
     });
-
+    const response = await result.json();
     if (result.status == 200) {
-      const response = await result.json();
       return response.data;
     }
-    throw Error('Ocorreu um erro ao buscar os precos');
+    throw Error(response?.msg ?? 'Ocorreu um erro ao buscar os preços');
   } catch (error) {
     throw handleHttpException(error);
   }

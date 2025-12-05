@@ -10,6 +10,7 @@ import { formatCurrency } from '../src/utils/formatCurrency';
 import { getDeliveryWindow } from '../src/utils/timeUtils';
 import { getPaymentDate } from '../src/utils/getPaymentDate';
 import PageContainer from '@/src/components/box/PageContainer';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 interface RestaurantAddress {
   address: string;
@@ -57,11 +58,10 @@ export default function OrderConfirmedScreen() {
   useEffect(() => {
     const loadRestaurantData = async () => {
       try {
-        const storedData = await getStorage('selectedRestaurant');
-        if (storedData) {
-          const parsedData = JSON.parse(storedData);
-          setRestaurantDetails(parsedData.restaurant);
-          setPaymentDateOrder(getPaymentDate(parsedData.restaurant.paymentWay));
+        const restaurantData = await getStorageRestaurant();
+        if (restaurantData) {
+          setRestaurantDetails(restaurantData);
+          setPaymentDateOrder(getPaymentDate(restaurantData.paymentWay));
         } else {
           Alert.alert('Erro', 'Não foi possível encontrar os dados do restaurante.');
         }

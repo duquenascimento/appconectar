@@ -8,24 +8,24 @@ import {
   Linking,
   useWindowDimensions,
 } from 'react-native';
-import Icons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect, useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import DialogComercialInstance from '../src/components/modais/DialogInstanceNotification';
-import { getOrders } from '../src/services/orderService';
-import { ordersScreenStyles as styles } from '../src/styles/styles';
-import { clearStorage, deleteToken } from '../src/utils/utils';
-import { VersionInfo } from '../src/utils/VersionApp';
-import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
-import CustomAlert from '../src/components/modais/CustomAlert';
 import PageContainer from '@/src/components/box/PageContainer';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
 import { HeaderText } from '@/src/components/text/HeaderText';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useFocusEffect, useRouter } from 'expo-router';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { getOrders } from '../src/services/orderService';
+import { ordersScreenStyles as styles } from '../src/styles/styles';
+import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
+import { clearStorage, deleteToken } from '../src/utils/utils';
+import { VersionInfo } from '../src/utils/VersionApp';
 import { DateTime } from 'luxon';
 import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
 import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
 import { isTomorrow } from '@/src/utils/dateUtils';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 
 interface Order {
   orderDocument: ReactNode;
@@ -58,7 +58,7 @@ const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
   return ['Agendado', '#4CAF50'];
 };
 
-export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
+export default function OrdersScreen(props: HomeScreenPropsUtils) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [scheduledOrders, setScheduledOrders] = useState<ScheduleOrderResponse[]>([]);
@@ -69,7 +69,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const { selectedRestaurant } = useRestaurantContext();
+  const { restaurants, selectedRestaurant, setSelectedRestaurant } = useRestaurantContext();
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
@@ -506,6 +507,27 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         </View>
       </View>
       <VersionInfo />
+      <DialogComercialInstance
+        openModal={showBlockedModal}
+        setOpenModal={setShowBlockedModal}
+        setRegisterInvalid={setShowBlockedModal}
+        rest={restaurants}
+        messageText="Este restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
+        onSelectAvailable={async () => {
+          try {
+            const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
+
+            if (availableRestaurant) {
+              setShowBlockedModal(false);
+              await setStorageRestaurant(availableRestaurant);
+              setSelectedRestaurant(availableRestaurant);
+              setShowBlockedModal(false);
+            }
+          } catch (error) {
+            console.error('Erro ao trocar de restaurante:', error);
+          }
+        }}
+      />
     </PageContainer>
   );
 }
