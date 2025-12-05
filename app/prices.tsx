@@ -1,3 +1,10 @@
+import PageContainer from '@/src/components/box/PageContainer';
+import CustomButton from '@/src/components/button/customButton';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
+import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
+import { SameDayOrder } from '@/src/types/types';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
@@ -11,11 +18,8 @@ import {
   VirtualizedList,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { Button, Image, Input, ScrollView, Stack, Text, View } from 'tamagui';
-import PageContainer from '../src/components/box/PageContainer';
-import CustomButton from '../src/components/button/customButton';
+import { Button, Input, ScrollView, Stack, Text, View } from 'tamagui';
 import CombinationList, { Combination } from '../src/components/combinationList';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { useCombinacao } from '../src/contexts/combinacao.context';
@@ -26,12 +30,10 @@ import { getAllCombinationsByRestaurant } from '../src/services/combinationsServ
 import { confirmPremiumOrder } from '../src/services/orderService';
 import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import { TCart } from '../src/types/cartTypes';
+import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
 import { campoString } from '../src/utils/formatCampos';
 import { getStarValue } from '../src/utils/getStarValue';
-import { clearStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-import { setStorageRestaurant } from '../src/utils/restaurantUtils';
-import { Restaurant } from '../src/types/restaurantTypes';
 
 export interface Product {
   price: number;
@@ -68,6 +70,7 @@ export interface Supplier {
   hour: string;
   discount: Discount;
   star: string;
+  sameDayOrders: SameDayOrder[];
 }
 
 export interface SupplierData {
@@ -104,21 +107,28 @@ const useScreenSize = () => {
 
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
   return suppliers.sort((a, b) => {
-    // First, sort by missing items (ascending)
+    // First, sort by complementary order
+    const isComplementaryA = a.supplier.sameDayOrders.length > 0;
+    const isComplementaryB = b.supplier.sameDayOrders.length > 0;
+    if (isComplementaryA !== isComplementaryB) {
+      return isComplementaryA ? -1 : 1;
+    }
+
+    // Second, sort by missing items (ascending)
     const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
     const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
     if (missingA !== missingB) {
       return missingA - missingB;
     }
 
-    // Second, sort by star rating (descending)
+    // Third, sort by star rating (descending)
     if (a.supplier.star !== b.supplier.star) {
       const starA = getStarValue(a.supplier.star);
       const starB = getStarValue(b.supplier.star);
       return starB - starA;
     }
 
-    // Third, sort by order value (ascending)
+    // Fourth, sort by order value (ascending)
     return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
   });
 };
@@ -140,17 +150,16 @@ function SupplierBox({
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
-    return (
-      Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour &&
-      supplier.supplier.missingItens > 0
-    );
+    return Number(supplier.supplier.hour.replaceAll(':', '')) < currentHour;
   };
+
+  const hasSameDayOrdersWithSupplier = supplier.supplier.sameDayOrders.length > 0;
 
   return (
     <View
-      opacity={available && supplier.supplier.missingItens > 0 ? 1 : 0.4}
+      opacity={available ? 1.0 : 0.4}
       onPress={() => {
-        if (available && supplier.supplier.missingItens > 0) {
+        if (available) {
           goToConfirm(supplier, selectedRestaurant);
         }
       }}
@@ -165,21 +174,46 @@ function SupplierBox({
         flex={1}
       >
         <View padding={5}>
-          <Image
-            source={{
-              uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`,
-            }}
-            width={50}
-            height={50}
-            borderRadius={50}
+          <ImageWithFallback
+            uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`}
           />
         </View>
         <View marginLeft={10} maxWidth="75%" justifyContent="center">
-          <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
+          <View flexDirection="row" alignItems="center" gap={8}>
+            <Text flexShrink={16}>{supplier.supplier.name.replace('Distribuidora', '')}</Text>
+            {hasSameDayOrdersWithSupplier && Platform.OS === 'web' && (
+              <View
+                paddingHorizontal={8}
+                paddingVertical={2}
+                borderRadius={12}
+                borderWidth={1.5}
+                borderColor="#04BF7B"
+                backgroundColor="transparent"
+              >
+                <Text fontSize={12} color="#04BF7B" fontWeight="600">
+                  Complementar pedido
+                </Text>
+              </View>
+            )}
+          </View>
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star" />
             <Text paddingLeft={4}>{supplier.supplier.star}</Text>
           </View>
+          {hasSameDayOrdersWithSupplier && Platform.OS !== 'web' && (
+            <View
+              paddingHorizontal={8}
+              paddingVertical={2}
+              borderRadius={12}
+              borderWidth={1.5}
+              borderColor="#04BF7B"
+              backgroundColor="transparent"
+            >
+              <Text fontSize={10} color="#04BF7B" fontWeight="600">
+                Complementar pedido
+              </Text>
+            </View>
+          )}
         </View>
       </View>
       <View style={{ paddingRight: Platform.OS === 'web' ? '10vw' : '' }} justifyContent="center">
@@ -193,9 +227,13 @@ function SupplierBox({
             </Text>
           ) : (
             <>
-              <Text color="red" fontSize={12}>
-                {supplier.supplier.missingItens} iten(s) faltante(s)
-              </Text>
+              {supplier.supplier.missingItens > 0 ? (
+                <Text color="red" fontSize={12}>
+                  {supplier.supplier.missingItens} iten(s) faltante(s)
+                </Text>
+              ) : (
+                <></>
+              )}
               {isOpen() && !selectedRestaurant.allowClosedSupplier ? (
                 <Text color="red" fontSize={12}>
                   Fechado às {supplier.supplier.hour.substring(0, 5)}
@@ -204,7 +242,8 @@ function SupplierBox({
                 <></>
               )}
               {supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-              !selectedRestaurant.allowMinimumOrder ? (
+              !selectedRestaurant.allowMinimumOrder &&
+              supplier.supplier.sameDayOrders.length === 0 ? (
                 <Text color="red" fontSize={12}>
                   Mínimo R$
                   {supplier.supplier.minimumOrder.toFixed(2).replace('.', ',')}
@@ -542,18 +581,11 @@ export default function Prices() {
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
   const renderItem = ({ item }: { item: any }) => {
-    function availability(): boolean {
-      if (item.supplier.discount.orderValue === 0) return false;
-      if (selectedRestaurant?.allowClosedSupplier) return true;
-      return item.available;
-    }
-    const available = availability();
-
     return (
       <SupplierBox
         supplier={item}
         star={item.star}
-        available={available}
+        available={item.available}
         selectedRestaurant={selectedRestaurant}
         goToConfirm={goToConfirm}
       />

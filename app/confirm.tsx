@@ -1,3 +1,6 @@
+import { AccordionInfo } from '@/src/components/AccordionInfo';
+import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
+import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import Icons from '@expo/vector-icons/Ionicons';
 import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
@@ -16,22 +19,21 @@ import {
   View,
   XStack,
 } from 'tamagui';
-import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
-import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
-import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
+import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
+import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
-import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { getPaymentDescription } from '../src/utils/paymentUtils';
 import { getPaymentDate, isBefore13Hours } from '../src/utils/timeUtils';
-import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
+import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
-import { getPaymentDescription } from '../src/utils/paymentUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -225,6 +227,8 @@ export default function Confirm() {
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false);
   const [showSundayWarning, setShowSundayWarning] = useState(false);
   const [cartOrder, setCartOrder] = useState<{ sku: string; addOrder: number }[]>([]);
+  const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
+  const [showPdfModal, setShowPdfModal] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
@@ -240,6 +244,15 @@ export default function Confirm() {
   const { deliveryDate, getFormattedDate, resetDeliveryDate } = useDeliveryDate();
   const router = useRouter();
   const pathname = usePathname();
+
+  const hasSameDayOrdersWithSupplier = useMemo(() => {
+    return supplier?.supplier?.sameDayOrders?.length > 0;
+  }, [supplier]);
+
+  const handleShowPdf = useCallback((pdfUrl: string) => {
+    setSelectedPdfUrl(pdfUrl);
+    setShowPdfModal(true);
+  }, []);
 
   useEffect(() => {
     if (loadingToConfirm) {
@@ -325,14 +338,12 @@ export default function Confirm() {
     );
     return (
       Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour &&
-      supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish &&
-      supplier.supplier.missingItens > 0
+      (supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish ||
+        hasSameDayOrdersWithSupplier)
     );
   };
 
-  const actualMissingItemsCount =
-    supplier?.supplier?.discount?.product?.length - (supplier?.supplier?.missingItens ?? 0);
-  const displayMissingItems = Math.max(0, actualMissingItemsCount);
+  const displayMissingItems = supplier?.supplier?.missingItens ?? 0;
 
   const handleConfirmOrder = useCallback(
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
@@ -375,7 +386,8 @@ export default function Confirm() {
           }
           if (
             supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
-            !selectedRestaurant.allowMinimumOrder
+            !selectedRestaurant.allowMinimumOrder &&
+            !hasSameDayOrdersWithSupplier
           ) {
             erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
           }
@@ -491,6 +503,14 @@ export default function Confirm() {
           onCancel={handleCloseSundayWarning}
           onConfirm={handleConfirmSundayWarning}
         />
+        {selectedPdfUrl && showPdfModal && (
+          <PdfViewerModal
+            key={selectedPdfUrl}
+            pdfUrl={selectedPdfUrl}
+            open={showPdfModal}
+            onClose={() => setShowPdfModal(false)}
+          />
+        )}
         <View
           backgroundColor="white"
           flexDirection="row"
@@ -510,13 +530,8 @@ export default function Confirm() {
           </View>
           <View flexDirection="row" marginLeft={10} alignSelf="center">
             <View justifyContent="center">
-              <Image
-                source={{
-                  uri: `https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier.externalId}.jpg`,
-                }}
-                width={50}
-                height={50}
-                borderRadius={50}
+              <ImageWithFallback
+                uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`}
               />
             </View>
             <View marginLeft={10} justifyContent="center">
@@ -533,6 +548,54 @@ export default function Confirm() {
 
         <ScrollView backgroundColor="white">
           <View backgroundColor="white" padding={15}>
+            {hasSameDayOrdersWithSupplier && (
+              <View
+                marginLeft={Platform.OS === 'web' ? 10 : 0}
+                width={Platform.OS === 'web' ? '70.5vw' : '100%'}
+                alignSelf="center"
+              >
+                <AccordionInfo
+                  title={`Você já possui ${supplier.supplier.sameDayOrders.length} pedido${supplier.supplier.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
+                  content={
+                    <>
+                      {supplier.supplier.sameDayOrders.map((order, index) => (
+                        <View key={order.id || index}>
+                          <View padding={12} backgroundColor="#F9F9F9" borderRadius={8} gap={8}>
+                            <View
+                              flexDirection="row"
+                              justifyContent="space-between"
+                              alignItems="center"
+                            >
+                              <View>
+                                <Text fontSize={14} fontWeight="600">
+                                  Pedido {order.id || 'N/A'}
+                                </Text>
+                              </View>
+                              {order.orderDocument && (
+                                <Button
+                                  onPress={() => handleShowPdf(order.orderDocument!)}
+                                  backgroundColor="#04BF7B"
+                                  size="$3"
+                                  paddingHorizontal={16}
+                                  paddingVertical={8}
+                                >
+                                  <Text fontSize={12} color="white" fontWeight="600">
+                                    Ver recibo
+                                  </Text>
+                                </Button>
+                              )}
+                            </View>
+                          </View>
+                          {index < supplier.supplier.sameDayOrders.length - 1 && (
+                            <View height={1} backgroundColor="#E0E0E0" marginVertical={8} />
+                          )}
+                        </View>
+                      ))}
+                    </>
+                  }
+                />
+              </View>
+            )}
             <View
               alignItems="center"
               marginLeft={Platform.OS === 'web' ? 10 : ''}
@@ -630,7 +693,7 @@ export default function Confirm() {
             alignSelf="center"
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Subtotal: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -647,7 +710,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Descontos: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -659,7 +722,7 @@ export default function Confirm() {
             </View>
             <View style={{ flexDirection: 'column', paddingTop: 10 }}>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total:</Text>
+                <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Total: </Text>
                 <Text
                   style={{
                     flexGrow: 1,
@@ -682,7 +745,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Formato pagamento: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -699,7 +762,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Vencimento: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -714,7 +777,7 @@ export default function Confirm() {
             </View>
             <View marginVertical={20} borderWidth={0.5} borderColor="lightgray" />
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Restaurante: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -731,7 +794,7 @@ export default function Confirm() {
                 paddingTop: 10,
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Endereço: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -756,7 +819,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Data:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Data: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -774,7 +837,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Horário: </Text>
               <View
                 style={{
                   flexGrow: 1,
@@ -795,7 +858,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega:</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Obs entrega: </Text>
               <Text
                 style={{
                   maxWidth: 200,
@@ -813,7 +876,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Entregar para: </Text>
               <Text
                 style={{
                   flexGrow: 1,
@@ -830,7 +893,7 @@ export default function Confirm() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone</Text>
+              <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>Telefone: </Text>
               <Text
                 style={{
                   flexGrow: 1,

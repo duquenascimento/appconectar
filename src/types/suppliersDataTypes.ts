@@ -1,3 +1,5 @@
+import { SameDayOrder } from "./types";
+
 interface SelectedProductInCart {
   productId: string;
   amount: number;
@@ -59,6 +61,7 @@ export interface AvailableSupplier {
       orderValueFinish: number;
       product: SupplierProduct[];
     };
+    sameDayOrders: SameDayOrder[];
   };
 }
 
@@ -97,5 +100,6 @@ export interface OutputSupplier {
       product: FinalProductItem[];
       sku: string;
     };
+    sameDayOrders: SameDayOrder[];
   };
 }

@@ -25,6 +25,12 @@ export interface Discount {
   sku: string;
 }
 
+export interface SameDayOrder {
+  id: string;
+  deliveryDate: Date;
+  orderDocument: string | null;
+}
+
 export interface Supplier {
   name: string;
   externalId: string;
@@ -35,6 +41,7 @@ export interface Supplier {
   discount: Discount;
   star: string;
   orderId?: string;
+  sameDayOrders: SameDayOrder[];
 }
 
 export interface SupplierData {
