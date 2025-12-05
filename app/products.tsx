@@ -592,7 +592,8 @@ export default function Products() {
 
           // Extraindo categorias
           const categories = initialRestaurant?.categories ?? [];
-          if ((initialRestaurant?.verduraKg ?? false) && categories.length === 0) {
+          const isVerduraKg = initialRestaurant?.verduraKg ?? false;
+          if (isVerduraKg && categories.length === 0) {
             classItems = [
               { name: 'Favoritos' },
               { name: 'Fruta' },
@@ -619,6 +620,10 @@ export default function Products() {
               { name: 'Favoritos' },
               ...categories.map((category: any) => ({ name: category })),
             ];
+          }
+
+          if(currentClass === 'Verduras' || currentClass === 'Verduras - KG') { 
+            setCurrentClass(isVerduraKg ? 'Verduras - KG' : 'Verduras');
           }
 
           const cartMap = await loadCart();

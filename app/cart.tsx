@@ -1,12 +1,12 @@
 import { View, Text, Stack, Button, XStack, Input, debounce } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-// import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   ActivityIndicator,
   Modal,
   Platform,
   TouchableOpacity,
+  useWindowDimensions,
   VirtualizedList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -373,7 +373,10 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
+  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
+
+  const isLargeScreen = screenWidth >= 800;
 
   useEffect(() => {
     const fetchRestaurant = async () => {
@@ -703,6 +706,31 @@ export default function Cart() {
               windowSize={4}
             />
           </View>
+          {cart.size > 0 && !isLargeScreen && (
+            <View justifyContent="center" alignItems="center" paddingHorizontal={20}>
+              <View width={Platform.OS === 'web' ? '70%' : '92%'}>
+                <Button
+                  borderRadius={10}
+                  onPress={() => {
+                    router.push('/schedule');
+                  }}
+                  width="100%"
+                  justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="orange"
+                  hoverStyle={{
+                    backgroundColor: '$orange9',
+                  }}
+                  flex={1}
+                >
+                  <Text fontSize={16} color="white">
+                    Agendar entrega
+                  </Text>
+                  <Icons size={18} paddingLeft={10} color="white" name="time" />
+                </Button>
+              </View>
+            </View>
+          )}
 
           <View
             backgroundColor="#F0F2F6"
@@ -738,6 +766,24 @@ export default function Cart() {
                   </Button>
                 )}
               </View>
+              {cart.size > 0 && isLargeScreen && (
+                <View justifyContent="center" alignItems="center">
+                  <Button
+                    backgroundColor="orange"
+                    hoverStyle={{
+                      backgroundColor: '$orange9',
+                    }}
+                    onPress={() => {
+                      router.push('/schedule');
+                    }}
+                  >
+                    <Text fontSize={16} color="white">
+                      Agendar entrega
+                    </Text>
+                    <Icons name="time" color="white" size={20} />
+                  </Button>
+                </View>
+              )}
               <Button
                 borderRadius={10}
                 onPress={() => {

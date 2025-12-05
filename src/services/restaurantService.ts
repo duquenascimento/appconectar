@@ -40,6 +40,21 @@ export const getMaxSpecificSuppliersNumber = async (externalId: string) => {
   }
 };
 
+export async function getUserRestaurants(): Promise<Restaurant[]> {
+  try {
+    const token = await getToken();
+    const response = await axios.post(`${API_URL}/restaurant/list`, JSON.stringify({ token }), {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error('Erro ao buscar restaurantes:', error);
+    throw error;
+  }
+}
+
 export const updateRestaurantDeliveryInfo = async (
   restaurantId: string,
   data: Partial<Restaurant>,

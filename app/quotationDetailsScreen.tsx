@@ -24,6 +24,7 @@ import {
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
+import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
 
@@ -91,11 +92,13 @@ export default function QuotationDetailsScreen() {
     combinationName,
     suppliersData: suppliersDataParam,
     missingProducts,
+    scheduleId,
   } = useLocalSearchParams<{
     combinationId?: string;
     combinationName?: string;
     suppliersData?: string;
     missingProducts: string[];
+    scheduleId?: string;
   }>();
 
   const suppliersData = useMemo(() => {
@@ -243,6 +246,18 @@ export default function QuotationDetailsScreen() {
           restaurant: restaurantData,
           deliveryDate,
         };
+
+        if (scheduleId) {
+        await confirmScheduleOrder(scheduleId, {});
+        router.push({
+          pathname: '/orderConfirmedScreen',
+          params: {
+            suppliers: suppliersDataParam,
+            deliveryDate: DateTime.now().plus({ days: 1 }).toFormat('dd/MM/yyyy'),
+          },
+        });
+        return;
+      }
 
         const createdOrders = await confirmConectarPlusOrder(body);
         if (createdOrders && createdOrders.status === 201) {

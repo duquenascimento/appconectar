@@ -1,3 +1,13 @@
+import React, { ReactNode, useCallback, useState } from 'react';
+import { View, Text, XStack, Input, YStack } from 'tamagui';
+import {
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+  Linking,
+  useWindowDimensions,
+} from 'react-native';
 import PageContainer from '@/src/components/box/PageContainer';
 import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
 import { HeaderText } from '@/src/components/text/HeaderText';
@@ -5,25 +15,28 @@ import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ReactNode, useCallback, useState } from 'react';
-import { ActivityIndicator, FlatList, Linking, Platform, TouchableOpacity } from 'react-native';
-import { Input, Text, View, XStack } from 'tamagui';
 import CustomAlert from '../src/components/modais/CustomAlert';
-import DialogComercialInstance from '../src/components/modais/DialogInstanceNotification';
 import { getOrders } from '../src/services/orderService';
 import { ordersScreenStyles as styles } from '../src/styles/styles';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import { clearStorage, deleteToken } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
+import { DateTime } from 'luxon';
+import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
+import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
+import { isTomorrow } from '@/src/utils/dateUtils';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 
 interface Order {
   orderDocument: ReactNode;
   id: string;
   deliveryDate: string;
   totalConectar: number;
+  supplierId: string;
   calcOrderAgain: {
     data: {
       supplier: {
+        externalId: string;
         name: string;
       };
     }[];
@@ -35,9 +48,23 @@ const formatDate = (isoDate: string) => {
   return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 };
 
-export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
+const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
+  if (isTomorrow(DateTime.fromISO(item.deliveryDate))) {
+    return ['Aguardando confirmação', '#FFC107'];
+  }
+  if (item.status == 'CANCELED') {
+    return ['Cancelado', '#DD2300'];
+  }
+  return ['Agendado', '#4CAF50'];
+};
+
+export default function OrdersScreen(props: HomeScreenPropsUtils) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+  const [scheduledOrders, setScheduledOrders] = useState<ScheduleOrderResponse[]>([]);
+  const [filteredScheduledOrders, setFilteredScheduledOrders] = useState<ScheduleOrderResponse[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -47,6 +74,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
+  const { width: screenWidth } = useWindowDimensions();
+  const isLargeScreen = screenWidth > 800;
 
   const router = useRouter();
 
@@ -59,12 +88,15 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         }
         setLoading(true);
         try {
-          const result = await getOrders(1, 100, selectedRestaurant.externalId);
+          const [result, scheduleOrders] = await Promise.all([
+            getOrders(1, 100, selectedRestaurant.externalId),
+            getAllScheduleOrders(),
+          ]);
 
-          const ordersData = result.map((order: any) => {
+          const ordersData = result.map((order: Order) => {
             const filteredSupplier =
               order.calcOrderAgain?.data?.filter(
-                (item: any) => item.supplier?.externalId === order.supplierId,
+                (item) => item.supplier?.externalId === order.supplierId,
               ) || [];
 
             return {
@@ -76,6 +108,8 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
             };
           });
           setOrders(ordersData);
+          setScheduledOrders(scheduleOrders);
+          setFilteredScheduledOrders(scheduleOrders);
           setFilteredOrders(ordersData);
         } catch (error) {
           console.error('Erro ao carregar pedidos:', error);
@@ -87,17 +121,11 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
     }, [selectedRestaurant]),
   );
 
-  const dialogProps = {
-    openModal: showBlockedModal,
-    setRegisterInvalid: setShowBlockedModal,
-    rest: restaurants.filter((r) => r.registrationReleasedNewApp),
-  };
-
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
     const isDatePartial = datePartialRegex.test(query);
-    const filtered = orders.filter((order: any) => {
+    const fOrders = orders.filter((order: Order) => {
       if (isDatePartial) {
         const [day, month, year] = query.split('/');
         const deliveryDate = order.deliveryDate.split('T')[0];
@@ -110,7 +138,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       const matchesId = order.id?.toLowerCase().includes(query.toLowerCase());
       const matchesTotal = order.totalConectar.toString().includes(query);
       const matchExternalId = order.calcOrderAgain?.data?.find(
-        (item: any) => item.supplier && item.supplier.externalId === order.supplierId,
+        (item) => item.supplier && item.supplier.externalId === order.supplierId,
       );
 
       const matchesSupplier = matchExternalId?.supplier?.name
@@ -120,9 +148,23 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       return matchesId || matchesTotal || matchesSupplier;
     });
 
-    setFilteredOrders(filtered);
-    if (filtered.length === 0 && query.length > 0) {
-    }
+    setFilteredOrders(fOrders);
+
+    const fScheduledOrders = scheduledOrders.filter((order: ScheduleOrderResponse) => {
+      const matchType = 'agendamento'.includes(query.toLowerCase());
+      const matchesSuppleir =
+        order.supplier?.name.toLowerCase().includes(query.toLowerCase()) ||
+        order.supplier?.externalId.toLowerCase().includes(query.toLowerCase());
+
+      const matchDate = DateTime.fromISO(order.deliveryDate)
+        .toFormat('dd/MM/yyyy')
+        .toLowerCase()
+        .includes(query.toLowerCase());
+
+      return matchType || matchesSuppleir || matchDate;
+    });
+
+    setFilteredScheduledOrders(fScheduledOrders);
   };
 
   const toggleOrderSelection = (orderId: string) => {
@@ -231,14 +273,14 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
       <XStack
         backgroundColor="#FFF"
         borderRadius={20}
-        width={Platform.OS === 'web' ? '50%' : '92%'}
+        width={isLargeScreen ? '50%' : '92%'}
         marginTop={20}
         alignSelf="center"
         alignItems="center"
       >
         <Icons name="search" size={24} color="#04BF7B" style={{ marginLeft: 15 }} />
         <Input
-          width={Platform.OS === 'web' ? '67%' : '92%'}
+          width={isLargeScreen ? '67%' : '92%'}
           placeholder="Buscar pedidos..."
           value={searchQuery}
           onChangeText={(text) => {
@@ -259,7 +301,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         onPress={handleDownloadSelectedOrders}
         disabled={selectedOrders.length === 0 || isDownloading}
         style={{
-          width: Platform.OS === 'web' ? '50%' : '92%',
+          width: isLargeScreen ? '50%' : '92%',
           backgroundColor: selectedOrders.length > 0 ? '#04BF7B' : '#ccc',
           paddingVertical: 10,
           paddingHorizontal: 20,
@@ -267,7 +309,7 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
           alignItems: 'center',
           alignSelf: 'center',
           marginBottom: 16,
-          marginTop: Platform.OS === 'web' ? 20 : 15,
+          marginTop: isLargeScreen ? 20 : 15,
           marginHorizontal: 15,
         }}
       >
@@ -282,46 +324,88 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
 
       <FlatList
         style={{
-          width: Platform.OS === 'web' ? '50%' : '92%',
+          width: isLargeScreen ? '50%' : '92%',
           alignSelf: 'center',
         }}
-        data={filteredOrders}
+        data={[...filteredScheduledOrders, ...filteredOrders]}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={() => <Text style={styles.emptyText}>Nenhum pedido encontrado.</Text>}
+        ListEmptyComponent={() => <Text>Nenhum pedido encontrado.</Text>}
         renderItem={({ item }) => {
-          const supplierName =
-            item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor não disponível';
-          const truncatedSupplierName = truncateText(supplierName, 20);
+          const isScheduledOrder = isScheduleOrderResponse(item);
+
+          const supplierName = isScheduledOrder
+            ? item.combination?.nome || item.supplier?.name || 'Fornecedor indisponível'
+            : item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor indisponível';
+          const truncatedSupplierName = truncateText(supplierName, isLargeScreen ? 20 : 12);
+          const [status, statusColor] = isScheduledOrder ? getStatusAndColor(item) : [];
           return (
             <TouchableOpacity
-              onPress={() =>
-                router.push({
-                  pathname: '/orderDetailsScreen',
-                  params: { orderId: item.id },
-                })
+              onPress={
+                isScheduledOrder
+                  ? () => {
+                      router.push({
+                        pathname: '/schedule',
+                        params: { orderId: item.id },
+                      });
+                    }
+                  : () =>
+                      router.push({
+                        pathname: '/orderDetailsScreen',
+                        params: { orderId: item.id },
+                      })
               }
               style={styles.itemContainer}
             >
               <TouchableOpacity
-                onPress={() => toggleOrderSelection(item.id)}
-                style={styles.checkboxContainer}
+                onPress={isScheduledOrder ? () => {} : () => toggleOrderSelection(item.id)}
+                style={{
+                  ...styles.checkboxContainer,
+                  borderColor: isScheduledOrder ? '#ccc' : '#04BF7B',
+                  borderWidth: 3,
+                }}
+                disabled={isScheduledOrder}
               >
                 <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
               </TouchableOpacity>
 
               <View style={styles.leftColumn}>
-                <Text marginBottom={10} style={styles.orderId}>
-                  {item.id}
-                </Text>
+                {isScheduledOrder ? (
+                  <View
+                    backgroundColor={statusColor}
+                    borderRadius={20}
+                    paddingHorizontal={8}
+                    paddingVertical={2}
+                    marginBottom={4}
+                    marginRight={8}
+                    flex={0}
+                  >
+                    <Text color={'white'} textAlign="center">
+                      {status}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text marginBottom={10} style={styles.orderId}>
+                    {item.id}
+                  </Text>
+                )}
                 <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
               </View>
-
-              <View style={styles.rightColumn}>
-                <Text marginBottom={10} style={styles.total}>
-                  R$ {item.totalConectar.toFixed(2)}
+              <YStack>
+                {!isScheduledOrder && (
+                  <Text marginBottom={10} style={styles.total} alignSelf="flex-end">
+                    R$ {item.totalConectar.toFixed(2)}
+                  </Text>
+                )}
+                <Text
+                  style={{
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {truncatedSupplierName}
                 </Text>
-                <Text>{truncatedSupplierName}</Text>
-              </View>
+              </YStack>
               <Icons
                 name="chevron-forward"
                 size={20}
@@ -428,7 +512,6 @@ export default function OrdersScreen({ navigation }: HomeScreenPropsUtils) {
         setOpenModal={setShowBlockedModal}
         setRegisterInvalid={setShowBlockedModal}
         rest={restaurants}
-        navigation={navigation}
         messageText="Este restaurante não está liberado para visualizar pedidos. Entre em contato conosco ou selecione outro restaurante disponível."
         onSelectAvailable={async () => {
           try {

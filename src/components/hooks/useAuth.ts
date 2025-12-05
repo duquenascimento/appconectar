@@ -77,6 +77,7 @@ export function isProtectedRoute(segments: string[]): boolean {
     'finalConfirm',
     'orderConfirmedScreen',
     'orderDetailsScreen',
+    'schedule',
     'ordersScreen',
     'preferencesScreen',
     'prices',
