@@ -23,6 +23,8 @@ import { Combinacao } from '../src/types/combinationTypes';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { Supplier } from '@/src/types/types';
+import { getAllSuppliers } from '@/src/services/supplierService';
 
 export interface SuplierCombination {
   id: string;
@@ -46,6 +48,22 @@ export function Combination(): JSX.Element {
   const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
     Array<{ label: string; value: number }>
   >([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+
+  useEffect(() => {
+    const suppliersFn = async () => {
+      const result = await getAllSuppliers();
+
+      setSuppliers(
+        result.map((item: any) => ({
+          name: item.nomefornecedor,
+          externalId: item.idexterno,
+          start: item.nota,
+        })),
+      );
+    };
+    suppliersFn();
+  }, []);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -340,17 +358,20 @@ export function Combination(): JSX.Element {
           />
 
           <BloqueioFornecedoresCampo
+            suppliers={suppliers}
             error={validationErrors.fornecedores_bloqueados}
             onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)}
           />
 
           <PreferenciaFornecedorCampo
+            suppliers={suppliers}
             error={validationErrors.fornecedores_especificos}
             onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)}
           />
 
           {['especifico', 'qualquer'].includes(combinacao.preferencia_fornecedor_tipo ?? '') && (
             <ContainerPreferenciasProduto
+              suppliers={suppliers}
               error={validationErrors.preferencias}
               onClearErrors={clearPreferenceErrors}
               triggerValidation={triggerValidation}

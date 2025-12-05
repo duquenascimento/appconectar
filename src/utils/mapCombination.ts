@@ -1,10 +1,10 @@
-import { CombinationApiResponse } from '@/src/services/combinationsService'
-import { Combination } from '../../app/preferencesScreen'
+import { CombinationApiResponse } from '../services/combinationsService';
+import { Combination } from '../types/combinationTypes';
 
 export function mapCombination(apiData: CombinationApiResponse): Combination {
   return {
     id: apiData.id,
     combination: apiData.nome,
-    createdAt: new Date(apiData.created_at).toLocaleDateString('pt-BR')
-  }
+    createdAt: new Date(apiData.created_at).toLocaleDateString('pt-BR'),
+  };
 }

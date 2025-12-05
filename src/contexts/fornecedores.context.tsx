@@ -4,6 +4,7 @@ import { createContext, ReactNode, SetStateAction, useCallback, useContext, useS
 import { SupplierData } from '../types/types';
 import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
+import { useDeliveryDate } from '../hooks/useDeliveryDate';
 
 interface SupplierContextType {
   suppliers: SupplierData[];
@@ -22,6 +23,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any | null>(null);
   const { loadRestaurants } = useRestaurantContext();
+  const { deliveryDate } = useDeliveryDate();
 
   const saveSuppliersToStorage = async (available: SupplierData[], unavailable: SupplierData[]) => {
     try {
@@ -37,7 +39,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   };
 
   const loadPrices = useCallback(
-    async (restaurantId?: string) => {
+    async (restaurantExternalId?: string) => {
       try {
         setLoadingSuppliers(true);
         const token = await getToken();
@@ -46,16 +48,10 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         const restaurantSelected = await getStorageRestaurant();
         const allRestaurants = await loadRestaurants();
         const currentRestaurant = allRestaurants.find(
-          (r: any) => r.externalId === (restaurantId ?? restaurantSelected?.externalId),
+          (r: any) => r.externalId === (restaurantExternalId ?? restaurantSelected?.externalId),
         );
 
         if (!currentRestaurant) return;
-
-        // FIXME: This parameter will be changed to a proper attribute selected by the user.
-        //       There's already an implementation of this in the Sunday Order feature branch.
-        //       It's current usage is just a placeholder until then so the API works.
-        const deliveryDate = new Date();
-        deliveryDate.setDate(deliveryDate.getDate() + 1);
 
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
           method: 'POST',
@@ -63,7 +59,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
           body: JSON.stringify({
             token,
             selectedRestaurant: currentRestaurant,
-            deliveryDate: deliveryDate.toISOString(),
+            deliveryDate: deliveryDate,
           }),
         });
 
@@ -77,7 +73,9 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         const allSuppliers = response.data as SupplierData[];
 
-        let available = allSuppliers.filter((item) => item.supplier.missingItens > 0);
+        let available = allSuppliers.filter(
+          (item) => item.supplier.missingItens > 0 && item.supplier.discount.orderValue > 0,
+        );
         let unavailable: SetStateAction<SupplierData[]> = [];
 
         if (!currentRestaurant?.allowClosedSupplier) {
