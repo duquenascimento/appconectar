@@ -1,3 +1,4 @@
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -22,7 +23,7 @@ import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
-import { deleteMultiStorage, getStorage, getToken } from '../src/utils/utils';
+import { deleteMultiStorage, getToken } from '../src/utils/utils';
 
 export interface Product {
   price: number;
@@ -196,12 +197,11 @@ export default function QuotationDetailsScreen() {
           return;
         }
 
-        const storedRestaurant = await getStorage('selectedRestaurant');
-        if (!storedRestaurant) {
+        const restaurantData = await getStorageRestaurant();
+        if (!restaurantData) {
           Alert.alert('Erro', 'Restaurante não encontrado.');
           return;
         }
-        const parsedRestaurant = JSON.parse(storedRestaurant);
 
         const effectiveWarnings = {
           ...confirmedWarnings,
@@ -215,7 +215,7 @@ export default function QuotationDetailsScreen() {
 
         if (isBefore13h) {
           const errors = await scheduleNotification(
-            parsedRestaurant.restaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+            restaurantData.addressInfos[0].responsibleReceivingPhoneNumber,
           );
 
           setShowErros(errors);
@@ -230,13 +230,13 @@ export default function QuotationDetailsScreen() {
         const body: ConfirmConectarPlusOrderRequestBody = {
           token,
           suppliers: suppliers.map((s) => s.supplier),
-          restaurant: parsedRestaurant.restaurant,
+          restaurant: restaurantData,
           deliveryDate,
         };
 
         const createdOrders = await confirmConectarPlusOrder(body);
         if (createdOrders && createdOrders.status === 201) {
-          deleteMultiStorage(['cartOrder', `cart_${parsedRestaurant?.restaurant.externalId}`]);
+          deleteMultiStorage(['cartOrder', `cart_${restaurantData.externalId}`]);
           const { deliveryDateFormated } = createdOrders.data.data[0];
 
           const ordersBySupplier = createdOrders.data.data.map(
