@@ -442,6 +442,8 @@ export default function Prices() {
     useCallback(() => {
       const loadPricesAsync = async () => {
         try {
+          setLoading(true);
+          setMainDataLoaded(false);
           setAllRestaurants(restaurants);
 
           if (!selectedRestaurant) return;
@@ -822,7 +824,7 @@ export default function Prices() {
                 </Stack>
               )}
 
-              {tab !== 'onlySupplier' && !permissionConectarPlus && (
+              {tab !== 'onlySupplier' && !permissionConectarPlus && !loading && mainDataLoaded && (
                 <View padding={20} marginTop={10}>
                   <DialogInstanceNotification
                     openModal={showNotification}
@@ -865,6 +867,11 @@ export default function Prices() {
               )}
               {tab !== 'onlySupplier' && permissionConectarPlus && mainDataLoaded && (
                 <CombinationList />
+              )}
+              {tab !== 'onlySupplier' && permissionConectarPlus && !mainDataLoaded && (
+                <View flex={1} justifyContent="center" alignItems="center">
+                  <ActivityIndicator size="large" color="#04BF7B" />
+                </View>
               )}
             </View>
           </View>
