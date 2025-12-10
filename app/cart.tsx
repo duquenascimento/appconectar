@@ -706,7 +706,7 @@ export default function Cart() {
               windowSize={4}
             />
           </View>
-          {cart.size > 0 && !isLargeScreen && (
+          {/* {cart.size > 0 && !isLargeScreen && (
             <View justifyContent="center" alignItems="center" paddingHorizontal={20}>
               <View width={Platform.OS === 'web' ? '70%' : '92%'}>
                 <Button
@@ -730,7 +730,7 @@ export default function Cart() {
                 </Button>
               </View>
             </View>
-          )}
+          )} */}
 
           <View
             backgroundColor="#F0F2F6"
@@ -766,7 +766,7 @@ export default function Cart() {
                   </Button>
                 )}
               </View>
-              {cart.size > 0 && isLargeScreen && (
+              {/* {cart.size > 0 && isLargeScreen && (
                 <View justifyContent="center" alignItems="center">
                   <Button
                     backgroundColor="orange"
@@ -783,7 +783,7 @@ export default function Cart() {
                     <Icons name="time" color="white" size={20} />
                   </Button>
                 </View>
-              )}
+              )} */}
               <Button
                 borderRadius={10}
                 onPress={() => {

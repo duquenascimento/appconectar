@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import { ScrollView, XStack, YStack, Button, View } from 'tamagui';
 import * as Yup from 'yup';
@@ -6,7 +6,6 @@ import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
 import CustomButton from '../src/components/button/customButton';
 import CustomHeader from '../src/components/header/customHeader';
-import { getStorage } from '../src/utils/utils';
 import { InputNome } from '../src/components/Combination/InputNome';
 import { DropdownCampo } from '../src/components/Combination/DropdownCampo';
 import { BloqueioFornecedoresCampo } from '../src/components/Combination/BloqueioFornecedores';
@@ -120,7 +119,7 @@ export function Combination(): JSX.Element {
   }, []);
 
   const handleGoBack = () => {
-    router.push('preferencesScreen');
+    router.push('prices');
   };
 
   const createCombination = async (combinacaoFiltrada?: any) => {
@@ -322,7 +321,7 @@ export function Combination(): JSX.Element {
     <PageContainer backgroundColor="white">
       <CustomHeader
         title={id ? `${combinacao.nome}` : 'Nova combinação'}
-        onBackPress={handleGoBack}
+        onBackPress={() => router.push('preferencesScreen')}
       />
       <CustomAlert
         visible={isAlertVisible}
