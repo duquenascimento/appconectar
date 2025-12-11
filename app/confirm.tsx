@@ -276,8 +276,8 @@ export default function Confirm() {
   });
 
   const loadSupplier = useCallback(async () => {
-    await loadPrices();
     await loadRestaurants();
+    await loadPrices();
     const supplierText = await getStorage('supplierSelected');
     if (!supplierText) return;
     const supplier = JSON.parse(supplierText);
@@ -287,9 +287,10 @@ export default function Confirm() {
   useEffect(() => {
     const loadSupplierAsync = async () => {
       try {
-        if (!selectedRestaurant) return;
+        setLoading(true);
         await loadSupplier();
-        const activateSchedule = selectedRestaurant.allowEmergencyOrder ? false : isBefore13Hours();
+        const activateSchedule =
+          (selectedRestaurant?.allowEmergencyOrder ?? false) ? false : isBefore13Hours();
         setIsBefore13h(activateSchedule);
       } catch (err) {
         console.error(err);
@@ -337,8 +338,8 @@ export default function Confirm() {
       }${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
     return (
-      Number(supplier.supplier.hour.replaceAll(':', '')) >= currentHour &&
-      (supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish ||
+      Number(supplier?.supplier?.hour.replaceAll(':', '')) >= currentHour &&
+      (supplier?.supplier?.minimumOrder <= supplier?.supplier?.discount.orderValueFinish ||
         hasSameDayOrdersWithSupplier)
     );
   };
@@ -385,7 +386,7 @@ export default function Confirm() {
             erros.push('O fornecedor está fechado');
           }
           if (
-            supplier.supplier.minimumOrder > supplier.supplier.discount.orderValueFinish &&
+            supplier?.supplier?.minimumOrder > supplier?.supplier?.discount.orderValueFinish &&
             !selectedRestaurant.allowMinimumOrder &&
             !hasSameDayOrdersWithSupplier
           ) {
@@ -453,7 +454,7 @@ export default function Confirm() {
     setConfirmedWarnings({ missingItems: false, sundayWarning: false });
   }, []);
 
-  if (loading || !selectedRestaurant) {
+  if (loading || !selectedRestaurant || !supplier?.supplier) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -531,15 +532,15 @@ export default function Confirm() {
           <View flexDirection="row" marginLeft={10} alignSelf="center">
             <View justifyContent="center">
               <ImageWithFallback
-                uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier.supplier.externalId}.jpg`}
+                uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier?.externalId}.jpg`}
               />
             </View>
             <View marginLeft={10} justifyContent="center">
-              <Text fontSize={16}>{supplier?.supplier.name}</Text>
+              <Text fontSize={16}>{supplier?.supplier?.name}</Text>
               <View flexDirection="row" alignItems="center">
                 <Icons color="orange" name="star" />
                 <Text color="gray" paddingLeft={4}>
-                  {supplier?.supplier.star}
+                  {supplier?.supplier?.star}
                 </Text>
               </View>
             </View>
@@ -555,10 +556,10 @@ export default function Confirm() {
                 alignSelf="center"
               >
                 <AccordionInfo
-                  title={`Você já possui ${supplier.supplier.sameDayOrders.length} pedido${supplier.supplier.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
+                  title={`Você já possui ${supplier?.supplier?.sameDayOrders.length} pedido${supplier?.supplier?.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
                   content={
                     <>
-                      {supplier.supplier.sameDayOrders.map((order, index) => (
+                      {supplier?.supplier?.sameDayOrders.map((order, index) => (
                         <View key={order.id || index}>
                           <View padding={12} backgroundColor="#F9F9F9" borderRadius={8} gap={8}>
                             <View
@@ -586,7 +587,7 @@ export default function Confirm() {
                               )}
                             </View>
                           </View>
-                          {index < supplier.supplier.sameDayOrders.length - 1 && (
+                          {index < supplier?.supplier?.sameDayOrders.length - 1 && (
                             <View height={1} backgroundColor="#E0E0E0" marginVertical={8} />
                           )}
                         </View>
@@ -700,7 +701,7 @@ export default function Confirm() {
                   marginLeft: Platform.OS === 'web' ? 8 : '',
                 }}
               >
-                R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
+                R$ {supplier.supplier?.discount.orderValueFinish.toFixed(2).replace('.', ',')}
               </Text>
             </View>
             <View
@@ -729,11 +730,11 @@ export default function Confirm() {
                     marginLeft: Platform.OS === 'web' ? 8 : '',
                   }}
                 >
-                  R$ {supplier.supplier.discount.orderValueFinish.toFixed(2).replace('.', ',')}
+                  R$ {supplier?.supplier?.discount.orderValueFinish.toFixed(2).replace('.', ',')}
                 </Text>
               </View>
               <Text style={{ fontSize: 14, color: 'gray', flexGrow: 0 }}>
-                {supplier.supplier.discount.product.length} item(s) | {displayMissingItems}{' '}
+                {supplier?.supplier?.discount.product.length} item(s) | {displayMissingItems}{' '}
                 faltante(s)
               </Text>
             </View>
