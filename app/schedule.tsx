@@ -1,0 +1,535 @@
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { DateTime } from 'luxon';
+import Icons from '@expo/vector-icons/Ionicons';
+import { ActivityIndicator, Modal, useWindowDimensions } from 'react-native';
+import { Button, Label, RadioGroup, ScrollView, Spacer, Text, View, XStack, YStack } from 'tamagui';
+import { CustomImageBadge } from '@/src/components/image/customImageBadge';
+import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
+import { useCallback, useEffect, useState } from 'react';
+import { getAllSuppliers } from '@/src/services/supplierService';
+import { CartProduct } from '@/src/types/cartTypes';
+import { useCart } from '@/src/components/useCart';
+import { getCartProducts } from '@/src/services/cartService';
+import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
+import {
+  createScheduleOrder,
+  deleteScheduleOrder,
+  editScheduleOrder,
+  getScheduleOrder,
+} from '@/src/services/scheduleOrderService';
+import { ScheduleOrderCreationBody, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
+import CustomAlert from '@/src/components/modais/CustomAlert';
+import { isTomorrow } from '@/src/utils/dateUtils';
+import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
+import {
+  getPricesBySupplierOrCombination,
+  getSuppliersPrices,
+  SupplierPriceRequestBody,
+} from '@/src/services/pricesService';
+import { getUserRestaurants } from '@/src/services/restaurantService';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { Supplier, SupplierData } from './quotationDetailsScreen';
+
+function capitalizeFirstLetter(str: string) {
+  if (typeof str !== 'string' || str.length === 0) {
+    return str;
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function convertFromDaysUpFront(daysUpfront: number): DateTime {
+  return DateTime.now().plus({ days: daysUpfront }).startOf('day');
+}
+
+function convertToDaysUpFront(date: DateTime): number {
+  return Math.ceil(date.diff(DateTime.now(), 'days').days);
+}
+
+type ComboOption = {
+  label: string;
+  value: string;
+};
+
+export default function ScheduleScreen() {
+  const { orderId } = useLocalSearchParams<{ orderId?: string }>();
+  const { width: screenWidth } = useWindowDimensions();
+
+  const [daysUpfront, setDaysUpfront] = useState<number>(0);
+  const [selectedSupplier, setSelectedSupplier] = useState<string>('');
+  const [allSuppliers, setAllSuppliers] = useState<ComboOption[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<ComboOption[]>([]);
+  const [currentOrder, setCurrentOrder] = useState<ScheduleOrderResponse | undefined>();
+  const [cartProducts, setCartProducts] = useState<CartProduct[]>([]);
+  const [combinations, setCombinations] = useState<ComboOption[]>([]);
+  const [selectedCombination, setSelectedCombination] = useState<string>('');
+  const [showCombinationDropdown, setShowCombinationDropdown] = useState<boolean>(false);
+  const [defaultDeliveryDateText, setDefaultDeliveryDateText] = useState<string>('Selecione...');
+  const [defaultSupplierText, setDefaultSupplierText] = useState<string>('Selecione...');
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
+  const [isPremium, setIsPremium] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { cart, loadCart } = useCart();
+  const router = useRouter();
+
+  const isMobile = screenWidth < 800;
+  const maxWidth = isMobile ? '100%' : '70%';
+  const dateOptions = Array(7)
+    .fill(null)
+    .map((_, index) => ({
+      label: capitalizeFirstLetter(
+        DateTime.now()
+          .setLocale('pt-BR')
+          .plus({ days: index + 2 })
+          .toFormat('EEEE • dd/MM'),
+      ),
+      value: index + 2,
+    }))
+    .filter((item) => !item.label.startsWith('Dom'));
+
+  const goBack = useCallback(() => {
+    if (orderId) {
+      router.push('/ordersScreen');
+    } else {
+      router.push('/cart');
+    }
+  }, []);
+
+  const onCreateSchedule = useCallback(async () => {
+    if (showCombinationDropdown && !selectedCombination) {
+      setErrorMessage('Selecione uma combinação.');
+      return;
+    } else if (!showCombinationDropdown && !selectedSupplier) {
+      setErrorMessage('Selecione um fornecedor.');
+      return;
+    } else if (!daysUpfront) {
+      setErrorMessage('Selecione uma data de entrega.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const restaurant = await getStorageRestaurant();
+
+      if (orderId) {
+        const updateData: Partial<Omit<ScheduleOrderCreationBody, 'restaurantId'>> = {};
+        if (convertToDaysUpFront(DateTime.fromISO(currentOrder!.deliveryDate)) !== daysUpfront) {
+          updateData.deliveryDate = DateTime.now().plus({ days: daysUpfront }).toISO();
+        }
+
+        if (showCombinationDropdown && selectedCombination !== currentOrder?.combination?.id) {
+          updateData.combinationId = selectedCombination;
+        }
+
+        if (!showCombinationDropdown && selectedSupplier !== currentOrder?.supplier?.externalId) {
+          updateData.supplierId = selectedSupplier;
+        }
+
+        await editScheduleOrder(orderId, updateData);
+      } else {
+        const creationData: ScheduleOrderCreationBody = {
+          deliveryDate: convertFromDaysUpFront(daysUpfront).toISO() ?? '',
+          restaurantId: restaurant!.id,
+          combinationId: showCombinationDropdown ? selectedCombination : undefined,
+          supplierId: selectedSupplier,
+          products: cartProducts.map((product) => ({
+            productId: product.id,
+            quantity: Number(product.amount ?? '1'),
+            obs: !product.obs ? null : product.obs,
+          })),
+        };
+        await createScheduleOrder(creationData);
+      }
+      goBack();
+    } catch (error: any) {
+      setErrorMessage(error?.message ?? error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedSupplier, selectedCombination, showCombinationDropdown, daysUpfront]);
+
+  const onDeleteSchedule = useCallback(async () => {
+    try {
+      if (orderId) {
+        await deleteScheduleOrder(orderId!);
+        setOpenDeleteDialog(false);
+        goBack();
+      }
+    } catch (error: any) {
+      setOpenDeleteDialog(false);
+      setErrorMessage(error?.message ?? error);
+    }
+  }, []);
+
+  const onOpenDeleteDialog = useCallback(() => {
+    if (orderId) {
+      setOpenDeleteDialog(true);
+    }
+  }, []);
+
+  const onConfirmScheduleOrder = useCallback(async () => {
+    if (!currentOrder) {
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const restaurant = await getStorageRestaurant();
+      const userRestaurants = await getUserRestaurants();
+      const currentRestaurant = userRestaurants.find(
+        (r) => r.externalId === restaurant!.externalId,
+      );
+
+      const pricesBySupplier = await getPricesBySupplierOrCombination({
+        restaurantId: currentRestaurant!.id,
+        supplierExternalId: currentOrder.supplier?.externalId,
+        combinationId: currentOrder.combination?.id,
+        deliveryDate: currentOrder.deliveryDate,
+        products: cartProducts.map((product) => ({
+          id: product.id,
+          sku: product.sku,
+          amount: Number(product.amount ?? '1'),
+          obs: !product.obs ? null : product.obs,
+        })),
+      });
+      const params: {
+        combinationName?: string;
+        suppliersData?: string;
+        missingProducts?: string[];
+        scheduleId?: string;
+      } = {
+        combinationName: currentOrder.combination?.nome,
+        suppliersData: JSON.stringify(pricesBySupplier.map((p) => ({ supplier: p }))),
+        scheduleId: currentOrder.id,
+      };
+
+      router.push({
+        pathname: '/quotationDetailsScreen',
+        params: params,
+      });
+    } catch (error: any) {
+      setErrorMessage(error?.message ?? error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [currentOrder]);
+
+  useEffect(() => {
+    // fetch if user is conectar+
+    const loadIsPremium = async () => {
+      const restaurant = await getStorageRestaurant();
+      setIsPremium(restaurant?.premium ?? false);
+    };
+
+    // fetch supplier options
+    const featchAllSuppliers = async () => {
+      const allSuppliers = await getAllSuppliers();
+      setAllSuppliers(allSuppliers.map((s: any) => ({label: s.nomefornecedor, value: s.idexterno} as ComboOption)));
+    };
+    featchAllSuppliers();
+
+    // fetch combination options
+    const loadCombinations = async () => {
+      const restaurant = await getStorageRestaurant();
+      if (!restaurant) return;
+
+      const res = await getCombinationsByRestaurant(restaurant.id);
+      if (Array.isArray(res.return)) {
+        setCombinations(res.return.map((c: any) => ({ label: c.nome, value: c.id } as ComboOption)));
+      }
+    };
+    loadCombinations();
+
+    // fetch current order if is editing
+    const loadCurrentOrder = async () => {
+      const restaurant = await getStorageRestaurant();
+      const order = await getScheduleOrder(orderId!);
+      setCurrentOrder(order);
+
+      const deliveryDate = DateTime.fromISO(order.deliveryDate);
+      const diffDays = convertToDaysUpFront(deliveryDate);
+
+      if (diffDays > 1 && deliveryDate.weekday !== 7) {
+        setDaysUpfront(diffDays);
+      } else {
+        setDaysUpfront(diffDays);
+        setDefaultDeliveryDateText(
+          capitalizeFirstLetter(
+            DateTime.now().setLocale('pt-BR').plus({ days: diffDays }).toFormat('EEEE • dd/MM'),
+          ),
+        );
+      }
+
+      if (order.combination && restaurant?.premium) {
+        setSelectedCombination(order.combination.id);
+        setShowCombinationDropdown(true);
+      }
+      if (order.supplier) {
+        setSelectedSupplier(order.supplier.externalId);
+        setDefaultSupplierText(order.supplier.name);
+      }
+      setCartProducts(
+        order.products.map(
+          (p) =>
+            ({
+              id: p.productId,
+              name: p.productName,
+              amount: p.quantity,
+              obs: p.obs,
+              sku: p.productSku,
+              quotationUnit: p.unit,
+              image: [p.imageUrl],
+            }) as CartProduct,
+        ),
+      );
+    };
+    loadIsPremium();
+    if (orderId) {
+      loadCurrentOrder();
+    } else {
+      if ((cart?.size ?? 0) === 0) {
+        loadCart();
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      const restaurant = await getStorageRestaurant();
+      const products = await getCartProducts(restaurant!.id);
+      setCartProducts(products);
+    };
+    if (!orderId) {
+      loadProducts();
+    }
+  }, [cart]);
+
+  useEffect(() => {
+    const loadSupplierByDeliveryDate = async () => {
+      if(daysUpfront <= 0) return;
+
+      const restaurant = await getStorageRestaurant();
+      const availableSuppliersResult = await getSuppliersPrices({
+        restaurant: {
+          id: restaurant!.id,
+          externalId: restaurant!.externalId,
+          tax: Number(restaurant!.tax),
+          addressInfos: restaurant?.addressInfos,
+        },
+        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO(),
+      } as SupplierPriceRequestBody);
+      if (!availableSuppliersResult.map((s) => s.supplier.externalId).includes(selectedSupplier) && selectedSupplier !== currentOrder?.supplier?.externalId) {
+        setSelectedSupplier('');
+      }
+
+      setAvailableSuppliers(availableSuppliersResult.map((s) => ({label: s.supplier.name, value: s.supplier.externalId} as ComboOption)));
+    };
+    loadSupplierByDeliveryDate();
+  }, [daysUpfront]);
+
+  return (
+    <View
+      flex={1}
+      maxWidth={maxWidth}
+      padding={'$5'}
+      width={'100%'}
+      backgroundColor={'#F0F2F6'}
+      alignSelf="center"
+    >
+      <View flex={1} paddingBottom={'$4'}>
+        <ScrollView>
+          <View gap="$2" flexDirection="row" alignItems="center">
+            <Icons onPress={goBack} size={30} name="chevron-back" />
+            <Text fontSize={isMobile ? 20 : 28}>
+              {orderId ? 'Editar agendamento' : 'Novo agendamento'}
+            </Text>
+            <Spacer flex={1} />
+            {orderId && isMobile && (
+              <Icons onPress={onOpenDeleteDialog} size={24} name="trash-outline" color="#DD2300" />
+            )}
+          </View>
+          <View>
+            <DropdownCampo
+              items={dateOptions}
+              label="Data de entrega"
+              value={daysUpfront}
+              placeholder={defaultDeliveryDateText}
+              onChange={(val) => setDaysUpfront(val)}
+              campo="data_de_entrega"
+              zIndex={100000}
+            />
+            {isPremium && (
+              <RadioGroup
+                aria-label="Selecionar método de pagamento"
+                defaultValue="fornecedores"
+                marginTop={'$2'}
+                value={showCombinationDropdown ? 'combinacoes' : 'fornecedores'}
+                onValueChange={(value) => setShowCombinationDropdown(value === 'combinacoes')}
+              >
+                <XStack gap="$4">
+                  <XStack alignItems="center" gap="$2">
+                    <RadioGroup.Item
+                      value="fornecedores"
+                      id="fornecedores"
+                      background={'white'}
+                      borderColor={'$black05'}
+                    >
+                      <RadioGroup.Indicator />
+                    </RadioGroup.Item>
+                    <Label htmlFor="fornecedores">Fornecedores</Label>
+                  </XStack>
+
+                  <XStack alignItems="center" gap="$2">
+                    <RadioGroup.Item
+                      value="combinacoes"
+                      id="combinacoes"
+                      background={'white'}
+                      borderColor={'$black05'}
+                    >
+                      <RadioGroup.Indicator />
+                    </RadioGroup.Item>
+                    <Label htmlFor="combinacoes">Combinações</Label>
+                  </XStack>
+                </XStack>
+              </RadioGroup>
+            )}
+
+            {showCombinationDropdown ? (
+              <DropdownCampo
+                items={combinations}
+                isLoading={!isPremium}
+                label="Combinação"
+                value={selectedCombination}
+                onChange={(val) => setSelectedCombination(val)}
+                campo="combinacao"
+              />
+            ) : (
+              <DropdownCampo
+                items={(availableSuppliers.length == 0 ? allSuppliers : availableSuppliers)}
+                label="Fornecedor"
+                placeholder={defaultSupplierText}
+                value={selectedSupplier}
+                onChange={(val) => setSelectedSupplier(val)}
+                campo="fornecedor"
+              />
+            )}
+          </View>
+          <Text fontSize={16} paddingVertical={'$4'}>
+            Lista de produtos
+          </Text>
+          <View gap={isMobile ? '$2' : '$4'}>
+            {cartProducts.map((cartProduct) => (
+              <View
+                key={cartProduct.id}
+                backgroundColor={'white'}
+                width={'100%'}
+                borderRadius={16}
+                padding={'$4'}
+              >
+                <XStack gap={'$4'} alignItems="center">
+                  <CustomImageBadge
+                    uri={
+                      Array.isArray(cartProduct.image) && cartProduct.image.length > 0
+                        ? cartProduct.image[0]
+                        : ''
+                    }
+                    badgeText={cartProduct.quotationUnit}
+                    badgeTextSize={10}
+                    badgeColor="#0BC07D"
+                  />
+                  <YStack gap={'$1'} flex={1}>
+                    <Text fontSize={16}>{cartProduct.name}</Text>
+                    <Text fontSize={12} color="#aaa">
+                      Obs.: {cartProduct.obs}
+                    </Text>
+                  </YStack>
+                  <Text fontSize={18} fontWeight={'600'} flex={0} whiteSpace="nowrap">
+                    {`${cartProduct.amount ?? 1} ${cartProduct.quotationUnit ?? 'KG'}`}
+                  </Text>
+                </XStack>
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+      <View width={'100%'} gap={isMobile ? '$2' : '$4'}>
+        {currentOrder &&
+          isTomorrow(DateTime.fromISO(currentOrder!.deliveryDate)) &&
+          (currentOrder!.status === 'CONFIRMED' ? (
+            <Text textAlign="center" color={'$green9'} fontSize={20}>
+              Entrega confirmada
+            </Text>
+          ) : (
+            <Button
+              backgroundColor={'orange'}
+              flex={1}
+              hoverStyle={{ backgroundColor: '$orange9' }}
+              onPress={onConfirmScheduleOrder}
+            >
+              <Text color={'white'} fontSize={16} letterSpacing={1} fontWeight={'500'}>
+                Confirmar entrega
+              </Text>
+            </Button>
+          ))}
+        <XStack justifyContent="space-between" gap={'$2'}>
+          {!isMobile && orderId && (
+            <Button
+              backgroundColor="black"
+              hoverStyle={{ backgroundColor: '$black075' }}
+              onPress={onOpenDeleteDialog}
+            >
+              <Icons name="trash" color="white" size={20} />
+            </Button>
+          )}
+
+          <Button
+            disabled={currentOrder && currentOrder?.status !== 'PENDENT'}
+            flex={1}
+            backgroundColor={
+              currentOrder && currentOrder?.status !== 'PENDENT' ? '$gray8' : '#04BF7B'
+            }
+            hoverStyle={{ backgroundColor: '$green9' }}
+            onPress={isSubmitting ? undefined : onCreateSchedule}
+          >
+            <Text color={'white'} fontSize={16} letterSpacing={1} fontWeight={'500'}>
+              {orderId ? 'Editar' : 'Agendar'}
+            </Text>
+          </Button>
+        </XStack>
+      </View>
+
+      {/* DIALOGS */}
+      <CustomAlert
+        visible={!!errorMessage}
+        title="Erro!"
+        message={errorMessage}
+        color="black"
+        onConfirm={() => {
+          setErrorMessage('');
+        }}
+      />
+
+      <Modal transparent visible={isSubmitting} animationType="fade">
+        <View
+          flex={1}
+          justifyContent="center"
+          alignItems="center"
+          backgroundColor={'rgba(0, 0, 0, 0.4)'}
+        >
+          <ActivityIndicator size="large" color="#04BF7B" />
+        </View>
+      </Modal>
+
+      <TwoButtonCustomAlert
+        visible={openDeleteDialog}
+        title="Excluir agendamento?"
+        message="Essa operação não poderá ser desfeita. Tem certeza?"
+        cancelText="Cancelar"
+        confirmText="Excluir"
+        confirmColor="#E74C3C"
+        cancelColor="#04BF7B"
+        onCancel={() => setOpenDeleteDialog(false)}
+        onConfirm={onDeleteSchedule}
+      />
+    </View>
+  );
+}

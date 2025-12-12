@@ -1,17 +1,17 @@
-import { SupplierData } from '../types/types';
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
 import { View } from 'tamagui';
 import { useSupplier } from '../contexts/fornecedores.context';
+import { useRestaurantContext } from '../contexts/restaurant.context';
 import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
 import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
+import { SameDayOrder, SupplierData } from '../types/types';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import CustomSubtitle from './subtitle/customSubtitle';
-import { useRestaurantContext } from '../contexts/restaurant.context';
 
 export interface CombinationMissingProducts {
   code: string;
@@ -29,6 +29,7 @@ export interface Combination {
   createdAt?: string;
   supplierClosed?: string;
   combinationAvailable?: boolean;
+  sameDayOrders: SameDayOrder[];
 }
 
 export type RootStackParamList = {
@@ -99,14 +100,13 @@ const CombinationList: React.FC = () => {
               }, 0) || 0;
             const missingItems = totalItens - cartItens;
 
-        const missingProducts: CombinationMissingProducts[] = item.resultadoCotacao?.missingProducts.map(
-          (sku) => ({
-            code: sku,
-            name: getProductNameBySku(sku, suppliers),
-          })
-        ) ?? [];
+            const missingProducts: CombinationMissingProducts[] =
+              item.resultadoCotacao?.missingProducts.map((sku) => ({
+                code: sku,
+                name: getProductNameBySku(sku, suppliers),
+              })) ?? [];
 
-        console.log('missingProducts:', missingProducts);
+            console.log('missingProducts:', missingProducts);
 
             return {
               id: item.id,
@@ -115,6 +115,7 @@ const CombinationList: React.FC = () => {
               totalValue: item.resultadoCotacao?.totalOrderValue,
               missingItems: missingItems < 0 ? 0 : missingItems,
               missingProducts: missingProducts,
+              sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
             };
           });
           const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);

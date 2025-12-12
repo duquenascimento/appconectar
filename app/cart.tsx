@@ -1,12 +1,12 @@
 import { View, Text, Stack, Button, XStack, Input, debounce } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-// import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   ActivityIndicator,
   Modal,
   Platform,
   TouchableOpacity,
+  useWindowDimensions,
   VirtualizedList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -16,6 +16,7 @@ import { filterCarts } from '../src/utils/filterCarts';
 import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 export type Product = {
   name: string;
@@ -372,11 +373,14 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
+  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
+
+  const isLargeScreen = screenWidth >= 800;
 
   useEffect(() => {
     const fetchRestaurant = async () => {
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       setStorage(
         `cart_${restaurant?.externalId}`,
         JSON.stringify(Array.from(cart.entries())),
@@ -395,28 +399,9 @@ export default function Cart() {
 
   const flatListRef = useRef<VirtualizedList<Product>>(null);
 
-  const getSavedRestaurant = async () => {
-    try {
-      const data = await getStorage('selectedRestaurant');
-      if (!data) return null;
-
-      const parsedData = JSON.parse(data);
-
-      if (!parsedData?.restaurant) {
-        console.error('Formato inválido:', parsedData);
-        return null;
-      }
-
-      return parsedData.restaurant;
-    } catch (error) {
-      console.error('Erro ao parsear dados:', error);
-      return null;
-    }
-  };
-
   const deleteItemFromCart = debounce(async (cartToDelete: TCart) => {
     const token = await getToken();
-    const restaurant = await getSavedRestaurant();
+    const restaurant = await getStorageRestaurant();
 
     if (!token || !restaurant) return;
 
@@ -468,7 +453,7 @@ export default function Cart() {
   const loadCart = useCallback(async (): Promise<Map<string, TCart>> => {
     try {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!token || !restaurant) return new Map();
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
@@ -509,7 +494,7 @@ export default function Cart() {
 
   const saveCart = useCallback(async (cart: TCart, isCart: boolean) => {
     let newCart = new Map();
-    const restaurant = await getSavedRestaurant();
+    const restaurant = await getStorageRestaurant();
     const attCart = async (): Promise<void> => {
       setCart((prevCart) => {
         newCart = new Map(prevCart);
@@ -545,7 +530,7 @@ export default function Cart() {
   const loadProducts = useCallback(async () => {
     try {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!token || !restaurant) return [];
 
       const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`, {
@@ -597,7 +582,7 @@ export default function Cart() {
   const saveCartArray = useCallback(
     async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
       const token = await getToken();
-      const restaurant = await getSavedRestaurant();
+      const restaurant = await getStorageRestaurant();
       if (!token || restaurant == null) return;
 
       const cartsArray = Array.from(carts.values());
@@ -721,6 +706,31 @@ export default function Cart() {
               windowSize={4}
             />
           </View>
+          {/* {cart.size > 0 && !isLargeScreen && (
+            <View justifyContent="center" alignItems="center" paddingHorizontal={20}>
+              <View width={Platform.OS === 'web' ? '70%' : '92%'}>
+                <Button
+                  borderRadius={10}
+                  onPress={() => {
+                    router.push('/schedule');
+                  }}
+                  width="100%"
+                  justifyContent="center"
+                  alignItems="center"
+                  backgroundColor="orange"
+                  hoverStyle={{
+                    backgroundColor: '$orange9',
+                  }}
+                  flex={1}
+                >
+                  <Text fontSize={16} color="white">
+                    Agendar entrega
+                  </Text>
+                  <Icons size={18} paddingLeft={10} color="white" name="time" />
+                </Button>
+              </View>
+            </View>
+          )} */}
 
           <View
             backgroundColor="#F0F2F6"
@@ -756,6 +766,24 @@ export default function Cart() {
                   </Button>
                 )}
               </View>
+              {/* {cart.size > 0 && isLargeScreen && (
+                <View justifyContent="center" alignItems="center">
+                  <Button
+                    backgroundColor="orange"
+                    hoverStyle={{
+                      backgroundColor: '$orange9',
+                    }}
+                    onPress={() => {
+                      router.push('/schedule');
+                    }}
+                  >
+                    <Text fontSize={16} color="white">
+                      Agendar entrega
+                    </Text>
+                    <Icons name="time" color="white" size={20} />
+                  </Button>
+                </View>
+              )} */}
               <Button
                 borderRadius={10}
                 onPress={() => {
@@ -844,7 +872,7 @@ export default function Cart() {
                           onPress={async () => {
                             setLoading(true);
                             const token = await getToken();
-                            const restaurant = await getSavedRestaurant();
+                            const restaurant = await getStorageRestaurant();
                             if (!token || !restaurant) return [];
                             await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/delete-by-id`, {
                               method: 'POST',

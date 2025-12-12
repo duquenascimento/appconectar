@@ -5,6 +5,7 @@ export function transformCombinacaoForSave(data: any): Combinacao {
     ...data,
     preferencias: data.preferencias?.map((pref: any) => ({
       ...pref,
+      fornecedores: pref.fornecedores || (pref.produtos || [])[0]?.fornecedor_id ? [(pref.produtos || [])[0].fornecedor_id] : [],
       produtos: pref.produtos.map((produto: any) => {
         const transformed = {
           ...produto,

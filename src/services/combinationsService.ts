@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { SameDayOrder } from '../types/types';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -37,7 +38,8 @@ export interface QuotationApiResponse {
             unitValue: number;
             unitValueWithoutFee: number;
           },
-        ];
+        ],
+        sameDayOrders: SameDayOrder[];
       },
     ];
     missingProducts: string[];

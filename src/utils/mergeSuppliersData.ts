@@ -70,6 +70,7 @@ export function mergeSupplierData(
               product: finalProducts,
               sku: "",
             },
+            sameDayOrders: matchingSupplier.supplier.sameDayOrders,
           },
         };
 
