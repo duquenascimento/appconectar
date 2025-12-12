@@ -842,7 +842,6 @@ export default function Prices() {
                       if (!validateFields()) return;
                       setLoading(true);
 
-                      // TODO: missingItems será necessário para o premium?
                       const result = await confirmPremiumOrder({
                         token: await getToken(),
                         selectedRestaurant,
