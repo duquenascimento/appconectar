@@ -66,7 +66,6 @@ export interface ConectarPlusSupplier {
   discount: Discount;
   star: string;
   sameDayOrders: SameDayOrder[];
-  missingItems: string[];
 }
 
 export interface SupplierData {
@@ -99,7 +98,7 @@ export default function QuotationDetailsScreen() {
     combinationId?: string;
     combinationName?: string;
     suppliersData?: string;
-    missingProducts: string[];
+    missingProducts?: string | string[];
     scheduleId?: string;
   }>();
 
@@ -134,30 +133,26 @@ export default function QuotationDetailsScreen() {
     setShowPdfModal(true);
   };
 
-  const parsedMissingProducts = useMemo(() => {
+  const parsedMissingProducts: CombinationMissingProducts[] = useMemo(() => {
     if (!missingProducts) return [];
 
     try {
-      if (Array.isArray(missingProducts)) return missingProducts;
-
+      // Extract string from URL param (can be string or string[])
       const raw =
         typeof missingProducts === 'string'
-          ? decodeURIComponent(missingProducts).trim()
-          : Array.isArray(missingProducts)
-            ? missingProducts
-            : String(missingProducts);
+          ? missingProducts
+          : Array.isArray(missingProducts) && missingProducts.length > 0
+            ? missingProducts[0]
+            : '';
 
-      if (Array.isArray(raw)) {
-        return raw.map(String);
-      }
+      if (!raw) return [];
 
-      if (raw.includes(',')) {
-        return raw
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-      return raw ? [raw] : [];
+      // Decode and parse JSON
+      const decoded = decodeURIComponent(raw).trim();
+      const parsed = JSON.parse(decoded);
+
+      // Ensure we return an array
+      return Array.isArray(parsed) ? parsed : [parsed];
     } catch (err) {
       console.error('Erro ao parsear missingProducts:', err);
       return [];
@@ -247,6 +242,7 @@ export default function QuotationDetailsScreen() {
           suppliers: suppliers.map((s) => s.supplier),
           restaurant: restaurantData,
           deliveryDate,
+          missingProducts: parsedMissingProducts,
         };
 
         if (scheduleId) {

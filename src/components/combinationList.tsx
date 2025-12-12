@@ -44,7 +44,7 @@ export type RootStackParamList = {
     suppliersData: SupplierData[];
     toalValue?: number;
     missingItems?: number;
-    missingProducts?: string[];
+    missingProducts?: CombinationMissingProducts[];
   };
 };
 
