@@ -106,8 +106,6 @@ const CombinationList: React.FC = () => {
                 name: getProductNameBySku(sku, suppliers),
               })) ?? [];
 
-            console.log('missingProducts:', missingProducts);
-
             return {
               id: item.id,
               combination: item.nome,
@@ -168,10 +166,6 @@ const CombinationList: React.FC = () => {
       suppliersData: JSON.stringify(mergedData),
       missingProducts: JSON.stringify(item.missingProducts),
     };
-
-    console.log('Missing Items:', item.missingItems);
-    console.log('Missing Products:', item.missingProducts);
-    console.log('Suppliers:', mergedData);
 
     router.push({
       pathname: '/quotationDetailsScreen',
