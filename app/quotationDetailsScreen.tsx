@@ -196,7 +196,13 @@ export default function QuotationDetailsScreen() {
 
   const isBefore13h = selectedRestaurant?.allowEmergencyOrder ? false : isBefore13Hours();
 
-  const handleBackPress = () => router.back();
+  const handleBackPress = () => {
+    if(router.canGoBack()) {
+      router.back();
+    } else {
+      router.push('prices');
+    }
+  };
 
   const handleConfirm = useCallback(
     async (overrideWarnings?: { sundayWarning?: boolean }) => {
