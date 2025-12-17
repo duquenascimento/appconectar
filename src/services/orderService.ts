@@ -1,6 +1,7 @@
 import { Supplier } from '@/app/prices'
-import { Supplier as ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
+import { ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
 import axios from 'axios'
+import { CombinationMissingProducts } from '../components/combinationList'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -101,6 +102,7 @@ export interface ConfirmConectarPlusOrderRequestBody {
   suppliers: ConectarPlusSupplier[];
   restaurant: any;
   deliveryDate: string;
+  missingProducts: CombinationMissingProducts[];
 }
 
 export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {

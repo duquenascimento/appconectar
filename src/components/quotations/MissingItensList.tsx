@@ -1,34 +1,33 @@
-import { YStack, Text } from 'tamagui';
-import { useMemo } from 'react';
-import { ProductItemCard } from './ProductItemCard';
-import { Product } from '@/src/types/types';
 import { useProductContext } from '@/src/contexts/produtos.context';
+import { Product } from '@/src/types/types';
+import { useMemo } from 'react';
+import { Text, YStack } from 'tamagui';
+import { CombinationMissingProducts } from '../combinationList';
+import { ProductItemCard } from './ProductItemCard';
 
 interface MissingProductsListProps {
-  missingProducts: string[];
+  missingProducts: CombinationMissingProducts[];
 }
 
 export function MissingItemsList({ missingProducts }: MissingProductsListProps) {
   const { productsContext } = useProductContext();
 
-  const missingProductsData: any[] = useMemo(() => {
-    return missingProducts.map((sku) => {
-      const found = productsContext.find((p) => p.sku === sku);
+  const missingProductsData: Product[] = useMemo(() => {
+    return missingProducts.map((mp) => {
+      const found = productsContext.find((p) => p.sku === mp.code);
 
-      return (
-        found ?? {
-          name: `Produto ${sku}`,
-          image: ['https://via.placeholder.com/60x60?text=?'],
-          quant: 0,
-          orderQuant: 0,
-          obs: '',
-          orderUnit: '',
-          price: 0,
-          priceWithoutTax: 0,
-          priceUnique: 0,
-          priceUniqueWithTaxAndDiscount: 0,
-        }
-      );
+      return (found ?? {
+        name: `Produto ${mp.name}`,
+        image: ['https://via.placeholder.com/60x60?text=?'],
+        quant: 0,
+        orderQuant: 0,
+        obs: '',
+        orderUnit: '',
+        price: 0,
+        priceWithoutTax: 0,
+        priceUnique: 0,
+        priceUniqueWithTaxAndDiscount: 0,
+      }) as Product;
     });
   }, [missingProducts, productsContext]);
 

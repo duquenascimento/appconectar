@@ -1,3 +1,6 @@
+import { CombinationMissingProducts } from '@/src/components/combinationList';
+import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 import { SameDayOrder } from '@/src/types/types';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -12,7 +15,6 @@ import CustomHeader from '../src/components/header/customHeader';
 import { LoadingConfirm } from '../src/components/loading/confirmOrder';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
-import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { MissingItemsList } from '../src/components/quotations/MissingItensList';
 import { SupplierList } from '../src/components/quotations/SupplierList';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
@@ -24,7 +26,6 @@ import {
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
-import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
 
@@ -55,7 +56,7 @@ export interface Discount {
   sku: string;
 }
 
-export interface Supplier {
+export interface ConectarPlusSupplier {
   name: string;
   externalId: string;
   image: string;
@@ -68,7 +69,7 @@ export interface Supplier {
 }
 
 export interface SupplierData {
-  supplier: Supplier;
+  supplier: ConectarPlusSupplier;
 }
 
 type RootStackParamList = {
@@ -81,7 +82,7 @@ type RootStackParamList = {
     combinationId: string;
     combinationName?: string;
     suppliersData: SupplierData[];
-    missingProducts: string[];
+    missingProducts: CombinationMissingProducts[];
   };
 };
 
@@ -97,7 +98,7 @@ export default function QuotationDetailsScreen() {
     combinationId?: string;
     combinationName?: string;
     suppliersData?: string;
-    missingProducts: string[];
+    missingProducts?: string | string[];
     scheduleId?: string;
   }>();
 
@@ -132,30 +133,26 @@ export default function QuotationDetailsScreen() {
     setShowPdfModal(true);
   };
 
-  const parsedMissingProducts = useMemo(() => {
+  const parsedMissingProducts: CombinationMissingProducts[] = useMemo(() => {
     if (!missingProducts) return [];
 
     try {
-      if (Array.isArray(missingProducts)) return missingProducts;
-
+      // Extract string from URL param (can be string or string[])
       const raw =
         typeof missingProducts === 'string'
-          ? decodeURIComponent(missingProducts).trim()
-          : Array.isArray(missingProducts)
-            ? missingProducts
-            : String(missingProducts);
+          ? missingProducts
+          : Array.isArray(missingProducts) && missingProducts.length > 0
+            ? missingProducts[0]
+            : '';
 
-      if (Array.isArray(raw)) {
-        return raw.map(String);
-      }
+      if (!raw) return [];
 
-      if (raw.includes(',')) {
-        return raw
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-      return raw ? [raw] : [];
+      // Decode and parse JSON
+      const decoded = decodeURIComponent(raw).trim();
+      const parsed = JSON.parse(decoded);
+
+      // Ensure we return an array
+      return Array.isArray(parsed) ? parsed : [parsed];
     } catch (err) {
       console.error('Erro ao parsear missingProducts:', err);
       return [];
@@ -245,19 +242,20 @@ export default function QuotationDetailsScreen() {
           suppliers: suppliers.map((s) => s.supplier),
           restaurant: restaurantData,
           deliveryDate,
+          missingProducts: parsedMissingProducts,
         };
 
         if (scheduleId) {
-        await confirmScheduleOrder(scheduleId, {});
-        router.push({
-          pathname: '/orderConfirmedScreen',
-          params: {
-            suppliers: suppliersDataParam,
-            deliveryDate: DateTime.now().plus({ days: 1 }).toFormat('dd/MM/yyyy'),
-          },
-        });
-        return;
-      }
+          await confirmScheduleOrder(scheduleId, {});
+          router.push({
+            pathname: '/orderConfirmedScreen',
+            params: {
+              suppliers: suppliersDataParam,
+              deliveryDate: DateTime.now().plus({ days: 1 }).toFormat('dd/MM/yyyy'),
+            },
+          });
+          return;
+        }
 
         const createdOrders = await confirmConectarPlusOrder(body);
         if (createdOrders && createdOrders.status === 201) {
@@ -341,7 +339,11 @@ export default function QuotationDetailsScreen() {
             />
 
             <MissingItemsList missingProducts={parsedMissingProducts} />
-            <SupplierList suppliers={suppliers} deliveryDate={deliveryDate} onShowPdf={handleShowPdf} />
+            <SupplierList
+              suppliers={suppliers}
+              deliveryDate={deliveryDate}
+              onShowPdf={handleShowPdf}
+            />
 
             <YStack
               backgroundColor="white"
