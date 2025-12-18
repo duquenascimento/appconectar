@@ -1,4 +1,3 @@
-import { SupplierData } from '@/app/quotationDetailsScreen';
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -9,10 +8,15 @@ import { useSupplier } from '../contexts/fornecedores.context';
 import { useRestaurantContext } from '../contexts/restaurant.context';
 import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
 import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
-import { SameDayOrder } from '../types/types';
+import { SameDayOrder, SupplierData } from '../types/types';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import CustomSubtitle from './subtitle/customSubtitle';
+
+export interface CombinationMissingProducts {
+  code: string;
+  name: string;
+}
 
 export interface Combination {
   id: string;
@@ -21,7 +25,7 @@ export interface Combination {
   totalValue?: number;
   delivery?: string;
   missingItems?: number;
-  missingProducts?: string[];
+  missingProducts?: CombinationMissingProducts[];
   createdAt?: string;
   supplierClosed?: string;
   combinationAvailable?: boolean;
@@ -40,7 +44,7 @@ export type RootStackParamList = {
     suppliersData: SupplierData[];
     toalValue?: number;
     missingItems?: number;
-    missingProducts?: string[];
+    missingProducts?: CombinationMissingProducts[];
   };
 };
 
@@ -54,6 +58,17 @@ const CombinationList: React.FC = () => {
   const { suppliers, unavailableSupplier } = useSupplier();
   const { selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
+
+  const getProductNameBySku = (sku: string, suppliers: SupplierData[]) => {
+    for (const supplier of suppliers) {
+      const product = supplier.supplier.discount.product.find((p) => p.sku === sku);
+      if (product) {
+        return product.name;
+      }
+    }
+
+    return 'Produto desconhecido';
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -76,7 +91,7 @@ const CombinationList: React.FC = () => {
           setCombinationData(combinationsData);
 
           const transformed: Combination[] = combinationsData.map((item) => {
-            const suppliers =
+            const suppliersNames =
               item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') ||
               'N/A';
             const cartItens =
@@ -85,13 +100,19 @@ const CombinationList: React.FC = () => {
               }, 0) || 0;
             const missingItems = totalItens - cartItens;
 
+            const missingProducts: CombinationMissingProducts[] =
+              item.resultadoCotacao?.missingProducts.map((sku) => ({
+                code: sku,
+                name: getProductNameBySku(sku, suppliers),
+              })) ?? [];
+
             return {
               id: item.id,
               combination: item.nome,
-              supplier: suppliers,
+              supplier: suppliersNames,
               totalValue: item.resultadoCotacao?.totalOrderValue,
               missingItems: missingItems < 0 ? 0 : missingItems,
-              missingProducts: item.resultadoCotacao?.missingProducts || [],
+              missingProducts: missingProducts,
               sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
             };
           });
@@ -143,7 +164,7 @@ const CombinationList: React.FC = () => {
       totalValue: String(item.totalValue),
       missingItems: String(item.missingItems),
       suppliersData: JSON.stringify(mergedData),
-      missingProducts: item.missingProducts,
+      missingProducts: JSON.stringify(item.missingProducts),
     };
 
     router.push({
