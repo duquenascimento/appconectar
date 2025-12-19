@@ -1,21 +1,19 @@
-import { Button, XStack, Text } from 'tamagui'
-import * as Linking from 'expo-linking'
-import { BaseDialog } from './BaseDialog'
-
-interface Restaurant {
-  externalId: any
-  id: string
-  name: string
-  registrationReleasedNewApp: boolean
-}
+import * as Linking from 'expo-linking';
+import { Button, Text, XStack } from 'tamagui';
+import { Restaurant } from '../types/restaurantTypes';
+import { BaseDialog } from './BaseDialog';
 
 type DialogFinanceInstanceProps = {
-  openModal: boolean
-  setRegisterInvalid: (value: boolean) => void
-  rest: Restaurant[]
-}
+  openModal: boolean;
+  setRegisterInvalid: (value: boolean) => void;
+  rest: Restaurant[];
+};
 
-export function DialogFinanceInstance({ openModal, setRegisterInvalid, rest }: DialogFinanceInstanceProps) {
+export function DialogFinanceInstance({
+  openModal,
+  setRegisterInvalid,
+  rest,
+}: DialogFinanceInstanceProps) {
   return (
     <BaseDialog
       open={openModal}
@@ -29,23 +27,28 @@ export function DialogFinanceInstance({ openModal, setRegisterInvalid, rest }: D
           backgroundColor="$red9"
           color="$white1"
           onPress={async () => {
-            const text = encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
-${rest.map((item) => `
-- ${item.name}`).join('')}
+            const text =
+              encodeURIComponent(`Olá! Estou com pendências em minha conta, represento os seguintes restaurantes:
+${rest
+  .map(
+    (item) => `
+- ${item.name}`,
+  )
+  .join('')}
 Consegue me ajudar?`)
-              .replace('!', '%21')
-              .replace("'", '%27')
-              .replace('(', '%28')
-              .replace(')', '%29')
-              .replace('*', '%2A')
+                .replace('!', '%21')
+                .replace("'", '%27')
+                .replace('(', '%28')
+                .replace(')', '%29')
+                .replace('*', '%2A');
 
-            await Linking.openURL(`https://wa.me/5521999954372?text=${text}`)
-            setRegisterInvalid(false)
+            await Linking.openURL(`https://wa.me/5521999954372?text=${text}`);
+            setRegisterInvalid(false);
           }}
         >
           <Text color="$white">Entre em contato</Text>
         </Button>
       </XStack>
     </BaseDialog>
-  )
+  );
 }

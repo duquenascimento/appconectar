@@ -1,3 +1,6 @@
+interface RestaurantDeliveryPolicy {
+  canCreateSundayOrders: boolean;
+}
 interface Address {
   id: string;
   restaurant: string[];
@@ -49,6 +52,7 @@ export interface Restaurant {
   financeBlock: boolean;
   allowClosedSupplier: boolean;
   allowMinimumOrder: boolean;
+  allowEmergencyOrder: boolean;
   categories: any[];
   registrationReleasedNewApp: boolean;
   blockedBySuppliers: string[];
@@ -59,4 +63,5 @@ export interface Restaurant {
   conectarPlusAuthorization: boolean;
   max_specific_suppliers: number;
   addressInfos: Address[];
+  deliveryPolicy: RestaurantDeliveryPolicy;
 }

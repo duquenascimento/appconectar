@@ -1,44 +1,43 @@
 import { YStack, Separator, XStack, Text, Switch } from 'tamagui';
-import { CustomRadioButton } from '../button/customRadioButton';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useEffect, useMemo, useState } from 'react';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
+import { Supplier } from '@/src/types/types';
 
 export function BloqueioFornecedoresCampo({
+  suppliers,
   error,
   onChange,
 }: {
+  suppliers: Supplier[];
   error?: string;
   onChange: (val: string[]) => void;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
   const [showModal, setShowModal] = useState(false);
 
-  const { suppliers, unavailableSupplier } = useSupplier();
-
   const [selectFornecedoresContextoBloq, setSelectFornecedoresContextoBloq] = useState<
     { label: string; value: string }[]
   >([]);
 
   const fornecedoresContexto = useMemo(() => {
-    const todosFornecedores = [...suppliers, ...unavailableSupplier];
+    const todosFornecedores = [...suppliers];
 
     const fornecedoresNaoSelecionados = todosFornecedores.filter(
-      (item) => !combinacao.fornecedores_especificos?.includes(item.supplier.externalId),
+      (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.externalId),
     );
 
     const fornecedoresClassificados = fornecedoresNaoSelecionados.sort((a, b) =>
-      a.supplier.name.localeCompare(b.supplier.name),
+      a.name.localeCompare(b.name),
     );
 
-    return fornecedoresClassificados.map((item) => ({
-      label: item.supplier.name,
-      value: item.supplier.externalId,
+    return fornecedoresClassificados.map((supplier) => ({
+      label: supplier.name,
+      value: supplier.externalId,
     }));
-  }, [suppliers, unavailableSupplier, combinacao.fornecedores_especificos]);
+  }, [suppliers, combinacao.fornecedores_especificos]);
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false);
@@ -70,7 +69,7 @@ export function BloqueioFornecedoresCampo({
         });
       });
     }
-  }, [combinacao]);
+  }, [combinacao, fornecedoresContexto]);
 
   const handleSwitchChange = (checked: boolean) => {
     if (!checked && (combinacao?.fornecedores_bloqueados || []).length !== 0) {

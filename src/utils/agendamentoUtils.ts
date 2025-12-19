@@ -5,7 +5,11 @@ import { getSecondsUntil13h } from './timeUtils';
 import { getToken } from './utils';
 
 export const scheduleNotification = async (phoneNumber: string): Promise<string[]> => {
-  const erros = [];
+  const erros: string[] = [];
+  if(!phoneNumber) {
+    erros.push('Por favor, cadastre o telefone do resposável pelo recebimento.');
+    return erros;
+  }
   if (Platform.OS !== 'web') {
     const { status } = await Notifications.getPermissionsAsync();
     if (status !== 'granted') {
@@ -38,9 +42,7 @@ export const scheduleNotification = async (phoneNumber: string): Promise<string[
     } else {
       console.log('Notificação já agendada');
     }
-  } else if (Platform.OS === 'web') {
-    erros.push('O pedido só pode ser confirmado após as 13h.');
-  }
+  } 
 
   // Agendamento ChatGurur
   try {

@@ -1,16 +1,17 @@
-import React, {
+import {
   createContext,
-  useContext,
-  useCallback,
-  useState,
-  useMemo,
   ReactNode,
+  useCallback,
+  useContext,
   useEffect,
+  useMemo,
+  useState,
 } from 'react';
 import { getToken, setStorage } from '../utils/utils';
-import { Restaurant } from '../types/restaurantTypes';
 import { getSavedRestaurant } from '../utils/savedRestaurant';
 import { updateRestaurantDeliveryInfo } from '../services/restaurantService';
+import { Restaurant } from '../types/restaurantTypes';
+import { getStorageRestaurant, setStorageRestaurant } from '../utils/restaurantUtils';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
@@ -33,7 +34,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       try {
         if (!restaurant) return;
 
-        const storedRestaurant = await getSavedRestaurant();
+        const storedRestaurant = await getStorageRestaurant();
         if (storedRestaurant && storedRestaurant.externalId === restaurant.externalId) return;
 
         const selected = restaurants.find((r) => r.externalId === restaurant.externalId);
@@ -41,8 +42,8 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
           throw new Error('Restaurante não encontrado');
         }
 
-        await setStorage('selectedRestaurant', JSON.stringify(selected));
         setSelectedRestaurant(selected);
+        await setStorageRestaurant(selected);
       } catch (error) {
         console.error('Falha ao selecionar restaurante:', error);
       }
@@ -57,7 +58,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       await updateRestaurantDeliveryInfo(selectedRestaurant.id, data);
       const newRestaurant = { ...selectedRestaurant, ...data };
 
-      await setStorage('selectedRestaurant', JSON.stringify(newRestaurant));
+      await setStorageRestaurant(newRestaurant);
 
       setRestaurants((prev) =>
         prev.map((r) => (r.externalId === newRestaurant.externalId ? newRestaurant : r)),
@@ -93,7 +94,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       setRestaurants(list);
 
       if (!selectedRestaurant && list.length > 0) {
-        const stored = await getSavedRestaurant();
+        const stored = await getStorageRestaurant();
         setSelectedRestaurant(stored ?? list[0]);
       }
 
@@ -111,7 +112,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initialize = async () => {
       try {
-        const stored = await getSavedRestaurant();
+        const stored = await getStorageRestaurant();
         const list = await loadRestaurants();
 
         if (stored) {

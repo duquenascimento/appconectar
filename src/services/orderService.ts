@@ -1,6 +1,7 @@
-import { Supplier as PremiumSupplier } from '@/app/quotationDetailsScreen'
 import { Supplier } from '@/app/prices'
+import { ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
 import axios from 'axios'
+import { CombinationMissingProducts } from '../components/combinationList'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -59,6 +60,7 @@ export interface ConfirmOrderRequestBody {
   token: string;
   supplier: Supplier;
   restaurant: any;
+  deliveryDate: string;
 }
 
 export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
@@ -70,31 +72,49 @@ export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
     );
     return response;
   } catch (error) {
-    console.error('Erro ao obter cotações por restaurante:', error)
-    throw error
+    console.error('Erro ao confirmar pedido:', error);
+    throw error;
   }
 }
 
-export interface ConfirmOrderPremiumRequestBody {
-  token: string;
-  suppliers: PremiumSupplier[];
-  restaurant: any;
+export interface ConfirmPremiumOrderRequestBody {
+  token: string | null | undefined;
+  selectedRestaurant: any;
+  deliveryDate: string;
 }
 
-export const confirmOrderPremium = async (body: ConfirmOrderPremiumRequestBody) => {
+export const confirmPremiumOrder = async (body: ConfirmPremiumOrderRequestBody) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/confirm/premium`,
+      body,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return response;
+  } catch (error) {
+    console.error('Erro ao confirmar pedido Premium:', error);
+    throw error;
+  }
+}
+
+export interface ConfirmConectarPlusOrderRequestBody {
+  token: string;
+  suppliers: ConectarPlusSupplier[];
+  restaurant: any;
+  deliveryDate: string;
+  missingProducts: CombinationMissingProducts[];
+}
+
+export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {
   try {
     const response = await axios.post(
       `${API_URL}/confirm/conectar-plus`,
       body,
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    )
+      { headers: { 'Content-Type': 'application/json' } }
+    );
     return response
   } catch (error) {
-    console.error('Erro ao obter cotações por restaurante:', error)
-    throw error
+    console.error('Erro ao confirmar pedido Conéctar+:', error);
+    throw error;
   }
 }

@@ -1,15 +1,9 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  ReactNode,
-  useEffect,
-  useCallback,
-  SetStateAction,
-} from 'react';
-import { SupplierData } from '../types/types';
-import { getStorage, getToken, setStorage } from '@/src/utils/utils';
+import { getToken, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
+import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
+import { useDeliveryDate } from '../hooks/useDeliveryDate';
+import { SupplierData } from '../types/types';
+import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
 
 interface SupplierContextType {
@@ -29,18 +23,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<any | null>(null);
   const { loadRestaurants } = useRestaurantContext();
-
-  const getSavedRestaurant = async () => {
-    try {
-      const data = await getStorage('selectedRestaurant');
-      if (!data) return null;
-      const parsedData = JSON.parse(data);
-      return parsedData?.restaurant ?? parsedData;
-    } catch (error) {
-      console.error('Erro ao parsear dados do restaurante:', error);
-      return null;
-    }
-  };
+  const { deliveryDate } = useDeliveryDate();
 
   const saveSuppliersToStorage = async (available: SupplierData[], unavailable: SupplierData[]) => {
     try {
@@ -56,16 +39,16 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   };
 
   const loadPrices = useCallback(
-    async (restaurantId?: string) => {
+    async (restaurantExternalId?: string) => {
       try {
         setLoadingSuppliers(true);
         const token = await getToken();
         if (!token) return;
 
-        const restaurantSelected = await getSavedRestaurant();
+        const restaurantSelected = await getStorageRestaurant();
         const allRestaurants = await loadRestaurants();
         const currentRestaurant = allRestaurants.find(
-          (r: any) => r.externalId === (restaurantId ?? restaurantSelected?.externalId),
+          (r: any) => r.externalId === (restaurantExternalId ?? restaurantSelected?.externalId),
         );
 
         if (!currentRestaurant) return;
@@ -73,7 +56,11 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, selectedRestaurant: currentRestaurant }),
+          body: JSON.stringify({
+            token,
+            selectedRestaurant: currentRestaurant,
+            deliveryDate: deliveryDate,
+          }),
         });
 
         const response = await result.json();
@@ -86,30 +73,49 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         const allSuppliers = response.data as SupplierData[];
 
-        let available = allSuppliers.filter((item) => item.supplier.missingItens > 0);
-        let unavailable: SetStateAction<SupplierData[]> = [];
+        const isSupplierAvailable = (supplier: SupplierData): boolean => {
+          // Check basic availability criteria
+          const hasAvailableProducts =
+            supplier.supplier.missingItens < supplier.supplier.discount.product.length;
+          const hasPositiveOrderValue = supplier.supplier.discount.orderValue > 0;
 
-        if (!currentRestaurant?.allowClosedSupplier) {
-          unavailable = unavailable.concat(
-            available.filter(
-              (item) => Number(item.supplier.hour.replaceAll(':', '')) < currentHour,
-            ),
-          );
-          available = available.filter(
-            (item) => Number(item.supplier.hour.replaceAll(':', '')) >= currentHour,
-          );
-        }
+          if (!hasAvailableProducts || !hasPositiveOrderValue) {
+            return false;
+          }
 
-        if (!currentRestaurant?.allowMinimumOrder) {
-          unavailable = unavailable.concat(
-            available.filter(
-              (item) => item.supplier.minimumOrder > item.supplier.discount.orderValueFinish,
-            ),
-          );
-          available = available.filter(
-            (item) => item.supplier.minimumOrder <= item.supplier.discount.orderValueFinish,
-          );
-        }
+          // Check if supplier is closed (based on hour)
+          if (!currentRestaurant?.allowClosedSupplier) {
+            const supplierHour = Number(supplier.supplier.hour.replaceAll(':', ''));
+            if (supplierHour < currentHour) {
+              return false;
+            }
+          }
+
+          // Check minimum order requirements
+          if (!currentRestaurant?.allowMinimumOrder) {
+            const meetsMinimumOrder =
+              supplier.supplier.minimumOrder <= supplier.supplier.discount.orderValueFinish;
+            const hasSameDayOrders = supplier.supplier.sameDayOrders.length > 0;
+
+            if (!meetsMinimumOrder && !hasSameDayOrders) {
+              return false;
+            }
+          }
+
+          return true;
+        };
+
+        const { available, unavailable } = allSuppliers.reduce(
+          (acc, supplier) => {
+            if (isSupplierAvailable(supplier)) {
+              acc.available.push(supplier);
+            } else {
+              acc.unavailable.push(supplier);
+            }
+            return acc;
+          },
+          { available: [] as SupplierData[], unavailable: [] as SupplierData[] },
+        );
 
         setSuppliers(available);
         setUnavailableSupplier(unavailable);
@@ -129,6 +135,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
     loadingSuppliers,
     selectedRestaurant,
     loadPrices,
+    loadRestaurants,
   };
 
   return <SupplierContext.Provider value={value}>{children}</SupplierContext.Provider>;
