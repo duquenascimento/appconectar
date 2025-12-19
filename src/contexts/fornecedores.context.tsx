@@ -12,7 +12,7 @@ interface SupplierContextType {
   loadingSuppliers: boolean;
   selectedRestaurant: any | null;
   loadRestaurants: () => Promise<any | null>;
-  loadPrices: (restaurantId?: string) => Promise<void>;
+  loadPrices: (restaurantId?: string, deliveryDate?: string) => Promise<void>;
 }
 
 const SupplierContext = createContext({} as SupplierContextType);
@@ -39,7 +39,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   };
 
   const loadPrices = useCallback(
-    async (restaurantExternalId?: string) => {
+    async (restaurantExternalId?: string, deliveryDateParam?: string) => {
       try {
         setLoadingSuppliers(true);
         const token = await getToken();
@@ -53,13 +53,14 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         if (!currentRestaurant) return;
 
+        const dateToUse = deliveryDateParam ?? deliveryDate;
         const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/price/list`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             token,
             selectedRestaurant: currentRestaurant,
-            deliveryDate: deliveryDate,
+            deliveryDate: dateToUse,
           }),
         });
 

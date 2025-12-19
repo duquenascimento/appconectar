@@ -469,7 +469,7 @@ export default function Prices() {
           setMinHour(selectedRestaurant.addressInfos[0]?.initialDeliveryTime.substring(11, 16));
           setMaxHour(selectedRestaurant.addressInfos[0]?.finalDeliveryTime.substring(11, 16));
 
-          await loadPrices();
+          await loadPrices(undefined, deliveryDate);
           const hours = [];
           for (let hour = 0; hour < 22; hour++) {
             hours.push(`${String(hour).padStart(2, '0')}:00`);
@@ -486,7 +486,7 @@ export default function Prices() {
       };
 
       loadPricesAsync();
-    }, [selectedRestaurant]),
+    }, [selectedRestaurant, deliveryDate, loadPrices]),
   );
 
   useEffect(() => {
@@ -710,7 +710,7 @@ export default function Prices() {
                 if (!selectedRestaurant?.premium || loading) return;
                 try {
                   setLoading(true);
-                  await loadPrices();
+                  await loadPrices(undefined, deliveryDate);
                   setTab('plus');
                 } catch (err) {
                   console.error(err);
@@ -737,7 +737,7 @@ export default function Prices() {
                 if (loading) return;
                 try {
                   setLoading(true);
-                  await loadPrices();
+                  await loadPrices(undefined, deliveryDate);
                   setTab('onlySupplier');
                 } catch (err) {
                   console.error(err);
@@ -2101,7 +2101,7 @@ export default function Prices() {
                           onPress={async () => {
                             try {
                               setLoading(true);
-                              await loadPrices();
+                              await loadPrices(undefined, deliveryDate);
                               setEditInfos(false);
                               setDraftSelectedRestaurant(null);
                             } catch (err) {
@@ -2153,10 +2153,10 @@ export default function Prices() {
 
                             await handleRestaurantChange(rest);
 
-                            await Promise.all([loadPrices(rest), updateRestaurant(rest)]);
+                            await Promise.all([loadPrices(rest.externalId, deliveryDate), updateRestaurant(rest)]);
                             try {
                               setLoading(true);
-                              await loadPrices();
+                              await loadPrices(undefined, deliveryDate);
                             } catch (err) {
                               console.error(err);
                             } finally {
@@ -2210,7 +2210,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await loadPrices(availableRestaurant.externalId);
+                  await loadPrices(availableRestaurant.externalId, deliveryDate);
 
                   setDraftSelectedRestaurant(null);
                 }
