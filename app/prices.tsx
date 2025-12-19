@@ -323,7 +323,6 @@ export default function Prices() {
   const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([]);
   const {
     deliveryDate,
-    deliveryDates,
     initializeDeliveryDates,
     getFormattedDate,
     canChangeDeliveryDate,
@@ -335,7 +334,7 @@ export default function Prices() {
     if (!selectedRestaurant) return;
 
     initializeDeliveryDates(selectedRestaurant);
-  }, []);
+  }, [selectedRestaurant, initializeDeliveryDates]);
 
   useEffect(() => {
     const loadCombinations = async () => {
