@@ -383,7 +383,6 @@ export default function Confirm() {
 
         const erros = [];
         if (!selectedRestaurant.allowEmergencyOrder) {
-          console.log('allowClosedSupplier', selectedRestaurant.allowClosedSupplier);
           if (!isOpen() && !selectedRestaurant.allowClosedSupplier) {
             erros.push('O fornecedor está fechado');
           }
