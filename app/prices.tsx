@@ -106,30 +106,34 @@ const useScreenSize = () => {
 };
 
 const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
-  return suppliers.sort((a, b) => {
+  return suppliers.sort((supplierA, supplierB) => {
     // First, sort by complementary order
-    const isComplementaryA = a.supplier.sameDayOrders.length > 0;
-    const isComplementaryB = b.supplier.sameDayOrders.length > 0;
+    const isComplementaryA = supplierA.supplier.sameDayOrders.length > 0;
+    const isComplementaryB = supplierB.supplier.sameDayOrders.length > 0;
     if (isComplementaryA !== isComplementaryB) {
       return isComplementaryA ? -1 : 1;
     }
 
     // Second, sort by missing items (ascending)
-    const missingA = a.supplier.discount.product.length - a.supplier.missingItens;
-    const missingB = b.supplier.discount.product.length - b.supplier.missingItens;
-    if (missingA !== missingB) {
-      return missingA - missingB;
+    const totalItemsA =
+      supplierA.supplier.discount.product.length - supplierA.supplier.missingItens;
+    const totalItemsB =
+      supplierB.supplier.discount.product.length - supplierB.supplier.missingItens;
+    if (totalItemsA !== totalItemsB) {
+      return totalItemsB - totalItemsA;
     }
 
     // Third, sort by star rating (descending)
-    if (a.supplier.star !== b.supplier.star) {
-      const starA = getStarValue(a.supplier.star);
-      const starB = getStarValue(b.supplier.star);
+    if (supplierA.supplier.star !== supplierB.supplier.star) {
+      const starA = getStarValue(supplierA.supplier.star);
+      const starB = getStarValue(supplierB.supplier.star);
       return starB - starA;
     }
 
     // Fourth, sort by order value (ascending)
-    return a.supplier.discount.orderValueFinish - b.supplier.discount.orderValueFinish;
+    return (
+      supplierA.supplier.discount.orderValueFinish - supplierB.supplier.discount.orderValueFinish
+    );
   });
 };
 
@@ -319,7 +323,6 @@ export default function Prices() {
   const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([]);
   const {
     deliveryDate,
-    deliveryDates,
     initializeDeliveryDates,
     getFormattedDate,
     canChangeDeliveryDate,
@@ -331,7 +334,7 @@ export default function Prices() {
     if (!selectedRestaurant) return;
 
     initializeDeliveryDates(selectedRestaurant);
-  }, []);
+  }, [selectedRestaurant, initializeDeliveryDates]);
 
   useEffect(() => {
     const loadCombinations = async () => {

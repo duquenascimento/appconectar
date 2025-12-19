@@ -1,9 +1,9 @@
-import { Restaurant } from '@/src/types/restaurant';
 import { getAvailableDeliveryDaysFormatted } from '@/src/utils/orderDateValidation.utils';
 import { getTomorrowDate } from '@/src/utils/timeUtils';
 import { getStorage, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
+import { Restaurant } from '../types/restaurantTypes';
 
 interface UseDeliveryDateReturn {
     deliveryDate: string; // ISO date string (yyyy-MM-dd)
