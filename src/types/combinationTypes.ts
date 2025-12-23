@@ -41,6 +41,7 @@ export interface Combinacao {
   preferencias?: PreferenciaProduto[];
   preferencias_hard?: boolean;
 }
+
 export interface Combination {
   id: string;
   combination: string;
@@ -49,4 +50,16 @@ export interface Combination {
   createdAt?: string;
   missingItems?: number;
   totalValue?: number;
+}
+
+export interface SuplierCombination {
+  id: string;
+  nomefornecedor: string;
+}
+
+export interface ProrityProductsCombination {
+  id: string
+  sku: string
+  name: string
+  class: string
 }

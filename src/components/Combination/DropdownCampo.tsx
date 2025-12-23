@@ -1,3 +1,4 @@
+import { ComboOption } from '@/src/types/componentTypes';
 import { useState } from 'react';
 import { Platform } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -6,7 +7,7 @@ import { Label, Text, YStack } from 'tamagui';
 type DropdownCampoProps<T extends string | number> = {
   campo: string;
   label: string;
-  items: { label: string; value: T }[];
+  items: ComboOption<T>[];
   zIndex?: number;
   placeholder?: string;
   schemaPath?: string;

@@ -1,17 +1,12 @@
 import { getAllProducts, ProductResponse } from '@/src/services/productsService'
+import { ProrityProductsCombination, SuplierCombination } from '@/src/types/combinationTypes'
+import { ComboOption } from '@/src/types/componentTypes'
+import { getFieldError } from '@/src/utils/formikUtils'
+import { useFormikContext } from 'formik'
 import React, { useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { View, Text, XStack, YStack, Separator, Card, Label, Button } from 'tamagui'
-import { SuplierCombination } from '@/app/combination'
-import { getIn, useFormikContext } from 'formik'
-import { getFieldError } from '@/src/utils/formikUtils'
+import { Button, Card, Label, Separator, Text, View, XStack, YStack } from 'tamagui'
 
-export interface ProrityProductsCombination {
-  id: string
-  sku: string
-  name: string
-  class: string
-}
 interface PrioritySectionProps {
   index: number
   products: ProrityProductsCombination[]
@@ -35,7 +30,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
   const [openProducts, setOpenProducts] = useState(false)
   const [specificProducts, setSpecificProducts] = useState<string[]>([])
   const [searchText, setSearchText] = useState('')
-  const [itemsDropdown, setItemsDropdown] = useState<{ label: string; value: string }[]>([])
+  const [itemsDropdown, setItemsDropdown] = useState<ComboOption<string>[]>([])
 
   useEffect(() => {
     const produtosFormatados = specificProducts.map((productId) => {

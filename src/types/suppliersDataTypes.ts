@@ -103,3 +103,15 @@ export interface OutputSupplier {
     sameDayOrders: SameDayOrder[];
   };
 }
+
+export interface CombinationSupplier {
+  id: string
+  idexterno: string
+  nomefornecedor: string
+  nota: string
+}
+
+export interface GetAllSuppliersParams {
+  orderBy?: 'nomefornecedor' | 'nota' | 'idexterno';
+  order?: 'asc' | 'desc';
+}

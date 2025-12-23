@@ -3,6 +3,7 @@ import { getTomorrowDate } from '@/src/utils/timeUtils';
 import { getStorage, setStorage } from '@/src/utils/utils';
 import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
+import { ComboOption } from '../types/componentTypes';
 import { Restaurant } from '../types/restaurantTypes';
 
 interface UseDeliveryDateReturn {
@@ -12,7 +13,7 @@ interface UseDeliveryDateReturn {
     initializeDeliveryDates: (restaurant: Restaurant) => void;
     getFormattedDate: (isoDate?: string) => string; // Returns dd/MM/yyyy
     canChangeDeliveryDate: boolean;
-    deliveryDatesDropdownOptions: { label: string; value: string }[]; // For dropdown integration
+    deliveryDatesDropdownOptions: ComboOption<string>[]; // For dropdown integration
     setDropdownDeliveryDate: (callback: any) => void; // For dropdown integration
     resetDeliveryDate: () => void;
 }

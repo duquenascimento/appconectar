@@ -1,12 +1,13 @@
+import { ComboOption } from '@/src/types/componentTypes'
 import { combinacaoValidationSchema } from '@/src/validators/combination.form.validator'
 import { useState } from 'react'
 import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { YStack, XStack, Text, Button, Label } from 'tamagui'
+import { Button, Label, Text, XStack, YStack } from 'tamagui'
 
 type ContainerSelecaoItemsProps<T extends string> = {
   label: string
-  items: { label: string; value: T }[]
+  items: ComboOption<T>[]
   value: T[]
   onChange: (val: T[]) => void
   zIndex?: number
