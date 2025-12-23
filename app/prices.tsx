@@ -105,38 +105,6 @@ const useScreenSize = () => {
   return screenSize;
 };
 
-const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
-  return suppliers.sort((supplierA, supplierB) => {
-    // First, sort by complementary order
-    const isComplementaryA = supplierA.supplier.sameDayOrders.length > 0;
-    const isComplementaryB = supplierB.supplier.sameDayOrders.length > 0;
-    if (isComplementaryA !== isComplementaryB) {
-      return isComplementaryA ? -1 : 1;
-    }
-
-    // Second, sort by missing items (ascending)
-    const totalItemsA =
-      supplierA.supplier.discount.product.length - supplierA.supplier.missingItens;
-    const totalItemsB =
-      supplierB.supplier.discount.product.length - supplierB.supplier.missingItens;
-    if (totalItemsA !== totalItemsB) {
-      return totalItemsB - totalItemsA;
-    }
-
-    // Third, sort by star rating (descending)
-    if (supplierA.supplier.star !== supplierB.supplier.star) {
-      const starA = getStarValue(supplierA.supplier.star);
-      const starB = getStarValue(supplierB.supplier.star);
-      return starB - starA;
-    }
-
-    // Fourth, sort by order value (ascending)
-    return (
-      supplierA.supplier.discount.orderValueFinish - supplierB.supplier.discount.orderValueFinish
-    );
-  });
-};
-
 function SupplierBox({
   supplier,
   available,
@@ -504,11 +472,8 @@ export default function Prices() {
       ...filteredUnavailableSuppliers.map((item) => ({ ...item, available: false })),
     );
 
-    const finalSortedSuppliers = sortSuppliers(tempSuppliers);
-    const finalSortedUnavailableSuppliers = sortSuppliers(tempUnavailableSuppliers);
-
-    setSortedSuppliers(finalSortedSuppliers);
-    setSortedUnavailableSuppliers(finalSortedUnavailableSuppliers);
+    setSortedSuppliers(tempSuppliers);
+    setSortedUnavailableSuppliers(tempUnavailableSuppliers);
   }, [suppliers, unavailableSupplier]);
 
   useEffect(() => {
