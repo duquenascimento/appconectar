@@ -337,10 +337,11 @@ export default function Confirm() {
         currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute
       }${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
+    
     return (
       Number(supplier?.supplier?.hour.replaceAll(':', '')) >= currentHour &&
       (supplier?.supplier?.minimumOrder <= supplier?.supplier?.discount.orderValueFinish ||
-        hasSameDayOrdersWithSupplier)
+        hasSameDayOrdersWithSupplier || (selectedRestaurant?.allowMinimumOrder ?? false))
     );
   };
 

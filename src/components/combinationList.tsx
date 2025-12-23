@@ -101,7 +101,7 @@ const CombinationList: React.FC = () => {
             const missingItems = totalItens - cartItens;
 
             const missingProducts: CombinationMissingProducts[] =
-              item.resultadoCotacao?.missingProducts.map((sku) => ({
+              item.resultadoCotacao?.missingProducts?.map((sku) => ({
                 code: sku,
                 name: getProductNameBySku(sku, suppliers),
               })) ?? [];
