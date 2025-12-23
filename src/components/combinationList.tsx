@@ -124,18 +124,11 @@ const CombinationList: React.FC = () => {
               unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
           );
 
-          const availableCombinationList = transformed
-            .filter(
-              (item) =>
-                item.totalValue !== 0 &&
-                !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-            )
-            .sort((a, b) => {
-              if (a.missingItems !== b.missingItems) {
-                return (a.missingItems ?? 0) - (b.missingItems ?? 0);
-              }
-              return (a.totalValue ?? 0) - (b.totalValue ?? 0);
-            });
+          const availableCombinationList = transformed.filter(
+            (item) =>
+              item.totalValue !== 0 &&
+              !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+          );
 
           setUnavailableCombinations(unavailableCombinationList);
           setMineCombinations(availableCombinationList);
