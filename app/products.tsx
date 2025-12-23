@@ -1,3 +1,5 @@
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { Product } from '@/src/types/productTypes';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -13,10 +15,6 @@ import {
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { Restaurant } from '../src/types/restaurantTypes';
-import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
-import { normalizeText } from '../src/utils/stringUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
@@ -36,54 +34,25 @@ import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { useCart } from '../src/components/useCart';
 import { useProductContext } from '../src/contexts/produtos.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { Restaurant } from '../src/types/restaurantTypes';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
+import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
+import { normalizeText } from '../src/utils/stringUtils';
 import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
 import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
-
-export type Product = {
-  name: string;
-  orderUnit: string;
-  quotationUnit: string;
-  convertedWeight: number;
-  class: string;
-  sku: string;
-  id: string;
-  active: true;
-  createdBy: string;
-  createdAt: string;
-  changedBy: string;
-  updatedAt: string;
-  image: string[];
-  favorite?: boolean;
-  mediumWeight: number;
-  firstUnit: number;
-  secondUnit: number;
-  thirdUnit: number;
-  obs: string;
-};
-
-type Cart = {
-  productId: string;
-  amount: number;
-  obs: string;
-  addOrder: number;
-};
-
-type SelectItem = {
-  name: string;
-};
+import { TCart } from '@/src/types/cartTypes';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
   favorites: Product[];
-  saveCart: (cart: Cart, isCart: boolean) => Promise<void>;
-  saveCartArray: (cart: Map<string, Cart>, exclude: Map<string, Cart>) => Promise<void>;
-  cartToExclude: Map<string, Cart>;
+  saveCart: (cart: TCart, isCart: boolean) => Promise<void>;
+  saveCartArray: (cart: Map<string, TCart>, exclude: Map<string, TCart>) => Promise<void>;
+  cartToExclude: Map<string, TCart>;
   setLoading: (status: boolean) => void;
-  cart: Map<string, Cart>;
+  cart: Map<string, TCart>;
   setImage: (imageString: string) => void;
   setModalVisible: (status: boolean) => void;
   mediumWeight: number;
@@ -97,7 +66,7 @@ type ProductBoxProps = Product & {
   productObservations: Map<string, string>;
   setProductObservations: React.Dispatch<React.SetStateAction<Map<string, string>>>;
   saveProductObservations?: (map: Map<string, string>) => Promise<void>;
-  loadCart: () => Promise<Map<string, Cart>>;
+  loadCart: () => Promise<Map<string, TCart>>;
 };
 
 const ProductBox = React.memo(
@@ -131,7 +100,7 @@ const ProductBox = React.memo(
 
     const obsRef = useRef('');
     const quantRef = useRef<number>(firstUnit);
-    const previousCartRef = useRef<Map<string, Cart>>(new Map());
+    const previousCartRef = useRef<Map<string, TCart>>(new Map());
     const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const isFavorite = useMemo(
@@ -190,7 +159,7 @@ const ProductBox = React.memo(
     }, [cart]);
 
     const handlePersistCart = useCallback(() => {
-      const currentItem = { amount: valueQuant, productId: id, obs };
+      const currentItem = { amount: valueQuant, productId: id, obs, addOrder: 0 };
       const previousItem = previousCartRef.current.get(id);
       const shouldPersist =
         valueQuant > 0 ||
@@ -236,7 +205,7 @@ const ProductBox = React.memo(
       }
 
       debounceTimerRef.current = setTimeout(async () => {
-        const updatedItem = { productId: id, amount: newAmount, obs };
+        const updatedItem = { productId: id, amount: newAmount, obs, addOrder: 0 };
         const mapItem = new Map([[id, updatedItem]]);
         const mapToRemove = delta < 0 && newAmount === 0 ? mapItem : new Map();
 
@@ -247,7 +216,7 @@ const ProductBox = React.memo(
     const handleBlur = useCallback(async () => {
       if (obsRef.current !== obs) {
         try {
-          const updatedItem = { productId: id, amount: valueQuant, obs };
+          const updatedItem = { productId: id, amount: valueQuant, obs, addOrder: 0 };
           const updatedMap = new Map([[id, updatedItem]]);
           const emptyMap = new Map();
 
@@ -622,7 +591,7 @@ export default function Products() {
             ];
           }
 
-          if(currentClass === 'Verduras' || currentClass === 'Verduras - KG') { 
+          if (currentClass === 'Verduras' || currentClass === 'Verduras - KG') {
             setCurrentClass(isVerduraKg ? 'Verduras - KG' : 'Verduras');
           }
 
@@ -754,7 +723,6 @@ export default function Products() {
 
   const toggleFavorite = useCallback(
     async (productId: string) => {
-      const product = productsList?.find((p) => p.id === productId);
       const isCurrentlyFavorite = favorites.some((f) => f.id === productId);
 
       if (isCurrentlyFavorite) {
@@ -782,12 +750,6 @@ export default function Products() {
       flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
     }
   }, [currentClass, searchQuery]);
-
-  useEffect(() => {
-    if (productsList) {
-      productsList.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
-    }
-  }, [productsList]);
 
   const filteredProducts = useMemo(() => {
     let products = productsList || [];
@@ -818,7 +780,7 @@ export default function Products() {
           return isMatchingName && isNotExcludedClass;
         }) ?? [];
     }
-    return products.sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+    return products;
   }, [currentClass, productsList, favorites, searchQuery]);
 
   useEffect(() => {
@@ -837,7 +799,7 @@ export default function Products() {
     [currentClass],
   );
   const renderClassItem = useCallback(
-    ({ item }: { item: SelectItem }) => (
+    ({ item }: { item: { name: string } }) => (
       <TouchableOpacity
         style={{
           padding: 8,
@@ -896,6 +858,7 @@ export default function Products() {
         productObservations={productObservations}
         setProductObservations={setProductObservations}
         saveProductObservations={saveProductObservations}
+        loadCart={loadCart}
       />
     ),
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation],

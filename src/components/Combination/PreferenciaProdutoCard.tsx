@@ -1,6 +1,7 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { Classe, useProductContext } from '@/src/contexts/produtos.context';
+import { useProductContext } from '@/src/contexts/produtos.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { ProductClass } from '@/src/types/productTypes';
 import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
 import { normalizeText } from '@/src/utils/stringUtils';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
@@ -58,7 +59,7 @@ export function PreferenciaProdutoCard({
   const [fornecedoresTouched, setFornecedoresTouched] = useState(false);
 
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
-  const [availableClasses, setAvailableClasses] = useState<Classe[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<ProductClass[]>([]);
 
   useEffect(() => {
     async function getRestaurants() {
