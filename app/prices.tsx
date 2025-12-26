@@ -34,6 +34,7 @@ import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
 import { campoString } from '../src/utils/formatCampos';
+import { HttpStatusCode } from 'axios';
 
 export interface Product {
   price: number;
@@ -793,7 +794,7 @@ export default function Prices() {
                         deliveryDate: deliveryDate,
                       });
 
-                      if (result.status === 201) {
+                      if (result.status === HttpStatusCode.Ok) {
                         setLoading(false);
                         setShowNotification(true);
                       } else {

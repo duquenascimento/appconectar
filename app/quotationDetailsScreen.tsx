@@ -28,6 +28,7 @@ import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
+import { HttpStatusCode } from 'axios';
 
 export interface Product {
   price: number;
@@ -264,7 +265,7 @@ export default function QuotationDetailsScreen() {
         }
 
         const createdOrders = await confirmConectarPlusOrder(body);
-        if (createdOrders && createdOrders.status === 201) {
+        if (createdOrders && createdOrders.status === HttpStatusCode.Ok) {
           deleteMultiStorage(['cartOrder', `cart_${restaurantData.externalId}`]);
           const { deliveryDateFormated } = createdOrders.data.data[0];
 
