@@ -295,24 +295,26 @@ export default function ScheduleScreen() {
       if (daysUpfront <= 0) return;
 
       const restaurant = await getStorageRestaurant();
-      const availableSuppliersResult = await getSuppliersPrices({
-        restaurant: {
-          id: restaurant!.id,
-          externalId: restaurant!.externalId,
-          tax: Number(restaurant!.tax),
-          addressInfos: restaurant?.addressInfos,
-        },
-        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO(),
-      } as SupplierPriceRequestBody);
+
+      if (!restaurant) return;
+
+      const data: SupplierPriceRequestBody = {
+        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO()!,
+        selectedRestaurant: restaurant,
+      };
+
+      const availableSuppliersResult = await getSuppliersPrices(data);
+
+      const availableSuppliers = availableSuppliersResult.availableSuppliers;
       if (
-        !availableSuppliersResult.map((s) => s.supplier.externalId).includes(selectedSupplier) &&
+        !availableSuppliers.map((s) => s.supplier.externalId).includes(selectedSupplier) &&
         selectedSupplier !== currentOrder?.supplier?.externalId
       ) {
         setSelectedSupplier('');
       }
 
       setAvailableSuppliers(
-        availableSuppliersResult.map(
+        availableSuppliers.map(
           (s) => ({ label: s.supplier.name, value: s.supplier.externalId }) as ComboOption<string>,
         ),
       );
