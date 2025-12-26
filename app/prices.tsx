@@ -2153,7 +2153,10 @@ export default function Prices() {
 
                             await handleRestaurantChange(rest);
 
-                            await Promise.all([loadPrices(rest.externalId, deliveryDate), updateRestaurant(rest)]);
+                            await Promise.all([
+                              loadPrices(rest.externalId, deliveryDate),
+                              updateRestaurant(rest),
+                            ]);
                             try {
                               setLoading(true);
                               await loadPrices(undefined, deliveryDate);

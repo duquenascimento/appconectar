@@ -6,6 +6,11 @@ export function getTomorrowDate(): DateTime {
   return tomorrow;
 }
 
+export function getTodayDate(): DateTime {
+  const today = DateTime.now().setZone('America/Sao_Paulo');
+  return today;
+}
+
 export function isBefore13Hours(): boolean {
   const now = DateTime.now().setZone('America/Sao_Paulo'); // Data e hora atual
   const targetTime = now.set({ hour: 13, minute: 0, second: 0, millisecond: 0 }); // Define 13h00 no mesmo dia
