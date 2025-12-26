@@ -1,4 +1,7 @@
-import { Combinacao } from "@/src/types/combinationTypes" 
+import { Combinacao, Combination, CombinationMissingProducts } from "@/src/types/combinationTypes";
+import { QuotationApiResponseData } from "../services/combinationsService";
+import { SupplierData } from '../types/types';
+
 
 export function transformCombinacaoForSave(data: any): Combinacao {
   return {
@@ -35,4 +38,46 @@ export function transformCombinacaoForSave(data: any): Combinacao {
     // Valor padrão
     preferencias_hard: data.preferencias_hard ?? false,
   }
+}
+
+const getProductNameBySku = (sku: string, suppliers: SupplierData[]) => {
+  for (const supplier of suppliers) {
+    const product = supplier.supplier.discount.product.find((p) => p.sku === sku);
+    if (product) {
+      return product.name;
+    }
+  }
+
+  return 'Produto desconhecido';
+};
+
+export function transformCombinationFromApi(data: QuotationApiResponseData[], totalItens: number, suppliers: SupplierData[]): Combination[] {
+  const transformed: Combination[] = data.map((item) => {
+    const suppliersNames =
+      item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') ||
+      'N/A';
+    const cartItens =
+      item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
+        return acc + (cesta.cart?.length || 0);
+      }, 0) || 0;
+    const missingItems = totalItens - cartItens;
+
+    const missingProducts: CombinationMissingProducts[] =
+      item.resultadoCotacao?.missingProducts?.map((sku) => ({
+        code: sku,
+        name: getProductNameBySku(sku, suppliers),
+      })) ?? [];
+
+    return {
+      id: item.id,
+      combination: item.nome,
+      supplier: suppliersNames,
+      totalValue: item.resultadoCotacao?.totalOrderValue,
+      missingItems: missingItems < 0 ? 0 : missingItems,
+      missingProducts: missingProducts,
+      sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
+    };
+  });
+
+  return transformed;
 }

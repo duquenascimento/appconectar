@@ -1,3 +1,5 @@
+import { SameDayOrder } from "./types";
+
 export enum AcaoNaFalha {
   IGNORAR = 'ignorar',
   INDISPONIVEL = 'indisponivel',
@@ -42,14 +44,24 @@ export interface Combinacao {
   preferencias_hard?: boolean;
 }
 
+export interface CombinationMissingProducts {
+  code: string;
+  name: string;
+}
+
 export interface Combination {
   id: string;
   combination: string;
   supplier?: string;
-  delivery?: string;
-  createdAt?: string;
-  missingItems?: number;
   totalValue?: number;
+  delivery?: string;
+  missingItems?: number;
+  missingProducts?: CombinationMissingProducts[];
+  createdAt?: string;
+  supplierClosed?: string;
+  combinationAvailable?: boolean;
+  sameDayOrders: SameDayOrder[];
+  unavailable?: boolean;
 }
 
 export interface SuplierCombination {

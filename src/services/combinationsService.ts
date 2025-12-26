@@ -16,7 +16,7 @@ export interface CombinationApiResponse {
   preferencias_hard: boolean;
 }
 
-export interface QuotationApiResponse {
+export interface QuotationApiResponseData {
   id: string;
   nome: string;
   resultadoCotacao: {
@@ -48,6 +48,11 @@ export interface QuotationApiResponse {
   };
 }
 
+export interface QuotationApiResponse {
+  availableCombinations: QuotationApiResponseData[]
+  unavailableCombinations: QuotationApiResponseData[]
+}
+
 export interface QuotationApiRequest {
   token?: string | null;
   selectedRestaurant: {
@@ -64,10 +69,10 @@ export const getCombinationsByRestaurant = async (restaurantId: string) => {
   return response.data;
 };
 
-export const getAllQuotationByRestaurant = async (body: QuotationApiRequest) => {
+export const getAllQuotationByRestaurant = async (body: QuotationApiRequest): Promise<QuotationApiResponse> => {
   try {
     const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/cotacao/calcular`, body);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error('Erro ao obter cotações por restaurante:', error);
     throw error;
