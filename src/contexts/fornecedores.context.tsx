@@ -7,8 +7,8 @@ import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
 
 interface SupplierContextType {
-  suppliers: SupplierData[];
-  unavailableSupplier: SupplierData[];
+  availableSuppliers: SupplierData[];
+  unavailableSuppliers: SupplierData[];
   loadingSuppliers: boolean;
   selectedRestaurant: any | null;
   loadRestaurants: () => Promise<any | null>;
@@ -18,8 +18,8 @@ interface SupplierContextType {
 const SupplierContext = createContext({} as SupplierContextType);
 
 export function SupplierProvider({ children }: { children?: ReactNode }) {
-  const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
-  const [unavailableSupplier, setUnavailableSupplier] = useState<SupplierData[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<SupplierData[]>([]);
+  const [unavailableSuppliers, setUnavailableSuppliers] = useState<SupplierData[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
   const [selectedRestaurant] = useState<any | null>(null);
   const { loadRestaurants } = useRestaurantContext();
@@ -60,8 +60,8 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         const result = await getSuppliersPrices(data);
 
-        setSuppliers(result.availableSuppliers);
-        setUnavailableSupplier(result.unavailableSuppliers);
+        setAvailableSuppliers(result.availableSuppliers);
+        setUnavailableSuppliers(result.unavailableSuppliers);
         await saveSuppliersToStorage(result.availableSuppliers, result.unavailableSuppliers);
       } catch (error) {
         console.error('Erro ao carregar preços:', error);
@@ -73,8 +73,8 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   );
 
   const value = {
-    suppliers,
-    unavailableSupplier,
+    availableSuppliers,
+    unavailableSuppliers,
     loadingSuppliers,
     selectedRestaurant,
     loadPrices,

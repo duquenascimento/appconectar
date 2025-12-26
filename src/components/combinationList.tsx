@@ -42,7 +42,7 @@ const CombinationList: React.FC = () => {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [combinationData, setCombinationData] = useState<QuotationApiResponseData[]>([]);
 
-  const { suppliers } = useSupplier();
+  const { availableSuppliers } = useSupplier();
   const { selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
 
@@ -60,7 +60,7 @@ const CombinationList: React.FC = () => {
             token,
             selectedRestaurant,
             cart: cartStoredValue,
-            prices: [...suppliers],
+            prices: availableSuppliers,
           });
 
           const totalItens = cartStoredValue?.length || 0;
@@ -72,12 +72,12 @@ const CombinationList: React.FC = () => {
           const availableCombinations = transformCombinationFromApi(
             combinationsData.availableCombinations,
             totalItens,
-            suppliers,
+            availableSuppliers,
           );
           const unavailableCombinations = transformCombinationFromApi(
             combinationsData.unavailableCombinations,
             totalItens,
-            suppliers,
+            availableSuppliers,
           );
 
           setMineCombinations(availableCombinations);
@@ -90,7 +90,7 @@ const CombinationList: React.FC = () => {
         }
       };
       initialize();
-    }, [selectedRestaurant, suppliers]),
+    }, [selectedRestaurant, availableSuppliers]),
   );
 
   const handleCombinationPress = async (item: Combination) => {
@@ -98,7 +98,7 @@ const CombinationList: React.FC = () => {
     const combinationSelected = selectedCombination as ChosenSupplierQuote[];
     const mergedData: any = mergeSupplierData(
       combinationSelected,
-      suppliers as AvailableSupplier[],
+      availableSuppliers,
     );
 
     const params = {

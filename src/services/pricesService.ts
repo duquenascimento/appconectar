@@ -28,8 +28,6 @@ export const getSuppliersPrices = async (data: SupplierPriceRequestBody): Promis
       { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
     );
 
-    console.log('Response getSuppliersPrices:', response);
-
     if (response.status == HttpStatusCode.Ok) {
       const quotationData = response.data.data as SuppliersQuotationDTO;
       return quotationData;
