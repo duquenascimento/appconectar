@@ -1,4 +1,6 @@
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { addFavorite, deleteFavorite, updateFavorite } from '@/src/services/favoritosService';
+import { TCart } from '@/src/types/cartTypes';
 import { Product } from '@/src/types/productTypes';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -37,13 +39,11 @@ import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { Restaurant } from '../src/types/restaurantTypes';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import { loadFavorites } from '../src/utils/loadFavorite';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
 import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
 import { normalizeText } from '../src/utils/stringUtils';
 import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
 import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
-import { TCart } from '@/src/types/cartTypes';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -456,7 +456,7 @@ export default function Products() {
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
-  const { favorites, setFavorites } = useFavoritesContext();
+  const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
   const {
     cart,
     setCart,
@@ -632,26 +632,19 @@ export default function Products() {
       try {
         const token = await getToken();
         const restaurant = await getStorageRestaurant();
+
         if (token == null || !restaurant) return;
+
         const productToAdd = productsList?.find((product) => product.id === productId);
         if (productToAdd) {
           setFavorites([...favorites, { ...productToAdd, obs }]);
         }
 
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/save`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productId,
-            restaurantId: restaurant?.id,
-            token,
-            obs,
-          }),
-        });
-        if (!result.ok) return null;
+        const didAdd = await addFavorite(token, productId, restaurant?.id, obs);
+
+        if (!didAdd) return null;
+
+        loadFavorites();
       } catch (error) {
         console.error('Erro ao adicionar aos favoritos:', error);
       }
@@ -664,28 +657,17 @@ export default function Products() {
       try {
         const token = await getToken();
         const restaurant = await getStorageRestaurant();
+
         if (token == null || !restaurant) return;
-        const productToAdd = productsList?.find((product) => product.id === productId);
 
         const isFavorite = favorites.some((fav) => fav.id === productId);
         if (!isFavorite) {
           return;
         }
 
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/update`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productId,
-            restaurantId: restaurant?.id,
-            token,
-            obs: observation,
-          }),
-        });
-        if (!result.ok) return null;
+        const didUpdate = await updateFavorite(token, productId, restaurant?.id, observation);
+
+        if (!didUpdate) return null;
       } catch (error) {
         console.error('Erro ao adicionar aos favoritos:', error);
       }
@@ -698,22 +680,13 @@ export default function Products() {
       try {
         const token = await getToken();
         const restaurant = await getStorageRestaurant();
+
         setFavorites(favorites.filter((favorite) => favorite.id !== productId));
         if (token == null || !restaurant) return;
 
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/del`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            productId,
-            restaurantId: restaurant?.id,
-            token,
-          }),
-        });
-        if (!result.ok) return null;
+        const didDelete = await deleteFavorite(token, productId, restaurant?.id);
+
+        if (!didDelete) return null;
       } catch (error) {
         console.error('Erro ao remover dos favoritos:', error);
       }
