@@ -397,7 +397,6 @@ export default function Sign() {
       )
 
       if (response.ok) {
-        // eu acho que isso aqui não funciona
         const role = await getStorage('role')
         console.log("role", role)
         if (role === 'registering') {
@@ -509,7 +508,6 @@ export default function Sign() {
 export function SignInMobile(props: {
   page: string
   onButtonPress: (page: string) => void
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
   modal: () => void
 }) {
   const [showPw, setShowPw] = useState(true)
@@ -561,10 +559,8 @@ export function SignInMobile(props: {
             AsyncStorage.setItem('role', res.data.role[0])
           ])
           if (res.data.role.includes('registering')) {
-            // props.navigation.replace('Register')
             router.replace('/register')
           } else {
-            // props.navigation.replace('Products')
             router.replace('/products')
           }
         } else {
