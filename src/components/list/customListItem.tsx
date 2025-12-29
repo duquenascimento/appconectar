@@ -1,20 +1,9 @@
-import React from 'react';
-import { TouchableOpacity, Platform } from 'react-native';
-import Icons from '@expo/vector-icons/Ionicons';
-import { Text, View, styled, XStack, YStack } from 'tamagui';
+import { Combination } from '@/src/types/combinationTypes';
 import { formatCurrency } from '@/src/utils/formatCurrency';
-
-export interface Combination {
-  id: string;
-  combination: string;
-  supplier?: string;
-  createdAt?: string;
-  delivery?: string;
-  missingItems?: number;
-  totalValue?: number;
-  supplierClosed?: string;
-  unavailable?: boolean;
-}
+import Icons from '@expo/vector-icons/Ionicons';
+import React from 'react';
+import { Platform, TouchableOpacity } from 'react-native';
+import { styled, Text, View, XStack, YStack } from 'tamagui';
 
 interface ListItemProps extends Combination {
   onPress: (id: string) => void;

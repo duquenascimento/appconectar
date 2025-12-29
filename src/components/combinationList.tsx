@@ -6,31 +6,18 @@ import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-nati
 import { View } from 'tamagui';
 import { useSupplier } from '../contexts/fornecedores.context';
 import { useRestaurantContext } from '../contexts/restaurant.context';
-import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
+import {
+  getAllQuotationByRestaurant,
+  QuotationApiResponse,
+  QuotationApiResponseData,
+} from '../services/combinationsService';
+import { Combination, CombinationMissingProducts } from '../types/combinationTypes';
 import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
-import { SameDayOrder, SupplierData } from '../types/types';
+import { SupplierData } from '../types/types';
+import { transformCombinationFromApi } from '../utils/combinacaoUtils';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import CustomSubtitle from './subtitle/customSubtitle';
-
-export interface CombinationMissingProducts {
-  code: string;
-  name: string;
-}
-
-export interface Combination {
-  id: string;
-  combination: string;
-  supplier?: string;
-  totalValue?: number;
-  delivery?: string;
-  missingItems?: number;
-  missingProducts?: CombinationMissingProducts[];
-  createdAt?: string;
-  supplierClosed?: string;
-  combinationAvailable?: boolean;
-  sameDayOrders: SameDayOrder[];
-}
 
 export type RootStackParamList = {
   Sign: undefined;
@@ -53,22 +40,11 @@ const CombinationList: React.FC = () => {
   const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
-  const [combinationData, setCombinationData] = useState<QuotationApiResponse[]>([]);
+  const [combinationData, setCombinationData] = useState<QuotationApiResponseData[]>([]);
 
-  const { suppliers, unavailableSupplier } = useSupplier();
+  const { availableSuppliers } = useSupplier();
   const { selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
-
-  const getProductNameBySku = (sku: string, suppliers: SupplierData[]) => {
-    for (const supplier of suppliers) {
-      const product = supplier.supplier.discount.product.find((p) => p.sku === sku);
-      if (product) {
-        return product.name;
-      }
-    }
-
-    return 'Produto desconhecido';
-  };
 
   useFocusEffect(
     useCallback(() => {
@@ -80,65 +56,32 @@ const CombinationList: React.FC = () => {
           const cartStoredValue = JSON.parse(
             (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
           );
-          const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
+          const combinationsData: QuotationApiResponse = await getAllQuotationByRestaurant({
             token,
             selectedRestaurant,
             cart: cartStoredValue,
-            prices: [...suppliers],
+            prices: availableSuppliers,
           });
 
           const totalItens = cartStoredValue?.length || 0;
-          setCombinationData(combinationsData);
+          setCombinationData([
+            ...combinationsData.availableCombinations,
+            ...combinationsData.unavailableCombinations,
+          ]);
 
-          const transformed: Combination[] = combinationsData.map((item) => {
-            const suppliersNames =
-              item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') ||
-              'N/A';
-            const cartItens =
-              item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
-                return acc + (cesta.cart?.length || 0);
-              }, 0) || 0;
-            const missingItems = totalItens - cartItens;
-
-            const missingProducts: CombinationMissingProducts[] =
-              item.resultadoCotacao?.missingProducts?.map((sku) => ({
-                code: sku,
-                name: getProductNameBySku(sku, suppliers),
-              })) ?? [];
-
-            return {
-              id: item.id,
-              combination: item.nome,
-              supplier: suppliersNames,
-              totalValue: item.resultadoCotacao?.totalOrderValue,
-              missingItems: missingItems < 0 ? 0 : missingItems,
-              missingProducts: missingProducts,
-              sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
-            };
-          });
-          const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
-
-          const unavailableCombinationList = transformed.filter(
-            (item) =>
-              item.totalValue === 0 ||
-              unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+          const availableCombinations = transformCombinationFromApi(
+            combinationsData.availableCombinations,
+            totalItens,
+            availableSuppliers,
+          );
+          const unavailableCombinations = transformCombinationFromApi(
+            combinationsData.unavailableCombinations,
+            totalItens,
+            availableSuppliers,
           );
 
-          const availableCombinationList = transformed
-            .filter(
-              (item) =>
-                item.totalValue !== 0 &&
-                !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-            )
-            .sort((a, b) => {
-              if (a.missingItems !== b.missingItems) {
-                return (a.missingItems ?? 0) - (b.missingItems ?? 0);
-              }
-              return (a.totalValue ?? 0) - (b.totalValue ?? 0);
-            });
-
-          setUnavailableCombinations(unavailableCombinationList);
-          setMineCombinations(availableCombinationList);
+          setMineCombinations(availableCombinations);
+          setUnavailableCombinations(unavailableCombinations);
         } catch (error) {
           setIsAlertVisible(true);
           console.error('Erro ao inicializar:', error);
@@ -147,7 +90,7 @@ const CombinationList: React.FC = () => {
         }
       };
       initialize();
-    }, [selectedRestaurant, suppliers]),
+    }, [selectedRestaurant, availableSuppliers]),
   );
 
   const handleCombinationPress = async (item: Combination) => {
@@ -155,7 +98,7 @@ const CombinationList: React.FC = () => {
     const combinationSelected = selectedCombination as ChosenSupplierQuote[];
     const mergedData: any = mergeSupplierData(
       combinationSelected,
-      suppliers as AvailableSupplier[],
+      availableSuppliers,
     );
 
     const params = {
@@ -211,6 +154,7 @@ const CombinationList: React.FC = () => {
             missingItems={item.missingItems}
             createdAt={item.createdAt}
             supplierClosed={item.supplierClosed}
+            sameDayOrders={item.sameDayOrders}
             unavailable={!!unavailableCombinations.includes(item)}
             onPress={() => handleCombinationPress(item)}
           />

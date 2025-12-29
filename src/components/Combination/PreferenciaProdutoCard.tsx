@@ -1,5 +1,13 @@
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useProductContext } from '@/src/contexts/produtos.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { ProductClass } from '@/src/types/productTypes';
+import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { normalizeText } from '@/src/utils/stringUtils';
+import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
+import { TouchableWithoutFeedback } from 'react-native';
 import {
   Button,
   Input,
@@ -11,18 +19,10 @@ import {
   XStack,
   YStack,
 } from 'tamagui';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import { Classe, useProductContext } from '@/src/contexts/produtos.context';
-import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
 import { AcaoNaFalha, ProdutoPreferencia } from '../../types/combinationTypes';
-import { Supplier } from '../../types/types';
 import { updatePreferencia } from '../../utils/preferenciaUtils';
 import { ContainerSelecaoItemsComFornecedor } from './containerSelecaoItemsComFornecedor';
 import { DropdownCampo } from './DropdownCampo';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { normalizeText } from '@/src/utils/stringUtils';
-import { TouchableWithoutFeedback } from 'react-native';
 
 type Props = {
   index: number;
@@ -30,7 +30,7 @@ type Props = {
   onMoveDown: () => void;
   onRemove: () => void;
   triggerValidation?: boolean;
-  suppliers: Supplier[];
+  suppliers: CombinationSupplier[];
 };
 
 const tipoProdutoItems = [
@@ -59,7 +59,7 @@ export function PreferenciaProdutoCard({
   const [fornecedoresTouched, setFornecedoresTouched] = useState(false);
 
   const [availableProducts, setAvailableProducts] = useState<any[]>([]);
-  const [availableClasses, setAvailableClasses] = useState<Classe[]>([]);
+  const [availableClasses, setAvailableClasses] = useState<ProductClass[]>([]);
 
   useEffect(() => {
     async function getRestaurants() {
@@ -226,17 +226,14 @@ export function PreferenciaProdutoCard({
   };
 
   const fornecedoresDisponiveis = useMemo(() => {
-    const todosFornecedores: Supplier[] = [
-      ...suppliers,
-    ];
+    const todosFornecedores: CombinationSupplier[] = [...suppliers];
 
     const fornecedoresLocal = todosFornecedores
       .map((f) => ({
-        id: f.externalId ?? null,
-        nome: f.name ?? '',
+        id: f.idexterno ?? null,
+        nome: f.nomefornecedor ?? '',
       }))
-      .filter((f) => f.id && !bloqueados.includes(f.id))
-      .sort((a, b) => a.nome.localeCompare(b.nome));
+      .filter((f) => f.id && !bloqueados.includes(f.id));
     let fornecedoresFiltrados = fornecedoresLocal;
 
     if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
@@ -438,7 +435,7 @@ export function PreferenciaProdutoCard({
           {produtosValidationError}
         </Text>
       )}
-      
+
       <ContainerSelecaoItemsComFornecedor
         label="Com fornecedor(es)"
         items={fornecedoresDisponiveis}

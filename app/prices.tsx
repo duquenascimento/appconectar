@@ -2,6 +2,7 @@ import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
 import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
+import { Combination } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
@@ -19,7 +20,7 @@ import {
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Input, ScrollView, Stack, Text, View } from 'tamagui';
-import CombinationList, { Combination } from '../src/components/combinationList';
+import CombinationList from '../src/components/combinationList';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
 import { useCombinacao } from '../src/contexts/combinacao.context';
@@ -33,7 +34,7 @@ import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
 import { campoString } from '../src/utils/formatCampos';
-import { getStarValue } from '../src/utils/getStarValue';
+import { HttpStatusCode } from 'axios';
 
 export interface Product {
   price: number;
@@ -105,46 +106,13 @@ const useScreenSize = () => {
   return screenSize;
 };
 
-const sortSuppliers = (suppliers: SupplierData[]): SupplierData[] => {
-  return suppliers.sort((supplierA, supplierB) => {
-    // First, sort by complementary order
-    const isComplementaryA = supplierA.supplier.sameDayOrders.length > 0;
-    const isComplementaryB = supplierB.supplier.sameDayOrders.length > 0;
-    if (isComplementaryA !== isComplementaryB) {
-      return isComplementaryA ? -1 : 1;
-    }
-
-    // Second, sort by missing items (ascending)
-    const totalItemsA =
-      supplierA.supplier.discount.product.length - supplierA.supplier.missingItens;
-    const totalItemsB =
-      supplierB.supplier.discount.product.length - supplierB.supplier.missingItens;
-    if (totalItemsA !== totalItemsB) {
-      return totalItemsB - totalItemsA;
-    }
-
-    // Third, sort by star rating (descending)
-    if (supplierA.supplier.star !== supplierB.supplier.star) {
-      const starA = getStarValue(supplierA.supplier.star);
-      const starB = getStarValue(supplierB.supplier.star);
-      return starB - starA;
-    }
-
-    // Fourth, sort by order value (ascending)
-    return (
-      supplierA.supplier.discount.orderValueFinish - supplierB.supplier.discount.orderValueFinish
-    );
-  });
-};
-
 function SupplierBox({
   supplier,
   available,
-  goToConfirm,
   selectedRestaurant,
+  goToConfirm,
 }: {
   supplier: SupplierData;
-  star: string;
   available: boolean;
   selectedRestaurant: any;
   goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void;
@@ -310,7 +278,7 @@ export default function Prices() {
   const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
-  const { suppliers, unavailableSupplier, loadingSuppliers, loadPrices } = useSupplier();
+  const { availableSuppliers, unavailableSuppliers, loadPrices } = useSupplier();
   const {
     restaurants,
     selectedRestaurant,
@@ -320,8 +288,6 @@ export default function Prices() {
   } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
-  const [sortedSuppliers, setSortedSuppliers] = useState<SupplierData[]>([]);
-  const [sortedUnavailableSuppliers, setSortedUnavailableSuppliers] = useState<SupplierData[]>([]);
   const {
     deliveryDate,
     initializeDeliveryDates,
@@ -491,28 +457,6 @@ export default function Prices() {
   );
 
   useEffect(() => {
-    let tempSuppliers: any[] = [];
-    let tempUnavailableSuppliers: any[] = [];
-
-    const filteredSuppliers = suppliers.filter(
-      (item) => item.supplier.hour.substring(0, 5) !== '06:00',
-    );
-
-    const filteredUnavailableSuppliers = unavailableSupplier;
-
-    tempSuppliers.push(...filteredSuppliers.map((item) => ({ ...item, available: true })));
-    tempUnavailableSuppliers.push(
-      ...filteredUnavailableSuppliers.map((item) => ({ ...item, available: false })),
-    );
-
-    const finalSortedSuppliers = sortSuppliers(tempSuppliers);
-    const finalSortedUnavailableSuppliers = sortSuppliers(tempUnavailableSuppliers);
-
-    setSortedSuppliers(finalSortedSuppliers);
-    setSortedUnavailableSuppliers(finalSortedUnavailableSuppliers);
-  }, [suppliers, unavailableSupplier]);
-
-  useEffect(() => {
     if (selectedRestaurant) {
       const addressInfo = selectedRestaurant.addressInfos && selectedRestaurant.addressInfos[0];
 
@@ -586,12 +530,11 @@ export default function Prices() {
 
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
-  const renderItem = ({ item }: { item: any }) => {
+  const renderItem = ({ item }: { item: SupplierData }, available: boolean) => {
     return (
       <SupplierBox
         supplier={item}
-        star={item.star}
-        available={item.available}
+        available={available}
         selectedRestaurant={selectedRestaurant}
         goToConfirm={goToConfirm}
       />
@@ -777,20 +720,20 @@ export default function Prices() {
 
                   <VirtualizedList
                     style={{ marginBottom: 5 }}
-                    data={sortedSuppliers}
+                    data={availableSuppliers}
                     getItemCount={getItemCount}
                     getItem={getItem}
                     keyExtractor={(item, index) =>
                       item.supplier ? item.supplier.name : `separator-${index}`
                     }
-                    renderItem={renderItem}
+                    renderItem={(item) => renderItem(item, true)}
                     ItemSeparatorComponent={() => <View height={2} />}
-                    initialNumToRender={sortedSuppliers.length}
+                    initialNumToRender={availableSuppliers.length}
                     /* windowSize={4} */
                     scrollEnabled={false}
                   />
 
-                  {unavailableSupplier.length > 0 && (
+                  {unavailableSuppliers.length > 0 && (
                     <>
                       <Text
                         style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
@@ -804,15 +747,15 @@ export default function Prices() {
 
                       <VirtualizedList
                         style={{ marginBottom: 5 }}
-                        data={sortedUnavailableSuppliers}
+                        data={unavailableSuppliers}
                         getItemCount={getItemCount}
                         getItem={getItem}
                         keyExtractor={(item, index) =>
                           item.supplier ? item.supplier.name : `separator-${index}`
                         }
-                        renderItem={renderItem}
+                        renderItem={(item) => renderItem(item, false)}
                         ItemSeparatorComponent={() => <View height={2} />}
-                        initialNumToRender={sortedUnavailableSuppliers.length}
+                        initialNumToRender={unavailableSuppliers.length}
                         /* windowSize={4} */
                         scrollEnabled={false}
                       />
@@ -852,7 +795,7 @@ export default function Prices() {
                         deliveryDate: deliveryDate,
                       });
 
-                      if (result.status === 201) {
+                      if (result.status === HttpStatusCode.Ok) {
                         setLoading(false);
                         setShowNotification(true);
                       } else {

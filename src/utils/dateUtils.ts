@@ -26,3 +26,11 @@ export function isTomorrow(dateToCheck: DateTime): boolean {
     dateToCheck.hasSame(tomorrow, 'day')
   );
 }
+
+export function convertToDaysUpFront(date: DateTime): number {
+  return Math.ceil(date.diff(DateTime.now(), 'days').days);
+}
+
+export function convertFromDaysUpFront(daysUpfront: number): DateTime {
+  return DateTime.now().plus({ days: daysUpfront }).startOf('day');
+}

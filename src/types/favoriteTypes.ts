@@ -13,8 +13,9 @@ export type Favorites = {
   id: string;
   active: boolean;
   createdBy: string;
-  createdAt: Date;
+  createdAt: string;
   changedBy: string;
-  updatedAt: Date;
+  updatedAt: string;
   obs: string;
+  favorite?: boolean;
 };

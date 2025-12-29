@@ -1,12 +1,12 @@
-import Icons from '@expo/vector-icons/Ionicons';
-import { YStack, Text, Button, Separator, XStack, Switch } from 'tamagui';
-import { useEffect, useState } from 'react';
-import { PreferenciaProdutoCard } from './PreferenciaProdutoCard';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
+import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useEffect, useState } from 'react';
+import { Button, Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { resetarPreferencias } from '../../utils/preferenciaUtils';
+import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
-import { Supplier } from '@/src/types/types';
+import { PreferenciaProdutoCard } from './PreferenciaProdutoCard';
 
 export function ContainerPreferenciasProduto({
   error,
@@ -15,7 +15,7 @@ export function ContainerPreferenciasProduto({
   triggerValidation,
 }: {
   error?: string;
-  suppliers: Supplier[];
+  suppliers: CombinationSupplier[];
   onClearErrors: () => void;
   triggerValidation?: boolean;
 }) {
@@ -128,7 +128,7 @@ export function ContainerPreferenciasProduto({
       <Separator />
 
       {error && (
-        <Text p="$1" color="red">
+        <Text padding="$1" color="red">
           {error}
         </Text>
       )}
@@ -147,7 +147,7 @@ export function ContainerPreferenciasProduto({
         ))}
 
       {combinacao.definir_preferencia_produto && (
-        <Button mt="$2" onPress={adicionarPreferencia} marginVertical="$4">
+        <Button marginTop="$2" onPress={adicionarPreferencia} marginVertical="$4">
           <Icons name="add" size={20} />
           Adicionar Produto
         </Button>

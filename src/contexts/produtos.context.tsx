@@ -1,58 +1,25 @@
-
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-
-export type Product = {
-  name: string
-  orderUnit: string
-  quotationUnit: string
-  convertedWeight: number
-  class: string
-  sku: string
-  id: string
-  active: true
-  createdBy: string
-  createdAt: string
-  changedBy: string
-  updatedAt: string
-  image: string[]
-  favorite?: boolean
-  mediumWeight: number
-  firstUnit: number
-  secondUnit: number
-  thirdUnit: number
-  obs: string
-}
-
-export type Classe = {
-  id: string
-  nome: string
-  ativo: boolean
-}
+import { getAllProducts, getProductClasses } from '../services/productsService'
+import { Product, ProductClass } from '../types/productTypes'
 
 type ProductContextType = {
   productsContext: Product[]
   isLoading: boolean
-  classe: Classe[]
+  classe: ProductClass[]
 }
 
 const ProductContext = createContext<ProductContextType | null>(null)
 
 export const ProductProvider = ({ children }: { children: React.ReactNode }) => {
   const [productsContext, setProductsContext] = useState<Product[]>([])
-  const [classe, setClasse] = useState<Classe[]>([])
+  const [classe, setClasse] = useState<ProductClass[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchClass = async () => {
       try {
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/classes-produto`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        const classeResult = await result.json()
-        setClasse(classeResult.data)
+        const classes = await getProductClasses();
+        setClasse(classes);
       } catch (err) {
         console.error('Erro ao buscar classes:', err)
       } finally {
@@ -66,15 +33,8 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/product/list`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: '{}'
-        })
-        const productsResult = await result.json()
-        setProductsContext(productsResult.data)
+        const products = await getAllProducts()
+        setProductsContext(products)
       } catch (err) {
         console.error('Erro ao buscar produtos:', err)
       } finally {
