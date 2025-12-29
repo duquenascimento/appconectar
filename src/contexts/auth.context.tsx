@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { deleteToken, getToken, setToken } from "../utils/utils";
 
 interface AuthContextProps {
@@ -12,23 +12,23 @@ const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [authToken, setAuthToken] = useState<string | null>(null);
 
-    const saveAuthToken = async (token: string) => {
+    const saveAuthToken = useCallback(async (token: string) => {
         try {
             await setToken(token);
             setAuthToken(token);
         } catch (error) {
             console.error('Erro ao salvar token:', error);
         }
-    };
+    }, []);
 
-    const deleteAuthToken = async () => {
+    const deleteAuthToken = useCallback(async () => {
         try {
             await deleteToken();
             setAuthToken(null);
         } catch (error) {
             console.error('Erro ao deletar token:', error);
         }
-    };
+    }, []);
 
     useEffect(() => {
         const initialize = async () => {
