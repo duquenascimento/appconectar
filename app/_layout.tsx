@@ -2,15 +2,16 @@ import 'react-native-gesture-handler';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useSegments } from 'expo-router';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
 import { useFonts } from 'expo-font';
 import { useEffect } from 'react';
 import { ActivityIndicator, BackHandler, View } from 'react-native';
-import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
+import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
+import { AuthProvider } from '@/src/contexts/auth.context';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -18,7 +19,7 @@ export default function RootLayout() {
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthGuard();
   const segments = useSegments();
 
   useEffect(() => {
@@ -30,37 +31,38 @@ export default function RootLayout() {
     return () => backHandler.remove();
   }, []);
 
-  if (
+  const isScreenLoading =
     !loaded ||
     isAuthenticated === null ||
-    (isAuthenticated === false && isProtectedRoute(segments))
-  ) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    );
-  }
+    (isAuthenticated === false && isProtectedRoute(segments));
 
   return (
     <TamaguiProvider config={config}>
-      <RestaurantProvider>
-        <FavoritesProvider>
-          <ProductProvider>
-            <CombinacaoProvider>
-              <SupplierProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'slide_from_right',
-                    gestureEnabled: true,
-                  }}
-                />
-              </SupplierProvider>
-            </CombinacaoProvider>
-          </ProductProvider>
-        </FavoritesProvider>
-      </RestaurantProvider>
+      <AuthProvider>
+        <RestaurantProvider>
+          <FavoritesProvider>
+            <ProductProvider>
+              <CombinacaoProvider>
+                <SupplierProvider>
+                  {isScreenLoading ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                      <ActivityIndicator size="large" color="#04BF7B" />
+                    </View>
+                  ) : (
+                    <Stack
+                      screenOptions={{
+                        headerShown: false,
+                        animation: 'slide_from_right',
+                        gestureEnabled: true,
+                      }}
+                    />
+                  )}
+                </SupplierProvider>
+              </CombinacaoProvider>
+            </ProductProvider>
+          </FavoritesProvider>
+        </RestaurantProvider>
+      </AuthProvider>
     </TamaguiProvider>
   );
 }

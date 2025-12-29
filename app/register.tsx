@@ -7,7 +7,6 @@ import { TextInputMask } from 'react-native-masked-text'
 import {
   getStorage,
   getToken,
-  deleteToken,
   clearStorage
 } from '../src/utils/utils'
 import DropDownPicker from 'react-native-dropdown-picker'
@@ -30,6 +29,8 @@ import {
   saveStepData
 } from '@/src/services/registerProgressService'
 import { router } from 'expo-router'
+import { useAuthContext } from '@/src/contexts/auth.context'
+import { useRestaurantContext } from '@/src/contexts/restaurant.context'
 
 interface Empresa {
   inscricao_estadual?: string | null
@@ -112,6 +113,8 @@ export default function Register() {
   const [paymentWayOpen, setPaymentWayOpen] = useState(false)
   const [daysOpen, setDaysOpen] = useState(false)
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true)
+  const { deleteAuthToken } = useAuthContext();
+  const { loadRestaurants } = useRestaurantContext();
  
 
   const allClosedDropdowns = () => {
@@ -187,7 +190,11 @@ export default function Register() {
         )
 
         if (response.ok) {
-          await clearStorage()
+          await Promise.all([
+            clearStorage(),
+            loadRestaurants(),
+          ]);
+
           router.push('registerFinished')
         }
       } finally {
@@ -514,7 +521,7 @@ export default function Register() {
 
   const clearToken = async () => {
     try {
-      await deleteToken()
+      await deleteAuthToken()
     } catch (error) {
       console.error('Erro ao excluir o token:', error)
     }

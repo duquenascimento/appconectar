@@ -7,9 +7,10 @@ import { Linking } from 'react-native';
 import PageContainer from '@/src/components/box/PageContainer';
 import { deleteUser, getUserData } from '@/src/utils/userUtils';
 import { VersionInfo } from '@/src/utils/VersionApp';
-import { clearStorage, deleteToken } from '@/src/utils/utils';
+import { clearStorage } from '@/src/utils/utils';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
 import CustomAlert from '@/src/components/modais/CustomAlert';
+import { useAuthContext } from '@/src/contexts/auth.context';
 
 interface User {
   name: string;
@@ -24,6 +25,7 @@ export default function UserInfo() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
+  const { deleteAuthToken } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -61,7 +63,7 @@ export default function UserInfo() {
   };
 
   const handleLogout = async () => {
-    await Promise.all([clearStorage(), deleteToken()]);
+    await Promise.all([clearStorage(), deleteAuthToken()]);
     setDeleted(false);
     router.dismissAll();
     router.replace('/');
@@ -233,7 +235,7 @@ export default function UserInfo() {
         <View
           onPress={async () => {
             setLoading(true);
-            await Promise.all([clearStorage(), deleteToken()]);
+            await Promise.all([clearStorage(), deleteAuthToken()]);
             setLoading(false);
             router.dismissAll();
             router.replace('/');

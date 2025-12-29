@@ -40,8 +40,9 @@ import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Produc
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
-import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
+import { clearStorage, getToken } from '../src/utils/utils';
 import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
+import { useAuthContext } from '@/src/contexts/auth.context';
 
 export type Product = {
   name: string;
@@ -488,6 +489,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
   const { favorites, setFavorites } = useFavoritesContext();
+  const { deleteAuthToken } = useAuthContext();
   const {
     cart,
     setCart,
@@ -528,7 +530,7 @@ export default function Products() {
 
     let initialRestaurant = contextRestaurant;
     if (!allRestaurantBlocked) {
-      initialRestaurant = restaurants[0];
+      initialRestaurant = availableRestaurants[0];
 
       if (contextRestaurant) {
         const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
@@ -1147,9 +1149,11 @@ export default function Products() {
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
-              await Promise.all([clearStorage(), deleteToken()]);
+              await Promise.all([clearStorage(), deleteAuthToken()]);
               setLoading(false);
-              router.dismissAll();
+              if(router.canDismiss()) {
+                router.dismissAll();
+              }
               router.replace('/');
             }}
             padding={10}
