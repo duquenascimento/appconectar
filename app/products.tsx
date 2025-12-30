@@ -588,7 +588,6 @@ export default function Products() {
           if (!initialRestaurant) return;
 
           if (initialRestaurant?.externalId) {
-            console.log("SaveUserAppInfo in products page", initialRestaurant?.externalId)
             await SaveUserAppInfo();
           }
 
