@@ -534,7 +534,8 @@ export default function Products() {
         const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
         if (found) initialRestaurant = found;
       }
-
+    }
+    if(initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 
@@ -587,6 +588,7 @@ export default function Products() {
           if (!initialRestaurant) return;
 
           if (initialRestaurant?.externalId) {
+            console.log("SaveUserAppInfo in products page", initialRestaurant?.externalId)
             await SaveUserAppInfo();
           }
 
