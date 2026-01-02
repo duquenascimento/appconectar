@@ -19,13 +19,14 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import { getOrders } from '../src/services/orderService';
 import { ordersScreenStyles as styles } from '../src/styles/styles';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
-import { clearStorage, deleteToken } from '../src/utils/utils';
+import { clearStorage } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
 import { DateTime } from 'luxon';
 import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
 import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
 import { isTomorrow } from '@/src/utils/dateUtils';
 import DialogComercialInstance from '@/src/components/dialogComercialInstance';
+import { useAuthContext } from '@/src/contexts/auth.context';
 
 interface Order {
   orderDocument: ReactNode;
@@ -75,6 +76,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
   const [customAlertTitle, setCustomAlertTitle] = useState('');
   const [customAlertMessage, setCustomAlertMessage] = useState('');
   const { width: screenWidth } = useWindowDimensions();
+  const { deleteAuthToken } = useAuthContext();
   const isLargeScreen = screenWidth > 800;
 
   const router = useRouter();
@@ -487,7 +489,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
         <View
           onPress={async () => {
             setLoading(true);
-            await Promise.all([clearStorage(), deleteToken()]);
+            await Promise.all([clearStorage(), deleteAuthToken()]);
             router.push('/');
           }}
           padding={10}

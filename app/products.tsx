@@ -42,8 +42,10 @@ import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/Virtuali
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
 import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
 import { normalizeText } from '../src/utils/stringUtils';
-import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
-import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
+import { clearStorage, getToken } from '../src/utils/utils';
+import { VersionInfo  } from '../src/utils/VersionApp';
+import { checkVersion, saveUserAppInfo } from '@/src/services/versionService';
+import { useAuthContext } from '@/src/contexts/auth.context';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -457,6 +459,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
+  const { deleteAuthToken } = useAuthContext();
   const {
     cart,
     setCart,
@@ -497,13 +500,14 @@ export default function Products() {
 
     let initialRestaurant = contextRestaurant;
     if (!allRestaurantBlocked) {
-      initialRestaurant = restaurants[0];
+      initialRestaurant = availableRestaurants[0];
 
       if (contextRestaurant) {
         const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
         if (found) initialRestaurant = found;
       }
-
+    }
+    if(initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 
@@ -514,17 +518,22 @@ export default function Products() {
     if (Platform.OS === 'web' || !selectedRestaurant) return;
 
     const runCheck = async () => {
-      await getInitialRestaurant(selectedRestaurant);
+      try {
+         await getInitialRestaurant(selectedRestaurant);
 
-      const result = await checkVersion();
-
-      if (result?.result?.updateRequired) {
-        setUpdateRequired(true);
-        setUpdateMessage(result.result.message ?? '');
-      } else {
+        const result = await checkVersion();
+        if (result.updateRequired) {
+          setUpdateRequired(true);
+          setUpdateMessage(result.message ?? '');
+        } else {
+          setUpdateRequired(false);
+          setUpdateMessage('');
+        }
+      } catch(error) {
         setUpdateRequired(false);
         setUpdateMessage('');
       }
+     
     };
     runCheck();
   }, [selectedRestaurant]);
@@ -556,7 +565,7 @@ export default function Products() {
           if (!initialRestaurant) return;
 
           if (initialRestaurant?.externalId) {
-            await SaveUserAppInfo();
+            await saveUserAppInfo();
           }
 
           // Extraindo categorias
@@ -1083,9 +1092,11 @@ export default function Products() {
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
-              await Promise.all([clearStorage(), deleteToken()]);
+              await Promise.all([clearStorage(), deleteAuthToken()]);
               setLoading(false);
-              router.dismissAll();
+              if(router.canDismiss()) {
+                router.dismissAll();
+              }
               router.replace('/');
             }}
             padding={10}

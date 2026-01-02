@@ -7,11 +7,10 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { getToken, setStorage } from '../utils/utils';
-import { getSavedRestaurant } from '../utils/savedRestaurant';
-import { updateRestaurantDeliveryInfo } from '../services/restaurantService';
+import { getUserRestaurants, updateRestaurantDeliveryInfo } from '../services/restaurantService';
 import { Restaurant } from '../types/restaurantTypes';
 import { getStorageRestaurant, setStorageRestaurant } from '../utils/restaurantUtils';
+import { useAuthContext } from './auth.context';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
@@ -28,6 +27,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [, setLoading] = useState(false);
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const { authToken } = useAuthContext();
 
   const handleRestaurantChange = useCallback(
     async (restaurant: Restaurant | null) => {
@@ -71,34 +71,21 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   const loadRestaurants = useCallback(async (): Promise<Restaurant[]> => {
     setLoading(true);
     try {
-      const token = await getToken();
-      if (!token) {
+      const fetchedRestaurants = await getUserRestaurants();
+
+      if (!fetchedRestaurants || fetchedRestaurants.length === 0) {
         setRestaurants([]);
         return [];
       }
 
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/restaurant/list`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token }),
-      });
+      setRestaurants(fetchedRestaurants);
 
-      if (!result.ok) {
-        setRestaurants([]);
-        return [];
-      }
-
-      const data = await result.json();
-      const list = data?.data ?? [];
-
-      setRestaurants(list);
-
-      if (!selectedRestaurant && list.length > 0) {
+      if (!selectedRestaurant) {
         const stored = await getStorageRestaurant();
-        setSelectedRestaurant(stored ?? list[0]);
+        setSelectedRestaurant(stored ?? fetchedRestaurants[0]);
       }
 
-      return list;
+      return fetchedRestaurants;
     } catch (error) {
       console.error('Erro ao carregar restaurantes:', error);
       setRestaurants([]);
@@ -111,6 +98,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initialize = async () => {
+      if(!authToken) return;
       try {
         const stored = await getStorageRestaurant();
         const list = await loadRestaurants();
@@ -126,7 +114,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       }
     };
     initialize();
-  }, []);
+  }, [authToken]);
 
   const value = useMemo(
     () => ({

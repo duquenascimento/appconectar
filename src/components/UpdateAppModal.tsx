@@ -26,10 +26,8 @@ export function UpdateAppModal({ openModal, message }: UpdateAppModalProps) {
     >
       <XStack alignSelf="center" gap="$4" marginTop="$2">
         <Button
-          width="$24"
           theme="active"
           backgroundColor="$blue9"
-          color="$white"
           pressStyle={{ backgroundColor: '$blue10' }}
           onPress={handleUpdatePress}
           fontSize="$5"
