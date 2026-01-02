@@ -41,7 +41,8 @@ import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/Virtuali
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
 import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
-import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
+import { VersionInfo  } from '../src/utils/VersionApp';
+import { checkVersion, saveUserAppInfo } from '@/src/services/versionService';
 
 export type Product = {
   name: string;
@@ -534,7 +535,8 @@ export default function Products() {
         const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
         if (found) initialRestaurant = found;
       }
-
+    }
+    if(initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 
@@ -545,17 +547,22 @@ export default function Products() {
     if (Platform.OS === 'web' || !selectedRestaurant) return;
 
     const runCheck = async () => {
-      await getInitialRestaurant(selectedRestaurant);
+      try {
+         await getInitialRestaurant(selectedRestaurant);
 
-      const result = await checkVersion();
-
-      if (result?.result?.updateRequired) {
-        setUpdateRequired(true);
-        setUpdateMessage(result.result.message ?? '');
-      } else {
+        const result = await checkVersion();
+        if (result.updateRequired) {
+          setUpdateRequired(true);
+          setUpdateMessage(result.message ?? '');
+        } else {
+          setUpdateRequired(false);
+          setUpdateMessage('');
+        }
+      } catch(error) {
         setUpdateRequired(false);
         setUpdateMessage('');
       }
+     
     };
     runCheck();
   }, [selectedRestaurant]);
@@ -587,7 +594,7 @@ export default function Products() {
           if (!initialRestaurant) return;
 
           if (initialRestaurant?.externalId) {
-            await SaveUserAppInfo();
+            await saveUserAppInfo();
           }
 
           // Extraindo categorias

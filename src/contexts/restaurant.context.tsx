@@ -7,8 +7,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { getToken, setStorage } from '../utils/utils';
-import { getSavedRestaurant } from '../utils/savedRestaurant';
+import { getToken } from '../utils/utils';
 import { updateRestaurantDeliveryInfo } from '../services/restaurantService';
 import { Restaurant } from '../types/restaurantTypes';
 import { getStorageRestaurant, setStorageRestaurant } from '../utils/restaurantUtils';

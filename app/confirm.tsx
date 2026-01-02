@@ -418,7 +418,6 @@ export default function Confirm() {
         setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
         setBooleanErros(true);
       } finally {
-        console.log('Finalizando confirmação...');
         setLoadingToConfirm(false);
       }
     },

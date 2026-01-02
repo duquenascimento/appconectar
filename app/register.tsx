@@ -482,7 +482,6 @@ export default function Register() {
       if (step < 3) {
         const nextStep = step + 1
         await saveStepData(formik.values, nextStep)
-        console.log('Dados do passo salvos:', { step: nextStep, values: formik.values })
       }
     } catch (error) {
       console.error('Erro em handleNextBtn:', error)
