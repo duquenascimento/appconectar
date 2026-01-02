@@ -7,9 +7,10 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { getFavorites } from '../services/favoritosService';
+import { Favorites } from '../types/favoriteTypes';
 import { getToken } from '../utils/utils';
 import { useRestaurantContext } from './restaurant.context';
-import { Favorites } from '../types/favoriteTypes';
 
 interface FavoritesContextType {
   favorites: Favorites[];
@@ -32,27 +33,11 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
         return [];
       }
 
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/favorite/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          restaurantId: selectedRestaurant.id,
-        }),
-      });
+      const favoritesResponse = await getFavorites(token, selectedRestaurant.id);
 
-      if (!response.ok) {
-        console.warn('Falha ao carregar favoritos:', response.status);
-        return [];
-      }
+      setFavorites(favoritesResponse);
 
-      const data = await response.json();
-      const list = data?.data;
-      setFavorites(list);
-
-      return list;
+      return favoritesResponse;
     } catch (error) {
       console.error('Erro ao carregar favoritos:', error);
       return [];

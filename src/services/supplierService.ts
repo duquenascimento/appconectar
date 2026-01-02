@@ -1,57 +1,18 @@
-import axios from 'axios'
-const API_URL = process.env.EXPO_PUBLIC_API_DBCONECTAR_URL
+import axios from 'axios';
+import { GetAllSuppliersParams, CombinationSupplier } from '../types/suppliersDataTypes';
 
-export const getAllSuppliers = async () => {
+const API_URL = process.env.EXPO_PUBLIC_API_DBCONECTAR_URL;
+
+export const getAllSuppliers = async (params?: GetAllSuppliersParams): Promise<CombinationSupplier[]> => {
   try {
-    const response = await axios.get(`${API_URL}/system/fornecedores`)
-    return response.data.data
+    const queryParams = {
+      orderBy: params?.orderBy ?? 'nomefornecedor',
+      order: params?.order ?? 'asc',
+    };
+    const response = await axios.get(`${API_URL}/system/fornecedores`, { params: queryParams });
+    return response.data.data as CombinationSupplier[];
   } catch (error) {
-    console.error('Erro ao buscar fornecedores:', error)
-    throw error
+    console.error('Erro ao buscar fornecedores:', error);
+    throw error;
   }
-}
-
-export interface Supplier {
-  id: string
-  idExterno: string
-  nomefornecedor: string
-  razaoSocial: string
-  responsavel: string
-  telefoneContato: string
-  cnpj: string
-  inscricaoEstadual: string
-  email: string
-  senha: string
-  emailFinanceiro: string
-  logradouro: string
-  complemento: string
-  telefoneResponsavelEntregas: string
-  cep: string
-  ativo: boolean
-  nomeResponsavelEntregas: string
-  emails: string | null
-  numero: string
-  bloqueio: boolean
-  dataCadastro: string
-  dataAlteracao: string
-  responsavelCadastro: string
-  responsavelAlteracao: string | null
-  mondayHorario: string
-  tuesdayHorario: string
-  wednesdayHorario: string
-  thursdayHorario: string
-  fridayHorario: string
-  saturdayHorario: string
-  sundayHorario: string
-  zonaSulMinimo: string
-  centroMinimo: string
-  zonaOesteBarraJacarepaguaMinimo: string
-  zonaOesteMinimo: string
-  zonaNorteGrandeMeierMinimo: string
-  zonaNorteIlhaGovLeopoldinaMinimo: string
-  zonaNorteMinimo: string
-  niteroiMinimo: string
-  zonaNorteGrandeTijucaMinimo: string
-  urlRelatorio: string
-  nota: string
 }

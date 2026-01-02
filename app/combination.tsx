@@ -1,34 +1,30 @@
-import { useEffect, useState, useCallback } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
-import { ScrollView, XStack, YStack, Button, View } from 'tamagui';
-import * as Yup from 'yup';
-import { useRoute } from '@react-navigation/native';
-import { router } from 'expo-router';
-import CustomButton from '../src/components/button/customButton';
-import CustomHeader from '../src/components/header/customHeader';
-import { InputNome } from '../src/components/Combination/InputNome';
-import { DropdownCampo } from '../src/components/Combination/DropdownCampo';
-import { BloqueioFornecedoresCampo } from '../src/components/Combination/BloqueioFornecedores';
-import { PreferenciaFornecedorCampo } from '../src/components/Combination/PreferenciaFornecedorTipo';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { ContainerPreferenciasProduto } from '../src/components/Combination/ContainerPreferenciasProduto';
-import { getCombinationsByRestaurant } from '../src/services/combinationsService';
-import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
-import CustomAlert from '../src/components/modais/CustomAlert';
-import { useSupplier } from '../src/contexts/fornecedores.context';
-import PageContainer from '../src/components/box/PageContainer';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { Combinacao } from '../src/types/combinationTypes';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
+import { getAllSuppliers } from '@/src/services/supplierService';
+import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { Supplier } from '@/src/types/types';
-import { getAllSuppliers } from '@/src/services/supplierService';
-
-export interface SuplierCombination {
-  id: string;
-  nomefornecedor: string;
-}
+import { useRoute } from '@react-navigation/native';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
+import { Button, ScrollView, View, XStack, YStack } from 'tamagui';
+import * as Yup from 'yup';
+import PageContainer from '../src/components/box/PageContainer';
+import CustomButton from '../src/components/button/customButton';
+import { BloqueioFornecedoresCampo } from '../src/components/Combination/BloqueioFornecedores';
+import { ContainerPreferenciasProduto } from '../src/components/Combination/ContainerPreferenciasProduto';
+import { DropdownCampo } from '../src/components/Combination/DropdownCampo';
+import { InputNome } from '../src/components/Combination/InputNome';
+import { PreferenciaFornecedorCampo } from '../src/components/Combination/PreferenciaFornecedorTipo';
+import CustomHeader from '../src/components/header/customHeader';
+import CustomAlert from '../src/components/modais/CustomAlert';
+import { useSupplier } from '../src/contexts/fornecedores.context';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { getCombinationsByRestaurant } from '../src/services/combinationsService';
+import { Combinacao } from '../src/types/combinationTypes';
+import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
+import { ComboOption } from '@/src/types/componentTypes';
 
 export function Combination(): JSX.Element {
   const route = useRoute();
@@ -44,22 +40,14 @@ export function Combination(): JSX.Element {
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
   const [loading, setLoading] = useState<boolean>(true);
-  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
-    Array<{ label: string; value: number }>
-  >([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<Array<ComboOption<number>>>([]);
+  const [suppliers, setSuppliers] = useState<CombinationSupplier[]>([]);
 
   useEffect(() => {
     const suppliersFn = async () => {
-      const result = await getAllSuppliers();
+      const suppliers = await getAllSuppliers();
 
-      setSuppliers(
-        result.map((item: any) => ({
-          name: item.nomefornecedor,
-          externalId: item.idexterno,
-          start: item.nota,
-        })),
-      );
+      setSuppliers(suppliers);
     };
     suppliersFn();
   }, []);

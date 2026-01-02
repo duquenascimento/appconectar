@@ -34,6 +34,7 @@ import { getPaymentDate, isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
+import { HttpStatusCode } from 'axios';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -404,7 +405,7 @@ export default function Confirm() {
 
         const result = await confirmOrder(body);
 
-        if (result.status === 201) {
+        if (result.status === HttpStatusCode.Ok) {
           await setStorage('finalConfirmData', JSON.stringify(result.data.data));
           resetDeliveryDate();
           setConfirmedWarnings({ missingItems: false, sundayWarning: false });

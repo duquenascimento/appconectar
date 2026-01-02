@@ -1,17 +1,18 @@
-import { YStack, Separator, XStack, Text, Switch } from 'tamagui';
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { ComboOption } from '@/src/types/componentTypes';
+import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { useEffect, useMemo, useState } from 'react';
+import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
+import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { useEffect, useMemo, useState } from 'react';
-import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
-import { Supplier } from '@/src/types/types';
 
 export function BloqueioFornecedoresCampo({
   suppliers,
   error,
   onChange,
 }: {
-  suppliers: Supplier[];
+  suppliers: CombinationSupplier[];
   error?: string;
   onChange: (val: string[]) => void;
 }) {
@@ -19,23 +20,19 @@ export function BloqueioFornecedoresCampo({
   const [showModal, setShowModal] = useState(false);
 
   const [selectFornecedoresContextoBloq, setSelectFornecedoresContextoBloq] = useState<
-    { label: string; value: string }[]
+    ComboOption<string>[]
   >([]);
 
   const fornecedoresContexto = useMemo(() => {
     const todosFornecedores = [...suppliers];
 
     const fornecedoresNaoSelecionados = todosFornecedores.filter(
-      (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.externalId),
+      (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.idexterno),
     );
 
-    const fornecedoresClassificados = fornecedoresNaoSelecionados.sort((a, b) =>
-      a.name.localeCompare(b.name),
-    );
-
-    return fornecedoresClassificados.map((supplier) => ({
-      label: supplier.name,
-      value: supplier.externalId,
+    return fornecedoresNaoSelecionados.map((supplier) => ({
+      label: supplier.nomefornecedor,
+      value: supplier.idexterno,
     }));
   }, [suppliers, combinacao.fornecedores_especificos]);
 
