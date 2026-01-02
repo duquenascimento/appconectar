@@ -414,7 +414,7 @@ export default function Sign() {
     } finally {
       setLoading(false)
     }
-  }, [authToken])
+  }, [authToken, deleteAuthToken])
 
   useEffect(() => {
     checkLogin()
