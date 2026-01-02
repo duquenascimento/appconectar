@@ -4,8 +4,8 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'tamagui';
 import { clearStorage, getStorage } from '../src/utils/utils';
-import { SaveUserAppInfo } from '../src/utils/VersionApp';
 import { SupplierData } from './prices';
+import { saveUserAppInfo } from '@/src/services/versionService';
 
 interface RestaurantInfo {
   restName: string;
@@ -243,7 +243,11 @@ export default function FinalConfirm() {
             <Button
               onPress={async () => {
                 router.push('/products');
-                SaveUserAppInfo();
+                try {
+                  saveUserAppInfo();
+                } catch (err) {
+                  console.error(`Erro ao salvar dados do app: ${err}`);
+                }
               }}
               backgroundColor="#04BF7B"
             >

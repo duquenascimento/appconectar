@@ -398,7 +398,6 @@ export default function Sign() {
 
       if (response.ok) {
         const role = await getStorage('role')
-        console.log("role", role)
         if (role === 'registering') {
           // navigation.replace('Register')
           router.replace('/register')
