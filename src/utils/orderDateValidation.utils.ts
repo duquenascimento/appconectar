@@ -97,6 +97,11 @@ export function getAvailableDeliveryDaysFormatted(restaurant: Restaurant): strin
     addDateIfValid(availableDates, sunday);
   }
 
+  // Rule 4: Force delivery on current day if emergency orders are allowed
+  if (restaurant.allowEmergencyOrder) {
+    return [today.toISODate()!];
+  }
+
   return availableDates;
 }
 

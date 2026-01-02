@@ -267,6 +267,7 @@ export default function Prices() {
   const [showNotification, setShowNotification] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [isConectarAlertVisible, setIsConectarAlertVisible] = useState(false);
+  const [emergencyAlertVisible, setEmergencyAlertVisible] = useState<boolean>(false);
   const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
@@ -894,8 +895,25 @@ export default function Prices() {
                 overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="calendar" />
-                <View marginLeft={20} />
-                <Text fontSize={12}>{getFormattedDate()}</Text>
+                <View
+                  marginLeft={20}
+                  flex={1}
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Text fontSize={12}>{getFormattedDate()}</Text>
+                  {selectedRestaurant.allowEmergencyOrder ? (
+                    <Icons
+                      size={20}
+                      name="alert-circle"
+                      color="#04BF7B"
+                      onPress={() => setEmergencyAlertVisible(true)}
+                    />
+                  ) : (
+                    <></>
+                  )}
+                </View>
               </View>
               <View
                 padding={10}
@@ -2134,6 +2152,12 @@ export default function Prices() {
             title="Conéctar+ indisponível!"
             message="Parece que a cotação automática do Conectar+ ainda não está disponível para sua conta. Mas tudo bem! Solicite uma cotação e daremos continuidade ao seu pedido."
             onConfirm={() => setIsConectarAlertVisible(false)}
+          />
+          <CustomAlert
+            visible={emergencyAlertVisible}
+            title="Este é um pedido de emergência"
+            message="Fique atento à data de entrega do pedido"
+            onConfirm={() => setEmergencyAlertVisible(false)}
           />
           <DialogComercialInstance
             openModal={showBlockedModal}
