@@ -26,11 +26,12 @@ import {
 //import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { deleteToken, getStorage, getToken, setToken } from '../src/utils/utils'
+import { getStorage } from '../src/utils/utils'
 import { openURL } from 'expo-linking'
 import { VersionInfo } from '../src/utils/VersionApp'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { TextInputMask } from 'react-native-masked-text'
+import { useAuthContext } from '@/src/contexts/auth.context'
 
 type RootStackParamList = {
   Home: undefined
@@ -367,6 +368,7 @@ export default function Sign() {
   const scrollRef = useRef<ScrollView>(null)
   const [loading, setLoading] = useState(true)
   const [closeModal, setCloseModal] = useState<boolean>(false)
+  const { authToken, deleteAuthToken } = useAuthContext();
 
   const handleCloseModal = () => {
     setCloseModal(!closeModal)
@@ -378,8 +380,7 @@ export default function Sign() {
 
   const checkLogin = useCallback(async () => {
     try {
-      const token = await getToken()
-      if (token == null) {
+      if (authToken == null) {
         setLoading(false)
         return
       }
@@ -391,7 +392,7 @@ export default function Sign() {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ token })
+          body: JSON.stringify({ token: authToken })
         }
       )
 
@@ -406,14 +407,14 @@ export default function Sign() {
         }
       } else {
         await AsyncStorage.clear()
-        await deleteToken()
+        await deleteAuthToken()
       }
     } catch (err) {
       console.error(err)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [authToken, deleteAuthToken])
 
   useEffect(() => {
     checkLogin()
@@ -506,7 +507,6 @@ export default function Sign() {
 export function SignInMobile(props: {
   page: string
   onButtonPress: (page: string) => void
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
   modal: () => void
 }) {
   const [showPw, setShowPw] = useState(true)
@@ -515,6 +515,7 @@ export function SignInMobile(props: {
   const [email, setEmail] = useState('')
   const [erros, setErros] = useState([])
   const [loading, setLoading] = useState(false)
+  const { saveAuthToken } = useAuthContext();
 
   const login = async (
     email: string,
@@ -553,14 +554,12 @@ export function SignInMobile(props: {
         } = await response.json()
         if (response.ok) {
           await Promise.all([
-            setToken(res.data.token),
+            saveAuthToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
           ])
           if (res.data.role.includes('registering')) {
-            // props.navigation.replace('Register')
             router.replace('/register')
           } else {
-            // props.navigation.replace('Products')
             router.replace('/products')
           }
         } else {
@@ -798,6 +797,7 @@ export function SignUpMobile(props: {
   const [erros, setErros] = useState([])
   const [registerInvalid, setRegisterInvalid] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { saveAuthToken } = useAuthContext();
 
   const validatePhone = (value: string) => {
     const numeric = value.replace(/\D/g, '')
@@ -855,7 +855,7 @@ export function SignUpMobile(props: {
             status: number
           } = await response.json()
           await Promise.all([
-            setToken(res.data.token),
+            saveAuthToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
           ])
           if (res.data.role.includes('registering')) {
@@ -1252,6 +1252,7 @@ export function SignInWeb(props: {
   const [email, setEmail] = useState('')
   const [erros, setErros] = useState([])
   const [loading, setLoading] = useState(false)
+  const { saveAuthToken } = useAuthContext();
 
   const login = async (
     email: string,
@@ -1289,7 +1290,7 @@ export function SignInWeb(props: {
         } = await response.json()
         if (response.ok) {
           await Promise.all([
-            setToken(res.data.token),
+            saveAuthToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
           ])
           if (res.data.role.includes('registering')) {
@@ -1540,6 +1541,7 @@ export function SignUpWeb(props: {
   const [erros, setErros] = useState([])
   const [registerInvalid, setRegisterInvalid] = useState(false)
   const [loading, setLoading] = useState(false)
+  const { saveAuthToken } = useAuthContext();
 
   const validatePhone = (value: string) => {
     const numeric = value.replace(/\D/g, '')
@@ -1597,7 +1599,7 @@ export function SignUpWeb(props: {
             status: number
           } = await response.json()
           await Promise.all([
-            setToken(res.data.token),
+            saveAuthToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
           ])
           if (res.data.role.includes('registering')) {
