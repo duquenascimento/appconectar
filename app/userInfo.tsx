@@ -63,8 +63,6 @@ export default function UserInfo() {
   const handleLogout = async () => {
     setLoading(true);
     await logout();
-    setDeleted(false);
-    setLoading(false);
   };
 
   if (loading || isDeleting) {

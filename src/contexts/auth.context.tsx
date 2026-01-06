@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Erro ao fazer logout:', error);
     }
-  }, [deleteAuthToken]);
+  }, [deleteAuthToken, clearAllStoragesData, router]);
 
   const value = useMemo(
     () => ({

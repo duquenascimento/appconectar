@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { Linking } from 'react-native';
 import { Button, Dialog, XStack, YStack } from 'tamagui';
 import { useAuthContext } from '../contexts/auth.context';
@@ -23,7 +22,6 @@ export default function DialogComercialInstance({
   messageText,
 }: DialogComercialInstanceProps) {
   const hasAvailableRestaurant = rest.some((r) => !r.registrationReleasedNewApp);
-  const router = useRouter();
   const { logout } = useAuthContext();
 
   const handleSelectAvailable = async () => {
@@ -41,7 +39,6 @@ export default function DialogComercialInstance({
   const handleLogout = async () => {
     try {
       await logout();
-      setOpenModal(false);
     } catch (error) {
       console.error('Erro ao deslogar:', error);
     }

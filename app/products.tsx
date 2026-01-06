@@ -1151,7 +1151,6 @@ export default function Products() {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
               await logout();
-              setLoading(false);
             }}
             padding={10}
             marginVertical={10}

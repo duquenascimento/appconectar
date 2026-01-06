@@ -489,7 +489,6 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
           onPress={async () => {
             setLoading(true);
             await logout();
-            setLoading(false);
           }}
           padding={10}
           marginVertical={10}
