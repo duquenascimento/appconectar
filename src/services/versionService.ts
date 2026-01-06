@@ -78,6 +78,5 @@ export const clearStoragesAndSaveCurrentVersion = async (): Promise<void> => {
         await setStorage(STORAGE_DEFAULT_KEYS.EXPO_APP_VERSION, EXPO_APP_VERSION);
     } catch (error) {
         console.error('Error clearing storages and saving current version:', error);
-        throw error;
     }
 }
