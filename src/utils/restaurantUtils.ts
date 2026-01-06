@@ -1,11 +1,9 @@
 import { Restaurant } from "../types/restaurantTypes";
-import { getStorage, setStorage } from "./utils";
-
-const RESTAURANT_STORAGE_KEY = 'selectedRestaurant';
+import { getStorage, setStorage, STORAGE_DEFAULT_KEYS } from "./utils";
 
 export const getStorageRestaurant = async (): Promise<Restaurant | null> => {
     try {
-        const data = await getStorage(RESTAURANT_STORAGE_KEY);
+        const data = await getStorage(STORAGE_DEFAULT_KEYS.SELECTED_RESTAURANT);
         if (!data) return null;
         return JSON.parse(data) as Restaurant;
     } catch (error) {
@@ -17,7 +15,7 @@ export const getStorageRestaurant = async (): Promise<Restaurant | null> => {
 export const setStorageRestaurant = async (restaurant: Restaurant): Promise<void> => {
     try {
         const data = JSON.stringify(restaurant);
-        await setStorage(RESTAURANT_STORAGE_KEY, data);
+        await setStorage(STORAGE_DEFAULT_KEYS.SELECTED_RESTAURANT, data);
     } catch (error) {
         console.error('Erro ao salvar restaurante no armazenamento:', error);
     }

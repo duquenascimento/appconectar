@@ -1,3 +1,6 @@
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -13,10 +16,6 @@ import {
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { Restaurant } from '../src/types/restaurantTypes';
-import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
-import { normalizeText } from '../src/utils/stringUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
@@ -36,12 +35,15 @@ import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { useCart } from '../src/components/useCart';
 import { useProductContext } from '../src/contexts/produtos.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { checkVersion, saveUserAppInfo } from '../src/services/versionService';
+import { Restaurant } from '../src/types/restaurantTypes';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
 import { loadFavorites } from '../src/utils/loadFavorite';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
-import { clearStorage, deleteToken, getToken } from '../src/utils/utils';
-import { SaveUserAppInfo, VersionInfo, checkVersion } from '../src/utils/VersionApp';
+import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
+import { normalizeText } from '../src/utils/stringUtils';
+import { getToken } from '../src/utils/utils';
 
 export type Product = {
   name: string;
@@ -488,6 +490,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
   const { favorites, setFavorites } = useFavoritesContext();
+  const { logout } = useAuthContext();
   const {
     cart,
     setCart,
@@ -549,9 +552,9 @@ export default function Products() {
 
       const result = await checkVersion();
 
-      if (result?.result?.updateRequired) {
+      if (result?.updateRequired) {
         setUpdateRequired(true);
-        setUpdateMessage(result.result.message ?? '');
+        setUpdateMessage(result.message ?? '');
       } else {
         setUpdateRequired(false);
         setUpdateMessage('');
@@ -587,7 +590,7 @@ export default function Products() {
           if (!initialRestaurant) return;
 
           if (initialRestaurant?.externalId) {
-            await SaveUserAppInfo();
+            await saveUserAppInfo();
           }
 
           // Extraindo categorias
@@ -622,7 +625,7 @@ export default function Products() {
             ];
           }
 
-          if(currentClass === 'Verduras' || currentClass === 'Verduras - KG') { 
+          if (currentClass === 'Verduras' || currentClass === 'Verduras - KG') {
             setCurrentClass(isVerduraKg ? 'Verduras - KG' : 'Verduras');
           }
 
@@ -1147,10 +1150,7 @@ export default function Products() {
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
-              await Promise.all([clearStorage(), deleteToken()]);
-              setLoading(false);
-              router.dismissAll();
-              router.replace('/');
+              await logout();
             }}
             padding={10}
             marginVertical={10}

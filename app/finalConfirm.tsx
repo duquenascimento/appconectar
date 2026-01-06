@@ -3,8 +3,8 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'tamagui';
+import { saveUserAppInfo } from '../src/services/versionService';
 import { clearStorage, getStorage } from '../src/utils/utils';
-import { SaveUserAppInfo } from '../src/utils/VersionApp';
 import { SupplierData } from './prices';
 
 interface RestaurantInfo {
@@ -243,7 +243,7 @@ export default function FinalConfirm() {
             <Button
               onPress={async () => {
                 router.push('/products');
-                SaveUserAppInfo();
+                saveUserAppInfo();
               }}
               backgroundColor="#04BF7B"
             >
