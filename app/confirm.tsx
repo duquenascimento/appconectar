@@ -294,7 +294,6 @@ export default function Confirm() {
   }, []);
 
   const handleConfirmButtonPress = useCallback(async () => {
-    console.log('Click');
     try {
       if (isBefore13h) {
         const errors = await scheduleNotification(
