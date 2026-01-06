@@ -3,6 +3,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'tamagui';
+import { saveUserAppInfo } from '../src/services/versionService';
 import { clearStorage, getStorage } from '../src/utils/utils';
 import { SupplierData } from './prices';
 import { saveUserAppInfo } from '@/src/services/versionService';
@@ -243,11 +244,7 @@ export default function FinalConfirm() {
             <Button
               onPress={async () => {
                 router.push('/products');
-                try {
-                  saveUserAppInfo();
-                } catch (err) {
-                  console.error(`Erro ao salvar dados do app: ${err}`);
-                }
+                saveUserAppInfo();
               }}
               backgroundColor="#04BF7B"
             >

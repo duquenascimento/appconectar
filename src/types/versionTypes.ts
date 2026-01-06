@@ -4,3 +4,9 @@ export type VersionCheck = {
     currentVersion: string;
     latestVersion: string;
 }
+
+export type ClearedVersionCheck = {
+    cleared: boolean;
+    oldVersion: string | null;
+    newVersion: string;
+}

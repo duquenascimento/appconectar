@@ -1,17 +1,18 @@
-import 'react-native-gesture-handler';
+import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
+import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
+import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
-import { Stack, useSegments } from 'expo-router';
-import { TamaguiProvider } from 'tamagui';
-import config from '../tamagui.config';
+import { RestaurantProvider } from '@/src/contexts/restaurant.context';
+import { checkLocalVersionAndClearData } from '@/src/services/versionService';
 import { useFonts } from 'expo-font';
+import { Stack, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, BackHandler, View } from 'react-native';
-import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
-import { RestaurantProvider } from '@/src/contexts/restaurant.context';
-import { FavoritesProvider } from '@/src/contexts/favoritos.context';
-import { AuthProvider } from '@/src/contexts/auth.context';
+import 'react-native-gesture-handler';
+import { TamaguiProvider } from 'tamagui';
+import config from '../tamagui.config';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -29,6 +30,13 @@ export default function RootLayout() {
     const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
 
     return () => backHandler.remove();
+  }, []);
+
+  useEffect(() => {
+    const initApp = async () => {
+      await checkLocalVersionAndClearData();
+    };
+    initApp();
   }, []);
 
   const isScreenLoading =

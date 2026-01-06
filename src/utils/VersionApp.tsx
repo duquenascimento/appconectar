@@ -1,6 +1,4 @@
-import { Platform } from 'react-native';
 import { Text, View } from 'tamagui';
-import { getStorageRestaurant } from './restaurantUtils';
 
 export function VersionInfo() {
   return (

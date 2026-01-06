@@ -1,7 +1,9 @@
+import { useAuthContext } from '@/src/contexts/auth.context';
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
 import { addFavorite, deleteFavorite, updateFavorite } from '@/src/services/favoritosService';
 import { TCart } from '@/src/types/cartTypes';
 import { Product } from '@/src/types/productTypes';
+import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -36,16 +38,14 @@ import { UpdateAppModal } from '../src/components/UpdateAppModal';
 import { useCart } from '../src/components/useCart';
 import { useProductContext } from '../src/contexts/produtos.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import { checkVersion, saveUserAppInfo } from '../src/services/versionService';
 import { Restaurant } from '../src/types/restaurantTypes';
 import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
 import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
 import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
 import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
 import { normalizeText } from '../src/utils/stringUtils';
-import { clearStorage, getToken } from '../src/utils/utils';
-import { VersionInfo  } from '../src/utils/VersionApp';
-import { checkVersion, saveUserAppInfo } from '@/src/services/versionService';
-import { useAuthContext } from '@/src/contexts/auth.context';
+import { getToken } from '../src/utils/utils';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -459,7 +459,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
-  const { deleteAuthToken } = useAuthContext();
+  const { logout } = useAuthContext();
   const {
     cart,
     setCart,
@@ -521,19 +521,19 @@ export default function Products() {
       try {
          await getInitialRestaurant(selectedRestaurant);
 
-        const result = await checkVersion();
-        if (result.updateRequired) {
-          setUpdateRequired(true);
-          setUpdateMessage(result.message ?? '');
-        } else {
-          setUpdateRequired(false);
-          setUpdateMessage('');
-        }
-      } catch(error) {
+      const result = await checkVersion();
+
+      if (result?.updateRequired) {
+        setUpdateRequired(true);
+        setUpdateMessage(result.message ?? '');
+      } else {
         setUpdateRequired(false);
         setUpdateMessage('');
       }
-     
+    } catch(error) {
+        setUpdateRequired(false);
+        setUpdateMessage('');
+      }
     };
     runCheck();
   }, [selectedRestaurant]);
@@ -1092,12 +1092,7 @@ export default function Products() {
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
-              await Promise.all([clearStorage(), deleteAuthToken()]);
-              setLoading(false);
-              if(router.canDismiss()) {
-                router.dismissAll();
-              }
-              router.replace('/');
+              await logout();
             }}
             padding={10}
             marginVertical={10}

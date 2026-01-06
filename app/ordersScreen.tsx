@@ -1,32 +1,31 @@
-import React, { ReactNode, useCallback, useState } from 'react';
-import { View, Text, XStack, Input, YStack } from 'tamagui';
-import {
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Linking,
-  useWindowDimensions,
-} from 'react-native';
 import PageContainer from '@/src/components/box/PageContainer';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
 import { HeaderText } from '@/src/components/text/HeaderText';
+import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
+import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
+import { isTomorrow } from '@/src/utils/dateUtils';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
+import { DateTime } from 'luxon';
+import { ReactNode, useCallback, useState } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  Linking,
+  Platform,
+  TouchableOpacity,
+  useWindowDimensions,
+} from 'react-native';
+import { Input, Text, View, XStack, YStack } from 'tamagui';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { getOrders } from '../src/services/orderService';
 import { ordersScreenStyles as styles } from '../src/styles/styles';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
-import { clearStorage } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
-import { DateTime } from 'luxon';
-import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
-import { isTomorrow } from '@/src/utils/dateUtils';
-import DialogComercialInstance from '@/src/components/dialogComercialInstance';
-import { useAuthContext } from '@/src/contexts/auth.context';
 
 interface Order {
   orderDocument: ReactNode;
@@ -78,6 +77,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
   const { width: screenWidth } = useWindowDimensions();
   const { deleteAuthToken } = useAuthContext();
   const isLargeScreen = screenWidth > 800;
+  const { logout } = useAuthContext();
 
   const router = useRouter();
 
@@ -489,8 +489,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
         <View
           onPress={async () => {
             setLoading(true);
-            await Promise.all([clearStorage(), deleteAuthToken()]);
-            router.push('/');
+            await logout();
           }}
           padding={10}
           marginVertical={10}

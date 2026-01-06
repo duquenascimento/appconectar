@@ -1,11 +1,9 @@
-import { clearStorage } from '@/src/utils/utils';
-import { useRouter } from 'expo-router';
 import { Linking } from 'react-native';
 import { Button, Dialog, XStack, YStack } from 'tamagui';
+import { useAuthContext } from '../contexts/auth.context';
 import { Restaurant } from '../types/restaurantTypes';
 import { setStorageRestaurant } from '../utils/restaurantUtils';
 import { BaseDialog } from './BaseDialog';
-import { useAuthContext } from '../contexts/auth.context';
 
 type DialogComercialInstanceProps = {
   openModal: boolean;
@@ -24,8 +22,7 @@ export default function DialogComercialInstance({
   messageText,
 }: DialogComercialInstanceProps) {
   const hasAvailableRestaurant = rest.some((r) => !r.registrationReleasedNewApp);
-  const router = useRouter();
-  const { deleteAuthToken } = useAuthContext();
+  const { logout } = useAuthContext();
 
   const handleSelectAvailable = async () => {
     if (onSelectAvailable) {
@@ -41,9 +38,7 @@ export default function DialogComercialInstance({
 
   const handleLogout = async () => {
     try {
-      await Promise.all([clearStorage(), deleteAuthToken()]);
-      setOpenModal(false);
-      router.push('/');
+      await logout();
     } catch (error) {
       console.error('Erro ao deslogar:', error);
     }

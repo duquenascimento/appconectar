@@ -1,44 +1,30 @@
-import {
-  Text,
-  Input,
-  YStack,
-  Button,
-  XStack,
-  Image,
-  View,
-  Stack,
-  Dialog,
-  Adapt,
-  Sheet,
-} from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
+import { PwRecoveryModal } from '@/src/components/pages/sign/PwdRecoveryModal';
+import { SignInMobile } from '@/src/components/pages/sign/SignInMobile';
+import { SignInWeb } from '@/src/components/pages/sign/SignInWeb';
+import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
+import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
+import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
+import { validateEmail, validateName, validatePassword, validatePhone, validatePosition } from '@/src/utils/validateFields';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isAxiosError } from 'axios';
+import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Linking,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Platform,
   ScrollView,
-  useWindowDimensions,
+  useWindowDimensions
 } from 'react-native';
-import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  Stack,
+  View
+} from 'tamagui';
 import { getStorage } from '../src/utils/utils';
-import { openURL } from 'expo-linking';
-import { VersionInfo } from '../src/utils/VersionApp';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { TextInputMask } from 'react-native-masked-text';
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
-import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
-import { isAxiosError } from 'axios';
-import { PwRecoveryModal } from '@/src/components/pages/sign/PwdRecoveryModal';
-import { validateEmail, validateName, validatePassword, validatePhone, validatePosition } from '@/src/utils/validateFields';
-import { SignInMobile } from '@/src/components/pages/sign/SignInMobile';
-import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
-import { SignInWeb } from '@/src/components/pages/sign/SignInWeb';
-import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
+import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 
 const positionOptions = [
   { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
@@ -122,6 +108,8 @@ async function handleLogin(
     } as SignInRequest;
     const response = await authSignIn(signInData);
 
+    await clearStoragesAndSaveCurrentVersion();
+
     await Promise.all([
       saveAuthToken(response.data.token),
       AsyncStorage.setItem('role', response.data.role[0]),
@@ -180,6 +168,9 @@ async function handleRegister(
     setLoading(true);
 
     const response = await authSignUp(signUpData);
+
+    await clearStoragesAndSaveCurrentVersion();
+
     await Promise.all([
       saveAuthToken(response.data.token),
       AsyncStorage.setItem('role', response.data.role[0]),
@@ -214,8 +205,8 @@ export default function Sign() {
   const scrollRef = useRef<ScrollView>(null);
   const [loading, setLoading] = useState(true);
   const [closeModal, setCloseModal] = useState<boolean>(false);
+  const { width } = useWindowDimensions()
   const { authToken, deleteAuthToken } = useAuthContext();
-  const { width: screenWidth } = useWindowDimensions();
 
   const handleCloseModal = () => {
     setCloseModal(!closeModal);
@@ -258,12 +249,12 @@ export default function Sign() {
       setVisiblePage(!visiblePage);
       setCurrentPage(page);
     } else if (scrollRef.current != null) {
-      scrollRef.current.scrollTo({ x: page === 'SignUp' ? screenWidth : 0 });
+      scrollRef.current.scrollTo({ x: page === 'SignUp' ? width : 0 });
     }
   };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const page = event.nativeEvent.contentOffset.x > screenWidth / 2 ? 'SignUp' : 'SignIn';
+    const page = event.nativeEvent.contentOffset.x > width / 2 ? 'SignUp' : 'SignIn';
     setCurrentPage(page);
   };
 
@@ -288,7 +279,7 @@ export default function Sign() {
         {Platform.OS === 'web' ? (
           <>
             {visiblePage ? (
-              <View width={screenWidth} height="100%">
+              <View width={width} height="100%">
                 <SignInWeb
                   page={currentPage}
                   onButtonPress={handleButtonPress}
@@ -297,7 +288,7 @@ export default function Sign() {
                 />
               </View>
             ) : (
-              <View width={screenWidth} height="100%">
+              <View width={width} height="100%">
                 <SignUpWeb
                   page={currentPage}
                   positionOptions={positionOptions}
@@ -310,7 +301,7 @@ export default function Sign() {
           </>
         ) : (
           <>
-            <View width={screenWidth} height="100%">
+            <View width={width} height="100%">
               <SignInMobile
                 page={currentPage}
                 onButtonPress={handleButtonPress}
@@ -318,7 +309,7 @@ export default function Sign() {
                 modal={handleCloseModal}
               />
             </View>
-            <View width={screenWidth} height="100%">
+            <View width={width} height="100%">
               <SignUpMobile
                 page={currentPage}
                 positionOptions={positionOptions}

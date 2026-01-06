@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import {
   createContext,
   ReactNode,
@@ -7,18 +8,20 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { deleteToken, getToken, setToken } from '../utils/utils';
+import { clearAllStoragesData, deleteToken, getToken, setToken } from '../utils/utils';
 
 interface AuthContextProps {
   authToken: string | null;
   saveAuthToken: (token: string) => Promise<void>;
   deleteAuthToken: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authToken, setAuthToken] = useState<string | null>(null);
+  const router = useRouter();
 
   const saveAuthToken = useCallback(async (token: string) => {
     try {
@@ -52,13 +55,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initialize();
   }, []);
 
+  const logout = useCallback(async () => {
+    try {
+      await clearAllStoragesData();
+
+      if (router.canDismiss()) {
+        router.dismissAll();
+      }
+
+      router.replace('/');
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
+  }, [deleteAuthToken, clearAllStoragesData, router]);
+
   const value = useMemo(
     () => ({
       authToken,
       saveAuthToken,
       deleteAuthToken,
+      logout,
     }),
-    [authToken, saveAuthToken, deleteAuthToken],
+    [authToken, saveAuthToken, deleteAuthToken, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
