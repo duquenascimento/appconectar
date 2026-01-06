@@ -8,6 +8,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { TextInputMask } from 'react-native-masked-text';
 import { validateEmail, validatePassword, validatePhone } from '@/src/utils/validateFields';
 import { VersionInfo } from '@/src/utils/VersionApp';
+import logo from '@/assets/images/logo-conectar-positivo.svg';
 
 export function SignUpMobile(props: {
   page: string;
@@ -62,12 +63,12 @@ export function SignUpMobile(props: {
         erros={erros}
       />
       <Image
-        src={require('../assets/images/logo-conectar-positivo.png')}
+        src={logo}
         objectFit="contain"
         maxWidth={200}
         height={80}
         marginBottom="$6"
-      ></Image>
+      />
 
       <Text alignSelf="flex-start" fontSize="$8">
         Criar conta

@@ -6,7 +6,6 @@ import { Button, Image, Text, View } from 'tamagui';
 import { saveUserAppInfo } from '../src/services/versionService';
 import { clearStorage, getStorage } from '../src/utils/utils';
 import { SupplierData } from './prices';
-import { saveUserAppInfo } from '@/src/services/versionService';
 
 interface RestaurantInfo {
   restName: string;
