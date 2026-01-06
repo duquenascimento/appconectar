@@ -1,52 +1,37 @@
-import {
-  Text,
-  Input,
-  YStack,
-  Button,
-  XStack,
-  Image,
-  View,
-  Stack,
-  Dialog,
-  Adapt,
-  Sheet
-} from 'tamagui'
+import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService'
 import Icons from '@expo/vector-icons/Ionicons'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { openURL } from 'expo-linking'
+import { router } from 'expo-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ActivityIndicator,
-  Dimensions,
   Linking,
   Modal,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Platform,
-  ScrollView
+  ScrollView,
+  useWindowDimensions
 } from 'react-native'
-//import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { router } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { deleteToken, getStorage, getToken, setToken } from '../src/utils/utils'
-import { openURL } from 'expo-linking'
-import { VersionInfo } from '../src/utils/VersionApp'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { TextInputMask } from 'react-native-masked-text'
+import {
+  Adapt,
+  Button,
+  Dialog,
+  Image,
+  Input,
+  Sheet,
+  Stack,
+  Text,
+  View,
+  XStack,
+  YStack
+} from 'tamagui'
+import { deleteToken, getStorage, getToken, setToken } from '../src/utils/utils'
+import { VersionInfo } from '../src/utils/VersionApp'
 
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Confirm: undefined
-  Prices: undefined
-  Register: undefined
-  Cart: undefined
-  FinalConfirm: undefined
-}
-/* 
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
- */
-const { width } = Dimensions.get('window')
 const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 let dataSignup: {
   email: string
@@ -367,6 +352,7 @@ export default function Sign() {
   const scrollRef = useRef<ScrollView>(null)
   const [loading, setLoading] = useState(true)
   const [closeModal, setCloseModal] = useState<boolean>(false)
+  const { width } = useWindowDimensions()
 
   const handleCloseModal = () => {
     setCloseModal(!closeModal)
@@ -553,6 +539,8 @@ export function SignInMobile(props: {
           msg: string | null
         } = await response.json()
         if (response.ok) {
+          await clearStoragesAndSaveCurrentVersion()
+
           await Promise.all([
             setToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
@@ -855,6 +843,9 @@ export function SignUpMobile(props: {
             data: { token: string; role: string[] }
             status: number
           } = await response.json()
+
+          await clearStoragesAndSaveCurrentVersion()
+
           await Promise.all([
             setToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
@@ -1289,6 +1280,8 @@ export function SignInWeb(props: {
           msg: string | null
         } = await response.json()
         if (response.ok) {
+          await clearStoragesAndSaveCurrentVersion()
+
           await Promise.all([
             setToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])
@@ -1597,6 +1590,9 @@ export function SignUpWeb(props: {
             data: { token: string; role: string[] }
             status: number
           } = await response.json()
+
+          await clearStoragesAndSaveCurrentVersion()
+
           await Promise.all([
             setToken(res.data.token),
             AsyncStorage.setItem('role', res.data.role[0])

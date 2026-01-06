@@ -1,15 +1,14 @@
-import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
-import { ActivityIndicator, Platform } from 'react-native';
-import Icons from '@expo/vector-icons/Ionicons';
-import { View, Text, XStack, YStack, Button } from 'tamagui';
-import { Linking } from 'react-native';
 import PageContainer from '@/src/components/box/PageContainer';
+import CustomAlert from '@/src/components/modais/CustomAlert';
+import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
+import { useAuthContext } from '@/src/contexts/auth.context';
 import { deleteUser, getUserData } from '@/src/utils/userUtils';
 import { VersionInfo } from '@/src/utils/VersionApp';
-import { clearStorage, deleteToken } from '@/src/utils/utils';
-import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
-import CustomAlert from '@/src/components/modais/CustomAlert';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
+import { Button, Text, View, XStack, YStack } from 'tamagui';
 
 interface User {
   name: string;
@@ -24,6 +23,7 @@ export default function UserInfo() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
+  const { logout } = useAuthContext();
   const router = useRouter();
 
   useEffect(() => {
@@ -61,10 +61,10 @@ export default function UserInfo() {
   };
 
   const handleLogout = async () => {
-    await Promise.all([clearStorage(), deleteToken()]);
+    setLoading(true);
+    await logout();
     setDeleted(false);
-    router.dismissAll();
-    router.replace('/');
+    setLoading(false);
   };
 
   if (loading || isDeleting) {
@@ -231,13 +231,7 @@ export default function UserInfo() {
           </Text>
         </View>
         <View
-          onPress={async () => {
-            setLoading(true);
-            await Promise.all([clearStorage(), deleteToken()]);
-            setLoading(false);
-            router.dismissAll();
-            router.replace('/');
-          }}
+          onPress={handleLogout}
           padding={10}
           marginVertical={10}
           borderRadius={8}
