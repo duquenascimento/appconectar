@@ -9,445 +9,275 @@ import {
   Stack,
   Dialog,
   Adapt,
-  Sheet
-} from 'tamagui'
-import Icons from '@expo/vector-icons/Ionicons'
-import { useCallback, useEffect, useRef, useState } from 'react'
+  Sheet,
+} from 'tamagui';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   Linking,
-  Modal,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Platform,
-  ScrollView
-} from 'react-native'
-//import { type NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { router } from 'expo-router'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { getStorage } from '../src/utils/utils'
-import { openURL } from 'expo-linking'
-import { VersionInfo } from '../src/utils/VersionApp'
-import DropDownPicker from 'react-native-dropdown-picker'
-import { TextInputMask } from 'react-native-masked-text'
-import { useAuthContext } from '@/src/contexts/auth.context'
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
+import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getStorage } from '../src/utils/utils';
+import { openURL } from 'expo-linking';
+import { VersionInfo } from '../src/utils/VersionApp';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { TextInputMask } from 'react-native-masked-text';
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
+import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
+import { isAxiosError } from 'axios';
+import { PwRecoveryModal } from '@/src/components/pages/sign/PwdRecoveryModal';
+import { validateEmail, validateName, validatePassword, validatePhone, validatePosition } from '@/src/utils/validateFields';
+import { SignInMobile } from '@/src/components/pages/sign/SignInMobile';
+import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
+import { SignInWeb } from '@/src/components/pages/sign/SignInWeb';
+import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
 
-type RootStackParamList = {
-  Home: undefined
-  Products: undefined
-  Confirm: undefined
-  Prices: undefined
-  Register: undefined
-  Cart: undefined
-  FinalConfirm: undefined
-}
-/* 
-type HomeScreenProps = {
-  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-}
- */
-const { width } = Dimensions.get('window')
-const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-let dataSignup: {
-  email: string
-  password: string
-  name: string
-  position: string
-  phone: string
-}
-let dataSignin: { email: string; password: string }
+const positionOptions = [
+  { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
+  { label: 'Diretor(a)', value: 'Diretor(a)' },
+  { label: 'Coordenador(a)', value: 'Coordenador(a)' },
+  { label: 'Gerente', value: 'Gerente' },
+  { label: 'Comprador(a)', value: 'Comprador(a)' },
+  { label: 'Caixa/Financeiro', value: 'Caixa/Financeiro' },
+  { label: 'Chef/Cozinheiro(a)', value: 'Chef/Cozinheiro(a)' },
+  { label: 'Sous Chef', value: 'Sous Chef' },
+  { label: 'Maître', value: 'Maître' },
+  { label: 'Nutricionista', value: 'Nutricionista' },
+  { label: 'Estoquista', value: 'Estoquista' },
+  { label: 'Barista', value: 'Barista' },
+  { label: 'Barman', value: 'Barman' },
+  { label: 'Auxiliar de cozinha', value: 'Auxiliar de cozinha' },
+  { label: 'Garçom(ete)', value: 'Garçom(ete)' },
+  { label: 'Auxiliar de limpeza', value: 'Auxiliar de limpeza' },
+  { label: 'Outros', value: 'Outros' },
+];
 
-const emailIsValid = (
+
+function validateRegisterInfo(data: SignUpRequest): string[] {
+  const erros: string[] = [];
+  const emailValidation = validateEmail(data.email);
+  if (emailValidation) {
+    erros.push(emailValidation);
+  }
+
+  const passwordValidation = validatePassword(data.password);
+  if (passwordValidation) {
+    erros.push(passwordValidation);
+  }
+
+  const nameValidation = validateName(data.name);
+  if (nameValidation) {
+    erros.push(nameValidation);
+  }
+
+  const positionValidation = validatePosition(data.position);
+  if (positionValidation) {
+    erros.push(positionValidation);
+  }
+
+  const phoneValidation = validatePhone(data.phone);
+  if (phoneValidation) {
+    erros.push(phoneValidation);
+  }
+
+  return erros;
+}
+
+async function handleLogin(
   email: string,
-  updateStateFn: Function
-): boolean | undefined => {
-  if (email.length > 1) {
-    const valid = emailRegex.test(email)
-    updateStateFn(valid)
-    return valid
-  }
-  if (email.length <= 1) {
-    updateStateFn(true)
-    return true
-  }
-}
-
-const passwordIsValid = (
   password: string,
-  confirmPassword: string,
-  setPasswordValid: Function
-) => {
-  if (password === confirmPassword && password.length >= 8) {
-    setPasswordValid(true)
-    return true
+  registerInvalid: Function,
+  setLoading: Function,
+  setErros: Function,
+  saveAuthToken: Function,
+) {
+  const emailValidation = validateEmail(email);
+  if (emailValidation) {
+    registerInvalid(true);
+    setErros([emailValidation]);
+    return;
   }
-  setPasswordValid(false)
-  return false
+
+  const passwordValidation = validatePassword(password);
+  if (passwordValidation) {
+    registerInvalid(true);
+    setErros([passwordValidation]);
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const signInData = {
+      email: email.toLowerCase(),
+      password,
+    } as SignInRequest;
+    const response = await authSignIn(signInData);
+
+    await Promise.all([
+      saveAuthToken(response.data.token),
+      AsyncStorage.setItem('role', response.data.role[0]),
+    ]);
+    if (response.data.role.includes('registering')) {
+      router.replace('/register');
+    } else {
+      router.replace('/products');
+    }
+  } catch (err) {
+    console.error(err);
+
+    let errorMessage = 'Houve um erro ao processar a solicitação.';
+    if (isAxiosError(err)) {
+      errorMessage = err.response?.data?.msg ?? err.response?.data?.message ?? errorMessage;
+
+      if (errorMessage === 'invalid password') {
+        errorMessage = 'Senha inválida';
+      } else if (errorMessage === 'user not found') {
+        errorMessage = 'Usuário não encontrado';
+      }
+    }
+    registerInvalid(true);
+    setErros([errorMessage]);
+  } finally {
+    setLoading(false);
+  }
 }
 
-const PwRecovery = ({
-  close,
-  loading
-}: {
-  close: () => void
-  loading: (active: boolean) => void
-}) => {
-  const [emailModal, setEmailModal] = useState<string>('')
-  const [codeModal, setCodeModal] = useState<string>('')
-  const [passwordModal, setPasswordModal] = useState<string>('')
-  const [confirmPasswordModal, setConfirmPasswordModal] = useState<string>('')
-  const [isPasswordValid, setIsPasswordValid] = useState(true)
-  const [showPassword, setShowPassword] = useState(true)
+async function handleRegister(
+  name: string,
+  position: string,
+  phone: string,
+  email: string,
+  password: string,
+  registerInvalid: Function,
+  setLoading: Function,
+  setErros: Function,
+  saveAuthToken: Function,
+) {
+  const signUpData = {
+    email: email.toLowerCase(),
+    password,
+    name,
+    position,
+    phone,
+  } as SignUpRequest;
+  const registerErrors = validateRegisterInfo(signUpData);
+  if (registerErrors.length > 0) {
+    registerInvalid(true);
+    setErros(registerErrors);
+    return;
+  }
 
-  const [step2, setStep2] = useState<boolean>(false)
-  const [step3, setStep3] = useState<boolean>(false)
-  const [step4, setStep4] = useState<boolean>(false)
-  const [erro, setErro] = useState<string>('')
+  try {
+    setLoading(true);
 
-  return (
-    <View
-      flex={1}
-      justifyContent="center"
-      alignItems="center"
-      backgroundColor="$white9"
-    >
-      <Modal transparent={true}>
-        <View
-          flex={1}
-          justifyContent="center"
-          alignItems="center"
-          backgroundColor="rgba(0, 0, 0, 0.9)"
-        >
-          <View
-            paddingBottom={15}
-            paddingHorizontal={15}
-            paddingTop={15}
-            /* $xl={{ minWidth: '40%' }}
-            $sm={{ minWidth: '90%' }} */
-            backgroundColor="white"
-            borderRadius={10}
-            justifyContent="center"
-          >
-            <Text>Redefinição de senha</Text>
-            {step4 && (
-              <Text fontSize={20} marginTop={15} marginBottom={15}>
-                Senha redefinida com sucesso
-              </Text>
-            )}
-            {!step3 && !step4 && (
-              <>
-                <Text paddingTop={5} fontSize={10}>
-                  Informe o e-mail abaixo e insira o código enviado
-                </Text>
-                <Input
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  marginTop={15}
-                  marginBottom={15}
-                  onChangeText={setEmailModal}
-                  placeholder="E-mail"
-                  value={emailModal}
-                  focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                />
-                {step2 && (
-                  <Input
-                    autoCapitalize="none"
-                    onChangeText={setCodeModal}
-                    maxLength={5}
-                    placeholder="Código"
-                    value={codeModal}
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  />
-                )}
-              </>
-            )}
-            {step3 && !step4 && (
-              <>
-                <Text paddingTop={15} fontSize={10}>
-                  Sua nova senha deve ter no mínimo 8 caracteres.
-                </Text>
-                {/* Campo "Nova Senha" */}
-                <XStack
-                  marginTop={10}
-                  paddingRight="$3.5"
-                  borderWidth={1}
-                  borderRadius={9}
-                  borderColor={isPasswordValid ? 'lightgray' : 'red'}
-                  alignItems="center"
-                >
-                  <Input
-                    autoCapitalize="none"
-                    placeholder="Nova senha"
-                    secureTextEntry={showPassword}
-                    flex={1}
-                    marginRight="$3.5"
-                    backgroundColor="transparent"
-                    borderWidth={0}
-                    value={passwordModal}
-                    onChangeText={setPasswordModal}
-                  />
-                  <Icons
-                    name={showPassword ? 'eye' : 'eye-off'}
-                    size={24}
-                    onPress={() => setShowPassword(!showPassword)}
-                  />
-                </XStack>
-                {/* Campo "Confirmar Nova Senha" */}
-                <XStack
-                  marginTop={10}
-                  marginBottom={15}
-                  paddingRight="$3.5"
-                  borderWidth={1}
-                  borderRadius={9}
-                  borderColor={isPasswordValid ? 'lightgray' : 'red'}
-                  alignItems="center"
-                >
-                  <Input
-                    autoCapitalize="none"
-                    placeholder="Confirmar nova senha"
-                    secureTextEntry={showPassword}
-                    flex={1}
-                    marginRight="$3.5"
-                    backgroundColor="transparent"
-                    borderWidth={0}
-                    value={confirmPasswordModal}
-                    onChangeText={setConfirmPasswordModal}
-                  />
-                  <Icons
-                    name={showPassword ? 'eye' : 'eye-off'}
-                    size={24}
-                    onPress={() => setShowPassword(!showPassword)}
-                  />
-                </XStack>
-              </>
-            )}
-            {erro && (
-              <Text color="red" marginTop={5}>
-                {erro}
-              </Text>
-            )}
-            {!step4 && (
-              <View
-                height={70}
-                paddingTop={15}
-                gap={5}
-                justifyContent="space-between"
-                flexDirection="row"
-              >
-                <Button
-                  onPress={() => {
-                    setStep2(false)
-                    setStep3(false)
-                    setErro('')
-                    setPasswordModal('')
-                    setConfirmPasswordModal('')
-                    setEmailModal('')
-                    setCodeModal('')
-                    close()
-                  }}
-                  backgroundColor="black"
-                  flex={1}
-                >
-                  <Text paddingLeft={5} fontSize={12} color="white">
-                    Cancelar
-                  </Text>
-                </Button>
-                <Button
-                  onPress={async () => {
-                    setErro('')
-                    //LÓGICA DE VALIDAÇÃO
-                    if (step3) {
-                      if (passwordModal.length < 8) {
-                        setErro('A senha deve ter no mínimo 8 caracteres.')
-                        setIsPasswordValid(false)
-                        return
-                      }
-                      if (passwordModal !== confirmPasswordModal) {
-                        setErro('As senhas não conferem.')
-                        setIsPasswordValid(false)
-                        return
-                      }
-                      setIsPasswordValid(true)
-                      const response = await fetch(
-                        `${process.env.EXPO_PUBLIC_API_URL}/auth/pwChange`,
-                        {
-                          method: 'POST',
-                          body: JSON.stringify({
-                            email: emailModal.toLowerCase(),
-                            codeSent: codeModal,
-                            newPW: passwordModal
-                          }),
-                          headers: { 'Content-Type': 'application/json' }
-                        }
-                      )
-                      const result = await response.json()
-                      if (!response.ok) {
-                        if (result.msg === 'invalid code')
-                          setErro('Código inválido ou expirado.')
-                        else setErro('Ocorreu um erro ao redefinir a senha.')
-                      } else {
-                        setStep3(false)
-                        setStep4(true)
-                      }
-                    } else if (!step2) {
-                      const response = await fetch(
-                        `${process.env.EXPO_PUBLIC_API_URL}/auth/recovery`,
-                        {
-                          method: 'POST',
-                          body: JSON.stringify({
-                            email: emailModal.toLowerCase()
-                          }),
-                          headers: { 'Content-Type': 'application/json' }
-                        }
-                      )
-                      const result = await response.json()
-                      if (!response.ok) {
-                        if (result.msg === 'user not exist')
-                          setErro('Usuário não existe')
-                      } else {
-                        setStep2(true)
-                      }
-                    } else {
-                      const response = await fetch(
-                        `${process.env.EXPO_PUBLIC_API_URL}/auth/recoveryCheck`,
-                        {
-                          method: 'POST',
-                          body: JSON.stringify({
-                            email: emailModal.toLowerCase(),
-                            codeSent: codeModal
-                          }),
-                          headers: { 'Content-Type': 'application/json' }
-                        }
-                      )
-                      const result = await response.json()
-                      if (!response.ok) {
-                        if (result.msg === 'invalid code')
-                          setErro('Código inválido')
-                      } else {
-                        setStep3(true)
-                      }
-                    }
-                  }}
-                  backgroundColor="#04BF7B"
-                  flex={1}
-                >
-                  <Text paddingLeft={5} fontSize={12} color="white">
-                    Avançar
-                  </Text>
-                </Button>
-              </View>
-            )}
-            {step4 && (
-              <View
-                height={70}
-                paddingTop={15}
-                gap={5}
-                justifyContent="space-between"
-                flexDirection="row"
-              >
-                <Button onPress={close} backgroundColor="#04BF7B" flex={1}>
-                  <Text paddingLeft={5} fontSize={12} color="white">
-                    Fechar
-                  </Text>
-                </Button>
-              </View>
-            )}
-          </View>
-        </View>
-      </Modal>
-    </View>
-  )
+    const response = await authSignUp(signUpData);
+    await Promise.all([
+      saveAuthToken(response.data.token),
+      AsyncStorage.setItem('role', response.data.role[0]),
+    ]);
+
+    if (response.data.role.includes('registering')) {
+      router.replace('/register');
+    } else {
+      router.replace('/products');
+    }
+  } catch (err) {
+    console.error(err);
+
+    let errorMessage = 'Houve um erro ao processar a solicitação.';
+    if (isAxiosError(err)) {
+      errorMessage = err.response?.data?.msg ?? err.response?.data?.message ?? errorMessage;
+
+      if (errorMessage === 'email already exists') {
+        errorMessage = 'Este e-mail já existe na plataforma, utilize outro ou logue ao invés disso';
+      }
+    }
+    registerInvalid(true);
+    setErros([errorMessage]);
+  } finally {
+    setLoading(false);
+  }
 }
 
 export default function Sign() {
-  const [currentPage, setCurrentPage] = useState('SignIn')
-  const [visiblePage, setVisiblePage] = useState(true)
-  const scrollRef = useRef<ScrollView>(null)
-  const [loading, setLoading] = useState(true)
-  const [closeModal, setCloseModal] = useState<boolean>(false)
+  const [currentPage, setCurrentPage] = useState('SignIn');
+  const [visiblePage, setVisiblePage] = useState(true);
+  const scrollRef = useRef<ScrollView>(null);
+  const [loading, setLoading] = useState(true);
+  const [closeModal, setCloseModal] = useState<boolean>(false);
   const { authToken, deleteAuthToken } = useAuthContext();
+  const { width: screenWidth } = useWindowDimensions();
 
   const handleCloseModal = () => {
-    setCloseModal(!closeModal)
-  }
-
-  const handleLoading = (active: boolean) => {
-    setLoading(active)
-  }
+    setCloseModal(!closeModal);
+  };
 
   const checkLogin = useCallback(async () => {
     try {
       if (authToken == null) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/auth/checkLogin`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ token: authToken })
-        }
-      )
-
-      if (response.ok) {
-        const role = await getStorage('role')
-        if (role === 'registering') {
-          // navigation.replace('Register')
-          router.replace('/register')
-        } else {
-          // navigation.replace('Products')
-          router.replace('/products')
-        }
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+      await authLoginCheck(authToken);
+      const role = await getStorage('role');
+      if (role === 'registering') {
+        router.replace('/register');
       } else {
-        await AsyncStorage.clear()
-        await deleteAuthToken()
+        router.replace('/products');
       }
     } catch (err) {
-      console.error(err)
+      await AsyncStorage.clear();
+      await deleteAuthToken();
+
+      console.error(err);
+      
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [authToken, deleteAuthToken])
+  }, [authToken, deleteAuthToken]);
 
   useEffect(() => {
-    checkLogin()
-  }, [checkLogin])
+    checkLogin();
+  }, [checkLogin]);
+  useEffect(() => {
+    console.log("criou a tela de login");
+  }, []);
 
   const handleButtonPress = (page: string) => {
     if (Platform.OS === 'web') {
-      setVisiblePage(!visiblePage)
-      setCurrentPage(page)
+      setVisiblePage(!visiblePage);
+      setCurrentPage(page);
     } else if (scrollRef.current != null) {
-      scrollRef.current.scrollTo({ x: page === 'SignUp' ? width : 0 })
+      scrollRef.current.scrollTo({ x: page === 'SignUp' ? screenWidth : 0 });
     }
-  }
+  };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const page =
-      event.nativeEvent.contentOffset.x > width / 2 ? 'SignUp' : 'SignIn'
-    setCurrentPage(page)
-  }
+    const page = event.nativeEvent.contentOffset.x > screenWidth / 2 ? 'SignUp' : 'SignIn';
+    setCurrentPage(page);
+  };
 
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
       </View>
-    )
+    );
   }
 
   return (
     <Stack backgroundColor={'$background'} height="100%">
-      {closeModal && (
-        <PwRecovery close={handleCloseModal} loading={handleLoading} />
-      )}
+      {closeModal && <PwRecoveryModal onClose={handleCloseModal} />}
       <ScrollView
         horizontal
         pagingEnabled
@@ -458,19 +288,20 @@ export default function Sign() {
         {Platform.OS === 'web' ? (
           <>
             {visiblePage ? (
-              <View width={width} height="100%">
+              <View width={screenWidth} height="100%">
                 <SignInWeb
                   page={currentPage}
-                  //navigation={navigation}
                   onButtonPress={handleButtonPress}
+                  onLoginPress={handleLogin}
                   modal={handleCloseModal}
                 />
               </View>
             ) : (
-              <View width={width} height="100%">
+              <View width={screenWidth} height="100%">
                 <SignUpWeb
                   page={currentPage}
-                  //navigation={navigation}
+                  positionOptions={positionOptions}
+                  onRegisterPress={handleRegister}
                   onButtonPress={handleButtonPress}
                   modal={handleCloseModal}
                 />
@@ -479,19 +310,20 @@ export default function Sign() {
           </>
         ) : (
           <>
-            <View width={width} height="100%">
+            <View width={screenWidth} height="100%">
               <SignInMobile
                 page={currentPage}
                 onButtonPress={handleButtonPress}
-                //navigation={navigation}
+                onLoginPress={handleLogin}
                 modal={handleCloseModal}
               />
             </View>
-            <View width={width} height="100%">
+            <View width={screenWidth} height="100%">
               <SignUpMobile
                 page={currentPage}
+                positionOptions={positionOptions}
+                onRegisterPress={handleRegister}
                 onButtonPress={handleButtonPress}
-                //navigation={navigation}
                 modal={handleCloseModal}
               />
             </View>
@@ -499,1607 +331,5 @@ export default function Sign() {
         )}
       </ScrollView>
     </Stack>
-  )
-}
-
-/* Mobile: */
-
-export function SignInMobile(props: {
-  page: string
-  onButtonPress: (page: string) => void
-  modal: () => void
-}) {
-  const [showPw, setShowPw] = useState(true)
-  const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [password, setPassword] = useState('')
-  const [email, setEmail] = useState('')
-  const [erros, setErros] = useState([])
-  const [loading, setLoading] = useState(false)
-  const { saveAuthToken } = useAuthContext();
-
-  const login = async (
-    email: string,
-    password: string,
-    registerInvalid: Function,
-    setErros: Function
-  ) => {
-    if (
-      email.length &&
-      password.length &&
-      email.length <= 256 &&
-      password.length <= 35
-    ) {
-      dataSignin = {
-        email: email.toLowerCase(),
-        password
-      }
-
-      try {
-        setLoading(true)
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/auth/signin`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataSignin)
-          }
-        )
-
-        const res: {
-          data: { token: string; role: string[] }
-          status: number
-          msg: string | null
-        } = await response.json()
-        if (response.ok) {
-          await Promise.all([
-            saveAuthToken(res.data.token),
-            AsyncStorage.setItem('role', res.data.role[0])
-          ])
-          if (res.data.role.includes('registering')) {
-            router.replace('/register')
-          } else {
-            router.replace('/products')
-          }
-        } else {
-          if (res.msg) {
-            const erros = []
-            if (res.msg === 'invalid password') erros.push('Senha inválida')
-            if (res.msg === 'user not found')
-              erros.push('Usuário não encontrado')
-
-            if (erros.length > 0) {
-              registerInvalid(true)
-              setErros(erros)
-            }
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      const erros = []
-      if (!email.length) erros.push('O e-mail não pode estar em branco')
-      if (email.length > 256)
-        erros.push('O e-mail precisar ter 256 ou menos caracteres')
-      if (!password.length) erros.push('A senha não pode estar em branco')
-      if (password.length > 35)
-        erros.push('A senha precisar ter 35 ou menos caracteres')
-
-      if (erros.length > 0) {
-        registerInvalid(true)
-        setErros(erros)
-        return false
-      }
-    }
-  }
-
-  if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
-  }
-
-  return (
-    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
-      <DialogInstance
-        openModal={registerInvalid}
-        setRegisterInvalid={setRegisterInvalid}
-        erros={erros}
-      />
-      <Image
-        src={require('../assets/images/logo-conectar-positivo.png')}
-        objectFit="contain"
-        maxWidth={200}
-        height={80}
-        marginBottom="$9"
-      ></Image>
-      <Text alignSelf="center" fontSize="$8">
-        Bem-vindo
-      </Text>
-      <Text alignSelf="flex-start" color="$gray10Dark">
-        Insira suas credenciais abaixo para acessar a sua conta.
-      </Text>
-
-      <XStack
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Email"
-          onChangeText={setEmail}
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          flex={1}
-          maxLength={256}
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          value={email}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        />
-      </XStack>
-      <XStack
-        backgroundColor="white"
-        paddingRight="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Senha"
-          onChangeText={setPassword}
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showPw}
-          flex={1}
-          marginRight="$3.5"
-          maxLength={35}
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          value={password}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        />
-        <Icons
-          name={showPw ? 'eye' : 'eye-off'}
-          size={24}
-          onPress={() => {
-            setShowPw(!showPw)
-          }}
-        ></Icons>
-      </XStack>
-
-      <Button
-        marginTop="$3.5"
-        backgroundColor="#04BF7B"
-        color="white"
-        fontWeight="$10"
-        width={230}
-        onPress={async () => {
-          await login(email, password, setRegisterInvalid, setErros)
-        }}
-      >
-        Entrar
-      </Button>
-
-      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou entre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
-
-      <Text
-        onPress={props.modal}
-        fontSize="$5"
-        marginTop="$5"
-        fontWeight="$15"
-        cursor="pointer"
-      >
-        Esqueceu sua senha?
-      </Text>
-      <Text
-        marginTop={5}
-        color="gray"
-        cursor="pointer"
-        onPress={() => {
-          Linking.openURL(
-            'https://www.conectarhortifruti.com.br/termos/politica-de-privacidade'
-          ).catch((err) => console.error('Erro ao abrir URL:', err))
-        }}
-      >
-        Politica de privacidade
-      </Text>
-
-      <XStack
-        marginTop="$9"
-        borderColor="$gray7Light"
-        borderWidth={1}
-        borderRadius={9}
-      >
-        <Button
-          width="50%"
-          borderTopRightRadius={0}
-          borderBottomRightRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
-        >
-          Entrar
-        </Button>
-        <Button
-          width="50%"
-          borderTopLeftRadius={0}
-          borderBottomLeftRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
-          onPress={() => props.onButtonPress('SignUp')}
-        >
-          Criar conta
-        </Button>
-      </XStack>
-      <VersionInfo />
-    </YStack>
-  )
-}
-
-export function SignUpMobile(props: {
-  page: string
-  onButtonPress: (page: string) => void
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-  modal: () => void
-}) {
-  const [showPw, setShowPw] = useState(true)
-  const [showConfirmPw, setShowConfirmPw] = useState(true)
-  const [name, setName] = useState('')
-  const [nameValid, setNameValid] = useState(false)
-  const [open, setOpen] = useState(false)
-  const [position, setPosition] = useState('')
-  const [positionItems, setPositionItems] = useState([
-    { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
-    { label: 'Diretor(a)', value: 'Diretor(a)' },
-    { label: 'Coordenador(a)', value: 'Coordenador(a)' },
-    { label: 'Gerente', value: 'Gerente' },
-    { label: 'Comprador(a)', value: 'Comprador(a)' },
-    { label: 'Caixa/Financeiro', value: 'Caixa/Financeiro' },
-    { label: 'Chef/Cozinheiro(a)', value: 'Chef/Cozinheiro(a)' },
-    { label: 'Sous Chef', value: 'Sous Chef' },
-    { label: 'Maître', value: 'Maître' },
-    { label: 'Nutricionista', value: 'Nutricionista' },
-    { label: 'Estoquista', value: 'Estoquista' },
-    { label: 'Barista', value: 'Barista' },
-    { label: 'Barman', value: 'Barman' },
-    { label: 'Auxiliar de cozinha', value: 'Auxiliar de cozinha' },
-    { label: 'Garçom(ete)', value: 'Garçom(ete)' },
-    { label: 'Auxiliar de limpeza', value: 'Auxiliar de limpeza' },
-    { label: 'Outros', value: 'Outros' }
-  ])
-  const [phone, setPhone] = useState('')
-  const [phoneValid, setPhoneValid] = useState(false)
-  const [phoneTouched, setPhoneTouched] = useState(false)
-  const [emailValid, setEmailValid] = useState(true)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordValid, setPasswordValid] = useState(true)
-  const [erros, setErros] = useState([])
-  const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const { saveAuthToken } = useAuthContext();
-
-  const validatePhone = (value: string) => {
-    const numeric = value.replace(/\D/g, '')
-    return /^\d{10,11}$/.test(numeric)
-  }
-
-  const register = async (
-    name: string,
-    nameValid: boolean,
-    position: string,
-    phone: string,
-    phoneValid: boolean,
-    email: string,
-    emailValid: boolean,
-    password: string,
-    passwordValid: boolean,
-    registerInvalid: Function,
-    setErros: Function
-  ) => {
-    const erros: string[] = []
-    if (
-      email.length > 1 &&
-      emailValid &&
-      name.length > 1 &&
-      nameValid &&
-      position.length > 1 &&
-      phone.length > 1 &&
-      phoneValid &&
-      password.length >= 8 &&
-      passwordValid
-    ) {
-      dataSignup = {
-        email: email.toLowerCase(),
-        password,
-        name,
-        position,
-        phone
-      }
-      try {
-        setLoading(true)
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/auth/signup`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataSignup)
-          }
-        )
-
-        if (response.ok) {
-          const res: {
-            data: { token: string; role: string[] }
-            status: number
-          } = await response.json()
-          await Promise.all([
-            saveAuthToken(res.data.token),
-            AsyncStorage.setItem('role', res.data.role[0])
-          ])
-          if (res.data.role.includes('registering')) {
-            // props.navigation.replace('Register')
-            router.replace('/register')
-          } else {
-            //  props.navigation.replace('Products')
-            router.replace('/products')
-          }
-        } else {
-          const res: {
-            data: { token: string; role: string[] }
-            status: number
-            msg: string | null
-          } = await response.json()
-          if (res.msg === 'email already exists')
-            erros.push(
-              'Este e-mail já existe na plataforma, utilize outro ou logue ao invés disso'
-            )
-          if (erros.length > 0) {
-            registerInvalid(true)
-            setErros(erros)
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      if (!name.length) erros.push('O nome não pode estar em branco')
-      if (!nameValid) erros.push('Nome inválido')
-      if (!position) erros.push('O cargo não pode estar em branco')
-      if (!phone.length) erros.push('O telefone não pode estar em branco')
-      if (!phoneValid) erros.push('Telefone inválido')
-      if (!emailValid && email.length > 0) erros.push('E-mail inválido')
-      if (!email.length) erros.push('O e-mail não pode estar em branco')
-      if (email.length > 256)
-        erros.push('O e-mail precisar ter 256 ou menos caracteres')
-      if (password.length < 8)
-        erros.push('A senha precisa ter 8 digitos ou mais')
-      if (!passwordValid) erros.push('As duas senhas precisam ser iguais')
-
-      if (erros.length > 0) {
-        registerInvalid(true)
-        setErros(erros)
-        return false
-      }
-    }
-  }
-
-  if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
-  }
-
-  return (
-    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
-      <DialogInstance
-        openModal={registerInvalid}
-        setRegisterInvalid={setRegisterInvalid}
-        erros={erros}
-      />
-      <Image
-        src={require('../assets/images/logo-conectar-positivo.png')}
-        objectFit="contain"
-        maxWidth={200}
-        height={80}
-        marginBottom="$6"
-      ></Image>
-
-      <Text alignSelf="flex-start" fontSize="$8">
-        Criar conta
-      </Text>
-      <Text alignSelf="flex-start" color="$gray10Dark">
-        Preencha com os seus dados abaixo:
-      </Text>
-
-      <XStack
-        width="$100"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={name.length > 0 && !nameValid ? '$red10' : 'lightgray'}
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        hoverStyle={{
-          borderColor: name.length > 0 && !nameValid ? '$red10' : '#049A63',
-          borderWidth: 1
-        }}
-        focusStyle={{
-          borderColor: name.length > 0 && !nameValid ? '$red10' : '#049A63',
-          borderWidth: 1
-        }}
-      >
-        <Input
-          placeholder="Nome"
-          onChangeText={(e) => {
-            setName(e)
-            setNameValid(e.length > 1)
-          }}
-          value={name}
-          backgroundColor="$colorTransparent"
-          borderWidth={0}
-          flex={1}
-          style={{
-            paddingHorizontal: 12,
-            paddingVertical: Platform.OS === 'android' ? 8 : 10,
-            includeFontPadding: false,
-            textAlignVertical: 'center'
-          }}
-        />
-      </XStack>
-
-      <XStack style={{ zIndex: 50, width: '100%' }} marginTop="$3.5">
-        <DropDownPicker
-          open={open}
-          value={position}
-          items={positionItems}
-          setOpen={setOpen}
-          setValue={setPosition}
-          setItems={setPositionItems}
-          placeholder="Selecione o cargo"
-          style={{
-            borderColor: 'lightgray',
-            height: 50
-          }}
-          dropDownContainerStyle={{
-            borderColor: 'lightgray',
-            zIndex: 50
-          }}
-          listMode={Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW'}
-        />
-      </XStack>
-
-      <XStack
-        width="$100"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        overflow="hidden"
-        borderColor={
-          phone.length === 0 ? 'lightgray' : phoneValid ? 'lightgray' : 'red'
-        }
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        hoverStyle={{
-          borderColor: '#049A63',
-          borderWidth: 1
-        }}
-        focusStyle={{
-          borderColor: '#049A63',
-          borderWidth: 1
-        }}
-      >
-        <TextInputMask
-          type="cel-phone"
-          options={{
-            maskType: 'BRL',
-            withDDD: true,
-            dddMask: '(99) '
-          }}
-          value={phone}
-          onChangeText={(text: string) => {
-            setPhone(text)
-            setPhoneValid(validatePhone(text))
-          }}
-          placeholder="Telefone"
-          keyboardType="phone-pad"
-          onBlur={() => {
-            setPhoneValid(validatePhone(phone))
-          }}
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 8,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
-            fontSize: 16,
-            width: '100%',
-            borderWidth: 0
-          }}
-        />
-      </XStack>
-
-      <XStack
-        width="$100"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={email.length > 0 && !emailValid ? 'red' : 'lightgray'}
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Email"
-          onChangeText={(email) => {
-            setEmail(email)
-            emailIsValid(email, setEmailValid)
-          }}
-          value={email}
-          textContentType="emailAddress"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          flex={1}
-          maxLength={256}
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        />
-      </XStack>
-      <XStack
-        width="$100"
-        backgroundColor="white"
-        paddingRight="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={
-          password.length === 0
-            ? 'lightgray'
-            : passwordValid
-            ? 'lightgray'
-            : 'red'
-        }
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Senha"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showPw}
-          flex={1}
-          marginRight="$3.5"
-          maxLength={20}
-          value={password}
-          onChangeText={(text) => {
-            setPassword(text)
-            passwordIsValid(text, confirmPassword, setPasswordValid)
-          }}
-          focusStyle={{ outlineStyle: 'none' }}
-        />
-        <Icons
-          name={showPw ? 'eye' : 'eye-off'}
-          size={24}
-          onPress={() => {
-            setShowPw(!showPw)
-          }}
-        />
-      </XStack>
-      <XStack
-        width="$100"
-        backgroundColor="white"
-        paddingRight="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={
-          confirmPassword.length === 0
-            ? 'lightgray'
-            : passwordValid
-            ? 'lightgray'
-            : 'red'
-        }
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Confirmar senha"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showConfirmPw}
-          flex={1}
-          marginRight="$3.5"
-          maxLength={20}
-          onChangeText={(text) => {
-            setConfirmPassword(text)
-            setPasswordValid(text === password)
-          }}
-          focusStyle={{ outlineStyle: 'none' }}
-        />
-        <Icons
-          name={showConfirmPw ? 'eye' : 'eye-off'}
-          size={24}
-          onPress={() => {
-            setShowConfirmPw(!showConfirmPw)
-          }}
-        />
-      </XStack>
-
-      <Button
-        marginTop="$3.5"
-        backgroundColor="#04BF7B"
-        color="white"
-        fontWeight="$10"
-        width={230}
-        onPress={async () => {
-          await register(
-            name,
-            nameValid,
-            position,
-            phone,
-            phoneValid,
-            email,
-            emailValid,
-            password,
-            passwordValid,
-            setRegisterInvalid,
-            setErros
-          )
-        }}
-      >
-        Cadastrar
-      </Button>
-
-      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou cadastre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
-
-      <Text
-        marginTop={5}
-        color="gray"
-        cursor="pointer"
-        onPress={() => {
-          Linking.openURL(
-            'https://www.conectarhortifruti.com.br/termos/politica-de-privacidade'
-          ).catch((err) => console.error('Erro ao abrir URL:', err))
-        }}
-      >
-        Politica de privacidade
-      </Text>
-
-      <XStack
-        marginTop="$9"
-        borderColor="$gray7Light"
-        borderWidth={1}
-        borderRadius={9}
-      >
-        <Button
-          width="50%"
-          borderTopRightRadius={0}
-          borderBottomRightRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
-          onPress={() => props.onButtonPress('SignIn')}
-        >
-          Entrar
-        </Button>
-        <Button
-          width="50%"
-          borderTopLeftRadius={0}
-          borderBottomLeftRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
-        >
-          Criar conta
-        </Button>
-      </XStack>
-      <VersionInfo />
-    </YStack>
-  )
-}
-
-/* Web: */
-
-export function SignInWeb(props: {
-  page: string
-  onButtonPress: (page: string) => void
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-  modal: () => void
-}) {
-  const [showPw, setShowPw] = useState(true)
-  const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [password, setPassword] = useState('')
-  const [email, setEmail] = useState('')
-  const [erros, setErros] = useState([])
-  const [loading, setLoading] = useState(false)
-  const { saveAuthToken } = useAuthContext();
-
-  const login = async (
-    email: string,
-    password: string,
-    registerInvalid: Function,
-    setErros: Function
-  ) => {
-    if (
-      email.length &&
-      password.length &&
-      email.length <= 256 &&
-      password.length <= 35
-    ) {
-      dataSignin = {
-        email: email.toLowerCase(),
-        password
-      }
-
-      try {
-        setLoading(true)
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/auth/signin`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataSignin)
-          }
-        )
-        const res: {
-          data: { token: string; role: string[] }
-          status: number
-          msg: string | null
-        } = await response.json()
-        if (response.ok) {
-          await Promise.all([
-            saveAuthToken(res.data.token),
-            AsyncStorage.setItem('role', res.data.role[0])
-          ])
-          if (res.data.role.includes('registering')) {
-            //props.navigation.replace('Register')
-            router.replace('/register')
-          } else {
-            //props.navigation.replace('Products')
-            router.replace('/products')
-          }
-        } else {
-          if (res.msg) {
-            const erros = []
-            if (res.msg === 'invalid password') erros.push('Senha inválida')
-            if (res.msg === 'user not found')
-              erros.push('Usuário não encontrado')
-
-            if (erros.length > 0) {
-              registerInvalid(true)
-              setErros(erros)
-            }
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      const erros = []
-      if (!email.length) erros.push('O e-mail não pode estar em branco')
-      if (email.length > 256)
-        erros.push('O e-mail precisar ter 256 ou menos caracteres')
-      if (!password.length) erros.push('A senha não pode estar em branco')
-      if (password.length > 35)
-        erros.push('A senha precisar ter 35 ou menos caracteres')
-
-      if (erros.length > 0) {
-        registerInvalid(true)
-        setErros(erros)
-        return false
-      }
-    }
-  }
-
-  if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
-  }
-
-  return (
-    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
-      <DialogInstance
-        openModal={registerInvalid}
-        setRegisterInvalid={setRegisterInvalid}
-        erros={erros}
-      />
-      <Image
-        src={require('../assets/images/logo-conectar-positivo.svg')}
-        width={240}
-        height={80}
-        objectFit="fill"
-        marginBottom="$8"
-      />
-
-      <Stack width="$20">
-        <Text fontSize="$8">Bem-vindo</Text>
-        <Text color="$gray10Dark">
-          Insira suas credenciais abaixo para acessar a sua conta.
-        </Text>
-      </Stack>
-
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          onChangeText={setEmail}
-          focusStyle={{ outlineStyle: 'none' }}
-          value={email}
-          placeholder="Email"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          flex={1}
-          maxLength={256}
-          width="100%"
-        />
-      </XStack>
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        paddingRight="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor="lightgray"
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-      >
-        <Input
-          autoCapitalize="none"
-          onChangeText={setPassword}
-          focusStyle={{ outlineStyle: 'none' }}
-          value={password}
-          placeholder="Senha"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showPw}
-          flex={1}
-          marginRight="$3.5"
-          maxLength={20}
-        />
-        <Icons
-          name={showPw ? 'eye' : 'eye-off'}
-          size={24}
-          onPress={() => {
-            setShowPw(!showPw)
-          }}
-        ></Icons>
-      </XStack>
-
-      <Button
-        onPress={async () => {
-          await login(email, password, setRegisterInvalid, setErros)
-        }}
-        hoverStyle={{ backgroundColor: '#03a86c' }}
-        marginTop="$3.5"
-        backgroundColor="#04BF7B"
-        color="white"
-        fontWeight="$10"
-        width="$20"
-      >
-        Entrar
-      </Button>
-
-      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou entre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
-
-      <Text
-        onPress={props.modal}
-        fontSize="$5"
-        marginTop="$5"
-        fontWeight="$15"
-        cursor="pointer"
-      >
-        Esqueceu sua senha?
-      </Text>
-
-      <Text
-        marginTop={5}
-        color="gray"
-        cursor="pointer"
-        onPress={() => {
-          Linking.openURL(
-            'https://www.conectarhortifruti.com.br/termos/politica-de-privacidade'
-          ).catch((err) => console.error('Erro ao abrir URL:', err))
-        }}
-      >
-        Politica de privacidade
-      </Text>
-
-      <XStack
-        marginTop="$9"
-        borderColor="$gray7Light"
-        borderWidth={1}
-        borderRadius={9}
-        width="$20"
-      >
-        <Button
-          width="50%"
-          borderTopRightRadius={0}
-          borderBottomRightRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
-        >
-          Entrar
-        </Button>
-        <Button
-          width="50%"
-          borderTopLeftRadius={0}
-          borderBottomLeftRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
-          onPress={() => props.onButtonPress('SignUp')}
-        >
-          Criar conta
-        </Button>
-      </XStack>
-      <VersionInfo />
-    </YStack>
-  )
-}
-
-export function SignUpWeb(props: {
-  page: string
-  onButtonPress: (page: string) => void
-  // navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>
-  modal: () => void
-}) {
-  const [showPw, setShowPw] = useState(true)
-  const [showConfirmPw, setShowConfirmPw] = useState(true)
-  const [name, setName] = useState('')
-  const [nameValid, setNameValid] = useState(true)
-  const [open, setOpen] = useState(false)
-  const [position, setPosition] = useState('')
-  const [positionItems, setPositionItems] = useState([
-    { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
-    { label: 'Diretor(a)', value: 'Diretor(a)' },
-    { label: 'Coordenador(a)', value: 'Coordenador(a)' },
-    { label: 'Gerente', value: 'Gerente' },
-    { label: 'Comprador(a)', value: 'Comprador(a)' },
-    { label: 'Caixa/Financeiro', value: 'Caixa/Financeiro' },
-    { label: 'Chef/Cozinheiro(a)', value: 'Chef/Cozinheiro(a)' },
-    { label: 'Sous Chef', value: 'Sous Chef' },
-    { label: 'Maître', value: 'Maître' },
-    { label: 'Nutricionista', value: 'Nutricionista' },
-    { label: 'Estoquista', value: 'Estoquista' },
-    { label: 'Barista', value: 'Barista' },
-    { label: 'Barman', value: 'Barman' },
-    { label: 'Auxiliar de cozinha', value: 'Auxiliar de cozinha' },
-    { label: 'Garçom(ete)', value: 'Garçom(ete)' },
-    { label: 'Auxiliar de limpeza', value: 'Auxiliar de limpeza' },
-    { label: 'Outros', value: 'Outros' }
-  ])
-  const [phone, setPhone] = useState('')
-  const [phoneValid, setPhoneValid] = useState(true)
-  const [emailValid, setEmailValid] = useState(true)
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordValid, setPasswordValid] = useState(true)
-  const [erros, setErros] = useState([])
-  const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const { saveAuthToken } = useAuthContext();
-
-  const validatePhone = (value: string) => {
-    const numeric = value.replace(/\D/g, '')
-    return /^\d{10,11}$/.test(numeric)
-  }
-
-  const register = async (
-    name: string,
-    nameValid: boolean,
-    position: string,
-    phone: string,
-    phoneValid: boolean,
-    email: string,
-    emailValid: boolean,
-    password: string,
-    passwordValid: boolean,
-    registerInvalid: Function,
-    setErros: Function
-  ) => {
-    const erros: string[] = []
-    if (
-      email.length > 1 &&
-      emailValid &&
-      name.length > 1 &&
-      nameValid &&
-      position.length > 1 &&
-      phone.length > 1 &&
-      phoneValid &&
-      password.length >= 8 &&
-      passwordValid
-    ) {
-      dataSignup = {
-        email: email.toLowerCase(),
-        password,
-        name,
-        position,
-        phone
-      }
-      try {
-        setLoading(true)
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/auth/signup`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(dataSignup)
-          }
-        )
-
-        if (response.ok) {
-          const res: {
-            data: { token: string; role: string[] }
-            status: number
-          } = await response.json()
-          await Promise.all([
-            saveAuthToken(res.data.token),
-            AsyncStorage.setItem('role', res.data.role[0])
-          ])
-          if (res.data.role.includes('registering')) {
-            //props.navigation.replace('Register')
-            router.replace('/register')
-          } else {
-            // props.navigation.replace('Products')
-            router.replace('/products')
-          }
-        } else {
-          const res: {
-            data: { token: string; role: string[] }
-            status: number
-            msg: string | null
-          } = await response.json()
-          if (res.msg === 'email already exists')
-            erros.push(
-              'Este e-mail já existe na plataforma, utilize outro ou logue ao invés disso'
-            )
-          if (erros.length > 0) {
-            registerInvalid(true)
-            setErros(erros)
-          }
-        }
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    } else {
-      if (!name.length) erros.push('O nome não pode estar em branco')
-      if (!nameValid) erros.push('Nome inválido')
-      if (!position) erros.push('O cargo não pode estar em branco')
-      if (!phone.length) erros.push('O telefone não pode estar em branco')
-      if (!phoneValid) erros.push('Telefone inválido')
-      if (!emailValid && email.length > 0) erros.push('E-mail inválido')
-      if (!email.length) erros.push('O e-mail não pode estar em branco')
-      if (email.length > 256)
-        erros.push('O e-mail precisar ter 256 ou menos caracteres')
-      if (password.length < 8)
-        erros.push('A senha precisa ter 8 digitos ou mais')
-      if (!passwordValid) erros.push('As duas senhas precisam ser iguais')
-
-      if (erros.length > 0) {
-        registerInvalid(true)
-        setErros(erros)
-        return false
-      }
-    }
-  }
-
-  if (loading) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    )
-  }
-
-  return (
-    <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
-      <Image
-        src={require('../assets/images/logo-conectar-positivo.svg')}
-        width={240}
-        height={80}
-        objectFit="fill"
-        marginBottom="$6"
-      />
-      {registerInvalid && (
-        <DialogInstance
-          openModal={registerInvalid}
-          setRegisterInvalid={setRegisterInvalid}
-          erros={erros}
-        />
-      )}
-
-      <Stack width="$20">
-        <Text fontSize="$8">Criar conta</Text>
-        <Text color="$gray10Dark">Preencha com os seus dados abaixo:</Text>
-      </Stack>
-
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={name.length > 0 && !nameValid ? 'red' : 'lightgray'}
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          placeholder="Nome"
-          onChangeText={(e) => {
-            setName(e)
-            setNameValid(e.length > 1)
-          }}
-          value={name}
-          backgroundColor="$colorTransparent"
-          borderWidth="0"
-          flex={1}
-          width="100%"
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        />
-      </XStack>
-
-      <XStack
-        width="$20"
-        borderWidth={1}
-        backgroundColor="white"
-        borderRadius={9}
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={30}
-      >
-        <DropDownPicker
-          open={open}
-          value={position}
-          items={positionItems}
-          setOpen={setOpen}
-          setValue={setPosition}
-          setItems={setPositionItems}
-          placeholder="Selecione o cargo"
-          style={{
-            borderColor: 'lightgray',
-            height: 50
-          }}
-          dropDownContainerStyle={{
-            borderColor: 'lightgray'
-          }}
-          listMode="SCROLLVIEW"
-        />
-      </XStack>
-
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        overflow="hidden"
-        borderColor={
-          phone.length === 0 ? 'lightgray' : phoneValid ? 'lightgray' : 'red'
-        }
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        hoverStyle={{
-          borderColor: '#049A63',
-          borderWidth: 1
-        }}
-        focusStyle={{
-          borderColor: '#049A63',
-          borderWidth: 1
-        }}
-      >
-        <TextInputMask
-          type="cel-phone"
-          options={{
-            maskType: 'BRL',
-            withDDD: true,
-            dddMask: '(99) '
-          }}
-          value={phone}
-          onChangeText={(text: string) => {
-            setPhone(text)
-            setPhoneValid(validatePhone(text))
-          }}
-          placeholder="Telefone"
-          keyboardType="phone-pad"
-          onBlur={() => {
-            setPhoneValid(validatePhone(phone))
-          }}
-          style={{
-            backgroundColor: 'white',
-            borderRadius: 8,
-            paddingHorizontal: 12,
-            paddingVertical: 10,
-            fontSize: 16,
-            width: '100%',
-            borderWidth: 0
-          }}
-        />
-      </XStack>
-
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={email.length > 0 && !emailValid ? 'red' : 'lightgray'}
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Email"
-          onChangeText={(email) => {
-            setEmail(email)
-            emailIsValid(email, setEmailValid)
-          }}
-          value={email}
-          textContentType="emailAddress"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          flex={1}
-          maxLength={256}
-          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        />
-      </XStack>
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        paddingRight="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={
-          password.length === 0
-            ? 'lightgray' // Cinza se vazio
-            : passwordValid
-            ? 'lightgray'
-            : 'red' // Vermelho se inválido
-        }
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Senha"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showPw}
-          flex={1}
-          marginRight="$3.5"
-          value={password}
-          maxLength={20}
-          onChangeText={(text) => {
-            setPassword(text)
-            passwordIsValid(text, confirmPassword, setPasswordValid)
-          }}
-          focusStyle={{ outlineStyle: 'none' }}
-        />
-        <Icons
-          name={showPw ? 'eye' : 'eye-off'}
-          size={24}
-          onPress={() => {
-            setShowPw(!showPw)
-          }}
-        />
-      </XStack>
-      <XStack
-        width="$20"
-        backgroundColor="white"
-        paddingRight="$3.5"
-        borderWidth={1}
-        borderRadius={9}
-        borderColor={
-          confirmPassword.length === 0
-            ? 'lightgray' // Cinza se vazio
-            : passwordValid
-            ? 'lightgray'
-            : 'red' // Vermelho se inválido
-        }
-        marginTop="$3.5"
-        alignItems="center"
-        flexDirection="row"
-        zIndex={20}
-        focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-        hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-      >
-        <Input
-          autoCapitalize="none"
-          placeholder="Confirmar senha"
-          backgroundColor="$colorTransparent"
-          borderWidth="$0"
-          borderColor="$colorTransparent"
-          secureTextEntry={showConfirmPw}
-          flex={1}
-          marginRight="$3.5"
-          maxLength={20}
-          onChangeText={(text) => {
-            setConfirmPassword(text)
-            setPasswordValid(text === password) // Valida se é igual à senha principal
-          }}
-          focusStyle={{ outlineStyle: 'none' }}
-        />
-        <Icons
-          name={showConfirmPw ? 'eye' : 'eye-off'}
-          size={24}
-          onPress={() => {
-            setShowConfirmPw(!showConfirmPw)
-          }}
-        />
-      </XStack>
-
-      <Button
-        onPress={async () => {
-          await register(
-            name,
-            nameValid,
-            position,
-            phone,
-            phoneValid,
-            email,
-            emailValid,
-            password,
-            passwordValid,
-            setRegisterInvalid,
-            setErros
-          )
-        }}
-        hoverStyle={{ backgroundColor: '#03a86c' }}
-        marginTop="$3.5"
-        backgroundColor="#04BF7B"
-        color="white"
-        fontWeight="$10"
-        width="$20"
-      >
-        Cadastrar
-      </Button>
-
-      {/* <Text color='$gray10Dark' marginTop='$3.5'>Ou cadastre com</Text>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
-            <Button backgroundColor='white' borderColor='lightgray' width='$18' marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
-
-      <Text
-        marginTop={5}
-        color="gray"
-        cursor="pointer"
-        onPress={() => {
-          Linking.openURL(
-            'https://www.conectarhortifruti.com.br/termos/politica-de-privacidade'
-          ).catch((err) => console.error('Erro ao abrir URL:', err))
-        }}
-      >
-        Politica de privacidade
-      </Text>
-
-      <XStack
-        marginTop="$6"
-        borderColor="$gray7Light"
-        borderWidth={1}
-        borderRadius={9}
-        width="$20"
-      >
-        <Button
-          width="50%"
-          borderTopRightRadius={0}
-          borderBottomRightRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignIn' ? '$gray1Light' : '$background'}
-          onPress={() => props.onButtonPress('SignIn')}
-        >
-          Entrar
-        </Button>
-        <Button
-          width="50%"
-          borderTopLeftRadius={0}
-          borderBottomLeftRadius={0}
-          height="$5"
-          backgroundColor={props.page !== 'SignUp' ? '$gray1Light' : '$background'}
-        >
-          Criar conta
-        </Button>
-      </XStack>
-      <VersionInfo />
-    </YStack>
-  )
-}
-
-export function DialogInstance(props: {
-  openModal: boolean
-  setRegisterInvalid: Function
-  erros: string[]
-  cnpj?: string
-}) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true
-              }
-            }
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title>Ops!</Dialog.Title>
-          <Dialog.Description>
-            Houve alguns probleminhas, corrija antes de continuar
-          </Dialog.Description>
-
-          {props.erros.map((erro) => {
-            return <Text key={erro}>{erro}</Text>
-          })}
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              {/* Envolva os botões em um container único */}
-              <XStack gap="$4">
-                <Button
-                  width="$20"
-                  theme="active"
-                  aria-label="Close"
-                  backgroundColor="#04BF7B"
-                  color="$white1"
-                  onPress={() => props.setRegisterInvalid(false)}
-                >
-                  Ok
-                </Button>
-                {props.erros.find(
-                  (erro) =>
-                    erro ===
-                    'Este cnpj já existe na plataforma, utilize outro ou logue ao invés disso'
-                ) && (
-                  <Button
-                    width="$20"
-                    theme="active"
-                    backgroundColor="#FFA500"
-                    color="$white1"
-                    onPress={() => {
-                      let msg = `Olá! Gostaria de acessar a conta com o CNPJ ${
-                        props.cnpj ?? ''
-                      }, pode me ajudar?`
-                      msg = encodeURIComponent(msg)
-                        .replace('!', '%21')
-                        .replace("'", '%27')
-                        .replace('(', '%28')
-                        .replace(')', '%29')
-                        .replace('*', '%2A')
-
-                      const endpoint = `https://wa.me/5521999954372?text=${msg}`
-                      openURL(endpoint).catch((err) =>
-                        console.error(
-                          `Erro ao redirecionar ao Whatsapp: ${err}`
-                        )
-                      )
-                    }}
-                  >
-                    Suporte
-                  </Button>
-                )}
-              </XStack>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  )
+  );
 }
