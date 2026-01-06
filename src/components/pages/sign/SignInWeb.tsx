@@ -5,7 +5,6 @@ import { ActivityIndicator, Linking } from "react-native";
 import { Button, Image, Input, Stack, Text, View, XStack, YStack } from "tamagui";
 import { ValidationDialog } from "./ValidationDialog";
 import Icons from '@expo/vector-icons/Ionicons';
-import logo from '@/assets/images/logo-conectar-positivo.svg';
 
 export function SignInWeb(props: {
   page: string;
@@ -37,7 +36,7 @@ export function SignInWeb(props: {
         erros={erros}
       />
       <Image
-        src={logo}
+        src={require('@assets/images/logo-conectar-positivo.svg')}
         width={240}
         height={80}
         objectFit="fill"

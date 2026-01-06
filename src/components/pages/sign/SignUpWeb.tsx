@@ -8,7 +8,6 @@ import { ValidationDialog } from "./ValidationDialog";
 import { useState } from "react";
 import { useAuthContext } from "@/src/contexts/auth.context";
 import Icons from '@expo/vector-icons/Ionicons';
-import logo from '@/assets/images/logo-conectar-positivo.svg';
 
 export function SignUpWeb(props: {
   page: string;
@@ -57,7 +56,7 @@ export function SignUpWeb(props: {
   return (
     <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">
       <Image
-        src={logo}
+        src={require('@assets/images/logo-conectar-positivo.svg')}
         width={240}
         height={80}
         objectFit="fill"

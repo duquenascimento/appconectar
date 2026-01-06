@@ -6,7 +6,6 @@ import { Image, Input, Text, XStack, YStack } from "tamagui";
 import { ValidationDialog } from "./ValidationDialog";
 import Icons from '@expo/vector-icons/Ionicons';
 import { VersionInfo } from "@/src/utils/VersionApp";
-import logo from '@/assets/images/logo-conectar-positivo.svg';
 
 export function SignInMobile(props: {
   page: string;
@@ -38,7 +37,7 @@ export function SignInMobile(props: {
         erros={erros}
       />
       <Image
-        src={logo}
+        src={require('@assets/images/logo-conectar-positivo.svg')}
         objectFit="contain"
         maxWidth={200}
         height={80}

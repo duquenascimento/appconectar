@@ -235,14 +235,11 @@ export default function Sign() {
     } finally {
       setLoading(false);
     }
-  }, [authToken, deleteAuthToken]);
+  }, [authToken]);
 
   useEffect(() => {
     checkLogin();
   }, [checkLogin]);
-  useEffect(() => {
-    console.log("criou a tela de login");
-  }, []);
 
   const handleButtonPress = (page: string) => {
     if (Platform.OS === 'web') {

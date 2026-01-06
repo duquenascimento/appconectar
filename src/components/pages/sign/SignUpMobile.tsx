@@ -8,7 +8,6 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { TextInputMask } from 'react-native-masked-text';
 import { validateEmail, validatePassword, validatePhone } from '@/src/utils/validateFields';
 import { VersionInfo } from '@/src/utils/VersionApp';
-import logo from '@/assets/images/logo-conectar-positivo.svg';
 
 export function SignUpMobile(props: {
   page: string;
@@ -63,7 +62,7 @@ export function SignUpMobile(props: {
         erros={erros}
       />
       <Image
-        src={logo}
+        src={require('@assets/images/logo-conectar-positivo.svg')}
         objectFit="contain"
         maxWidth={200}
         height={80}
