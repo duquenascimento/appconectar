@@ -58,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await clearAllStoragesData();
-
+      await deleteAuthToken();
       if (router.canDismiss()) {
         router.dismissAll();
       }
