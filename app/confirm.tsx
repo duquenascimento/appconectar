@@ -2,6 +2,7 @@ import { AccordionInfo } from '@/src/components/AccordionInfo';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import Icons from '@expo/vector-icons/Ionicons';
+import { debounce } from 'lodash';
 import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
 import { DateTime } from 'luxon';
@@ -48,175 +49,6 @@ if (Platform.OS !== 'web') {
   });
 }
 
-// Componentizar?
-export function DialogInstance(props: {
-  openModal: boolean;
-  setRegisterInvalid: Function;
-  erros: string[];
-}) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          {props.erros.length > 0 ? (
-            <Dialog.Title>Algo inesperado aconteceu!</Dialog.Title>
-          ) : (
-            <Dialog.Title>Agendamento Realizado!</Dialog.Title>
-          )}
-
-          {props.erros.map((erro) => {
-            return <Text key={erro}>- {erro}</Text>;
-          })}
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="#04BF7B"
-                color="$white1"
-                onPress={() => props.setRegisterInvalid(false)}
-              >
-                Ok
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  );
-}
-
-// Possível reaproveitamento em components
-function DialogInstanceNotification(props: { openModal: boolean; setRegisterInvalid: Function }) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title>Pronto!</Dialog.Title>
-          <Dialog.Description>Sua notificação foi agendada</Dialog.Description>
-
-          <Text>As 13h você será alertado em sua barra de notificação, até logo.</Text>
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="#04BF7B"
-                color="$white1"
-                onPress={() => props.setRegisterInvalid(false)}
-              >
-                Ok
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  );
-}
-
 export default function Confirm() {
   const [supplier, setSupplier] = useState<SupplierData>({} as SupplierData);
   const [loading, setLoading] = useState<boolean>(true);
@@ -233,6 +65,7 @@ export default function Confirm() {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
+  const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{
     missingItems: boolean;
     sundayWarning: boolean;
@@ -338,11 +171,12 @@ export default function Confirm() {
         currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute
       }${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
-    
+
     return (
       Number(supplier?.supplier?.hour.replaceAll(':', '')) >= currentHour &&
       (supplier?.supplier?.minimumOrder <= supplier?.supplier?.discount.orderValueFinish ||
-        hasSameDayOrdersWithSupplier || (selectedRestaurant?.allowMinimumOrder ?? false))
+        hasSameDayOrdersWithSupplier ||
+        (selectedRestaurant?.allowMinimumOrder ?? false))
     );
   };
 
@@ -350,6 +184,7 @@ export default function Confirm() {
 
   const handleConfirmOrder = useCallback(
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+      setDisableConfirm(true);
       try {
         const token = await getToken();
         if (!token || !selectedRestaurant) {
@@ -420,6 +255,7 @@ export default function Confirm() {
         setBooleanErros(true);
       } finally {
         setLoadingToConfirm(false);
+        setDisableConfirm(false);
       }
     },
     [
@@ -454,6 +290,42 @@ export default function Confirm() {
     setShowSundayWarning(false);
     setConfirmedWarnings({ missingItems: false, sundayWarning: false });
   }, []);
+
+  const handleConfirmButtonPress = useCallback(async () => {
+    console.log('Click');
+    try {
+      if (isBefore13h) {
+        const errors = await scheduleNotification(
+          selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+        );
+
+        setShowErros(errors);
+        if (errors.length) setBooleanErros(true);
+        else setShowNotification(true);
+      } else {
+        const validationResult = validateAddress(selectedRestaurant);
+        if (!validationResult.isValid) {
+          setAlertMessage(validationResult.message);
+          setIsAlertVisible(true);
+          return;
+        }
+
+        await handleConfirmOrder();
+      }
+    } catch (error) {
+      console.error('Erro no botão de confirmação:', error);
+    }
+  }, [isBefore13h, selectedRestaurant, handleConfirmOrder]);
+
+  // Debounce para evitar múltiplos cliques rápidos
+  const onConfirmPressDebounced = useMemo(
+    () =>
+      debounce(handleConfirmButtonPress, 300, {
+        leading: true,
+        trailing: false,
+      }) as unknown as () => void,
+    [handleConfirmButtonPress],
+  );
 
   if (loading || !selectedRestaurant || !supplier?.supplier) {
     return (
@@ -937,30 +809,8 @@ export default function Confirm() {
             <Text color="white">Alterar itens</Text>
           </Button>
           <Button
-            onPress={async () => {
-              try {
-                if (isBefore13h) {
-                  const errors = await scheduleNotification(
-                    selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
-                  );
-
-                  setShowErros(errors);
-                  if (errors.length) setBooleanErros(true);
-                  else setShowNotification(true);
-                } else {
-                  const validationResult = validateAddress(selectedRestaurant);
-                  if (!validationResult.isValid) {
-                    setAlertMessage(validationResult.message);
-                    setIsAlertVisible(true);
-                    return;
-                  }
-
-                  await handleConfirmOrder();
-                }
-              } catch (error) {
-                console.error('Erro no botão de confirmação:', error);
-              }
-            }}
+            disabled={disableConfirm}
+            onPress={onConfirmPressDebounced}
             width={170}
             backgroundColor="#04BF7B"
           >
