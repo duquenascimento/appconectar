@@ -10,6 +10,7 @@ import {
   getSuppliersPrices,
   SupplierPriceRequestBody,
 } from '@/src/services/pricesService';
+import { getQuotationsBySupplier } from '@/src/services/quotationService';
 import { getUserRestaurants } from '@/src/services/restaurantService';
 import {
   createScheduleOrder,
@@ -20,6 +21,7 @@ import {
 import { getAllSuppliers } from '@/src/services/supplierService';
 import { CartProduct } from '@/src/types/cartTypes';
 import { ComboOption } from '@/src/types/componentTypes';
+import { QuotationResquestBody } from '@/src/types/quotationTypes';
 import { ScheduleOrderCreationBody, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
 import { convertFromDaysUpFront, convertToDaysUpFront, isTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -298,12 +300,12 @@ export default function ScheduleScreen() {
 
       if (!restaurant) return;
 
-      const data: SupplierPriceRequestBody = {
-        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO()!,
-        selectedRestaurant: restaurant,
+      const data: QuotationResquestBody = {
+        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO()?.split('T')[0] ?? '',
+        restaurantId: restaurant.id,
       };
 
-      const availableSuppliersResult = await getSuppliersPrices(data);
+      const availableSuppliersResult = await getQuotationsBySupplier(data);
 
       const availableSuppliers = availableSuppliersResult.availableSuppliers;
       if (

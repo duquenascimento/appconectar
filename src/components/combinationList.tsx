@@ -18,6 +18,8 @@ import { transformCombinationFromApi } from '../utils/combinacaoUtils';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import CustomSubtitle from './subtitle/customSubtitle';
+import { getQuotationsByCombination } from '../services/quotationService';
+import { useDeliveryDate } from '../hooks/useDeliveryDate';
 
 export type RootStackParamList = {
   Sign: undefined;
@@ -44,6 +46,7 @@ const CombinationList: React.FC = () => {
 
   const { availableSuppliers } = useSupplier();
   const { selectedRestaurant } = useRestaurantContext();
+  const { deliveryDate } = useDeliveryDate();
   const router = useRouter();
 
   useFocusEffect(
@@ -52,15 +55,13 @@ const CombinationList: React.FC = () => {
         if (!selectedRestaurant) return;
         try {
           setLoading(true);
-          const token = await getToken();
           const cartStoredValue = JSON.parse(
             (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
           );
-          const combinationsData: QuotationApiResponse = await getAllQuotationByRestaurant({
-            token,
-            selectedRestaurant,
-            cart: cartStoredValue,
-            prices: availableSuppliers,
+
+          const combinationsData: QuotationApiResponse = await getQuotationsByCombination({
+            restaurantId: selectedRestaurant.id,
+            deliveryDate: deliveryDate,
           });
 
           const totalItens = cartStoredValue?.length || 0;
