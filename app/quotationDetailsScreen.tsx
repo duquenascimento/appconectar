@@ -8,6 +8,7 @@ import { DateTime } from 'luxon';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
+import { debounce } from 'lodash';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
@@ -128,6 +129,7 @@ export default function QuotationDetailsScreen() {
   const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
 
   const handleShowPdf = (pdfUrl: string) => {
     setSelectedPdfUrl(pdfUrl);
@@ -198,7 +200,7 @@ export default function QuotationDetailsScreen() {
   const isBefore13h = selectedRestaurant?.allowEmergencyOrder ? false : isBefore13Hours();
 
   const handleBackPress = () => {
-    if(router.canGoBack()) {
+    if (router.canGoBack()) {
       router.back();
     } else {
       router.push('prices');
@@ -207,6 +209,7 @@ export default function QuotationDetailsScreen() {
 
   const handleConfirm = useCallback(
     async (overrideWarnings?: { sundayWarning?: boolean }) => {
+      setDisableConfirm(true);
       try {
         const token = await getToken();
         if (!token) {
@@ -297,6 +300,7 @@ export default function QuotationDetailsScreen() {
         Alert.alert('Erro', 'Ocorreu um erro inesperado.');
       } finally {
         setIsLoading(false);
+        setDisableConfirm(false);
       }
     },
     [suppliers, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
@@ -312,6 +316,15 @@ export default function QuotationDetailsScreen() {
     setShowSundayWarning(false);
     setConfirmedWarnings({ sundayWarning: false });
   }, []);
+
+  const onConfirmPressDebounced = useMemo(
+    () =>
+      debounce(handleConfirm, 300, {
+        leading: true,
+        trailing: false,
+      }) as unknown as () => void,
+    [handleConfirm],
+  );
 
   if (!suppliers || suppliers.length === 0) {
     return (
@@ -478,7 +491,9 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  onPress={() => handleConfirm()}
+                  disabled={disableConfirm}
+                  //onPress={() => handleConfirm()}
+                  onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
                     opacity: 0.9,
