@@ -36,6 +36,8 @@ import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/ut
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
 import { HttpStatusCode } from 'axios';
+import { DialogInstance } from '@/src/components/confirm/dialogInstance';
+import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
