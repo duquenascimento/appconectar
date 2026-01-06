@@ -552,9 +552,9 @@ export default function Products() {
 
       const result = await checkVersion();
 
-      if (result?.result?.updateRequired) {
+      if (result?.updateRequired) {
         setUpdateRequired(true);
-        setUpdateMessage(result.result.message ?? '');
+        setUpdateMessage(result.message ?? '');
       } else {
         setUpdateRequired(false);
         setUpdateMessage('');

@@ -7,7 +7,7 @@ import { clearAllStoragesData, getStorage, getToken, setStorage, STORAGE_DEFAULT
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const EXPO_APP_VERSION = process.env.EXPO_PUBLIC_VERSION || '1.0.0';
 
-export const saveUserAppInfo = async () => {
+export const saveUserAppInfo = async (): Promise<void> => {
     try {
         const appOS = Platform.OS;
         const restaurant = await getStorageRestaurant();
@@ -26,11 +26,10 @@ export const saveUserAppInfo = async () => {
         await setStorage(STORAGE_DEFAULT_KEYS.EXPO_APP_VERSION, EXPO_APP_VERSION);
     } catch (error) {
         console.error('Erro ao salvar dados do app:', error);
-        throw error;
     }
 };
 
-export const checkVersion = async (): Promise<VersionCheck> => {
+export const checkVersion = async (): Promise<VersionCheck | null> => {
     try {
         const restaurant = await getStorageRestaurant();
         const externalId = restaurant?.externalId ?? null;
@@ -42,7 +41,7 @@ export const checkVersion = async (): Promise<VersionCheck> => {
         return response.data.result as VersionCheck;
     } catch (error) {
         console.error('Erro ao checar versão do app:', error);
-        throw error;
+        return null;
     }
 };
 
