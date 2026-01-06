@@ -1,10 +1,10 @@
 import { setStorage } from '@/src/utils/utils';
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { useDeliveryDate } from '../hooks/useDeliveryDate';
-import { getSuppliersPrices, SupplierPriceRequestBody } from '../services/pricesService';
 import { SupplierData } from '../types/types';
 import { getStorageRestaurant } from '../utils/restaurantUtils';
 import { useRestaurantContext } from './restaurant.context';
+import { getQuotationsBySupplier } from '../services/quotationService';
 
 interface SupplierContextType {
   availableSuppliers: SupplierData[];
@@ -53,12 +53,10 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
         const dateToUse = deliveryDateParam ?? deliveryDate;
 
-        const data: SupplierPriceRequestBody = {
+        const result = await getQuotationsBySupplier({
           deliveryDate: dateToUse,
-          selectedRestaurant: currentRestaurant,
-        };
-
-        const result = await getSuppliersPrices(data);
+          restaurantId: currentRestaurant.id,
+        });
 
         setAvailableSuppliers(result.availableSuppliers);
         setUnavailableSuppliers(result.unavailableSuppliers);
