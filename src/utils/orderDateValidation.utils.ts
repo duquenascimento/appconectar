@@ -1,18 +1,11 @@
 import { DateTime } from 'luxon';
 import { Restaurant } from '../types/restaurantTypes';
+import { getBrazilDateTime } from './dateUtils';
 
 // Constants for days of the week
 const FRIDAY = 5;
 const SATURDAY = 6;
 const SUNDAY = 7;
-const TIMEZONE = 'America/Sao_Paulo';
-
-/**
- * Get the current date/time in São Paulo timezone
- */
-function getToday(): DateTime {
-  return DateTime.now().setZone(TIMEZONE);
-}
 
 /**
  * Check if a restaurant allows Sunday deliveries
@@ -76,7 +69,7 @@ function getNextValidDeliveryDate(
  */
 export function getAvailableDeliveryDaysFormatted(restaurant: Restaurant): string[] {
   const availableDates: string[] = [];
-  const today = getToday();
+  const today = getBrazilDateTime();
   const todayDay = today.weekday;
 
   // Rule 1: Standard next-day delivery

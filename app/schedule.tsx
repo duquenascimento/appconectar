@@ -5,11 +5,7 @@ import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAle
 import { useCart } from '@/src/components/useCart';
 import { getCartProducts } from '@/src/services/cartService';
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
-import {
-  getPricesBySupplierOrCombination,
-  getSuppliersPrices,
-  SupplierPriceRequestBody,
-} from '@/src/services/pricesService';
+import { getPricesBySupplierOrCombination } from '@/src/services/pricesService';
 import { getQuotationsBySupplier } from '@/src/services/quotationService';
 import { getUserRestaurants } from '@/src/services/restaurantService';
 import {
@@ -23,12 +19,16 @@ import { CartProduct } from '@/src/types/cartTypes';
 import { ComboOption } from '@/src/types/componentTypes';
 import { QuotationResquestBody } from '@/src/types/quotationTypes';
 import { ScheduleOrderCreationBody, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import { convertFromDaysUpFront, convertToDaysUpFront, isTomorrow } from '@/src/utils/dateUtils';
+import {
+  convertFromDaysUpFront,
+  convertToDaysUpFront,
+  getBrazilDateTime,
+  isTomorrow,
+} from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { capitalizeFirstLetter } from '@/src/utils/stringUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, useWindowDimensions } from 'react-native';
 import { Button, Label, RadioGroup, ScrollView, Spacer, Text, View, XStack, YStack } from 'tamagui';
@@ -61,8 +61,7 @@ export default function ScheduleScreen() {
     .fill(null)
     .map((_, index) => ({
       label: capitalizeFirstLetter(
-        DateTime.now()
-          .setLocale('pt-BR')
+        getBrazilDateTime()
           .plus({ days: index + 2 })
           .toFormat('EEEE • dd/MM'),
       ),
@@ -96,8 +95,9 @@ export default function ScheduleScreen() {
 
       if (orderId) {
         const updateData: Partial<Omit<ScheduleOrderCreationBody, 'restaurantId'>> = {};
-        if (convertToDaysUpFront(DateTime.fromISO(currentOrder!.deliveryDate)) !== daysUpfront) {
-          updateData.deliveryDate = DateTime.now().plus({ days: daysUpfront }).toISO();
+        if (convertToDaysUpFront(getBrazilDateTime(currentOrder!.deliveryDate)) !== daysUpfront) {
+          updateData.deliveryDate =
+            getBrazilDateTime().plus({ days: daysUpfront }).toISO() ?? undefined;
         }
 
         if (showCombinationDropdown && selectedCombination !== currentOrder?.combination?.id) {
@@ -234,7 +234,7 @@ export default function ScheduleScreen() {
       const order = await getScheduleOrder(orderId!);
       setCurrentOrder(order);
 
-      const deliveryDate = DateTime.fromISO(order.deliveryDate);
+      const deliveryDate = getBrazilDateTime(order.deliveryDate);
       const diffDays = convertToDaysUpFront(deliveryDate);
 
       if (diffDays > 1 && deliveryDate.weekday !== 7) {
@@ -243,7 +243,7 @@ export default function ScheduleScreen() {
         setDaysUpfront(diffDays);
         setDefaultDeliveryDateText(
           capitalizeFirstLetter(
-            DateTime.now().setLocale('pt-BR').plus({ days: diffDays }).toFormat('EEEE • dd/MM'),
+            getBrazilDateTime().plus({ days: diffDays }).toFormat('EEEE • dd/MM'),
           ),
         );
       }
@@ -451,7 +451,7 @@ export default function ScheduleScreen() {
       </View>
       <View width={'100%'} gap={isMobile ? '$2' : '$4'}>
         {currentOrder &&
-          isTomorrow(DateTime.fromISO(currentOrder!.deliveryDate)) &&
+          isTomorrow(getBrazilDateTime(currentOrder!.deliveryDate)) &&
           (currentOrder!.status === 'CONFIRMED' ? (
             <Text textAlign="center" color={'$green9'} fontSize={20}>
               Entrega confirmada

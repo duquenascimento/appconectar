@@ -4,11 +4,12 @@ import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import { Combination } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
+import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -34,7 +35,6 @@ import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
 import { campoString } from '../src/utils/formatCampos';
-import { HttpStatusCode } from 'axios';
 
 export interface Product {
   price: number;
@@ -118,7 +118,7 @@ function SupplierBox({
   goToConfirm: (supplier: SupplierData, selectedRestaurant: any) => void;
 }) {
   const isOpen = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
+    const currentDate = getBrazilDateTime();
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
@@ -2107,6 +2107,7 @@ export default function Prices() {
                             addressInfo.address = street;
                             addressInfo.complement = complement;
                             addressInfo.deliveryInformation = deliveryInformation;
+                            // TODO: verificar se realmente é necessário mandar com 'Z' e possibilidade de remover (da problema no banco ao salvar sem o Z)
                             addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
                             addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 

@@ -1,5 +1,9 @@
 import { DateTime } from 'luxon';
 
+const BRAZIL_TIMEZONE = 'America/Sao_Paulo';
+
+type DateUtilsInput = Date | DateTime | string;
+
 export function isTomorrowOrToday(dateToCheck: DateTime): boolean {
   const today = DateTime.local();
 
@@ -35,16 +39,14 @@ export function convertFromDaysUpFront(daysUpfront: number): DateTime {
   return DateTime.now().plus({ days: daysUpfront }).startOf('day');
 }
 
-export const getBrazilDateTime = (date?: Date | string | DateTime, format?: string): DateTime => {
-  let dt = date ?? DateTime.now().setZone('America/Sao_Paulo');
+export const getBrazilDateTime = (date?: DateUtilsInput, format?: string): DateTime => {
+  let dt = date ?? DateTime.now().setZone(BRAZIL_TIMEZONE);
 
   if (typeof dt === 'string') {
-    console.log('Parsing date string:', dt, 'with format:', format);
-
     if (format) {
-      dt = DateTime.fromFormat(dt, format, { zone: 'America/Sao_Paulo' });
+      dt = DateTime.fromFormat(dt, format, { zone: BRAZIL_TIMEZONE });
     } else {
-      dt = DateTime.fromISO(dt, { zone: 'America/Sao_Paulo' });
+      dt = DateTime.fromISO(dt, { zone: BRAZIL_TIMEZONE });
     }
 
     if (!dt.isValid) {
@@ -53,27 +55,30 @@ export const getBrazilDateTime = (date?: Date | string | DateTime, format?: stri
       );
     }
 
-    console.log('Parsed DateTime:', dt.toString());
-
     return dt;
   }
 
   if (dt instanceof Date) {
-    return DateTime.fromJSDate(dt).setZone('America/Sao_Paulo');
+    return DateTime.fromJSDate(dt).setZone(BRAZIL_TIMEZONE);
   }
 
-  return dt.setZone('America/Sao_Paulo');
+  return dt.setZone(BRAZIL_TIMEZONE);
 };
 
 export const getBrazilDateTimeTomorrow = (): DateTime => {
   return getBrazilDateTime(DateTime.now().plus({ days: 1 }));
 };
 
-export const getBrazilJSDate = (date?: Date | string | DateTime, format?: string): Date => {
+export const getBrazilJSDate = (date?: DateUtilsInput, format?: string): Date => {
   const dt = getBrazilDateTime(date, format);
   return dt.toJSDate();
 };
 
 export const getBrazilJSDateTomorrow = (): Date => {
   return getBrazilDateTimeTomorrow().toJSDate();
+};
+
+export const getBrazilLocaleString = (date?: DateUtilsInput): string => {
+  const dt = getBrazilDateTime(date);
+  return dt.toLocaleString(DateTime.DATE_SHORT, { locale: 'pt-BR' });
 };
