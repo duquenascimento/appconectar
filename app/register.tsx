@@ -1,128 +1,118 @@
-import { View, Text, Input, Button, ScrollView, Checkbox } from 'tamagui'
-import Icons from '@expo/vector-icons/Ionicons'
-import { useEffect, useState } from 'react'
-import { ActivityIndicator } from 'react-native'
-import { TextInputMask } from 'react-native-masked-text'
-import {
-  getStorage,
-  getToken,
-  clearStorage
-} from '../src/utils/utils'
-import DropDownPicker from 'react-native-dropdown-picker'
-import { formatCNPJ } from '../src/utils/formatCNPJ'
-import { formatCep } from '../src/utils/formatCep'
-import { dividirLogradouro } from '../src/utils/DividirLogradouro'
-import { campoString } from '../src/utils/formatCampos'
-import { VersionInfo } from '../src/utils/VersionApp'
-
-import { useFormik } from 'formik'
+import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { loadProgress, saveStepData } from '@/src/services/registerProgressService';
 import {
   step0Validation,
   step1Validation,
   step2Validation,
-  step3Validation
-} from '@/src/validators/register.form.validator'
-import { KeyboardAvoidingView, Platform } from 'react-native'
-import {
-  loadProgress,
-  saveStepData
-} from '@/src/services/registerProgressService'
-import { router } from 'expo-router'
-import { useAuthContext } from '@/src/contexts/auth.context'
-import { useRestaurantContext } from '@/src/contexts/restaurant.context'
-import { DialogInstance } from '@/src/components/confirm/dialogInstance'
+  step3Validation,
+} from '@/src/validators/register.form.validator';
+import Icons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { TextInputMask } from 'react-native-masked-text';
+import { Button, Checkbox, Input, ScrollView, Text, View } from 'tamagui';
+import { dividirLogradouro } from '../src/utils/DividirLogradouro';
+import { campoString } from '../src/utils/formatCampos';
+import { formatCep } from '../src/utils/formatCep';
+import { formatCNPJ } from '../src/utils/formatCNPJ';
+import { clearStorage, getStorage, getToken } from '../src/utils/utils';
+import { VersionInfo } from '../src/utils/VersionApp';
 
 interface Empresa {
-  inscricao_estadual?: string | null
-  inscricao_municipal?: string | null
-  inscricoes_estaduais: any | null
-  msg: string
-  cnpj: string
-  identificador_matriz_filial: number
-  descricao_matriz_filial: string
-  razao_social: string
-  nome_fantasia: string
-  situacao_cadastral: number
-  descricao_situacao_cadastral: string
-  data_situacao_cadastral: string
-  motivo_situacao_cadastral: number
-  nome_cidade_exterior: string | null
-  codigo_natureza_juridica: number
-  data_inicio_atividade: string
-  cnae_fiscal: number
-  cnae_fiscal_descricao: string
-  descricao_tipo_de_logradouro: string
-  logradouro: string
-  numero: string
-  complemento: string
-  bairro: string
-  cep: string
-  uf: string
-  codigo_municipio: number
-  municipio: string
-  ddd_telefone_1: string
-  ddd_telefone_2: string | null
-  ddd_fax: string | null
-  qualificacao_do_responsavel: number
-  capital_social: number
-  porte: number
-  descricao_porte: string
-  opcao_pelo_simples: boolean
-  data_opcao_pelo_simples: string | null
-  data_exclusao_do_simples: string | null
-  opcao_pelo_mei: boolean
-  situacao_especial: string | null
-  data_situacao_especial: string | null
-  cnaes_secundarios: CnaeSecundario[]
-  qsa: Socio[]
+  inscricao_estadual?: string | null;
+  inscricao_municipal?: string | null;
+  inscricoes_estaduais: any | null;
+  msg: string;
+  cnpj: string;
+  identificador_matriz_filial: number;
+  descricao_matriz_filial: string;
+  razao_social: string;
+  nome_fantasia: string;
+  situacao_cadastral: number;
+  descricao_situacao_cadastral: string;
+  data_situacao_cadastral: string;
+  motivo_situacao_cadastral: number;
+  nome_cidade_exterior: string | null;
+  codigo_natureza_juridica: number;
+  data_inicio_atividade: string;
+  cnae_fiscal: number;
+  cnae_fiscal_descricao: string;
+  descricao_tipo_de_logradouro: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cep: string;
+  uf: string;
+  codigo_municipio: number;
+  municipio: string;
+  ddd_telefone_1: string;
+  ddd_telefone_2: string | null;
+  ddd_fax: string | null;
+  qualificacao_do_responsavel: number;
+  capital_social: number;
+  porte: number;
+  descricao_porte: string;
+  opcao_pelo_simples: boolean;
+  data_opcao_pelo_simples: string | null;
+  data_exclusao_do_simples: string | null;
+  opcao_pelo_mei: boolean;
+  situacao_especial: string | null;
+  data_situacao_especial: string | null;
+  cnaes_secundarios: CnaeSecundario[];
+  qsa: Socio[];
 }
 
 interface CnaeSecundario {
-  codigo: number
-  descricao: string
+  codigo: number;
+  descricao: string;
 }
 
 interface CheckCnpj {
-  data: Empresa
-  status: number
-  msg: string
+  data: Empresa;
+  status: number;
+  msg: string;
 }
 
 interface Socio {
-  identificador_de_socio: number
-  nome_socio: string
-  cnpj_cpf_do_socio: string
-  codigo_qualificacao_socio: number
-  percentual_capital_social: number
-  data_entrada_sociedade: string
-  cpf_representante_legal: string | null
-  nome_representante_legal: string | null
-  codigo_qualificacao_representante_legal: string | null
+  identificador_de_socio: number;
+  nome_socio: string;
+  cnpj_cpf_do_socio: string;
+  codigo_qualificacao_socio: number;
+  percentual_capital_social: number;
+  data_entrada_sociedade: string;
+  cpf_representante_legal: string | null;
+  nome_representante_legal: string | null;
+  codigo_qualificacao_representante_legal: string | null;
 }
 
 export default function Register() {
-  const [step, setStep] = useState<number>(0)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [minhours, setMinhours] = useState<string[]>([])
-  const [maxhours, setMaxhours] = useState<string[]>([])
-  const [erros, setErros] = useState<string[]>([])
-  const [registerInvalid, setRegisterInvalid] = useState(false)
-  const [isCepValid, setIsCepValid] = useState(true)
-  const [minHourOpen, setMinHourOpen] = useState(false)
-  const [maxHourOpen, setMaxHourOpen] = useState(false)
-  const [paymentWayOpen, setPaymentWayOpen] = useState(false)
-  const [daysOpen, setDaysOpen] = useState(false)
-  const [scrollEnabled, setScrollEnabled] = useState<boolean>(true)
+  const [step, setStep] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [minhours, setMinhours] = useState<string[]>([]);
+  const [maxhours, setMaxhours] = useState<string[]>([]);
+  const [erros, setErros] = useState<string[]>([]);
+  const [registerInvalid, setRegisterInvalid] = useState(false);
+  const [isCepValid, setIsCepValid] = useState(true);
+  const [minHourOpen, setMinHourOpen] = useState(false);
+  const [maxHourOpen, setMaxHourOpen] = useState(false);
+  const [paymentWayOpen, setPaymentWayOpen] = useState(false);
+  const [daysOpen, setDaysOpen] = useState(false);
+  const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
   const { deleteAuthToken } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
- 
 
   const allClosedDropdowns = () => {
-    setMinHourOpen(false)
-    setMaxHourOpen(false)
-    setDaysOpen(false)
-    setScrollEnabled(true)
-  }
+    setMinHourOpen(false);
+    setMaxHourOpen(false);
+    setDaysOpen(false);
+    setScrollEnabled(true);
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -152,124 +142,113 @@ export default function Register() {
       weeklyOrderAmount: '',
       orderValue: '',
       paymentWay: '',
-      inviteCode: ''
+      inviteCode: '',
     },
     validationSchema:
       step === 0
         ? step0Validation
         : step === 1
-        ? step1Validation
-        : step === 2
-        ? step2Validation
-        : step3Validation,
+          ? step1Validation
+          : step === 2
+            ? step2Validation
+            : step3Validation,
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit: async (values) => {
       try {
-        setLoading(true)
+        setLoading(true);
 
-        const { noStateNumberId, ...data } = values
+        const { noStateNumberId, ...data } = values;
 
         const payload = {
           token: await getToken(),
           ...data,
           zipcode: values.zipcode.replace(/\D/g, ''),
           orderValue: Number(values.orderValue),
-          cnpj: values.cnpj.replace(/\D/g, '')
-        }
-        const response = await fetch(
-          `${process.env.EXPO_PUBLIC_API_URL}/register/full-register`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${await getToken()}`
-            },
-            body: JSON.stringify(payload)
-          }
-        )
+          cnpj: values.cnpj.replace(/\D/g, ''),
+        };
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${await getToken()}`,
+          },
+          body: JSON.stringify(payload),
+        });
 
         if (response.ok) {
-          await Promise.all([
-            clearStorage(),
-            loadRestaurants(),
-          ]);
+          await Promise.all([clearStorage(), loadRestaurants()]);
 
-          router.push('registerFinished')
+          router.push('registerFinished');
         }
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-  })
+    },
+  });
 
   useEffect(() => {
-    const hours = []
+    const hours = [];
     for (let hour = 0; hour < 22; hour++) {
-      hours.push(`${String(hour).padStart(2, '0')}:00`)
-      hours.push(`${String(hour).padStart(2, '0')}:30`)
+      hours.push(`${String(hour).padStart(2, '0')}:00`);
+      hours.push(`${String(hour).padStart(2, '0')}:30`);
     }
-    hours.push('22:00')
-    setMinhours(hours)
-  }, [])
+    hours.push('22:00');
+    setMinhours(hours);
+  }, []);
 
   useEffect(() => {
     if (formik.values.minHour) {
-      let [hour, minute] = formik.values.minHour.split(':').map(Number)
-      hour += 1
-      minute += 30
+      let [hour, minute] = formik.values.minHour.split(':').map(Number);
+      hour += 1;
+      minute += 30;
       if (minute >= 60) {
-        minute -= 60
-        hour += 1
+        minute -= 60;
+        hour += 1;
       }
 
-      const maxOptions = []
+      const maxOptions = [];
       while (hour < 24) {
-        maxOptions.push(
-          `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`
-        )
-        minute += 30
+        maxOptions.push(`${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`);
+        minute += 30;
         if (minute >= 60) {
-          minute -= 60
-          hour += 1
+          minute -= 60;
+          hour += 1;
         }
       }
-      setMaxhours(maxOptions)
-      if (
-        !formik.values.maxHour ||
-        !maxOptions.includes(formik.values.maxHour)
-      ) {
-        formik.setFieldValue('maxHour', maxOptions[0] || '')
+      setMaxhours(maxOptions);
+      if (!formik.values.maxHour || !maxOptions.includes(formik.values.maxHour)) {
+        formik.setFieldValue('maxHour', maxOptions[0] || '');
       }
     } else {
-      setMaxhours([])
-      formik.setFieldValue('maxHour', '')
+      setMaxhours([]);
+      formik.setFieldValue('maxHour', '');
     }
-  }, [formik.values.minHour])
+  }, [formik.values.minHour]);
 
   const cepChange = async (value: string) => {
     try {
-      const format = value.replace(/\D/g, '')
-      const formatted = formatCep(value)
+      const format = value.replace(/\D/g, '');
+      const formatted = formatCep(value);
 
-      formik.setFieldValue('zipcode', formatted)
-      formik.setFieldError('zipcode', undefined)
+      formik.setFieldValue('zipcode', formatted);
+      formik.setFieldError('zipcode', undefined);
 
       if (format.length === 8) {
-        setLoading(true)
-        const response = await fetch(`https://viacep.com.br/ws/${format}/json/`)
-        const result = await response.json()
+        setLoading(true);
+        const response = await fetch(`https://viacep.com.br/ws/${format}/json/`);
+        const result = await response.json();
 
         if (result.erro) {
-          formik.setFieldError('zipcode', 'CEP não encontrado')
-          setIsCepValid(false)
-          setErros(['CEP não encontrado. Digite o endereço manualmente.'])
-          setRegisterInvalid(true)
-          return
+          formik.setFieldError('zipcode', 'CEP não encontrado');
+          setIsCepValid(false);
+          setErros(['CEP não encontrado. Digite o endereço manualmente.']);
+          setRegisterInvalid(true);
+          return;
         }
 
         if (response.ok && !result.erro) {
-          const endereco: any = dividirLogradouro(result.logradouro)
+          const endereco: any = dividirLogradouro(result.logradouro);
           formik.setValues({
             ...formik.values,
             zipcode: formatted,
@@ -279,9 +258,9 @@ export default function Register() {
             localType: endereco.tipoLogradouro,
             localNumber: '',
             complement: '',
-          })
+          });
 
-          const camposFaltantes: string[] = []
+          const camposFaltantes: string[] = [];
           if (!result.bairro) {
             camposFaltantes.push('Bairro');
             formik.setFieldTouched('neigh', true, false);
@@ -292,49 +271,51 @@ export default function Register() {
           }
 
           if (camposFaltantes.length > 0) {
-            const camposMensagem = camposFaltantes.join(' e ')
-            formik.setFieldError('zipcode', 'CEP com informações incompletas')
-            setErros([`O CEP retornado não possui dados completos. Digite manualmente o campo: ${camposMensagem}.`])
-            setRegisterInvalid(true)
-            setIsCepValid(false)
-            setLoading(false)
-            return
+            const camposMensagem = camposFaltantes.join(' e ');
+            formik.setFieldError('zipcode', 'CEP com informações incompletas');
+            setErros([
+              `O CEP retornado não possui dados completos. Digite manualmente o campo: ${camposMensagem}.`,
+            ]);
+            setRegisterInvalid(true);
+            setIsCepValid(false);
+            setLoading(false);
+            return;
           }
 
           formik.setFieldTouched('zipcode', true, false);
           formik.setFieldTouched('neigh', true, false);
           formik.setFieldTouched('street', true, false);
-          setIsCepValid(true)
+          setIsCepValid(true);
         }
       }
     } catch (error) {
-      console.error('Erro ao buscar CEP:', error)
-      formik.setFieldError('zipcode', 'Erro ao validar CEP')
-      setIsCepValid(false)
+      console.error('Erro ao buscar CEP:', error);
+      formik.setFieldError('zipcode', 'Erro ao validar CEP');
+      setIsCepValid(false);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getCepBorderStyle = () => ({
     borderColor: isCepValid ? '#049A63' : 'red',
-    borderWidth: 1
-  })
+    borderWidth: 1,
+  });
 
   const initData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const progress = await loadProgress()
+      const progress = await loadProgress();
 
       if (progress && progress.roleUser === 'registering') {
-        formik.setValues(progress.values)
-        setStep(progress.step)
-        return
+        formik.setValues(progress.values);
+        setStep(progress.step);
+        return;
       }
 
       if (progress?.roleUser === 'registered') {
-        router.push('/products')
-        return
+        router.push('/products');
+        return;
       }
 
       const fieldsToLoad = [
@@ -365,91 +346,96 @@ export default function Register() {
         'orderValue',
         'localType',
         'city',
-        'inviteCode'
-      ]
+        'inviteCode',
+      ];
 
-      const storedValuesArray = await Promise.all(
-        fieldsToLoad.map((field) => getStorage(field))
-      )
+      const storedValuesArray = await Promise.all(fieldsToLoad.map((field) => getStorage(field)));
 
-      const loadedValues: any = {}
+      const loadedValues: any = {};
       fieldsToLoad.forEach((field, index) => {
-        const value = storedValuesArray[index]
+        const value = storedValuesArray[index];
         if (value !== null) {
           if (field === 'noStateNumberId' || field === 'closeDoor') {
-            loadedValues[field] = value === 'true'
+            loadedValues[field] = value === 'true';
           } else if (field === 'step') {
-            const stepValue = parseInt(value)
-            setStep(isNaN(stepValue) ? 0 : stepValue)
+            const stepValue = parseInt(value);
+            setStep(isNaN(stepValue) ? 0 : stepValue);
           } else {
-            loadedValues[field] = value
+            loadedValues[field] = value;
           }
         }
-      })
+      });
 
       formik.resetForm({
         values: {
           ...formik.initialValues,
-          ...loadedValues
-        }
-      })
+          ...loadedValues,
+        },
+      });
     } catch (error) {
-      console.error('Erro ao carregar dados:', error)
+      console.error('Erro ao carregar dados:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    initData()
-  }, [])
+    initData();
+  }, []);
 
   const handleNextBtn = async () => {
-    setLoading(true)
-    allClosedDropdowns()
+    setLoading(true);
+    allClosedDropdowns();
     try {
-      await formik.validateForm()
+      await formik.validateForm();
 
-      let currentStepIsValid = true
-      const currentSchema = step === 0 ? step0Validation : step === 1 ? step1Validation : step === 2 ? step2Validation : step3Validation
+      let currentStepIsValid = true;
+      const currentSchema =
+        step === 0
+          ? step0Validation
+          : step === 1
+            ? step1Validation
+            : step === 2
+              ? step2Validation
+              : step3Validation;
       try {
-        await currentSchema.validate(formik.values, { abortEarly: false })
+        await currentSchema.validate(formik.values, { abortEarly: false });
       } catch (validationErrors: any) {
-        currentStepIsValid = false
+        currentStepIsValid = false;
         formik.setErrors(
           validationErrors.inner.reduce((acc: any, err: any) => {
-            acc[err.path] = err.message
-            return acc
-          }, {})
-        )
+            acc[err.path] = err.message;
+            return acc;
+          }, {}),
+        );
         validationErrors.inner.forEach((err: any) => {
-          formik.setFieldTouched(err.path, true, false)
-        })
+          formik.setFieldTouched(err.path, true, false);
+        });
       }
 
       if (!currentStepIsValid) {
-        setLoading(false)
-        return
+        setLoading(false);
+        return;
       }
 
       if (step === 0) {
-        const errosApi: string[] = []
-        const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '')
+        const errosApi: string[] = [];
+        const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '');
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`, {
           method: 'POST',
           body: JSON.stringify({ cnpj: cnpjNumerico }),
-          headers: { 'Content-type': 'application/json' }
-        })
-        const result: CheckCnpj = await response.json()
+          headers: { 'Content-type': 'application/json' },
+        });
+        const result: CheckCnpj = await response.json();
 
         if (response.ok) {
           if (result.data.msg) {
-            errosApi.push('Erro ao processar os dados do CNPJ.')
-            formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.')
-            setErros(errosApi)
-            setRegisterInvalid(true)
-            setLoading(false)
-            return
+            errosApi.push('Erro ao processar os dados do CNPJ.');
+            formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.');
+            setErros(errosApi);
+            setRegisterInvalid(true);
+            setLoading(false);
+            return;
           }
 
           formik.setValues({
@@ -460,83 +446,83 @@ export default function Register() {
             street: '',
             city: '',
             stateNumberId: result.data.inscricao_estadual ?? '',
-            cityNumberId: result.data.inscricao_municipal ?? ''
-          })
+            cityNumberId: result.data.inscricao_municipal ?? '',
+          });
 
-          setStep(1)
+          setStep(1);
         } else {
           if (result.msg === 'already exists') {
-            errosApi.push('Este CNPJ já existe na plataforma')
-            formik.setFieldError('cnpj', 'CNPJ já cadastrado')
+            errosApi.push('Este CNPJ já existe na plataforma');
+            formik.setFieldError('cnpj', 'CNPJ já cadastrado');
           } else if (result.msg === 'invalid cnpj') {
-            errosApi.push('CNPJ inválido')
-            formik.setFieldError('cnpj', 'CNPJ inválido informado')
+            errosApi.push('CNPJ inválido');
+            formik.setFieldError('cnpj', 'CNPJ inválido informado');
           } else {
-            errosApi.push(result.msg || 'Erro ao verificar CNPJ')
+            errosApi.push(result.msg || 'Erro ao verificar CNPJ');
           }
-          setErros(errosApi)
-          setRegisterInvalid(true)
-          setLoading(false)
-          return
+          setErros(errosApi);
+          setRegisterInvalid(true);
+          setLoading(false);
+          return;
         }
       } else if (step === 1 || step === 2) {
-        setStep(step + 1)
+        setStep(step + 1);
       } else if (step === 3) {
-        formik.handleSubmit()
-        return
+        formik.handleSubmit();
+        return;
       }
 
       if (step < 3) {
-        const nextStep = step + 1
-        await saveStepData(formik.values, nextStep)
+        const nextStep = step + 1;
+        await saveStepData(formik.values, nextStep);
       }
     } catch (error) {
-      console.error('Erro em handleNextBtn:', error)
+      console.error('Erro em handleNextBtn:', error);
     } finally {
       if (step < 3) {
-        setLoading(false)
+        setLoading(false);
       }
     }
-  }
+  };
 
   const handleBackBtn = async () => {
-    setLoading(true)
-    const prevStep = step - 1
+    setLoading(true);
+    const prevStep = step - 1;
 
     if (prevStep < 0) {
-      await clearToken()
-      await clearStorage()
-      router.push('/' as never)
+      await clearToken();
+      await clearStorage();
+      router.push('/' as never);
     } else {
-      setStep(prevStep)
+      setStep(prevStep);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   const handleCnpjChange = (text: string) => {
-    const formatted = formatCNPJ(text)
-    formik.setFieldValue('cnpj', formatted)
-  }
+    const formatted = formatCNPJ(text);
+    formik.setFieldValue('cnpj', formatted);
+  };
 
   const clearToken = async () => {
     try {
-      await deleteAuthToken()
+      await deleteAuthToken();
     } catch (error) {
-      console.error('Erro ao excluir o token:', error)
+      console.error('Erro ao excluir o token:', error);
     }
-  }
+  };
 
   const handleCheckBox = () => {
-    const newValue = !formik.values.noStateNumberId
-    formik.setFieldValue('noStateNumberId', newValue)
+    const newValue = !formik.values.noStateNumberId;
+    formik.setFieldValue('noStateNumberId', newValue);
     if (newValue) {
-      formik.setFieldValue('stateNumberId', '')
-      formik.setFieldTouched('stateNumberId', false, false)
+      formik.setFieldValue('stateNumberId', '');
+      formik.setFieldTouched('stateNumberId', false, false);
     }
-  }
+  };
   const handleCheckBoxCloseDoor = () => {
-    formik.setFieldValue('closeDoor', !formik.values.closeDoor)
-  }
+    formik.setFieldValue('closeDoor', !formik.values.closeDoor);
+  };
 
   const daysOptions = [
     { value: '1', label: '1 dia' },
@@ -545,29 +531,29 @@ export default function Register() {
     { value: '4', label: '4 dias' },
     { value: '5', label: '5 dias' },
     { value: '6', label: '6 dias' },
-    { value: '7', label: '7 dias' }
-  ]
+    { value: '7', label: '7 dias' },
+  ];
 
   const onNeighChange = (value: string) => {
-    formik.setFieldValue('neigh', value)
+    formik.setFieldValue('neigh', value);
     if (value.trim() !== '') {
-      formik.setFieldError('neigh', undefined)
+      formik.setFieldError('neigh', undefined);
     }
-  }
+  };
 
   const onStreetChange = (value: string) => {
-    formik.setFieldValue('street', value)
+    formik.setFieldValue('street', value);
     if (value.trim() !== '') {
-      formik.setFieldError('street', undefined)
+      formik.setFieldError('street', undefined);
     }
-  }
+  };
 
   const onNumberChange = (value: string) => {
-    formik.setFieldValue('localNumber', value)
+    formik.setFieldValue('localNumber', value);
     if (value.trim() !== '') {
-      formik.setFieldError('localNumber', undefined)
+      formik.setFieldError('localNumber', undefined);
     }
-  }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -576,7 +562,7 @@ export default function Register() {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
       <View flex={1} backgroundColor="#F0F2F6">
-        <DialogInstance
+        <ValidationDialog
           openModal={registerInvalid}
           setRegisterInvalid={setRegisterInvalid}
           erros={erros}
@@ -595,10 +581,7 @@ export default function Register() {
               height={2}
             ></View>
             <View alignItems="center">
-              <Icons
-                color={step > 1 ? 'black' : 'lightgray'}
-                name="disc"
-              ></Icons>
+              <Icons color={step > 1 ? 'black' : 'lightgray'} name="disc"></Icons>
               <Text color={step > 1 ? 'black' : 'lightgray'} fontSize={10}>
                 Contato
               </Text>
@@ -610,10 +593,7 @@ export default function Register() {
               height={2}
             ></View>
             <View alignItems="center">
-              <Icons
-                color={step > 2 ? 'black' : 'lightgray'}
-                name="disc"
-              ></Icons>
+              <Icons color={step > 2 ? 'black' : 'lightgray'} name="disc"></Icons>
               <Text color={step > 2 ? 'black' : 'lightgray'} fontSize={10}>
                 Entrega
               </Text>
@@ -636,28 +616,24 @@ export default function Register() {
                 <Text>Nome na fachada da rua</Text>
                 <Input
                   placeholder="Nome do restaurante"
-                  onChangeText={(text) =>
-                    formik.setFieldValue('restaurantName', text)
-                  }
+                  onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
                   onBlur={formik.handleBlur('restaurantName')}
                   value={formik.values.restaurantName}
                   backgroundColor="white"
                   borderRadius={2}
                   borderColor={
-                    formik.touched.restaurantName &&
-                    formik.errors.restaurantName
+                    formik.touched.restaurantName && formik.errors.restaurantName
                       ? 'red'
                       : 'lightgray'
                   }
                   focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                 />
-                {formik.touched.restaurantName &&
-                  formik.errors.restaurantName && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.restaurantName}
-                    </Text>
-                  )}
+                {formik.touched.restaurantName && formik.errors.restaurantName && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.restaurantName}
+                  </Text>
+                )}
 
                 <Text marginTop={15}>CNPJ</Text>
                 <Input
@@ -670,11 +646,7 @@ export default function Register() {
                   focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   onBlur={() => formik.setFieldTouched('cnpj', true)}
-                  borderColor={
-                    formik.touched.cnpj && formik.errors.cnpj
-                      ? 'red'
-                      : 'lightgray'
-                  }
+                  borderColor={formik.touched.cnpj && formik.errors.cnpj ? 'red' : 'lightgray'}
                 />
                 {formik.touched.cnpj && formik.errors.cnpj && (
                   <Text color="red" fontSize={12}>
@@ -723,29 +695,22 @@ export default function Register() {
                   </Text>
                 </View>
                 <Input
-                  onChangeText={(text) =>
-                    formik.setFieldValue('stateNumberId', text)
-                  }
+                  onChangeText={(text) => formik.setFieldValue('stateNumberId', text)}
                   value={formik.values.stateNumberId}
                   disabled={formik.values.noStateNumberId}
                   opacity={formik.values.noStateNumberId ? 0.5 : 1}
-                  placeholder={
-                    formik.values.noStateNumberId ? 'Isento' : '00000000'
-                  }
+                  placeholder={formik.values.noStateNumberId ? 'Isento' : '00000000'}
                   onBlur={() => formik.setFieldTouched('stateNumberId', true)}
                 />
-                {formik.touched.stateNumberId &&
-                  formik.errors.stateNumberId && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.stateNumberId}
-                    </Text>
-                  )}
+                {formik.touched.stateNumberId && formik.errors.stateNumberId && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.stateNumberId}
+                  </Text>
+                )}
 
                 <View marginTop={15} alignItems="center" flexDirection="row">
                   <Checkbox onPress={handleCheckBox}>
-                    {formik.values.noStateNumberId ? (
-                      <Icons name="checkmark" />
-                    ) : null}
+                    {formik.values.noStateNumberId ? <Icons name="checkmark" /> : null}
                   </Checkbox>
                   <Text paddingLeft={5} fontSize={12}>
                     Sou isento de IE
@@ -754,12 +719,7 @@ export default function Register() {
 
                 {formik.values.noStateNumberId && (
                   <>
-                    <View
-                      marginTop={15}
-                      alignItems="center"
-                      flexDirection="row"
-                      gap={8}
-                    >
+                    <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                       <Text>Inscrição municipal</Text>
                       <Text fontSize={10} color="gray">
                         Min. 8 digitos
@@ -767,29 +727,20 @@ export default function Register() {
                     </View>
                     <Input
                       placeholder="00000000"
-                      onChangeText={(text) =>
-                        formik.setFieldValue('cityNumberId', text)
-                      }
+                      onChangeText={(text) => formik.setFieldValue('cityNumberId', text)}
                       value={formik.values.cityNumberId}
-                      onBlur={() =>
-                        formik.setFieldTouched('cityNumberId', true)
-                      }
+                      onBlur={() => formik.setFieldTouched('cityNumberId', true)}
                     />
-                    {formik.touched.cityNumberId &&
-                      formik.errors.cityNumberId && (
-                        <Text color="red" fontSize={12}>
-                          {formik.errors.cityNumberId}
-                        </Text>
-                      )}
+                    {formik.touched.cityNumberId && formik.errors.cityNumberId && (
+                      <Text color="red" fontSize={12}>
+                        {formik.errors.cityNumberId}
+                      </Text>
+                    )}
                   </>
                 )}
 
                 <Text marginTop={15}>Razão Social</Text>
-                <Input
-                  value={formik.values.legalRestaurantName}
-                  disabled
-                  opacity={0.5}
-                />
+                <Input value={formik.values.legalRestaurantName} disabled opacity={0.5} />
 
                 <Text fontSize={12} marginTop={10} marginBottom={5} color="gray">
                   Endereço
@@ -801,12 +752,7 @@ export default function Register() {
                   borderRadius={5}
                   padding={10}
                 >
-                  <View
-                    marginTop={15}
-                    alignItems="center"
-                    flexDirection="row"
-                    gap={8}
-                  >
+                  <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                     <Text>Cep</Text>
                     <Text fontSize={10} color="gray">
                       8 digitos
@@ -820,9 +766,7 @@ export default function Register() {
                     backgroundColor="white"
                     borderRadius={2}
                     borderColor={
-                      formik.touched.zipcode && formik.errors.zipcode
-                        ? 'red'
-                        : 'lightgray'
+                      formik.touched.zipcode && formik.errors.zipcode ? 'red' : 'lightgray'
                     }
                     focusStyle={getCepBorderStyle()}
                     hoverStyle={getCepBorderStyle()}
@@ -840,11 +784,7 @@ export default function Register() {
                     value={formik.values.neigh}
                     backgroundColor="white"
                     borderRadius={2}
-                    borderColor={
-                      formik.touched.neigh && formik.errors.neigh
-                        ? 'red'
-                        : 'lightgray'
-                    }
+                    borderColor={formik.touched.neigh && formik.errors.neigh ? 'red' : 'lightgray'}
                     focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   ></Input>
@@ -862,9 +802,7 @@ export default function Register() {
                     backgroundColor="white"
                     borderRadius={2}
                     borderColor={
-                      formik.touched.street && formik.errors.street
-                        ? 'red'
-                        : 'lightgray'
+                      formik.touched.street && formik.errors.street ? 'red' : 'lightgray'
                     }
                     focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
@@ -883,9 +821,7 @@ export default function Register() {
                     backgroundColor="white"
                     borderRadius={2}
                     borderColor={
-                      formik.touched.localNumber && formik.errors.localNumber
-                        ? 'red'
-                        : 'lightgray'
+                      formik.touched.localNumber && formik.errors.localNumber ? 'red' : 'lightgray'
                     }
                     focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
@@ -897,17 +833,13 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Complemento</Text>
                   <Input
-                    onChangeText={(text) =>
-                      formik.setFieldValue('complement', text)
-                    }
+                    onChangeText={(text) => formik.setFieldValue('complement', text)}
                     placeholder="Exemplo: Loja A"
                     value={formik.values.complement}
                     backgroundColor="white"
                     borderRadius={2}
                     borderColor={
-                      formik.touched.complement && formik.errors.complement
-                        ? 'red'
-                        : 'lightgray'
+                      formik.touched.complement && formik.errors.complement ? 'red' : 'lightgray'
                     }
                     focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                     hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
@@ -932,12 +864,7 @@ export default function Register() {
                 borderRadius={5}
                 padding={10}
               >
-                <View
-                  marginTop={15}
-                  alignItems="center"
-                  flexDirection="row"
-                  gap={8}
-                >
+                <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                   <Text>E-mail</Text>
                   <Text fontSize={10} color="gray">
                     Para comunicados
@@ -950,11 +877,7 @@ export default function Register() {
                   onBlur={() => formik.setFieldTouched('email', true)}
                   backgroundColor="white"
                   borderRadius={2}
-                  borderColor={
-                    formik.touched.email && formik.errors.email
-                      ? 'red'
-                      : 'lightgray'
-                  }
+                  borderColor={formik.touched.email && formik.errors.email ? 'red' : 'lightgray'}
                   placeholder="exemplo@exemplo.com"
                 />
                 {formik.touched.email && formik.errors.email && (
@@ -962,12 +885,7 @@ export default function Register() {
                     {formik.errors.email}
                   </Text>
                 )}
-                <View
-                  marginTop={15}
-                  alignItems="center"
-                  flexDirection="row"
-                  gap={8}
-                >
+                <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                   <Text>E-mail alternativo</Text>
                   <Text fontSize={10} color="gray">
                     Opcional
@@ -975,28 +893,22 @@ export default function Register() {
                 </View>
                 <Input
                   value={formik.values.alternativeEmail}
-                  onChangeText={(text) =>
-                    formik.setFieldValue('alternativeEmail', text)
-                  }
-                  onBlur={() =>
-                    formik.setFieldTouched('alternativeEmail', true)
-                  }
+                  onChangeText={(text) => formik.setFieldValue('alternativeEmail', text)}
+                  onBlur={() => formik.setFieldTouched('alternativeEmail', true)}
                   backgroundColor="white"
                   borderRadius={2}
                   borderColor={
-                    formik.touched.alternativeEmail &&
-                    formik.errors.alternativeEmail
+                    formik.touched.alternativeEmail && formik.errors.alternativeEmail
                       ? 'red'
                       : 'lightgray'
                   }
                   placeholder="exemplo@exemplo.com"
                 />
-                {formik.touched.alternativeEmail &&
-                  formik.errors.alternativeEmail && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.alternativeEmail}
-                    </Text>
-                  )}
+                {formik.touched.alternativeEmail && formik.errors.alternativeEmail && (
+                  <Text color="red" fontSize={12}>
+                    {formik.errors.alternativeEmail}
+                  </Text>
+                )}
               </View>
               <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
                 Informações financeiras
@@ -1015,9 +927,7 @@ export default function Register() {
                     justifyContent="flex-start"
                     borderWidth={0.5}
                     borderColor={
-                      formik.touched.paymentWay && formik.errors.paymentWay
-                        ? 'red'
-                        : 'lightgray'
+                      formik.touched.paymentWay && formik.errors.paymentWay ? 'red' : 'lightgray'
                     }
                     zIndex={99}
                   >
@@ -1028,41 +938,39 @@ export default function Register() {
                         borderColor: 'lightgray',
                         borderRadius: 2,
                         flex: 1,
-                        position: 'absolute'
+                        position: 'absolute',
                       }}
                       setValue={(callback) => {
                         const value =
                           typeof callback === 'function'
                             ? callback(formik.values.paymentWay)
-                            : callback
-                        formik.setFieldValue('paymentWay', value)
+                            : callback;
+                        formik.setFieldValue('paymentWay', value);
                       }}
                       onSelectItem={(item) => {
                         if (item.value) {
-                          formik.setFieldError('paymentWay', undefined)
+                          formik.setFieldError('paymentWay', undefined);
                         }
                       }}
                       listMode="SCROLLVIEW"
                       dropDownDirection="BOTTOM"
                       dropDownContainerStyle={{
-                        position: 'relative'
+                        position: 'relative',
                       }}
                       items={[
                         {
                           label: 'Diário: 7 dias após a entrega',
-                          value: 'DI07'
+                          value: 'DI07',
                         },
                         {
                           label: 'Semanal: vencimento na quarta',
-                          value: 'UQ10'
-                        }
+                          value: 'UQ10',
+                        },
                       ]}
                       multiple={false}
                       open={paymentWayOpen}
                       setOpen={setPaymentWayOpen}
-                      onOpen={() =>
-                        formik.setFieldError('paymentWay', undefined)
-                      }
+                      onOpen={() => formik.setFieldError('paymentWay', undefined)}
                       placeholder=""
                     ></DropDownPicker>
                   </View>
@@ -1081,11 +989,7 @@ export default function Register() {
                     gap={5}
                     flexDirection="row"
                   >
-                    <Icons
-                      size={25}
-                      color="gray"
-                      name="information-circle"
-                    ></Icons>
+                    <Icons size={25} color="gray" name="information-circle"></Icons>
                     <View justifyContent="center">
                       <Text maxWidth="100%" color="gray" fontSize={10}>
                         Prazos são sujeitos a avaliação de crédito
@@ -1102,8 +1006,7 @@ export default function Register() {
                     flex={1}
                     borderWidth={0.5}
                     borderColor={
-                      formik.touched.financeResponsibleName &&
-                      formik.errors.financeResponsibleName
+                      formik.touched.financeResponsibleName && formik.errors.financeResponsibleName
                         ? 'red'
                         : 'lightgray'
                     }
@@ -1126,11 +1029,8 @@ export default function Register() {
                       hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                       value={formik.values.financeResponsibleName}
                       onChangeText={(value) => {
-                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '')
-                        formik.setFieldValue(
-                          'financeResponsibleName',
-                          formattedValue
-                        )
+                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                        formik.setFieldValue('financeResponsibleName', formattedValue);
                       }}
                     />
                   </View>
@@ -1170,39 +1070,25 @@ export default function Register() {
                           ? 'red'
                           : 'lightgray'
                       }
-                      onBlur={formik.handleBlur(
-                        'financeResponsiblePhoneNumber'
-                      )}
+                      onBlur={formik.handleBlur('financeResponsiblePhoneNumber')}
                       focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                       hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                       keyboardType="phone-pad"
                       value={formik.values.financeResponsiblePhoneNumber}
                       onChangeText={(value) => {
-                        let onlyNums = value.replace(/\D/g, '')
+                        let onlyNums = value.replace(/\D/g, '');
 
                         if (onlyNums.length > 10) {
-                          onlyNums = onlyNums.replace(
-                            /(\d{2})(\d{5})(\d{0,4})/,
-                            '($1) $2-$3'
-                          )
+                          onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
                         } else if (onlyNums.length > 6) {
-                          onlyNums = onlyNums.replace(
-                            /(\d{2})(\d{4})(\d{0,4})/,
-                            '($1) $2-$3'
-                          )
+                          onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
                         } else if (onlyNums.length > 2) {
-                          onlyNums = onlyNums.replace(
-                            /(\d{2})(\d{0,4})/,
-                            '($1) $2'
-                          )
+                          onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
                         } else if (onlyNums.length > 0) {
-                          onlyNums = onlyNums.replace(/(\d{0,2})/, '($1')
+                          onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
                         }
 
-                        formik.setFieldValue(
-                          'financeResponsiblePhoneNumber',
-                          onlyNums
-                        )
+                        formik.setFieldValue('financeResponsiblePhoneNumber', onlyNums);
                       }}
                     />
                   </View>
@@ -1213,12 +1099,7 @@ export default function Register() {
                       </Text>
                     )}
                 </View>
-                <View
-                  marginTop={15}
-                  alignItems="center"
-                  flexDirection="row"
-                  gap={8}
-                >
+                <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                   <Text>
                     E-mail
                     <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
@@ -1230,16 +1111,12 @@ export default function Register() {
                 <Input
                   value={formik.values.emailBilling}
                   autoCapitalize="none"
-                  onChangeText={(text) =>
-                    formik.setFieldValue('emailBilling', text)
-                  }
+                  onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
                   onBlur={() => formik.setFieldTouched('emailBilling', true)}
                   backgroundColor="white"
                   borderRadius={2}
                   borderColor={
-                    formik.touched.emailBilling && formik.errors.emailBilling
-                      ? 'red'
-                      : 'lightgray'
+                    formik.touched.emailBilling && formik.errors.emailBilling ? 'red' : 'lightgray'
                   }
                   placeholder="exemplo@exemplo.com"
                 />
@@ -1269,16 +1146,11 @@ export default function Register() {
                   gap={5}
                   flexDirection="row"
                 >
-                  <Icons
-                    size={25}
-                    color="gray"
-                    name="information-circle"
-                  ></Icons>
+                  <Icons size={25} color="gray" name="information-circle"></Icons>
                   <View justifyContent="center">
                     <Text maxWidth="99%" color="gray" fontSize={10}>
-                      Você deve definir pelo menos 1 hora e 30 minutos de
-                      diferença entre o horário mais cedo e o horário mais tarde
-                      para sua entrega.
+                      Você deve definir pelo menos 1 hora e 30 minutos de diferença entre o horário
+                      mais cedo e o horário mais tarde para sua entrega.
                     </Text>
                   </View>
                 </View>
@@ -1289,9 +1161,7 @@ export default function Register() {
                       flex={1}
                       borderWidth={0.5}
                       borderColor={
-                        formik.touched.minHour && formik.errors.minHour
-                          ? 'red'
-                          : 'lightgray'
+                        formik.touched.minHour && formik.errors.minHour ? 'red' : 'lightgray'
                       }
                       zIndex={101}
                     >
@@ -1302,37 +1172,37 @@ export default function Register() {
                           borderColor: 'lightgray',
                           borderRadius: 5,
                           zIndex: 1000,
-                          position: 'absolute'
+                          position: 'absolute',
                         }}
                         listMode="SCROLLVIEW"
                         dropDownDirection="BOTTOM"
                         dropDownContainerStyle={{
-                          position: 'relative'
+                          position: 'relative',
                         }}
                         setValue={(callback) => {
                           const value =
                             typeof callback === 'function'
                               ? callback(formik.values.minHour)
-                              : callback
-                          formik.setFieldValue('minHour', value)
+                              : callback;
+                          formik.setFieldValue('minHour', value);
                         }}
                         onSelectItem={(item) => {
                           if (item.value) {
-                            formik.setFieldError('minHour', undefined)
+                            formik.setFieldError('minHour', undefined);
                           }
                         }}
                         items={minhours.map((item) => {
-                          return { label: item, value: item }
+                          return { label: item, value: item };
                         })}
                         multiple={false}
                         open={minHourOpen}
                         setOpen={setMinHourOpen}
                         onOpen={() => {
-                          setScrollEnabled(false)
-                          formik.setFieldError('minHour', undefined)
+                          setScrollEnabled(false);
+                          formik.setFieldError('minHour', undefined);
                         }}
                         onClose={() => {
-                          setScrollEnabled(true)
+                          setScrollEnabled(true);
                         }}
                         placeholder="Escolha um horário"
                       ></DropDownPicker>
@@ -1351,9 +1221,7 @@ export default function Register() {
                       flex={1}
                       borderWidth={0.5}
                       borderColor={
-                        formik.touched.maxHour && formik.errors.maxHour
-                          ? 'red'
-                          : 'lightgray'
+                        formik.touched.maxHour && formik.errors.maxHour ? 'red' : 'lightgray'
                       }
                       zIndex={100}
                     >
@@ -1364,34 +1232,34 @@ export default function Register() {
                           borderColor: 'lightgray',
                           borderRadius: 5,
                           zIndex: 1000,
-                          position: 'absolute'
+                          position: 'absolute',
                         }}
                         listMode="SCROLLVIEW"
                         dropDownDirection="BOTTOM"
                         dropDownContainerStyle={{
-                          position: 'relative'
+                          position: 'relative',
                         }}
                         setValue={(callback) => {
                           const value =
                             typeof callback === 'function'
                               ? callback(formik.values.maxHour)
-                              : callback
-                          formik.setFieldValue('maxHour', value)
+                              : callback;
+                          formik.setFieldValue('maxHour', value);
                         }}
                         onSelectItem={(item) => {
                           if (item.value) {
-                            formik.setFieldError('maxHour', undefined)
+                            formik.setFieldError('maxHour', undefined);
                           }
                         }}
                         items={maxhours.map((item) => {
-                          return { label: item, value: item }
+                          return { label: item, value: item };
                         })}
                         multiple={false}
                         open={maxHourOpen}
                         setOpen={setMaxHourOpen}
                         onOpen={() => {
-                          setScrollEnabled(false)
-                          formik.setFieldError('maxHour', undefined)
+                          setScrollEnabled(false);
+                          formik.setFieldError('maxHour', undefined);
                         }}
                         onClose={() => setScrollEnabled(true)}
                         placeholder=""
@@ -1411,15 +1279,8 @@ export default function Register() {
                   alignItems="center"
                   flexDirection="row"
                 >
-                  <Checkbox
-                    onPress={handleCheckBoxCloseDoor}
-                    checked={formik.values.closeDoor}
-                  >
-                    {formik.values.closeDoor ? (
-                      <Icons name="checkmark"></Icons>
-                    ) : (
-                      <></>
-                    )}
+                  <Checkbox onPress={handleCheckBoxCloseDoor} checked={formik.values.closeDoor}>
+                    {formik.values.closeDoor ? <Icons name="checkmark"></Icons> : <></>}
                   </Checkbox>
                   <Text paddingLeft={5} fontSize={12}>
                     Aceito receber de portas fechadas
@@ -1428,7 +1289,7 @@ export default function Register() {
                 <Text marginTop={15}>Informações adicionais</Text>
                 <Input
                   onChangeText={(text) => {
-                    formik.setFieldValue('deliveryObs', text)
+                    formik.setFieldValue('deliveryObs', text);
                   }}
                   value={formik.values.deliveryObs}
                   placeholder="Exemplo: Entrar pela porta lateral"
@@ -1453,8 +1314,7 @@ export default function Register() {
                   flex={1}
                   borderWidth={0.5}
                   borderColor={
-                    formik.touched.weeklyOrderAmount &&
-                    formik.errors.weeklyOrderAmount
+                    formik.touched.weeklyOrderAmount && formik.errors.weeklyOrderAmount
                       ? 'red'
                       : 'lightgray'
                   }
@@ -1467,22 +1327,22 @@ export default function Register() {
                       const value =
                         typeof callback === 'function'
                           ? callback(formik.values.weeklyOrderAmount)
-                          : callback
-                      formik.setFieldValue('weeklyOrderAmount', value)
+                          : callback;
+                      formik.setFieldValue('weeklyOrderAmount', value);
                     }}
                     items={daysOptions}
                     open={daysOpen}
                     setOpen={setDaysOpen}
                     onOpen={() => {
-                      setScrollEnabled(false)
-                      formik.setFieldError('weeklyOrderAmount', undefined)
+                      setScrollEnabled(false);
+                      formik.setFieldError('weeklyOrderAmount', undefined);
                     }}
                     onClose={() => {
-                      setScrollEnabled(true)
+                      setScrollEnabled(true);
                     }}
                     onSelectItem={(item) => {
                       if (item.value) {
-                        formik.setFieldError('weeklyOrderAmount', undefined)
+                        formik.setFieldError('weeklyOrderAmount', undefined);
                       }
                     }}
                     placeholder="Escolha uma opção"
@@ -1493,27 +1353,24 @@ export default function Register() {
                       borderWidth: 1,
                       borderColor: 'lightgray',
                       borderRadius: 5,
-                      position: 'absolute'
+                      position: 'absolute',
                     }}
                   />
                 </View>
-                {formik.touched.weeklyOrderAmount &&
-                  formik.errors.weeklyOrderAmount && (
-                    <View height={65} flex={1} justifyContent={'flex-end'}>
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.weeklyOrderAmount}
-                      </Text>
-                    </View>
-                  )}
+                {formik.touched.weeklyOrderAmount && formik.errors.weeklyOrderAmount && (
+                  <View height={65} flex={1} justifyContent={'flex-end'}>
+                    <Text color="red" fontSize={12}>
+                      {formik.errors.weeklyOrderAmount}
+                    </Text>
+                  </View>
+                )}
                 <Text marginTop={formik.errors.weeklyOrderAmount ? 10 : 60}>
                   Qual o valor médio de um pedido?
                 </Text>
                 <TextInputMask
                   placeholder="R$ 0"
                   type="only-numbers"
-                  onChangeText={(value) =>
-                    formik.setFieldValue('orderValue', value)
-                  }
+                  onChangeText={(value) => formik.setFieldValue('orderValue', value)}
                   value={formik.values.orderValue}
                   onBlur={formik.handleBlur('orderValue')}
                   style={{
@@ -1524,9 +1381,7 @@ export default function Register() {
                     borderRadius: 2,
                     borderWidth: 1,
                     borderColor:
-                      formik.touched.orderValue && formik.errors.orderValue
-                        ? 'red'
-                        : 'lightgray'
+                      formik.touched.orderValue && formik.errors.orderValue ? 'red' : 'lightgray',
                   }}
                   keyboardType="number-pad"
                 ></TextInputMask>
@@ -1548,7 +1403,7 @@ export default function Register() {
               >
                 <Input
                   onChangeText={(text) => {
-                    formik.setFieldValue('inviteCode', text.toUpperCase())
+                    formik.setFieldValue('inviteCode', text.toUpperCase());
                   }}
                   backgroundColor="white"
                   borderRadius={2}
@@ -1577,7 +1432,7 @@ export default function Register() {
             borderWidth={0.5}
             backgroundColor="white"
             onPress={() => {
-              handleBackBtn()
+              handleBackBtn();
             }}
           >
             <Text>Voltar</Text>
@@ -1586,16 +1441,14 @@ export default function Register() {
             flex={1}
             backgroundColor="#04BF7B"
             onPress={() => {
-              handleNextBtn()
+              handleNextBtn();
             }}
           >
-            <Text color="white">
-              {step === 3 ? 'Finalizar Cadastro' : 'Avançar'}
-            </Text>
+            <Text color="white">{step === 3 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
           </Button>
         </View>
         <VersionInfo />
-        
+
         {loading && (
           <View
             position="absolute"
@@ -1613,5 +1466,5 @@ export default function Register() {
         )}
       </View>
     </KeyboardAvoidingView>
-  )
+  );
 }
