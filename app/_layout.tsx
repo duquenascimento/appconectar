@@ -1,4 +1,5 @@
 import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
+import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
@@ -12,7 +13,6 @@ import { ActivityIndicator, BackHandler, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
-import { AuthProvider } from '@/src/contexts/auth.context';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
