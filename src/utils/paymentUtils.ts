@@ -26,7 +26,7 @@ export const getPaymentDate = (paymentWay: string, emergencyOrder: boolean): str
     return nextDate.day === day ? nextDate : nextDate.endOf('month');
   };
 
-  const paymentDescriptions: PaymentDateData = {
+  const paymentDates: PaymentDateData = {
     DI00: deliveryDay,
     DI01: deliveryDay.plus({ days: 1 }),
     DI02: deliveryDay.plus({ days: 2 }),
@@ -49,7 +49,10 @@ export const getPaymentDate = (paymentWay: string, emergencyOrder: boolean): str
     AV00: deliveryDay,
   };
 
-  const paymentDate = paymentDescriptions[paymentWay];
+  const paymentDate = paymentDates[paymentWay];
+
+  if (!paymentDate) return '--/--/----';
+
   return getBrazilLocaleString(paymentDate);
 };
 
