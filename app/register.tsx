@@ -2,7 +2,6 @@ import { View, Text, Input, Button, ScrollView, Checkbox } from 'tamagui'
 import Icons from '@expo/vector-icons/Ionicons'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator } from 'react-native'
-import { DialogInstance } from './index'
 import { TextInputMask } from 'react-native-masked-text'
 import {
   getStorage,
@@ -31,6 +30,7 @@ import {
 import { router } from 'expo-router'
 import { useAuthContext } from '@/src/contexts/auth.context'
 import { useRestaurantContext } from '@/src/contexts/restaurant.context'
+import { DialogInstance } from '@/src/components/confirm/dialogInstance'
 
 interface Empresa {
   inscricao_estadual?: string | null
@@ -580,7 +580,6 @@ export default function Register() {
           openModal={registerInvalid}
           setRegisterInvalid={setRegisterInvalid}
           erros={erros}
-          cnpj={formik.values.cnpj}
         />
         <View marginBottom={10} paddingTop={50} alignItems="center" justifyContent="center">
           <Text fontSize={20}>Cadastro</Text>

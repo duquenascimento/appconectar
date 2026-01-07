@@ -38,6 +38,7 @@ import { type SupplierData } from './prices';
 import { HttpStatusCode } from 'axios';
 import { DialogInstance } from '@/src/components/confirm/dialogInstance';
 import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -215,7 +216,7 @@ export default function Confirm() {
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
           deliveryDate: selectedRestaurant.allowEmergencyOrder
-            ? DateTime.now().setZone('America/Sao_Paulo').toISODate()!
+            ? getBrazilDateTime().toISODate()
             : deliveryDate,
         };
 
@@ -295,9 +296,9 @@ export default function Confirm() {
 
   const handleConfirmButtonPress = useCallback(async () => {
     try {
-      if (isBefore13h) {
+      if (isBefore13h && selectedRestaurant) {
         const errors = await scheduleNotification(
-          selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+          selectedRestaurant!.addressInfos[0].responsibleReceivingPhoneNumber,
         );
 
         setShowErros(errors);
