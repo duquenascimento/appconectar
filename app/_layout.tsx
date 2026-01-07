@@ -12,6 +12,7 @@ import { ActivityIndicator, BackHandler, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
+import { AuthProvider } from '@/src/contexts/auth.context';
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -52,23 +53,25 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config}>
-      <RestaurantProvider>
-        <FavoritesProvider>
-          <ProductProvider>
-            <CombinacaoProvider>
-              <SupplierProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'slide_from_right',
-                    gestureEnabled: true,
-                  }}
-                />
-              </SupplierProvider>
-            </CombinacaoProvider>
-          </ProductProvider>
-        </FavoritesProvider>
-      </RestaurantProvider>
+      <AuthProvider>
+        <RestaurantProvider>
+          <FavoritesProvider>
+            <ProductProvider>
+              <CombinacaoProvider>
+                <SupplierProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'slide_from_right',
+                      gestureEnabled: true,
+                    }}
+                  />
+                </SupplierProvider>
+              </CombinacaoProvider>
+            </ProductProvider>
+          </FavoritesProvider>
+        </RestaurantProvider>
+      </AuthProvider>
     </TamaguiProvider>
   );
 }
