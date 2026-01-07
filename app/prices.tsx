@@ -394,7 +394,6 @@ export default function Prices() {
     }
   }, [minHour, maxHour]);
 
-  // TODO verificar chamada
   const goToConfirm = async (supplier: SupplierData, selectedRestaurant: Restaurant) => {
     try {
       setLoading(true);
@@ -2107,7 +2106,6 @@ export default function Prices() {
                             addressInfo.address = street;
                             addressInfo.complement = complement;
                             addressInfo.deliveryInformation = deliveryInformation;
-                            // TODO: verificar se realmente é necessário mandar com 'Z' e possibilidade de remover (da problema no banco ao salvar sem o Z)
                             addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
                             addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 

@@ -28,7 +28,6 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
     const loadSavedDate = async () => {
       const tomorrowDate = getBrazilDateTimeTomorrow();
       const tomorrowISO = tomorrowDate.toISODate()!;
-      // TODO
       const todayDate = getBrazilDateTime();
       const todayISO = todayDate.toISODate()!;
 
