@@ -1,4 +1,5 @@
 import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
+import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
@@ -52,23 +53,25 @@ export default function RootLayout() {
 
   return (
     <TamaguiProvider config={config}>
-      <RestaurantProvider>
-        <FavoritesProvider>
-          <ProductProvider>
-            <CombinacaoProvider>
-              <SupplierProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    animation: 'slide_from_right',
-                    gestureEnabled: true,
-                  }}
-                />
-              </SupplierProvider>
-            </CombinacaoProvider>
-          </ProductProvider>
-        </FavoritesProvider>
-      </RestaurantProvider>
+      <AuthProvider>
+        <RestaurantProvider>
+          <FavoritesProvider>
+            <ProductProvider>
+              <CombinacaoProvider>
+                <SupplierProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      animation: 'slide_from_right',
+                      gestureEnabled: true,
+                    }}
+                  />
+                </SupplierProvider>
+              </CombinacaoProvider>
+            </ProductProvider>
+          </FavoritesProvider>
+        </RestaurantProvider>
+      </AuthProvider>
     </TamaguiProvider>
   );
 }
