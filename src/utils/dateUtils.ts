@@ -5,7 +5,7 @@ const BRAZIL_TIMEZONE = 'America/Sao_Paulo';
 type DateUtilsInput = Date | DateTime | string;
 
 export function isTomorrowOrToday(dateToCheck: DateTime): boolean {
-  const today = DateTime.local();
+  const today = getBrazilDateTime();
 
   const isToday =
     dateToCheck.hasSame(today, 'day') &&
@@ -20,7 +20,7 @@ export function isTomorrowOrToday(dateToCheck: DateTime): boolean {
 }
 
 export function isTomorrow(dateToCheck: DateTime): boolean {
-  const today = DateTime.local();
+  const today = getBrazilDateTime();
   const tomorrow = today.plus({ days: 1 });
 
   // Compare year, month, and day to check if it's the same date
@@ -32,37 +32,41 @@ export function isTomorrow(dateToCheck: DateTime): boolean {
 }
 
 export function convertToDaysUpFront(date: DateTime): number {
-  return Math.ceil(date.diff(DateTime.now(), 'days').days);
+  return Math.ceil(date.diff(getBrazilDateTime(), 'days').days);
 }
 
 export function convertFromDaysUpFront(daysUpfront: number): DateTime {
-  return DateTime.now().plus({ days: daysUpfront }).startOf('day');
+  return getBrazilDateTime().plus({ days: daysUpfront }).startOf('day');
 }
 
 export const getBrazilDateTime = (date?: DateUtilsInput, format?: string): DateTime => {
-  let dt = date ?? DateTime.now().setZone(BRAZIL_TIMEZONE);
+  try {
+    let dt = date ?? DateTime.now().setZone(BRAZIL_TIMEZONE);
 
-  if (typeof dt === 'string') {
-    if (format) {
-      dt = DateTime.fromFormat(dt, format, { zone: BRAZIL_TIMEZONE });
-    } else {
-      dt = DateTime.fromISO(dt, { zone: BRAZIL_TIMEZONE });
+    if (typeof dt === 'string') {
+      if (format) {
+        dt = DateTime.fromFormat(dt, format, { zone: BRAZIL_TIMEZONE });
+      } else {
+        dt = DateTime.fromISO(dt, { zone: BRAZIL_TIMEZONE });
+      }
+
+      if (!dt.isValid) {
+        throw new Error(
+          `Invalid date: ${dt}${format ? ` with format ${format}` : ''}. Err: ${dt.invalidReason}`,
+        );
+      }
+
+      return dt;
     }
 
-    if (!dt.isValid) {
-      throw new Error(
-        `Invalid date: ${dt}${format ? ` with format ${format}` : ''}. Err: ${dt.invalidReason}`,
-      );
+    if (dt instanceof Date) {
+      return DateTime.fromJSDate(dt).setZone(BRAZIL_TIMEZONE);
     }
 
-    return dt;
+    return dt.setZone(BRAZIL_TIMEZONE);
+  } catch (error: any) {
+    return DateTime.invalid('Invalid Date: ', error.toString());
   }
-
-  if (dt instanceof Date) {
-    return DateTime.fromJSDate(dt).setZone(BRAZIL_TIMEZONE);
-  }
-
-  return dt.setZone(BRAZIL_TIMEZONE);
 };
 
 export const getBrazilDateTimeTomorrow = (): DateTime => {
