@@ -37,7 +37,7 @@ export function SignInMobile(props: {
         erros={erros}
       />
       <Image
-        src={require('@assets/images/logo-conectar-positivo.svg')}
+        src={require('@assets/images/logo-conectar-positivo.png')}
         objectFit="contain"
         maxWidth={200}
         height={80}
