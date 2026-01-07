@@ -66,7 +66,7 @@ export const getBrazilDateTime = (date?: DateUtilsInput, format?: string): DateT
 };
 
 export const getBrazilDateTimeTomorrow = (): DateTime => {
-  return getBrazilDateTime(DateTime.now().plus({ days: 1 }));
+  return getBrazilDateTime().plus({ days: 1 });
 };
 
 export const getBrazilJSDate = (date?: DateUtilsInput, format?: string): Date => {

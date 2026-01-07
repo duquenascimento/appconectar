@@ -7,6 +7,7 @@ import { Button, Image, Text, View } from 'tamagui';
 import { saveUserAppInfo } from '../src/services/versionService';
 import { clearStorage, getStorage } from '../src/utils/utils';
 import { SupplierData } from './prices';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 interface DeliveryInfo {
   restName: string;
@@ -15,13 +16,13 @@ interface DeliveryInfo {
   minHour: string;
   deliveryDateFormated: string;
   paymentWay: string;
-  emergencyOrder: boolean;
 }
 
 export default function FinalConfirm() {
   const router = useRouter();
   const [supplier, setSupplier] = useState<SupplierData>();
   const [deliveryData, setDeliveryData] = useState<DeliveryInfo>();
+  const { selectedRestaurant } = useRestaurantContext();
   const loadSupplier = useCallback(async () => {
     const supplierText = await getStorage('supplierSelected');
     const deliveryDataText = await getStorage('finalConfirmData');
@@ -106,7 +107,11 @@ export default function FinalConfirm() {
             <Icons size={20} name="cash" />
             <View marginLeft={10}>
               <Text fontSize={16}>
-                Venc. {getPaymentDate(deliveryData?.paymentWay ?? '', false)}
+                Venc.{' '}
+                {getPaymentDate(
+                  deliveryData?.paymentWay ?? '',
+                  selectedRestaurant?.allowEmergencyOrder ?? false,
+                )}
               </Text>
               <Text fontSize={12}>{getPaymentDescription(deliveryData?.paymentWay ?? '')}</Text>
             </View>
