@@ -5,6 +5,7 @@ import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
 import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
+import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
 import { validateEmail, validateName, validatePassword, validatePhone, validatePosition } from '@/src/utils/validateFields';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,7 +25,6 @@ import {
   View
 } from 'tamagui';
 import { getStorage } from '../src/utils/utils';
-import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 
 const positionOptions = [
   { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
