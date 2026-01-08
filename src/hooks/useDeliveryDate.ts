@@ -1,11 +1,10 @@
 import { getAvailableDeliveryDaysFormatted } from '@/src/utils/orderDateValidation.utils';
-import { getTodayDate, getTomorrowDate } from '@/src/utils/timeUtils';
 import { getStorage, setStorage } from '@/src/utils/utils';
-import { DateTime } from 'luxon';
 import { useCallback, useEffect, useState } from 'react';
+import { useRestaurantContext } from '../contexts/restaurant.context';
 import { ComboOption } from '../types/componentTypes';
 import { Restaurant } from '../types/restaurantTypes';
-import { useRestaurantContext } from '../contexts/restaurant.context';
+import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../utils/dateUtils';
 
 interface UseDeliveryDateReturn {
   deliveryDate: string; // ISO date string (yyyy-MM-dd)
@@ -20,17 +19,16 @@ interface UseDeliveryDateReturn {
 }
 
 export function useDeliveryDate(): UseDeliveryDateReturn {
-  const [deliveryDate, setDeliveryDateState] = useState<string>(getTomorrowDate().toISODate()!);
+  const [deliveryDate, setDeliveryDateState] = useState<string>(getBrazilDateTimeTomorrow().toISODate()!);
   const [deliveryDates, setDeliveryDates] = useState<string[]>([]);
   const { selectedRestaurant } = useRestaurantContext();
 
   // Load saved delivery date from storage on mount
   useEffect(() => {
     const loadSavedDate = async () => {
-      const tomorrowDate = getTomorrowDate();
+      const tomorrowDate = getBrazilDateTimeTomorrow();
       const tomorrowISO = tomorrowDate.toISODate()!;
-      // TODO
-      const todayDate = getTodayDate();
+      const todayDate = getBrazilDateTime();
       const todayISO = todayDate.toISODate()!;
 
       try {
@@ -48,7 +46,7 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
         }
 
         const parsedDate = JSON.parse(savedDate);
-        const isDateValid = DateTime.fromISO(parsedDate) >= tomorrowDate;
+        const isDateValid = getBrazilDateTime(parsedDate) >= tomorrowDate;
         if (isDateValid) {
           setDeliveryDate(parsedDate);
           return;
@@ -80,14 +78,14 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
   }, []);
 
   const deliveryDatesDropdownOptions = deliveryDates.map((date) => ({
-    label: DateTime.fromISO(date).toFormat('dd/MM/yyyy'),
+    label: getBrazilDateTime(date).toFormat('dd/MM/yyyy'),
     value: date,
   }));
 
   const getFormattedDate = useCallback(
     (isoDate?: string): string => {
       const dateToFormat = isoDate || deliveryDate;
-      return DateTime.fromISO(dateToFormat).toFormat('dd/MM/yyyy');
+      return getBrazilDateTime(dateToFormat).toFormat('dd/MM/yyyy');
     },
     [deliveryDate],
   );
@@ -95,7 +93,7 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
   const canChangeDeliveryDate = deliveryDates.length > 1;
 
   const resetDeliveryDate = useCallback(() => {
-    const tomorrow = getTomorrowDate().toISODate()!;
+    const tomorrow = getBrazilDateTimeTomorrow().toISODate()!;
     setDeliveryDate(tomorrow);
   }, []);
 

@@ -1,27 +1,27 @@
-import { View, Text, Input, Button, ScrollView, Checkbox } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
-import { KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
-import { useEffect, useState } from 'react';
-import DropDownPicker from 'react-native-dropdown-picker';
-import { router } from 'expo-router';
-import { TextInputMask } from 'react-native-masked-text';
-import { useFormik } from 'formik';
-import { getStorage, getToken, clearStorage } from '../src/utils/utils';
-import { formatCNPJ } from '../src/utils/formatCNPJ';
-import { formatCep } from '../src/utils/formatCep';
-import { dividirLogradouro } from '../src/utils/DividirLogradouro';
-import { campoString } from '../src/utils/formatCampos';
-import { VersionInfo } from '../src/utils/VersionApp';
+import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { loadProgress, saveStepData } from '@/src/services/registerProgressService';
 import {
   step0Validation,
   step1Validation,
   step2Validation,
   step3Validation,
 } from '@/src/validators/register.form.validator';
-import { loadProgress, saveStepData } from '@/src/services/registerProgressService';
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
+import Icons from '@expo/vector-icons/Ionicons';
+import { router } from 'expo-router';
+import { useFormik } from 'formik';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { TextInputMask } from 'react-native-masked-text';
+import { Button, Checkbox, Input, ScrollView, Text, View } from 'tamagui';
+import { dividirLogradouro } from '../src/utils/DividirLogradouro';
+import { campoString } from '../src/utils/formatCampos';
+import { formatCep } from '../src/utils/formatCep';
+import { formatCNPJ } from '../src/utils/formatCNPJ';
+import { clearStorage, getStorage, getToken } from '../src/utils/utils';
+import { VersionInfo } from '../src/utils/VersionApp';
 
 interface Empresa {
   inscricao_estadual?: string | null;
@@ -566,7 +566,6 @@ export default function Register() {
           openModal={registerInvalid}
           setRegisterInvalid={setRegisterInvalid}
           erros={erros}
-          cnpj={formik.values.cnpj}
         />
         <View marginBottom={10} paddingTop={50} alignItems="center" justifyContent="center">
           <Text fontSize={20}>Cadastro</Text>

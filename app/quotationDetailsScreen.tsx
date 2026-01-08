@@ -2,13 +2,14 @@ import { CombinationMissingProducts } from '@/src/components/combinationList';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 import { SameDayOrder } from '@/src/types/types';
+import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { HttpStatusCode } from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
+import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
-import { debounce } from 'lodash';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
@@ -29,7 +30,6 @@ import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
-import { HttpStatusCode } from 'axios';
 
 export interface Product {
   price: number;
@@ -228,7 +228,7 @@ export default function QuotationDetailsScreen() {
           ...overrideWarnings,
         };
 
-        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
+        if (getBrazilDateTime(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
           setShowSundayWarning(true);
           return;
         }
@@ -261,7 +261,7 @@ export default function QuotationDetailsScreen() {
             pathname: '/orderConfirmedScreen',
             params: {
               suppliers: suppliersDataParam,
-              deliveryDate: DateTime.now().plus({ days: 1 }).toFormat('dd/MM/yyyy'),
+              deliveryDate: getBrazilDateTimeTomorrow().toFormat('dd/MM/yyyy'),
             },
           });
           return;

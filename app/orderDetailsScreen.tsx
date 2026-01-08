@@ -1,15 +1,16 @@
-import { Adapt, Button, Dialog, Sheet, Text, View, XStack, YStack } from 'tamagui';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
-import Icons from '@expo/vector-icons/Ionicons';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { cancelOrder, getOrder } from '../src/services/orderService';
-import { OrderData } from '../src/types/IOrder';
+import { Adapt, Button, Dialog, Sheet, Text, View, XStack, YStack } from 'tamagui';
 import LabelAndBoxContent from '../src/components/box/LabelAndBoxContent';
 import CustomAlert from '../src/components/modais/CustomAlert';
+import { cancelOrder, getOrder } from '../src/services/orderService';
+import { OrderData } from '../src/types/IOrder';
 
-import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import PageContainer from '@/src/components/box/PageContainer';
+import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 
 export function ModalDocumentsAndInvoices(props: {
   openModal: boolean;
@@ -133,11 +134,6 @@ export default function OrderDetailsScreen() {
     loadOrders();
   }, [orderId]);
 
-  const formatDate = (isoDate: string) => {
-    const date = new Date(isoDate);
-    return date.toLocaleDateString('pt-BR');
-  };
-
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
@@ -233,7 +229,7 @@ export default function OrderDetailsScreen() {
           <View flex={1} marginBottom={5}>
             <Text>Pedido {order.id}</Text>
             <Text fontSize={10} color="gray">
-              Entregue {formatDate(order.deliveryDate)}
+              Entregue {getBrazilLocaleString(order.deliveryDate)}
             </Text>
           </View>
         </View>

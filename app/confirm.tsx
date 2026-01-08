@@ -1,25 +1,17 @@
 import { AccordionInfo } from '@/src/components/AccordionInfo';
+import { DialogInstance } from '@/src/components/confirm/dialogInstance';
+import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { debounce } from 'lodash';
+import { HttpStatusCode } from 'axios';
 import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
+import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
-import {
-  Adapt,
-  Button,
-  Dialog,
-  Image,
-  ScrollView,
-  Sheet,
-  Stack,
-  Text,
-  View,
-  XStack,
-} from 'tamagui';
+import { Button, Image, ScrollView, Stack, Text, View } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -30,14 +22,11 @@ import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
-import { getPaymentDescription } from '../src/utils/paymentUtils';
-import { getPaymentDate, isBefore13Hours } from '../src/utils/timeUtils';
+import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils';
+import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
 import { type SupplierData } from './prices';
-import { HttpStatusCode } from 'axios';
-import { DialogInstance } from '@/src/components/confirm/dialogInstance';
-import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -167,7 +156,7 @@ export default function Confirm() {
   );
 
   const isOpen = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
+    const currentDate = getBrazilDateTime();
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${
         currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute
@@ -204,7 +193,7 @@ export default function Confirm() {
           return;
         }
 
-        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
+        if (getBrazilDateTime(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
           setShowSundayWarning(true);
           return;
         }
@@ -215,7 +204,7 @@ export default function Confirm() {
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
           deliveryDate: selectedRestaurant.allowEmergencyOrder
-            ? DateTime.now().setZone('America/Sao_Paulo').toISODate()!
+            ? getBrazilDateTime().toISODate()
             : deliveryDate,
         };
 
@@ -295,9 +284,9 @@ export default function Confirm() {
 
   const handleConfirmButtonPress = useCallback(async () => {
     try {
-      if (isBefore13h) {
+      if (isBefore13h && selectedRestaurant) {
         const errors = await scheduleNotification(
-          selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
+          selectedRestaurant!.addressInfos[0].responsibleReceivingPhoneNumber,
         );
 
         setShowErros(errors);
@@ -430,7 +419,7 @@ export default function Confirm() {
                 alignSelf="center"
               >
                 <AccordionInfo
-                  title={`Você já possui ${supplier?.supplier?.sameDayOrders.length} pedido${supplier?.supplier?.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
+                  title={`Você já possui ${supplier?.supplier?.sameDayOrders.length} pedido${supplier?.supplier?.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${getBrazilDateTime(deliveryDate).toFormat('dd/MM/yyyy')}`}
                   content={
                     <>
                       {supplier?.supplier?.sameDayOrders.map((order, index) => (

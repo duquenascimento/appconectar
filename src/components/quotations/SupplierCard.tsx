@@ -1,7 +1,7 @@
 import { Supplier } from '@/src/types/types';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import { formatCurrency } from '@/src/utils/formatCurrency';
 import Icons from '@expo/vector-icons/Ionicons';
-import { DateTime } from 'luxon';
 import { Platform } from 'react-native';
 import { Button, Image, Text, View, XStack, YStack } from 'tamagui';
 import { AccordionInfo } from '../AccordionInfo';
@@ -78,7 +78,7 @@ export function SupplierCard({ supplier, deliveryDate, onShowPdf }: SupplierCard
         <YStack width="100%" marginHorizontal={0}>
           <AccordionInfo
             marginBottom={4}
-            title={`Você já possui ${supplier.sameDayOrders.length} pedido${supplier.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
+            title={`Você já possui ${supplier.sameDayOrders.length} pedido${supplier.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${getBrazilDateTime(deliveryDate).toFormat('dd/MM/yyyy')}`}
             content={
               <>
                 {supplier.sameDayOrders.map((order, index) => (
