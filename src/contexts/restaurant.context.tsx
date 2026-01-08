@@ -98,7 +98,14 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initialize = async () => {
-      if(!authToken) return;
+      if(!authToken) {
+        if(selectedRestaurant) {
+          setSelectedRestaurant(null);
+          setLoading(false);
+          setRestaurants([]);
+        }
+        return;
+      }
       try {
         const stored = await getStorageRestaurant();
         const list = await loadRestaurants();
