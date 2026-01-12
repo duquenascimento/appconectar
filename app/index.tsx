@@ -14,6 +14,7 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
   Platform,
@@ -299,21 +300,41 @@ export default function Sign() {
         ) : (
           <>
             <View width={width} height="100%">
-              <SignInMobile
-                page={currentPage}
-                onButtonPress={handleButtonPress}
-                onLoginPress={handleLogin}
-                modal={handleCloseModal}
-              />
+              <KeyboardAvoidingView 
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+                style={{ flex: 1 }}
+              >
+                <ScrollView 
+                  nestedScrollEnabled={true}
+                   contentContainerStyle={{ flexGrow: 1 }} 
+                >
+                <SignInMobile
+                  page={currentPage}
+                  onButtonPress={handleButtonPress}
+                  onLoginPress={handleLogin}
+                  modal={handleCloseModal}
+                />
+                </ScrollView>
+              </KeyboardAvoidingView>
             </View>
             <View width={width} height="100%">
-              <SignUpMobile
-                page={currentPage}
-                positionOptions={positionOptions}
-                onRegisterPress={handleRegister}
-                onButtonPress={handleButtonPress}
-                modal={handleCloseModal}
-              />
+              <KeyboardAvoidingView 
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+                style={{ flex: 1 }}
+              >
+                <ScrollView 
+                  nestedScrollEnabled={true} 
+                  contentContainerStyle={{ flexGrow: 1 }} 
+                >
+                  <SignUpMobile
+                    page={currentPage}
+                    positionOptions={positionOptions}
+                    onRegisterPress={handleRegister}
+                    onButtonPress={handleButtonPress}
+                    modal={handleCloseModal}
+                  />
+                </ScrollView>
+              </KeyboardAvoidingView>
             </View>
           </>
         )}
