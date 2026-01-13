@@ -430,7 +430,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={50}
+          width={60}
           height={70}
         >
           <Icons name="home" size={20} color="gray" />
