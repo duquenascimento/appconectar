@@ -1,7 +1,7 @@
-import { getAvailableDeliveryDaysFormatted } from '@/src/utils/orderDateValidation.utils';
 import { getStorage, setStorage } from '@/src/utils/utils';
 import { useCallback, useEffect, useState } from 'react';
 import { useRestaurantContext } from '../contexts/restaurant.context';
+import { getAvailableDeliveryDatesByRestaurant } from '../services/deliveryDateService';
 import { ComboOption } from '../types/componentTypes';
 import { Restaurant } from '../types/restaurantTypes';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../utils/dateUtils';
@@ -10,18 +10,22 @@ interface UseDeliveryDateReturn {
   deliveryDate: string; // ISO date string (yyyy-MM-dd)
   deliveryDates: string[]; // Array of ISO date strings
   setDeliveryDate: (date: string) => void;
-  initializeDeliveryDates: (restaurant: Restaurant) => void;
+  initializeDeliveryDates: (restaurant: Restaurant) => Promise<void>;
   getFormattedDate: (isoDate?: string) => string; // Returns dd/MM/yyyy
   canChangeDeliveryDate: boolean;
   deliveryDatesDropdownOptions: ComboOption<string>[]; // For dropdown integration
   setDropdownDeliveryDate: (callback: any) => void; // For dropdown integration
   resetDeliveryDate: () => void;
+  loading: boolean;
+  errorMessage: string | null;
 }
 
 export function useDeliveryDate(): UseDeliveryDateReturn {
   const [deliveryDate, setDeliveryDateState] = useState<string>(getBrazilDateTimeTomorrow().toISODate()!);
   const [deliveryDates, setDeliveryDates] = useState<string[]>([]);
   const { selectedRestaurant } = useRestaurantContext();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Load saved delivery date from storage on mount
   useEffect(() => {
@@ -61,9 +65,18 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
     loadSavedDate();
   }, [selectedRestaurant]);
 
-  const initializeDeliveryDates = useCallback((restaurant: Restaurant) => {
-    const availableDates = getAvailableDeliveryDaysFormatted(restaurant);
-    setDeliveryDates(availableDates);
+  const initializeDeliveryDates = useCallback(async (restaurant: Restaurant) => {
+    setLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const availableDates = await getAvailableDeliveryDatesByRestaurant(restaurant.id);
+      setDeliveryDates(availableDates);
+    } catch (error: Error | any) {
+      setErrorMessage(error instanceof Error ? error.message : String(error));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const setDeliveryDate = useCallback((date: string) => {
@@ -107,5 +120,7 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
     deliveryDatesDropdownOptions,
     setDropdownDeliveryDate,
     resetDeliveryDate,
+    loading,
+    errorMessage,
   };
 }
