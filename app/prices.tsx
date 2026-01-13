@@ -873,7 +873,7 @@ export default function Prices() {
                 overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="storefront" />
-                <View marginLeft={20} />
+                <View marginLeft={10} />
                 <Text
                   numberOfLines={showRestInfo ? 1 : 1}
                   ellipsizeMode="tail"
@@ -898,7 +898,7 @@ export default function Prices() {
               >
                 <Icons size={20} color="#04BF7B" name="calendar" />
                 <View
-                  marginLeft={20}
+                  marginLeft={5}
                   flex={1}
                   flexDirection="row"
                   alignItems="center"
@@ -925,13 +925,13 @@ export default function Prices() {
                 borderColor="lightgray"
                 borderRadius={5}
                 borderWidth={1}
-                paddingHorizontal={10}
+                paddingHorizontal={5}
                 backgroundColor="white"
                 alignItems="center"
                 overflow="hidden"
               >
                 <Icons size={20} color="#04BF7B" name="time" />
-                <View marginLeft={20} />
+                <View marginLeft={10} />
                 <Text fontSize={12}>
                   {selectedRestaurant?.addressInfos[0].initialDeliveryTime.substring(11, 16)} -{' '}
                   {selectedRestaurant?.addressInfos[0].finalDeliveryTime.substring(11, 16)}
