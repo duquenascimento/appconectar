@@ -268,6 +268,7 @@ export default function Prices() {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [isConectarAlertVisible, setIsConectarAlertVisible] = useState(false);
   const [emergencyAlertVisible, setEmergencyAlertVisible] = useState<boolean>(false);
+  const [deliveryDatesAlertVisible, setDeliveryDatesAlertVisible] = useState<boolean>(true);
   const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
@@ -295,6 +296,8 @@ export default function Prices() {
     canChangeDeliveryDate,
     deliveryDatesDropdownOptions,
     setDropdownDeliveryDate,
+    loading: areDeliveryDatesLoading,
+    errorMessage: deliveryDateErrorMessage,
   } = useDeliveryDate();
 
   useEffect(() => {
@@ -1123,6 +1126,7 @@ export default function Prices() {
                                 value={deliveryDate}
                                 zIndex={2}
                                 disabled={!canChangeDeliveryDate}
+                                loading={areDeliveryDatesLoading}
                                 style={{
                                   borderWidth: 1,
                                   borderColor: 'lightgray',
@@ -2157,6 +2161,12 @@ export default function Prices() {
             title="Este é um pedido de emergência"
             message="Fique atento à data de entrega do pedido"
             onConfirm={() => setEmergencyAlertVisible(false)}
+          />
+          <CustomAlert
+            visible={deliveryDateErrorMessage !== null && deliveryDatesAlertVisible}
+            title="Erro ao carregar datas de entrega disponíveis"
+            message={deliveryDateErrorMessage || ''}
+            onConfirm={() => setDeliveryDatesAlertVisible(false)}
           />
           <DialogComercialInstance
             openModal={showBlockedModal}
