@@ -17,6 +17,7 @@ import {
   KeyboardAvoidingView,
   Modal,
   Platform,
+  useWindowDimensions,
   VirtualizedList,
 } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
@@ -83,27 +84,6 @@ type SelectItem = {
   addressInfos: any[];
   premium: boolean;
   registrationReleasedNewApp: boolean;
-};
-
-const getScreenSize = () => {
-  const { width } = Dimensions.get('window');
-  return width >= 1024 ? 'lg/xl' : 'sm/md';
-};
-
-const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState(getScreenSize());
-
-  useEffect(() => {
-    const updateScreenSize = () => {
-      setScreenSize(getScreenSize());
-    };
-
-    const subscription = Dimensions.addEventListener('change', updateScreenSize);
-
-    return () => subscription.remove();
-  }, []);
-
-  return screenSize;
 };
 
 function SupplierBox({
@@ -274,7 +254,7 @@ export default function Prices() {
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null); // Escolha temporária do restaurante no dropdown.
   const [showBlockedModal, setShowBlockedModal] = useState(false);
-  const screemSize = useScreenSize();
+  const {width: screenWidth} = useWindowDimensions();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
@@ -299,6 +279,7 @@ export default function Prices() {
     loading: areDeliveryDatesLoading,
     errorMessage: deliveryDateErrorMessage,
   } = useDeliveryDate();
+  const isLargeScreen = screenWidth >= 1024;
 
   useEffect(() => {
     if (!selectedRestaurant) return;
@@ -1065,7 +1046,7 @@ export default function Prices() {
                       justifyContent="center"
                       zIndex={101}
                     >
-                      {screemSize === 'lg/xl' ? (
+                      {isLargeScreen ? (
                         <>
                           <Text paddingLeft={5} fontSize={12} color="gray">
                             Restaurante

@@ -1,5 +1,6 @@
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
+import { validate as validateUuid } from 'uuid';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
@@ -38,7 +39,8 @@ export type RootStackParamList = {
 };
 
 const CombinationList: React.FC = () => {
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
+  const [mycombinations, setMyCombinations] = useState<Combination[]>([]);
+  const [conectarCombinations, setConectarCombinations] = useState<Combination[]>([]);
   const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
@@ -81,7 +83,8 @@ const CombinationList: React.FC = () => {
             availableSuppliers,
           );
 
-          setMineCombinations(availableCombinations);
+          setMyCombinations(availableCombinations.filter((c) => validateUuid(c.id)));
+          setConectarCombinations(availableCombinations.filter((c) => !validateUuid(c.id)),)
           setUnavailableCombinations(unavailableCombinations);
         } catch (error) {
           setIsAlertVisible(true);
@@ -118,7 +121,11 @@ const CombinationList: React.FC = () => {
   };
 
   const sections = [
-    { title: 'Minhas combinações', data: minecombinations },
+    { title: 'Minhas combinações', data: mycombinations },
+    {
+      title: conectarCombinations.length > 0 ? 'Combinações Conéctar' : '',
+      data: conectarCombinations,
+    },
     {
       title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
       data: unavailableCombinations,
@@ -157,6 +164,8 @@ const CombinationList: React.FC = () => {
             supplierClosed={item.supplierClosed}
             sameDayOrders={item.sameDayOrders}
             unavailable={!!unavailableCombinations.includes(item)}
+            terminationCondition={item.terminationCondition}
+            tooltip={!validateUuid(item.id) && !!unavailableCombinations.includes(item) ? 'A falta de fornecedores pode acontecer devido ao horário do seu pedido ou à região de entrega.' : undefined}
             onPress={() => handleCombinationPress(item)}
           />
         )}
