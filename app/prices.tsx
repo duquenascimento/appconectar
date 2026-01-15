@@ -4,13 +4,14 @@ import DialogComercialInstance from '@/src/components/dialogComercialInstance';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import { Combination } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
-import { getBrazilDateTime } from '@/src/utils/dateUtils';
+import { getBrazilDateTime, getBrazilJSDate } from '@/src/utils/dateUtils';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearStorage, getStorage, getToken, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+import DatePicker from "react-datepicker";
 import {
   ActivityIndicator,
   Dimensions,
@@ -261,6 +262,7 @@ export default function Prices() {
   const [tab, setTab] = useState<string>('plus');
   const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
   const [deliveryDateOpen, setDeliveryDateOpen] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [minHourOpen, setMinHourOpen] = useState(false);
   const [maxHourOpen, setMaxHourOpen] = useState(false);
   const [restOpen, setRestOpen] = useState(false);
@@ -296,8 +298,10 @@ export default function Prices() {
     canChangeDeliveryDate,
     deliveryDatesDropdownOptions,
     setDropdownDeliveryDate,
+    setDeliveryDate,
     loading: areDeliveryDatesLoading,
     errorMessage: deliveryDateErrorMessage,
+    isRetroactiveDate,
   } = useDeliveryDate();
 
   useEffect(() => {
@@ -346,6 +350,21 @@ export default function Prices() {
     setTimeout(() => {
       router.push('/products');
     }, 1000);
+  };
+
+  const handleDeliveryDateDropdownPress = () => {
+    if (selectedRestaurant?.allowRetroactiveQuotation) {
+      setShowDatePicker(true);
+      return;
+    }
+
+    setDeliveryDateOpen(true);
+  };
+
+  const handleDatePickerConfirm = (date: Date | null) => {
+    if (!date) return;
+
+    setDeliveryDate(date.toISOString());
   };
 
   useEffect(() => {
@@ -1138,11 +1157,60 @@ export default function Prices() {
                                 items={deliveryDatesDropdownOptions}
                                 multiple={false}
                                 open={deliveryDateOpen}
-                                setOpen={setDeliveryDateOpen}
+                                setOpen={handleDeliveryDateDropdownPress}
                                 placeholder=""
                                 listMode="SCROLLVIEW"
                                 showArrowIcon={canChangeDeliveryDate}
+                                onPress={() => {
+                                  if (selectedRestaurant.allowRetroactiveQuotation) {
+                                    // IMPLEMENT OPEN DATE PICKER
+                                  }
+                                }}
                               ></DropDownPicker>
+                              {/* TODO: Finish implementing DatePicker */}
+                                    {showDatePicker && (
+                                <>
+                                  <DatePicker
+                                    selected={getBrazilJSDate(deliveryDate)}
+                                    onSelect={handleDatePickerConfirm} //when day is clicked
+                                    onChange={handleDatePickerConfirm} //only when value has changed
+                                    allowSameDay={selectedRestaurant.allowEmergencyOrder}
+                                    startDate={null}
+                                    // Needs to find the last date. from deliveryDatesDropdownOptions
+                                    endDate={
+                                        getBrazilJSDate(
+                                          deliveryDatesDropdownOptions
+                                            .findLast((option => {
+                                              return !option.label.toLowerCase().includes('retroativa');
+                                            }))
+                                          ?.value
+                                        )
+                                    }
+                                  />
+                                  {/* iOS needs a confirm button */}
+                                  {Platform.OS === 'ios' && (
+                                    <Button onPress={handleConfirm} marginTop="$2">
+                                      Confirm
+                                    </Button>
+                                  )}
+                                </>
+                              )}
+                              {/* TODO: Maybe I'll need to change this place because it's already small */}
+                              {isRetroactiveDate && (
+                                <View
+                                  backgroundColor="#E3F2FD"
+                                  borderColor="#2196F3"
+                                  borderWidth={1}
+                                  borderRadius={4}
+                                  paddingHorizontal={8}
+                                  paddingVertical={4}
+                                  marginTop={4}
+                                >
+                                  <Text fontSize={11} color="#1976D2">
+                                    📅 Cotação retroativa - Preços históricos
+                                  </Text>
+                                </View>
+                              )}
                             </View>
                             <View flex={1}>
                               <Text paddingLeft={5} fontSize={12} color="gray">
@@ -1609,12 +1677,13 @@ export default function Prices() {
                                     items={deliveryDatesDropdownOptions}
                                     multiple={false}
                                     open={deliveryDateOpen}
-                                    setOpen={setDeliveryDateOpen}
+                                    setOpen={handleDeliveryDateDropdownPress}
                                     placeholder=""
                                     listMode="SCROLLVIEW"
                                     showArrowIcon={canChangeDeliveryDate}
                                   ></DropDownPicker>
                                 </View>
+                                {/* TODO: Finish implementing DatePicker */}
                                 <View
                                   style={{
                                     flex: 1,

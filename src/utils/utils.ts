@@ -12,6 +12,7 @@ enum SECURE_STORE_KEYS {
 
 export enum STORAGE_DEFAULT_KEYS {
     ROLE = 'role',
+    USER_ROLES = 'userRoles',
     SELECTED_RESTAURANT = 'selectedRestaurant',
     EXPO_APP_VERSION = 'expoAppVersion',
 }

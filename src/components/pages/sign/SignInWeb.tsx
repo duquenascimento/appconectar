@@ -1,15 +1,22 @@
-import { useAuthContext } from "@/src/contexts/auth.context";
-import { VersionInfo } from "@/src/utils/VersionApp";
-import { useState } from "react";
-import { ActivityIndicator, Linking } from "react-native";
-import { Button, Image, Input, Stack, Text, View, XStack, YStack } from "tamagui";
-import { ValidationDialog } from "./ValidationDialog";
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
+import { ActivityIndicator, Linking } from 'react-native';
+import { Button, Image, Input, Stack, Text, View, XStack, YStack } from 'tamagui';
+import { ValidationDialog } from './ValidationDialog';
 
 export function SignInWeb(props: {
   page: string;
   onButtonPress: (page: string) => void;
-  onLoginPress: (email: string, password: string, registerInvalid: Function, setLoading: Function, setErros: Function, saveAuthToken: Function) => void;
+  onLoginPress: (
+    email: string,
+    password: string,
+    registerInvalid: Function,
+    setLoading: Function,
+    setErros: Function,
+    saveLogin: Function,
+  ) => void;
   modal: () => void;
 }) {
   const [showPw, setShowPw] = useState(true);
@@ -18,7 +25,7 @@ export function SignInWeb(props: {
   const [email, setEmail] = useState('');
   const [erros, setErros] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { saveAuthToken } = useAuthContext();
+  const { saveLogin } = useAuthContext();
 
   if (loading) {
     return (
@@ -112,7 +119,7 @@ export function SignInWeb(props: {
 
       <Button
         onPress={() =>
-          props.onLoginPress(email, password, setRegisterInvalid, setLoading, setErros, saveAuthToken)
+          props.onLoginPress(email, password, setRegisterInvalid, setLoading, setErros, saveLogin)
         }
         hoverStyle={{ backgroundColor: '#03a86c' }}
         marginTop="$3.5"

@@ -66,7 +66,8 @@ export default function Confirm() {
   });
   const { loadPrices } = useSupplier();
   const { loadRestaurants, selectedRestaurant } = useRestaurantContext();
-  const { deliveryDate, getFormattedDate, resetDeliveryDate } = useDeliveryDate();
+  const { deliveryDate, getFormattedDate, resetDeliveryDate, isRetroactiveDate } =
+    useDeliveryDate();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -177,6 +178,15 @@ export default function Confirm() {
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
       setDisableConfirm(true);
       try {
+        if (isRetroactiveDate) {
+          setAlertMessage(
+            'Cotação retroativa: Não é possível criar pedidos com datas passadas. Esta funcionalidade é apenas para comparação de preços históricos.',
+          );
+          setIsAlertVisible(true);
+          setDisableConfirm(false);
+          return;
+        }
+
         const token = await getToken();
         if (!token || !selectedRestaurant) {
           Alert.alert('Erro', 'Token de autenticação não encontrado.');
@@ -375,6 +385,28 @@ export default function Confirm() {
             onClose={() => setShowPdfModal(false)}
           />
         )}
+
+        {isRetroactiveDate && (
+          <View
+            backgroundColor="#FFF3CD"
+            borderColor="#FFC107"
+            borderWidth={1}
+            paddingHorizontal={15}
+            paddingVertical={12}
+            marginHorizontal={Platform.OS === 'web' ? '13%' : 15}
+            marginTop={10}
+            borderRadius={5}
+          >
+            <Text fontSize={14} color="#856404" fontWeight="600" marginBottom={4}>
+              ⚠️ Modo Somente Leitura
+            </Text>
+            <Text fontSize={13} color="#856404">
+              Cotação retroativa: Esta é apenas uma visualização de preços históricos. Não é
+              possível criar pedidos com datas passadas.
+            </Text>
+          </View>
+        )}
+
         <View
           backgroundColor="white"
           flexDirection="row"

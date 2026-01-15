@@ -1,7 +1,7 @@
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { styled, useMedia } from 'tamagui';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 const DropDownPickerRestaurantStyled = styled(DropDownPicker, {
   width: '92%',
@@ -41,6 +41,8 @@ export function DropDownPickerRestaurant() {
         value: restaurant.externalId,
       }))}
       placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
+      searchable={restaurants.length > 10}
+      searchPlaceholder="Buscar restaurante..."
       dropDownContainerStyle={{
         width: '92%',
         alignSelf: 'center',

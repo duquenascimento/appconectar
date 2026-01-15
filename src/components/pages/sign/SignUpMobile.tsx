@@ -22,7 +22,7 @@ export function SignUpMobile(props: {
     registerInvalid: Function,
     setLoading: Function,
     setErros: Function,
-    saveAuthToken: Function,
+    saveLogin: Function,
   ) => void;
   modal: () => void;
 }) {
@@ -44,7 +44,7 @@ export function SignUpMobile(props: {
   const [erros, setErros] = useState([]);
   const [registerInvalid, setRegisterInvalid] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveAuthToken } = useAuthContext();
+  const { saveLogin } = useAuthContext();
 
   if (loading) {
     return (
@@ -308,7 +308,7 @@ export function SignUpMobile(props: {
               setRegisterInvalid,
               setLoading,
               setErros,
-              saveAuthToken,
+              saveLogin,
             )
           }
         >

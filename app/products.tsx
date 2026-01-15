@@ -507,7 +507,7 @@ export default function Products() {
         if (found) initialRestaurant = found;
       }
     }
-    if(initialRestaurant) {
+    if (initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 
@@ -519,18 +519,18 @@ export default function Products() {
 
     const runCheck = async () => {
       try {
-         await getInitialRestaurant(selectedRestaurant);
+        await getInitialRestaurant(selectedRestaurant);
 
-      const result = await checkVersion();
+        const result = await checkVersion();
 
-      if (result?.updateRequired) {
-        setUpdateRequired(true);
-        setUpdateMessage(result.message ?? '');
-      } else {
-        setUpdateRequired(false);
-        setUpdateMessage('');
-      }
-    } catch(error) {
+        if (result?.updateRequired) {
+          setUpdateRequired(true);
+          setUpdateMessage(result.message ?? '');
+        } else {
+          setUpdateRequired(false);
+          setUpdateMessage('');
+        }
+      } catch (error) {
         setUpdateRequired(false);
         setUpdateMessage('');
       }

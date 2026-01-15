@@ -1,10 +1,10 @@
 import { getStorage, setStorage } from '@/src/utils/utils';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRestaurantContext } from '../contexts/restaurant.context';
 import { getAvailableDeliveryDatesByRestaurant } from '../services/deliveryDateService';
 import { ComboOption } from '../types/componentTypes';
 import { Restaurant } from '../types/restaurantTypes';
-import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../utils/dateUtils';
+import { getBrazilDateTime, getBrazilDateTimeTomorrow, isDateBeforeToday } from '../utils/dateUtils';
 
 interface UseDeliveryDateReturn {
   deliveryDate: string; // ISO date string (yyyy-MM-dd)
@@ -18,6 +18,7 @@ interface UseDeliveryDateReturn {
   resetDeliveryDate: () => void;
   loading: boolean;
   errorMessage: string | null;
+  isRetroactiveDate: boolean;
 }
 
 export function useDeliveryDate(): UseDeliveryDateReturn {
@@ -26,6 +27,10 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
   const { selectedRestaurant } = useRestaurantContext();
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const isRetroactiveDate = useMemo(() => {
+    return isDateBeforeToday(deliveryDate);
+  }, [deliveryDate]);
 
   // Load saved delivery date from storage on mount
   useEffect(() => {
@@ -71,13 +76,34 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
 
     try {
       const availableDates = await getAvailableDeliveryDatesByRestaurant(restaurant.id);
-      setDeliveryDates(availableDates);
+
+      // TODO: Need to change this to display a DatePicker for the user
+      // For admin users, add retroactive dates (last 60 days) to the available dates
+      if (isRetroactiveDate) {
+        const today = getBrazilDateTime();
+        const retroactiveDates: string[] = [];
+
+        // Generate retroactive dates for the last 60 days
+        for (let i = 1; i <= 60; i++) {
+          const pastDate = today.minus({ days: i }).toISODate();
+          if (pastDate) {
+            retroactiveDates.push(pastDate);
+          }
+        }
+
+        // Combine retroactive dates with future dates and remove duplicates
+        const allDates = [...retroactiveDates.reverse(), ...availableDates];
+        const uniqueDates = Array.from(new Set(allDates)).sort();
+        setDeliveryDates(uniqueDates);
+      } else {
+        setDeliveryDates(availableDates);
+      }
     } catch (error: Error | any) {
       setErrorMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isRetroactiveDate]);
 
   const setDeliveryDate = useCallback((date: string) => {
     setDeliveryDateState(date);
@@ -108,7 +134,7 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
   const resetDeliveryDate = useCallback(() => {
     const tomorrow = getBrazilDateTimeTomorrow().toISODate()!;
     setDeliveryDate(tomorrow);
-  }, []);
+  }, [setDeliveryDate]);
 
   return {
     deliveryDate,
@@ -122,5 +148,6 @@ export function useDeliveryDate(): UseDeliveryDateReturn {
     resetDeliveryDate,
     loading,
     errorMessage,
+    isRetroactiveDate,
   };
 }
