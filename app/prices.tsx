@@ -36,6 +36,7 @@ import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
 import { campoString } from '../src/utils/formatCampos';
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 
 export interface Product {
   price: number;
@@ -254,7 +255,6 @@ export default function Prices() {
   const [hasCheckedFields, setHasCheckedFields] = useState<boolean>(false);
   const [draftSelectedRestaurant, setDraftSelectedRestaurant] = useState<any>(null); // Escolha temporária do restaurante no dropdown.
   const [showBlockedModal, setShowBlockedModal] = useState(false);
-  const {width: screenWidth} = useWindowDimensions();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
@@ -279,8 +279,8 @@ export default function Prices() {
     loading: areDeliveryDatesLoading,
     errorMessage: deliveryDateErrorMessage,
   } = useDeliveryDate();
-  const isLargeScreen = screenWidth >= 1024;
-
+  const { isLargeScreen } = useResponsiveness();
+  
   useEffect(() => {
     if (!selectedRestaurant) return;
 
