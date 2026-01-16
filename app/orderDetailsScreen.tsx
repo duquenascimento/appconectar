@@ -11,6 +11,7 @@ import { OrderData } from '../src/types/IOrder';
 import PageContainer from '@/src/components/box/PageContainer';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
+import TimerButton from '@/src/components/button/timerButton';
 
 export function ModalDocumentsAndInvoices(props: {
   openModal: boolean;
@@ -305,6 +306,7 @@ export default function OrderDetailsScreen() {
               subtitle={`Por ${supplierName}`}
             />
           </TouchableOpacity>
+          <TimerButton />
         </View>
       </View>
     </PageContainer>

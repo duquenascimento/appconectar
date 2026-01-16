@@ -25,8 +25,10 @@ import { getOrders } from '../src/services/orderService';
 import { ordersScreenStyles as styles } from '../src/styles/styles';
 import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import { VersionInfo } from '../src/utils/VersionApp';
+import { OrderData } from '@/src/types/IOrder';
+import { getStatusAndColor } from '@/src/utils/ordersScreenUtils';
 
-interface Order {
+/* interface Order {
   orderDocument: ReactNode;
   id: string;
   deliveryDate: string;
@@ -41,8 +43,8 @@ interface Order {
     }[];
   };
 }
-
-const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
+ */
+/* const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
   if (isTomorrow(getBrazilDateTime(item.deliveryDate))) {
     return ['Aguardando confirmação', '#FFC107'];
   }
@@ -50,11 +52,11 @@ const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
     return ['Cancelado', '#DD2300'];
   }
   return ['Agendado', '#4CAF50'];
-};
+}; */
 
-export default function OrdersScreen(props: HomeScreenPropsUtils) {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+export default function OrdersScreen() {
+  const [orders, setOrders] = useState<OrderData[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<OrderData[]>([]);
   const [scheduledOrders, setScheduledOrders] = useState<ScheduleOrderResponse[]>([]);
   const [filteredScheduledOrders, setFilteredScheduledOrders] = useState<ScheduleOrderResponse[]>(
     [],
@@ -88,7 +90,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
             getAllScheduleOrders(),
           ]);
 
-          const ordersData = result.map((order: Order) => {
+          const ordersData = result.map((order: OrderData) => {
             const filteredSupplier =
               order.calcOrderAgain?.data?.filter(
                 (item) => item.supplier?.externalId === order.supplierId,
@@ -120,7 +122,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
     setSearchQuery(query);
     const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
     const isDatePartial = datePartialRegex.test(query);
-    const fOrders = orders.filter((order: Order) => {
+    const fOrders = orders.filter((order: OrderData) => {
       if (isDatePartial) {
         const [day, month, year] = query.split('/');
         const deliveryDate = order.deliveryDate.split('T')[0];
