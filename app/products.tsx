@@ -489,25 +489,27 @@ export default function Products() {
     initialRestaurant: Restaurant | undefined | null;
     allRestaurantBlocked: boolean;
   }> => {
-    if (restaurants.length === 0 || !restaurants) {
+    if (!restaurants || restaurants.length === 0) {
       return { initialRestaurant: undefined, allRestaurantBlocked: false };
     }
 
-    const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
+    // const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
 
-    const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
+    const availableRestaurants = restaurants.filter((r) => !r.registrationReleasedNewApp);
     const allRestaurantBlocked = availableRestaurants.length === 0;
 
     let initialRestaurant = contextRestaurant;
-    if (!allRestaurantBlocked) {
-      initialRestaurant = availableRestaurants[0];
 
-      if (contextRestaurant) {
-        const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
-        if (found) initialRestaurant = found;
-      }
+    if (!contextRestaurant && !allRestaurantBlocked) {
+      initialRestaurant = availableRestaurants[0];
     }
-    if(initialRestaurant) {
+
+    if (contextRestaurant) {
+      const exists = restaurants.find((r) => r.id === contextRestaurant.id);
+      if (exists) initialRestaurant = exists;
+    }
+
+    if (initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 
@@ -519,18 +521,18 @@ export default function Products() {
 
     const runCheck = async () => {
       try {
-         await getInitialRestaurant(selectedRestaurant);
+        await getInitialRestaurant(selectedRestaurant);
 
-      const result = await checkVersion();
+        const result = await checkVersion();
 
-      if (result?.updateRequired) {
-        setUpdateRequired(true);
-        setUpdateMessage(result.message ?? '');
-      } else {
-        setUpdateRequired(false);
-        setUpdateMessage('');
-      }
-    } catch(error) {
+        if (result?.updateRequired) {
+          setUpdateRequired(true);
+          setUpdateMessage(result.message ?? '');
+        } else {
+          setUpdateRequired(false);
+          setUpdateMessage('');
+        }
+      } catch (error) {
         setUpdateRequired(false);
         setUpdateMessage('');
       }
@@ -607,12 +609,12 @@ export default function Products() {
           const cartMap = await loadCart();
 
           const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
-          const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
+          const restFilteredFinance = initialRestaurant?.financeBlock === true;
           if (restFilteredComercial || allRestaurantBlocked) {
             setShowRegistrationReleasedNewApp(true);
           }
 
-          if (restFilteredFinance.length) {
+          if (restFilteredFinance) {
             setShowFinanceBlock(true);
           }
 
@@ -929,7 +931,7 @@ export default function Products() {
 
       <HeaderText>Meus Restaurantes</HeaderText>
 
-      <DropDownPickerRestaurant />
+      <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 

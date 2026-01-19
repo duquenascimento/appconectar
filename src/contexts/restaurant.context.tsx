@@ -34,10 +34,12 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       try {
         if (!restaurant) return;
 
-        const storedRestaurant = await getStorageRestaurant();
-        if (storedRestaurant && storedRestaurant.externalId === restaurant.externalId) return;
+        // const storedRestaurant = await getStorageRestaurant();
+        // if (storedRestaurant && storedRestaurant.externalId === restaurant.externalId) return;
 
-        const selected = restaurants.find((r) => r.externalId === restaurant.externalId);
+        const reloadedRestaurants = await loadRestaurants();
+
+        const selected = reloadedRestaurants.find((r) => r.externalId === restaurant.externalId);
         if (!selected) {
           throw new Error('Restaurante não encontrado');
         }
@@ -98,8 +100,8 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const initialize = async () => {
-      if(!authToken) {
-        if(selectedRestaurant) {
+      if (!authToken) {
+        if (selectedRestaurant) {
           setSelectedRestaurant(null);
           setLoading(false);
           setRestaurants([]);
