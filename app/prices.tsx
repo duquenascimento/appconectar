@@ -57,7 +57,11 @@ export default function Prices() {
     areRestaurantsLoading,
   } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
-  const { deliveryDate, errorMessage: deliveryDateErrorMessage, initializeDeliveryDates } = useDeliveryDate();
+  const {
+    deliveryDate,
+    errorMessage: deliveryDateErrorMessage,
+    initializeDeliveryDates,
+  } = useDeliveryDate();
 
   const handleLoadPrices = useCallback(
     async (restaurantId?: string) => {
@@ -65,7 +69,7 @@ export default function Prices() {
         setSuppliersLoading(true);
         setCombinationsLoading(true);
 
-        await loadRestaurants(false);
+        await loadRestaurants();
         await loadPrices(restaurantId, deliveryDate);
       } catch (err) {
         console.error(err);
@@ -147,11 +151,10 @@ export default function Prices() {
     useCallback(() => {
       const loadPricesAsync = async () => {
         try {
-          await loadRestaurants();
           setMainDataLoaded(false);
 
           if (!selectedRestaurant) return;
-          // Verifica se o restaurante salvo ainda existe na lista
+
           const validRestaurant = restaurants.find(
             (r: any) => r.externalId === selectedRestaurant.externalId,
           );
