@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dimensions, KeyboardAvoidingView, Modal, Platform } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Input, ScrollView, Text, View } from 'tamagui';
 import { useDeliveryDate } from '../../contexts/deliveryDate.context';
@@ -7,6 +7,7 @@ import { useRestaurantContext } from '../../contexts/restaurant.context';
 import { Restaurant } from '../../types/restaurantTypes';
 import { campoString } from '../../utils/formatCampos';
 import DialogComercialInstance from '../dialogComercialInstance';
+import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
 import CustomAlert from '../modais/CustomAlert';
 
@@ -15,27 +16,6 @@ interface RestaurantInfoDialogProps {
   onClose: () => void;
   handleLoadPrices: (value?: any) => void;
 }
-
-const getScreenSize = () => {
-  const { width } = Dimensions.get('window');
-  return width >= 1024 ? 'lg/xl' : 'sm/md';
-};
-
-const useScreenSize = () => {
-  const [screenSize, setScreenSize] = useState(getScreenSize());
-
-  useEffect(() => {
-    const updateScreenSize = () => {
-      setScreenSize(getScreenSize());
-    };
-
-    const subscription = Dimensions.addEventListener('change', updateScreenSize);
-
-    return () => subscription.remove();
-  }, []);
-
-  return screenSize;
-};
 
 export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   visible,
@@ -78,7 +58,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
 
-  const screenSize = useScreenSize();
+  const { isLargeScreen } = useResponsiveness();
 
   const {
     deliveryDate,
@@ -343,7 +323,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
               justifyContent="center"
               zIndex={101}
             >
-              {screenSize === 'lg/xl' ? (
+              {isLargeScreen ? (
                 <>
                   <Text paddingLeft={5} fontSize={12} color="gray">
                     Restaurante
