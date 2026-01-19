@@ -46,6 +46,7 @@ import { loadProductObservations, saveProductObservations } from '../src/utils/p
 import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
 import { normalizeText } from '../src/utils/stringUtils';
 import { getToken } from '../src/utils/utils';
+import DialogBlockInstance from '@/src/components/dialogBlockInstance';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -848,6 +849,19 @@ export default function Products() {
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation],
   );
 
+  const handleSwitchRestaurant = async (nextRest: Restaurant) => {
+    setLoading(true);
+    await setStorageRestaurant(nextRest);
+    setSelectedRestaurant(nextRest);
+
+    setShowRegistrationReleasedNewApp(false);
+    setShowFinanceBlock(false);
+
+    await loadFavorites();
+    await loadCart();
+    setLoading(false);
+  };
+
   if (loading || !selectedRestaurant) {
     return (
       <PageContainer backgroundColor="white">
@@ -860,29 +874,21 @@ export default function Products() {
 
   return (
     <PageContainer backgroundColor="white">
-      <DialogComercialInstance
+      <DialogBlockInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
-        setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurants}
-        messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
-        onSelectAvailable={() => {
-          const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
-          if (availableRestaurant) {
-            setStorageRestaurant(availableRestaurant);
-            setSelectedRestaurant(availableRestaurant);
-            setShowRegistrationReleasedNewApp(false);
-            loadFavorites();
-            loadCart();
-          }
-        }}
+        variant="comercial"
+        onSelectAvailable={handleSwitchRestaurant}
+      />
+      <DialogBlockInstance
+        openModal={showFinanceBlock}
+        setOpenModal={setShowFinanceBlock}
+        rest={restaurants}
+        variant="financial"
+        onSelectAvailable={handleSwitchRestaurant}
       />
       <UpdateAppModal openModal={updateRequired} message={updateMessage} />
-      <DialogFinanceInstance
-        openModal={showFinanceBlock}
-        setRegisterInvalid={setShowFinanceBlock}
-        rest={restaurants}
-      />
       <Modal visible={isModalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
           style={{
