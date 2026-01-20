@@ -1,5 +1,5 @@
 import { Linking } from 'react-native';
-import { Button, Dialog, XStack, YStack } from 'tamagui';
+import { Button, YStack } from 'tamagui';
 import { useAuthContext } from '../contexts/auth.context';
 import { Restaurant } from '../types/restaurantTypes';
 import { setStorageRestaurant } from '../utils/restaurantUtils';
@@ -32,12 +32,32 @@ export default function DialogBlockInstance({
   const availableRestaurant = getAvailableRestaurant();
   const hasAvailableRestaurant = !!availableRestaurant;
 
-  const title = variant === 'financial' ? 'Conta bloqueada' : 'Bem vindo à Conéctar!';
+  const title = (): string => {
+    switch (variant) {
+      case 'financial':
+        return 'Conta bloqueada';
+      default:
+        return 'Bem vindo à Conéctar!';
+    }
+  };
 
-  const description =
-    variant === 'financial'
-      ? 'Informamos que sua conta está bloqueada devido a pendências com a plataforma. Por favor, entre em contato agora para desbloquear a sua conta.'
-      : 'Este restaurante não está liberado. Entre em contato conosco para concluir o processo.';
+  const description = (): string => {
+    switch (variant) {
+      case 'financial':
+        return 'Informamos que sua conta está bloqueada devido a pendências com a plataforma. Por favor, entre em contato agora para desbloquear a sua conta.';
+      default:
+        return 'Este restaurante não está liberado. Entre em contato conosco para concluir o processo.';
+    }
+  };
+
+  const buttonBackground = (): string => {
+    switch (variant) {
+      case 'financial':
+        return '$red9';
+      default:
+        return '#04BF7B';
+    }
+  };
 
   const handleSelectAvailable = async () => {
     if (availableRestaurant) {
@@ -94,8 +114,8 @@ export default function DialogBlockInstance({
   return (
     <BaseDialog
       open={openModal}
-      title={title}
-      description={description}
+      title={title()}
+      description={description()}
       onOpenChange={(isOpen) => {
         if (!isOpen) handleBackButton();
       }}
@@ -123,7 +143,7 @@ export default function DialogBlockInstance({
           width="100%"
           theme="active"
           aria-label="Close"
-          backgroundColor={variant === 'financial' ? '$red9' : '#04BF7B'} // Vermelho se for financeiro
+          backgroundColor={buttonBackground()}
           color="$white1"
           onPress={handleContactPress}
         >
