@@ -1,13 +1,16 @@
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
+import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
 import { Button, Text, View } from 'tamagui';
+import { validate as validateUuid } from 'uuid';
+import { useDeliveryDate } from '../contexts/deliveryDate.context';
 import { useSupplier } from '../contexts/fornecedores.context';
 import { useRestaurantContext } from '../contexts/restaurant.context';
-import { useDeliveryDate } from '../contexts/deliveryDate.context';
 import { QuotationApiResponse, QuotationApiResponseData } from '../services/combinationsService';
+import { confirmPremiumOrder } from '../services/orderService';
 import { getQuotationsByCombination } from '../services/quotationService';
 import { Combination, CombinationMissingProducts } from '../types/combinationTypes';
 import { ChosenSupplierQuote } from '../types/suppliersDataTypes';
@@ -15,10 +18,8 @@ import { SupplierData } from '../types/types';
 import { transformCombinationFromApi } from '../utils/combinacaoUtils';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
-import CustomSubtitle from './subtitle/customSubtitle';
 import DialogInstanceNotification from './modais/DialogInstanceNotification';
-import { confirmPremiumOrder } from '../services/orderService';
-import { HttpStatusCode } from 'axios';
+import CustomSubtitle from './subtitle/customSubtitle';
 
 export type RootStackParamList = {
   Sign: undefined;
@@ -47,7 +48,8 @@ const CombinationList: React.FC<CombinationListProps> = ({
   mainDataLoaded,
   handleConfirm,
 }) => {
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
+  const [myCombinations, setMyCombinations] = useState<Combination[]>([]);
+  const [conectarCombinations, setConectarCombinations] = useState<Combination[]>([]);
   const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
@@ -92,7 +94,8 @@ const CombinationList: React.FC<CombinationListProps> = ({
             availableSuppliers,
           );
 
-          setMineCombinations(availableCombinations);
+          setMyCombinations(availableCombinations.filter((c) => validateUuid(c.id)));
+          setConectarCombinations(availableCombinations.filter((c) => !validateUuid(c.id)));
           setUnavailableCombinations(unavailableCombinations);
         } catch (error) {
           setIsAlertVisible(true);
@@ -127,8 +130,12 @@ const CombinationList: React.FC<CombinationListProps> = ({
 
   const sections = [
     {
-      title: minecombinations.length > 0 ? 'Minhas combinações' : '',
-      data: minecombinations,
+      title: myCombinations.length > 0 ? 'Minhas combinações' : '',
+      data: myCombinations,
+    },
+    {
+      title: conectarCombinations.length > 0 ? 'Combinações Conéctar' : '',
+      data: conectarCombinations,
     },
     {
       title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
@@ -191,7 +198,7 @@ const CombinationList: React.FC<CombinationListProps> = ({
     );
   }
 
-  if (minecombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
+  if (myCombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center" padding={20}>
         <CustomSubtitle>
@@ -225,6 +232,12 @@ const CombinationList: React.FC<CombinationListProps> = ({
             supplierClosed={item.supplierClosed}
             sameDayOrders={item.sameDayOrders}
             unavailable={!!unavailableCombinations.includes(item)}
+            terminationCondition={item.terminationCondition}
+            tooltip={
+              !validateUuid(item.id) && !!unavailableCombinations.includes(item)
+                ? 'A falta de fornecedores pode acontecer devido ao horário do seu pedido ou à região de entrega.'
+                : undefined
+            }
             onPress={() => handleCombinationPress(item)}
           />
         )}
