@@ -1,6 +1,6 @@
-import { CombinationMissingProducts } from '@/src/components/combinationList';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
+import { CombinationMissingProducts } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -19,8 +19,8 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
 import { MissingItemsList } from '../src/components/quotations/MissingItensList';
 import { SupplierList } from '../src/components/quotations/SupplierList';
+import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import {
   confirmConectarPlusOrder,
   ConfirmConectarPlusOrderRequestBody,

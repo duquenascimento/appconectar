@@ -458,7 +458,7 @@ export default function Products() {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
+  const { selectedRestaurant, restaurants, saveRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
   const { logout } = useAuthContext();
   const {
@@ -851,8 +851,7 @@ export default function Products() {
 
   const handleSwitchRestaurant = async (nextRest: Restaurant) => {
     setLoading(true);
-    await setStorageRestaurant(nextRest);
-    setSelectedRestaurant(nextRest);
+    await saveRestaurant(nextRest);
 
     setShowRegistrationReleasedNewApp(false);
     setShowFinanceBlock(false);
