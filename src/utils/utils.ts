@@ -14,6 +14,8 @@ export enum STORAGE_DEFAULT_KEYS {
     ROLE = 'role',
     SELECTED_RESTAURANT = 'selectedRestaurant',
     EXPO_APP_VERSION = 'expoAppVersion',
+    AVAILABLE_SUPPLIERS = 'availableSuppliers',
+    UNAVAILABLE_SUPPLIERS = 'unavailableSuppliers',
 }
 
 export const getToken = async (): Promise<string | null | undefined> => {

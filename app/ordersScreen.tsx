@@ -7,7 +7,6 @@ import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
 import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
 import { getBrazilDateTime, getBrazilLocaleString, isTomorrow } from '@/src/utils/dateUtils';
-import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ReactNode, useCallback, useState } from 'react';
@@ -63,7 +62,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const { restaurants, selectedRestaurant, setSelectedRestaurant } = useRestaurantContext();
+  const { restaurants, selectedRestaurant, saveRestaurant } = useRestaurantContext();
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
@@ -513,8 +512,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
 
             if (availableRestaurant) {
               setShowBlockedModal(false);
-              await setStorageRestaurant(availableRestaurant);
-              setSelectedRestaurant(availableRestaurant);
+              await saveRestaurant(availableRestaurant);
               setShowBlockedModal(false);
             }
           } catch (error) {
