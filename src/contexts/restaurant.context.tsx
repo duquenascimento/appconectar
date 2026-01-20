@@ -43,10 +43,9 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       try {
         if (!restaurant) return;
 
-        const storedRestaurant = await getStorageRestaurant();
-        if (storedRestaurant?.externalId === restaurant.externalId) return;
+        const reloadedRestaurants = await loadRestaurants(restaurant);
 
-        const foundRestaurant = restaurants.find((r) => r.externalId === restaurant.externalId);
+        const foundRestaurant = reloadedRestaurants.find((r) => r.externalId === restaurant.externalId);
         if (!foundRestaurant) {
           throw new Error('Restaurante não encontrado');
         }

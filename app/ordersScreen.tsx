@@ -262,7 +262,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
         onConfirm={() => setShowAlertVisible(false)}
       />
       <HeaderText>Meus Restaurantes</HeaderText>
-      <DropDownPickerRestaurant />
+      <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
 
       <XStack
         backgroundColor="#FFF"
