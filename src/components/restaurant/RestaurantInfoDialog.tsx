@@ -14,7 +14,7 @@ import CustomAlert from '../modais/CustomAlert';
 interface RestaurantInfoDialogProps {
   visible: boolean;
   onClose: () => void;
-  handleLoadPrices: (restaurantId?: string, skipRestaurantsReload?: boolean) => Promise<void>;
+  handleLoadPrices: (restaurant?: Restaurant) => Promise<void>;
 }
 
 export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
@@ -241,10 +241,10 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
     setDialogLoading(true);
 
-    const rest: Restaurant = JSON.parse(
+    const restaurant: Restaurant = JSON.parse(
       JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant),
     );
-    const addressInfo = rest.addressInfos[0];
+    const addressInfo = restaurant.addressInfos[0];
 
     addressInfo.neighborhood = neighborhood ?? '';
     addressInfo.city = city ?? '';
@@ -259,9 +259,9 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
     addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 
-    await updateRestaurant(rest);
+    await updateRestaurant(restaurant);
 
-    handleLoadPrices(rest.id, true);
+    handleLoadPrices(restaurant);
 
     setDialogLoading(false);
     onClose();
@@ -271,7 +271,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     onClose();
     setDraftSelectedRestaurant(null);
     setDialogLoading(false);
-    handleLoadPrices(undefined, false);
+    handleLoadPrices();
   };
 
   const handleRestaurantDropdownChange = (restaurantName?: string) => {

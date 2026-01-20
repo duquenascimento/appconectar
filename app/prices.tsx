@@ -64,16 +64,14 @@ export default function Prices() {
   } = useDeliveryDate();
 
   const handleLoadPrices = useCallback(
-    async (restaurantId?: string, skipRestaurantsReload = false) => {
+    async (restaurant?: Restaurant) => {
       try {
         setSuppliersLoading(true);
         setCombinationsLoading(true);
 
-        if (!skipRestaurantsReload) {
-          await loadRestaurants();
-        }
+        await loadRestaurants(restaurant);
 
-        await loadPrices(restaurantId, deliveryDate);
+        await loadPrices(restaurant?.id, deliveryDate);
       } catch (err) {
         console.error(err);
       } finally {
@@ -377,7 +375,7 @@ export default function Prices() {
                   handleRestaurantChange(availableRestaurant);
 
                   // 3. Recarregar os preços para o novo restaurante
-                  await handleLoadPrices(availableRestaurant.externalId);
+                  await handleLoadPrices(availableRestaurant);
                 }
               } catch (error) {
                 console.error('Erro ao trocar de restaurante:', error);

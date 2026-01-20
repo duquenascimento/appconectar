@@ -19,7 +19,7 @@ interface RestaurantContextProps {
   saveRestaurant: (restaurant: Restaurant) => Promise<void>;
   handleRestaurantChange: (restaurant: Restaurant | null) => Promise<void>;
   updateRestaurant: (restaurant: Restaurant) => Promise<void>;
-  loadRestaurants: () => Promise<Restaurant[]>;
+  loadRestaurants: (currentRestaurant?: Restaurant) => Promise<Restaurant[]>;
   areRestaurantsLoading: boolean;
 }
 
@@ -74,47 +74,50 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     [selectedRestaurant, saveRestaurant],
   );
 
-  const loadRestaurants = useCallback(async (): Promise<Restaurant[]> => {
-    setLoading(true);
+  const loadRestaurants = useCallback(
+    async (currentRestaurant?: Restaurant): Promise<Restaurant[]> => {
+      setLoading(true);
 
-    try {
-      const fetchedRestaurants = await getUserRestaurants();
+      try {
+        const fetchedRestaurants = await getUserRestaurants();
 
-      if (!fetchedRestaurants?.length) {
-        setRestaurants([]);
-        return [];
-      }
-
-      setRestaurants(fetchedRestaurants);
-
-      let newSelectedRestaurant = selectedRestaurant;
-
-      if (newSelectedRestaurant !== null && fetchedRestaurants.length > 0) {
-        const listRestaurant = fetchedRestaurants.find(
-          (r) => r.externalId === newSelectedRestaurant?.externalId,
-        );
-        if (listRestaurant) {
-          newSelectedRestaurant = listRestaurant;
+        if (!fetchedRestaurants?.length) {
+          setRestaurants([]);
+          return [];
         }
-      } else {
-        const stored = await getStorageRestaurant();
-        const storedRestaurant = stored ?? fetchedRestaurants[0];
-        newSelectedRestaurant = storedRestaurant;
+
+        setRestaurants(fetchedRestaurants);
+
+        let newSelectedRestaurant = currentRestaurant ?? selectedRestaurant;
+
+        if (newSelectedRestaurant !== null && fetchedRestaurants.length > 0) {
+          const listRestaurant = fetchedRestaurants.find(
+            (r) => r.externalId === newSelectedRestaurant?.externalId,
+          );
+          if (listRestaurant) {
+            newSelectedRestaurant = listRestaurant;
+          }
+        } else {
+          const stored = await getStorageRestaurant();
+          const storedRestaurant = stored ?? fetchedRestaurants[0];
+          newSelectedRestaurant = storedRestaurant;
+        }
+
+        await saveRestaurant(newSelectedRestaurant);
+        await initializeDeliveryDates(newSelectedRestaurant.id);
+
+        return fetchedRestaurants;
+      } catch (error) {
+        console.error('Erro ao carregar restaurantes:', error);
+        setRestaurants([]);
+        setSelectedRestaurant(null);
+        return [];
+      } finally {
+        setLoading(false);
       }
-
-      await saveRestaurant(newSelectedRestaurant);
-      await initializeDeliveryDates(newSelectedRestaurant.id);
-
-      return fetchedRestaurants;
-    } catch (error) {
-      console.error('Erro ao carregar restaurantes:', error);
-      setRestaurants([]);
-      setSelectedRestaurant(null);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, [selectedRestaurant, saveRestaurant, initializeDeliveryDates]);
+    },
+    [selectedRestaurant, saveRestaurant, initializeDeliveryDates],
+  );
 
   useEffect(() => {
     const initialize = async () => {
