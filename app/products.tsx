@@ -494,8 +494,6 @@ export default function Products() {
       return { initialRestaurant: undefined, allRestaurantBlocked: false };
     }
 
-    // const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
-
     const availableRestaurants = restaurants.filter((r) => !r.registrationReleasedNewApp);
     const allRestaurantBlocked = availableRestaurants.length === 0;
 
