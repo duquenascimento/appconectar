@@ -21,6 +21,7 @@ interface RestaurantContextProps {
   updateRestaurant: (restaurant: Restaurant) => Promise<void>;
   loadRestaurants: (currentRestaurant?: Restaurant) => Promise<Restaurant[]>;
   areRestaurantsLoading: boolean;
+  hasConectarPlusAccess: boolean;
 }
 
 const RestaurantContext = createContext<RestaurantContextProps>({} as RestaurantContextProps);
@@ -139,6 +140,12 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     initialize();
   }, [authToken, saveRestaurant]);
 
+  const hasConectarPlusAccess = useMemo(() => {
+    if (!selectedRestaurant) return false;
+
+    return selectedRestaurant.premium && selectedRestaurant.conectarPlusAuthorization;
+  }, [selectedRestaurant]);
+
   const value = useMemo(
     () => ({
       loadRestaurants,
@@ -148,6 +155,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       handleRestaurantChange,
       updateRestaurant,
       areRestaurantsLoading: loading,
+      hasConectarPlusAccess,
     }),
     [
       restaurants,
@@ -156,6 +164,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       handleRestaurantChange,
       updateRestaurant,
       loading,
+      hasConectarPlusAccess,
     ],
   );
 

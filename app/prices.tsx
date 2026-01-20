@@ -21,7 +21,6 @@ import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
-import { loadPermissionConectarPlus } from '../src/services/restaurantService';
 import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
@@ -44,7 +43,6 @@ export default function Prices() {
   const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [combinations, setCombinations] = useState<Combination[]>([]);
-  const [permissionConectarPlus, setPermissionConectarPlus] = useState<boolean>(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
   const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const router = useRouter();
@@ -55,6 +53,7 @@ export default function Prices() {
     handleRestaurantChange,
     loadRestaurants,
     areRestaurantsLoading,
+    hasConectarPlusAccess,
   } = useRestaurantContext();
   const { modificado, setModificado } = useCombinacao();
   const {
@@ -66,13 +65,20 @@ export default function Prices() {
   const handleLoadPrices = useCallback(
     async (restaurant?: Restaurant) => {
       try {
+        setMainDataLoaded(false);
         setSuppliersLoading(true);
         setCombinationsLoading(true);
 
         await loadRestaurants(restaurant);
 
-        await loadPrices(restaurant?.id, deliveryDate);
+        if (restaurant) {
+          setTab(restaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER);
+        }
+
+        await loadPrices(restaurant?.externalId, deliveryDate);
+        setMainDataLoaded(true);
       } catch (err) {
+        setMainDataLoaded(false);
         console.error(err);
       } finally {
         setSuppliersLoading(false);
@@ -162,17 +168,11 @@ export default function Prices() {
 
           if (!validRestaurant) return;
 
-          if (selectedRestaurant.registrationReleasedNewApp) {
+          if (validRestaurant.registrationReleasedNewApp) {
             setShowBlockedModal(true);
           }
 
-          if (selectedRestaurant.conectarPlusAuthorization) {
-            const permissionResult = await loadPermissionConectarPlus(validRestaurant.externalId);
-            setPermissionConectarPlus(permissionResult.authorized);
-          }
-          setTab(selectedRestaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER);
-
-          await handleLoadPrices();
+          await handleLoadPrices(validRestaurant);
         } catch (err) {
           console.error(err);
         } finally {
@@ -314,13 +314,12 @@ export default function Prices() {
                     <CombinationList
                       combinationsLoading={combinationsLoading}
                       mainDataLoaded={mainDataLoaded}
-                      permissionConectarPlus={permissionConectarPlus}
                       handleConfirm={handleConfirm}
                     />
                   )}
                 </View>
               </View>
-              {tab === PricesTabs.CONECTAR_PLUS && permissionConectarPlus && (
+              {tab === PricesTabs.CONECTAR_PLUS && hasConectarPlusAccess && (
                 <CustomButton
                   title="Minhas combinações"
                   onPress={async () => {

@@ -39,14 +39,12 @@ export type RootStackParamList = {
 interface CombinationListProps {
   combinationsLoading: boolean;
   mainDataLoaded: boolean;
-  permissionConectarPlus: boolean;
   handleConfirm: () => void;
 }
 
 const CombinationList: React.FC<CombinationListProps> = ({
   combinationsLoading,
   mainDataLoaded,
-  permissionConectarPlus,
   handleConfirm,
 }) => {
   const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
@@ -58,14 +56,14 @@ const CombinationList: React.FC<CombinationListProps> = ({
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
   const { availableSuppliers } = useSupplier();
-  const { selectedRestaurant } = useRestaurantContext();
+  const { selectedRestaurant, hasConectarPlusAccess } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
   const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
       const initialize = async () => {
-        if (!selectedRestaurant || !permissionConectarPlus || !mainDataLoaded) return;
+        if (!selectedRestaurant || !hasConectarPlusAccess || !mainDataLoaded) return;
         try {
           setLoading(true);
           const cartStoredValue = JSON.parse(
@@ -104,7 +102,7 @@ const CombinationList: React.FC<CombinationListProps> = ({
         }
       };
       initialize();
-    }, [selectedRestaurant, availableSuppliers, permissionConectarPlus, mainDataLoaded]),
+    }, [selectedRestaurant, availableSuppliers, hasConectarPlusAccess, mainDataLoaded]),
   );
 
   const handleCombinationPress = async (item: Combination) => {
@@ -138,7 +136,7 @@ const CombinationList: React.FC<CombinationListProps> = ({
     },
   ];
 
-  if (combinationsLoading || confirmLoading || loading) {
+  if (combinationsLoading || confirmLoading || loading || !mainDataLoaded) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -146,7 +144,7 @@ const CombinationList: React.FC<CombinationListProps> = ({
     );
   }
 
-  if (!permissionConectarPlus && mainDataLoaded) {
+  if (!hasConectarPlusAccess) {
     return (
       <View
         padding={20}
@@ -191,10 +189,6 @@ const CombinationList: React.FC<CombinationListProps> = ({
         </Text>
       </View>
     );
-  }
-
-  if (!mainDataLoaded || !permissionConectarPlus) {
-    return null;
   }
 
   if (minecombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
