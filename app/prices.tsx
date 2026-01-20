@@ -64,12 +64,15 @@ export default function Prices() {
   } = useDeliveryDate();
 
   const handleLoadPrices = useCallback(
-    async (restaurantId?: string) => {
+    async (restaurantId?: string, skipRestaurantsReload = false) => {
       try {
         setSuppliersLoading(true);
         setCombinationsLoading(true);
 
-        await loadRestaurants();
+        if (!skipRestaurantsReload) {
+          await loadRestaurants();
+        }
+
         await loadPrices(restaurantId, deliveryDate);
       } catch (err) {
         console.error(err);
@@ -78,7 +81,7 @@ export default function Prices() {
         setCombinationsLoading(false);
       }
     },
-    [deliveryDate, loadPrices, loadRestaurants, initializeDeliveryDates],
+    [deliveryDate, selectedRestaurant, loadPrices, loadRestaurants, initializeDeliveryDates],
   );
 
   const isTabLoading = (tab: PricesTabs): boolean => {

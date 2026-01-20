@@ -14,7 +14,7 @@ import CustomAlert from '../modais/CustomAlert';
 interface RestaurantInfoDialogProps {
   visible: boolean;
   onClose: () => void;
-  handleLoadPrices: (value?: any) => void;
+  handleLoadPrices: (restaurantId?: string, skipRestaurantsReload?: boolean) => Promise<void>;
 }
 
 export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
@@ -261,7 +261,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
     await updateRestaurant(rest);
 
-    handleLoadPrices(undefined);
+    handleLoadPrices(rest.id, true);
 
     setDialogLoading(false);
     onClose();
@@ -271,7 +271,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     onClose();
     setDraftSelectedRestaurant(null);
     setDialogLoading(false);
-    handleLoadPrices();
+    handleLoadPrices(undefined, false);
   };
 
   const handleRestaurantDropdownChange = (restaurantName?: string) => {
@@ -357,7 +357,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       }}
                     ></DropDownPicker>
                   ) : (
-                    <Text>Loading...</Text>
+                    <Text>Carregando...</Text>
                   )}
                   <View
                     paddingTop={10}
@@ -761,7 +761,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                           }}
                         ></DropDownPicker>
                       ) : (
-                        <Text>Loading...</Text>
+                        <Text>Carregando...</Text>
                       )}
                       <View
                         style={{
@@ -1227,16 +1227,6 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
           onConfirm={() => setIsAlertVisible(false)}
         />
       </Modal>
-      <DialogComercialInstance
-        openModal={showBlockedModal}
-        setOpenModal={setShowBlockedModal}
-        setRegisterInvalid={setShowBlockedModal}
-        rest={allRestaurants}
-        messageText="Este restaurante não está liberado para fazer cotações. Entre em contato conosco ou selecione outro restaurante disponível."
-        onSelectAvailable={async () => {
-          // This should be handled by the parent component
-        }}
-      />
     </View>
   );
 };

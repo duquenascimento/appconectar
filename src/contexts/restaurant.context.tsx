@@ -16,7 +16,7 @@ import { useDeliveryDate } from './deliveryDate.context';
 interface RestaurantContextProps {
   restaurants: Restaurant[];
   selectedRestaurant?: Restaurant | null;
-  setSelectedRestaurant: (restaurant: Restaurant | null) => void;
+  saveRestaurant: (restaurant: Restaurant) => Promise<void>;
   handleRestaurantChange: (restaurant: Restaurant | null) => Promise<void>;
   updateRestaurant: (restaurant: Restaurant) => Promise<void>;
   loadRestaurants: () => Promise<Restaurant[]>;
@@ -32,13 +32,13 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   const { authToken } = useAuthContext();
   const { initializeDeliveryDates } = useDeliveryDate();
 
-  const saveRestaurant = useCallback(async (restaurant: Restaurant) => {
+  const saveRestaurant = useCallback(async (restaurant: Restaurant): Promise<void> => {
     setSelectedRestaurant(restaurant);
     await setStorageRestaurant(restaurant);
   }, []);
 
   const handleRestaurantChange = useCallback(
-    async (restaurant: Restaurant | null) => {
+    async (restaurant: Restaurant | null): Promise<void> => {
       try {
         if (!restaurant) return;
 
@@ -59,7 +59,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
   );
 
   const updateRestaurant = useCallback(
-    async (data: Partial<Restaurant>) => {
+    async (data: Partial<Restaurant>): Promise<void> => {
       if (!selectedRestaurant) return;
 
       await updateRestaurantDeliveryInfo(selectedRestaurant.id, data);
@@ -89,7 +89,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
 
       let newSelectedRestaurant = selectedRestaurant;
 
-      if (newSelectedRestaurant && fetchedRestaurants.length > 0) {
+      if (newSelectedRestaurant !== null && fetchedRestaurants.length > 0) {
         const listRestaurant = fetchedRestaurants.find(
           (r) => r.externalId === newSelectedRestaurant?.externalId,
         );
@@ -141,12 +141,19 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       loadRestaurants,
       restaurants,
       selectedRestaurant,
-      setSelectedRestaurant,
+      saveRestaurant,
       handleRestaurantChange,
       updateRestaurant,
       areRestaurantsLoading: loading,
     }),
-    [restaurants, selectedRestaurant, handleRestaurantChange, updateRestaurant, loading],
+    [
+      restaurants,
+      selectedRestaurant,
+      saveRestaurant,
+      handleRestaurantChange,
+      updateRestaurant,
+      loading,
+    ],
   );
 
   return <RestaurantContext.Provider value={value}>{children}</RestaurantContext.Provider>;

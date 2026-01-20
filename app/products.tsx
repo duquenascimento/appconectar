@@ -457,7 +457,7 @@ export default function Products() {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
+  const { selectedRestaurant, restaurants, saveRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
   const { logout } = useAuthContext();
   const {
@@ -867,8 +867,7 @@ export default function Products() {
         onSelectAvailable={() => {
           const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
           if (availableRestaurant) {
-            setStorageRestaurant(availableRestaurant);
-            setSelectedRestaurant(availableRestaurant);
+            saveRestaurant(availableRestaurant);
             setShowRegistrationReleasedNewApp(false);
             loadFavorites();
             loadCart();
