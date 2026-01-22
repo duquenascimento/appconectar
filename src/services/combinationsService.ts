@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { SameDayOrder } from '../types/types';
+import { Combinacao } from '../types/combinationTypes';
+import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -71,7 +73,7 @@ export const getCombinationsByRestaurant = async (restaurantId: string) => {
 
 export const getAllQuotationByRestaurant = async (body: QuotationApiRequest): Promise<QuotationApiResponse> => {
   try {
-    const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/cotacao/calcular`, body);
+    const response = await axios.post(`${API_URL}/cotacao/calcular`, body);
     return response.data.data;
   } catch (error) {
     console.error('Erro ao obter cotações por restaurante:', error);
@@ -81,7 +83,16 @@ export const getAllQuotationByRestaurant = async (body: QuotationApiRequest): Pr
 
 export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
   const response = await axios.get(
-    `${process.env.EXPO_PUBLIC_API_URL}/combination/${restaurantId}`,
+    `${API_URL}/combination/${restaurantId}`,
   );
   return response.data;
+};
+
+export const getDefaultCombinations = async (): Promise<Combinacao[]> => {
+  const response = await axios.get(`${API_URL}/combination_default`, {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+        },
+      });
+  return response.data.data;
 };

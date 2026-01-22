@@ -1,25 +1,25 @@
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
+import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
-import { View } from 'tamagui';
+import { Button, Text, View } from 'tamagui';
+import { validate as validateUuid } from 'uuid';
+import { useDeliveryDate } from '../contexts/deliveryDate.context';
 import { useSupplier } from '../contexts/fornecedores.context';
 import { useRestaurantContext } from '../contexts/restaurant.context';
-import {
-  getAllQuotationByRestaurant,
-  QuotationApiResponse,
-  QuotationApiResponseData,
-} from '../services/combinationsService';
+import { QuotationApiResponse, QuotationApiResponseData } from '../services/combinationsService';
+import { confirmPremiumOrder } from '../services/orderService';
+import { getQuotationsByCombination } from '../services/quotationService';
 import { Combination, CombinationMissingProducts } from '../types/combinationTypes';
-import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
+import { ChosenSupplierQuote } from '../types/suppliersDataTypes';
 import { SupplierData } from '../types/types';
 import { transformCombinationFromApi } from '../utils/combinacaoUtils';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
+import DialogInstanceNotification from './modais/DialogInstanceNotification';
 import CustomSubtitle from './subtitle/customSubtitle';
-import { getQuotationsByCombination } from '../services/quotationService';
-import { useDeliveryDate } from '../hooks/useDeliveryDate';
 
 export type RootStackParamList = {
   Sign: undefined;
@@ -37,22 +37,35 @@ export type RootStackParamList = {
   };
 };
 
-const CombinationList: React.FC = () => {
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
+interface CombinationListProps {
+  combinationsLoading: boolean;
+  mainDataLoaded: boolean;
+  handleConfirm: () => void;
+}
+
+const CombinationList: React.FC<CombinationListProps> = ({
+  combinationsLoading,
+  mainDataLoaded,
+  handleConfirm,
+}) => {
+  const [myCombinations, setMyCombinations] = useState<Combination[]>([]);
+  const [conectarCombinations, setConectarCombinations] = useState<Combination[]>([]);
   const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [combinationData, setCombinationData] = useState<QuotationApiResponseData[]>([]);
+  const [showNotification, setShowNotification] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
   const { availableSuppliers } = useSupplier();
-  const { selectedRestaurant } = useRestaurantContext();
+  const { selectedRestaurant, hasConectarPlusAccess } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
   const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
       const initialize = async () => {
-        if (!selectedRestaurant) return;
+        if (!selectedRestaurant || !hasConectarPlusAccess || !mainDataLoaded) return;
         try {
           setLoading(true);
           const cartStoredValue = JSON.parse(
@@ -81,7 +94,8 @@ const CombinationList: React.FC = () => {
             availableSuppliers,
           );
 
-          setMineCombinations(availableCombinations);
+          setMyCombinations(availableCombinations.filter((c) => validateUuid(c.id)));
+          setConectarCombinations(availableCombinations.filter((c) => !validateUuid(c.id)));
           setUnavailableCombinations(unavailableCombinations);
         } catch (error) {
           setIsAlertVisible(true);
@@ -91,16 +105,13 @@ const CombinationList: React.FC = () => {
         }
       };
       initialize();
-    }, [selectedRestaurant, availableSuppliers]),
+    }, [selectedRestaurant, availableSuppliers, hasConectarPlusAccess, mainDataLoaded]),
   );
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
     const combinationSelected = selectedCombination as ChosenSupplierQuote[];
-    const mergedData: any = mergeSupplierData(
-      combinationSelected,
-      availableSuppliers,
-    );
+    const mergedData: any = mergeSupplierData(combinationSelected, availableSuppliers);
 
     const params = {
       combinationId: item.id,
@@ -118,17 +129,81 @@ const CombinationList: React.FC = () => {
   };
 
   const sections = [
-    { title: 'Minhas combinações', data: minecombinations },
+    {
+      title: myCombinations.length > 0 ? 'Minhas combinações' : '',
+      data: myCombinations,
+    },
+    {
+      title: conectarCombinations.length > 0 ? 'Combinações Conéctar' : '',
+      data: conectarCombinations,
+    },
     {
       title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
       data: unavailableCombinations,
     },
   ];
 
-  if (loading) {
+  if (combinationsLoading || confirmLoading || loading || !mainDataLoaded) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
+      </View>
+    );
+  }
+
+  if (!hasConectarPlusAccess) {
+    return (
+      <View
+        padding={20}
+        marginTop={10}
+        width={Platform.OS === 'web' ? '73%' : '92%'}
+        alignSelf="center"
+      >
+        <DialogInstanceNotification
+          openModal={showNotification}
+          setOpenModal={setShowNotification}
+          title="Pronto!"
+          subtitle="Cotação solicitada."
+          description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação."
+          buttonText="Ok"
+          onConfirm={handleConfirm}
+        />
+
+        <Button
+          backgroundColor="#04BF7B"
+          onPress={async () => {
+            setConfirmLoading(true);
+
+            const result = await confirmPremiumOrder({
+              token: await getToken(),
+              selectedRestaurant,
+              deliveryDate: deliveryDate,
+            });
+
+            if (result.status === HttpStatusCode.Ok) {
+              setShowNotification(true);
+            }
+
+            setConfirmLoading(false);
+          }}
+        >
+          <Text fontWeight="500" fontSize={16} color="white">
+            Solicitar cotação
+          </Text>
+        </Button>
+        <Text marginTop={5} textAlign="center" fontSize={12} color="gray">
+          Você receberá a cotação no Whatsapp
+        </Text>
+      </View>
+    );
+  }
+
+  if (myCombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
+    return (
+      <View flex={1} justifyContent="center" alignItems="center" padding={20}>
+        <CustomSubtitle>
+          Nenhuma combinação encontrada para o restaurante selecionado.
+        </CustomSubtitle>
       </View>
     );
   }
@@ -157,6 +232,12 @@ const CombinationList: React.FC = () => {
             supplierClosed={item.supplierClosed}
             sameDayOrders={item.sameDayOrders}
             unavailable={!!unavailableCombinations.includes(item)}
+            terminationCondition={item.terminationCondition}
+            tooltip={
+              !validateUuid(item.id) && !!unavailableCombinations.includes(item)
+                ? 'A falta de fornecedores pode acontecer devido ao horário do seu pedido ou à região de entrega.'
+                : undefined
+            }
             onPress={() => handleCombinationPress(item)}
           />
         )}

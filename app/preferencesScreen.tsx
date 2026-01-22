@@ -10,7 +10,7 @@ import CustomListItem from '../src/components/list/customListItem';
 import CustomSubtitle from '../src/components/subtitle/customSubtitle';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { useCombinacao } from '../src/contexts/combinacao.context';
-import { getCombinationsByRestaurant } from '../src/services/combinationsService';
+import { getCombinationsByRestaurant, getDefaultCombinations } from '../src/services/combinationsService';
 import { Combinacao, Combination } from '../src/types/combinationTypes';
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
 import { mapCombination } from '../src/utils/mapCombination';
@@ -33,6 +33,7 @@ export default function PreferencesScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao();
   const [combinationsFull, setCombinationsFull] = useState<any[]>([]);
+  const [defaultCombinations, setDefaultCombinations] = useState<Combinacao[]>([]);
   const { loadPrices } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
 
@@ -56,6 +57,10 @@ export default function PreferencesScreen() {
 
     try {
       const res = await getCombinationsByRestaurant(restaurantId);
+      const resDefault = await getDefaultCombinations();
+      if(Array.isArray(resDefault)) {
+        setDefaultCombinations(resDefault);
+      }
       if (Array.isArray(res.return)) {
         setCombinations(res.return.map(mapCombination));
         setCombinationsFull(res.return);
@@ -146,8 +151,22 @@ export default function PreferencesScreen() {
                 combination={item.combination}
                 createdAt={item.createdAt}
                 onPress={handleCombinationPress}
+                sameDayOrders={[]}
               />
             ))
+          )}
+          {defaultCombinations.length > 0 && (
+            <>
+              <CustomSubtitle>Combinações Conéctar</CustomSubtitle>
+              {defaultCombinations.map((item) => (
+                <CustomListItem
+                  key={item.nome}
+                  id={item.nome}
+                  combination={item.nome}
+                  sameDayOrders={[]}
+                />
+              ))}
+            </>
           )}
         </YStack>
       </ScrollView>

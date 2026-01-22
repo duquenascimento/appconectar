@@ -3,6 +3,7 @@ import { DialogInstance } from '@/src/components/confirm/dialogInstance';
 import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { SupplierData } from '@/src/types/types';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { HttpStatusCode } from 'axios';
@@ -16,9 +17,9 @@ import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
+import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
@@ -26,7 +27,6 @@ import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
-import { type SupplierData } from './prices';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({

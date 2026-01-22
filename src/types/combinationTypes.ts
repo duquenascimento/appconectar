@@ -62,6 +62,7 @@ export interface Combination {
   combinationAvailable?: boolean;
   sameDayOrders: SameDayOrder[];
   unavailable?: boolean;
+  terminationCondition?: string;
 }
 
 export interface SuplierCombination {

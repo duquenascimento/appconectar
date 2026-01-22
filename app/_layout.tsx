@@ -1,6 +1,7 @@
 import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
+import { DeliveryDateProvider } from '@/src/contexts/deliveryDate.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
@@ -9,10 +10,15 @@ import { checkLocalVersionAndClearData } from '@/src/services/versionService';
 import { useFonts } from 'expo-font';
 import { Stack, useSegments } from 'expo-router';
 import { useEffect } from 'react';
-import { ActivityIndicator, BackHandler, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
+
+// Import react-datepicker CSS for web platform
+if (Platform.OS === 'web') {
+  require('react-datepicker/dist/react-datepicker.css');
+}
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -47,29 +53,31 @@ export default function RootLayout() {
   return (
     <TamaguiProvider config={config}>
       <AuthProvider>
-        <RestaurantProvider>
-          <FavoritesProvider>
-            <ProductProvider>
-              <CombinacaoProvider>
-                <SupplierProvider>
-                  {isScreenLoading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                      <ActivityIndicator size="large" color="#04BF7B" />
-                    </View>
-                  ) : (
-                    <Stack
-                      screenOptions={{
-                        headerShown: false,
-                        animation: 'slide_from_right',
-                        gestureEnabled: true,
-                      }}
-                    />
-                  )}
-                </SupplierProvider>
-              </CombinacaoProvider>
-            </ProductProvider>
-          </FavoritesProvider>
-        </RestaurantProvider>
+        <DeliveryDateProvider>
+          <RestaurantProvider>
+            <FavoritesProvider>
+              <ProductProvider>
+                <CombinacaoProvider>
+                  <SupplierProvider>
+                    {isScreenLoading ? (
+                      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#04BF7B" />
+                      </View>
+                    ) : (
+                      <Stack
+                        screenOptions={{
+                          headerShown: false,
+                          animation: 'slide_from_right',
+                          gestureEnabled: true,
+                        }}
+                      />
+                    )}
+                  </SupplierProvider>
+                </CombinacaoProvider>
+              </ProductProvider>
+            </FavoritesProvider>
+          </RestaurantProvider>
+        </DeliveryDateProvider>
       </AuthProvider>
     </TamaguiProvider>
   );

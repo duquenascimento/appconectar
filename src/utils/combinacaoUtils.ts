@@ -75,6 +75,7 @@ export function transformCombinationFromApi(data: QuotationApiResponseData[], to
       totalValue: item.resultadoCotacao?.totalOrderValue,
       missingItems: missingItems < 0 ? 0 : missingItems,
       missingProducts: missingProducts,
+      terminationCondition: item.resultadoCotacao.status === 'ok' ? undefined : item.resultadoCotacao?.terminationCondition,
       sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
     };
   });

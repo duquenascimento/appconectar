@@ -46,6 +46,7 @@ import { loadProductObservations, saveProductObservations } from '../src/utils/p
 import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
 import { normalizeText } from '../src/utils/stringUtils';
 import { getToken } from '../src/utils/utils';
+import DialogBlockInstance from '@/src/components/dialogBlockInstance';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -457,7 +458,7 @@ export default function Products() {
   const [updateRequired, setUpdateRequired] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const { productsContext, isLoading } = useProductContext();
-  const { selectedRestaurant, restaurants, setSelectedRestaurant } = useRestaurantContext();
+  const { selectedRestaurant, restaurants, saveRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
   const { logout } = useAuthContext();
   const {
@@ -489,25 +490,25 @@ export default function Products() {
     initialRestaurant: Restaurant | undefined | null;
     allRestaurantBlocked: boolean;
   }> => {
-    if (restaurants.length === 0 || !restaurants) {
+    if (!restaurants || restaurants.length === 0) {
       return { initialRestaurant: undefined, allRestaurantBlocked: false };
     }
 
-    const validRestaurants = Array.isArray(restaurants) ? restaurants : [];
-
-    const availableRestaurants = validRestaurants.filter((r) => !r.registrationReleasedNewApp);
+    const availableRestaurants = restaurants.filter((r) => !r.registrationReleasedNewApp);
     const allRestaurantBlocked = availableRestaurants.length === 0;
 
     let initialRestaurant = contextRestaurant;
-    if (!allRestaurantBlocked) {
-      initialRestaurant = availableRestaurants[0];
 
-      if (contextRestaurant) {
-        const found = availableRestaurants.find((r) => r.id === contextRestaurant.id);
-        if (found) initialRestaurant = found;
-      }
+    if (!contextRestaurant && !allRestaurantBlocked) {
+      initialRestaurant = availableRestaurants[0];
     }
-    if (initialRestaurant) {
+
+    if (contextRestaurant) {
+      const exists = restaurants.find((r) => r.id === contextRestaurant.id);
+      if (exists) initialRestaurant = exists;
+    }
+
+    if  (initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 
@@ -607,12 +608,12 @@ export default function Products() {
           const cartMap = await loadCart();
 
           const restFilteredComercial = initialRestaurant?.registrationReleasedNewApp === true;
-          const restFilteredFinance = restaurants.filter((item: any) => item.financeBlock);
+          const restFilteredFinance = initialRestaurant?.financeBlock === true;
           if (restFilteredComercial || allRestaurantBlocked) {
             setShowRegistrationReleasedNewApp(true);
           }
 
-          if (restFilteredFinance.length) {
+          if (restFilteredFinance) {
             setShowFinanceBlock(true);
           }
 
@@ -846,6 +847,18 @@ export default function Products() {
     [cart, currentClass, favorites, saveCart, toggleFavorite, productObservations, addObservation],
   );
 
+  const handleSwitchRestaurant = async (nextRest: Restaurant) => {
+    setLoading(true);
+    await saveRestaurant(nextRest);
+
+    setShowRegistrationReleasedNewApp(false);
+    setShowFinanceBlock(false);
+
+    await loadFavorites();
+    await loadCart();
+    setLoading(false);
+  };
+
   if (loading || !selectedRestaurant) {
     return (
       <PageContainer backgroundColor="white">
@@ -858,29 +871,21 @@ export default function Products() {
 
   return (
     <PageContainer backgroundColor="white">
-      <DialogComercialInstance
+      <DialogBlockInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
-        setRegisterInvalid={setShowRegistrationReleasedNewApp}
         rest={restaurants}
-        messageText="Este restaurante não está liberado. Entre em contato conosco para concluir o processo."
-        onSelectAvailable={() => {
-          const availableRestaurant = restaurants.find((r) => !r.registrationReleasedNewApp);
-          if (availableRestaurant) {
-            setStorageRestaurant(availableRestaurant);
-            setSelectedRestaurant(availableRestaurant);
-            setShowRegistrationReleasedNewApp(false);
-            loadFavorites();
-            loadCart();
-          }
-        }}
+        variant="comercial"
+        onSelectAvailable={handleSwitchRestaurant}
+      />
+      <DialogBlockInstance
+        openModal={showFinanceBlock}
+        setOpenModal={setShowFinanceBlock}
+        rest={restaurants}
+        variant="financial"
+        onSelectAvailable={handleSwitchRestaurant}
       />
       <UpdateAppModal openModal={updateRequired} message={updateMessage} />
-      <DialogFinanceInstance
-        openModal={showFinanceBlock}
-        setRegisterInvalid={setShowFinanceBlock}
-        rest={restaurants}
-      />
       <Modal visible={isModalVisible} transparent onRequestClose={() => setModalVisible(false)}>
         <TouchableOpacity
           style={{
@@ -929,7 +934,7 @@ export default function Products() {
 
       <HeaderText>Meus Restaurantes</HeaderText>
 
-      <DropDownPickerRestaurant />
+      <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
