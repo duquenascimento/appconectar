@@ -39,6 +39,7 @@ export default function Prices() {
   const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
   const [isConectarAlertVisible, setIsConectarAlertVisible] = useState(false);
   const [emergencyAlertVisible, setEmergencyAlertVisible] = useState<boolean>(false);
+  const [retroactiveAlertVisible, setRetroactiveAlertVisible] = useState<boolean>(false);
   const [deliveryDatesAlertVisible, setDeliveryDatesAlertVisible] = useState<boolean>(true);
   const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
@@ -330,6 +331,7 @@ export default function Prices() {
               <RestaurantInfoDisplay
                 onEditPress={() => setEditInfos(true)}
                 setEmergencyAlertVisible={setEmergencyAlertVisible}
+                setRetroactiveAlertVisible={setRetroactiveAlertVisible}
               />
               <RestaurantInfoDialog
                 visible={editInfos}
@@ -349,6 +351,12 @@ export default function Prices() {
             title="Este é um pedido de emergência"
             message="Fique atento à data de entrega do pedido"
             onConfirm={() => setEmergencyAlertVisible(false)}
+          />
+          <CustomAlert
+            visible={retroactiveAlertVisible}
+            title="Cotação Retroativa"
+            message="Você está em modo de cotação retroativa para verificar preços anteriores. As cotações feitas neste modo não serão enviadas aos fornecedores."
+            onConfirm={() => setRetroactiveAlertVisible(false)}
           />
           <CustomAlert
             visible={deliveryDateErrorMessage !== null && deliveryDatesAlertVisible}
