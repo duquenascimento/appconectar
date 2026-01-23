@@ -203,6 +203,7 @@ export default function Confirm() {
           token,
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
+          appVersion: process.env.EXPO_PUBLIC_VERSION,
           deliveryDate: selectedRestaurant.allowEmergencyOrder
             ? getBrazilDateTime().toISODate()
             : deliveryDate,

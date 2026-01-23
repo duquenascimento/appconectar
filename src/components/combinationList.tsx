@@ -57,7 +57,7 @@ const CombinationList: React.FC<CombinationListProps> = ({
   const [showNotification, setShowNotification] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
-  const { availableSuppliers } = useSupplier();
+  const { availableSuppliers, getSuppliersFromStorage } = useSupplier();
   const { selectedRestaurant, hasConectarPlusAccess } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
   const router = useRouter();
@@ -66,6 +66,12 @@ const CombinationList: React.FC<CombinationListProps> = ({
     useCallback(() => {
       const initialize = async () => {
         if (!selectedRestaurant || !hasConectarPlusAccess || !mainDataLoaded) return;
+
+        if (availableSuppliers.length === 0) {
+          await getSuppliersFromStorage();
+          return;
+        }
+
         try {
           setLoading(true);
           const cartStoredValue = JSON.parse(

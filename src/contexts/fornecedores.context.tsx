@@ -1,4 +1,4 @@
-import { setStorage, STORAGE_DEFAULT_KEYS } from '@/src/utils/utils';
+import { getStorage, setStorage, STORAGE_DEFAULT_KEYS } from '@/src/utils/utils';
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { getQuotationsBySupplier } from '../services/quotationService';
 import { SupplierData } from '../types/types';
@@ -9,6 +9,7 @@ interface SupplierContextType {
   availableSuppliers: SupplierData[];
   unavailableSuppliers: SupplierData[];
   loadingSuppliers: boolean;
+  getSuppliersFromStorage: () => Promise<void>;
   loadPrices: (restaurantId?: string, deliveryDate?: string) => Promise<void>;
 }
 
@@ -39,6 +40,28 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
       });
     } catch (error) {
       console.error('Erro ao salvar fornecedores no AsyncStorage:', error);
+    }
+  };
+
+  const getSuppliersFromStorage = async () => {
+    try {
+      const availableSuppliers = await getStorage(
+        STORAGE_DEFAULT_KEYS.AVAILABLE_SUPPLIERS, 
+      ).catch(
+        () => {
+          console.warn('Falha ao recuperar fornecedores disponíveis no Storage');
+        },
+      );
+     const unavailableSuppliers = await getStorage(
+        STORAGE_DEFAULT_KEYS.UNAVAILABLE_SUPPLIERS,
+      ).catch(() => {
+        console.warn('Falha ao recuperar os fornecedores indisponíveis no Storage');
+      });
+
+      setAvailableSuppliers(JSON.parse(availableSuppliers ?? '[]'));
+      setUnavailableSuppliers(JSON.parse(unavailableSuppliers ?? '[]'));
+    } catch (error) {
+      console.error('Erro ao recuperar os fornecedores no AsyncStorage:', error);
     }
   };
 
@@ -73,6 +96,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   );
 
   const value = {
+    getSuppliersFromStorage,
     availableSuppliers,
     unavailableSuppliers,
     loadingSuppliers,

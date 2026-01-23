@@ -247,16 +247,8 @@ export default function QuotationDetailsScreen() {
 
         setIsLoading(true);
 
-        const body: ConfirmConectarPlusOrderRequestBody = {
-          token,
-          suppliers: suppliers.map((s) => s.supplier),
-          restaurant: restaurantData,
-          deliveryDate,
-          missingProducts: parsedMissingProducts,
-        };
-
         if (scheduleId) {
-          await confirmScheduleOrder(scheduleId, {});
+          await confirmScheduleOrder(scheduleId, { appVersion: process.env.EXPO_PUBLIC_VERSION });
           router.push({
             pathname: '/orderConfirmedScreen',
             params: {
@@ -266,6 +258,15 @@ export default function QuotationDetailsScreen() {
           });
           return;
         }
+
+        const body: ConfirmConectarPlusOrderRequestBody = {
+          token,
+          suppliers: suppliers.map((s) => s.supplier),
+          restaurant: restaurantData,
+          deliveryDate,
+          appVersion: process.env.EXPO_PUBLIC_VERSION,
+          missingProducts: parsedMissingProducts,
+        };
 
         const createdOrders = await confirmConectarPlusOrder(body);
         if (createdOrders && createdOrders.status === HttpStatusCode.Ok) {
