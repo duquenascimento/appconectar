@@ -47,3 +47,14 @@ export interface Supplier {
 export interface SupplierData {
   supplier: Supplier;
 }
+
+export interface SuppliersQuotationDTO {
+  availableSuppliers: SupplierData[]
+  unavailableSuppliers: SupplierData[]
+}
+
+export interface GetSuppliersQuotationResponseDTO {
+  success: boolean
+  statusCode: number
+  data: SuppliersQuotationDTO
+}

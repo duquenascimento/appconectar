@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { SameDayOrder } from '../types/types';
+import { Combinacao } from '../types/combinationTypes';
+import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -16,7 +18,7 @@ export interface CombinationApiResponse {
   preferencias_hard: boolean;
 }
 
-export interface QuotationApiResponse {
+export interface QuotationApiResponseData {
   id: string;
   nome: string;
   resultadoCotacao: {
@@ -48,6 +50,11 @@ export interface QuotationApiResponse {
   };
 }
 
+export interface QuotationApiResponse {
+  availableCombinations: QuotationApiResponseData[]
+  unavailableCombinations: QuotationApiResponseData[]
+}
+
 export interface QuotationApiRequest {
   token?: string | null;
   selectedRestaurant: {
@@ -64,10 +71,10 @@ export const getCombinationsByRestaurant = async (restaurantId: string) => {
   return response.data;
 };
 
-export const getAllQuotationByRestaurant = async (body: QuotationApiRequest) => {
+export const getAllQuotationByRestaurant = async (body: QuotationApiRequest): Promise<QuotationApiResponse> => {
   try {
-    const response = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/cotacao/calcular`, body);
-    return response.data;
+    const response = await axios.post(`${API_URL}/cotacao/calcular`, body);
+    return response.data.data;
   } catch (error) {
     console.error('Erro ao obter cotações por restaurante:', error);
     throw error;
@@ -76,7 +83,16 @@ export const getAllQuotationByRestaurant = async (body: QuotationApiRequest) => 
 
 export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
   const response = await axios.get(
-    `${process.env.EXPO_PUBLIC_API_URL}/combination/${restaurantId}`,
+    `${API_URL}/combination/${restaurantId}`,
   );
   return response.data;
+};
+
+export const getDefaultCombinations = async (): Promise<Combinacao[]> => {
+  const response = await axios.get(`${API_URL}/combination_default`, {
+        headers: {
+          Authorization: `Bearer ${await getToken()}`,
+        },
+      });
+  return response.data.data;
 };

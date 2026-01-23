@@ -1,36 +1,25 @@
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
 import { getStorage, getToken } from '@/src/utils/utils';
+import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
-import { View } from 'tamagui';
+import { Button, Text, View } from 'tamagui';
+import { validate as validateUuid } from 'uuid';
+import { useDeliveryDate } from '../contexts/deliveryDate.context';
 import { useSupplier } from '../contexts/fornecedores.context';
 import { useRestaurantContext } from '../contexts/restaurant.context';
-import { getAllQuotationByRestaurant, QuotationApiResponse } from '../services/combinationsService';
-import { AvailableSupplier, ChosenSupplierQuote } from '../types/suppliersDataTypes';
-import { SameDayOrder, SupplierData } from '../types/types';
+import { QuotationApiResponse, QuotationApiResponseData } from '../services/combinationsService';
+import { confirmPremiumOrder } from '../services/orderService';
+import { getQuotationsByCombination } from '../services/quotationService';
+import { Combination, CombinationMissingProducts } from '../types/combinationTypes';
+import { ChosenSupplierQuote } from '../types/suppliersDataTypes';
+import { SupplierData } from '../types/types';
+import { transformCombinationFromApi } from '../utils/combinacaoUtils';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
+import DialogInstanceNotification from './modais/DialogInstanceNotification';
 import CustomSubtitle from './subtitle/customSubtitle';
-
-export interface CombinationMissingProducts {
-  code: string;
-  name: string;
-}
-
-export interface Combination {
-  id: string;
-  combination: string;
-  supplier?: string;
-  totalValue?: number;
-  delivery?: string;
-  missingItems?: number;
-  missingProducts?: CombinationMissingProducts[];
-  createdAt?: string;
-  supplierClosed?: string;
-  combinationAvailable?: boolean;
-  sameDayOrders: SameDayOrder[];
-}
 
 export type RootStackParamList = {
   Sign: undefined;
@@ -48,97 +37,66 @@ export type RootStackParamList = {
   };
 };
 
-const CombinationList: React.FC = () => {
-  const [minecombinations, setMineCombinations] = useState<Combination[]>([]);
+interface CombinationListProps {
+  combinationsLoading: boolean;
+  mainDataLoaded: boolean;
+  handleConfirm: () => void;
+}
+
+const CombinationList: React.FC<CombinationListProps> = ({
+  combinationsLoading,
+  mainDataLoaded,
+  handleConfirm,
+}) => {
+  const [myCombinations, setMyCombinations] = useState<Combination[]>([]);
+  const [conectarCombinations, setConectarCombinations] = useState<Combination[]>([]);
   const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
-  const [combinationData, setCombinationData] = useState<QuotationApiResponse[]>([]);
+  const [combinationData, setCombinationData] = useState<QuotationApiResponseData[]>([]);
+  const [showNotification, setShowNotification] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
-  const { suppliers, unavailableSupplier } = useSupplier();
-  const { selectedRestaurant } = useRestaurantContext();
+  const { availableSuppliers } = useSupplier();
+  const { selectedRestaurant, hasConectarPlusAccess } = useRestaurantContext();
+  const { deliveryDate } = useDeliveryDate();
   const router = useRouter();
-
-  const getProductNameBySku = (sku: string, suppliers: SupplierData[]) => {
-    for (const supplier of suppliers) {
-      const product = supplier.supplier.discount.product.find((p) => p.sku === sku);
-      if (product) {
-        return product.name;
-      }
-    }
-
-    return 'Produto desconhecido';
-  };
 
   useFocusEffect(
     useCallback(() => {
       const initialize = async () => {
-        if (!selectedRestaurant) return;
+        if (!selectedRestaurant || !hasConectarPlusAccess || !mainDataLoaded) return;
         try {
           setLoading(true);
-          const token = await getToken();
           const cartStoredValue = JSON.parse(
             (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
           );
-          const combinationsData: QuotationApiResponse[] = await getAllQuotationByRestaurant({
-            token,
-            selectedRestaurant,
-            cart: cartStoredValue,
-            prices: [...suppliers],
+
+          const combinationsData: QuotationApiResponse = await getQuotationsByCombination({
+            restaurantId: selectedRestaurant.id,
+            deliveryDate: deliveryDate,
           });
 
           const totalItens = cartStoredValue?.length || 0;
-          setCombinationData(combinationsData);
+          setCombinationData([
+            ...combinationsData.availableCombinations,
+            ...combinationsData.unavailableCombinations,
+          ]);
 
-          const transformed: Combination[] = combinationsData.map((item) => {
-            const suppliersNames =
-              item.resultadoCotacao?.supplier?.map((c) => c.name.split('-')[0]).join(' + ') ||
-              'N/A';
-            const cartItens =
-              item.resultadoCotacao?.supplier?.reduce((acc, cesta) => {
-                return acc + (cesta.cart?.length || 0);
-              }, 0) || 0;
-            const missingItems = totalItens - cartItens;
-
-            const missingProducts: CombinationMissingProducts[] =
-              item.resultadoCotacao?.missingProducts?.map((sku) => ({
-                code: sku,
-                name: getProductNameBySku(sku, suppliers),
-              })) ?? [];
-
-            return {
-              id: item.id,
-              combination: item.nome,
-              supplier: suppliersNames,
-              totalValue: item.resultadoCotacao?.totalOrderValue,
-              missingItems: missingItems < 0 ? 0 : missingItems,
-              missingProducts: missingProducts,
-              sameDayOrders: item.resultadoCotacao?.supplier?.flatMap((s) => s.sameDayOrders) || [],
-            };
-          });
-          const unavailableSupplierNames = unavailableSupplier.map((s) => s.supplier.name);
-
-          const unavailableCombinationList = transformed.filter(
-            (item) =>
-              item.totalValue === 0 ||
-              unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
+          const availableCombinations = transformCombinationFromApi(
+            combinationsData.availableCombinations,
+            totalItens,
+            availableSuppliers,
+          );
+          const unavailableCombinations = transformCombinationFromApi(
+            combinationsData.unavailableCombinations,
+            totalItens,
+            availableSuppliers,
           );
 
-          const availableCombinationList = transformed
-            .filter(
-              (item) =>
-                item.totalValue !== 0 &&
-                !unavailableSupplierNames.some((name) => item.supplier?.includes(name)),
-            )
-            .sort((a, b) => {
-              if (a.missingItems !== b.missingItems) {
-                return (a.missingItems ?? 0) - (b.missingItems ?? 0);
-              }
-              return (a.totalValue ?? 0) - (b.totalValue ?? 0);
-            });
-
-          setUnavailableCombinations(unavailableCombinationList);
-          setMineCombinations(availableCombinationList);
+          setMyCombinations(availableCombinations.filter((c) => validateUuid(c.id)));
+          setConectarCombinations(availableCombinations.filter((c) => !validateUuid(c.id)));
+          setUnavailableCombinations(unavailableCombinations);
         } catch (error) {
           setIsAlertVisible(true);
           console.error('Erro ao inicializar:', error);
@@ -147,16 +105,13 @@ const CombinationList: React.FC = () => {
         }
       };
       initialize();
-    }, [selectedRestaurant, suppliers]),
+    }, [selectedRestaurant, availableSuppliers, hasConectarPlusAccess, mainDataLoaded]),
   );
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
     const combinationSelected = selectedCombination as ChosenSupplierQuote[];
-    const mergedData: any = mergeSupplierData(
-      combinationSelected,
-      suppliers as AvailableSupplier[],
-    );
+    const mergedData: any = mergeSupplierData(combinationSelected, availableSuppliers);
 
     const params = {
       combinationId: item.id,
@@ -174,17 +129,81 @@ const CombinationList: React.FC = () => {
   };
 
   const sections = [
-    { title: 'Minhas combinações', data: minecombinations },
+    {
+      title: myCombinations.length > 0 ? 'Minhas combinações' : '',
+      data: myCombinations,
+    },
+    {
+      title: conectarCombinations.length > 0 ? 'Combinações Conéctar' : '',
+      data: conectarCombinations,
+    },
     {
       title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
       data: unavailableCombinations,
     },
   ];
 
-  if (loading) {
+  if (combinationsLoading || confirmLoading || loading || !mainDataLoaded) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
+      </View>
+    );
+  }
+
+  if (!hasConectarPlusAccess) {
+    return (
+      <View
+        padding={20}
+        marginTop={10}
+        width={Platform.OS === 'web' ? '73%' : '92%'}
+        alignSelf="center"
+      >
+        <DialogInstanceNotification
+          openModal={showNotification}
+          setOpenModal={setShowNotification}
+          title="Pronto!"
+          subtitle="Cotação solicitada."
+          description="Seu pedido foi enviado para o seu Whatsapp, retornaremos com sua cotação."
+          buttonText="Ok"
+          onConfirm={handleConfirm}
+        />
+
+        <Button
+          backgroundColor="#04BF7B"
+          onPress={async () => {
+            setConfirmLoading(true);
+
+            const result = await confirmPremiumOrder({
+              token: await getToken(),
+              selectedRestaurant,
+              deliveryDate: deliveryDate,
+            });
+
+            if (result.status === HttpStatusCode.Ok) {
+              setShowNotification(true);
+            }
+
+            setConfirmLoading(false);
+          }}
+        >
+          <Text fontWeight="500" fontSize={16} color="white">
+            Solicitar cotação
+          </Text>
+        </Button>
+        <Text marginTop={5} textAlign="center" fontSize={12} color="gray">
+          Você receberá a cotação no Whatsapp
+        </Text>
+      </View>
+    );
+  }
+
+  if (myCombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
+    return (
+      <View flex={1} justifyContent="center" alignItems="center" padding={20}>
+        <CustomSubtitle>
+          Nenhuma combinação encontrada para o restaurante selecionado.
+        </CustomSubtitle>
       </View>
     );
   }
@@ -211,7 +230,14 @@ const CombinationList: React.FC = () => {
             missingItems={item.missingItems}
             createdAt={item.createdAt}
             supplierClosed={item.supplierClosed}
+            sameDayOrders={item.sameDayOrders}
             unavailable={!!unavailableCombinations.includes(item)}
+            terminationCondition={item.terminationCondition}
+            tooltip={
+              !validateUuid(item.id) && !!unavailableCombinations.includes(item)
+                ? 'A falta de fornecedores pode acontecer devido ao horário do seu pedido ou à região de entrega.'
+                : undefined
+            }
             onPress={() => handleCombinationPress(item)}
           />
         )}

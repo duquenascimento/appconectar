@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useRouter, useSegments } from 'expo-router'
-import { getToken, deleteToken, getStorage } from '../../utils/utils'
+import { getToken, getStorage } from '../../utils/utils'
 
-export function useAuth() {
+export function useAuthGuard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
@@ -51,12 +51,6 @@ export function useAuth() {
     }
   }
 
-  const logout = async () => {
-    await deleteToken()
-    setIsAuthenticated(false)
-    router.replace('/')
-  }
-
   useEffect(() => {
     checkAuth()
   }, [segments])
@@ -65,7 +59,6 @@ export function useAuth() {
     isAuthenticated,
     isLoading,
     checkAuth,
-    logout
   }
 }
 

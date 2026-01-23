@@ -1,39 +1,32 @@
 import { AccordionInfo } from '@/src/components/AccordionInfo';
+import { DialogInstance } from '@/src/components/confirm/dialogInstance';
+import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { SupplierData } from '@/src/types/types';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
+import { HttpStatusCode } from 'axios';
 import * as Notifications from 'expo-notifications';
 import { usePathname, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
+import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
-import {
-  Adapt,
-  Button,
-  Dialog,
-  Image,
-  ScrollView,
-  Sheet,
-  Stack,
-  Text,
-  View,
-  XStack,
-} from 'tamagui';
+import { Button, Image, ScrollView, Stack, Text, View } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
+import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
-import { getPaymentDescription } from '../src/utils/paymentUtils';
-import { getPaymentDate, isBefore13Hours } from '../src/utils/timeUtils';
+import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils';
+import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
-import { type SupplierData } from './prices';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -45,175 +38,6 @@ if (Platform.OS !== 'web') {
       shouldShowList: true,
     }),
   });
-}
-
-// Componentizar?
-export function DialogInstance(props: {
-  openModal: boolean;
-  setRegisterInvalid: Function;
-  erros: string[];
-}) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          {props.erros.length > 0 ? (
-            <Dialog.Title>Algo inesperado aconteceu!</Dialog.Title>
-          ) : (
-            <Dialog.Title>Agendamento Realizado!</Dialog.Title>
-          )}
-
-          {props.erros.map((erro) => {
-            return <Text key={erro}>- {erro}</Text>;
-          })}
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="#04BF7B"
-                color="$white1"
-                onPress={() => props.setRegisterInvalid(false)}
-              >
-                Ok
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  );
-}
-
-// Possível reaproveitamento em components
-function DialogInstanceNotification(props: { openModal: boolean; setRegisterInvalid: Function }) {
-  return (
-    <Dialog modal open={props.openModal}>
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPointsMode="fit"
-        >
-          <Sheet.Frame padding="$4" gap="$4">
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <Dialog.Title>Pronto!</Dialog.Title>
-          <Dialog.Description>Sua notificação foi agendada</Dialog.Description>
-
-          <Text>As 13h você será alertado em sua barra de notificação, até logo.</Text>
-
-          <XStack alignSelf="center" gap="$4">
-            <Dialog.Close displayWhenAdapted asChild>
-              <Button
-                width="$20"
-                theme="active"
-                aria-label="Close"
-                backgroundColor="#04BF7B"
-                color="$white1"
-                onPress={() => props.setRegisterInvalid(false)}
-              >
-                Ok
-              </Button>
-            </Dialog.Close>
-          </XStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  );
 }
 
 export default function Confirm() {
@@ -232,6 +56,7 @@ export default function Confirm() {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
+  const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{
     missingItems: boolean;
     sundayWarning: boolean;
@@ -331,17 +156,18 @@ export default function Confirm() {
   );
 
   const isOpen = () => {
-    const currentDate = DateTime.now().setZone('America/Sao_Paulo');
+    const currentDate = getBrazilDateTime();
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${
         currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute
       }${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
     );
-    
+
     return (
       Number(supplier?.supplier?.hour.replaceAll(':', '')) >= currentHour &&
       (supplier?.supplier?.minimumOrder <= supplier?.supplier?.discount.orderValueFinish ||
-        hasSameDayOrdersWithSupplier || (selectedRestaurant?.allowMinimumOrder ?? false))
+        hasSameDayOrdersWithSupplier ||
+        (selectedRestaurant?.allowMinimumOrder ?? false))
     );
   };
 
@@ -349,6 +175,7 @@ export default function Confirm() {
 
   const handleConfirmOrder = useCallback(
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+      setDisableConfirm(true);
       try {
         const token = await getToken();
         if (!token || !selectedRestaurant) {
@@ -366,7 +193,7 @@ export default function Confirm() {
           return;
         }
 
-        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
+        if (getBrazilDateTime(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
           setShowSundayWarning(true);
           return;
         }
@@ -377,7 +204,7 @@ export default function Confirm() {
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
           deliveryDate: selectedRestaurant.allowEmergencyOrder
-            ? DateTime.now().setZone('America/Sao_Paulo').toISODate()!
+            ? getBrazilDateTime().toISODate()
             : deliveryDate,
         };
 
@@ -404,7 +231,7 @@ export default function Confirm() {
 
         const result = await confirmOrder(body);
 
-        if (result.status === 201) {
+        if (result.status === HttpStatusCode.Ok) {
           await setStorage('finalConfirmData', JSON.stringify(result.data.data));
           resetDeliveryDate();
           setConfirmedWarnings({ missingItems: false, sundayWarning: false });
@@ -418,8 +245,8 @@ export default function Confirm() {
         setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
         setBooleanErros(true);
       } finally {
-        console.log('Finalizando confirmação...');
         setLoadingToConfirm(false);
+        setDisableConfirm(false);
       }
     },
     [
@@ -454,6 +281,41 @@ export default function Confirm() {
     setShowSundayWarning(false);
     setConfirmedWarnings({ missingItems: false, sundayWarning: false });
   }, []);
+
+  const handleConfirmButtonPress = useCallback(async () => {
+    try {
+      if (isBefore13h && selectedRestaurant) {
+        const errors = await scheduleNotification(
+          selectedRestaurant!.addressInfos[0].responsibleReceivingPhoneNumber,
+        );
+
+        setShowErros(errors);
+        if (errors.length) setBooleanErros(true);
+        else setShowNotification(true);
+      } else {
+        const validationResult = validateAddress(selectedRestaurant);
+        if (!validationResult.isValid) {
+          setAlertMessage(validationResult.message);
+          setIsAlertVisible(true);
+          return;
+        }
+
+        await handleConfirmOrder();
+      }
+    } catch (error) {
+      console.error('Erro no botão de confirmação:', error);
+    }
+  }, [isBefore13h, selectedRestaurant, handleConfirmOrder]);
+
+  // Debounce para evitar múltiplos cliques rápidos
+  const onConfirmPressDebounced = useMemo(
+    () =>
+      debounce(handleConfirmButtonPress, 300, {
+        leading: true,
+        trailing: false,
+      }) as unknown as () => void,
+    [handleConfirmButtonPress],
+  );
 
   if (loading || !selectedRestaurant || !supplier?.supplier) {
     return (
@@ -557,7 +419,7 @@ export default function Confirm() {
                 alignSelf="center"
               >
                 <AccordionInfo
-                  title={`Você já possui ${supplier?.supplier?.sameDayOrders.length} pedido${supplier?.supplier?.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${DateTime.fromISO(deliveryDate).toFormat('dd/MM/yyyy')}`}
+                  title={`Você já possui ${supplier?.supplier?.sameDayOrders.length} pedido${supplier?.supplier?.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${getBrazilDateTime(deliveryDate).toFormat('dd/MM/yyyy')}`}
                   content={
                     <>
                       {supplier?.supplier?.sameDayOrders.map((order, index) => (
@@ -937,30 +799,8 @@ export default function Confirm() {
             <Text color="white">Alterar itens</Text>
           </Button>
           <Button
-            onPress={async () => {
-              try {
-                if (isBefore13h) {
-                  const errors = await scheduleNotification(
-                    selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber,
-                  );
-
-                  setShowErros(errors);
-                  if (errors.length) setBooleanErros(true);
-                  else setShowNotification(true);
-                } else {
-                  const validationResult = validateAddress(selectedRestaurant);
-                  if (!validationResult.isValid) {
-                    setAlertMessage(validationResult.message);
-                    setIsAlertVisible(true);
-                    return;
-                  }
-
-                  await handleConfirmOrder();
-                }
-              } catch (error) {
-                console.error('Erro no botão de confirmação:', error);
-              }
-            }}
+            disabled={disableConfirm}
+            onPress={onConfirmPressDebounced}
             width={170}
             backgroundColor="#04BF7B"
           >

@@ -1,17 +1,13 @@
-import { getAllProducts, ProductResponse } from '@/src/services/productsService'
+import { getAllProducts } from '@/src/services/productsService'
+import { ProrityProductsCombination, SuplierCombination } from '@/src/types/combinationTypes'
+import { ComboOption } from '@/src/types/componentTypes'
+import { Product } from '@/src/types/productTypes'
+import { getFieldError } from '@/src/utils/formikUtils'
+import { useFormikContext } from 'formik'
 import React, { useEffect, useState } from 'react'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { View, Text, XStack, YStack, Separator, Card, Label, Button } from 'tamagui'
-import { SuplierCombination } from '@/app/combination'
-import { getIn, useFormikContext } from 'formik'
-import { getFieldError } from '@/src/utils/formikUtils'
+import { Button, Card, Label, Separator, Text, View, XStack, YStack } from 'tamagui'
 
-export interface ProrityProductsCombination {
-  id: string
-  sku: string
-  name: string
-  class: string
-}
 interface PrioritySectionProps {
   index: number
   products: ProrityProductsCombination[]
@@ -35,7 +31,7 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
   const [openProducts, setOpenProducts] = useState(false)
   const [specificProducts, setSpecificProducts] = useState<string[]>([])
   const [searchText, setSearchText] = useState('')
-  const [itemsDropdown, setItemsDropdown] = useState<{ label: string; value: string }[]>([])
+  const [itemsDropdown, setItemsDropdown] = useState<ComboOption<string>[]>([])
 
   useEffect(() => {
     const produtosFormatados = specificProducts.map((productId) => {
@@ -61,17 +57,17 @@ export const PrioritySection: React.FC<PrioritySectionProps> = ({ index, product
 
   useEffect(() => {
     const fetch = async () => {
-      const all: ProductResponse[] = await getAllProducts()
+      const allProducts = await getAllProducts()
       const text = searchText.toLowerCase()
 
-      const matchedProducts = all
-        .filter((product: ProductResponse) => product.name.toLowerCase().includes(text))
+      const matchedProducts = allProducts
+        .filter((product) => product.name.toLowerCase().includes(text))
         .map((p) => ({
           label: `${p.name}`,
           value: p.id
         }))
 
-      const matchedClasses = all.filter((product: ProductResponse) => product.class.toLowerCase().includes(text))
+      const matchedClasses = allProducts.filter((product) => product.class.toLowerCase().includes(text))
 
       const classOptions = [...new Set(matchedClasses.map((p) => p.class.toLocaleUpperCase()))].map((className) => ({
         label: `${className}`,

@@ -1,6 +1,7 @@
-import { isProtectedRoute, useAuth } from '@/src/components/hooks/useAuth';
+import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
+import { DeliveryDateProvider } from '@/src/contexts/deliveryDate.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
@@ -20,7 +21,7 @@ export default function RootLayout() {
     InterBold: require('@tamagui/font-inter/otf/Inter-Bold.otf'),
   });
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthGuard();
   const segments = useSegments();
 
   useEffect(() => {
@@ -39,38 +40,39 @@ export default function RootLayout() {
     initApp();
   }, []);
 
-  if (
+  const isScreenLoading =
     !loaded ||
     isAuthenticated === null ||
-    (isAuthenticated === false && isProtectedRoute(segments))
-  ) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    );
-  }
+    (isAuthenticated === false && isProtectedRoute(segments));
 
   return (
     <TamaguiProvider config={config}>
       <AuthProvider>
-        <RestaurantProvider>
-          <FavoritesProvider>
-            <ProductProvider>
-              <CombinacaoProvider>
-                <SupplierProvider>
-                  <Stack
-                    screenOptions={{
-                      headerShown: false,
-                      animation: 'slide_from_right',
-                      gestureEnabled: true,
-                    }}
-                  />
-                </SupplierProvider>
-              </CombinacaoProvider>
-            </ProductProvider>
-          </FavoritesProvider>
-        </RestaurantProvider>
+        <DeliveryDateProvider>
+          <RestaurantProvider>
+            <FavoritesProvider>
+              <ProductProvider>
+                <CombinacaoProvider>
+                  <SupplierProvider>
+                    {isScreenLoading ? (
+                      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                        <ActivityIndicator size="large" color="#04BF7B" />
+                      </View>
+                    ) : (
+                      <Stack
+                        screenOptions={{
+                          headerShown: false,
+                          animation: 'slide_from_right',
+                          gestureEnabled: true,
+                        }}
+                      />
+                    )}
+                  </SupplierProvider>
+                </CombinacaoProvider>
+              </ProductProvider>
+            </FavoritesProvider>
+          </RestaurantProvider>
+        </DeliveryDateProvider>
       </AuthProvider>
     </TamaguiProvider>
   );

@@ -1,54 +1,37 @@
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { DateTime } from 'luxon';
-import Icons from '@expo/vector-icons/Ionicons';
-import { ActivityIndicator, Modal, useWindowDimensions } from 'react-native';
-import { Button, Label, RadioGroup, ScrollView, Spacer, Text, View, XStack, YStack } from 'tamagui';
-import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
-import { useCallback, useEffect, useState } from 'react';
-import { getAllSuppliers } from '@/src/services/supplierService';
-import { CartProduct } from '@/src/types/cartTypes';
+import { CustomImageBadge } from '@/src/components/image/customImageBadge';
+import CustomAlert from '@/src/components/modais/CustomAlert';
+import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
 import { useCart } from '@/src/components/useCart';
 import { getCartProducts } from '@/src/services/cartService';
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
+import { getPricesBySupplierOrCombination } from '@/src/services/pricesService';
+import { getQuotationsBySupplier } from '@/src/services/quotationService';
+import { getUserRestaurants } from '@/src/services/restaurantService';
 import {
   createScheduleOrder,
   deleteScheduleOrder,
   editScheduleOrder,
   getScheduleOrder,
 } from '@/src/services/scheduleOrderService';
+import { getAllSuppliers } from '@/src/services/supplierService';
+import { CartProduct } from '@/src/types/cartTypes';
+import { ComboOption } from '@/src/types/componentTypes';
+import { QuotationResquestBody } from '@/src/types/quotationTypes';
 import { ScheduleOrderCreationBody, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { isTomorrow } from '@/src/utils/dateUtils';
-import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
 import {
-  getPricesBySupplierOrCombination,
-  getSuppliersPrices,
-  SupplierPriceRequestBody,
-} from '@/src/services/pricesService';
-import { getUserRestaurants } from '@/src/services/restaurantService';
+  convertFromDaysUpFront,
+  convertToDaysUpFront,
+  getBrazilDateTime,
+  isTomorrow,
+} from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { Supplier, SupplierData } from './quotationDetailsScreen';
-
-function capitalizeFirstLetter(str: string) {
-  if (typeof str !== 'string' || str.length === 0) {
-    return str;
-  }
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
-function convertFromDaysUpFront(daysUpfront: number): DateTime {
-  return DateTime.now().plus({ days: daysUpfront }).startOf('day');
-}
-
-function convertToDaysUpFront(date: DateTime): number {
-  return Math.ceil(date.diff(DateTime.now(), 'days').days);
-}
-
-type ComboOption = {
-  label: string;
-  value: string;
-};
+import { capitalizeFirstLetter } from '@/src/utils/stringUtils';
+import Icons from '@expo/vector-icons/Ionicons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Modal, useWindowDimensions } from 'react-native';
+import { Button, Label, RadioGroup, ScrollView, Spacer, Text, View, XStack, YStack } from 'tamagui';
 
 export default function ScheduleScreen() {
   const { orderId } = useLocalSearchParams<{ orderId?: string }>();
@@ -56,11 +39,11 @@ export default function ScheduleScreen() {
 
   const [daysUpfront, setDaysUpfront] = useState<number>(0);
   const [selectedSupplier, setSelectedSupplier] = useState<string>('');
-  const [allSuppliers, setAllSuppliers] = useState<ComboOption[]>([]);
-  const [availableSuppliers, setAvailableSuppliers] = useState<ComboOption[]>([]);
+  const [allSuppliers, setAllSuppliers] = useState<ComboOption<string>[]>([]);
+  const [availableSuppliers, setAvailableSuppliers] = useState<ComboOption<string>[]>([]);
   const [currentOrder, setCurrentOrder] = useState<ScheduleOrderResponse | undefined>();
   const [cartProducts, setCartProducts] = useState<CartProduct[]>([]);
-  const [combinations, setCombinations] = useState<ComboOption[]>([]);
+  const [combinations, setCombinations] = useState<ComboOption<string>[]>([]);
   const [selectedCombination, setSelectedCombination] = useState<string>('');
   const [showCombinationDropdown, setShowCombinationDropdown] = useState<boolean>(false);
   const [defaultDeliveryDateText, setDefaultDeliveryDateText] = useState<string>('Selecione...');
@@ -78,8 +61,7 @@ export default function ScheduleScreen() {
     .fill(null)
     .map((_, index) => ({
       label: capitalizeFirstLetter(
-        DateTime.now()
-          .setLocale('pt-BR')
+        getBrazilDateTime()
           .plus({ days: index + 2 })
           .toFormat('EEEE • dd/MM'),
       ),
@@ -113,8 +95,9 @@ export default function ScheduleScreen() {
 
       if (orderId) {
         const updateData: Partial<Omit<ScheduleOrderCreationBody, 'restaurantId'>> = {};
-        if (convertToDaysUpFront(DateTime.fromISO(currentOrder!.deliveryDate)) !== daysUpfront) {
-          updateData.deliveryDate = DateTime.now().plus({ days: daysUpfront }).toISO();
+        if (convertToDaysUpFront(getBrazilDateTime(currentOrder!.deliveryDate)) !== daysUpfront) {
+          updateData.deliveryDate =
+            getBrazilDateTime().plus({ days: daysUpfront }).toISO() ?? undefined;
         }
 
         if (showCombinationDropdown && selectedCombination !== currentOrder?.combination?.id) {
@@ -223,7 +206,11 @@ export default function ScheduleScreen() {
     // fetch supplier options
     const featchAllSuppliers = async () => {
       const allSuppliers = await getAllSuppliers();
-      setAllSuppliers(allSuppliers.map((s: any) => ({label: s.nomefornecedor, value: s.idexterno} as ComboOption)));
+      setAllSuppliers(
+        allSuppliers.map(
+          (s) => ({ label: s.nomefornecedor, value: s.idexterno }) as ComboOption<string>,
+        ),
+      );
     };
     featchAllSuppliers();
 
@@ -234,7 +221,9 @@ export default function ScheduleScreen() {
 
       const res = await getCombinationsByRestaurant(restaurant.id);
       if (Array.isArray(res.return)) {
-        setCombinations(res.return.map((c: any) => ({ label: c.nome, value: c.id } as ComboOption)));
+        setCombinations(
+          res.return.map((c: any) => ({ label: c.nome, value: c.id }) as ComboOption<string>),
+        );
       }
     };
     loadCombinations();
@@ -245,7 +234,7 @@ export default function ScheduleScreen() {
       const order = await getScheduleOrder(orderId!);
       setCurrentOrder(order);
 
-      const deliveryDate = DateTime.fromISO(order.deliveryDate);
+      const deliveryDate = getBrazilDateTime(order.deliveryDate);
       const diffDays = convertToDaysUpFront(deliveryDate);
 
       if (diffDays > 1 && deliveryDate.weekday !== 7) {
@@ -254,7 +243,7 @@ export default function ScheduleScreen() {
         setDaysUpfront(diffDays);
         setDefaultDeliveryDateText(
           capitalizeFirstLetter(
-            DateTime.now().setLocale('pt-BR').plus({ days: diffDays }).toFormat('EEEE • dd/MM'),
+            getBrazilDateTime().plus({ days: diffDays }).toFormat('EEEE • dd/MM'),
           ),
         );
       }
@@ -305,23 +294,32 @@ export default function ScheduleScreen() {
 
   useEffect(() => {
     const loadSupplierByDeliveryDate = async () => {
-      if(daysUpfront <= 0) return;
+      if (daysUpfront <= 0) return;
 
       const restaurant = await getStorageRestaurant();
-      const availableSuppliersResult = await getSuppliersPrices({
-        restaurant: {
-          id: restaurant!.id,
-          externalId: restaurant!.externalId,
-          tax: Number(restaurant!.tax),
-          addressInfos: restaurant?.addressInfos,
-        },
-        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO(),
-      } as SupplierPriceRequestBody);
-      if (!availableSuppliersResult.map((s) => s.supplier.externalId).includes(selectedSupplier) && selectedSupplier !== currentOrder?.supplier?.externalId) {
+
+      if (!restaurant) return;
+
+      const data: QuotationResquestBody = {
+        deliveryDate: convertFromDaysUpFront(daysUpfront).toISO()?.split('T')[0] ?? '',
+        restaurantId: restaurant.id,
+      };
+
+      const availableSuppliersResult = await getQuotationsBySupplier(data);
+
+      const availableSuppliers = availableSuppliersResult.availableSuppliers;
+      if (
+        !availableSuppliers.map((s) => s.supplier.externalId).includes(selectedSupplier) &&
+        selectedSupplier !== currentOrder?.supplier?.externalId
+      ) {
         setSelectedSupplier('');
       }
 
-      setAvailableSuppliers(availableSuppliersResult.map((s) => ({label: s.supplier.name, value: s.supplier.externalId} as ComboOption)));
+      setAvailableSuppliers(
+        availableSuppliers.map(
+          (s) => ({ label: s.supplier.name, value: s.supplier.externalId }) as ComboOption<string>,
+        ),
+      );
     };
     loadSupplierByDeliveryDate();
   }, [daysUpfront]);
@@ -404,7 +402,7 @@ export default function ScheduleScreen() {
               />
             ) : (
               <DropdownCampo
-                items={(availableSuppliers.length == 0 ? allSuppliers : availableSuppliers)}
+                items={availableSuppliers.length == 0 ? allSuppliers : availableSuppliers}
                 label="Fornecedor"
                 placeholder={defaultSupplierText}
                 value={selectedSupplier}
@@ -453,7 +451,7 @@ export default function ScheduleScreen() {
       </View>
       <View width={'100%'} gap={isMobile ? '$2' : '$4'}>
         {currentOrder &&
-          isTomorrow(DateTime.fromISO(currentOrder!.deliveryDate)) &&
+          isTomorrow(getBrazilDateTime(currentOrder!.deliveryDate)) &&
           (currentOrder!.status === 'CONFIRMED' ? (
             <Text textAlign="center" color={'$green9'} fontSize={20}>
               Entrega confirmada

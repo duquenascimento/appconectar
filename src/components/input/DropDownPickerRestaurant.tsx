@@ -19,7 +19,11 @@ const DropDownPickerRestaurantStyled = styled(DropDownPicker, {
   },
 });
 
-export function DropDownPickerRestaurant() {
+interface DropDownPickerRestaurantProps {
+  onBeforeChange: () => void;
+}
+
+export function DropDownPickerRestaurant({ onBeforeChange }: DropDownPickerRestaurantProps) {
   const { restaurants, selectedRestaurant, handleRestaurantChange } = useRestaurantContext();
   const [restaurantOpen, setRestaurantOpen] = useState(false);
 
@@ -31,6 +35,9 @@ export function DropDownPickerRestaurant() {
       setOpen={setRestaurantOpen}
       value={selectedRestaurant?.externalId ?? ''}
       setValue={async (callback) => {
+        if (onBeforeChange) {
+          onBeforeChange();
+        }
         const value =
           typeof callback === 'function' ? callback(selectedRestaurant?.externalId) : callback;
         const restaurant = restaurants.find((r) => r.externalId === value);

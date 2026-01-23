@@ -2,6 +2,7 @@ import PageContainer from '@/src/components/box/PageContainer';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
 import { useAuthContext } from '@/src/contexts/auth.context';
+import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 import { deleteUser, getUserData } from '@/src/utils/userUtils';
 import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
@@ -135,7 +136,7 @@ export default function UserInfo() {
                   <Text fontSize={14} color="#A9A9A9" fontWeight="600">
                     Data de cadastro:
                   </Text>
-                  <Text fontSize={14}>{new Date(user.createdAt).toLocaleDateString('pt-BR')}</Text>
+                  <Text fontSize={14}>{getBrazilLocaleString(user.createdAt)}</Text>
                 </XStack>
               )}
             </YStack>

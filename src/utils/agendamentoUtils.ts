@@ -1,12 +1,12 @@
 import * as Notifications from 'expo-notifications';
-import { DateTime } from 'luxon';
 import { Platform } from 'react-native';
+import { getBrazilDateTime } from './dateUtils';
 import { getSecondsUntil13h } from './timeUtils';
 import { getToken } from './utils';
 
 export const scheduleNotification = async (phoneNumber: string): Promise<string[]> => {
   const erros: string[] = [];
-  if(!phoneNumber) {
+  if (!phoneNumber) {
     erros.push('Por favor, cadastre o telefone do resposável pelo recebimento.');
     return erros;
   }
@@ -42,13 +42,11 @@ export const scheduleNotification = async (phoneNumber: string): Promise<string[
     } else {
       console.log('Notificação já agendada');
     }
-  } 
+  }
 
   // Agendamento ChatGurur
   try {
-    const sendDateTime = DateTime.now()
-      .setZone('America/Sao_Paulo')
-      .set({ hour: 13, minute: 0, second: 0 });
+    const sendDateTime = getBrazilDateTime().set({ hour: 13, minute: 0, second: 0 });
     const sendDate = sendDateTime.toFormat('yyyy-MM-dd');
     const sendTime = sendDateTime.toFormat('HH:mm');
 

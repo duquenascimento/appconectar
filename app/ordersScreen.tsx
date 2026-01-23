@@ -6,11 +6,9 @@ import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
 import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import { isTomorrow } from '@/src/utils/dateUtils';
-import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { getBrazilDateTime, getBrazilLocaleString, isTomorrow } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
 import { ReactNode, useCallback, useState } from 'react';
 import {
   ActivityIndicator,
@@ -43,13 +41,8 @@ interface Order {
   };
 }
 
-const formatDate = (isoDate: string) => {
-  const date = new Date(isoDate);
-  return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-};
-
 const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
-  if (isTomorrow(DateTime.fromISO(item.deliveryDate))) {
+  if (isTomorrow(getBrazilDateTime(item.deliveryDate))) {
     return ['Aguardando confirmação', '#FFC107'];
   }
   if (item.status == 'CANCELED') {
@@ -69,7 +62,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isDownloading, setIsDownloading] = useState(false);
-  const { restaurants, selectedRestaurant, setSelectedRestaurant } = useRestaurantContext();
+  const { restaurants, selectedRestaurant, saveRestaurant } = useRestaurantContext();
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showAlertVisible, setShowAlertVisible] = useState(false);
   const [customAlertTitle, setCustomAlertTitle] = useState('');
@@ -157,7 +150,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
         order.supplier?.name.toLowerCase().includes(query.toLowerCase()) ||
         order.supplier?.externalId.toLowerCase().includes(query.toLowerCase());
 
-      const matchDate = DateTime.fromISO(order.deliveryDate)
+      const matchDate = getBrazilDateTime(order.deliveryDate)
         .toFormat('dd/MM/yyyy')
         .toLowerCase()
         .includes(query.toLowerCase());
@@ -269,7 +262,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
         onConfirm={() => setShowAlertVisible(false)}
       />
       <HeaderText>Meus Restaurantes</HeaderText>
-      <DropDownPickerRestaurant />
+      <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
 
       <XStack
         backgroundColor="#FFF"
@@ -389,7 +382,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
                     {item.id}
                   </Text>
                 )}
-                <Text style={styles.deliveryDate}>{formatDate(item.deliveryDate)}</Text>
+                <Text style={styles.deliveryDate}>{getBrazilLocaleString(item.deliveryDate)}</Text>
               </View>
               <YStack>
                 {!isScheduledOrder && (
@@ -436,7 +429,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={50}
+          width={60}
           height={70}
         >
           <Icons name="home" size={20} color="gray" />
@@ -519,8 +512,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
 
             if (availableRestaurant) {
               setShowBlockedModal(false);
-              await setStorageRestaurant(availableRestaurant);
-              setSelectedRestaurant(availableRestaurant);
+              await saveRestaurant(availableRestaurant);
               setShowBlockedModal(false);
             }
           } catch (error) {

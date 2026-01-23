@@ -1,10 +1,12 @@
-import { CombinationMissingProducts } from '@/src/components/combinationList';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
+import { CombinationMissingProducts } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
+import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { HttpStatusCode } from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { DateTime } from 'luxon';
+import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
@@ -17,8 +19,8 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
 import { MissingItemsList } from '../src/components/quotations/MissingItensList';
 import { SupplierList } from '../src/components/quotations/SupplierList';
+import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import {
   confirmConectarPlusOrder,
   ConfirmConectarPlusOrderRequestBody,
@@ -127,6 +129,7 @@ export default function QuotationDetailsScreen() {
   const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
 
   const handleShowPdf = (pdfUrl: string) => {
     setSelectedPdfUrl(pdfUrl);
@@ -197,7 +200,7 @@ export default function QuotationDetailsScreen() {
   const isBefore13h = selectedRestaurant?.allowEmergencyOrder ? false : isBefore13Hours();
 
   const handleBackPress = () => {
-    if(router.canGoBack()) {
+    if (router.canGoBack()) {
       router.back();
     } else {
       router.push('prices');
@@ -206,6 +209,7 @@ export default function QuotationDetailsScreen() {
 
   const handleConfirm = useCallback(
     async (overrideWarnings?: { sundayWarning?: boolean }) => {
+      setDisableConfirm(true);
       try {
         const token = await getToken();
         if (!token) {
@@ -224,7 +228,7 @@ export default function QuotationDetailsScreen() {
           ...overrideWarnings,
         };
 
-        if (DateTime.fromISO(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
+        if (getBrazilDateTime(deliveryDate).weekday === 7 && !effectiveWarnings.sundayWarning) {
           setShowSundayWarning(true);
           return;
         }
@@ -257,14 +261,14 @@ export default function QuotationDetailsScreen() {
             pathname: '/orderConfirmedScreen',
             params: {
               suppliers: suppliersDataParam,
-              deliveryDate: DateTime.now().plus({ days: 1 }).toFormat('dd/MM/yyyy'),
+              deliveryDate: getBrazilDateTimeTomorrow().toFormat('dd/MM/yyyy'),
             },
           });
           return;
         }
 
         const createdOrders = await confirmConectarPlusOrder(body);
-        if (createdOrders && createdOrders.status === 201) {
+        if (createdOrders && createdOrders.status === HttpStatusCode.Ok) {
           deleteMultiStorage(['cartOrder', `cart_${restaurantData.externalId}`]);
           const { deliveryDateFormated } = createdOrders.data.data[0];
 
@@ -296,6 +300,7 @@ export default function QuotationDetailsScreen() {
         Alert.alert('Erro', 'Ocorreu um erro inesperado.');
       } finally {
         setIsLoading(false);
+        setDisableConfirm(false);
       }
     },
     [suppliers, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
@@ -311,6 +316,15 @@ export default function QuotationDetailsScreen() {
     setShowSundayWarning(false);
     setConfirmedWarnings({ sundayWarning: false });
   }, []);
+
+  const onConfirmPressDebounced = useMemo(
+    () =>
+      debounce(handleConfirm, 300, {
+        leading: true,
+        trailing: false,
+      }) as unknown as () => void,
+    [handleConfirm],
+  );
 
   if (!suppliers || suppliers.length === 0) {
     return (
@@ -477,7 +491,9 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  onPress={() => handleConfirm()}
+                  disabled={disableConfirm}
+                  //onPress={() => handleConfirm()}
+                  onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
                     opacity: 0.9,

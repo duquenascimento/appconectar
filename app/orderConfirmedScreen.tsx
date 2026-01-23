@@ -1,31 +1,16 @@
-import { YStack, XStack, Text, Separator, Image } from 'tamagui';
-import Icons from '@expo/vector-icons/Ionicons';
-import React, { useState, useEffect } from 'react';
-import { SafeAreaView, ScrollView, Platform, ActivityIndicator, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import CustomButton from '@/src/components/button/customButton';
-import { SupplierData } from '@/src/types/types';
-import { getStorage } from '@/src/utils/utils';
-import { formatCurrency } from '../src/utils/formatCurrency';
-import { getDeliveryWindow } from '../src/utils/timeUtils';
-import { getPaymentDate } from '../src/utils/getPaymentDate';
 import PageContainer from '@/src/components/box/PageContainer';
+import CustomButton from '@/src/components/button/customButton';
+import { Restaurant } from '@/src/types/restaurantTypes';
+import { SupplierData } from '@/src/types/types';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
-
-interface RestaurantAddress {
-  address: string;
-  neighborhood: string;
-  city: string;
-  localNumber: string;
-  zipCode: string;
-  initialDeliveryTime: string;
-  finalDeliveryTime: string;
-}
-interface RestaurantData {
-  name: string;
-  addressInfos: RestaurantAddress[];
-  paymentWay: string;
-}
+import Icons from '@expo/vector-icons/Ionicons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Platform, SafeAreaView, ScrollView } from 'react-native';
+import { Image, Separator, Text, XStack, YStack } from 'tamagui';
+import { formatCurrency } from '../src/utils/formatCurrency';
+import { getPaymentDate } from '../src/utils/paymentUtils';
+import { getDeliveryWindow } from '../src/utils/timeUtils';
 
 export default function OrderConfirmedScreen() {
   const router = useRouter();
@@ -51,7 +36,7 @@ export default function OrderConfirmedScreen() {
     }
   }, [suppliersParam]);
 
-  const [restaurantDetails, setRestaurantDetails] = useState<RestaurantData | null>(null);
+  const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [paymentDateOrder, setPaymentDateOrder] = useState<string | null>(null);
 
@@ -61,7 +46,9 @@ export default function OrderConfirmedScreen() {
         const restaurantData = await getStorageRestaurant();
         if (restaurantData) {
           setRestaurantDetails(restaurantData);
-          setPaymentDateOrder(getPaymentDate(restaurantData.paymentWay));
+          setPaymentDateOrder(
+            getPaymentDate(restaurantData.paymentWay, restaurantData.allowEmergencyOrder),
+          );
         } else {
           Alert.alert('Erro', 'Não foi possível encontrar os dados do restaurante.');
         }

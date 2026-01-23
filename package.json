@@ -41,6 +41,7 @@
     "@types/luxon": "^3.4.2",
     "@types/react": "~19.0.10",
     "@types/react-test-renderer": "^18.0.7",
+    "@types/uuid": "^11.0.0",
     "axios": "^1.7.9",
     "eslint-config-expo": "~9.2.0",
     "expo": "53.0.22",
@@ -83,6 +84,7 @@
     "react-test-renderer": "19.0.0",
     "tamagui": "1.135.3",
     "typescript": "~5.8.3",
+    "uuid": "^13.0.0",
     "yup": "^1.6.1"
   },
   "private": true,
@@ -95,6 +97,7 @@
     "@eslint/compat": "^1.4.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
+    "@types/lodash": "^4.17.21",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
     "eslint": "^9.36.0",

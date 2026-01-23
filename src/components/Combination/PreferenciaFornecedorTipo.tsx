@@ -1,25 +1,20 @@
+import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { ComboOption } from '@/src/types/componentTypes';
+import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
 import { useEffect, useMemo, useState } from 'react';
-import { YStack, Separator, Text, XStack, Switch } from 'tamagui';
+import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
+import { TipoFornecedor } from '../../types/combinationTypes';
+import CustomAlert from '../modais/CustomAlert';
+import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
-import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { TipoFornecedor } from '../../types/combinationTypes';
-import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
-import { useSupplier } from '@/src/contexts/fornecedores.context';
-import CustomAlert from '../modais/CustomAlert';
-import { Supplier } from '@/src/types/types';
-
-const tipoFornecedorItems = [
-  { label: 'Qualquer', value: 'qualquer' },
-  { label: 'Específico', value: 'especifico' },
-];
 
 export function PreferenciaFornecedorCampo({
   suppliers,
   error,
   onChange,
 }: {
-  suppliers: Supplier[];
+  suppliers: CombinationSupplier[];
   error?: string;
   onChange: (val: string[]) => void;
 }) {
@@ -29,23 +24,19 @@ export function PreferenciaFornecedorCampo({
   const [tipoTemporario, setTipoTemporario] = useState<TipoFornecedor | null>(null);
   const [ignorarValidacao, setIgnorarValidacao] = useState(false);
   const [selectFornecedoresContexto, setSelectFornecedoresContexto] = useState<
-    { label: string; value: string }[]
+    ComboOption<string>[]
   >([]);
-
 
   const fornecedoresContexto = useMemo(() => {
     const todosFornecedores = [...suppliers];
 
     const fornecedoresNaoBloqueados = todosFornecedores.filter(
-      (supplier) => !combinacao.fornecedores_bloqueados?.includes(supplier.externalId),
-    );
-    const fornecedoresClassificados = fornecedoresNaoBloqueados.sort((a, b) =>
-      a.name.localeCompare(b.name),
+      (supplier) => !combinacao.fornecedores_bloqueados?.includes(supplier.idexterno),
     );
 
-    return fornecedoresClassificados.map((supplier) => ({
-      label: supplier.name,
-      value: supplier.externalId,
+    return fornecedoresNaoBloqueados.map((supplier) => ({
+      label: supplier.nomefornecedor,
+      value: supplier.idexterno,
     }));
   }, [suppliers, combinacao.fornecedores_bloqueados]);
 

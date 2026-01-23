@@ -1,7 +1,7 @@
 import { Supplier } from '@/app/prices'
 import { ConectarPlusSupplier } from '@/app/quotationDetailsScreen'
 import axios from 'axios'
-import { CombinationMissingProducts } from '../components/combinationList'
+import { CombinationMissingProducts } from '../types/combinationTypes'
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL
 
@@ -60,7 +60,7 @@ export interface ConfirmOrderRequestBody {
   token: string;
   supplier: Supplier;
   restaurant: any;
-  deliveryDate: string;
+  deliveryDate?: string | undefined | null;
 }
 
 export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
@@ -80,7 +80,7 @@ export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
 export interface ConfirmPremiumOrderRequestBody {
   token: string | null | undefined;
   selectedRestaurant: any;
-  deliveryDate: string;
+  deliveryDate?: string | undefined | null;
 }
 
 export const confirmPremiumOrder = async (body: ConfirmPremiumOrderRequestBody) => {
