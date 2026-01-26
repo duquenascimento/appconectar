@@ -46,7 +46,6 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
       try {
         setLoadingSuppliers(true);
 
-        console.log('Carregando preços por fornecedor...');
         await loadRestaurants();
 
         const currentRestaurant = restaurants.find(
