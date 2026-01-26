@@ -6,11 +6,13 @@ import { Button, Input, ScrollView, Text, View } from 'tamagui';
 import { useDeliveryDate } from '../../contexts/deliveryDate.context';
 import { useRestaurantContext } from '../../contexts/restaurant.context';
 import { Restaurant } from '../../types/restaurantTypes';
-import { getBrazilJSDate, getBrazilJSDateTomorrow } from '../../utils/dateUtils';
+import { getBrazilDateTime, getBrazilJSDate, getBrazilJSDateTomorrow } from '../../utils/dateUtils';
 import { campoString } from '../../utils/formatCampos';
 import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
 import CustomAlert from '../modais/CustomAlert';
+
+const MAX_DAYS_FOR_RETROACTIVE_DATE = 60;
 
 // Custom DatePicker input to match DropDownPicker style
 const CustomDateInput = forwardRef<any, any>(({ value, onClick }, ref) => (
@@ -26,7 +28,6 @@ const CustomDateInput = forwardRef<any, any>(({ value, onClick }, ref) => (
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      // minHeight: 45,
     }}
   >
     <Text fontSize={14} color="black">
@@ -378,9 +379,9 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
               paddingBottom={15}
               paddingHorizontal={15}
               paddingTop={40}
-              minWidth={Platform.OS === 'web' ? '40%' : '90%'}
+              minWidth={isLargeScreen ? '40%' : '90%'}
               backgroundColor="white"
-              borderRadius={Platform.OS === 'web' ? 10 : 0}
+              borderRadius={isLargeScreen ? 10 : 0}
               justifyContent="center"
               zIndex={101}
               style={{ overflow: 'visible' }}
@@ -457,11 +458,9 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                             allowSameDay={
                               (draftSelectedRestaurant || selectedRestaurant)?.allowEmergencyOrder
                             }
-                            // minDate={
-                            //   (draftSelectedRestaurant || selectedRestaurant)?.allowEmergencyOrder
-                            //     ? new Date()
-                            //     : new Date(new Date().setDate(new Date().getDate() + 1))
-                            // }
+                            minDate={getBrazilDateTime()
+                              .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
+                              .toJSDate()}
                             excludeDates={
                               (draftSelectedRestaurant || selectedRestaurant)?.allowEmergencyOrder
                                 ? [getBrazilJSDateTomorrow()]
@@ -763,7 +762,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                     paddingTop={10}
                     gap={10}
                     justifyContent="space-between"
-                    flexDirection={Platform.OS === 'web' && isLargeScreen ? 'row' : 'row'}
+                    flexDirection="row"
                   >
                     <View flex={1} {...(!isLargeScreen && { position: 'relative' })}>
                       <Text paddingLeft={5} fontSize={12} color="gray">
@@ -945,7 +944,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                   left={0}
                   right={0}
                   bottom={0}
-                  borderRadius={Platform.OS === 'web' ? 10 : 0}
+                  borderRadius={isLargeScreen ? 10 : 0}
                   backgroundColor="rgba(255, 255, 255, 0.8)"
                   justifyContent="center"
                   alignItems="center"
