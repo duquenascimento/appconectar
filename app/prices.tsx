@@ -1,26 +1,25 @@
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
 import DialogComercialInstance from '@/src/components/dialogComercialInstance';
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import LoadingActivityIndicator from '@/src/components/loading/loadingActivityIndicator';
-import { Combination } from '@/src/types/combinationTypes';
 import { SupplierData } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearStorage, getStorage, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import { Stack, Text, View } from 'tamagui';
 import CombinationList from '../src/components/combinationList';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { RestaurantInfoDialog } from '../src/components/restaurant/RestaurantInfoDialog';
 import { RestaurantInfoDisplay } from '../src/components/restaurant/RestaurantInfoDisplay';
 import SuppliersList from '../src/components/suppliersList';
-import { useCombinacao } from '../src/contexts/combinacao.context';
+import { useCombination } from '../src/contexts/combination.context';
 import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { getAllCombinationsByRestaurant } from '../src/services/combinationsService';
 import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
@@ -32,8 +31,6 @@ enum PricesTabs {
 
 export default function Prices() {
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
-  const [combinationsLoading, setCombinationsLoading] = useState<boolean>(false);
-  const [suppliersLoading, setSuppliersLoading] = useState<boolean>(false);
   const [editInfos, setEditInfos] = useState<boolean>(false);
   const [tab, setTab] = useState<PricesTabs>(PricesTabs.CONECTAR_PLUS);
   const [finalCotacao, setFinalCotacao] = useState<boolean>(false);
@@ -41,89 +38,44 @@ export default function Prices() {
   const [emergencyAlertVisible, setEmergencyAlertVisible] = useState<boolean>(false);
   const [retroactiveAlertVisible, setRetroactiveAlertVisible] = useState<boolean>(false);
   const [deliveryDatesAlertVisible, setDeliveryDatesAlertVisible] = useState<boolean>(true);
-  const [hasAccessedConectarPlus, setHasAccessedConectarPlus] = useState(false);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
-  const [combinations, setCombinations] = useState<Combination[]>([]);
   const [cart, setCart] = useState<Map<string, TCart>>();
-  const [mainDataLoaded, setMainDataLoaded] = useState(false);
   const router = useRouter();
-  const { loadPrices } = useSupplier();
   const {
     restaurants,
     selectedRestaurant,
     handleRestaurantChange,
-    loadRestaurants,
     areRestaurantsLoading,
     hasConectarPlusAccess,
   } = useRestaurantContext();
-  const { modificado, setModificado } = useCombinacao();
-  const {
-    deliveryDate,
-    errorMessage: deliveryDateErrorMessage,
-    initializeDeliveryDates,
-  } = useDeliveryDate();
+  const { errorMessage: deliveryDateErrorMessage } = useDeliveryDate();
+  const { getCombinationsByRestaurant } = useCombination();
+  const { getPricesBySupplier } = useSupplier();
+  const { isLargeScreen } = useResponsiveness();
 
   const handleLoadPrices = useCallback(
-    async (restaurant?: Restaurant) => {
+    async (restaurant: Restaurant) => {
       try {
-        setMainDataLoaded(false);
-        setSuppliersLoading(true);
-        setCombinationsLoading(true);
+        const newTab = restaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER;
 
-        await loadRestaurants(restaurant);
+        setTab(newTab);
 
-        if (restaurant) {
-          setTab(restaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER);
+        // Reload the current tab's content
+        switch (newTab) {
+          case PricesTabs.CONECTAR_PLUS:
+            await getCombinationsByRestaurant(restaurant.id);
+            break;
+          case PricesTabs.ONLY_SUPPLIER:
+            console.log('Carregando preços por fornecedor após troca de restaurante...');
+            await getPricesBySupplier(restaurant.externalId);
+            break;
         }
-
-        await loadPrices(restaurant?.externalId, deliveryDate);
-        setMainDataLoaded(true);
       } catch (err) {
-        setMainDataLoaded(false);
         console.error(err);
-      } finally {
-        setSuppliersLoading(false);
-        setCombinationsLoading(false);
       }
     },
-    [deliveryDate, selectedRestaurant, loadPrices, loadRestaurants, initializeDeliveryDates],
+    [getCombinationsByRestaurant, getPricesBySupplier],
   );
-
-  const isTabLoading = (tab: PricesTabs): boolean => {
-    switch (tab) {
-      case PricesTabs.CONECTAR_PLUS:
-        return combinationsLoading;
-      case PricesTabs.ONLY_SUPPLIER:
-        return suppliersLoading;
-    }
-  };
-
-  const handleTabChange = async (newTab: PricesTabs) => {
-    setTab(newTab);
-
-    if (isTabLoading(newTab)) return;
-
-    await handleLoadPrices();
-  };
-
-  useEffect(() => {
-    const loadCombinations = async () => {
-      if (!mainDataLoaded || tab !== PricesTabs.CONECTAR_PLUS) return;
-      try {
-        const restaurantId = selectedRestaurant?.id;
-
-        if (restaurantId) {
-          const fetchedCombinations = await getAllCombinationsByRestaurant(restaurantId);
-          setCombinations(fetchedCombinations);
-        }
-      } catch (e) {
-        console.error('Erro ao carregar combinations:', e);
-      }
-      setModificado(false);
-    };
-
-    loadCombinations();
-  }, [mainDataLoaded, tab, modificado]);
 
   useEffect(() => {
     async function getCart() {
@@ -159,8 +111,6 @@ export default function Prices() {
     useCallback(() => {
       const loadPricesAsync = async () => {
         try {
-          setMainDataLoaded(false);
-
           if (!selectedRestaurant) return;
 
           const validRestaurant = restaurants.find(
@@ -173,11 +123,11 @@ export default function Prices() {
             setShowBlockedModal(true);
           }
 
-          await handleLoadPrices(validRestaurant);
+          if (validRestaurant) {
+            setTab(validRestaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER);
+          }
         } catch (err) {
           console.error(err);
-        } finally {
-          setMainDataLoaded(true);
         }
       };
       loadPricesAsync();
@@ -189,11 +139,9 @@ export default function Prices() {
       const handleConectarPlus = async () => {
         const stored = await getStorage('hasAccessedConectarPlus');
         const alreadyAccessed = stored === 'true';
-        setHasAccessedConectarPlus(alreadyAccessed);
 
         if (selectedRestaurant?.conectarPlusAuthorization) {
           await setStorage('hasAccessedConectarPlus', 'true');
-          setHasAccessedConectarPlus(true);
         }
 
         if (
@@ -236,7 +184,7 @@ export default function Prices() {
             flexDirection="row"
             paddingVertical="$2"
             gap="$4"
-            style={{ width: Platform.OS === 'web' ? '70%' : '92%' }}
+            style={{ width: isLargeScreen ? '70%' : '92%' }}
             marginHorizontal={'auto'}
           >
             <Icons
@@ -255,13 +203,13 @@ export default function Prices() {
             flexDirection="row"
             justifyContent="space-between"
             height={50}
-            width={Platform.OS === 'web' ? '70vw' : ''}
+            width={isLargeScreen ? '70vw' : '90%'}
             alignSelf="center"
           >
             <View
               disabled={!selectedRestaurant?.premium}
               opacity={selectedRestaurant?.premium ? 1 : 0.4}
-              onPress={() => handleTabChange(PricesTabs.CONECTAR_PLUS)}
+              onPress={() => setTab(PricesTabs.CONECTAR_PLUS)}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
               flex={1}
@@ -277,7 +225,7 @@ export default function Prices() {
               />
             </View>
             <View
-              onPress={() => handleTabChange(PricesTabs.ONLY_SUPPLIER)}
+              onPress={() => setTab(PricesTabs.ONLY_SUPPLIER)}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
               flex={1}
@@ -303,20 +251,12 @@ export default function Prices() {
             <>
               <View backgroundColor="white" flex={1} paddingHorizontal={5}>
                 <View padding={10} paddingTop={0} height="100%">
-                  {tab === PricesTabs.ONLY_SUPPLIER && (
-                    <SuppliersList
-                      cart={cart}
-                      goToConfirm={goToConfirm}
-                      suppliersLoading={suppliersLoading}
-                    />
+                  {tab === PricesTabs.CONECTAR_PLUS && (
+                    <CombinationList handleConfirm={handleConfirm} />
                   )}
 
-                  {tab === PricesTabs.CONECTAR_PLUS && (
-                    <CombinationList
-                      combinationsLoading={combinationsLoading}
-                      mainDataLoaded={mainDataLoaded}
-                      handleConfirm={handleConfirm}
-                    />
+                  {tab === PricesTabs.ONLY_SUPPLIER && (
+                    <SuppliersList cart={cart} goToConfirm={goToConfirm} />
                   )}
                 </View>
               </View>

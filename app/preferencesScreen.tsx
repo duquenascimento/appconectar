@@ -34,12 +34,12 @@ export default function PreferencesScreen() {
   const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao();
   const [combinationsFull, setCombinationsFull] = useState<any[]>([]);
   const [defaultCombinations, setDefaultCombinations] = useState<Combinacao[]>([]);
-  const { loadPrices } = useSupplier();
+  const { getPricesBySupplier } = useSupplier();
   const { loadRestaurants } = useRestaurantContext();
 
   useEffect(() => {
     const fetchStoredRestaurant = async () => {
-      loadPrices();
+      getPricesBySupplier();
       loadRestaurants();
       const restaurantData = await getStorageRestaurant();
       setRestaurant(restaurantData);

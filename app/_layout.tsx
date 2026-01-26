@@ -1,6 +1,7 @@
 import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
+import { CombinationProvider } from '@/src/contexts/combination.context';
 import { DeliveryDateProvider } from '@/src/contexts/deliveryDate.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
@@ -58,21 +59,23 @@ export default function RootLayout() {
             <FavoritesProvider>
               <ProductProvider>
                 <CombinacaoProvider>
-                  <SupplierProvider>
-                    {isScreenLoading ? (
-                      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                        <ActivityIndicator size="large" color="#04BF7B" />
-                      </View>
-                    ) : (
-                      <Stack
-                        screenOptions={{
-                          headerShown: false,
-                          animation: 'slide_from_right',
-                          gestureEnabled: true,
-                        }}
-                      />
-                    )}
-                  </SupplierProvider>
+                  <CombinationProvider>
+                    <SupplierProvider>
+                      {isScreenLoading ? (
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                          <ActivityIndicator size="large" color="#04BF7B" />
+                        </View>
+                      ) : (
+                        <Stack
+                          screenOptions={{
+                            headerShown: false,
+                            animation: 'slide_from_right',
+                            gestureEnabled: true,
+                          }}
+                        />
+                      )}
+                    </SupplierProvider>
+                  </CombinationProvider>
                 </CombinacaoProvider>
               </ProductProvider>
             </FavoritesProvider>

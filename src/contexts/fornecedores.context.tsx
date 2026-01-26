@@ -9,7 +9,7 @@ interface SupplierContextType {
   availableSuppliers: SupplierData[];
   unavailableSuppliers: SupplierData[];
   loadingSuppliers: boolean;
-  loadPrices: (restaurantId?: string, deliveryDate?: string) => Promise<void>;
+  getPricesBySupplier: (restaurantId?: string, deliveryDate?: string) => Promise<void>;
 }
 
 const SupplierContext = createContext({} as SupplierContextType);
@@ -18,15 +18,12 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [availableSuppliers, setAvailableSuppliers] = useState<SupplierData[]>([]);
   const [unavailableSuppliers, setUnavailableSuppliers] = useState<SupplierData[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
-  const { selectedRestaurant, restaurants } = useRestaurantContext();
+  const { selectedRestaurant, restaurants, loadRestaurants } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
 
   const saveSuppliersToStorage = async (available: SupplierData[], unavailable: SupplierData[]) => {
     try {
-      await setStorage(
-        STORAGE_DEFAULT_KEYS.AVAILABLE_SUPPLIERS, 
-        JSON.stringify(available),
-      ).catch(
+      await setStorage(STORAGE_DEFAULT_KEYS.AVAILABLE_SUPPLIERS, JSON.stringify(available)).catch(
         () => {
           console.warn('Falha ao salvar fornecedores disponíveis no Storage');
         },
@@ -42,10 +39,15 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
     }
   };
 
-  const loadPrices = useCallback(
+  const getPricesBySupplier = useCallback(
     async (restaurantExternalId?: string, deliveryDateParam?: string) => {
+      if (!selectedRestaurant) return;
+
       try {
         setLoadingSuppliers(true);
+
+        console.log('Carregando preços por fornecedor...');
+        await loadRestaurants();
 
         const currentRestaurant = restaurants.find(
           (r: any) => r.externalId === (restaurantExternalId ?? selectedRestaurant?.externalId),
@@ -69,14 +71,14 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         setLoadingSuppliers(false);
       }
     },
-    [selectedRestaurant, deliveryDate, restaurants, saveSuppliersToStorage],
+    [selectedRestaurant?.externalId, deliveryDate, restaurants?.length, saveSuppliersToStorage],
   );
 
   const value = {
     availableSuppliers,
     unavailableSuppliers,
     loadingSuppliers,
-    loadPrices,
+    getPricesBySupplier,
   };
 
   return <SupplierContext.Provider value={value}>{children}</SupplierContext.Provider>;

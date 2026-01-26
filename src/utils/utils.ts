@@ -17,6 +17,10 @@ export enum STORAGE_DEFAULT_KEYS {
     EXPO_APP_VERSION = 'expoAppVersion',
     AVAILABLE_SUPPLIERS = 'availableSuppliers',
     UNAVAILABLE_SUPPLIERS = 'unavailableSuppliers',
+    MY_COMBINATIONS = 'myCombinations',
+    CONECTAR_COMBINATIONS = 'conectarCombinations',
+    UNAVAILABLE_COMBINATIONS = 'unavailableCombinations',
+    COMBINATION_DATA = 'combinationData',
 }
 
 export const getToken = async (): Promise<string | null | undefined> => {

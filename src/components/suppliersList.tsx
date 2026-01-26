@@ -1,4 +1,5 @@
 import Icons from '@expo/vector-icons/Ionicons';
+import { useEffect } from 'react';
 import { Platform, VirtualizedList } from 'react-native';
 import { ScrollView, Stack, Text, View } from 'tamagui';
 import { useSupplier } from '../contexts/fornecedores.context';
@@ -13,7 +14,6 @@ import LoadingActivityIndicator from './loading/loadingActivityIndicator';
 interface SuppliersListProps {
   cart: Map<string, TCart> | undefined;
   goToConfirm: (supplier: SupplierData, selectedRestaurant: Restaurant) => void;
-  suppliersLoading: boolean;
 }
 
 function SupplierBox({
@@ -148,9 +148,22 @@ function SupplierBox({
   );
 }
 
-const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm, suppliersLoading }) => {
+const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
   const { selectedRestaurant } = useRestaurantContext();
-  const { availableSuppliers, unavailableSuppliers } = useSupplier();
+  const { availableSuppliers, unavailableSuppliers, loadingSuppliers, getPricesBySupplier } =
+    useSupplier();
+
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        console.log('Inicializando fornecedores na tela de fornecedores...');
+        await getPricesBySupplier();
+      } catch (error) {
+        console.error('Erro ao carregar fornecedores:', error);
+      }
+    };
+    initialize();
+  }, []);
 
   const getItem = (data: SupplierData[], index: number) => data[index];
   const getItemCount = (data: SupplierData[]) => data.length;
@@ -168,7 +181,7 @@ const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm, suppli
     );
   };
 
-  if (suppliersLoading || !selectedRestaurant) {
+  if (loadingSuppliers || !selectedRestaurant) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <LoadingActivityIndicator />

@@ -64,6 +64,7 @@ export interface QuotationApiRequest {
   };
   cart: any[];
   prices: any[];
+  deliveryDate: string;
 }
 
 export const getCombinationsByRestaurant = async (restaurantId: string) => {

@@ -38,7 +38,7 @@ const CustomDateInput = forwardRef<any, any>(({ value, onClick }, ref) => (
 interface RestaurantInfoDialogProps {
   visible: boolean;
   onClose: () => void;
-  handleLoadPrices: (restaurant?: Restaurant) => Promise<void>;
+  handleLoadPrices: (restaurant: Restaurant) => Promise<void>;
 }
 
 export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
@@ -330,7 +330,9 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     onClose();
     setDraftSelectedRestaurant(null);
     setDialogLoading(false);
-    handleLoadPrices();
+    if (selectedRestaurant) {
+      handleLoadPrices(selectedRestaurant);
+    }
   };
 
   const handleRestaurantDropdownChange = (restaurantName?: string) => {
@@ -384,7 +386,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
               style={{ overflow: 'visible' }}
             >
               <KeyboardAvoidingView style={{ flex: 1 }}>
-                <ScrollView 
+                <ScrollView
                   keyboardShouldPersistTaps="handled"
                   style={{ overflow: 'visible' }}
                   contentContainerStyle={{ overflow: 'visible' }}
