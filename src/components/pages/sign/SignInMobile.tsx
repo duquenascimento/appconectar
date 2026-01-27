@@ -1,16 +1,22 @@
-import { useAuthContext } from "@/src/contexts/auth.context";
-import { useState } from "react";
-import { ActivityIndicator, Linking } from "react-native";
-import { Button, View } from "tamagui";
-import { Image, Input, Text, XStack, YStack } from "tamagui";
-import { ValidationDialog } from "./ValidationDialog";
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
-import { VersionInfo } from "@/src/utils/VersionApp";
+import { useState } from 'react';
+import { ActivityIndicator, Linking } from 'react-native';
+import { Button, Image, Input, Text, View, XStack, YStack } from 'tamagui';
+import { ValidationDialog } from './ValidationDialog';
 
 export function SignInMobile(props: {
   page: string;
   onButtonPress: (page: string) => void;
-  onLoginPress: (email: string, password: string, registerInvalid: Function, setLoading: Function, setErros: Function, saveAuthToken: Function) => void;
+  onLoginPress: (
+    email: string,
+    password: string,
+    registerInvalid: Function,
+    setLoading: Function,
+    setErros: Function,
+    saveLogin: Function,
+  ) => void;
   modal: () => void;
 }) {
   const [showPw, setShowPw] = useState(true);
@@ -19,7 +25,7 @@ export function SignInMobile(props: {
   const [email, setEmail] = useState('');
   const [erros, setErros] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { saveAuthToken } = useAuthContext();
+  const { saveLogin } = useAuthContext();
 
   if (loading) {
     return (
@@ -116,7 +122,7 @@ export function SignInMobile(props: {
         fontWeight="$10"
         width={230}
         onPress={() =>
-          props.onLoginPress(email, password, setRegisterInvalid, setLoading, setErros, saveAuthToken)
+          props.onLoginPress(email, password, setRegisterInvalid, setLoading, setErros, saveLogin)
         }
       >
         Entrar

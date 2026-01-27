@@ -104,7 +104,7 @@ export default function Register() {
   const [paymentWayOpen, setPaymentWayOpen] = useState(false);
   const [daysOpen, setDaysOpen] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
-  const { deleteAuthToken } = useAuthContext();
+  const { logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
 
   const allClosedDropdowns = () => {
@@ -490,9 +490,7 @@ export default function Register() {
     const prevStep = step - 1;
 
     if (prevStep < 0) {
-      await clearToken();
-      await clearStorage();
-      router.push('/' as never);
+      await logout();
     } else {
       setStep(prevStep);
     }
@@ -502,14 +500,6 @@ export default function Register() {
   const handleCnpjChange = (text: string) => {
     const formatted = formatCNPJ(text);
     formik.setFieldValue('cnpj', formatted);
-  };
-
-  const clearToken = async () => {
-    try {
-      await deleteAuthToken();
-    } catch (error) {
-      console.error('Erro ao excluir o token:', error);
-    }
   };
 
   const handleCheckBox = () => {

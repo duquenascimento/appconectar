@@ -7,8 +7,13 @@ import { useAuthContext } from '@/src/contexts/auth.context';
 import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
-import { validateEmail, validateName, validatePassword, validatePhone, validatePosition } from '@/src/utils/validateFields';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  validateEmail,
+  validateName,
+  validatePassword,
+  validatePhone,
+  validatePosition,
+} from '@/src/utils/validateFields';
 import { isAxiosError } from 'axios';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -19,12 +24,9 @@ import {
   type NativeSyntheticEvent,
   Platform,
   ScrollView,
-  useWindowDimensions
+  useWindowDimensions,
 } from 'react-native';
-import {
-  Stack,
-  View
-} from 'tamagui';
+import { Stack, View } from 'tamagui';
 import { getStorage } from '../src/utils/utils';
 
 const positionOptions = [
@@ -46,7 +48,6 @@ const positionOptions = [
   { label: 'Auxiliar de limpeza', value: 'Auxiliar de limpeza' },
   { label: 'Outros', value: 'Outros' },
 ];
-
 
 function validateRegisterInfo(data: SignUpRequest): string[] {
   const erros: string[] = [];
@@ -84,7 +85,7 @@ async function handleLogin(
   registerInvalid: Function,
   setLoading: Function,
   setErros: Function,
-  saveAuthToken: Function,
+  saveLogin: Function,
 ) {
   const emailValidation = validateEmail(email);
   if (emailValidation) {
@@ -111,10 +112,8 @@ async function handleLogin(
 
     await clearStoragesAndSaveCurrentVersion();
 
-    await Promise.all([
-      saveAuthToken(response.data.token),
-      AsyncStorage.setItem('role', response.data.role[0]),
-    ]);
+    await saveLogin(response.data.token, response.data.role);
+
     if (response.data.role.includes('registering')) {
       router.replace('/register');
     } else {
@@ -149,7 +148,7 @@ async function handleRegister(
   registerInvalid: Function,
   setLoading: Function,
   setErros: Function,
-  saveAuthToken: Function,
+  saveLogin: Function,
 ) {
   const signUpData = {
     email: email.toLowerCase(),
@@ -172,10 +171,7 @@ async function handleRegister(
 
     await clearStoragesAndSaveCurrentVersion();
 
-    await Promise.all([
-      saveAuthToken(response.data.token),
-      AsyncStorage.setItem('role', response.data.role[0]),
-    ]);
+    await saveLogin(response.data.token, response.data.role);
 
     if (response.data.role.includes('registering')) {
       router.replace('/register');
@@ -206,8 +202,8 @@ export default function Sign() {
   const scrollRef = useRef<ScrollView>(null);
   const [loading, setLoading] = useState(true);
   const [closeModal, setCloseModal] = useState<boolean>(false);
-  const { width } = useWindowDimensions()
-  const { authToken, deleteAuthToken } = useAuthContext();
+  const { width } = useWindowDimensions();
+  const { authToken, logout } = useAuthContext();
 
   const handleCloseModal = () => {
     setCloseModal(!closeModal);
@@ -228,11 +224,9 @@ export default function Sign() {
         router.replace('/products');
       }
     } catch (err) {
-      await AsyncStorage.clear();
-      await deleteAuthToken();
+      await logout();
 
       console.error(err);
-      
     } finally {
       setLoading(false);
     }
@@ -300,32 +294,26 @@ export default function Sign() {
         ) : (
           <>
             <View width={width} height="100%">
-              <KeyboardAvoidingView 
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
               >
-                <ScrollView 
-                  nestedScrollEnabled={true}
-                   contentContainerStyle={{ flexGrow: 1 }} 
-                >
-                <SignInMobile
-                  page={currentPage}
-                  onButtonPress={handleButtonPress}
-                  onLoginPress={handleLogin}
-                  modal={handleCloseModal}
-                />
+                <ScrollView nestedScrollEnabled={true} contentContainerStyle={{ flexGrow: 1 }}>
+                  <SignInMobile
+                    page={currentPage}
+                    onButtonPress={handleButtonPress}
+                    onLoginPress={handleLogin}
+                    modal={handleCloseModal}
+                  />
                 </ScrollView>
               </KeyboardAvoidingView>
             </View>
             <View width={width} height="100%">
-              <KeyboardAvoidingView 
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+              <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
               >
-                <ScrollView 
-                  nestedScrollEnabled={true} 
-                  contentContainerStyle={{ flexGrow: 1 }} 
-                >
+                <ScrollView nestedScrollEnabled={true} contentContainerStyle={{ flexGrow: 1 }}>
                   <SignUpMobile
                     page={currentPage}
                     positionOptions={positionOptions}
