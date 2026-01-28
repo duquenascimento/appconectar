@@ -198,7 +198,7 @@ const CombinationList: React.FC<CombinationListProps> = ({
     );
   }
 
-  if (myCombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
+  if (myCombinations.length === 0 && conectarCombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center" padding={20}>
         <CustomSubtitle>
