@@ -126,7 +126,7 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
     );
   }
 
-  if (myCombinations.length === 0 && unavailableCombinations.length === 0) {
+  if (myCombinations.length === 0 && conectarCombinations.length === 0 && unavailableCombinations.length === 0) {
     return (
       <View flex={1} justifyContent="center" alignItems="center" padding={20}>
         <CustomSubtitle>

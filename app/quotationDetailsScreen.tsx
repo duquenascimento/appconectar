@@ -209,9 +209,12 @@ export default function QuotationDetailsScreen() {
       router.push('prices');
     }
   };
-
+  
   const handleConfirm = useCallback(
     async (overrideWarnings?: { sundayWarning?: boolean }) => {
+      if(disableConfirm) {
+        return
+      }
       setDisableConfirm(true);
       try {
         const token = await getToken();
@@ -307,7 +310,7 @@ export default function QuotationDetailsScreen() {
         setDisableConfirm(false);
       }
     },
-    [suppliers, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
+    [suppliers, disableConfirm, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
   );
 
   const handleConfirmSundayWarning = useCallback(async () => {
