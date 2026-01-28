@@ -175,7 +175,11 @@ export default function Confirm() {
 
   const handleConfirmOrder = useCallback(
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+      if(disableConfirm) {
+        return;
+      }
       setDisableConfirm(true);
+      
       try {
         const token = await getToken();
         if (!token || !selectedRestaurant) {
@@ -251,6 +255,7 @@ export default function Confirm() {
     },
     [
       supplier,
+      disableConfirm,
       selectedRestaurant,
       router,
       confirmedWarnings,
