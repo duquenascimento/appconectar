@@ -22,7 +22,7 @@ export function SignUpWeb(props: {
     registerInvalid: Function,
     setLoading: Function,
     setErros: Function,
-    saveAuthToken: Function,
+    saveLogin: Function,
   ) => void;
   modal: () => void;
 }) {
@@ -43,7 +43,7 @@ export function SignUpWeb(props: {
   const [erros, setErros] = useState([]);
   const [registerInvalid, setRegisterInvalid] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveAuthToken } = useAuthContext();
+  const { saveLogin } = useAuthContext();
 
   if (loading) {
     return (
@@ -309,7 +309,7 @@ export function SignUpWeb(props: {
             setRegisterInvalid,
             setLoading,
             setErros,
-            saveAuthToken,
+            saveLogin,
           )
         }
         hoverStyle={{ backgroundColor: '#03a86c' }}

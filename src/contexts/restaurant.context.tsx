@@ -45,7 +45,9 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
 
         const reloadedRestaurants = await loadRestaurants(restaurant);
 
-        const foundRestaurant = reloadedRestaurants.find((r) => r.externalId === restaurant.externalId);
+        const foundRestaurant = reloadedRestaurants.find(
+          (r) => r.externalId === restaurant.externalId,
+        );
         if (!foundRestaurant) {
           throw new Error('Restaurante não encontrado');
         }
@@ -137,7 +139,7 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
       }
     };
     initialize();
-  }, [authToken, saveRestaurant]);
+  }, [authToken]);
 
   const hasConectarPlusAccess = useMemo(() => {
     if (!selectedRestaurant) return false;

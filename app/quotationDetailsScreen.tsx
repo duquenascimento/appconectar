@@ -1,4 +1,6 @@
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 import { CombinationMissingProducts } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
@@ -8,7 +10,7 @@ import { HttpStatusCode } from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
@@ -126,10 +128,11 @@ export default function QuotationDetailsScreen() {
   const [confirmedWarnings, setConfirmedWarnings] = useState<{ sundayWarning: boolean }>({
     sundayWarning: false,
   });
-  const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
+  const { deliveryDate, resetDeliveryDate, isRetroactiveDate } = useDeliveryDate();
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
+  const { isLargeScreen } = useResponsiveness();
 
   const handleShowPdf = (pdfUrl: string) => {
     setSelectedPdfUrl(pdfUrl);
@@ -344,9 +347,11 @@ export default function QuotationDetailsScreen() {
         flex={1}
         backgroundColor="#F9F9F9"
         alignSelf="center"
-        width={Platform.OS === 'web' ? '70%' : '100%'}
+        width={isLargeScreen ? '70%' : '100%'}
         maxWidth={1280}
       >
+        {isRetroactiveDate && <RetroactiveQuotationWarningBanner />}
+
         <CustomHeader title={headerTitle} onBackPress={handleBackPress} />
 
         <ScrollView
@@ -464,10 +469,10 @@ export default function QuotationDetailsScreen() {
               display={isBefore13h ? 'flex' : 'none'}
             >
               A confirmação só pode ser feita após as 13h
-              {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário.'}
+              {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário.'}
             </Text>
           </View>
-          {Platform.OS === 'web' ? (
+          {isLargeScreen ? (
             <XStack
               width="74%"
               flexDirection="row"
@@ -492,14 +497,16 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  disabled={disableConfirm}
-                  //onPress={() => handleConfirm()}
+                  disabled={disableConfirm || isRetroactiveDate}
                   onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
                     opacity: 0.9,
                   }}
                   backgroundColor="#1DC588"
+                  disabledStyle={{
+                    backgroundColor: '#A9A9A9',
+                  }}
                   color="#FFFFFF"
                   borderColor="#A9A9A9"
                   borderWidth={1}
@@ -526,6 +533,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <CustomButton
+                  disabled={disableConfirm || isRetroactiveDate}
                   title={isBefore13h ? 'Agendar' : 'Confirmar'}
                   onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"

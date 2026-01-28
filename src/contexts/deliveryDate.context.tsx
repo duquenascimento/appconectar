@@ -9,7 +9,11 @@ import {
 } from 'react';
 import { getAvailableDeliveryDatesByRestaurant } from '../services/deliveryDateService';
 import { ComboOption } from '../types/componentTypes';
-import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../utils/dateUtils';
+import {
+  getBrazilDateTime,
+  getBrazilDateTimeTomorrow,
+  isDateBeforeToday,
+} from '../utils/dateUtils';
 import { useRestaurantContext } from './restaurant.context';
 
 interface DeliveryDateContextProps {
@@ -24,6 +28,7 @@ interface DeliveryDateContextProps {
   resetDeliveryDate: () => void;
   loading: boolean;
   errorMessage: string | null;
+  isRetroactiveDate: boolean;
 }
 
 const DeliveryDateContext = createContext<DeliveryDateContextProps>({} as DeliveryDateContextProps);
@@ -37,6 +42,10 @@ export function DeliveryDateProvider({ children }: { children: ReactNode }) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [initialized, setInitialized] = useState<boolean>(false);
   const { selectedRestaurant } = useRestaurantContext();
+
+  const isRetroactiveDate = useMemo(() => {
+    return isDateBeforeToday(deliveryDate);
+  }, [deliveryDate]);
 
   useEffect(() => {
     const initialize = async () => {
@@ -78,7 +87,11 @@ export function DeliveryDateProvider({ children }: { children: ReactNode }) {
         );
         setDeliveryDates(availableDates);
 
-        if (availableDates.length > 0 && !availableDates.includes(deliveryDate)) {
+        if (
+          availableDates.length > 0 &&
+          !availableDates.includes(deliveryDate) &&
+          !isRetroactiveDate
+        ) {
           setDeliveryDate(availableDates[0]);
         }
       } catch (error: Error | any) {
@@ -87,7 +100,7 @@ export function DeliveryDateProvider({ children }: { children: ReactNode }) {
         setLoading(false);
       }
     },
-    [deliveryDate, selectedRestaurant],
+    [deliveryDate, selectedRestaurant, isRetroactiveDate],
   );
 
   const setDropdownDeliveryDate = useCallback(
@@ -133,6 +146,7 @@ export function DeliveryDateProvider({ children }: { children: ReactNode }) {
       resetDeliveryDate,
       loading,
       errorMessage,
+      isRetroactiveDate,
     }),
     [
       deliveryDate,
@@ -146,6 +160,7 @@ export function DeliveryDateProvider({ children }: { children: ReactNode }) {
       resetDeliveryDate,
       loading,
       errorMessage,
+      isRetroactiveDate,
     ],
   );
 

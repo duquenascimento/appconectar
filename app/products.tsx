@@ -508,7 +508,7 @@ export default function Products() {
       if (exists) initialRestaurant = exists;
     }
 
-    if (initialRestaurant) {
+    if  (initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 

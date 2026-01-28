@@ -8,15 +8,22 @@ import { Text, View } from 'tamagui';
 interface RestaurantInfoDisplayProps {
   onEditPress: () => void;
   setEmergencyAlertVisible: (visible: boolean) => void;
+  setRetroactiveAlertVisible: (visible: boolean) => void;
+}
+
+interface DateIconData {
+  color: string;
+  onPress?: () => void;
 }
 
 export const RestaurantInfoDisplay: React.FC<RestaurantInfoDisplayProps> = ({
   onEditPress,
   setEmergencyAlertVisible,
+  setRetroactiveAlertVisible,
 }) => {
   const { selectedRestaurant } = useRestaurantContext();
   const [showRestInfo, setShowRestInfo] = useState<boolean>(false);
-  const { deliveryDate, getFormattedDate } = useDeliveryDate();
+  const { deliveryDate, getFormattedDate, isRetroactiveDate } = useDeliveryDate();
 
   if (!selectedRestaurant) return null;
 
@@ -26,6 +33,26 @@ export const RestaurantInfoDisplay: React.FC<RestaurantInfoDisplayProps> = ({
   };
 
   const restaurantAddressInfo = selectedRestaurant?.addressInfos[0];
+
+  const getIconData = (): DateIconData | null => {
+    if (isEmergencyOrderDay()) {
+      return {
+        color: '#04BF7B',
+        onPress: () => setEmergencyAlertVisible(true),
+      };
+    }
+
+    if (isRetroactiveDate) {
+      return {
+        color: '#0000FF',
+        onPress: () => setRetroactiveAlertVisible(true),
+      };
+    }
+
+    return null;
+  };
+
+  const dateIconData = getIconData();
 
   return (
     <View
@@ -85,12 +112,12 @@ export const RestaurantInfoDisplay: React.FC<RestaurantInfoDisplayProps> = ({
             justifyContent="space-between"
           >
             <Text fontSize={12}>{getFormattedDate()}</Text>
-            {isEmergencyOrderDay() ? (
+            {dateIconData ? (
               <Icons
                 size={20}
                 name="alert-circle"
-                color="#04BF7B"
-                onPress={() => setEmergencyAlertVisible(true)}
+                color={dateIconData.color}
+                onPress={dateIconData.onPress}
               />
             ) : (
               <></>

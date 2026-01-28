@@ -78,6 +78,11 @@ export const getBrazilJSDate = (date?: DateUtilsInput, format?: string): Date =>
   return dt.toJSDate();
 };
 
+export const getBrazilJSStartOfDay = (date?: Date | string | DateTime, format?: string): Date => {
+  const dt = getBrazilDateTime(date, format)
+  return dt.startOf('day').toJSDate()
+}
+
 export const getBrazilJSDateTomorrow = (): Date => {
   return getBrazilDateTimeTomorrow().toJSDate();
 };
@@ -86,3 +91,12 @@ export const getBrazilLocaleString = (date?: DateUtilsInput): string => {
   const dt = getBrazilDateTime(date);
   return dt.toLocaleString(DateTime.DATE_SHORT, { locale: 'pt-BR' });
 };
+
+export const isDateBeforeToday = (date?: string | undefined | null): boolean => {
+  if (!date) return false
+
+  const today = getBrazilJSStartOfDay()
+  const targetDate = getBrazilJSStartOfDay(date)
+
+  return targetDate < today
+}

@@ -1,118 +1,55 @@
 import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
-import { getStorage, getToken } from '@/src/utils/utils';
+import { getToken } from '@/src/utils/utils';
 import { HttpStatusCode } from 'axios';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
 import { Button, Text, View } from 'tamagui';
 import { validate as validateUuid } from 'uuid';
+import { useCombination } from '../contexts/combination.context';
 import { useDeliveryDate } from '../contexts/deliveryDate.context';
 import { useSupplier } from '../contexts/fornecedores.context';
 import { useRestaurantContext } from '../contexts/restaurant.context';
-import { QuotationApiResponse, QuotationApiResponseData } from '../services/combinationsService';
 import { confirmPremiumOrder } from '../services/orderService';
-import { getQuotationsByCombination } from '../services/quotationService';
-import { Combination, CombinationMissingProducts } from '../types/combinationTypes';
+import { Combination } from '../types/combinationTypes';
 import { ChosenSupplierQuote } from '../types/suppliersDataTypes';
-import { SupplierData } from '../types/types';
-import { transformCombinationFromApi } from '../utils/combinacaoUtils';
 import CustomListItem from './list/customListItem';
 import CustomAlert from './modais/CustomAlert';
 import DialogInstanceNotification from './modais/DialogInstanceNotification';
 import CustomSubtitle from './subtitle/customSubtitle';
 
-export type RootStackParamList = {
-  Sign: undefined;
-  Products: undefined;
-  Preferences: undefined;
-  CombinationDetail: { id: string };
-  CreateCombination: undefined;
-  QuotationDetails: {
-    combinationId: string;
-    combinationName?: string;
-    suppliersData: SupplierData[];
-    toalValue?: number;
-    missingItems?: number;
-    missingProducts?: CombinationMissingProducts[];
-  };
-};
-
 interface CombinationListProps {
-  combinationsLoading: boolean;
-  mainDataLoaded: boolean;
   handleConfirm: () => void;
 }
 
-const CombinationList: React.FC<CombinationListProps> = ({
-  combinationsLoading,
-  mainDataLoaded,
-  handleConfirm,
-}) => {
-  const [myCombinations, setMyCombinations] = useState<Combination[]>([]);
-  const [conectarCombinations, setConectarCombinations] = useState<Combination[]>([]);
-  const [unavailableCombinations, setUnavailableCombinations] = useState<Combination[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
-  const [combinationData, setCombinationData] = useState<QuotationApiResponseData[]>([]);
   const [showNotification, setShowNotification] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
   const { availableSuppliers, getSuppliersFromStorage } = useSupplier();
   const { selectedRestaurant, hasConectarPlusAccess } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
+  const {
+    myCombinations,
+    conectarCombinations,
+    unavailableCombinations,
+    combinationData,
+    loadingCombinations,
+    getCombinationsByRestaurant,
+  } = useCombination();
   const router = useRouter();
 
-  useFocusEffect(
-    useCallback(() => {
-      const initialize = async () => {
-        if (!selectedRestaurant || !hasConectarPlusAccess || !mainDataLoaded) return;
-
-        if (availableSuppliers.length === 0) {
-          await getSuppliersFromStorage();
-          return;
-        }
-
-        try {
-          setLoading(true);
-          const cartStoredValue = JSON.parse(
-            (await getStorage(`cart_${selectedRestaurant.externalId}`)) || '[]',
-          );
-
-          const combinationsData: QuotationApiResponse = await getQuotationsByCombination({
-            restaurantId: selectedRestaurant.id,
-            deliveryDate: deliveryDate,
-          });
-
-          const totalItens = cartStoredValue?.length || 0;
-          setCombinationData([
-            ...combinationsData.availableCombinations,
-            ...combinationsData.unavailableCombinations,
-          ]);
-
-          const availableCombinations = transformCombinationFromApi(
-            combinationsData.availableCombinations,
-            totalItens,
-            availableSuppliers,
-          );
-          const unavailableCombinations = transformCombinationFromApi(
-            combinationsData.unavailableCombinations,
-            totalItens,
-            availableSuppliers,
-          );
-
-          setMyCombinations(availableCombinations.filter((c) => validateUuid(c.id)));
-          setConectarCombinations(availableCombinations.filter((c) => !validateUuid(c.id)));
-          setUnavailableCombinations(unavailableCombinations);
-        } catch (error) {
-          setIsAlertVisible(true);
-          console.error('Erro ao inicializar:', error);
-        } finally {
-          setLoading(false);
-        }
-      };
-      initialize();
-    }, [selectedRestaurant, availableSuppliers, hasConectarPlusAccess, mainDataLoaded]),
-  );
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        await getCombinationsByRestaurant();
+      } catch (error) {
+        setIsAlertVisible(true);
+      }
+    };
+    initialize();
+  }, []);
 
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
@@ -133,29 +70,6 @@ const CombinationList: React.FC<CombinationListProps> = ({
       params,
     });
   };
-
-  const sections = [
-    {
-      title: myCombinations.length > 0 ? 'Minhas combinações' : '',
-      data: myCombinations,
-    },
-    {
-      title: conectarCombinations.length > 0 ? 'Combinações Conéctar' : '',
-      data: conectarCombinations,
-    },
-    {
-      title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
-      data: unavailableCombinations,
-    },
-  ];
-
-  if (combinationsLoading || confirmLoading || loading || !mainDataLoaded) {
-    return (
-      <View flex={1} justifyContent="center" alignItems="center">
-        <ActivityIndicator size="large" color="#04BF7B" />
-      </View>
-    );
-  }
 
   if (!hasConectarPlusAccess) {
     return (
@@ -204,7 +118,15 @@ const CombinationList: React.FC<CombinationListProps> = ({
     );
   }
 
-  if (myCombinations.length === 0 && unavailableCombinations.length === 0 && !loading) {
+  if (loadingCombinations || confirmLoading) {
+    return (
+      <View flex={1} justifyContent="center" alignItems="center">
+        <ActivityIndicator size="large" color="#04BF7B" />
+      </View>
+    );
+  }
+
+  if (myCombinations.length === 0 && unavailableCombinations.length === 0) {
     return (
       <View flex={1} justifyContent="center" alignItems="center" padding={20}>
         <CustomSubtitle>
@@ -213,6 +135,21 @@ const CombinationList: React.FC<CombinationListProps> = ({
       </View>
     );
   }
+
+  const sections = [
+    {
+      title: myCombinations.length > 0 ? 'Minhas combinações' : '',
+      data: myCombinations,
+    },
+    {
+      title: conectarCombinations.length > 0 ? 'Combinações Conéctar' : '',
+      data: conectarCombinations,
+    },
+    {
+      title: unavailableCombinations.length > 0 ? 'Combinações indisponíveis' : '',
+      data: unavailableCombinations,
+    },
+  ];
 
   return (
     <>
