@@ -30,7 +30,7 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
   const { selectedRestaurant, restaurants, hasConectarPlusAccess, loadRestaurants } =
     useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
-  const { availableSuppliers } = useSupplier();
+  const { availableSuppliers, getSuppliersFromStorage } = useSupplier();
 
   const saveCombinationsToStorage = async (
     my: Combination[],
@@ -64,6 +64,11 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
   const getCombinationsByRestaurant = useCallback(
     async (restaurantIdParam?: string, deliveryDateParam?: string) => {
       if (!selectedRestaurant || !hasConectarPlusAccess) return;
+
+      if (availableSuppliers.length === 0) {
+        await getSuppliersFromStorage();
+        return;
+      }
 
       try {
         setLoadingCombinations(true);
