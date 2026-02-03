@@ -27,6 +27,7 @@ import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import { VersionInfo } from '../src/utils/VersionApp';
 import { OrderData } from '@/src/types/IOrder';
 import { getStatusAndColor } from '@/src/utils/ordersScreenUtils';
+import BadgeText from '@/src/components/text/BadgeText';
 
 /* interface Order {
   orderDocument: ReactNode;
@@ -352,6 +353,7 @@ export default function OrdersScreen() {
                       })
               }
               style={styles.itemContainer}
+              disabled={item.status_id === 6}
             >
               <TouchableOpacity
                 onPress={isScheduledOrder ? () => {} : () => toggleOrderSelection(item.id)}
@@ -388,11 +390,20 @@ export default function OrdersScreen() {
                 <Text style={styles.deliveryDate}>{getBrazilLocaleString(item.deliveryDate)}</Text>
               </View>
               <YStack>
-                {!isScheduledOrder && (
-                  <Text marginBottom={10} style={styles.total} alignSelf="flex-end">
-                    R$ {item.totalConectar.toFixed(2)}
-                  </Text>
-                )}
+                <View
+                  flex={1}
+                  flexDirection="column"
+                  justifyContent="center"
+                  alignItems="flex-end"
+                  gap={4}
+                >
+                  {item.status_id === 6 && <BadgeText text="Pedido Cancelado" color="#ff2233" />}
+                  {!isScheduledOrder && (
+                    <Text marginBottom={10} style={styles.total} alignSelf="flex-end">
+                      R$ {item.totalConectar.toFixed(2)}
+                    </Text>
+                  )}
+                </View>
                 <Text
                   style={{
                     whiteSpace: 'nowrap',
