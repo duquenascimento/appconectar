@@ -1,6 +1,7 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
 import { getAllSuppliers } from '@/src/services/supplierService';
+import { ComboOption } from '@/src/types/componentTypes';
 import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -19,12 +20,9 @@ import { InputNome } from '../src/components/Combination/InputNome';
 import { PreferenciaFornecedorCampo } from '../src/components/Combination/PreferenciaFornecedorTipo';
 import CustomHeader from '../src/components/header/customHeader';
 import CustomAlert from '../src/components/modais/CustomAlert';
-import { useSupplier } from '../src/contexts/fornecedores.context';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { getCombinationsByRestaurant } from '../src/services/combinationsService';
 import { Combinacao } from '../src/types/combinationTypes';
 import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
-import { ComboOption } from '@/src/types/componentTypes';
 
 export function Combination(): JSX.Element {
   const route = useRoute();
@@ -37,10 +35,10 @@ export function Combination(): JSX.Element {
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [triggerValidation, setTriggerValidation] = useState(false);
-  const { loadPrices } = useSupplier();
-  const { loadRestaurants } = useRestaurantContext();
   const [loading, setLoading] = useState<boolean>(true);
-  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<Array<ComboOption<number>>>([]);
+  const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
+    Array<ComboOption<number>>
+  >([]);
   const [suppliers, setSuppliers] = useState<CombinationSupplier[]>([]);
 
   useEffect(() => {
@@ -55,8 +53,6 @@ export function Combination(): JSX.Element {
   useEffect(() => {
     const carregarCombinacao = async () => {
       setLoading(false);
-      await loadPrices();
-      await loadRestaurants();
       if (!id) return;
 
       try {

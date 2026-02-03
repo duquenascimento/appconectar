@@ -3,6 +3,7 @@ import { DialogInstance } from '@/src/components/confirm/dialogInstance';
 import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
 import { SupplierData } from '@/src/types/types';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
@@ -18,7 +19,6 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
 import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
-import { useSupplier } from '../src/contexts/fornecedores.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderService';
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
@@ -27,6 +27,7 @@ import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -64,9 +65,10 @@ export default function Confirm() {
     missingItems: false,
     sundayWarning: false,
   });
-  const { loadPrices } = useSupplier();
-  const { loadRestaurants, selectedRestaurant } = useRestaurantContext();
-  const { deliveryDate, getFormattedDate, resetDeliveryDate } = useDeliveryDate();
+  const { selectedRestaurant } = useRestaurantContext();
+  const { deliveryDate, getFormattedDate, resetDeliveryDate, isRetroactiveDate } =
+    useDeliveryDate();
+  const { isLargeScreen } = useResponsiveness();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -101,8 +103,6 @@ export default function Confirm() {
   });
 
   const loadSupplier = useCallback(async () => {
-    await loadRestaurants();
-    await loadPrices();
     const supplierText = await getStorage('supplierSelected');
     if (!supplierText) return;
     const supplier = JSON.parse(supplierText);
@@ -181,6 +181,15 @@ export default function Confirm() {
       setDisableConfirm(true);
       
       try {
+        if (isRetroactiveDate) {
+          setAlertMessage(
+            'Cotação retroativa: Não é possível criar pedidos com datas passadas. Esta funcionalidade é apenas para comparação de preços históricos.',
+          );
+          setIsAlertVisible(true);
+          setDisableConfirm(false);
+          return;
+        }
+
         const token = await getToken();
         if (!token || !selectedRestaurant) {
           Alert.alert('Erro', 'Token de autenticação não encontrado.');
@@ -207,6 +216,7 @@ export default function Confirm() {
           token,
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
+          appVersion: process.env.EXPO_PUBLIC_VERSION,
           deliveryDate: selectedRestaurant.allowEmergencyOrder
             ? getBrazilDateTime().toISODate()
             : deliveryDate,
@@ -380,10 +390,13 @@ export default function Confirm() {
             onClose={() => setShowPdfModal(false)}
           />
         )}
+
+        {isRetroactiveDate && <RetroactiveQuotationWarningBanner />}
+
         <View
           backgroundColor="white"
           flexDirection="row"
-          style={{ width: Platform.OS === 'web' ? '74%' : '90%' }}
+          style={{ width: isLargeScreen ? '74%' : '90%' }}
           marginHorizontal={'auto'}
         >
           <View alignItems="center" flexDirection="row" paddingVertical="$4" gap="$4">
@@ -419,8 +432,8 @@ export default function Confirm() {
           <View backgroundColor="white" padding={15}>
             {hasSameDayOrdersWithSupplier && (
               <View
-                marginLeft={Platform.OS === 'web' ? 10 : 0}
-                width={Platform.OS === 'web' ? '70.5vw' : '100%'}
+                marginLeft={isLargeScreen ? 10 : 0}
+                width={isLargeScreen ? '70.5vw' : '100%'}
                 alignSelf="center"
               >
                 <AccordionInfo
@@ -467,8 +480,8 @@ export default function Confirm() {
             )}
             <View
               alignItems="center"
-              marginLeft={Platform.OS === 'web' ? 10 : ''}
-              width={Platform.OS === 'web' ? '70.5vw' : ''}
+              marginLeft={isLargeScreen ? 10 : ''}
+              width={isLargeScreen ? '70.5vw' : ''}
               alignSelf="center"
               borderColor="gray"
               minHeight={40}
@@ -483,21 +496,21 @@ export default function Confirm() {
                 marginRight={10}
                 textBreakStrategy="simple"
                 fontSize={12}
-                width={Platform.OS === 'web' ? '70vw' : '90%'}
+                width={isLargeScreen ? '70vw' : '90%'}
               >
                 Podem ocorrer pequenas variações de peso/tamanho nos produtos, comum ao hortifrúti.
               </Text>
             </View>
             <View
               paddingTop={25}
-              width={Platform.OS === 'web' ? '70vw' : ''}
-              alignSelf={Platform.OS === 'web' ? 'center' : 'flex-start'}
+              width={isLargeScreen ? '70vw' : ''}
+              alignSelf={isLargeScreen ? 'center' : 'flex-start'}
             >
               <Text>Produtos selecionados</Text>
             </View>
           </View>
           <View
-            width={Platform.OS === 'web' ? '70vw' : '92%'}
+            width={isLargeScreen ? '70vw' : '92%'}
             alignSelf="center"
             gap={20}
             flex={1}
@@ -558,7 +571,7 @@ export default function Confirm() {
             gap={15}
             marginTop={20}
             paddingVertical={16}
-            width={Platform.OS === 'web' ? '70vw' : '92%'}
+            width={isLargeScreen ? '70vw' : '92%'}
             alignSelf="center"
           >
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -566,7 +579,7 @@ export default function Confirm() {
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 R$ {supplier.supplier?.discount.orderValueFinish.toFixed(2).replace('.', ',')}
@@ -583,7 +596,7 @@ export default function Confirm() {
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 R$ 0,00
@@ -595,7 +608,7 @@ export default function Confirm() {
                 <Text
                   style={{
                     flexGrow: 1,
-                    marginLeft: Platform.OS === 'web' ? 8 : '',
+                    marginLeft: isLargeScreen ? 8 : '',
                   }}
                 >
                   R$ {supplier?.supplier?.discount.orderValueFinish.toFixed(2).replace('.', ',')}
@@ -618,7 +631,7 @@ export default function Confirm() {
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 {getPaymentDescription(selectedRestaurant.paymentWay)}
@@ -635,7 +648,7 @@ export default function Confirm() {
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 {getPaymentDate(
@@ -650,7 +663,7 @@ export default function Confirm() {
               <View
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 <Text>{selectedRestaurant.name}</Text>
@@ -667,7 +680,7 @@ export default function Confirm() {
               <View
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 <Text numberOfLines={3} ellipsizeMode="tail">
@@ -692,7 +705,7 @@ export default function Confirm() {
               <View
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 <Text>{getFormattedDate()}</Text>
@@ -710,7 +723,7 @@ export default function Confirm() {
               <View
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 <Text>
@@ -732,7 +745,7 @@ export default function Confirm() {
                 style={{
                   maxWidth: 200,
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 {selectedRestaurant.addressInfos[0].deliveryInformation || '--'}
@@ -749,7 +762,7 @@ export default function Confirm() {
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 {selectedRestaurant.addressInfos[0].responsibleReceivingName || '--'}
@@ -766,7 +779,7 @@ export default function Confirm() {
               <Text
                 style={{
                   flexGrow: 1,
-                  marginLeft: Platform.OS === 'web' ? 8 : '',
+                  marginLeft: isLargeScreen ? 8 : '',
                 }}
               >
                 {selectedRestaurant.addressInfos[0].responsibleReceivingPhoneNumber || '--'}
@@ -783,7 +796,7 @@ export default function Confirm() {
             display={isBefore13h ? 'flex' : 'none'}
           >
             A confirmação só pode ser feita após as 13h
-            {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário'}
+            {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário'}
           </Text>
         </View>
         <View
@@ -804,10 +817,13 @@ export default function Confirm() {
             <Text color="white">Alterar itens</Text>
           </Button>
           <Button
-            disabled={disableConfirm}
+            disabled={disableConfirm || isRetroactiveDate}
             onPress={onConfirmPressDebounced}
             width={170}
             backgroundColor="#04BF7B"
+            disabledStyle={{
+              backgroundColor: '#A9A9A9',
+            }}
           >
             <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
               {isBefore13h ? 'Agendar notificação' : 'Confirmar pedido'}

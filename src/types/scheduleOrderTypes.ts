@@ -12,6 +12,7 @@ export type ScheduleOrderCreationBody = {
 
 export type ScheduleOrderConfirmationBody = {
   paymentWay?: string;
+  appVersion: string;
 };
 
 export type ScheduleOrderResponse = {
