@@ -6,6 +6,7 @@ import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
+import { getSupplierLabel } from '@/src/utils/supplierUtils';
 
 export function BloqueioFornecedoresCampo({
   suppliers,
@@ -33,7 +34,7 @@ export function BloqueioFornecedoresCampo({
     );
 
     return fornecedoresNaoSelecionados.map((supplier) => ({
-      label: supplier.nomefornecedor,
+      label: getSupplierLabel(supplier),
       value: supplier.idexterno,
     }));
   }, [suppliers, combinacao.fornecedores_especificos]);

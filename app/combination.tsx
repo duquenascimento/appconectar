@@ -5,7 +5,7 @@ import { getAllSuppliers } from '@/src/services/supplierService';
 import { ComboOption } from '@/src/types/componentTypes';
 import { CombinationSupplier, SuppliersRouteFilterParams } from '@/src/types/suppliersDataTypes';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
-import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { getStorageRestaurant, resolveMinMaxTimeForRoute } from '@/src/utils/restaurantUtils';
 import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -45,27 +45,31 @@ export function Combination(): JSX.Element {
   const { selectedRestaurant } = useRestaurantContext();
 
   useEffect(() => {
-    const suppliersFn = async () => {
+    const initializeSuppliers = async () => {
+      if (!selectedRestaurant) return;
+
       try {
         setLoadingSuppliers(true);
 
         const restaurantAddressInfo = selectedRestaurant?.addressInfos[0];
 
-        console.log('restaurantAddressInfo', restaurantAddressInfo);
+        const neighborhood = restaurantAddressInfo?.neighborhood || '';
+
+        const { minimumTime, maximumTime } = resolveMinMaxTimeForRoute(
+          restaurantAddressInfo?.initialDeliveryTime,
+          restaurantAddressInfo?.finalDeliveryTime,
+        );
 
         const routeFilters: SuppliersRouteFilterParams = {
-          neighborhood: restaurantAddressInfo?.neighborhood || '',
-          minimumTime: restaurantAddressInfo?.initialDeliveryTime || '',
-          maximumTime: restaurantAddressInfo?.finalDeliveryTime || '',
+          neighborhood,
+          minimumTime,
+          maximumTime,
         };
-
-        console.log('routeFilters', routeFilters);
 
         const suppliers = await getAllSuppliers({ routeFilters });
 
         setSuppliers(suppliers);
       } catch (error) {
-        console.error('Erro ao buscar fornecedores:', error);
         setAlertTitle('Erro!');
         setAlertMessage('Ocorreu um erro inesperado ao buscar fornecedores.');
         setIsAlertVisible(true);
@@ -73,8 +77,8 @@ export function Combination(): JSX.Element {
         setLoadingSuppliers(false);
       }
     };
-    suppliersFn();
-  }, [selectedRestaurant]);
+    initializeSuppliers();
+  }, [selectedRestaurant?.id, selectedRestaurant?.addressInfos]);
 
   useEffect(() => {
     const carregarCombinacao = async () => {

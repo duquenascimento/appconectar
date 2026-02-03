@@ -10,7 +10,11 @@ interface SupplierContextType {
   unavailableSuppliers: SupplierData[];
   loadingSuppliers: boolean;
   getSuppliersFromStorage: () => Promise<void>;
-  getPricesBySupplier: (restaurantId?: string, deliveryDate?: string) => Promise<SuppliersQuotationDTO | undefined>;
+  getPricesBySupplier: (
+    restaurantId?: string,
+    deliveryDate?: string,
+    reloadRestaurants?: boolean,
+  ) => Promise<SuppliersQuotationDTO | undefined>;
 }
 
 const SupplierContext = createContext({} as SupplierContextType);
@@ -42,14 +46,12 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
   const getSuppliersFromStorage = async () => {
     try {
-      const availableSuppliers = await getStorage(
-        STORAGE_DEFAULT_KEYS.AVAILABLE_SUPPLIERS, 
-      ).catch(
+      const availableSuppliers = await getStorage(STORAGE_DEFAULT_KEYS.AVAILABLE_SUPPLIERS).catch(
         () => {
           console.warn('Falha ao recuperar fornecedores disponíveis no Storage');
         },
       );
-     const unavailableSuppliers = await getStorage(
+      const unavailableSuppliers = await getStorage(
         STORAGE_DEFAULT_KEYS.UNAVAILABLE_SUPPLIERS,
       ).catch(() => {
         console.warn('Falha ao recuperar os fornecedores indisponíveis no Storage');
@@ -63,13 +65,19 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   };
 
   const getPricesBySupplier = useCallback(
-    async (restaurantExternalId?: string, deliveryDateParam?: string): Promise<SuppliersQuotationDTO | undefined> => {
+    async (
+      restaurantExternalId?: string,
+      deliveryDateParam?: string,
+      reloadRestaurants: boolean = true,
+    ): Promise<SuppliersQuotationDTO | undefined> => {
       if (!selectedRestaurant) return;
 
       try {
         setLoadingSuppliers(true);
 
-        await loadRestaurants();
+        if (reloadRestaurants) {
+          await loadRestaurants();
+        }
 
         const currentRestaurant = restaurants.find(
           (r: any) => r.externalId === (restaurantExternalId ?? selectedRestaurant?.externalId),

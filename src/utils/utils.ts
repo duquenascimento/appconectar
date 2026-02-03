@@ -76,10 +76,7 @@ export const clearStorage = async (): Promise<void> => {
 }
 
 export const clearAllStoragesData = async (): Promise<void> => {
-    try {
-        await clearStorage();
-        await clearSecureStorage();
-    } catch (error) {
-        console.log('Erro ao limpar os storages:', error);
-    }
+    await Promise
+        .all([clearStorage(), clearSecureStorage()])
+        .catch(async () => { });
 }

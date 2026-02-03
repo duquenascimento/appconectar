@@ -66,7 +66,6 @@ export default function Prices() {
             await getCombinationsByRestaurant(restaurant.id);
             break;
           case PricesTabs.ONLY_SUPPLIER:
-            console.log('Carregando preços por fornecedor após troca de restaurante...');
             await getPricesBySupplier(restaurant.externalId);
             break;
         }

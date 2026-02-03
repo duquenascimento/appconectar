@@ -1,6 +1,7 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { ComboOption } from '@/src/types/componentTypes';
 import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { getSupplierLabel } from '@/src/utils/supplierUtils';
 import { useEffect, useMemo, useState } from 'react';
 import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { TipoFornecedor } from '../../types/combinationTypes';
@@ -37,7 +38,7 @@ export function PreferenciaFornecedorCampo({
     );
 
     return fornecedoresNaoBloqueados.map((supplier) => ({
-      label: supplier.nomefornecedor,
+      label: getSupplierLabel(supplier),
       value: supplier.idexterno,
     }));
   }, [suppliers, combinacao.fornecedores_bloqueados]);

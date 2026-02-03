@@ -4,6 +4,7 @@ import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { ProductClass } from '@/src/types/productTypes';
 import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
 import { normalizeText } from '@/src/utils/stringUtils';
+import { getSupplierLabel } from '@/src/utils/supplierUtils';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
@@ -230,12 +231,7 @@ export function PreferenciaProdutoCard({
   const fornecedoresDisponiveis = useMemo(() => {
     const todosFornecedores: CombinationSupplier[] = [...suppliers];
 
-    const fornecedoresLocal = todosFornecedores
-      .map((f) => ({
-        id: f.idexterno ?? null,
-        nome: f.nomefornecedor ?? '',
-      }))
-      .filter((f) => f.id && !bloqueados.includes(f.id));
+    const fornecedoresLocal = todosFornecedores.filter((f) => f.id && !bloqueados.includes(f.id));
     let fornecedoresFiltrados = fornecedoresLocal;
 
     if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
@@ -243,9 +239,9 @@ export function PreferenciaProdutoCard({
       fornecedoresFiltrados = fornecedoresLocal.filter((f) => especificos.has(f.id!));
     }
 
-    return fornecedoresFiltrados.map((f) => ({
-      label: f.nome,
-      value: f.id!,
+    return fornecedoresFiltrados.map((supplier) => ({
+      label: getSupplierLabel(supplier),
+      value: supplier.id!,
     }));
   }, [
     suppliers,
