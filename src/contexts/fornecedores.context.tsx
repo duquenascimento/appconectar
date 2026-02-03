@@ -1,7 +1,7 @@
 import { getStorage, setStorage, STORAGE_DEFAULT_KEYS } from '@/src/utils/utils';
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { getQuotationsBySupplier } from '../services/quotationService';
-import { SupplierData } from '../types/types';
+import { SupplierData, SuppliersQuotationDTO } from '../types/types';
 import { useDeliveryDate } from './deliveryDate.context';
 import { useRestaurantContext } from './restaurant.context';
 
@@ -10,7 +10,7 @@ interface SupplierContextType {
   unavailableSuppliers: SupplierData[];
   loadingSuppliers: boolean;
   getSuppliersFromStorage: () => Promise<void>;
-  getPricesBySupplier: (restaurantId?: string, deliveryDate?: string) => Promise<void>;
+  getPricesBySupplier: (restaurantId?: string, deliveryDate?: string) => Promise<SuppliersQuotationDTO | undefined>;
 }
 
 const SupplierContext = createContext({} as SupplierContextType);
@@ -63,7 +63,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   };
 
   const getPricesBySupplier = useCallback(
-    async (restaurantExternalId?: string, deliveryDateParam?: string) => {
+    async (restaurantExternalId?: string, deliveryDateParam?: string): Promise<SuppliersQuotationDTO | undefined> => {
       if (!selectedRestaurant) return;
 
       try {
@@ -87,6 +87,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         setAvailableSuppliers(result.availableSuppliers);
         setUnavailableSuppliers(result.unavailableSuppliers);
         await saveSuppliersToStorage(result.availableSuppliers, result.unavailableSuppliers);
+        return result;
       } catch (error) {
         console.error('Erro ao carregar preços:', error);
       } finally {

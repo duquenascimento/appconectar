@@ -30,7 +30,7 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
   const { selectedRestaurant, restaurants, hasConectarPlusAccess, loadRestaurants } =
     useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
-  const { availableSuppliers, getSuppliersFromStorage } = useSupplier();
+  const { getPricesBySupplier } = useSupplier();
 
   const saveCombinationsToStorage = async (
     my: Combination[],
@@ -63,10 +63,7 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
 
   const getCombinationsByRestaurant = useCallback(
     async (restaurantIdParam?: string, deliveryDateParam?: string) => {
-      if (!selectedRestaurant || !hasConectarPlusAccess) return;
-
-      if (availableSuppliers.length === 0) {
-        await getSuppliersFromStorage();
+      if (!selectedRestaurant || !hasConectarPlusAccess) {
         return;
       }
 
@@ -81,18 +78,18 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
 
         if (!currentRestaurant) return;
 
-        const dateToUse = deliveryDateParam ?? deliveryDate;
-
         // Get cart items count
         const cartStoredValue = JSON.parse(
           (await getStorage(`cart_${currentRestaurant.externalId}`)) || '[]',
         );
         const totalItens = cartStoredValue?.length || 0;
+        const dateToUse = deliveryDateParam ?? deliveryDate;
 
-        const result: QuotationApiResponse = await getQuotationsByCombination({
-          restaurantId: currentRestaurant.id,
-          deliveryDate: dateToUse,
-        });
+        const [pricesBySupplier, result] = await Promise.all([
+          getPricesBySupplier(currentRestaurant.externalId, dateToUse),
+          getQuotationsByCombination({ restaurantId: currentRestaurant.id, deliveryDate: dateToUse }),
+        ]);
+        const availableSuppliers = pricesBySupplier?.availableSuppliers ?? [];
 
         // Store raw combination data
         const allCombinationData = [
@@ -134,7 +131,7 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
         setLoadingCombinations(false);
       }
     },
-    [selectedRestaurant?.id, deliveryDate, restaurants?.length, availableSuppliers?.length],
+    [selectedRestaurant?.id, deliveryDate, restaurants?.length],
   );
 
   const value = {
