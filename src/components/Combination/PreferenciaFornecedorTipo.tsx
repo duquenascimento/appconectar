@@ -13,10 +13,12 @@ export function PreferenciaFornecedorCampo({
   suppliers,
   error,
   onChange,
+  loadingSuppliers,
 }: {
   suppliers: CombinationSupplier[];
   error?: string;
   onChange: (val: string[]) => void;
+  loadingSuppliers: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
   const [showModal, setShowModal] = useState(false);
@@ -146,6 +148,7 @@ export function PreferenciaFornecedorCampo({
 
       {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
         <ContainerSelecaoItems
+          loading={loadingSuppliers}
           label="Considerar SOMENTE os fornecedores"
           items={selectFornecedoresContexto}
           value={

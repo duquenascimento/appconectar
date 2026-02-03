@@ -16,6 +16,7 @@ type ContainerSelecaoItemsComFornecedorProps<T extends string> = {
   ignoreValidation?: boolean
   onRemove?: (item: T) => void
   error?: string
+  loading?: boolean
 }
 
 export function ContainerSelecaoItemsComFornecedor<T extends string>({ 
@@ -28,7 +29,8 @@ export function ContainerSelecaoItemsComFornecedor<T extends string>({
   extraValidationContext = {}, 
   ignoreValidation = false, 
   onRemove, 
-  error 
+  error,
+  loading = false
 }: ContainerSelecaoItemsComFornecedorProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
@@ -69,6 +71,7 @@ export function ContainerSelecaoItemsComFornecedor<T extends string>({
     >
       <Label>{label}</Label>
       <DropDownPicker
+        loading={loading}
         open={open}
         setOpen={setOpen}
         value={selected}

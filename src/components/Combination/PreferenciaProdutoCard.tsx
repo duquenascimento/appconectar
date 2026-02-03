@@ -31,6 +31,7 @@ type Props = {
   onRemove: () => void;
   triggerValidation?: boolean;
   suppliers: CombinationSupplier[];
+  loadingSuppliers: boolean;
 };
 
 const tipoProdutoItems = [
@@ -45,6 +46,7 @@ export function PreferenciaProdutoCard({
   onRemove,
   suppliers,
   triggerValidation,
+  loadingSuppliers,
 }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
@@ -443,6 +445,7 @@ export function PreferenciaProdutoCard({
         onChange={atualizarFornecedoresPreferencia}
         schemaPath={`preferencias[${index}].fornecedores`}
         zIndex={1000}
+        loading={loadingSuppliers}
       />
 
       {fornecedoresTouched && fornecedoresValidationError && (
