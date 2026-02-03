@@ -1,60 +1,71 @@
 import { formatTime } from '@/src/utils/timeUtils';
 import Icons from '@expo/vector-icons/MaterialCommunityIcons';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button, View, Text, YStack, XStack } from 'tamagui';
 
-export default function TimerButton() {
-  // 15 minutos em segundos
-  const INITIAL_TIME = 15 * 60;
+interface TimerButtonProps {
+  deadline?: number; // tempo em segundos
+  onCancel?: () => void;
+}
 
-  const [timeLeft, setTimeLeft] = useState(INITIAL_TIME);
-  const [isActive, setIsActive] = useState(true);
+export default function TimerButton({ deadline, onCancel }: TimerButtonProps) {
+  const [timeLeft, setTimeLeft] = useState(() => Math.max(deadline ?? 0, 0));
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isActive = timeLeft > 0;
+
+  // 🔁 sincroniza quando o deadline mudar
   useEffect(() => {
-    if (timeLeft <= 0) {
-      setIsActive(false);
+    setTimeLeft(Math.max(deadline ?? 0, 0));
+  }, [deadline]);
+
+  // ⏱️ controla o countdown
+  useEffect(() => {
+    if (!isActive) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
       return;
     }
 
-    const intervalId = setInterval(() => {
-      setTimeLeft((prevTime) => prevTime - 1);
+    intervalRef.current = setInterval(() => {
+      setTimeLeft((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
-    return () => clearInterval(intervalId);
-  }, [timeLeft]);
+    // Cleanup function - implicitly returns void
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isActive]);
 
   const handleCancel = () => {
-    console.log('Botão clicado! Iniciando processo de cancelamento...');
-    // Aqui virá sua chamada para a API depois
+    onCancel?.();
   };
 
   return (
-    <View style={{ padding: 20, textAlign: 'center' }}>
-      <YStack flex={1} alignItems="center" marginBottom={10} gap={5} justifyContent="center">
-        <XStack alignSelf="center">
-          <Button
-            onPress={handleCancel}
-            disabled={!isActive}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: isActive ? '#d9534f' : '#ccc', // Vermelho se ativo, cinza se inativo
-              color: '#fff',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: isActive ? 'pointer' : 'not-allowed',
-              fontSize: '1rem',
-            }}
-          >
-            <Text color="#fff">Cancelar Pedido</Text>
-          </Button>
-        </XStack>
-        <XStack flex={1} alignItems="center">
-          <Icons name="timer" size={16} color="#aaa" style={{ marginLeft: 8 }} />
-          <Text color="#aaa" fontSize={14}>
-            {' '}
-            Tempo Restante: {formatTime(timeLeft)}
-          </Text>
-        </XStack>
+    <View padding={20}>
+      <YStack alignItems="center" gap={6} justifyContent="center">
+        <Button
+          onPress={handleCancel}
+          disabled={!isActive}
+          backgroundColor={isActive ? '#d9534f' : '#ccc'}
+          borderRadius={6}
+        >
+          <Text color="#fff">Cancelar Pedido</Text>
+        </Button>
+
+        {deadline !== undefined && (
+          <XStack alignItems="center" gap={6}>
+            <Icons name="timer" size={16} color="#aaa" />
+            <Text color="#aaa" fontSize={14}>
+              Tempo restante: {formatTime(timeLeft)}
+            </Text>
+          </XStack>
+        )}
       </YStack>
     </View>
   );

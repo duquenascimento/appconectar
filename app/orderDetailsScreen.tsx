@@ -12,6 +12,7 @@ import PageContainer from '@/src/components/box/PageContainer';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 import TimerButton from '@/src/components/button/timerButton';
+import { CancelationRulesType } from '@/src/types/cancelOrderTypes';
 
 export function ModalDocumentsAndInvoices(props: {
   openModal: boolean;
@@ -106,6 +107,7 @@ export default function OrderDetailsScreen() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
   const [order, setOrder] = useState<OrderData | null>(null);
+  const [cancelationRule, setCancelationRule] = useState<CancelationRulesType | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalErrorVisibility, setModalErrorVisibility] = useState(false);
   const [modalCancelOrderVisibility, setModalCancelOrderVisibility] = useState(false);
@@ -113,6 +115,9 @@ export default function OrderDetailsScreen() {
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState<boolean>(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorTitle, setErrorTitle] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -123,8 +128,9 @@ export default function OrderDetailsScreen() {
       }
 
       try {
-        const orderData: OrderData = await getOrder(orderId);
-        setOrder(orderData);
+        const orderData = await getOrder(orderId);
+        setOrder(orderData.result);
+        setCancelationRule(orderData.cancelationRule);
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
       } finally {
@@ -135,7 +141,44 @@ export default function OrderDetailsScreen() {
     loadOrders();
   }, [orderId]);
 
-  if (loading) {
+  const showErrorModal = (title: string, message: string) => {
+    setErrorTitle(title);
+    setErrorMessage(message);
+    setErrorModalVisible(true);
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderId) return;
+    setLoading(true);
+    const result = await cancelOrder(orderId);
+    setLoading(false);
+    if (result.success) {
+      setModalSuccessCanceledVisbility(true);
+      return;
+    }
+    switch (result.kind) {
+      case 'BUSINESS':
+        showErrorModal(
+          'Não foi possível cancelar o pedido',
+          result.message, // 👈 vem direto da API
+        );
+        break;
+
+      case 'NOT_FOUND':
+        showErrorModal(
+          'Pedido não encontrado',
+          result.message || 'Este pedido não existe ou já foi removido.',
+        );
+        break;
+
+      case 'TECHNICAL':
+      default:
+        showErrorModal('Erro inesperado', result.message || 'Tente novamente mais tarde.');
+        break;
+    }
+  };
+
+  if (loading || !cancelationRule) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -183,12 +226,10 @@ export default function OrderDetailsScreen() {
           Detalhamento
         </Text>
         <CustomAlert
-          message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
-          title="Ops!"
-          onConfirm={() => {
-            setModalErrorVisibility(false);
-          }}
-          visible={modalErrorVisibility}
+          visible={errorModalVisible}
+          title={errorTitle}
+          message={errorMessage}
+          onConfirm={() => setErrorModalVisible(false)}
         />
         <CustomAlert
           message="Seu pedido foi cancelado com sucesso!"
@@ -196,27 +237,19 @@ export default function OrderDetailsScreen() {
           onConfirm={() => {
             router.back();
           }}
+          color="#04BF7B"
           visible={modalSuccessCanceledVisibility}
+          buttonText="Ok"
         />
         <CustomAlert
           message="Esta ação não poderá ser revertida"
           title="Cancelar pedido?"
           onConfirm={async () => {
-            try {
-              setLoading(true);
-              const orderCanceled = await cancelOrder(order.id);
-              if (orderCanceled === 'too late') setModalErrorVisibility(true);
-              else setModalSuccessCanceledVisbility(true);
-            } finally {
-              setModalCancelOrderVisibility(false);
-              setLoading(false);
-            }
+            setModalCancelOrderVisibility(false);
+            await handleCancelOrder();
           }}
           visible={modalCancelOrderVisibility}
-          closeOption
-          setVisibility={setModalCancelOrderVisibility}
           buttonText="Cancelar"
-          negativeMainButton
         />
         <View
           alignItems="center"
@@ -306,7 +339,14 @@ export default function OrderDetailsScreen() {
               subtitle={`Por ${supplierName}`}
             />
           </TouchableOpacity>
-          <TimerButton />
+          {!(cancelationRule.criteria === 'EXPIRED') ? (
+            <TimerButton
+              deadline={cancelationRule.remainingSeconds}
+              onCancel={() => setModalCancelOrderVisibility(true)}
+            />
+          ) : (
+            <></>
+          )}
         </View>
       </View>
     </PageContainer>

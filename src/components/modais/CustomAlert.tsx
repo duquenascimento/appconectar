@@ -1,16 +1,25 @@
-import React from 'react'
-import { Modal, View, Text, TouchableOpacity, StyleSheet, DimensionValue } from 'react-native'
+import React from 'react';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, DimensionValue } from 'react-native';
 
 interface CustomAlertProps {
-  visible: boolean
-  title: string
-  message: string
-  onConfirm: () => void
-  width?: DimensionValue
-  color?: string
+  visible: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  buttonText?: string;
+  width?: DimensionValue;
+  color?: string;
 }
 
-const CustomAlert: React.FC<CustomAlertProps> = ({ visible, title, message, onConfirm, width = '80%', color = 'red' }) => {
+const CustomAlert: React.FC<CustomAlertProps> = ({
+  visible,
+  title,
+  message,
+  onConfirm,
+  buttonText = 'Fechar',
+  width = '80%',
+  color = 'red',
+}) => {
   return (
     <Modal transparent={true} visible={visible} animationType="fade" onRequestClose={onConfirm}>
       <View style={styles.overlay}>
@@ -18,13 +27,13 @@ const CustomAlert: React.FC<CustomAlertProps> = ({ visible, title, message, onCo
           <Text style={styles.title}>{title}</Text>
           <Text style={[styles.message, { color }]}>{message}</Text>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
-            <Text style={styles.buttonText}>Fechar</Text>
+            <Text style={styles.buttonText}>{buttonText}</Text>
           </TouchableOpacity>
         </View>
       </View>
     </Modal>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   overlay: {
@@ -32,18 +41,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 9999
+    zIndex: 9999,
   },
   alertContainer: {
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10
+    marginBottom: 10,
   },
   message: {
     fontSize: 14,
@@ -54,13 +63,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#04BF7B',
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5
+    borderRadius: 5,
   },
   buttonText: {
     color: 'white',
     fontSize: 14,
-    fontWeight: 'bold'
-  }
-})
+    fontWeight: 'bold',
+  },
+});
 
-export default CustomAlert
+export default CustomAlert;
