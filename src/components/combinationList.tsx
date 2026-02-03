@@ -27,7 +27,7 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
   const [showNotification, setShowNotification] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
 
-  const { availableSuppliers, getSuppliersFromStorage } = useSupplier();
+  const { availableSuppliers } = useSupplier();
   const { selectedRestaurant, hasConectarPlusAccess } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
   const {

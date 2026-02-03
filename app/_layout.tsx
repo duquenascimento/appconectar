@@ -59,8 +59,8 @@ export default function RootLayout() {
             <FavoritesProvider>
               <ProductProvider>
                 <CombinacaoProvider>
-                  <CombinationProvider>
-                    <SupplierProvider>
+                  <SupplierProvider>
+                    <CombinationProvider>
                       {isScreenLoading ? (
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                           <ActivityIndicator size="large" color="#04BF7B" />
@@ -74,8 +74,8 @@ export default function RootLayout() {
                           }}
                         />
                       )}
-                    </SupplierProvider>
-                  </CombinationProvider>
+                    </CombinationProvider>
+                  </SupplierProvider>
                 </CombinacaoProvider>
               </ProductProvider>
             </FavoritesProvider>
