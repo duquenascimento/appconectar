@@ -86,7 +86,7 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
         const dateToUse = deliveryDateParam ?? deliveryDate;
 
         const [pricesBySupplier, result] = await Promise.all([
-          getPricesBySupplier(currentRestaurant.externalId, dateToUse),
+          getPricesBySupplier(currentRestaurant.externalId, dateToUse, false),
           getQuotationsByCombination({ restaurantId: currentRestaurant.id, deliveryDate: dateToUse }),
         ]);
         const availableSuppliers = pricesBySupplier?.availableSuppliers ?? [];

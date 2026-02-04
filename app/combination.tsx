@@ -1,10 +1,11 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
 import { getAllSuppliers } from '@/src/services/supplierService';
 import { ComboOption } from '@/src/types/componentTypes';
-import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { CombinationSupplier, SuppliersRouteFilterParams } from '@/src/types/suppliersDataTypes';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
-import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { getStorageRestaurant, resolveMinMaxTimeForRoute } from '@/src/utils/restaurantUtils';
 import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -39,16 +40,45 @@ export function Combination(): JSX.Element {
   const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
     Array<ComboOption<number>>
   >([]);
+  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
   const [suppliers, setSuppliers] = useState<CombinationSupplier[]>([]);
+  const { selectedRestaurant } = useRestaurantContext();
 
   useEffect(() => {
-    const suppliersFn = async () => {
-      const suppliers = await getAllSuppliers();
+    const initializeSuppliers = async () => {
+      if (!selectedRestaurant) return;
 
-      setSuppliers(suppliers);
+      try {
+        setLoadingSuppliers(true);
+
+        const restaurantAddressInfo = selectedRestaurant?.addressInfos[0];
+
+        const neighborhood = restaurantAddressInfo?.neighborhood || '';
+
+        const { minimumTime, maximumTime } = resolveMinMaxTimeForRoute(
+          restaurantAddressInfo?.initialDeliveryTime,
+          restaurantAddressInfo?.finalDeliveryTime,
+        );
+
+        const routeFilters: SuppliersRouteFilterParams = {
+          neighborhood,
+          minimumTime,
+          maximumTime,
+        };
+
+        const suppliers = await getAllSuppliers({ routeFilters });
+
+        setSuppliers(suppliers);
+      } catch (error) {
+        setAlertTitle('Erro!');
+        setAlertMessage('Ocorreu um erro inesperado ao buscar fornecedores.');
+        setIsAlertVisible(true);
+      } finally {
+        setLoadingSuppliers(false);
+      }
     };
-    suppliersFn();
-  }, []);
+    initializeSuppliers();
+  }, [selectedRestaurant?.id, selectedRestaurant?.addressInfos]);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -344,12 +374,14 @@ export function Combination(): JSX.Element {
             suppliers={suppliers}
             error={validationErrors.fornecedores_bloqueados}
             onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)}
+            loadingSuppliers={loadingSuppliers}
           />
 
           <PreferenciaFornecedorCampo
             suppliers={suppliers}
             error={validationErrors.fornecedores_especificos}
             onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)}
+            loadingSuppliers={loadingSuppliers}
           />
 
           {['especifico', 'qualquer'].includes(combinacao.preferencia_fornecedor_tipo ?? '') && (
@@ -358,6 +390,7 @@ export function Combination(): JSX.Element {
               error={validationErrors.preferencias}
               onClearErrors={clearPreferenceErrors}
               triggerValidation={triggerValidation}
+              loadingSuppliers={loadingSuppliers}
             />
           )}
         </YStack>
