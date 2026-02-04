@@ -25,7 +25,7 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
       <View style={styles.overlay}>
         <View style={[styles.alertContainer, { width }]}>
           <Text style={styles.title}>{title}</Text>
-          <Text style={[styles.message, { color }]}>{message}</Text>
+          <Text style={[styles.message]}>{message}</Text>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
             <Text style={styles.buttonText}>{buttonText}</Text>
           </TouchableOpacity>
