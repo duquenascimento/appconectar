@@ -11,8 +11,7 @@ export function ModalDocumentsAndInvoices({
 }: ModalDocumentsAndInvoicesProps) {
   return (
     <Dialog modal open={openModal}>
-      {/* Modal adaptado para ocupar tela cheia no celular */}
-      <Adapt /* when="sm" */ platform="touch">
+      <Adapt platform="touch">
         <Sheet
           animationConfig={{
             type: 'spring',

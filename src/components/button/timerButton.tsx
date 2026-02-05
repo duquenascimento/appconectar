@@ -17,6 +17,7 @@ export default function TimerButton({ deadline, onCancel }: TimerButtonProps) {
   // 🔁 sincroniza quando o deadline mudar
   useEffect(() => {
     setTimeLeft(Math.max(deadline ?? 0, 0));
+    console.log(deadline);
   }, [deadline]);
 
   // ⏱️ controla o countdown

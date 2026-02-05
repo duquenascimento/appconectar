@@ -8,10 +8,11 @@ import { getStatusAndColor } from '@/src/utils/ordersScreenUtils';
 import BadgeText from '@/src/components/text/BadgeText';
 import { ordersScreenStyles as styles } from '@/src/styles/styles';
 import { OrderData } from '@/src/types/IOrder';
+import { useEffect, useState } from 'react';
 
 interface OrderListItemProps {
   item: OrderData | ScheduleOrderResponse;
-  isLargeScreen: boolean;
+  isLargeScreen?: boolean;
   selectedOrders: string[];
   onToggleSelect: (orderId: string) => void;
   onPress: (orderId: string, isScheduled: boolean) => void;
@@ -24,23 +25,27 @@ export default function OrderListItem({
   onToggleSelect,
   onPress,
 }: OrderListItemProps) {
+  const [supplierName, setSupplierName] = useState<string>('Fornecedor Indisponível');
+  const [isCanceled, setIsCanceled] = useState<boolean>(false);
+
   const isScheduledOrder = isScheduleOrderResponse(item);
-  const isCanceled = item.status_id === 6;
 
-  const newFormatSupplier = Object.values(item.calcOrderAgain)
-    .map((sup: any) => sup.supplier)
-    .find((supplier) => supplier?.externalId === item.supplierId);
+  useEffect(() => {
+    if (!isScheduledOrder) {
+      setIsCanceled(item.status_id === 6);
 
-  const supplierName = isScheduledOrder
-    ? item.combination?.nome || item.supplier?.name || 'Fornecedor indisponível'
-    : item.calcOrderAgain?.data[0]?.supplier?.name ||
-      newFormatSupplier?.name ||
-      'Fornecedor indisponível';
+      const newFormatSupplier = Object.values(item.calcOrderAgain)
+        .map((sup: any) => sup.supplier)
+        .find((supplier) => supplier?.externalId === item.supplierId);
 
-  const truncatedSupplierName =
-    supplierName.length > (isLargeScreen ? 20 : 12)
-      ? supplierName.slice(0, isLargeScreen ? 20 : 12) + '...'
-      : supplierName;
+      const name = item.calcOrderAgain?.data[0]?.supplier?.name || newFormatSupplier?.name;
+
+      if (name) setSupplierName(name);
+    } else {
+      const name = item.combination?.nome || item.supplier?.name;
+      if (name) setSupplierName(name);
+    }
+  }, []);
 
   const [status, statusColor] = isScheduledOrder ? getStatusAndColor(item) : [];
 
@@ -50,7 +55,6 @@ export default function OrderListItem({
       style={({ pressed }) => [styles.itemContainer]}
     >
       <View flex={1} flexDirection="row" marginVertical={15} gap={3}>
-        {/* Checkbox */}
         <TouchableOpacity
           onPress={() => !isScheduledOrder && onToggleSelect(item.id)}
           disabled={isScheduledOrder}
@@ -65,7 +69,6 @@ export default function OrderListItem({
           <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
         </TouchableOpacity>
 
-        {/* Coluna esquerda */}
         <View style={styles.leftColumn}>
           {isScheduledOrder ? (
             <View
@@ -86,17 +89,16 @@ export default function OrderListItem({
           <Text style={styles.deliveryDate}>{getBrazilLocaleString(item.deliveryDate)}</Text>
         </View>
 
-        {/* Coluna direita */}
         <YStack alignItems="flex-end">
           {isCanceled && <BadgeText text="Pedido Cancelado" color="#ff2233" />}
 
           {!isScheduledOrder && (
             <Text marginBottom={10} style={styles.total}>
-              R$ {item.totalConectar.toFixed(2)}
+              R$ {Number(item.totalConectar).toFixed(2)}
             </Text>
           )}
 
-          <Text numberOfLines={1}>{truncatedSupplierName}</Text>
+          <Text numberOfLines={1}>{supplierName}</Text>
         </YStack>
 
         <Icons name="chevron-forward" size={20} color="#000" />

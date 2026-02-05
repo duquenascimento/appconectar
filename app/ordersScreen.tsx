@@ -117,8 +117,6 @@ export default function OrdersScreen() {
       return matchesId || matchesTotal || matchesSupplier;
     });
 
-    console.log(fOrders);
-
     setFilteredOrders(fOrders);
 
     const fScheduledOrders = scheduledOrders.filter((order: ScheduleOrderResponse) => {

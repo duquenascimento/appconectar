@@ -30,7 +30,7 @@ export const getOrder = async (orderId: string) => {
     }
 
     const response = await axios.get(`${API_URL}/orders/${orderId}`);
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error('Erro ao buscar pedido:', error);
     throw error;

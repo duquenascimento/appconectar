@@ -42,8 +42,8 @@ export default function OrderDetailsScreen() {
 
       try {
         const orderData = await getOrder(orderId);
-        setOrder(orderData.result);
-        setCancelationRule(orderData.cancelationRule);
+        setOrder(orderData.data);
+        setCancelationRule(orderData.data.cancelationRule);
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
       } finally {
@@ -71,10 +71,7 @@ export default function OrderDetailsScreen() {
     }
     switch (result.kind) {
       case 'BUSINESS':
-        showErrorModal(
-          'Não foi possível cancelar o pedido',
-          result.message, // 👈 vem direto da API
-        );
+        showErrorModal('Não foi possível cancelar o pedido', result.message);
         break;
 
       case 'NOT_FOUND':
@@ -258,14 +255,13 @@ export default function OrderDetailsScreen() {
               subtitle={`Por ${supplierName}`}
             />
           </TouchableOpacity>
-          {!(cancelationRule.criteria === 'EXPIRED') || order.status_id !== 6 ? (
-            <TimerButton
-              deadline={cancelationRule.remainingSeconds}
-              onCancel={() => setModalCancelOrderVisibility(true)}
-            />
-          ) : (
-            <></>
-          )}
+          {!(cancelationRule.criteria === 'EXPIRED') ||
+            (order.status_id !== 6 && (
+              <TimerButton
+                deadline={cancelationRule.remainingSeconds}
+                onCancel={() => setModalCancelOrderVisibility(true)}
+              />
+            ))}
         </View>
       </View>
     </PageContainer>
