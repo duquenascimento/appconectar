@@ -1,4 +1,4 @@
-import { saveProgressApi, getProgressApi } from '@/src/utils/register.api'
+import { getRegisterProgress, saveRegisterProgress } from '@/src/services/registerService'
 import { getToken, setStorage } from '@/src/utils/utils'
 import { jwtDecode } from 'jwt-decode'
 
@@ -29,9 +29,9 @@ export async function saveStepData(values: any, currentStep: number) {
     await Promise.all(storagePromises)
 
     // salva no backend também
-    await saveProgressApi(currentStep, values)
+    await saveRegisterProgress(currentStep, values)
   } catch (error) {
-    console.error('Erro ao salvar dados no storage/backend:', error)
+    throw error;
   }
 }
 
@@ -40,23 +40,23 @@ export async function loadProgress() {
   if (!token) throw new Error('Token não encontrado')
 
   try {
-    const data = await getProgressApi()
+    const data = await getRegisterProgress()
     if (data.statusCode === 204) {
-      const progressData = {
-        progress: {
-          values: {},
-          step: [0]
-        }
+      // No progress saved yet - return default structure
+      const defaultProgress = {
+        values: {},
+        step: 0,
+        roleUser: 'registering'
       }
-
-      await saveStepData(progressData.progress.values, progressData.progress.step[0])
-      return { progressData }
+      await saveStepData(defaultProgress.values, defaultProgress.step)
+      return defaultProgress
     }
     if (data.progress) {
       await saveStepData(data.progress.values, data.progress.step)
-
       return data.progress
     }
+    // If no progress in response, return null
+    return null
   } catch {
     throw new Error('Erro ao buscar progresso do servidor')
   }

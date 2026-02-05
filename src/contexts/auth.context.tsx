@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = useMemo(() => {
-    return userRoles?.includes(UserRole.ADMIN) || false;
+    return userRoles?.includes('admin') || false;
   }, [userRoles]);
 
   const saveLogin = useCallback(

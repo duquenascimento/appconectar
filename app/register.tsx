@@ -1,7 +1,11 @@
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { loadProgress, saveStepData } from '@/src/services/registerProgressService';
+import { checkDocument, sendFullRegister } from '@/src/services/registerService';
+import { getErrorMessage } from '@/src/types/apiErrorTypes';
+import { formatDocument, isCnpjData, type DocumentType } from '@/src/utils/documentUtils';
 import {
   step0Validation,
   step1Validation,
@@ -19,81 +23,13 @@ import { Button, Checkbox, Input, ScrollView, Text, View } from 'tamagui';
 import { dividirLogradouro } from '../src/utils/DividirLogradouro';
 import { campoString } from '../src/utils/formatCampos';
 import { formatCep } from '../src/utils/formatCep';
-import { formatCNPJ } from '../src/utils/formatCNPJ';
-import { clearStorage, getStorage, getToken } from '../src/utils/utils';
+import { clearStorage, getStorage } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
-
-interface Empresa {
-  inscricao_estadual?: string | null;
-  inscricao_municipal?: string | null;
-  inscricoes_estaduais: any | null;
-  msg: string;
-  cnpj: string;
-  identificador_matriz_filial: number;
-  descricao_matriz_filial: string;
-  razao_social: string;
-  nome_fantasia: string;
-  situacao_cadastral: number;
-  descricao_situacao_cadastral: string;
-  data_situacao_cadastral: string;
-  motivo_situacao_cadastral: number;
-  nome_cidade_exterior: string | null;
-  codigo_natureza_juridica: number;
-  data_inicio_atividade: string;
-  cnae_fiscal: number;
-  cnae_fiscal_descricao: string;
-  descricao_tipo_de_logradouro: string;
-  logradouro: string;
-  numero: string;
-  complemento: string;
-  bairro: string;
-  cep: string;
-  uf: string;
-  codigo_municipio: number;
-  municipio: string;
-  ddd_telefone_1: string;
-  ddd_telefone_2: string | null;
-  ddd_fax: string | null;
-  qualificacao_do_responsavel: number;
-  capital_social: number;
-  porte: number;
-  descricao_porte: string;
-  opcao_pelo_simples: boolean;
-  data_opcao_pelo_simples: string | null;
-  data_exclusao_do_simples: string | null;
-  opcao_pelo_mei: boolean;
-  situacao_especial: string | null;
-  data_situacao_especial: string | null;
-  cnaes_secundarios: CnaeSecundario[];
-  qsa: Socio[];
-}
-
-interface CnaeSecundario {
-  codigo: number;
-  descricao: string;
-}
-
-interface CheckCnpj {
-  data: Empresa;
-  status: number;
-  msg: string;
-}
-
-interface Socio {
-  identificador_de_socio: number;
-  nome_socio: string;
-  cnpj_cpf_do_socio: string;
-  codigo_qualificacao_socio: number;
-  percentual_capital_social: number;
-  data_entrada_sociedade: string;
-  cpf_representante_legal: string | null;
-  nome_representante_legal: string | null;
-  codigo_qualificacao_representante_legal: string | null;
-}
 
 export default function Register() {
   const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
+  const [documentType, setDocumentType] = useState<DocumentType>('CNPJ');
   const [minhours, setMinhours] = useState<string[]>([]);
   const [maxhours, setMaxhours] = useState<string[]>([]);
   const [erros, setErros] = useState<string[]>([]);
@@ -106,6 +42,7 @@ export default function Register() {
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
   const { logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
+  const { isLargeScreen } = useResponsiveness();
 
   const allClosedDropdowns = () => {
     setMinHourOpen(false);
@@ -117,7 +54,7 @@ export default function Register() {
   const formik = useFormik({
     initialValues: {
       restaurantName: '',
-      cnpj: '',
+      document: '',
       stateNumberId: '',
       noStateNumberId: false,
       cityNumberId: '',
@@ -160,27 +97,17 @@ export default function Register() {
 
         const { noStateNumberId, ...data } = values;
 
-        const payload = {
-          token: await getToken(),
+        await sendFullRegister({
           ...data,
-          zipcode: values.zipcode.replace(/\D/g, ''),
-          orderValue: Number(values.orderValue),
-          cnpj: values.cnpj.replace(/\D/g, ''),
-        };
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/full-register`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${await getToken()}`,
-          },
-          body: JSON.stringify(payload),
+          zipcode: data.zipcode.replace(/\D/g, ''),
         });
 
-        if (response.ok) {
-          await Promise.all([clearStorage(), loadRestaurants()]);
-
-          router.push('registerFinished');
-        }
+        await Promise.all([clearStorage(), loadRestaurants()]);
+        router.push('registerFinished');
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        setErros([errorMessage]);
+        setRegisterInvalid(true);
       } finally {
         setLoading(false);
       }
@@ -289,7 +216,6 @@ export default function Register() {
         }
       }
     } catch (error) {
-      console.error('Erro ao buscar CEP:', error);
       formik.setFieldError('zipcode', 'Erro ao validar CEP');
       setIsCepValid(false);
     } finally {
@@ -310,6 +236,12 @@ export default function Register() {
       if (progress && progress.roleUser === 'registering') {
         formik.setValues(progress.values);
         setStep(progress.step);
+        if (progress.values.document) {
+          const onlyNumbers = progress.values.document.replace(/\D/g, '');
+          if (onlyNumbers.length > 0) {
+            setDocumentType(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ');
+          }
+        }
         return;
       }
 
@@ -319,7 +251,7 @@ export default function Register() {
       }
 
       const fieldsToLoad = [
-        'cnpj',
+        'document',
         'stateNumberId',
         'cityNumberId',
         'restaurantName',
@@ -360,6 +292,12 @@ export default function Register() {
           } else if (field === 'step') {
             const stepValue = parseInt(value);
             setStep(isNaN(stepValue) ? 0 : stepValue);
+          } else if (field === 'document') {
+            loadedValues['document'] = value;
+            const onlyNumbers = value.replace(/\D/g, '');
+            if (onlyNumbers.length > 0) {
+              setDocumentType(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ');
+            }
           } else {
             loadedValues[field] = value;
           }
@@ -373,7 +311,7 @@ export default function Register() {
         },
       });
     } catch (error) {
-      console.error('Erro ao carregar dados:', error);
+      // Error loading stored data - continue with empty form
     } finally {
       setLoading(false);
     }
@@ -420,45 +358,27 @@ export default function Register() {
 
       if (step === 0) {
         const errosApi: string[] = [];
-        const cnpjNumerico = formik.values.cnpj.replace(/\D/g, '');
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/register/checkCnpj`, {
-          method: 'POST',
-          body: JSON.stringify({ cnpj: cnpjNumerico }),
-          headers: { 'Content-type': 'application/json' },
-        });
-        const result: CheckCnpj = await response.json();
+        const documentNumerico = formik.values.document.replace(/\D/g, '');
 
-        if (response.ok) {
-          if (result.data.msg) {
-            errosApi.push('Erro ao processar os dados do CNPJ.');
-            formik.setFieldError('cnpj', 'Erro ao processar os dados do CNPJ.');
-            setErros(errosApi);
-            setRegisterInvalid(true);
-            setLoading(false);
-            return;
-          }
-
-          formik.setValues({
-            ...formik.values,
-            legalRestaurantName: result.data.razao_social,
-            zipcode: '',
-            neigh: '',
-            street: '',
-            city: '',
-            stateNumberId: result.data.inscricao_estadual ?? '',
-            cityNumberId: result.data.inscricao_municipal ?? '',
-          });
-
+        try {
+          await handleDocumentValidation(documentNumerico);
           setStep(1);
-        } else {
-          if (result.msg === 'already exists') {
-            errosApi.push('Este CNPJ já existe na plataforma');
-            formik.setFieldError('cnpj', 'CNPJ já cadastrado');
-          } else if (result.msg === 'invalid cnpj') {
-            errosApi.push('CNPJ inválido');
-            formik.setFieldError('cnpj', 'CNPJ inválido informado');
+        } catch (error: any) {
+          // Backend sends: { status: 400, msg: 'already exists' | 'invalid document' }
+          // But axios puts it in error.response.data
+          const errorMsg = error?.response?.data?.msg || error?.message;
+          const errorStatus = error?.response?.status;
+
+          console.log('Caught error:', { errorMsg, errorStatus, fullError: error });
+
+          if (errorMsg === 'already exists' || errorStatus === 409) {
+            errosApi.push('Este documento já existe na plataforma');
+            formik.setFieldError('document', 'Documento já cadastrado');
+          } else if (errorMsg === 'invalid document' || errorMsg?.includes('invalid')) {
+            errosApi.push('Documento inválido');
+            formik.setFieldError('document', 'Documento inválido informado');
           } else {
-            errosApi.push(result.msg || 'Erro ao verificar CNPJ');
+            errosApi.push(getErrorMessage(error));
           }
           setErros(errosApi);
           setRegisterInvalid(true);
@@ -477,7 +397,7 @@ export default function Register() {
         await saveStepData(formik.values, nextStep);
       }
     } catch (error) {
-      console.error('Erro em handleNextBtn:', error);
+      // Error handled in step-specific logic
     } finally {
       if (step < 3) {
         setLoading(false);
@@ -497,9 +417,32 @@ export default function Register() {
     setLoading(false);
   };
 
-  const handleCnpjChange = (text: string) => {
-    const formatted = formatCNPJ(text);
-    formik.setFieldValue('cnpj', formatted);
+  const handleDocumentValidation = async (documentNumber: string) => {
+    const result = await checkDocument(documentNumber);
+
+    const updatedValues = {
+      ...formik.values,
+      zipcode: '',
+      neigh: '',
+      street: '',
+      city: '',
+      legalRestaurantName: isCnpjData(result.data) ? result.data.razao_social : '',
+      stateNumberId: isCnpjData(result.data) ? (result.data.inscricao_estadual ?? '') : '',
+      cityNumberId: isCnpjData(result.data) ? (result.data.inscricao_municipal ?? '') : '',
+    };
+
+    formik.setValues(updatedValues);
+  };
+
+  const handleDocumentChange = (text: string) => {
+    const formatted = formatDocument(text, documentType);
+    formik.setFieldValue('document', formatted);
+  };
+
+  const handleDocumentTypeToggle = (type: DocumentType) => {
+    setDocumentType(type);
+    formik.setFieldValue('document', '');
+    formik.setFieldError('document', undefined);
   };
 
   const handleCheckBox = () => {
@@ -545,6 +488,8 @@ export default function Register() {
     }
   };
 
+  const isCpf = documentType === 'CPF';
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -556,6 +501,7 @@ export default function Register() {
           openModal={registerInvalid}
           setRegisterInvalid={setRegisterInvalid}
           erros={erros}
+          document={formik.values.document}
         />
         <View marginBottom={10} paddingTop={50} alignItems="center" justifyContent="center">
           <Text fontSize={20}>Cadastro</Text>
@@ -603,7 +549,37 @@ export default function Register() {
                 borderRadius={5}
                 padding={10}
               >
-                <Text>Nome na fachada da rua</Text>
+                <View flexDirection="column" alignItems="flex-start" justifyContent="space-between">
+                  <View flexDirection="row" gap={5} width={isLargeScreen ? 'auto' : '100%'}>
+                    <Button
+                      flex={isLargeScreen ? 0 : 1}
+                      size="$2"
+                      paddingHorizontal={15}
+                      backgroundColor={isCpf ? '#04BF7B' : 'white'}
+                      borderColor="lightgray"
+                      borderWidth={1}
+                      onPress={() => handleDocumentTypeToggle('CPF')}
+                    >
+                      <Text color={isCpf ? 'white' : 'black'} fontSize={12}>
+                        Pessoa Física
+                      </Text>
+                    </Button>
+                    <Button
+                      flex={isLargeScreen ? 0 : 1}
+                      size="$2"
+                      paddingHorizontal={15}
+                      backgroundColor={documentType === 'CNPJ' ? '#04BF7B' : 'white'}
+                      borderColor="lightgray"
+                      borderWidth={1}
+                      onPress={() => handleDocumentTypeToggle('CNPJ')}
+                    >
+                      <Text color={documentType === 'CNPJ' ? 'white' : 'black'} fontSize={12}>
+                        Pessoa Jurídica
+                      </Text>
+                    </Button>
+                  </View>
+                </View>
+                <Text marginTop={15}>Nome na fachada da rua</Text>
                 <Input
                   placeholder="Nome do restaurante"
                   onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
@@ -625,22 +601,24 @@ export default function Register() {
                   </Text>
                 )}
 
-                <Text marginTop={15}>CNPJ</Text>
+                <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
                 <Input
-                  placeholder="00.000.000/0001-00"
-                  onChangeText={handleCnpjChange}
-                  value={formik.values.cnpj}
+                  placeholder={isCpf ? '000.000.000-00' : '00.000.000/0001-00'}
+                  onChangeText={handleDocumentChange}
+                  value={formik.values.document}
                   keyboardType="number-pad"
                   backgroundColor="white"
                   borderRadius={2}
                   focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  onBlur={() => formik.setFieldTouched('cnpj', true)}
-                  borderColor={formik.touched.cnpj && formik.errors.cnpj ? 'red' : 'lightgray'}
+                  onBlur={() => formik.setFieldTouched('document', true)}
+                  borderColor={
+                    formik.touched.document && formik.errors.document ? 'red' : 'lightgray'
+                  }
                 />
-                {formik.touched.cnpj && formik.errors.cnpj && (
+                {formik.touched.document && formik.errors.document && (
                   <Text color="red" fontSize={12}>
-                    {formik.errors.cnpj}
+                    {formik.errors.document}
                   </Text>
                 )}
               </View>
@@ -663,51 +641,56 @@ export default function Register() {
                   borderRadius={2}
                 />
 
-                <Text marginTop={15}>CNPJ</Text>
+                <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
                 <Input
-                  value={formik.values.cnpj}
+                  value={formik.values.document}
                   disabled
                   opacity={0.5}
                   backgroundColor="white"
                   borderRadius={2}
                 />
 
-                <View
-                  opacity={formik.values.noStateNumberId ? 0.5 : 1}
-                  marginTop={15}
-                  alignItems="center"
-                  flexDirection="row"
-                  gap={8}
-                >
-                  <Text>Inscrição estadual</Text>
-                  <Text fontSize={10} color="gray">
-                    Min. 8 digitos
-                  </Text>
-                </View>
-                <Input
-                  onChangeText={(text) => formik.setFieldValue('stateNumberId', text)}
-                  value={formik.values.stateNumberId}
-                  disabled={formik.values.noStateNumberId}
-                  opacity={formik.values.noStateNumberId ? 0.5 : 1}
-                  placeholder={formik.values.noStateNumberId ? 'Isento' : '00000000'}
-                  onBlur={() => formik.setFieldTouched('stateNumberId', true)}
-                />
-                {formik.touched.stateNumberId && formik.errors.stateNumberId && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.stateNumberId}
-                  </Text>
+                {!isCpf && (
+                  <>
+                    <View
+                      opacity={formik.values.noStateNumberId ? 0.5 : 1}
+                      marginTop={15}
+                      alignItems="center"
+                      flexDirection="row"
+                      gap={8}
+                    >
+                      {/* TODO: Remove for CPF */}
+                      <Text>Inscrição estadual</Text>
+                      <Text fontSize={10} color="gray">
+                        Min. 8 digitos
+                      </Text>
+                    </View>
+                    <Input
+                      onChangeText={(text) => formik.setFieldValue('stateNumberId', text)}
+                      value={formik.values.stateNumberId}
+                      disabled={formik.values.noStateNumberId}
+                      opacity={formik.values.noStateNumberId ? 0.5 : 1}
+                      placeholder={formik.values.noStateNumberId ? 'Isento' : '00000000'}
+                      onBlur={() => formik.setFieldTouched('stateNumberId', true)}
+                    />
+                    {formik.touched.stateNumberId && formik.errors.stateNumberId && (
+                      <Text color="red" fontSize={12}>
+                        {formik.errors.stateNumberId}
+                      </Text>
+                    )}
+                    <View marginTop={15} alignItems="center" flexDirection="row">
+                      <Checkbox onPress={handleCheckBox}>
+                        {formik.values.noStateNumberId ? <Icons name="checkmark" /> : null}
+                      </Checkbox>
+                      <Text paddingLeft={5} fontSize={12}>
+                        Sou isento de IE
+                      </Text>
+                    </View>
+                  </>
                 )}
 
-                <View marginTop={15} alignItems="center" flexDirection="row">
-                  <Checkbox onPress={handleCheckBox}>
-                    {formik.values.noStateNumberId ? <Icons name="checkmark" /> : null}
-                  </Checkbox>
-                  <Text paddingLeft={5} fontSize={12}>
-                    Sou isento de IE
-                  </Text>
-                </View>
-
-                {formik.values.noStateNumberId && (
+                {/* TODO: Remove for CPF */}
+                {formik.values.noStateNumberId && !isCpf && (
                   <>
                     <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
                       <Text>Inscrição municipal</Text>
@@ -729,8 +712,14 @@ export default function Register() {
                   </>
                 )}
 
-                <Text marginTop={15}>Razão Social</Text>
-                <Input value={formik.values.legalRestaurantName} disabled opacity={0.5} />
+                {!isCpf && (
+                  <>
+                    <Text marginTop={15} disabled>
+                      Razão Social
+                    </Text>
+                    <Input value={formik.values.legalRestaurantName} opacity={0.5} />
+                  </>
+                )}
 
                 <Text fontSize={12} marginTop={10} marginBottom={5} color="gray">
                   Endereço
@@ -987,133 +976,140 @@ export default function Register() {
                     </View>
                   </View>
                 </View>
-                <View flex={1}>
-                  <Text marginTop={15}>
-                    Nome responsável financeiro
-                    <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                  </Text>
-                  <View
-                    flex={1}
-                    borderWidth={0.5}
-                    borderColor={
-                      formik.touched.financeResponsibleName && formik.errors.financeResponsibleName
-                        ? 'red'
-                        : 'lightgray'
-                    }
-                    zIndex={101}
-                  >
-                    <Input
-                      fontSize={14}
-                      flex={1}
-                      backgroundColor="$colorTransparent"
-                      borderWidth="$0"
-                      borderRadius={2}
-                      onBlur={formik.handleBlur('financeResponsibleName')}
-                      borderColor={
-                        formik.touched.financeResponsibleName &&
-                        formik.errors.financeResponsibleName
-                          ? 'red'
-                          : 'lightgray'
-                      }
-                      focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                      hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                      value={formik.values.financeResponsibleName}
-                      onChangeText={(value) => {
-                        const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
-                        formik.setFieldValue('financeResponsibleName', formattedValue);
-                      }}
-                    />
-                  </View>
-                  {formik.touched.financeResponsibleName &&
-                    formik.errors.financeResponsibleName && (
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.financeResponsibleName}
+                {!isCpf && (
+                  <>
+                    <View flex={1}>
+                      <Text marginTop={15}>
+                        Nome responsável financeiro
+                        <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
                       </Text>
-                    )}
-                </View>
-                <View flex={1}>
-                  <Text marginTop={15}>
-                    Telefone responsável financeiro
-                    <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                  </Text>
-                  <View
-                    flex={1}
-                    borderWidth={0.5}
-                    borderColor={
-                      formik.touched.financeResponsiblePhoneNumber &&
-                      formik.errors.financeResponsiblePhoneNumber
-                        ? 'red'
-                        : 'lightgray'
-                    }
-                    zIndex={101}
-                  >
-                    <Input
-                      maxLength={15}
-                      fontSize={14}
-                      flex={1}
-                      backgroundColor="$colorTransparent"
-                      borderWidth="$0"
-                      borderRadius={2}
-                      borderColor={
-                        formik.touched.financeResponsiblePhoneNumber &&
-                        formik.errors.financeResponsiblePhoneNumber
-                          ? 'red'
-                          : 'lightgray'
-                      }
-                      onBlur={formik.handleBlur('financeResponsiblePhoneNumber')}
-                      focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                      hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                      keyboardType="phone-pad"
-                      value={formik.values.financeResponsiblePhoneNumber}
-                      onChangeText={(value) => {
-                        let onlyNums = value.replace(/\D/g, '');
-
-                        if (onlyNums.length > 10) {
-                          onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-                        } else if (onlyNums.length > 6) {
-                          onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
-                        } else if (onlyNums.length > 2) {
-                          onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
-                        } else if (onlyNums.length > 0) {
-                          onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
+                      <View
+                        flex={1}
+                        borderWidth={0.5}
+                        borderColor={
+                          formik.touched.financeResponsibleName &&
+                          formik.errors.financeResponsibleName
+                            ? 'red'
+                            : 'lightgray'
                         }
-
-                        formik.setFieldValue('financeResponsiblePhoneNumber', onlyNums);
-                      }}
-                    />
-                  </View>
-                  {formik.touched.financeResponsiblePhoneNumber &&
-                    formik.errors.financeResponsiblePhoneNumber && (
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.financeResponsiblePhoneNumber}
+                        zIndex={101}
+                      >
+                        <Input
+                          fontSize={14}
+                          flex={1}
+                          backgroundColor="$colorTransparent"
+                          borderWidth="$0"
+                          borderRadius={2}
+                          onBlur={formik.handleBlur('financeResponsibleName')}
+                          borderColor={
+                            formik.touched.financeResponsibleName &&
+                            formik.errors.financeResponsibleName
+                              ? 'red'
+                              : 'lightgray'
+                          }
+                          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                          value={formik.values.financeResponsibleName}
+                          onChangeText={(value) => {
+                            const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                            formik.setFieldValue('financeResponsibleName', formattedValue);
+                          }}
+                        />
+                      </View>
+                      {formik.touched.financeResponsibleName &&
+                        formik.errors.financeResponsibleName && (
+                          <Text color="red" fontSize={12}>
+                            {formik.errors.financeResponsibleName}
+                          </Text>
+                        )}
+                    </View>
+                    <View flex={1}>
+                      <Text marginTop={15}>
+                        Telefone responsável financeiro
+                        <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
                       </Text>
-                    )}
-                </View>
-                <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                  <Text>
-                    E-mail
-                    <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                  </Text>
-                  <Text fontSize={10} color="gray">
-                    Para cobranças
-                  </Text>
-                </View>
-                <Input
-                  value={formik.values.emailBilling}
-                  autoCapitalize="none"
-                  onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
-                  onBlur={() => formik.setFieldTouched('emailBilling', true)}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  borderColor={
-                    formik.touched.emailBilling && formik.errors.emailBilling ? 'red' : 'lightgray'
-                  }
-                  placeholder="exemplo@exemplo.com"
-                />
-                {formik.touched.emailBilling && formik.errors.emailBilling && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.emailBilling}
-                  </Text>
+                      <View
+                        flex={1}
+                        borderWidth={0.5}
+                        borderColor={
+                          formik.touched.financeResponsiblePhoneNumber &&
+                          formik.errors.financeResponsiblePhoneNumber
+                            ? 'red'
+                            : 'lightgray'
+                        }
+                        zIndex={101}
+                      >
+                        <Input
+                          maxLength={15}
+                          fontSize={14}
+                          flex={1}
+                          backgroundColor="$colorTransparent"
+                          borderWidth="$0"
+                          borderRadius={2}
+                          borderColor={
+                            formik.touched.financeResponsiblePhoneNumber &&
+                            formik.errors.financeResponsiblePhoneNumber
+                              ? 'red'
+                              : 'lightgray'
+                          }
+                          onBlur={formik.handleBlur('financeResponsiblePhoneNumber')}
+                          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                          keyboardType="phone-pad"
+                          value={formik.values.financeResponsiblePhoneNumber}
+                          onChangeText={(value) => {
+                            let onlyNums = value.replace(/\D/g, '');
+
+                            if (onlyNums.length > 10) {
+                              onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                            } else if (onlyNums.length > 6) {
+                              onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                            } else if (onlyNums.length > 2) {
+                              onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+                            } else if (onlyNums.length > 0) {
+                              onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
+                            }
+
+                            formik.setFieldValue('financeResponsiblePhoneNumber', onlyNums);
+                          }}
+                        />
+                      </View>
+                      {formik.touched.financeResponsiblePhoneNumber &&
+                        formik.errors.financeResponsiblePhoneNumber && (
+                          <Text color="red" fontSize={12}>
+                            {formik.errors.financeResponsiblePhoneNumber}
+                          </Text>
+                        )}
+                      <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
+                        <Text>
+                          E-mail
+                          <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
+                        </Text>
+                        <Text fontSize={10} color="gray">
+                          Para cobranças
+                        </Text>
+                      </View>
+                      <Input
+                        value={formik.values.emailBilling}
+                        autoCapitalize="none"
+                        onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
+                        onBlur={() => formik.setFieldTouched('emailBilling', true)}
+                        backgroundColor="white"
+                        borderRadius={2}
+                        borderColor={
+                          formik.touched.emailBilling && formik.errors.emailBilling
+                            ? 'red'
+                            : 'lightgray'
+                        }
+                        placeholder="exemplo@exemplo.com"
+                      />
+                      {formik.touched.emailBilling && formik.errors.emailBilling && (
+                        <Text color="red" fontSize={12}>
+                          {formik.errors.emailBilling}
+                        </Text>
+                      )}
+                    </View>
+                  </>
                 )}
               </View>
             </View>

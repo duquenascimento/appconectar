@@ -6,6 +6,7 @@ import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
+import { UserRole } from '@/src/types/userRoleTypes';
 import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
 import {
   validateEmail,
@@ -114,7 +115,8 @@ async function handleLogin(
 
     await saveLogin(response.data.token, response.data.role);
 
-    if (response.data.role.includes('registering')) {
+    const userRoles = response.data.role as UserRole[];
+    if (userRoles.length > 0 && userRoles.includes('registering')) {
       router.replace('/register');
     } else {
       router.replace('/products');
@@ -173,7 +175,8 @@ async function handleRegister(
 
     await saveLogin(response.data.token, response.data.role);
 
-    if (response.data.role.includes('registering')) {
+    const userRoles = response.data.role as UserRole[];
+    if (userRoles.length > 0 && userRoles.includes('registering')) {
       router.replace('/register');
     } else {
       router.replace('/products');
@@ -217,8 +220,8 @@ export default function Sign() {
       }
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
       await authLoginCheck(authToken);
-      const role = await getStorage('role');
-      if (role === 'registering') {
+      const role = (await getStorage('role')) as UserRole | null;
+      if (role === 'registering' || role === null) {
         router.replace('/register');
       } else {
         router.replace('/products');
