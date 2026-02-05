@@ -20,3 +20,17 @@ export const setStorageRestaurant = async (restaurant: Restaurant): Promise<void
         console.error('Erro ao salvar restaurante no armazenamento:', error);
     }
 }
+
+const buildAddressInfoTime = (timeString: string): string => {
+    return `${timeString.substring(11, 19)}`
+}
+
+export const resolveMinMaxTimeForRoute = (
+    initialDeliveryTime: string,
+    finalDeliveryTime: string,
+): { minimumTime: string; maximumTime: string } => {
+    const minimumTime = buildAddressInfoTime(initialDeliveryTime)
+    const maximumTime = buildAddressInfoTime(finalDeliveryTime)
+
+    return { minimumTime, maximumTime }
+}

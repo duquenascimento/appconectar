@@ -15,10 +15,11 @@ type ContainerSelecaoItemsProps<T extends string> = {
   extraValidationContext?: Record<string, unknown>
   ignoreValidation?: boolean
   onRemove?: (item: T) => void
-  error?: string 
+  error?: string
+  loading?: boolean
 }
 
-export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error }: ContainerSelecaoItemsProps<T>) {
+export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error, loading = false }: ContainerSelecaoItemsProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
   const [touched, setTouched] = useState(false)
@@ -55,6 +56,7 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
     <YStack style={{ zIndex }} gap="$2" minHeight={open ? 300 : 100}>
       <Label>{label}</Label>
       <DropDownPicker
+        loading={loading}
         open={open}
         setOpen={setOpen}
         value={selected}

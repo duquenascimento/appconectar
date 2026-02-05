@@ -12,8 +12,15 @@ enum SECURE_STORE_KEYS {
 
 export enum STORAGE_DEFAULT_KEYS {
     ROLE = 'role',
+    USER_ROLES = 'userRoles',
     SELECTED_RESTAURANT = 'selectedRestaurant',
     EXPO_APP_VERSION = 'expoAppVersion',
+    AVAILABLE_SUPPLIERS = 'availableSuppliers',
+    UNAVAILABLE_SUPPLIERS = 'unavailableSuppliers',
+    MY_COMBINATIONS = 'myCombinations',
+    CONECTAR_COMBINATIONS = 'conectarCombinations',
+    UNAVAILABLE_COMBINATIONS = 'unavailableCombinations',
+    COMBINATION_DATA = 'combinationData',
 }
 
 export const getToken = async (): Promise<string | null | undefined> => {
@@ -69,10 +76,7 @@ export const clearStorage = async (): Promise<void> => {
 }
 
 export const clearAllStoragesData = async (): Promise<void> => {
-    try {
-        await clearStorage();
-        await clearSecureStorage();
-    } catch (error) {
-        console.log('Erro ao limpar os storages:', error);
-    }
+    await Promise
+        .all([clearStorage(), clearSecureStorage()])
+        .catch(async () => { });
 }

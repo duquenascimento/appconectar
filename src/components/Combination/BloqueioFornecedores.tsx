@@ -6,15 +6,18 @@ import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
+import { getSupplierLabel } from '@/src/utils/supplierUtils';
 
 export function BloqueioFornecedoresCampo({
   suppliers,
   error,
   onChange,
+  loadingSuppliers,
 }: {
   suppliers: CombinationSupplier[];
   error?: string;
   onChange: (val: string[]) => void;
+  loadingSuppliers: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
   const [showModal, setShowModal] = useState(false);
@@ -31,7 +34,7 @@ export function BloqueioFornecedoresCampo({
     );
 
     return fornecedoresNaoSelecionados.map((supplier) => ({
-      label: supplier.nomefornecedor,
+      label: getSupplierLabel(supplier),
       value: supplier.idexterno,
     }));
   }, [suppliers, combinacao.fornecedores_especificos]);
@@ -113,6 +116,7 @@ export function BloqueioFornecedoresCampo({
         <>
           <Separator marginVertical="$3" />
           <ContainerSelecaoItems
+            loading={loadingSuppliers}
             label="Fornecedores bloqueados"
             items={selectFornecedoresContextoBloq}
             value={

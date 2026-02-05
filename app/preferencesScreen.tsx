@@ -1,24 +1,25 @@
 import { useFocusEffect, useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
 import { router } from 'expo-router';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
 import { ScrollView, YStack } from 'tamagui';
+import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
 import CustomHeader from '../src/components/header/customHeader';
 import CustomListItem from '../src/components/list/customListItem';
-import CustomSubtitle from '../src/components/subtitle/customSubtitle';
 import CustomAlert from '../src/components/modais/CustomAlert';
+import CustomSubtitle from '../src/components/subtitle/customSubtitle';
 import { useCombinacao } from '../src/contexts/combinacao.context';
-import { getCombinationsByRestaurant } from '../src/services/combinationsService';
+import { useRestaurantContext } from '../src/contexts/restaurant.context';
+import {
+  getCombinationsByRestaurant,
+  getDefaultCombinations,
+} from '../src/services/combinationsService';
 import { Combinacao, Combination } from '../src/types/combinationTypes';
+import { Restaurant } from '../src/types/restaurantTypes';
 import { transformCombinacaoForSave } from '../src/utils/combinacaoUtils';
 import { mapCombination } from '../src/utils/mapCombination';
-import PageContainer from '../src/components/box/PageContainer';
-import { useSupplier } from '../src/contexts/fornecedores.context';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { Restaurant } from '../src/types/restaurantTypes';
-import { getStorageRestaurant } from '../src/utils/restaurantUtils';
 
 export type RootStackParamList = {
   Preferences: { restaurantId: string; restaurant: Restaurant };
@@ -29,41 +30,44 @@ export default function PreferencesScreen() {
   const route = useRoute();
   const [combinations, setCombinations] = useState<Combination[]>([]);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
-  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao();
   const [combinationsFull, setCombinationsFull] = useState<any[]>([]);
-  const { loadPrices } = useSupplier();
-  const { loadRestaurants } = useRestaurantContext();
+  const [defaultCombinations, setDefaultCombinations] = useState<Combinacao[]>([]);
+  const { selectedRestaurant, loadRestaurants } = useRestaurantContext();
 
   useEffect(() => {
-    const fetchStoredRestaurant = async () => {
-      loadPrices();
-      loadRestaurants();
-      const restaurantData = await getStorageRestaurant();
-      setRestaurant(restaurantData);
+    const initialize = async () => {
+      await loadRestaurants();
     };
 
-    fetchStoredRestaurant();
+    initialize();
   }, []);
 
   const restaurantId = useMemo(() => {
-    return (route.params as { restaurantId?: string })?.restaurantId ?? restaurant?.id;
-  }, [route.params, restaurant]);
+    return (route.params as { restaurantId?: string })?.restaurantId ?? selectedRestaurant?.id;
+  }, [route.params, selectedRestaurant]);
 
   const loadCombinations = useCallback(async () => {
     if (!restaurantId) return;
 
     try {
-      const res = await getCombinationsByRestaurant(restaurantId);
-      if (Array.isArray(res.return)) {
-        setCombinations(res.return.map(mapCombination));
-        setCombinationsFull(res.return);
+      const [combinationsByRestaurant, defaultCombinations] = await Promise.all([
+        getCombinationsByRestaurant(restaurantId),
+        getDefaultCombinations(),
+      ]);
+
+      if (Array.isArray(defaultCombinations)) {
+        setDefaultCombinations(defaultCombinations);
+      }
+
+      if (Array.isArray(combinationsByRestaurant.return)) {
+        setCombinations(combinationsByRestaurant.return.map(mapCombination));
+        setCombinationsFull(combinationsByRestaurant.return);
       } else {
         throw new Error('Resposta inesperada da API');
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro desconhecido';
       setIsAlertVisible(true);
     }
     setLoading(false);
@@ -95,7 +99,7 @@ export default function PreferencesScreen() {
     router.push('combination');
   };
 
-  const cardTitle = `Preferências de ${restaurant?.name ?? ''}`;
+  const cardTitle = `Preferências de ${selectedRestaurant?.name ?? ''}`;
 
   return (
     <PageContainer backgroundColor="white">
@@ -146,8 +150,22 @@ export default function PreferencesScreen() {
                 combination={item.combination}
                 createdAt={item.createdAt}
                 onPress={handleCombinationPress}
+                sameDayOrders={[]}
               />
             ))
+          )}
+          {defaultCombinations.length > 0 && (
+            <>
+              <CustomSubtitle>Combinações Conéctar</CustomSubtitle>
+              {defaultCombinations.map((item) => (
+                <CustomListItem
+                  key={item.nome}
+                  id={item.nome}
+                  combination={item.nome}
+                  sameDayOrders={[]}
+                />
+              ))}
+            </>
           )}
         </YStack>
       </ScrollView>

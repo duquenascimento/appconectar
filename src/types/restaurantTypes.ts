@@ -64,4 +64,5 @@ export interface Restaurant {
   max_specific_suppliers: number;
   addressInfos: Address[];
   deliveryPolicy: RestaurantDeliveryPolicy;
+  allowRetroactiveQuotation: boolean;
 }

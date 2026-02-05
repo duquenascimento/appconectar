@@ -1,7 +1,7 @@
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { styled, useMedia } from 'tamagui';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
 const DropDownPickerRestaurantStyled = styled(DropDownPicker, {
   width: '92%',
@@ -19,7 +19,11 @@ const DropDownPickerRestaurantStyled = styled(DropDownPicker, {
   },
 });
 
-export function DropDownPickerRestaurant() {
+interface DropDownPickerRestaurantProps {
+  onBeforeChange: () => void;
+}
+
+export function DropDownPickerRestaurant({ onBeforeChange }: DropDownPickerRestaurantProps) {
   const { restaurants, selectedRestaurant, handleRestaurantChange } = useRestaurantContext();
   const [restaurantOpen, setRestaurantOpen] = useState(false);
 
@@ -31,6 +35,9 @@ export function DropDownPickerRestaurant() {
       setOpen={setRestaurantOpen}
       value={selectedRestaurant?.externalId ?? ''}
       setValue={async (callback) => {
+        if (onBeforeChange) {
+          onBeforeChange();
+        }
         const value =
           typeof callback === 'function' ? callback(selectedRestaurant?.externalId) : callback;
         const restaurant = restaurants.find((r) => r.externalId === value);
@@ -41,6 +48,8 @@ export function DropDownPickerRestaurant() {
         value: restaurant.externalId,
       }))}
       placeholder={selectedRestaurant ? undefined : 'Selecione um restaurante'}
+      searchable={restaurants.length > 10}
+      searchPlaceholder="Buscar restaurante..."
       dropDownContainerStyle={{
         width: '92%',
         alignSelf: 'center',

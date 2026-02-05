@@ -1,6 +1,8 @@
-import { CombinationMissingProducts } from '@/src/components/combinationList';
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
+import { CombinationMissingProducts } from '@/src/types/combinationTypes';
 import { SameDayOrder } from '@/src/types/types';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -8,7 +10,7 @@ import { HttpStatusCode } from 'axios';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
@@ -19,8 +21,8 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
 import { MissingItemsList } from '../src/components/quotations/MissingItensList';
 import { SupplierList } from '../src/components/quotations/SupplierList';
+import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { useDeliveryDate } from '../src/hooks/useDeliveryDate';
 import {
   confirmConectarPlusOrder,
   ConfirmConectarPlusOrderRequestBody,
@@ -126,10 +128,11 @@ export default function QuotationDetailsScreen() {
   const [confirmedWarnings, setConfirmedWarnings] = useState<{ sundayWarning: boolean }>({
     sundayWarning: false,
   });
-  const { deliveryDate, resetDeliveryDate } = useDeliveryDate();
+  const { deliveryDate, resetDeliveryDate, isRetroactiveDate } = useDeliveryDate();
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
+  const { isLargeScreen } = useResponsiveness();
 
   const handleShowPdf = (pdfUrl: string) => {
     setSelectedPdfUrl(pdfUrl);
@@ -206,9 +209,12 @@ export default function QuotationDetailsScreen() {
       router.push('prices');
     }
   };
-
+  
   const handleConfirm = useCallback(
     async (overrideWarnings?: { sundayWarning?: boolean }) => {
+      if(disableConfirm) {
+        return
+      }
       setDisableConfirm(true);
       try {
         const token = await getToken();
@@ -247,16 +253,8 @@ export default function QuotationDetailsScreen() {
 
         setIsLoading(true);
 
-        const body: ConfirmConectarPlusOrderRequestBody = {
-          token,
-          suppliers: suppliers.map((s) => s.supplier),
-          restaurant: restaurantData,
-          deliveryDate,
-          missingProducts: parsedMissingProducts,
-        };
-
         if (scheduleId) {
-          await confirmScheduleOrder(scheduleId, {});
+          await confirmScheduleOrder(scheduleId, { appVersion: process.env.EXPO_PUBLIC_VERSION });
           router.push({
             pathname: '/orderConfirmedScreen',
             params: {
@@ -266,6 +264,15 @@ export default function QuotationDetailsScreen() {
           });
           return;
         }
+
+        const body: ConfirmConectarPlusOrderRequestBody = {
+          token,
+          suppliers: suppliers.map((s) => s.supplier),
+          restaurant: restaurantData,
+          deliveryDate,
+          appVersion: process.env.EXPO_PUBLIC_VERSION,
+          missingProducts: parsedMissingProducts,
+        };
 
         const createdOrders = await confirmConectarPlusOrder(body);
         if (createdOrders && createdOrders.status === HttpStatusCode.Ok) {
@@ -303,7 +310,7 @@ export default function QuotationDetailsScreen() {
         setDisableConfirm(false);
       }
     },
-    [suppliers, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
+    [suppliers, disableConfirm, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
   );
 
   const handleConfirmSundayWarning = useCallback(async () => {
@@ -343,9 +350,11 @@ export default function QuotationDetailsScreen() {
         flex={1}
         backgroundColor="#F9F9F9"
         alignSelf="center"
-        width={Platform.OS === 'web' ? '70%' : '100%'}
+        width={isLargeScreen ? '70%' : '100%'}
         maxWidth={1280}
       >
+        {isRetroactiveDate && <RetroactiveQuotationWarningBanner />}
+
         <CustomHeader title={headerTitle} onBackPress={handleBackPress} />
 
         <ScrollView
@@ -463,10 +472,10 @@ export default function QuotationDetailsScreen() {
               display={isBefore13h ? 'flex' : 'none'}
             >
               A confirmação só pode ser feita após as 13h
-              {Platform.OS === 'web' ? '.' : ', agende uma notificação para alertar no horário.'}
+              {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário.'}
             </Text>
           </View>
-          {Platform.OS === 'web' ? (
+          {isLargeScreen ? (
             <XStack
               width="74%"
               flexDirection="row"
@@ -491,14 +500,16 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  disabled={disableConfirm}
-                  //onPress={() => handleConfirm()}
+                  disabled={disableConfirm || isRetroactiveDate}
                   onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
                     opacity: 0.9,
                   }}
                   backgroundColor="#1DC588"
+                  disabledStyle={{
+                    backgroundColor: '#A9A9A9',
+                  }}
                   color="#FFFFFF"
                   borderColor="#A9A9A9"
                   borderWidth={1}
@@ -525,6 +536,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <CustomButton
+                  disabled={disableConfirm || isRetroactiveDate}
                   title={isBefore13h ? 'Agendar' : 'Confirmar'}
                   onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"

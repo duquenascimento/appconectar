@@ -13,11 +13,11 @@ export type SignInResponse = {
 }
 
 export type SignUpRequest = {
-  email: string;
-  password: string;
-  name: string;
-  position: string;
-  phone: string;
+    email: string;
+    password: string;
+    name: string;
+    position: string;
+    phone: string;
 }
 
 export type PasswordChangeRequest = {

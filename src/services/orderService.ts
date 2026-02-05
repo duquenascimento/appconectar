@@ -87,6 +87,7 @@ export interface ConfirmOrderRequestBody {
   token: string;
   supplier: Supplier;
   restaurant: any;
+  appVersion: string;
   deliveryDate?: string | undefined | null;
 }
 
@@ -125,6 +126,7 @@ export interface ConfirmConectarPlusOrderRequestBody {
   suppliers: ConectarPlusSupplier[];
   restaurant: any;
   deliveryDate: string;
+  appVersion: string;
   missingProducts: CombinationMissingProducts[];
 }
 

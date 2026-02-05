@@ -44,6 +44,7 @@ export default function OrderDetailsScreen() {
         const orderData = await getOrder(orderId);
         setOrder(orderData.data);
         setCancelationRule(orderData.data.cancelationRule);
+        console.log(orderData);
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
       } finally {
@@ -255,13 +256,12 @@ export default function OrderDetailsScreen() {
               subtitle={`Por ${supplierName}`}
             />
           </TouchableOpacity>
-          {!(cancelationRule.criteria === 'EXPIRED') ||
-            (order.status_id !== 6 && (
-              <TimerButton
-                deadline={cancelationRule.remainingSeconds}
-                onCancel={() => setModalCancelOrderVisibility(true)}
-              />
-            ))}
+          {cancelationRule.criteria !== 'EXPIRED' && order.status_id !== 6 && (
+            <TimerButton
+              deadline={cancelationRule.remainingSeconds}
+              onCancel={() => setModalCancelOrderVisibility(true)}
+            />
+          )}
         </View>
       </View>
     </PageContainer>
