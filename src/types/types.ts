@@ -49,12 +49,12 @@ export interface SupplierData {
 }
 
 export interface SuppliersQuotationDTO {
-  availableSuppliers: SupplierData[]
-  unavailableSuppliers: SupplierData[]
+  availableSuppliers: SupplierData[];
+  unavailableSuppliers: SupplierData[];
 }
 
 export interface GetSuppliersQuotationResponseDTO {
-  success: boolean
-  statusCode: number
-  data: SuppliersQuotationDTO
+  success: boolean;
+  statusCode: number;
+  data: SuppliersQuotationDTO;
 }

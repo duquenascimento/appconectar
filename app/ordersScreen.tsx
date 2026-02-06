@@ -5,11 +5,12 @@ import { HeaderText } from '@/src/components/text/HeaderText';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
-import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import { getBrazilDateTime, getBrazilLocaleString, isTomorrow } from '@/src/utils/dateUtils';
+import { ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ReactNode, useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -21,39 +22,13 @@ import {
 import { Input, Text, View, XStack, YStack } from 'tamagui';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { getOrders } from '../src/services/orderService';
-import { ordersScreenStyles as styles } from '../src/styles/styles';
-import { HomeScreenPropsUtils } from '../src/utils/NavigationTypes';
 import { VersionInfo } from '../src/utils/VersionApp';
+import { OrderData } from '@/src/types/IOrder';
+import OrderListItem from '@/src/components/card/OrderListItem';
 
-interface Order {
-  orderDocument: ReactNode;
-  id: string;
-  deliveryDate: string;
-  totalConectar: number;
-  supplierId: string;
-  calcOrderAgain: {
-    data: {
-      supplier: {
-        externalId: string;
-        name: string;
-      };
-    }[];
-  };
-}
-
-const getStatusAndColor = (item: ScheduleOrderResponse): [string, string] => {
-  if (isTomorrow(getBrazilDateTime(item.deliveryDate))) {
-    return ['Aguardando confirmação', '#FFC107'];
-  }
-  if (item.status == 'CANCELED') {
-    return ['Cancelado', '#DD2300'];
-  }
-  return ['Agendado', '#4CAF50'];
-};
-
-export default function OrdersScreen(props: HomeScreenPropsUtils) {
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
+export default function OrdersScreen() {
+  const [orders, setOrders] = useState<OrderData[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<OrderData[]>([]);
   const [scheduledOrders, setScheduledOrders] = useState<ScheduleOrderResponse[]>([]);
   const [filteredScheduledOrders, setFilteredScheduledOrders] = useState<ScheduleOrderResponse[]>(
     [],
@@ -87,7 +62,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
             getAllScheduleOrders(),
           ]);
 
-          const ordersData = result.map((order: Order) => {
+          const ordersData = result.map((order: OrderData) => {
             const filteredSupplier =
               order.calcOrderAgain?.data?.filter(
                 (item) => item.supplier?.externalId === order.supplierId,
@@ -119,7 +94,7 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
     setSearchQuery(query);
     const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
     const isDatePartial = datePartialRegex.test(query);
-    const fOrders = orders.filter((order: Order) => {
+    const fOrders = orders.filter((order: OrderData) => {
       if (isDatePartial) {
         const [day, month, year] = query.split('/');
         const deliveryDate = order.deliveryDate.split('T')[0];
@@ -233,13 +208,6 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
     setIsDownloading(false);
   };
 
-  const truncateText = (text: string, maxLength: number) => {
-    if (text.length > maxLength) {
-      return `${text.substring(0, maxLength)}...`;
-    }
-    return text;
-  };
-
   if (loading) {
     return (
       <PageContainer backgroundColor="white">
@@ -324,93 +292,27 @@ export default function OrdersScreen(props: HomeScreenPropsUtils) {
         data={[...filteredScheduledOrders, ...filteredOrders]}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={() => <Text>Nenhum pedido encontrado.</Text>}
-        renderItem={({ item }) => {
-          const isScheduledOrder = isScheduleOrderResponse(item);
-
-          const supplierName = isScheduledOrder
-            ? item.combination?.nome || item.supplier?.name || 'Fornecedor indisponível'
-            : item.calcOrderAgain?.data[0]?.supplier?.name || 'Fornecedor indisponível';
-          const truncatedSupplierName = truncateText(supplierName, isLargeScreen ? 20 : 12);
-          const [status, statusColor] = isScheduledOrder ? getStatusAndColor(item) : [];
-          return (
-            <TouchableOpacity
-              onPress={
-                isScheduledOrder
-                  ? () => {
-                      router.push({
-                        pathname: '/schedule',
-                        params: { orderId: item.id },
-                      });
+        renderItem={({ item }) => (
+          <OrderListItem
+            item={item}
+            isLargeScreen={isLargeScreen}
+            selectedOrders={selectedOrders}
+            onToggleSelect={toggleOrderSelection}
+            onPress={(orderId, isScheduled) => {
+              router.push(
+                isScheduled
+                  ? {
+                      pathname: '/schedule',
+                      params: { orderId },
                     }
-                  : () =>
-                      router.push({
-                        pathname: '/orderDetailsScreen',
-                        params: { orderId: item.id },
-                      })
-              }
-              style={styles.itemContainer}
-            >
-              <TouchableOpacity
-                onPress={isScheduledOrder ? () => {} : () => toggleOrderSelection(item.id)}
-                style={{
-                  ...styles.checkboxContainer,
-                  borderColor: isScheduledOrder ? '#ccc' : '#04BF7B',
-                  borderWidth: 3,
-                }}
-                disabled={isScheduledOrder}
-              >
-                <Text>{selectedOrders.includes(item.id) ? '✓' : ''}</Text>
-              </TouchableOpacity>
-
-              <View style={styles.leftColumn}>
-                {isScheduledOrder ? (
-                  <View
-                    backgroundColor={statusColor}
-                    borderRadius={20}
-                    paddingHorizontal={8}
-                    paddingVertical={2}
-                    marginBottom={4}
-                    marginRight={8}
-                    flex={0}
-                  >
-                    <Text color={'white'} textAlign="center">
-                      {status}
-                    </Text>
-                  </View>
-                ) : (
-                  <Text marginBottom={10} style={styles.orderId}>
-                    {item.id}
-                  </Text>
-                )}
-                <Text style={styles.deliveryDate}>{getBrazilLocaleString(item.deliveryDate)}</Text>
-              </View>
-              <YStack>
-                {!isScheduledOrder && (
-                  <Text marginBottom={10} style={styles.total} alignSelf="flex-end">
-                    R$ {item.totalConectar.toFixed(2)}
-                  </Text>
-                )}
-                <Text
-                  style={{
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {truncatedSupplierName}
-                </Text>
-              </YStack>
-              <Icons
-                name="chevron-forward"
-                size={20}
-                color="#000"
-                style={{
-                  marginLeft: 10,
-                }}
-              />
-            </TouchableOpacity>
-          );
-        }}
+                  : {
+                      pathname: '/orderDetailsScreen',
+                      params: { orderId },
+                    },
+              );
+            }}
+          />
+        )}
       />
       <View
         justifyContent="center"
