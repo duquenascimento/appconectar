@@ -1,8 +1,9 @@
 import { Supplier } from '@/app/prices';
 import { ConectarPlusSupplier } from '@/app/quotationDetailsScreen';
-import axios from 'axios';
+import axios, { HttpStatusCode } from 'axios';
 import { CombinationMissingProducts } from '../types/combinationTypes';
-import { CancelOrderResult } from '../types/cancelOrderTypes';
+import { CancelationOrderErrorKind, CancelOrderResult } from '../types/cancelOrderTypes';
+import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -42,26 +43,31 @@ export const cancelOrder = async (orderId: string): Promise<CancelOrderResult> =
     if (!orderId) {
       throw new Error('Pedido selecionado não encontrado.');
     }
-    await axios.delete(`${API_URL}/orders/${orderId}/cancel`);
+
+    const token = await getToken();
+    const headers = { authorization: `Bearer ${token}` };
+
+    await axios.delete(`${API_URL}/orders/${orderId}/cancel`, { headers });
+
     return { success: true };
   } catch (error: any) {
     if (error.response) {
       const { status } = error.response;
       const message = error.response.data?.msg ?? 'Não foi possível cancelar o pedido.';
 
-      if (status === 400) {
+      if (status === HttpStatusCode.BadRequest) {
         return {
           success: false,
-          kind: 'BUSINESS',
+          kind: CancelationOrderErrorKind.BUSINESS,
           statusCode: status,
           message,
         };
       }
 
-      if (status === 404) {
+      if (status === HttpStatusCode.NotFound) {
         return {
           success: false,
-          kind: 'NOT_FOUND',
+          kind: CancelationOrderErrorKind.NOT_FOUND,
           statusCode: status,
           message,
         };
@@ -69,7 +75,7 @@ export const cancelOrder = async (orderId: string): Promise<CancelOrderResult> =
 
       return {
         success: false,
-        kind: 'TECHNICAL',
+        kind: CancelationOrderErrorKind.TECHNICAL,
         statusCode: status,
         message,
       };
@@ -77,7 +83,7 @@ export const cancelOrder = async (orderId: string): Promise<CancelOrderResult> =
 
     return {
       success: false,
-      kind: 'TECHNICAL',
+      kind: CancelationOrderErrorKind.TECHNICAL,
       message: 'Erro de conexão. Tente novamente mais tarde',
     };
   }

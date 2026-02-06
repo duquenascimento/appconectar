@@ -12,7 +12,7 @@ import PageContainer from '@/src/components/box/PageContainer';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 import TimerButton from '@/src/components/button/timerButton';
-import { CancelationRulesType } from '@/src/types/cancelOrderTypes';
+import { CancelationRulesType, CancelationOrderErrorKind } from '@/src/types/cancelOrderTypes';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
 import { ModalDocumentsAndInvoices } from '@/src/components/modais/ModalDocumentsAndInvoices';
 
@@ -44,7 +44,6 @@ export default function OrderDetailsScreen() {
         const orderData = await getOrder(orderId);
         setOrder(orderData.data);
         setCancelationRule(orderData.data.cancelationRule);
-        console.log(orderData);
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
       } finally {
@@ -71,18 +70,18 @@ export default function OrderDetailsScreen() {
       return;
     }
     switch (result.kind) {
-      case 'BUSINESS':
+      case CancelationOrderErrorKind.BUSINESS:
         showErrorModal('Não foi possível cancelar o pedido', result.message);
         break;
 
-      case 'NOT_FOUND':
+      case CancelationOrderErrorKind.NOT_FOUND:
         showErrorModal(
           'Pedido não encontrado',
           result.message || 'Este pedido não existe ou já foi removido.',
         );
         break;
 
-      case 'TECHNICAL':
+      case CancelationOrderErrorKind.TECHNICAL:
       default:
         showErrorModal('Erro inesperado', result.message || 'Tente novamente mais tarde.');
         break;
@@ -179,9 +178,15 @@ export default function OrderDetailsScreen() {
           <Icons onPress={() => router.push('/ordersScreen')} size={30} name="chevron-back" />
           <View flex={1} marginBottom={5}>
             <Text>Pedido {order.id}</Text>
-            <Text fontSize={10} color="gray">
-              Entregue {getBrazilLocaleString(order.deliveryDate)}
-            </Text>
+            {order.status_id === 6 ? (
+              <Text fontSize={10} color="gray">
+                Cancelado
+              </Text>
+            ) : (
+              <Text fontSize={10} color="gray">
+                Entregue {getBrazilLocaleString(order.deliveryDate)}
+              </Text>
+            )}
           </View>
         </View>
         <View
