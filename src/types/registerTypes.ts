@@ -1,10 +1,10 @@
 export interface RestaurantFullRegisterData {
   token: string
   document: string
-  stateNumberId: string
-  cityNumberId: string
+  stateNumberId?: string
+  cityNumberId?: string
   restaurantName: string
-  legalRestaurantName: string
+  legalRestaurantName?: string
   zipcode: string
   neigh: string
   street: string

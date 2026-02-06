@@ -95,11 +95,15 @@ export default function Register() {
       try {
         setLoading(true);
 
-        const { noStateNumberId, ...data } = values;
+        const { zipcode, complement, noStateNumberId, cityNumberId, stateNumberId, ...data } =
+          values;
 
         await sendFullRegister({
           ...data,
-          zipcode: data.zipcode.replace(/\D/g, ''),
+          zipcode: zipcode.replace(/\D/g, ''),
+          complement: complement.length > 0 ? complement : undefined,
+          stateNumberId: noStateNumberId ? undefined : stateNumberId,
+          cityNumberId: cityNumberId.length > 0 && noStateNumberId ? cityNumberId : undefined,
         });
 
         await Promise.all([clearStorage(), loadRestaurants()]);
@@ -659,7 +663,6 @@ export default function Register() {
                       flexDirection="row"
                       gap={8}
                     >
-                      {/* TODO: Remove for CPF */}
                       <Text>Inscrição estadual</Text>
                       <Text fontSize={10} color="gray">
                         Min. 8 digitos
@@ -689,7 +692,6 @@ export default function Register() {
                   </>
                 )}
 
-                {/* TODO: Remove for CPF */}
                 {formik.values.noStateNumberId && !isCpf && (
                   <>
                     <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>

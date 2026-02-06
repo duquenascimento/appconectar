@@ -12,7 +12,7 @@ export interface ApiErrorResponse {
 }
 
 export function isApiError(error: any): error is ApiErrorResponse {
-  return error?.response?.data?.status !== undefined && error?.response?.data?.msg !== undefined;
+  return error?.response?.data?.msg !== undefined;
 }
 
 export function getErrorMessage(error: any): string {
