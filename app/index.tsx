@@ -16,8 +16,8 @@ import {
   validatePosition,
 } from '@/src/utils/validateFields';
 import { isAxiosError } from 'axios';
-import { router } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -28,7 +28,6 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Stack, View } from 'tamagui';
-import { getStorage } from '../src/utils/utils';
 
 const positionOptions = [
   { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
@@ -116,7 +115,7 @@ async function handleLogin(
     await saveLogin(response.data.token, response.data.role);
 
     const userRoles = response.data.role as UserRole[];
-    if (userRoles.length > 0 && userRoles.includes('registering')) {
+    if (userRoles.includes('registering')) {
       router.replace('/register');
     } else {
       router.replace('/products');
@@ -176,7 +175,7 @@ async function handleRegister(
     await saveLogin(response.data.token, response.data.role);
 
     const userRoles = response.data.role as UserRole[];
-    if (userRoles.length > 0 && userRoles.includes('registering')) {
+    if (userRoles.includes('registering')) {
       router.replace('/register');
     } else {
       router.replace('/products');
@@ -203,41 +202,46 @@ export default function Sign() {
   const [currentPage, setCurrentPage] = useState('SignIn');
   const [visiblePage, setVisiblePage] = useState(true);
   const scrollRef = useRef<ScrollView>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [closeModal, setCloseModal] = useState<boolean>(false);
   const { width } = useWindowDimensions();
-  const { authToken, logout } = useAuthContext();
+  const { authToken, logout, getUserRoles } = useAuthContext();
 
   const handleCloseModal = () => {
     setCloseModal(!closeModal);
   };
 
-  const checkLogin = useCallback(async () => {
-    try {
-      if (authToken == null) {
-        setLoading(false);
-        return;
-      }
-      process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-      await authLoginCheck(authToken);
-      const role = (await getStorage('role')) as UserRole | null;
-      if (role === 'registering' || role === null) {
-        router.replace('/register');
-      } else {
-        router.replace('/products');
-      }
-    } catch (err) {
-      await logout();
+  useFocusEffect(
+    useCallback(() => {
+      const checkLogin = async () => {
+        if (loading) return;
 
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [authToken]);
+        setLoading(true);
 
-  useEffect(() => {
-    checkLogin();
-  }, [checkLogin]);
+        try {
+          if (authToken == null) {
+            return;
+          }
+          process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+          await authLoginCheck(authToken);
+
+          const userRoles = await getUserRoles();
+          if (userRoles?.includes('registering')) {
+            router.replace('/register');
+          } else {
+            router.replace('/products');
+          }
+        } catch (err) {
+          await logout();
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      checkLogin();
+    }, []),
+  );
 
   const handleButtonPress = (page: string) => {
     if (Platform.OS === 'web') {

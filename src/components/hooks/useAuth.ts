@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react'
-import { useRouter, useSegments } from 'expo-router'
-import { getToken, getStorage } from '../../utils/utils'
+import { useRouter, useSegments } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { getStorage, getToken, STORAGE_DEFAULT_KEYS } from '../../utils/utils';
 
 export function useAuthGuard() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
-  const segments = useSegments()
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments();
 
   const checkAuth = async () => {
     try {
@@ -16,29 +16,29 @@ export function useAuthGuard() {
       setIsAuthenticated(authenticated)
 
       if (authenticated) {
-        const role = await getStorage('role')
+        const role = await getStorage(STORAGE_DEFAULT_KEYS.USER_ROLES);
 
         if (isPublicRoute(segments)) {
-          if (role === 'registered') {
-            router.replace('/products')
-          } else if (role === 'registering') {
-            router.replace('/register')
+          if (role?.includes('registered')) {
+            router.replace('/products');
+          } else if (role?.includes('registering')) {
+            router.replace('/register');
           }
-          return authenticated
+          return authenticated;
         }
 
-        if (isProtectedRoute(segments) && role === 'registering') {
-          router.replace('/register')
-          return authenticated
+        if (isProtectedRoute(segments) && role?.includes('registering')) {
+          router.replace('/register');
+          return authenticated;
         }
 
       } else {
         if (isProtectedRoute(segments)) {
-          router.replace('/')
+          router.replace('/');
         }
       }
 
-      return authenticated
+      return authenticated;
     } catch (error) {
       console.error('Auth check error:', error)
       setIsAuthenticated(false)
