@@ -1,14 +1,15 @@
-import axios from 'axios';
+import axios, { HttpStatusCode } from 'axios';
 import { CheckDocumentResult, RestaurantRegisterPayload } from '../types/registerTypes';
 import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const TOKEN_ERROR_MESSAGE = 'Token do usuário não encontrado. Faça login novamente.';
 
 export async function saveRegisterProgress(step: number, values: any): Promise<void> {
   try {
     const token = await getToken();
     if (!token) {
-      throw new Error('Token not found');
+      throw new Error(TOKEN_ERROR_MESSAGE);
     }
 
     await axios.post(
@@ -25,19 +26,19 @@ export async function getRegisterProgress(): Promise<any> {
   try {
     const token = await getToken();
     if (!token) {
-      throw new Error('Token not found');
+      throw new Error(TOKEN_ERROR_MESSAGE);
     }
 
     const response = await axios.get(
       `${API_URL}/register/progress`,
       {
         headers: { Authorization: `Bearer ${token}` },
-        validateStatus: (status) => status === 200 || status === 204,
+        validateStatus: (status) => status === HttpStatusCode.Ok || status === HttpStatusCode.NoContent,
       },
     );
 
-    if (response.status === 204) {
-      return { statusCode: 204 };
+    if (response.status === HttpStatusCode.NoContent) {
+      return { statusCode: HttpStatusCode.NoContent };
     }
 
     return response.data;
@@ -50,7 +51,7 @@ export async function sendFullRegister(data: RestaurantRegisterPayload): Promise
   try {
     const token = await getToken();
     if (!token) {
-      throw new Error('Token not found');
+      throw new Error(TOKEN_ERROR_MESSAGE);
     }
 
     await axios.post(
