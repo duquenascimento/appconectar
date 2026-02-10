@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import { KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Button, Input, ScrollView, Text, View } from 'tamagui';
 import { useDeliveryDate } from '../../contexts/deliveryDate.context';
 import { useRestaurantContext } from '../../contexts/restaurant.context';
@@ -12,29 +12,35 @@ import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
 import CustomAlert from '../modais/CustomAlert';
 
+// Conditional DatePicker import for web platform
+const getDatePicker = (): any =>
+  Platform.OS === 'web' ? require('react-datepicker').default : null;
+
 const MAX_DAYS_FOR_RETROACTIVE_DATE = 60;
 
 // Custom DatePicker input to match DropDownPicker style
-const CustomDateInput = forwardRef<any, any>(({ value, onClick }, ref) => (
-  <TouchableOpacity
-    onPress={onClick}
-    style={{
-      borderWidth: 1,
-      borderColor: 'lightgray',
-      borderRadius: 5,
-      paddingHorizontal: 12,
-      paddingVertical: 15,
-      backgroundColor: 'white',
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    }}
-  >
-    <Text fontSize={14} color="black">
-      {value || 'Selecione a data'}
-    </Text>
-  </TouchableOpacity>
-));
+const CustomDateInput = forwardRef<any, { value?: string; onClick?: () => void }>(
+  ({ value, onClick }, ref) => (
+    <TouchableOpacity
+      onPress={onClick}
+      style={{
+        borderWidth: 1,
+        borderColor: 'lightgray',
+        borderRadius: 5,
+        paddingHorizontal: 12,
+        paddingVertical: 15,
+        backgroundColor: 'white',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      <Text fontSize={14} color="black">
+        {value || 'Selecione a data'}
+      </Text>
+    </TouchableOpacity>
+  ),
+);
 
 interface RestaurantInfoDialogProps {
   visible: boolean;
@@ -83,6 +89,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
+  const [showNativeDatePicker, setShowNativeDatePicker] = useState(false);
+  const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(null);
 
   const { isLargeScreen } = useResponsiveness();
 
@@ -243,6 +251,103 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     setShowDatePicker(false);
   };
 
+  const handleNativeDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowNativeDatePicker(false);
+
+      if (event.type === 'set' && selectedDate) {
+        // Check if date is excluded
+        const restaurant = draftSelectedRestaurant || selectedRestaurant;
+        const isExcluded = isDateExcluded(selectedDate, restaurant?.allowEmergencyOrder);
+        
+        if (isExcluded) {
+          const excludedDateName = restaurant?.allowEmergencyOrder ? 'amanhã' : 'hoje';
+          Alert.alert(
+            'Data inválida',
+            `A data ${excludedDateName} não pode ser selecionada.`,
+            [{ text: 'OK' }]
+          );
+          return;
+        }
+
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+        setDeliveryDate(formattedDate);
+      }
+    } else if (Platform.OS === 'ios') {
+      if (selectedDate) {
+        setTempSelectedDate(selectedDate);
+      }
+    }
+  };
+
+  const isDateExcluded = (date: Date, allowEmergencyOrder?: boolean): boolean => {
+    const today = getBrazilJSDate();
+    const tomorrow = getBrazilJSDateTomorrow();
+    
+    // Normalize dates to compare only year, month, day
+    const normalizeDate = (d: Date) => {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    };
+    
+    const selectedTime = normalizeDate(date);
+    const todayTime = normalizeDate(today);
+    const tomorrowTime = normalizeDate(tomorrow);
+    
+    if (allowEmergencyOrder) {
+      // If emergency order is allowed, exclude tomorrow
+      return selectedTime === tomorrowTime;
+    } else {
+      // If emergency order is not allowed, exclude today
+      return selectedTime === todayTime;
+    }
+  };
+
+  const handleConfirmDatePicker = () => {
+    if (tempSelectedDate) {
+      // Check if date is excluded before confirming
+      const restaurant = draftSelectedRestaurant || selectedRestaurant;
+      const isExcluded = isDateExcluded(tempSelectedDate, restaurant?.allowEmergencyOrder);
+      
+      if (isExcluded) {
+        const excludedDateName = restaurant?.allowEmergencyOrder ? 'amanhã' : 'hoje';
+        Alert.alert(
+          'Data inválida',
+          `A data ${excludedDateName} não pode ser selecionada.`,
+          [{ text: 'OK' }]
+        );
+        setShowNativeDatePicker(false);
+        setTempSelectedDate(null);
+        return;
+      }
+
+      const year = tempSelectedDate.getFullYear();
+      const month = String(tempSelectedDate.getMonth() + 1).padStart(2, '0');
+      const day = String(tempSelectedDate.getDate()).padStart(2, '0');
+      const formattedDate = `${year}-${month}-${day}`;
+      setDeliveryDate(formattedDate);
+    }
+    setShowNativeDatePicker(false);
+    setTempSelectedDate(null);
+  };
+
+  const handleCancelDatePicker = () => {
+    setShowNativeDatePicker(false);
+    setTempSelectedDate(null);
+  };
+
+  const handleDatePickerPress = () => {
+    if (Platform.OS === 'web') {
+      setShowDatePicker(!showDatePicker);
+    } else {
+      // Initialize temp date with current delivery date
+      setTempSelectedDate(getBrazilJSDate(deliveryDate));
+      setShowNativeDatePicker(true);
+    }
+  };
+
   if (!visible) return null;
 
   const handleCepChange = async (value: string) => {
@@ -361,36 +466,42 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
   return (
     <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
-      <Modal transparent={true}>
-        <ScrollView
-          contentContainerStyle={{
-            flex: 1,
-            justifyContent: 'center',
-          }}
-          keyboardShouldPersistTaps="handled"
+      <Modal transparent={true} animationType={isLargeScreen ? 'fade' : 'slide'}>
+        <View
+          flex={1}
+          backgroundColor="rgba(0, 0, 0, 0.9)"
         >
-          <View
-            flex={1}
-            justifyContent="center"
-            alignItems="center"
-            backgroundColor="rgba(0, 0, 0, 0.9)"
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              ...(isLargeScreen && { justifyContent: 'center', alignItems: 'center' }),
+            }}
+            keyboardShouldPersistTaps="handled"
           >
             <View
               paddingBottom={15}
               paddingHorizontal={15}
-              paddingTop={40}
-              minWidth={isLargeScreen ? '40%' : '90%'}
+              paddingTop={isLargeScreen ? 40 : 60}
+              width={isLargeScreen ? '40%' : '100%'}
+              minHeight={isLargeScreen ? undefined : '100%'}
               backgroundColor="white"
               borderRadius={isLargeScreen ? 10 : 0}
-              justifyContent="center"
               zIndex={101}
               style={{ overflow: 'visible' }}
+              {...(isLargeScreen && { alignSelf: 'center' })}
             >
-              <KeyboardAvoidingView style={{ flex: 1 }}>
+              <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              >
                 <ScrollView
                   keyboardShouldPersistTaps="handled"
                   style={{ overflow: 'visible' }}
-                  contentContainerStyle={{ overflow: 'visible' }}
+                  contentContainerStyle={{
+                    overflow: 'visible',
+                    paddingBottom: isLargeScreen ? 0 : 20,
+                  }}
+                  showsVerticalScrollIndicator={!isLargeScreen}
                 >
                   <Text paddingLeft={5} fontSize={12} color="gray">
                     Restaurante
@@ -449,37 +560,145 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       {(draftSelectedRestaurant || selectedRestaurant)
                         ?.allowRetroactiveQuotation ? (
                         <View style={{ position: 'relative', zIndex: 9999, overflow: 'visible' }}>
-                          <DatePicker
-                            selected={getBrazilJSDate(deliveryDate)}
-                            onSelect={handleDatePickerConfirm}
-                            onChange={handleDatePickerConfirm}
-                            customInput={<CustomDateInput />}
-                            dateFormat="dd/MM/yyyy"
-                            allowSameDay={
-                              (draftSelectedRestaurant || selectedRestaurant)?.allowEmergencyOrder
-                            }
-                            minDate={getBrazilDateTime()
-                              .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
-                              .toJSDate()}
-                            excludeDates={
-                              (draftSelectedRestaurant || selectedRestaurant)?.allowEmergencyOrder
-                                ? [getBrazilJSDateTomorrow()]
-                                : [getBrazilJSDate()]
-                            }
-                            maxDate={getBrazilJSDate(
-                              deliveryDatesDropdownOptions()[
-                                deliveryDatesDropdownOptions().length - 1
-                              ]?.value,
-                            )}
-                            popperProps={{
-                              strategy: 'fixed',
-                            }}
-                            popperPlacement="bottom-start"
-                          />
-                          {Platform.OS === 'ios' && showDatePicker && (
-                            <Button onPress={() => setShowDatePicker(false)} marginTop="$2">
-                              Confirmar
-                            </Button>
+                          {Platform.OS === 'web' ? (
+                            (() => {
+                              const DatePicker = getDatePicker();
+                              return DatePicker ? (
+                                <DatePicker
+                                  selected={getBrazilJSDate(deliveryDate)}
+                                  onSelect={handleDatePickerConfirm}
+                                  onChange={handleDatePickerConfirm}
+                                  customInput={<CustomDateInput />}
+                                  dateFormat="dd/MM/yyyy"
+                                  allowSameDay={
+                                    (draftSelectedRestaurant || selectedRestaurant)
+                                      ?.allowEmergencyOrder
+                                  }
+                                  minDate={getBrazilDateTime()
+                                    .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
+                                    .toJSDate()}
+                                  excludeDates={
+                                    (draftSelectedRestaurant || selectedRestaurant)
+                                      ?.allowEmergencyOrder
+                                      ? [getBrazilJSDateTomorrow()]
+                                      : [getBrazilJSDate()]
+                                  }
+                                  maxDate={getBrazilJSDate(
+                                    deliveryDatesDropdownOptions()[
+                                      deliveryDatesDropdownOptions().length - 1
+                                    ]?.value,
+                                  )}
+                                  popperProps={{
+                                    strategy: 'fixed',
+                                  }}
+                                  popperPlacement="bottom-start"
+                                />
+                              ) : null;
+                            })()
+                          ) : (
+                            <>
+                              <TouchableOpacity
+                                onPress={handleDatePickerPress}
+                                style={{
+                                  borderWidth: 1,
+                                  borderColor: 'lightgray',
+                                  borderRadius: 5,
+                                  paddingHorizontal: 12,
+                                  paddingVertical: 15,
+                                  backgroundColor: 'white',
+                                  flexDirection: 'row',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                }}
+                              >
+                                <Text fontSize={14} color="black">
+                                  {deliveryDate
+                                    ? getBrazilJSDate(deliveryDate).toLocaleDateString('pt-BR')
+                                    : 'Selecione a data'}
+                                </Text>
+                              </TouchableOpacity>
+                              {showNativeDatePicker && Platform.OS === 'ios' && (
+                                <Modal transparent animationType="slide">
+                                  <View
+                                    flex={1}
+                                    justifyContent="flex-end"
+                                    backgroundColor="rgba(0, 0, 0, 0.5)"
+                                  >
+                                    <View
+                                      backgroundColor="white"
+                                      borderTopLeftRadius={20}
+                                      borderTopRightRadius={20}
+                                    >
+                                      <View
+                                        flexDirection="row"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        paddingHorizontal={20}
+                                        paddingTop={15}
+                                        paddingBottom={10}
+                                        borderBottomWidth={1}
+                                        borderBottomColor="#e0e0e0"
+                                      >
+                                        <Button
+                                          onPress={handleCancelDatePicker}
+                                          backgroundColor="transparent"
+                                          pressStyle={{ opacity: 0.5 }}
+                                        >
+                                          <Text color="#007AFF" fontSize={17}>
+                                            Cancelar
+                                          </Text>
+                                        </Button>
+                                        <Text fontSize={17} fontWeight="600">
+                                          Selecionar Data
+                                        </Text>
+                                        <Button
+                                          onPress={handleConfirmDatePicker}
+                                          backgroundColor="transparent"
+                                          pressStyle={{ opacity: 0.5 }}
+                                        >
+                                          <Text color="#007AFF" fontSize={17} fontWeight="600">
+                                            Confirmar
+                                          </Text>
+                                        </Button>
+                                      </View>
+                                      <View paddingHorizontal={'12%'}>
+                                        <DateTimePicker
+                                          value={tempSelectedDate || getBrazilJSDate(deliveryDate)}
+                                          mode="date"
+                                          display="spinner"
+                                          onChange={handleNativeDateChange}
+                                          minimumDate={getBrazilDateTime()
+                                            .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
+                                            .toJSDate()}
+                                          maximumDate={getBrazilJSDate(
+                                            deliveryDatesDropdownOptions()[
+                                              deliveryDatesDropdownOptions().length - 1
+                                            ]?.value,
+                                          )}
+                                          style={{ height: 200 }}
+                                        />
+                                      </View>
+                                    </View>
+                                  </View>
+                                </Modal>
+                              )}
+                              {showNativeDatePicker && Platform.OS === 'android' && (
+                                <DateTimePicker
+                                  value={getBrazilJSDate(deliveryDate)}
+                                  mode="date"
+                                  display="default"
+                                  onChange={handleNativeDateChange}
+                                  minimumDate={getBrazilDateTime()
+                                    .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
+                                    .toJSDate()}
+                                  maximumDate={getBrazilJSDate(
+                                    deliveryDatesDropdownOptions()[
+                                      deliveryDatesDropdownOptions().length - 1
+                                    ]?.value,
+                                  )}
+                                />
+                              )}
+                            </>
                           )}
                         </View>
                       ) : (
@@ -954,8 +1173,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                 </View>
               )}
             </View>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </View>
         <CustomAlert
           visible={isAlertVisible}
           title="Campos obrigatórios"
