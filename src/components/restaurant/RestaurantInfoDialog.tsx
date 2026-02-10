@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Button, Input, ScrollView, Text, View } from 'tamagui';
@@ -256,6 +256,20 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
       setShowNativeDatePicker(false);
 
       if (event.type === 'set' && selectedDate) {
+        // Check if date is excluded
+        const restaurant = draftSelectedRestaurant || selectedRestaurant;
+        const isExcluded = isDateExcluded(selectedDate, restaurant?.allowEmergencyOrder);
+        
+        if (isExcluded) {
+          const excludedDateName = restaurant?.allowEmergencyOrder ? 'amanhã' : 'hoje';
+          Alert.alert(
+            'Data inválida',
+            `A data ${excludedDateName} não pode ser selecionada.`,
+            [{ text: 'OK' }]
+          );
+          return;
+        }
+
         const year = selectedDate.getFullYear();
         const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
         const day = String(selectedDate.getDate()).padStart(2, '0');
@@ -269,8 +283,46 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     }
   };
 
+  const isDateExcluded = (date: Date, allowEmergencyOrder?: boolean): boolean => {
+    const today = getBrazilJSDate();
+    const tomorrow = getBrazilJSDateTomorrow();
+    
+    // Normalize dates to compare only year, month, day
+    const normalizeDate = (d: Date) => {
+      return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    };
+    
+    const selectedTime = normalizeDate(date);
+    const todayTime = normalizeDate(today);
+    const tomorrowTime = normalizeDate(tomorrow);
+    
+    if (allowEmergencyOrder) {
+      // If emergency order is allowed, exclude tomorrow
+      return selectedTime === tomorrowTime;
+    } else {
+      // If emergency order is not allowed, exclude today
+      return selectedTime === todayTime;
+    }
+  };
+
   const handleConfirmDatePicker = () => {
     if (tempSelectedDate) {
+      // Check if date is excluded before confirming
+      const restaurant = draftSelectedRestaurant || selectedRestaurant;
+      const isExcluded = isDateExcluded(tempSelectedDate, restaurant?.allowEmergencyOrder);
+      
+      if (isExcluded) {
+        const excludedDateName = restaurant?.allowEmergencyOrder ? 'amanhã' : 'hoje';
+        Alert.alert(
+          'Data inválida',
+          `A data ${excludedDateName} não pode ser selecionada.`,
+          [{ text: 'OK' }]
+        );
+        setShowNativeDatePicker(false);
+        setTempSelectedDate(null);
+        return;
+      }
+
       const year = tempSelectedDate.getFullYear();
       const month = String(tempSelectedDate.getMonth() + 1).padStart(2, '0');
       const day = String(tempSelectedDate.getDate()).padStart(2, '0');
