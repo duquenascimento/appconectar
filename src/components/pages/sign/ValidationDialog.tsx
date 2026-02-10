@@ -5,7 +5,7 @@ export function ValidationDialog(props: {
   openModal: boolean;
   setRegisterInvalid: Function;
   erros: string[];
-  cnpj?: string;
+  document?: string;
 }) {
   return (
     <Dialog modal open={props.openModal}>
@@ -85,8 +85,8 @@ export function ValidationDialog(props: {
                 </Button>
                 {props.erros.find(
                   (erro) =>
-                    erro ===
-                    'Este cnpj já existe na plataforma, utilize outro ou logue ao invés disso',
+                    erro === 'Este documento já existe na plataforma' ||
+                    erro.includes('já existe na plataforma'),
                 ) && (
                   <Button
                     width="$20"
@@ -94,8 +94,8 @@ export function ValidationDialog(props: {
                     backgroundColor="#FFA500"
                     color="$white1"
                     onPress={() => {
-                      let msg = `Olá! Gostaria de acessar a conta com o CNPJ ${
-                        props.cnpj ?? ''
+                      let msg = `Olá! Gostaria de acessar a conta com o CPF/CNPJ ${
+                        props.document ?? ''
                       }, pode me ajudar?`;
                       msg = encodeURIComponent(msg)
                         .replace('!', '%21')

@@ -4,28 +4,42 @@ import * as Yup from 'yup'
 const phoneRegExp = /^\(\d{2}\) \d{4,5}-\d{4}$/
 
 export const step0Validation = Yup.object().shape({
-  cnpj: Yup.string()
-    .required('CNPJ é obrigatório')
-    .min(18, 'CNPJ inválido')
-    .test('cnpj-valid', 'CNPJ inválido', (value) => {
-      // Você pode adicionar lógica de validação real do CNPJ aqui
-      return value?.replace(/\D/g, '').length === 14
+  document: Yup.string()
+    .required('CPF/CNPJ é obrigatório')
+    .test('document-valid', 'Documento inválido', (value) => {
+      const onlyNumbers = value?.replace(/\D/g, '') || '';
+      // Validação do CPF (11 dígitos) ou CNPJ (14 dígitos)
+      return onlyNumbers.length === 11 || onlyNumbers.length === 14;
     }),
   restaurantName: Yup.string().required('Nome do restaurante é obrigatório').min(3, 'Mínimo 3 caracteres')
 })
 
 export const step1Validation = Yup.object().shape({
-  stateNumberId: Yup.string().when('noStateNumberId', {
-    is: false,
-    then: (schema) => schema.required('Inscrição estadual é obrigatória').min(8, 'Inscrição inválida! Mínimo de 8 dígitos')
+  document: Yup.string().required('CPF/CNPJ é obrigatório'),
+  
+  stateNumberId: Yup.string().when(['noStateNumberId', 'document'], {
+    is: (noStateNumberId: boolean, document: string) => {
+      const isCnpj = document?.replace(/\D/g, '').length === 14;
+      return !noStateNumberId && isCnpj;
+    },
+    then: (schema) => schema.required('Inscrição estadual é obrigatória').min(8, 'Inscrição inválida! Mínimo de 8 dígitos'),
+    otherwise: (schema) => schema.notRequired()
   }),
 
-  cityNumberId: Yup.string().when('noStateNumberId', {
-    is: true,
-    then: (schema) => schema.required('Inscrição municipal é obrigatória').min(8, 'Inscrição inválida! Mínimo de 8 dígitos')
+  cityNumberId: Yup.string().when(['noStateNumberId', 'document'], {
+    is: (noStateNumberId: boolean, document: string) => {
+      const isCnpj = document?.replace(/\D/g, '').length === 14;
+      return noStateNumberId && isCnpj;
+    },
+    then: (schema) => schema.required('Inscrição municipal é obrigatória').min(8, 'Inscrição inválida! Mínimo de 8 dígitos'),
+    otherwise: (schema) => schema.notRequired()
   }),
 
-  legalRestaurantName: Yup.string().required('Razão social é obrigatória'),
+  legalRestaurantName: Yup.string().when('document', {
+    is: (document: string) => document?.replace(/\D/g, '').length === 14,
+    then: (schema) => schema.required('Razão social é obrigatória'),
+    otherwise: (schema) => schema.notRequired()
+  }),
 
   zipcode: Yup.string()
     .required('CEP é obrigatório')
@@ -53,6 +67,8 @@ export const step1Validation = Yup.object().shape({
 })
 
 export const step2Validation = Yup.object().shape({
+  document: Yup.string(), // Reference to check if CPF or CNPJ
+  
   email: Yup
     .string()
     .email('E-mail inválido')
@@ -71,20 +87,31 @@ export const step2Validation = Yup.object().shape({
 
   paymentWay: Yup.string().required('Forma de pagamento é obrigatória'),
 
-    emailBilling: Yup
-    .string()
-    .email('E-mail de cobrança inválido')
-    .matches(
-      /\.(com|net|org|br|co|gov|io|dev)$/i,
-      'O e-mail de cobrança deve terminar com um domínio válido (ex: .com, .net, .br)'
-    )
-    .required('E-mail de cobrança é obrigatório'),
+  emailBilling: Yup.string().when('document', {
+    is: (document: string) => document?.replace(/\D/g, '').length === 14,
+    then: (schema) => schema
+      .email('E-mail de cobrança inválido')
+      .matches(
+        /\.(com|net|org|br|co|gov|io|dev)$/i,
+        'O e-mail de cobrança deve terminar com um domínio válido (ex: .com, .net, .br)'
+      )
+      .required('E-mail de cobrança é obrigatório'),
+    otherwise: (schema) => schema.notRequired()
+  }),
 
-  financeResponsibleName: Yup.string().min(2, 'Nome muito curto').required('Nome do responsável financeiro é obrigatório'),
+  financeResponsibleName: Yup.string().when('document', {
+    is: (document: string) => document?.replace(/\D/g, '').length === 14,
+    then: (schema) => schema.min(2, 'Nome muito curto').required('Nome do responsável financeiro é obrigatório'),
+    otherwise: (schema) => schema.notRequired()
+  }),
 
-  financeResponsiblePhoneNumber: Yup.string()
-    .matches(/\(\d{2}\)\s?\d{4,5}-\d{4}/, 'Telefone inválido')
-    .required('Telefone do responsável é obrigatório')
+  financeResponsiblePhoneNumber: Yup.string().when('document', {
+    is: (document: string) => document?.replace(/\D/g, '').length === 14,
+    then: (schema) => schema
+      .matches(/\(\d{2}\)\s?\d{4,5}-\d{4}/, 'Telefone inválido')
+      .required('Telefone do responsável é obrigatório'),
+    otherwise: (schema) => schema.notRequired()
+  })
 })
 
 export const step3Validation = Yup.object().shape({
