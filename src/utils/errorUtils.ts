@@ -11,8 +11,8 @@ export function handleHttpException(error: any): Error {
   return new Error(message);
 }
 
-export function extractErrorMessage(error: any): string {
-  let message: string = 'Houve um erro ao processar a solicitação.';
+export function extractErrorMessage(error: any, defaultMessage?: string): string {
+  let message: string | undefined;
 
   if(error instanceof AxiosError) {
     if (error.response) {
@@ -24,5 +24,5 @@ export function extractErrorMessage(error: any): string {
     message = error.message;
   }
 
-  return message;
+  return message || defaultMessage || 'Houve um erro ao processar a solicitação.';
 }

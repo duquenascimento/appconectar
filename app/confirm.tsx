@@ -28,6 +28,7 @@ import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
+import { extractErrorMessage } from '@/src/utils/errorUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -245,18 +246,19 @@ export default function Confirm() {
 
         const result = await confirmOrder(body);
 
-        if (result.status === HttpStatusCode.Ok) {
-          await setStorage('finalConfirmData', JSON.stringify(result.data.data));
-          resetDeliveryDate();
-          setConfirmedWarnings({ missingItems: false, sundayWarning: false });
-          router.push('/finalConfirm');
-        } else {
-          setShowErros(['Ocorreu um erro ao confirmar o pedido.']);
-          setBooleanErros(true);
+        if(result.status !== HttpStatusCode.Ok) {
+          throw new Error(result.data?.msg ?? 'Ocorreu um erro ao confirmar o pedido.');
         }
+
+        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
+        resetDeliveryDate();
+        setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+        router.push('/finalConfirm');
+        
       } catch (error) {
-        console.error('Erro em handleConfirmOrder:', error);
-        setShowErros(['Ocorreu um erro de conexão. Tente novamente.']);
+        const errorMessage = extractErrorMessage(error);
+        console.error('Erro ao confirmar o pedido por fornecedor:', error);
+        setShowErros([errorMessage]);
         setBooleanErros(true);
       } finally {
         setLoadingToConfirm(false);
