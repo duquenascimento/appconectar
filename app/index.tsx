@@ -27,7 +27,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Stack, View } from 'tamagui';
-import { getStorage } from '../src/utils/utils';
+import { getStorage, STORAGE_DEFAULT_KEYS } from '../src/utils/utils';
 
 const positionOptions = [
   { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
@@ -116,8 +116,10 @@ async function handleLogin(
 
     if (response.data.role.includes('registering')) {
       router.replace('/register');
-    } else {
+    } else if (response.data.role.includes('registered') || response.data.role.includes('client')) {
       router.replace('/products');
+    } else {
+      router.replace('/');
     }
   } catch (err) {
     console.error(err);
@@ -175,8 +177,10 @@ async function handleRegister(
 
     if (response.data.role.includes('registering')) {
       router.replace('/register');
-    } else {
+    } else if (response.data.role.includes('registered') || response.data.role.includes('client')) {
       router.replace('/products');
+    } else {
+      router.replace('/');
     }
   } catch (err) {
     console.error(err);
@@ -217,11 +221,13 @@ export default function Sign() {
       }
       process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
       await authLoginCheck(authToken);
-      const role = await getStorage('role');
-      if (role === 'registering') {
+      const role = await getStorage(STORAGE_DEFAULT_KEYS.USER_ROLES);
+      if (role?.includes('registering')) {
         router.replace('/register');
-      } else {
+      } else if (role?.includes('registered') || role?.includes('client')) {
         router.replace('/products');
+      } else {
+        router.replace('/');
       }
     } catch (err) {
       await logout();
