@@ -20,11 +20,9 @@ export function useAuthGuard() {
 
         if (isPublicRoute(segments)) {
           if (role?.includes('registered') || role?.includes('client')) {
-            router.replace('/products')
+            router.dismissTo('/products')
           } else if (role?.includes('registering')) {
-            router.replace('/register')
-          } else {
-            router.replace('/')
+            router.dismissTo('/register')
           }
           return authenticated
         }
