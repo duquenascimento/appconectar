@@ -11,34 +11,6 @@ export type SupplierPriceRequestBody = {
   selectedRestaurant: Restaurant;
 };
 
-export const getSuppliersPrices = async (data: SupplierPriceRequestBody): Promise<SuppliersQuotationDTO> => {
-  try {
-    const token = await getToken();
-    if (!token) throw new Error('Token not found');
-
-    const body = {
-      token,
-      selectedRestaurant: data.selectedRestaurant,
-      deliveryDate: data.deliveryDate,
-    };
-
-    const response = await axios.post(
-      `${API_URL}/price/list`,
-      body,
-      { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
-    );
-
-    if (response.status == HttpStatusCode.Ok) {
-      const quotationData = response.data.data as SuppliersQuotationDTO;
-      return quotationData;
-    }
-
-    throw Error(response?.data?.msg ?? 'Ocorreu um erro ao buscar os preços');
-  } catch (error) {
-    throw handleHttpException(error);
-  }
-}
-
 export type PricesBySupplierOrCombinationBody = {
   restaurantId: string;
   supplierExternalId?: string;

@@ -32,6 +32,7 @@ import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
+import { extractErrorMessage } from '@/src/utils/errorUtils';
 
 export interface Product {
   price: number;
@@ -118,7 +119,6 @@ export default function QuotationDetailsScreen() {
 
   const [suppliers] = useState<SupplierData[]>(suppliersData || []);
   const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showErros, setShowErros] = useState<string[]>([]);
   const [booleanErros, setBooleanErros] = useState(false);
@@ -299,12 +299,13 @@ export default function QuotationDetailsScreen() {
             },
           });
         } else {
-          Alert.alert('Erro', 'Erro ao confirmar a combinação.');
-          setIsAlertVisible(true);
+          throw Error('Erro ao confirmar a combinação');
         }
       } catch (error) {
+        const errorMessage = extractErrorMessage(error);
         console.error('Erro ao confirmar a combinação:', error);
-        Alert.alert('Erro', 'Ocorreu um erro inesperado.');
+        setShowErros([errorMessage]);
+        setBooleanErros(true);
       } finally {
         setIsLoading(false);
         setDisableConfirm(false);
@@ -428,13 +429,6 @@ export default function QuotationDetailsScreen() {
           title="Notificação agendada!"
           message="Sua notificação foi agendada para as 13h para que você possa confirmar seu pedido."
           onConfirm={() => setShowNotification(false)}
-          width="35%"
-        />
-        <CustomAlert
-          visible={isAlertVisible}
-          title="Ops!"
-          message="Ocorreu um erro ao confirmar combinação, tente novamente mais tarde."
-          onConfirm={() => setIsAlertVisible(false)}
           width="35%"
         />
         <SundayOrderAlert
