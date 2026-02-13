@@ -97,7 +97,7 @@ export interface ConfirmOrderRequestBody {
 export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
   try {
     const response = await axios.post(`${API_URL}/confirm`, body, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
@@ -115,7 +115,7 @@ export interface ConfirmPremiumOrderRequestBody {
 export const confirmPremiumOrder = async (body: ConfirmPremiumOrderRequestBody) => {
   try {
     const response = await axios.post(`${API_URL}/confirm/premium`, body, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
@@ -136,7 +136,7 @@ export interface ConfirmConectarPlusOrderRequestBody {
 export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {
   try {
     const response = await axios.post(`${API_URL}/confirm/conectar-plus`, body, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
