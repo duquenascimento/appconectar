@@ -40,7 +40,7 @@ export interface QuotationApiResponseData {
             unitValue: number;
             unitValueWithoutFee: number;
           },
-        ],
+        ];
         sameDayOrders: SameDayOrder[];
       },
     ];
@@ -51,8 +51,8 @@ export interface QuotationApiResponseData {
 }
 
 export interface QuotationApiResponse {
-  availableCombinations: QuotationApiResponseData[]
-  unavailableCombinations: QuotationApiResponseData[]
+  availableCombinations: QuotationApiResponseData[];
+  unavailableCombinations: QuotationApiResponseData[];
 }
 
 export interface QuotationApiRequest {
@@ -68,13 +68,19 @@ export interface QuotationApiRequest {
 }
 
 export const getCombinationsByRestaurant = async (restaurantId: string) => {
-  const response = await axios.get(`${API_URL}/combination/${restaurantId}`);
+  const response = await axios.get(`${API_URL}/combination/${restaurantId}`, {
+    headers: { Authorization: `Bearer ${await getToken()}` },
+  });
   return response.data;
 };
 
-export const getAllQuotationByRestaurant = async (body: QuotationApiRequest): Promise<QuotationApiResponse> => {
+export const getAllQuotationByRestaurant = async (
+  body: QuotationApiRequest,
+): Promise<QuotationApiResponse> => {
   try {
-    const response = await axios.post(`${API_URL}/cotacao/calcular`, body);
+    const response = await axios.post(`${API_URL}/cotacao/calcular`, body, {
+      headers: { Authorization: `Bearer ${await getToken()}` },
+    });
     return response.data.data;
   } catch (error) {
     console.error('Erro ao obter cotações por restaurante:', error);
@@ -83,17 +89,15 @@ export const getAllQuotationByRestaurant = async (body: QuotationApiRequest): Pr
 };
 
 export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
-  const response = await axios.get(
-    `${API_URL}/combination/${restaurantId}`,
-  );
+  const response = await axios.get(`${API_URL}/combination/${restaurantId}`, {
+    headers: { Authorization: `Bearer ${await getToken()}` },
+  });
   return response.data;
 };
 
 export const getDefaultCombinations = async (): Promise<Combinacao[]> => {
   const response = await axios.get(`${API_URL}/combination_default`, {
-        headers: {
-          Authorization: `Bearer ${await getToken()}`,
-        },
-      });
+    headers: { Authorization: `Bearer ${await getToken()}` },
+  });
   return response.data.data;
 };

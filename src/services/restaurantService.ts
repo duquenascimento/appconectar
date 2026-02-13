@@ -14,6 +14,7 @@ export const loadPermissionConectarPlus = async (externalId: string) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${await getToken()}`,
       },
     });
     if (!response.ok) {
@@ -32,6 +33,9 @@ export const getMaxSpecificSuppliersNumber = async (externalId: string) => {
   try {
     const response = await axios.get(
       `${API_URL}/restaurant/get-max-specific-suppliers/${externalId}`,
+      {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      }
     );
     return response.data.data;
   } catch (error) {

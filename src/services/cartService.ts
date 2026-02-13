@@ -9,6 +9,7 @@ export async function getCartProducts(restaurantId: string): Promise<CartProduct
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${await getToken()}`,
     },
     body: JSON.stringify({
       token,
