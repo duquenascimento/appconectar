@@ -10,6 +10,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export const getOrders = async (page = 1, limit = 200, restaurantId: string) => {
   try {
     const response = await axios.get(`${API_URL}/orders/filter`, {
+      headers: { Authorization: `Bearer ${await getToken()}` },
       params: {
         restaurantId,
         page,
@@ -30,7 +31,9 @@ export const getOrder = async (orderId: string) => {
       throw new Error('Pedido selecionado não encontrado.');
     }
 
-    const response = await axios.get(`${API_URL}/orders/${orderId}`);
+    const response = await axios.get(`${API_URL}/orders/${orderId}`, {
+      headers: { Authorization: `Bearer ${await getToken()}` },
+    });
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar pedido:', error);
@@ -44,10 +47,9 @@ export const cancelOrder = async (orderId: string): Promise<CancelOrderResult> =
       throw new Error('Pedido selecionado não encontrado.');
     }
 
-    const token = await getToken();
-    const headers = { authorization: `Bearer ${token}` };
-
-    await axios.delete(`${API_URL}/orders/${orderId}/cancel`, { headers });
+    await axios.delete(`${API_URL}/orders/${orderId}/cancel`, {
+      headers: { Authorization: `Bearer ${await getToken()}` },
+    });
 
     return { success: true };
   } catch (error: any) {
@@ -55,27 +57,22 @@ export const cancelOrder = async (orderId: string): Promise<CancelOrderResult> =
       const { status } = error.response;
       const message = error.response.data?.msg ?? 'Não foi possível cancelar o pedido.';
 
-      if (status === HttpStatusCode.BadRequest) {
-        return {
-          success: false,
-          kind: CancelationOrderErrorKind.BUSINESS,
-          statusCode: status,
-          message,
-        };
-      }
-
-      if (status === HttpStatusCode.NotFound) {
-        return {
-          success: false,
-          kind: CancelationOrderErrorKind.NOT_FOUND,
-          statusCode: status,
-          message,
-        };
+      let errorKind: CancelationOrderErrorKind;
+      switch (status) {
+        case HttpStatusCode.BadRequest:
+          errorKind = CancelationOrderErrorKind.BUSINESS;
+          break;
+        case HttpStatusCode.NotFound:
+          errorKind = CancelationOrderErrorKind.NOT_FOUND;
+          break;
+        default:
+          errorKind = CancelationOrderErrorKind.TECHNICAL;
+          break;
       }
 
       return {
         success: false,
-        kind: CancelationOrderErrorKind.TECHNICAL,
+        kind: errorKind,
         statusCode: status,
         message,
       };
@@ -100,7 +97,7 @@ export interface ConfirmOrderRequestBody {
 export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
   try {
     const response = await axios.post(`${API_URL}/confirm`, body, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
@@ -118,7 +115,7 @@ export interface ConfirmPremiumOrderRequestBody {
 export const confirmPremiumOrder = async (body: ConfirmPremiumOrderRequestBody) => {
   try {
     const response = await axios.post(`${API_URL}/confirm/premium`, body, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
@@ -139,7 +136,7 @@ export interface ConfirmConectarPlusOrderRequestBody {
 export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {
   try {
     const response = await axios.post(`${API_URL}/confirm/conectar-plus`, body, {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
