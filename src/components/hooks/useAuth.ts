@@ -1,6 +1,6 @@
-import { useRouter, useSegments } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { getStorage, getToken, STORAGE_DEFAULT_KEYS } from '../../utils/utils';
+import { useEffect, useState } from 'react'
+import { useRouter, useSegments } from 'expo-router'
+import { getToken, getStorage, STORAGE_DEFAULT_KEYS } from '../../utils/utils'
 
 export function useAuthGuard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -16,20 +16,20 @@ export function useAuthGuard() {
       setIsAuthenticated(authenticated)
 
       if (authenticated) {
-        const role = await getStorage(STORAGE_DEFAULT_KEYS.USER_ROLES);
+        const role = await getStorage(STORAGE_DEFAULT_KEYS.USER_ROLES)
 
         if (isPublicRoute(segments)) {
-          if (role?.includes('registered')) {
-            router.replace('/products');
+          if (role?.includes('registered') || role?.includes('client')) {
+            router.dismissTo('/products')
           } else if (role?.includes('registering')) {
-            router.replace('/register');
+            router.dismissTo('/register')
           }
           return authenticated;
         }
 
         if (isProtectedRoute(segments) && role?.includes('registering')) {
-          router.replace('/register');
-          return authenticated;
+          router.replace('/register')
+          return authenticated
         }
 
       } else {

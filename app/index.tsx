@@ -117,8 +117,10 @@ async function handleLogin(
     const userRoles = response.data.role as UserRole[];
     if (userRoles.includes('registering')) {
       router.replace('/register');
-    } else {
+    } else if (response.data.role.includes('registered') || response.data.role.includes('client')) {
       router.replace('/products');
+    } else {
+      router.replace('/');
     }
   } catch (err) {
     console.error(err);
@@ -177,8 +179,10 @@ async function handleRegister(
     const userRoles = response.data.role as UserRole[];
     if (userRoles.includes('registering')) {
       router.replace('/register');
-    } else {
+    } else if (response.data.role.includes('registered') || response.data.role.includes('client')) {
       router.replace('/products');
+    } else {
+      router.replace('/');
     }
   } catch (err) {
     console.error(err);
@@ -229,8 +233,10 @@ export default function Sign() {
           const userRoles = await getUserRoles();
           if (userRoles?.includes('registering')) {
             router.replace('/register');
-          } else {
+          } else if (userRoles?.includes('registered') || userRoles?.includes('client')) {
             router.replace('/products');
+          } else {
+            router.replace('/');
           }
         } catch (err) {
           await logout();
