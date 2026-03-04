@@ -49,6 +49,12 @@ export default function FinalConfirm() {
     loadSupplierAsync();
   }, [loadSupplier, router]);
 
+  useEffect(() => {
+    return () => { 
+      router.dismissTo('/products');
+    };
+  }, []);
+
   return (
     <PageContainer backgroundColor="gray">
       <View

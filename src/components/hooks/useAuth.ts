@@ -3,10 +3,10 @@ import { useRouter, useSegments } from 'expo-router'
 import { getToken, getStorage, STORAGE_DEFAULT_KEYS } from '../../utils/utils'
 
 export function useAuthGuard() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
-  const segments = useSegments()
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const segments = useSegments();
 
   const checkAuth = async () => {
     try {
@@ -24,7 +24,7 @@ export function useAuthGuard() {
           } else if (role?.includes('registering')) {
             router.dismissTo('/register')
           }
-          return authenticated
+          return authenticated;
         }
 
         if (isProtectedRoute(segments) && role?.includes('registering')) {
@@ -34,11 +34,11 @@ export function useAuthGuard() {
 
       } else {
         if (isProtectedRoute(segments)) {
-          router.replace('/')
+          router.replace('/');
         }
       }
 
-      return authenticated
+      return authenticated;
     } catch (error) {
       console.error('Auth check error:', error)
       setIsAuthenticated(false)

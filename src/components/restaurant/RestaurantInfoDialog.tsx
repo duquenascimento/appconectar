@@ -436,9 +436,6 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     onClose();
     setDraftSelectedRestaurant(null);
     setDialogLoading(false);
-    if (selectedRestaurant) {
-      handleLoadPrices(selectedRestaurant);
-    }
   };
 
   const handleRestaurantDropdownChange = (restaurantName?: string) => {

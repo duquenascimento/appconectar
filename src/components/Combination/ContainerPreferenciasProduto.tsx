@@ -13,11 +13,13 @@ export function ContainerPreferenciasProduto({
   suppliers,
   onClearErrors,
   triggerValidation,
+  loadingSuppliers,
 }: {
   error?: string;
   suppliers: CombinationSupplier[];
   onClearErrors: () => void;
   triggerValidation?: boolean;
+  loadingSuppliers: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
   const [showModal, setShowModal] = useState(false);
@@ -143,6 +145,7 @@ export function ContainerPreferenciasProduto({
             onMoveUp={() => moverPreferencia(index, index - 1)}
             onMoveDown={() => moverPreferencia(index, index + 1)}
             triggerValidation={triggerValidation}
+            loadingSuppliers={loadingSuppliers}
           />
         ))}
 

@@ -1,3 +1,4 @@
+import { OrderByDirection } from "./SharedTypes";
 import { SameDayOrder } from "./types";
 
 interface SelectedProductInCart {
@@ -111,7 +112,16 @@ export interface CombinationSupplier {
   nota: string
 }
 
+export type FornecedorOrderBy = 'nomefornecedor' | 'nota' | 'idexterno'
+
+export interface SuppliersRouteFilterParams {
+  neighborhood: string;
+  minimumTime: string;
+  maximumTime: string;
+}
+
 export interface GetAllSuppliersParams {
-  orderBy?: 'nomefornecedor' | 'nota' | 'idexterno';
-  order?: 'asc' | 'desc';
+  orderBy?: FornecedorOrderBy;
+  order?: OrderByDirection;
+  routeFilters?: SuppliersRouteFilterParams;
 }

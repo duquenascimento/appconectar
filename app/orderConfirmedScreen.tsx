@@ -63,6 +63,12 @@ export default function OrderConfirmedScreen() {
     loadRestaurantData();
   }, []);
 
+  useEffect(() => {
+    return () => { 
+      router.dismissTo('/products');
+    };
+  }, []);
+
   const getFormattedAddress = () => {
     if (!restaurantDetails || !restaurantDetails.addressInfos.length) return '';
     const addr = restaurantDetails.addressInfos[0];

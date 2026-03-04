@@ -2,7 +2,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, TouchableOpacity } from 'react-native';
-import { Adapt, Button, Dialog, Sheet, Text, View, XStack, YStack } from 'tamagui';
+import { Text, View } from 'tamagui';
 import LabelAndBoxContent from '../src/components/box/LabelAndBoxContent';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { cancelOrder, getOrder } from '../src/services/orderService';
@@ -11,107 +11,26 @@ import { OrderData } from '../src/types/IOrder';
 import PageContainer from '@/src/components/box/PageContainer';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
-
-export function ModalDocumentsAndInvoices(props: {
-  openModal: boolean;
-  setRegisterInvalid: Function;
-}) {
-  return (
-    <Dialog modal open={props.openModal}>
-      {/* Modal adaptado para ocupar tela cheia no celular */}
-      <Adapt /* when="sm" */ platform="touch">
-        <Sheet
-          animationConfig={{
-            type: 'spring',
-            damping: 20,
-            mass: 0.5,
-            stiffness: 200,
-          }}
-          animation="medium"
-          zIndex={200000}
-          modal
-          dismissOnSnapToBottom
-          snapPoints={[100]}
-          snapPointsMode="percent"
-        >
-          <Sheet.Frame padding="$4" gap="$4" flex={1}>
-            <Adapt.Contents />
-          </Sheet.Frame>
-          <Sheet.Overlay
-            animation="quickest"
-            enterStyle={{ opacity: 0 }}
-            exitStyle={{ opacity: 0 }}
-          />
-        </Sheet>
-      </Adapt>
-
-      <Dialog.Portal>
-        <Dialog.Overlay
-          key="overlay"
-          animation="quick"
-          opacity={0.5}
-          enterStyle={{ opacity: 0 }}
-          exitStyle={{ opacity: 0 }}
-        />
-
-        <Dialog.Content
-          bordered
-          elevate
-          key="content"
-          animateOnly={['transform', 'opacity']}
-          animation={[
-            'quicker',
-            {
-              opacity: {
-                overshootClamping: true,
-              },
-            },
-          ]}
-          enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
-          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
-          gap="$4"
-        >
-          <YStack flex={1} justifyContent="center" alignItems="center" padding="$4" gap="$4">
-            <Dialog.Title textAlign="center" marginHorizontal="auto" color="red">
-              Documento ainda não disponível
-            </Dialog.Title>
-            <Dialog.Description textAlign="center">
-              O documento ainda não foi disponibilizado.
-            </Dialog.Description>
-
-            <XStack justifyContent="center" alignSelf="center" gap="$4">
-              <Dialog.Close displayWhenAdapted asChild>
-                <Button
-                  width="$20"
-                  theme="active"
-                  aria-label="Close"
-                  backgroundColor="#04BF7B"
-                  color="$white1"
-                  onPress={() => props.setRegisterInvalid(false)}
-                >
-                  Fechar
-                </Button>
-              </Dialog.Close>
-            </XStack>
-          </YStack>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog>
-  );
-}
+import TimerButton from '@/src/components/button/timerButton';
+import { CancelationRulesType, CancelationOrderErrorKind } from '@/src/types/cancelOrderTypes';
+import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
+import { ModalDocumentsAndInvoices } from '@/src/components/modais/ModalDocumentsAndInvoices';
 
 export default function OrderDetailsScreen() {
   const router = useRouter();
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
 
   const [order, setOrder] = useState<OrderData | null>(null);
+  const [cancelationRule, setCancelationRule] = useState<CancelationRulesType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modalErrorVisibility, setModalErrorVisibility] = useState(false);
   const [modalCancelOrderVisibility, setModalCancelOrderVisibility] = useState(false);
   const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] = useState(false);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState<boolean>(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
+  const [errorTitle, setErrorTitle] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     const loadOrders = async () => {
@@ -122,8 +41,9 @@ export default function OrderDetailsScreen() {
       }
 
       try {
-        const orderData: OrderData = await getOrder(orderId);
-        setOrder(orderData);
+        const orderData = await getOrder(orderId);
+        setOrder(orderData.data);
+        setCancelationRule(orderData.data.cancelationRule);
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
       } finally {
@@ -134,7 +54,41 @@ export default function OrderDetailsScreen() {
     loadOrders();
   }, [orderId]);
 
-  if (loading) {
+  const showErrorModal = (title: string, message: string) => {
+    setErrorTitle(title);
+    setErrorMessage(message);
+    setErrorModalVisible(true);
+  };
+
+  const handleCancelOrder = async () => {
+    if (!orderId) return;
+    setLoading(true);
+    const result = await cancelOrder(orderId);
+    setLoading(false);
+    if (result.success) {
+      setModalSuccessCanceledVisbility(true);
+      return;
+    }
+    switch (result.kind) {
+      case CancelationOrderErrorKind.BUSINESS:
+        showErrorModal('Não foi possível cancelar o pedido', result.message);
+        break;
+
+      case CancelationOrderErrorKind.NOT_FOUND:
+        showErrorModal(
+          'Pedido não encontrado',
+          result.message || 'Este pedido não existe ou já foi removido.',
+        );
+        break;
+
+      case CancelationOrderErrorKind.TECHNICAL:
+      default:
+        showErrorModal('Erro inesperado', result.message || 'Tente novamente mais tarde.');
+        break;
+    }
+  };
+
+  if (loading || !cancelationRule) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <ActivityIndicator size="large" color="#04BF7B" />
@@ -182,12 +136,10 @@ export default function OrderDetailsScreen() {
           Detalhamento
         </Text>
         <CustomAlert
-          message="Pedidos só podem ser cancelados em até 15 minutos após a confirmação"
-          title="Ops!"
-          onConfirm={() => {
-            setModalErrorVisibility(false);
-          }}
-          visible={modalErrorVisibility}
+          visible={errorModalVisible}
+          title={errorTitle}
+          message={errorMessage}
+          onConfirm={() => setErrorModalVisible(false)}
         />
         <CustomAlert
           message="Seu pedido foi cancelado com sucesso!"
@@ -195,27 +147,25 @@ export default function OrderDetailsScreen() {
           onConfirm={() => {
             router.back();
           }}
+          color="#04BF7B"
           visible={modalSuccessCanceledVisibility}
+          buttonText="Ok"
         />
-        <CustomAlert
+
+        {/** A ordem dos botões foi invertida */}
+        <TwoButtonCustomAlert
           message="Esta ação não poderá ser revertida"
           title="Cancelar pedido?"
-          onConfirm={async () => {
-            try {
-              setLoading(true);
-              const orderCanceled = await cancelOrder(order.id);
-              if (orderCanceled === 'too late') setModalErrorVisibility(true);
-              else setModalSuccessCanceledVisbility(true);
-            } finally {
-              setModalCancelOrderVisibility(false);
-              setLoading(false);
-            }
+          onConfirm={() => setModalCancelOrderVisibility(false)}
+          onCancel={async () => {
+            setModalCancelOrderVisibility(false);
+            await handleCancelOrder();
           }}
+          confirmText="Cancelar"
+          cancelText="Confirmar"
+          cancelColor="#04BF7B"
+          confirmColor="#E74C3C"
           visible={modalCancelOrderVisibility}
-          closeOption
-          setVisibility={setModalCancelOrderVisibility}
-          buttonText="Cancelar"
-          negativeMainButton
         />
         <View
           alignItems="center"
@@ -228,9 +178,15 @@ export default function OrderDetailsScreen() {
           <Icons onPress={() => router.push('/ordersScreen')} size={30} name="chevron-back" />
           <View flex={1} marginBottom={5}>
             <Text>Pedido {order.id}</Text>
-            <Text fontSize={10} color="gray">
-              Entregue {getBrazilLocaleString(order.deliveryDate)}
-            </Text>
+            {order.status_id === 6 ? (
+              <Text fontSize={10} color="gray">
+                Cancelado
+              </Text>
+            ) : (
+              <Text fontSize={10} color="gray">
+                Entregue {getBrazilLocaleString(order.deliveryDate)}
+              </Text>
+            )}
           </View>
         </View>
         <View
@@ -305,6 +261,12 @@ export default function OrderDetailsScreen() {
               subtitle={`Por ${supplierName}`}
             />
           </TouchableOpacity>
+          {cancelationRule.criteria !== 'EXPIRED' && order.status_id !== 6 && (
+            <TimerButton
+              deadline={cancelationRule.remainingSeconds}
+              onCancel={() => setModalCancelOrderVisibility(true)}
+            />
+          )}
         </View>
       </View>
     </PageContainer>

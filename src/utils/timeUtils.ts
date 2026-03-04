@@ -29,3 +29,12 @@ export function getDeliveryWindow(data: any) {
   return `Entre ${startTime} e ${endTime}`;
 }
 
+export function formatTime(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  const minString = minutes.toString().padStart(2, '0');
+  const secString = remainingSeconds.toString().padStart(2, '0');
+
+  return `${minString}:${secString}`;
+}

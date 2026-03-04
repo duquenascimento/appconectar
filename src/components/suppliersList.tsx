@@ -1,5 +1,5 @@
 import Icons from '@expo/vector-icons/Ionicons';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Platform, VirtualizedList } from 'react-native';
 import { ScrollView, Stack, Text, View } from 'tamagui';
 import { useSupplier } from '../contexts/fornecedores.context';
@@ -10,6 +10,7 @@ import { SupplierData } from '../types/types';
 import { getBrazilDateTime } from '../utils/dateUtils';
 import { ImageWithFallback } from './image/ImageWithFallback';
 import LoadingActivityIndicator from './loading/loadingActivityIndicator';
+import CustomAlert from './modais/CustomAlert';
 
 interface SuppliersListProps {
   cart: Map<string, TCart> | undefined;
@@ -149,6 +150,7 @@ function SupplierBox({
 }
 
 const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
+  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const { selectedRestaurant } = useRestaurantContext();
   const { availableSuppliers, unavailableSuppliers, loadingSuppliers, getPricesBySupplier } =
     useSupplier();
@@ -156,10 +158,9 @@ const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        console.log('Inicializando fornecedores na tela de fornecedores...');
         await getPricesBySupplier();
       } catch (error) {
-        console.error('Erro ao carregar fornecedores:', error);
+        setIsAlertVisible(true);
       }
     };
     initialize();
@@ -199,16 +200,24 @@ const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
   }
 
   return (
-    <ScrollView flex={1} overflow="scroll" padding={3}>
-      <Text
-        style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
-        paddingBottom={5}
-        marginTop={10}
-        fontSize={16}
-        color={'gray'}
-      >
-        Fornecedores disponíveis
-      </Text>
+    <>
+      <CustomAlert
+        visible={isAlertVisible}
+        title="Ops!"
+        message="Erro ao carregar fornecedores, tente novamente mais tarde."
+        onConfirm={() => setIsAlertVisible(false)}
+        width="35%"
+      />
+      <ScrollView flex={1} overflow="scroll" padding={3}>
+        <Text
+          style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+          paddingBottom={5}
+          marginTop={10}
+          fontSize={16}
+          color={'gray'}
+        >
+          Fornecedores disponíveis
+        </Text>
 
       <VirtualizedList
         style={{ marginBottom: 5 }}
@@ -251,7 +260,8 @@ const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
           />
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 

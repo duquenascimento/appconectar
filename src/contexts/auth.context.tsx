@@ -25,6 +25,7 @@ interface AuthContextProps {
   isAdmin: boolean;
   saveLogin: (token: string, userRoles: UserRole[]) => Promise<void>;
   logout: () => Promise<void>;
+  getUserRoles: () => Promise<UserRole[] | null>;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -92,7 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = useMemo(() => {
-    return userRoles?.includes(UserRole.ADMIN) || false;
+    return userRoles?.includes('admin') || false;
   }, [userRoles]);
 
   const saveLogin = useCallback(
@@ -130,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       saveLogin,
       logout,
+      getUserRoles,
     }),
     [authToken, userRoles, isAdmin, saveLogin, logout],
   );
