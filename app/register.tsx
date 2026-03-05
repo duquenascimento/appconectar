@@ -25,6 +25,7 @@ import { campoString } from '../src/utils/formatCampos';
 import { formatCep } from '../src/utils/formatCep';
 import { clearStorage, getStorage } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
+import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
 
 export default function Register() {
   const [step, setStep] = useState<number>(0);
@@ -976,6 +977,15 @@ export default function Register() {
                         Prazos são sujeitos a avaliação de crédito
                       </Text>
                     </View>
+                  </View>
+                  <View
+                  borderColor="lightgray"
+                    borderWidth={0.5}
+                    padding={5}
+                    gap={5}
+                    flexDirection="row"
+                  >
+                    <CreateCreditCardModal></CreateCreditCardModal>
                   </View>
                 </View>
                 {!isCpf && (
