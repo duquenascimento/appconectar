@@ -7,7 +7,7 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export const createCreditCard = async (creditCard: CreateCreditCardDto): Promise<string[]> => {
   try {
     const response = await axios.post(
-      `${API_URL}/payment/credit-card`,
+      `${API_URL}/payments/credit-card`,
       creditCard,
       { headers: { 'Authorization': `Bearer ${await getToken()}` } }
     );
