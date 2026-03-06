@@ -26,6 +26,8 @@ import { formatCep } from '../src/utils/formatCep';
 import { clearStorage, getStorage } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
 import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
+import { CreateCreditCardDto } from '@/src/types/paymentTypes';
+import { createCreditCard } from '@/src/services/creditCardService';
 
 export default function Register() {
   const [step, setStep] = useState<number>(0);
@@ -41,6 +43,7 @@ export default function Register() {
   const [paymentWayOpen, setPaymentWayOpen] = useState(false);
   const [daysOpen, setDaysOpen] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
+  const [creditCard, setCreditCard] = useState<CreateCreditCardDto | null>(null);
   const { logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
   const { isLargeScreen } = useResponsiveness();
@@ -106,6 +109,10 @@ export default function Register() {
           stateNumberId: noStateNumberId ? undefined : stateNumberId,
           cityNumberId: cityNumberId.length > 0 && noStateNumberId ? cityNumberId : undefined,
         });
+
+        if (creditCard) {
+          await createCreditCard(creditCard);
+        }
 
         await Promise.all([clearStorage(), loadRestaurants()]);
         router.push('registerFinished');
@@ -903,90 +910,120 @@ export default function Register() {
                 padding={10}
               >
                 <View>
-                  <Text>Qual o formato de pagamento preferido?</Text>
-                  <View
-                    marginTop={10}
-                    justifyContent="flex-start"
-                    borderWidth={0.5}
-                    borderColor={
-                      formik.touched.paymentWay && formik.errors.paymentWay ? 'red' : 'lightgray'
-                    }
-                    zIndex={99}
-                  >
-                    <DropDownPicker
-                      value={formik.values.paymentWay}
-                      style={{
-                        borderWidth: 1,
-                        borderColor: 'lightgray',
-                        borderRadius: 2,
-                        flex: 1,
-                        position: 'absolute',
-                      }}
-                      setValue={(callback) => {
-                        const value =
-                          typeof callback === 'function'
-                            ? callback(formik.values.paymentWay)
-                            : callback;
-                        formik.setFieldValue('paymentWay', value);
-                      }}
-                      onSelectItem={(item) => {
-                        if (item.value) {
-                          formik.setFieldError('paymentWay', undefined);
+                  {!isCpf ? (
+                    <>
+                      <Text>Qual o formato de pagamento preferido?</Text>
+                      <View
+                        marginTop={10}
+                        justifyContent="flex-start"
+                        borderWidth={0.5}
+                        borderColor={
+                          formik.touched.paymentWay && formik.errors.paymentWay
+                            ? 'red'
+                            : 'lightgray'
                         }
-                      }}
-                      listMode="SCROLLVIEW"
-                      dropDownDirection="BOTTOM"
-                      dropDownContainerStyle={{
-                        position: 'relative',
-                      }}
-                      items={[
-                        {
-                          label: 'Diário: 7 dias após a entrega',
-                          value: 'DI07',
-                        },
-                        {
-                          label: 'Semanal: vencimento na quarta',
-                          value: 'UQ10',
-                        },
-                      ]}
-                      multiple={false}
-                      open={paymentWayOpen}
-                      setOpen={setPaymentWayOpen}
-                      onOpen={() => formik.setFieldError('paymentWay', undefined)}
-                      placeholder=""
-                    ></DropDownPicker>
-                  </View>
-                  {formik.touched.paymentWay && formik.errors.paymentWay && (
-                    <View height={65} flex={1} justifyContent="flex-end">
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.paymentWay}
-                      </Text>
+                        zIndex={99}
+                      >
+                        <DropDownPicker
+                          value={formik.values.paymentWay}
+                          style={{
+                            borderWidth: 1,
+                            borderColor: 'lightgray',
+                            borderRadius: 2,
+                            flex: 1,
+                            position: 'absolute',
+                          }}
+                          setValue={(callback) => {
+                            const value =
+                              typeof callback === 'function'
+                                ? callback(formik.values.paymentWay)
+                                : callback;
+                            formik.setFieldValue('paymentWay', value);
+                          }}
+                          onSelectItem={(item) => {
+                            if (item.value) {
+                              formik.setFieldError('paymentWay', undefined);
+                            }
+                          }}
+                          listMode="SCROLLVIEW"
+                          dropDownDirection="BOTTOM"
+                          dropDownContainerStyle={{
+                            position: 'relative',
+                          }}
+                          items={[
+                            {
+                              label: 'Diário: 7 dias após a entrega',
+                              value: 'DI07',
+                            },
+                            {
+                              label: 'Semanal: vencimento na quarta',
+                              value: 'UQ10',
+                            },
+                          ]}
+                          multiple={false}
+                          open={paymentWayOpen}
+                          setOpen={setPaymentWayOpen}
+                          onOpen={() => formik.setFieldError('paymentWay', undefined)}
+                          placeholder=""
+                        ></DropDownPicker>
+                      </View>
+                      {formik.touched.paymentWay && formik.errors.paymentWay && (
+                        <View height={65} flex={1} justifyContent="flex-end">
+                          <Text color="red" fontSize={12}>
+                            {formik.errors.paymentWay}
+                          </Text>
+                        </View>
+                      )}
+                      <View
+                        marginTop={formik.errors.paymentWay ? 10 : 60}
+                        borderColor="lightgray"
+                        borderWidth={0.5}
+                        padding={5}
+                        gap={5}
+                        flexDirection="row"
+                      >
+                        <Icons size={25} color="gray" name="information-circle"></Icons>
+                        <View justifyContent="center">
+                          <Text maxWidth="100%" color="gray" fontSize={10}>
+                            Prazos são sujeitos a avaliação de crédito
+                          </Text>
+                        </View>
+                      </View>
+                    </>
+                  ) : (
+                    <View
+                      borderColor="lightgray"
+                      borderWidth={0.5}
+                      padding={12}
+                      gap={5}
+                      flexDirection="row"
+                    >
+                      {creditCard ? (
+                        <>
+                          <Icons
+                            name="card-outline"
+                            size={20}
+                            color={'gray'}
+                            onPress={() => setCreditCard(null)}
+                          ></Icons>
+                          <Text>{creditCard.nickname}</Text>
+                          <Text>{creditCard.creditCard.number.slice(-4)}</Text>
+                          <Icons
+                            name="close"
+                            size={20}
+                            color={'gray'}
+                            onPress={() => setCreditCard(null)}
+                          ></Icons>
+                        </>
+                      ) : (
+                        <CreateCreditCardModal
+                          onSave={async (cardData: CreateCreditCardDto) => {
+                            setCreditCard(cardData);
+                          }}
+                        />
+                      )}
                     </View>
                   )}
-                  <View
-                    marginTop={formik.errors.paymentWay ? 10 : 60}
-                    borderColor="lightgray"
-                    borderWidth={0.5}
-                    padding={5}
-                    gap={5}
-                    flexDirection="row"
-                  >
-                    <Icons size={25} color="gray" name="information-circle"></Icons>
-                    <View justifyContent="center">
-                      <Text maxWidth="100%" color="gray" fontSize={10}>
-                        Prazos são sujeitos a avaliação de crédito
-                      </Text>
-                    </View>
-                  </View>
-                  <View
-                  borderColor="lightgray"
-                    borderWidth={0.5}
-                    padding={5}
-                    gap={5}
-                    flexDirection="row"
-                  >
-                    <CreateCreditCardModal></CreateCreditCardModal>
-                  </View>
                 </View>
                 {!isCpf && (
                   <>
