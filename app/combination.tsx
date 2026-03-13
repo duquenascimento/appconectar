@@ -55,20 +55,14 @@ export function Combination(): JSX.Element {
 
         const neighborhood = restaurantAddressInfo?.neighborhood || '';
 
-        const { minimumTime, maximumTime } = resolveMinMaxTimeForRoute(
-          restaurantAddressInfo?.initialDeliveryTime,
-          restaurantAddressInfo?.finalDeliveryTime,
-        );
-
         const routeFilters: SuppliersRouteFilterParams = {
           neighborhood,
-          minimumTime,
-          maximumTime,
+          blockedBySuppliers: selectedRestaurant?.blockedBySuppliers || [],
         };
 
-        const suppliers = await getAllSuppliers({ routeFilters });
+        const combinationSuppliers = await getAllSuppliers({ routeFilters });
 
-        setSuppliers(suppliers);
+        setSuppliers(combinationSuppliers);
       } catch (error) {
         setAlertTitle('Erro!');
         setAlertMessage('Ocorreu um erro inesperado ao buscar fornecedores.');
