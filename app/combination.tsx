@@ -32,6 +32,7 @@ export function Combination(): JSX.Element {
   const { combinacao, updateCampo } = useCombinacao();
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [showUnavailableSuppliersConfirm, setShowUnavailableSuppliersConfirm] = useState(false);
+  const [showDeleteCombinationConfirm, setShowDeleteCombinationConfirm] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertTitle, setAlertTitle] = useState('');
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
@@ -381,6 +382,24 @@ export function Combination(): JSX.Element {
     }
   };
 
+  const handleDeleteButtonPress = () => {
+    if (!id) {
+      handleGoBack();
+      return;
+    }
+
+    setShowDeleteCombinationConfirm(true);
+  };
+
+  const handleDeleteCombinationCancel = () => {
+    setShowDeleteCombinationConfirm(false);
+  };
+
+  const handleDeleteCombinationConfirm = async () => {
+    setShowDeleteCombinationConfirm(false);
+    await handleDeleteCombination();
+  };
+
   const handleAlertConfirm = () => {
     setIsAlertVisible(false);
     if (alertCallback) {
@@ -428,6 +447,15 @@ export function Combination(): JSX.Element {
         onConfirm={handleUnavailableSuppliersConfirm}
         cancelText="Cancelar"
         confirmText="Confirmar"
+      />
+      <TwoButtonCustomAlert
+        visible={showDeleteCombinationConfirm}
+        title="Excluir combinação"
+        message="Tem certeza que deseja excluir esta combinação? Essa ação não pode ser desfeita."
+        onCancel={handleDeleteCombinationCancel}
+        onConfirm={handleDeleteCombinationConfirm}
+        cancelText="Cancelar"
+        confirmText="Excluir"
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <YStack
@@ -483,13 +511,7 @@ export function Combination(): JSX.Element {
           >
             <YStack flex={1}>
               <Button
-                onPress={() => {
-                  if (id) {
-                    handleDeleteCombination();
-                  } else {
-                    handleGoBack();
-                  }
-                }}
+                onPress={handleDeleteButtonPress}
                 disabled={loading}
                 hoverStyle={{
                   backgroundColor: '#f84949ff',
@@ -530,13 +552,7 @@ export function Combination(): JSX.Element {
             <YStack flex={1}>
               <CustomButton
                 title={loading ? 'Processando...' : id ? 'Excluir' : 'Cancelar'}
-                onPress={() => {
-                  if (id) {
-                    handleDeleteCombination();
-                  } else {
-                    handleGoBack();
-                  }
-                }}
+                onPress={handleDeleteButtonPress}
                 backgroundColor="#f84949ff"
                 textColor="#FFFFFF"
               />

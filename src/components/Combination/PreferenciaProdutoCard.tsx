@@ -192,7 +192,8 @@ export function PreferenciaProdutoCard({
   );
 
   const unavailableSupplierIds = useMemo(
-    () => suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
+    () =>
+      suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
     [suppliers],
   );
 

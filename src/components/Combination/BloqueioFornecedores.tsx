@@ -1,12 +1,12 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useCombinationSuppliers } from '@/src/contexts/combination-suppliers.context';
 import { ComboOption } from '@/src/types/componentTypes';
+import { getCombinationSupplierDTOLabel } from '@/src/utils/supplierUtils';
 import { useEffect, useMemo, useState } from 'react';
 import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
-import { getCombinationSupplierDTOLabel } from '@/src/utils/supplierUtils';
 
 export function BloqueioFornecedoresCampo({
   error,
@@ -26,9 +26,7 @@ export function BloqueioFornecedoresCampo({
   const fornecedoresContexto = useMemo(() => {
     const fornecedoresNaoSelecionados = suppliers
       .filter((s) => s.isAvailable)
-      .filter(
-        (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.externalId),
-      );
+      .filter((supplier) => !combinacao.fornecedores_especificos?.includes(supplier.externalId));
 
     return fornecedoresNaoSelecionados.map((supplier) => ({
       label: getCombinationSupplierDTOLabel(supplier),
@@ -46,7 +44,8 @@ export function BloqueioFornecedoresCampo({
   );
 
   const unavailableSupplierIds = useMemo(
-    () => suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
+    () =>
+      suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
     [suppliers],
   );
 
@@ -123,7 +122,7 @@ export function BloqueioFornecedoresCampo({
         </Switch>
       </XStack>
 
-      {combinacao.bloquear_fornecedores && (
+      {combinacao.bloquear_fornecedores && !loadingSuppliers && (
         <>
           <Separator marginVertical="$3" />
           <ContainerSelecaoItems

@@ -30,9 +30,7 @@ export function PreferenciaFornecedorCampo({
   const fornecedoresContexto = useMemo(() => {
     const fornecedoresNaoBloqueados = suppliers
       .filter((s) => s.isAvailable)
-      .filter(
-        (supplier) => !combinacao.fornecedores_bloqueados?.includes(supplier.externalId),
-      );
+      .filter((supplier) => !combinacao.fornecedores_bloqueados?.includes(supplier.externalId));
 
     return fornecedoresNaoBloqueados.map((supplier) => ({
       label: getCombinationSupplierDTOLabel(supplier),
@@ -50,7 +48,8 @@ export function PreferenciaFornecedorCampo({
   );
 
   const unavailableSupplierIds = useMemo(
-    () => suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
+    () =>
+      suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
     [suppliers],
   );
 
@@ -158,7 +157,7 @@ export function PreferenciaFornecedorCampo({
         </Switch>
       </XStack>
 
-      {combinacao.preferencia_fornecedor_tipo === 'especifico' && (
+      {combinacao.preferencia_fornecedor_tipo === 'especifico' && !loadingSuppliers && (
         <ContainerSelecaoItems
           loading={loadingSuppliers}
           label="Considerar SOMENTE os fornecedores"
