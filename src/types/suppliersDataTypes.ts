@@ -1,5 +1,5 @@
-import { OrderByDirection } from "./SharedTypes";
-import { SameDayOrder } from "./types";
+import { OrderByDirection } from './SharedTypes';
+import { SameDayOrder } from './types';
 
 interface SelectedProductInCart {
   productId: string;
@@ -106,18 +106,17 @@ export interface OutputSupplier {
 }
 
 export interface CombinationSupplier {
-  id: string
-  idexterno: string
-  nomefornecedor: string
-  nota: string
+  id: string;
+  idexterno: string;
+  nomefornecedor: string;
+  nota: string;
 }
 
-export type FornecedorOrderBy = 'nomefornecedor' | 'nota' | 'idexterno'
+export type FornecedorOrderBy = 'nomefornecedor' | 'nota' | 'idexterno';
 
 export interface SuppliersRouteFilterParams {
   neighborhood: string;
-  minimumTime: string;
-  maximumTime: string;
+  blockedBySuppliers: string[];
 }
 
 export interface GetAllSuppliersParams {
