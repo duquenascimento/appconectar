@@ -52,8 +52,6 @@ export function PreferenciaProdutoCard({
   const { combinacao, updateCampo } = useCombinacao();
   const { productsContext, classe } = useProductContext();
   const { loadRestaurants } = useRestaurantContext();
-  const bloqueados = combinacao.fornecedores_bloqueados || [];
-
   const [busca, setBusca] = useState('');
   const [sugestoes, setSugestoes] = useState<any[]>([]);
   const [produtosValidationError, setProdutosValidationError] = useState<string>('');
@@ -229,22 +227,26 @@ export function PreferenciaProdutoCard({
   };
 
   const fornecedoresDisponiveis = useMemo(() => {
-    const todosFornecedores: CombinationSupplier[] = [...suppliers];
+    const blockedSuppliers = combinacao.fornecedores_bloqueados || [];
+    const specificSuppliers = combinacao.fornecedores_especificos || [];
 
-    const fornecedoresLocal = todosFornecedores.filter((f) => f.id && !bloqueados.includes(f.id));
-    let fornecedoresFiltrados = fornecedoresLocal;
+    let filteredSuppliers: CombinationSupplier[] = suppliers;
 
-    if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
-      const especificos = new Set(combinacao.fornecedores_especificos || []);
-      fornecedoresFiltrados = fornecedoresLocal.filter((f) => especificos.has(f.id!));
+    if (combinacao.bloquear_fornecedores && blockedSuppliers.length > 0) {
+      filteredSuppliers = filteredSuppliers.filter((f) => !blockedSuppliers.includes(f.idexterno));
     }
 
-    return fornecedoresFiltrados.map((supplier) => ({
+    if (combinacao.preferencia_fornecedor_tipo === 'especifico' && specificSuppliers.length > 0) {
+      filteredSuppliers = filteredSuppliers.filter((f) => specificSuppliers.includes(f.idexterno));
+    }
+
+    return filteredSuppliers.map((supplier) => ({
       label: getSupplierLabel(supplier),
       value: supplier.id!,
     }));
   }, [
     suppliers,
+    combinacao.bloquear_fornecedores,
     combinacao.fornecedores_bloqueados,
     combinacao.preferencia_fornecedor_tipo,
     combinacao.fornecedores_especificos,
