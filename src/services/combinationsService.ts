@@ -1,9 +1,10 @@
 import axios from 'axios';
-import { SameDayOrder } from '../types/types';
 import { Combinacao } from '../types/combinationTypes';
+import { SameDayOrder } from '../types/types';
 import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_DBCONECTAR_URL = process.env.EXPO_PUBLIC_API_DBCONECTAR_URL;
 
 export interface CombinationApiResponse {
   id: string;
@@ -93,6 +94,39 @@ export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
     headers: { Authorization: `Bearer ${await getToken()}` },
   });
   return response.data;
+};
+
+export interface GetCombinationSuppliersRequestDTO {
+  city: string;
+  neighborhood: string;
+  minimumTime: string;
+  maximumTime: string;
+}
+
+export interface CombinationSupplierDTO {
+  id: string;
+  externalId: string;
+  name: string;
+  rating: string;
+  isAvailable: boolean;
+}
+
+export interface GetCombinationSuppliersResponseDTO {
+  success: boolean;
+  data: CombinationSupplierDTO[];
+}
+
+export const getCombinationSuppliers = async (
+  dto: GetCombinationSuppliersRequestDTO
+): Promise<CombinationSupplierDTO[]> => {
+  const response = await axios.get<GetCombinationSuppliersResponseDTO>(
+    `${API_DBCONECTAR_URL}/system/combinacao/fornecedores`,
+    {
+      params: dto,
+      headers: { Authorization: `Bearer ${await getToken()}` }
+    },
+  );
+  return response.data.data;
 };
 
 export const getDefaultCombinations = async (): Promise<Combinacao[]> => {

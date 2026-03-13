@@ -1,25 +1,22 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useCombinationSuppliers } from '@/src/contexts/combination-suppliers.context';
 import { ComboOption } from '@/src/types/componentTypes';
-import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
 import { useEffect, useMemo, useState } from 'react';
 import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
-import { getSupplierLabel } from '@/src/utils/supplierUtils';
+import { getCombinationSupplierDTOLabel } from '@/src/utils/supplierUtils';
 
 export function BloqueioFornecedoresCampo({
-  suppliers,
   error,
   onChange,
-  loadingSuppliers,
 }: {
-  suppliers: CombinationSupplier[];
   error?: string;
   onChange: (val: string[]) => void;
-  loadingSuppliers: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
+  const { suppliers, loading: loadingSuppliers } = useCombinationSuppliers();
   const [showModal, setShowModal] = useState(false);
 
   const [selectFornecedoresContextoBloq, setSelectFornecedoresContextoBloq] = useState<
@@ -27,17 +24,31 @@ export function BloqueioFornecedoresCampo({
   >([]);
 
   const fornecedoresContexto = useMemo(() => {
-    const todosFornecedores = [...suppliers];
-
-    const fornecedoresNaoSelecionados = todosFornecedores.filter(
-      (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.idexterno),
-    );
+    const fornecedoresNaoSelecionados = suppliers
+      .filter((s) => s.isAvailable)
+      .filter(
+        (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.externalId),
+      );
 
     return fornecedoresNaoSelecionados.map((supplier) => ({
-      label: getSupplierLabel(supplier),
-      value: supplier.idexterno,
+      label: getCombinationSupplierDTOLabel(supplier),
+      value: supplier.externalId,
     }));
   }, [suppliers, combinacao.fornecedores_especificos]);
+
+  const todosFornecedores = useMemo(
+    () =>
+      suppliers.map((supplier) => ({
+        label: getCombinationSupplierDTOLabel(supplier),
+        value: supplier.externalId,
+      })),
+    [suppliers],
+  );
+
+  const unavailableSupplierIds = useMemo(
+    () => suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
+    [suppliers],
+  );
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false);
@@ -119,6 +130,8 @@ export function BloqueioFornecedoresCampo({
             loading={loadingSuppliers}
             label="Fornecedores bloqueados"
             items={selectFornecedoresContextoBloq}
+            allItems={todosFornecedores}
+            unavailableValues={unavailableSupplierIds}
             value={
               Array.isArray(combinacao?.fornecedores_bloqueados)
                 ? combinacao.fornecedores_bloqueados

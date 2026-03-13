@@ -1,14 +1,13 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useCombinationSuppliers } from '@/src/contexts/combination-suppliers.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService';
-import { getAllSuppliers } from '@/src/services/supplierService';
 import { ComboOption } from '@/src/types/componentTypes';
-import { CombinationSupplier, SuppliersRouteFilterParams } from '@/src/types/suppliersDataTypes';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
-import { getStorageRestaurant, resolveMinMaxTimeForRoute } from '@/src/utils/restaurantUtils';
+import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { useRoute } from '@react-navigation/native';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import { Button, ScrollView, View, XStack, YStack } from 'tamagui';
 import * as Yup from 'yup';
@@ -21,6 +20,7 @@ import { InputNome } from '../src/components/Combination/InputNome';
 import { PreferenciaFornecedorCampo } from '../src/components/Combination/PreferenciaFornecedorTipo';
 import CustomHeader from '../src/components/header/customHeader';
 import CustomAlert from '../src/components/modais/CustomAlert';
+import { TwoButtonCustomAlert } from '../src/components/modais/TwoButtonCustomAlert';
 import { getCombinationsByRestaurant } from '../src/services/combinationsService';
 import { Combinacao } from '../src/types/combinationTypes';
 import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
@@ -31,54 +31,110 @@ export function Combination(): JSX.Element {
   const id = params?.id;
   const { combinacao, updateCampo } = useCombinacao();
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const [showUnavailableSuppliersConfirm, setShowUnavailableSuppliersConfirm] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [alertTitle, setAlertTitle] = useState('');
   const [alertCallback, setAlertCallback] = useState<(() => void) | null>(null);
+  const [pendingSaveAction, setPendingSaveAction] = useState<(() => Promise<void>) | null>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [triggerValidation, setTriggerValidation] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [availableSuppliersOptions, setAvailableSuppliersOptions] = useState<
     Array<ComboOption<number>>
   >([]);
-  const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
-  const [suppliers, setSuppliers] = useState<CombinationSupplier[]>([]);
   const { selectedRestaurant } = useRestaurantContext();
+  const {
+    suppliers: combinationSuppliers,
+    loading: loadingSuppliers,
+    fetchSuppliers,
+  } = useCombinationSuppliers();
+  const hasValidatedInitialUnavailableSuppliers = useRef(false);
+
+  const formatSupplierNames = useCallback((names: string[]) => {
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} e ${names[1]}`;
+    return `${names.slice(0, -1).join(', ')} e ${names[names.length - 1]}`;
+  }, []);
+
+  const getUnavailableSelectedSuppliersBySection = useCallback(() => {
+    const unavailableSupplierByExternalId = new Map(
+      combinationSuppliers
+        .filter((supplier) => !supplier.isAvailable)
+        .map((supplier) => [supplier.externalId, supplier.name]),
+    );
+
+    const unavailableSuppliersBySection = {
+      bloqueados: new Set<string>(),
+      especificos: new Set<string>(),
+      preferencias: new Set<string>(),
+    };
+
+    (combinacao.fornecedores_bloqueados ?? []).forEach((externalId) => {
+      const name = unavailableSupplierByExternalId.get(externalId);
+      if (name) unavailableSuppliersBySection.bloqueados.add(name);
+    });
+
+    (combinacao.fornecedores_especificos ?? []).forEach((externalId) => {
+      const name = unavailableSupplierByExternalId.get(externalId);
+      if (name) unavailableSuppliersBySection.especificos.add(name);
+    });
+
+    (combinacao.preferencias ?? []).forEach((preferencia) => {
+      (preferencia.produtos ?? []).forEach((produto) => {
+        const fornecedorIds = Array.isArray(produto.fornecedor_id)
+          ? produto.fornecedor_id
+          : produto.fornecedor_id
+            ? [produto.fornecedor_id]
+            : [];
+
+        fornecedorIds.forEach((externalId) => {
+          const name = unavailableSupplierByExternalId.get(externalId);
+          if (name) unavailableSuppliersBySection.preferencias.add(name);
+        });
+      });
+    });
+
+    return unavailableSuppliersBySection;
+  }, [combinationSuppliers, combinacao]);
 
   useEffect(() => {
-    const initializeSuppliers = async () => {
-      if (!selectedRestaurant) return;
+    if (!selectedRestaurant) return;
 
-      try {
-        setLoadingSuppliers(true);
+    console.log('Selected restaurant changed, refetching suppliers...');
+    console.log('Selected restaurant address info:', selectedRestaurant.addressInfos[0]);
 
-        const restaurantAddressInfo = selectedRestaurant?.addressInfos[0];
+    fetchSuppliers(selectedRestaurant.addressInfos[0]);
+  }, [selectedRestaurant?.id, fetchSuppliers]);
 
-        const neighborhood = restaurantAddressInfo?.neighborhood || '';
+  useEffect(() => {
+    if (!id) return;
+    if (loadingSuppliers) return;
+    if (hasValidatedInitialUnavailableSuppliers.current) return;
 
-        const { minimumTime, maximumTime } = resolveMinMaxTimeForRoute(
-          restaurantAddressInfo?.initialDeliveryTime,
-          restaurantAddressInfo?.finalDeliveryTime,
-        );
+    const unavailableSuppliersBySection = getUnavailableSelectedSuppliersBySection();
 
-        const routeFilters: SuppliersRouteFilterParams = {
-          neighborhood,
-          minimumTime,
-          maximumTime,
-        };
+    const unavailableSupplierNames = Array.from(
+      new Set([
+        ...unavailableSuppliersBySection.bloqueados,
+        ...unavailableSuppliersBySection.especificos,
+        ...unavailableSuppliersBySection.preferencias,
+      ]),
+    );
 
-        const suppliers = await getAllSuppliers({ routeFilters });
+    hasValidatedInitialUnavailableSuppliers.current = true;
 
-        setSuppliers(suppliers);
-      } catch (error) {
-        setAlertTitle('Erro!');
-        setAlertMessage('Ocorreu um erro inesperado ao buscar fornecedores.');
-        setIsAlertVisible(true);
-      } finally {
-        setLoadingSuppliers(false);
-      }
-    };
-    initializeSuppliers();
-  }, [selectedRestaurant?.id, selectedRestaurant?.addressInfos]);
+    if (unavailableSupplierNames.length === 0) {
+      return;
+    }
+
+    setAlertTitle('Atenção');
+    setAlertMessage(
+      'Alguns dos fornecedores selecionados para essa combinação não estão mais disponíveis, ' +
+        'verifique as seleções para os seguintes:\n\n' +
+        formatSupplierNames(unavailableSupplierNames),
+    );
+    setIsAlertVisible(true);
+  }, [id, loadingSuppliers, getUnavailableSelectedSuppliersBySection, formatSupplierNames]);
 
   useEffect(() => {
     const carregarCombinacao = async () => {
@@ -233,6 +289,17 @@ export function Combination(): JSX.Element {
     });
   }, []);
 
+  const executeSaveCombination = useCallback(
+    async (combinacaoParaValidar: Combinacao) => {
+      if (id) {
+        await updateCombination(combinacaoParaValidar);
+      } else {
+        await createCombination(combinacaoParaValidar);
+      }
+    },
+    [id, combinacao],
+  );
+
   const handleSaveCombination = async () => {
     try {
       setValidationErrors({});
@@ -252,31 +319,24 @@ export function Combination(): JSX.Element {
         abortEarly: false,
       });
 
-      const combinacaoParaEnviar = {
-        ...combinacaoParaValidar,
-        preferencias: combinacaoParaValidar.preferencias?.map((pref) => {
-          if (combinacao.preferencia_fornecedor_tipo === 'especifico') {
-            const permitidos = new Set(combinacao.fornecedores_especificos || []);
-            return {
-              ...pref,
-              fornecedores: pref.fornecedores.filter((f) => permitidos.has(f)),
-              produtos: pref.produtos.map((p) => ({
-                ...p,
-                fornecedores: p.fornecedores.filter((f) => permitidos.has(f)),
-              })),
-            };
-          }
-          return pref;
-        }),
-      };
-
       setTimeout(() => setTriggerValidation(false), 100);
 
-      if (id) {
-        await updateCombination(combinacaoParaEnviar);
-      } else {
-        await createCombination(combinacaoParaEnviar);
+      const unavailableSuppliersBySection = getUnavailableSelectedSuppliersBySection();
+      const unavailableSupplierNames = Array.from(
+        new Set([
+          ...unavailableSuppliersBySection.bloqueados,
+          ...unavailableSuppliersBySection.especificos,
+          ...unavailableSuppliersBySection.preferencias,
+        ]),
+      );
+
+      if (unavailableSupplierNames.length > 0) {
+        setPendingSaveAction(() => async () => executeSaveCombination(combinacaoParaValidar));
+        setShowUnavailableSuppliersConfirm(true);
+        return;
       }
+
+      await executeSaveCombination(combinacaoParaValidar);
     } catch (error) {
       // Reset trigger validation even on error
       setTimeout(() => setTriggerValidation(false), 100);
@@ -329,6 +389,22 @@ export function Combination(): JSX.Element {
     setAlertCallback(null);
   };
 
+  const handleUnavailableSuppliersCancel = () => {
+    setShowUnavailableSuppliersConfirm(false);
+    setPendingSaveAction(null);
+  };
+
+  const handleUnavailableSuppliersConfirm = async () => {
+    setShowUnavailableSuppliersConfirm(false);
+
+    const saveAction = pendingSaveAction;
+    setPendingSaveAction(null);
+
+    if (saveAction) {
+      await saveAction();
+    }
+  };
+
   const isAvailableSuppliersOptionsEmpty = availableSuppliersOptions.length === 0;
 
   return (
@@ -343,6 +419,15 @@ export function Combination(): JSX.Element {
         message={alertMessage}
         onConfirm={handleAlertConfirm}
         color="black"
+      />
+      <TwoButtonCustomAlert
+        visible={showUnavailableSuppliersConfirm}
+        title="Atenção"
+        message="Existem fornecedores indisponíveis na sua combinação. Isso pode afetar o funcionamento das cotações do Conéctar+. Deseja continuar mesmo assim?"
+        onCancel={handleUnavailableSuppliersCancel}
+        onConfirm={handleUnavailableSuppliersConfirm}
+        cancelText="Cancelar"
+        confirmText="Confirmar"
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <YStack
@@ -371,26 +456,20 @@ export function Combination(): JSX.Element {
           />
 
           <BloqueioFornecedoresCampo
-            suppliers={suppliers}
             error={validationErrors.fornecedores_bloqueados}
             onChange={(val) => updateCampoAndValidate('fornecedores_bloqueados', val)}
-            loadingSuppliers={loadingSuppliers}
           />
 
           <PreferenciaFornecedorCampo
-            suppliers={suppliers}
             error={validationErrors.fornecedores_especificos}
             onChange={(val) => updateCampoAndValidate('fornecedores_especificos', val)}
-            loadingSuppliers={loadingSuppliers}
           />
 
           {['especifico', 'qualquer'].includes(combinacao.preferencia_fornecedor_tipo ?? '') && (
             <ContainerPreferenciasProduto
-              suppliers={suppliers}
               error={validationErrors.preferencias}
               onClearErrors={clearPreferenceErrors}
               triggerValidation={triggerValidation}
-              loadingSuppliers={loadingSuppliers}
             />
           )}
         </YStack>

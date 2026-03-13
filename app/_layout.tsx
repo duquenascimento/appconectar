@@ -2,6 +2,7 @@ import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
 import { CombinationProvider } from '@/src/contexts/combination.context';
+import { CombinationSuppliersProvider } from '@/src/contexts/combination-suppliers.context';
 import { DeliveryDateProvider } from '@/src/contexts/deliveryDate.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
@@ -59,8 +60,9 @@ export default function RootLayout() {
             <FavoritesProvider>
               <ProductProvider>
                 <CombinacaoProvider>
-                  <SupplierProvider>
-                    <CombinationProvider>
+                  <CombinationSuppliersProvider>
+                    <SupplierProvider>
+                      <CombinationProvider>
                       {isScreenLoading ? (
                         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                           <ActivityIndicator size="large" color="#04BF7B" />
@@ -75,7 +77,8 @@ export default function RootLayout() {
                         />
                       )}
                     </CombinationProvider>
-                  </SupplierProvider>
+                    </SupplierProvider>
+                  </CombinationSuppliersProvider>
                 </CombinacaoProvider>
               </ProductProvider>
             </FavoritesProvider>

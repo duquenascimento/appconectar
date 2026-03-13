@@ -1,10 +1,11 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useCombinationSuppliers } from '@/src/contexts/combination-suppliers.context';
 import { useProductContext } from '@/src/contexts/produtos.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { ProductClass } from '@/src/types/productTypes';
-import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { getAvailableCombinationSuppliersFromDTO } from '@/src/utils/combinationSuppliersUtils';
 import { normalizeText } from '@/src/utils/stringUtils';
-import { getSupplierLabel } from '@/src/utils/supplierUtils';
+import { getCombinationSupplierDTOLabel } from '@/src/utils/supplierUtils';
 import { preferenciaProdutoSchema } from '@/src/validators/combination.form.validator';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useEffect, useMemo, useState } from 'react';
@@ -31,8 +32,6 @@ type Props = {
   onMoveDown: () => void;
   onRemove: () => void;
   triggerValidation?: boolean;
-  suppliers: CombinationSupplier[];
-  loadingSuppliers: boolean;
 };
 
 const tipoProdutoItems = [
@@ -45,11 +44,10 @@ export function PreferenciaProdutoCard({
   onMoveUp,
   onMoveDown,
   onRemove,
-  suppliers,
   triggerValidation,
-  loadingSuppliers,
 }: Props) {
   const { combinacao, updateCampo } = useCombinacao();
+  const { suppliers, loading: loadingSuppliers } = useCombinationSuppliers();
   const { productsContext, classe } = useProductContext();
   const { loadRestaurants } = useRestaurantContext();
   const [busca, setBusca] = useState('');
@@ -142,12 +140,15 @@ export function PreferenciaProdutoCard({
   };
 
   const atualizarFornecedoresPreferencia = (fornecedores: string[]) => {
+    console.log('Fornecedores selecionados para a preferência:', fornecedores);
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
     novasPreferencias[index].fornecedores = fornecedores;
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.map((p) => ({
       ...p,
       fornecedores,
+      fornecedor_id: fornecedores,
     }));
+    console.log('Preferência atualizada com fornecedores:', novasPreferencias[index]);
     updateCampo('preferencias', novasPreferencias);
     setFornecedoresTouched(true);
     setTimeout(() => validateFornecedores(), 0);
@@ -166,18 +167,61 @@ export function PreferenciaProdutoCard({
     updateCampo('preferencias', novasPreferencias);
   };
 
+  const fornecedoresDisponiveis = useMemo(() => {
+    const availableSuppliers = getAvailableCombinationSuppliersFromDTO(suppliers, combinacao);
+
+    return availableSuppliers.map((supplier) => ({
+      label: getCombinationSupplierDTOLabel(supplier),
+      value: supplier.externalId,
+    }));
+  }, [
+    suppliers,
+    combinacao.bloquear_fornecedores,
+    combinacao.fornecedores_bloqueados,
+    combinacao.preferencia_fornecedor_tipo,
+    combinacao.fornecedores_especificos,
+  ]);
+
+  const todosFornecedores = useMemo(
+    () =>
+      suppliers.map((supplier) => ({
+        label: getCombinationSupplierDTOLabel(supplier),
+        value: supplier.externalId,
+      })),
+    [suppliers],
+  );
+
+  const unavailableSupplierIds = useMemo(
+    () => suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
+    [suppliers],
+  );
+
   const fornecedoresComuns = useMemo(() => {
+    const fornecedoresPreferencia = preferencia.fornecedores ?? [];
+
+    if (fornecedoresPreferencia.length > 0) {
+      return fornecedoresPreferencia;
+    }
+
     if (preferencia.produtos.length === 0) return [];
+
     const fornecedoresUnicos = Array.from(
       new Set(
-        preferencia.produtos
-          .flatMap((p) => p.fornecedores)
-          .filter((f) => f !== undefined && f !== null),
+        preferencia.produtos.flatMap((produto) => {
+          const fornecedoresProduto = produto.fornecedores ?? [];
+          const fornecedorIds = Array.isArray(produto.fornecedor_id)
+            ? produto.fornecedor_id
+            : produto.fornecedor_id
+              ? [produto.fornecedor_id]
+              : [];
+
+          return [...fornecedoresProduto, ...fornecedorIds];
+        }),
       ),
-    );
+    ).filter((fornecedor) => fornecedor !== undefined && fornecedor !== null);
 
     return fornecedoresUnicos;
-  }, [preferencia.produtos]);
+  }, [preferencia.fornecedores, preferencia.produtos]);
 
   const acaoNaFalhaComum = useMemo(() => {
     if (preferencia.produtos.length === 0) return 'ignorar';
@@ -225,32 +269,6 @@ export function PreferenciaProdutoCard({
     // Validate after state update
     setTimeout(() => validateProducts(), 0);
   };
-
-  const fornecedoresDisponiveis = useMemo(() => {
-    const blockedSuppliers = combinacao.fornecedores_bloqueados || [];
-    const specificSuppliers = combinacao.fornecedores_especificos || [];
-
-    let filteredSuppliers: CombinationSupplier[] = suppliers;
-
-    if (combinacao.bloquear_fornecedores && blockedSuppliers.length > 0) {
-      filteredSuppliers = filteredSuppliers.filter((f) => !blockedSuppliers.includes(f.idexterno));
-    }
-
-    if (combinacao.preferencia_fornecedor_tipo === 'especifico' && specificSuppliers.length > 0) {
-      filteredSuppliers = filteredSuppliers.filter((f) => specificSuppliers.includes(f.idexterno));
-    }
-
-    return filteredSuppliers.map((supplier) => ({
-      label: getSupplierLabel(supplier),
-      value: supplier.id!,
-    }));
-  }, [
-    suppliers,
-    combinacao.bloquear_fornecedores,
-    combinacao.fornecedores_bloqueados,
-    combinacao.preferencia_fornecedor_tipo,
-    combinacao.fornecedores_especificos,
-  ]);
 
   useEffect(() => {
     if (!busca.trim()) {
@@ -439,6 +457,8 @@ export function PreferenciaProdutoCard({
       <ContainerSelecaoItemsComFornecedor
         label="Com fornecedor(es)"
         items={fornecedoresDisponiveis}
+        allItems={todosFornecedores}
+        unavailableValues={unavailableSupplierIds}
         value={fornecedoresComuns}
         onChange={atualizarFornecedoresPreferencia}
         schemaPath={`preferencias[${index}].fornecedores`}
