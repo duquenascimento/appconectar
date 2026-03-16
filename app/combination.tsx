@@ -101,7 +101,7 @@ export function Combination(): JSX.Element {
   useEffect(() => {
     if (!selectedRestaurant) return;
 
-    fetchSuppliers(selectedRestaurant.addressInfos[0]);
+    fetchSuppliers(selectedRestaurant.addressInfos[0], selectedRestaurant.blockedBySuppliers);
   }, [selectedRestaurant?.id, fetchSuppliers]);
 
   useEffect(() => {

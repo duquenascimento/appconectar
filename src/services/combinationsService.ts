@@ -101,6 +101,7 @@ export interface GetCombinationSuppliersRequestDTO {
   neighborhood: string;
   minimumTime: string;
   maximumTime: string;
+  blockedBySuppliers: string[];
 }
 
 export interface CombinationSupplierDTO {
