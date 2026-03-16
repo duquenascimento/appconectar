@@ -3,11 +3,14 @@ import { combinacaoValidationSchema } from '@/src/validators/combination.form.va
 import { useState } from 'react'
 import { Platform } from 'react-native'
 import DropDownPicker from 'react-native-dropdown-picker'
-import { Button, Label, Text, XStack, YStack } from 'tamagui'
+import { Button, Label, Text, Tooltip, XStack, YStack } from 'tamagui'
+import Icons from '@expo/vector-icons/Ionicons'
 
 type ContainerSelecaoItemsProps<T extends string> = {
   label: string
   items: ComboOption<T>[]
+  allItems?: ComboOption<T>[]
+  unavailableValues?: T[]
   value: T[]
   onChange: (val: T[]) => void
   zIndex?: number
@@ -19,7 +22,7 @@ type ContainerSelecaoItemsProps<T extends string> = {
   loading?: boolean
 }
 
-export function ContainerSelecaoItems<T extends string>({ label, items, value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error, loading = false }: ContainerSelecaoItemsProps<T>) {
+export function ContainerSelecaoItems<T extends string>({ label, items, allItems = [], unavailableValues = [], value = [], onChange, zIndex = 3000, schemaPath, extraValidationContext = {}, ignoreValidation = false, onRemove, error, loading = false }: ContainerSelecaoItemsProps<T>) {
   const [open, setOpen] = useState(false)
   const [selected, setSelected] = useState<T | null>(null)
   const [touched, setTouched] = useState(false)
@@ -52,6 +55,8 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
     }
   }
 
+  const unavailableValuesSet = new Set(unavailableValues)
+
   return (
     <YStack style={{ zIndex }} gap="$2" minHeight={open ? 300 : 100}>
       <Label>{label}</Label>
@@ -78,12 +83,28 @@ export function ContainerSelecaoItems<T extends string>({ label, items, value = 
       {value.length > 0 && (
         <XStack flexWrap="wrap" gap="$2" marginTop="$2">
           {value
-            .filter((v) => items.some((i) => i.value === v)) // mantém só IDs que ainda existem nos items
             .map((v) => {
-              const label = items.find((i) => i.value === v)?.label ?? v
+              const availableItem = items.find((i) => i.value === v)
+              const fallbackItem = allItems.find((i) => i.value === v)
+              const label = availableItem?.label ?? fallbackItem?.label ?? v
+              const isUnavailable = unavailableValuesSet.has(v) || !availableItem
+
               return (
-                <XStack key={v} borderRadius={6} paddingHorizontal="$2" paddingVertical="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0">
+                <XStack key={v} borderRadius={6} paddingHorizontal="$2" paddingVertical="$1" alignItems="center" gap="$1" backgroundColor="#E0E0E0" opacity={isUnavailable ? 0.55 : 1}>
                   <Text>{label}</Text>
+                  {isUnavailable && (
+                    <Tooltip>
+                      <Tooltip.Trigger asChild>
+                        <XStack>
+                          <Icons name="alert-circle-outline" size={14} color="#666" />
+                        </XStack>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>
+                        <Tooltip.Arrow />
+                        <Text color="white">Indisponível</Text>
+                      </Tooltip.Content>
+                    </Tooltip>
+                  )}
                   <Button size="$1" circular backgroundColor="transparent" fontSize={Platform.OS === 'web'? '22px': undefined} color={'#777'} onPress={() => removeItem(v)}>
                     ×
                   </Button>

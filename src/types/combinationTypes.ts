@@ -22,6 +22,7 @@ export interface ProdutoPreferencia {
   // TODO:  this should be removed and used only in the PreferenciaProduto
   //        as the list of fornecedores isn't per product preference
   fornecedores: string[];
+  fornecedor_id?: string[];
 }
 
 export interface PreferenciaProduto {
