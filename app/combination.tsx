@@ -101,9 +101,6 @@ export function Combination(): JSX.Element {
   useEffect(() => {
     if (!selectedRestaurant) return;
 
-    console.log('Selected restaurant changed, refetching suppliers...');
-    console.log('Selected restaurant address info:', selectedRestaurant.addressInfos[0]);
-
     fetchSuppliers(selectedRestaurant.addressInfos[0]);
   }, [selectedRestaurant?.id, fetchSuppliers]);
 

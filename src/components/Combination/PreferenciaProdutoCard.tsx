@@ -140,7 +140,6 @@ export function PreferenciaProdutoCard({
   };
 
   const atualizarFornecedoresPreferencia = (fornecedores: string[]) => {
-    console.log('Fornecedores selecionados para a preferência:', fornecedores);
     const novasPreferencias = [...(combinacao.preferencias ?? [])];
     novasPreferencias[index].fornecedores = fornecedores;
     novasPreferencias[index].produtos = novasPreferencias[index].produtos.map((p) => ({
@@ -148,7 +147,6 @@ export function PreferenciaProdutoCard({
       fornecedores,
       fornecedor_id: fornecedores,
     }));
-    console.log('Preferência atualizada com fornecedores:', novasPreferencias[index]);
     updateCampo('preferencias', novasPreferencias);
     setFornecedoresTouched(true);
     setTimeout(() => validateFornecedores(), 0);

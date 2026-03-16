@@ -55,6 +55,78 @@ export function BloqueioFornecedoresCampo({
     setShowModal(false);
   };
 
+  const removerFornecedoresDasPreferencias = (fornecedoresParaRemover: string[]) => {
+    if (fornecedoresParaRemover.length === 0) return;
+
+    const fornecedoresParaRemoverSet = new Set(fornecedoresParaRemover);
+    const preferenciasAtuais = combinacao.preferencias ?? [];
+    let houveAlteracao = false;
+
+    const preferenciasAtualizadas = preferenciasAtuais.map((preferencia) => {
+      const fornecedoresPreferenciaAtualizados = (preferencia.fornecedores ?? []).filter(
+        (fornecedor) => !fornecedoresParaRemoverSet.has(fornecedor),
+      );
+
+      if (fornecedoresPreferenciaAtualizados.length !== (preferencia.fornecedores ?? []).length) {
+        houveAlteracao = true;
+      }
+
+      const produtosAtualizados = (preferencia.produtos ?? []).map((produto) => {
+        const fornecedoresProdutoAtualizados = (produto.fornecedores ?? []).filter(
+          (fornecedor) => !fornecedoresParaRemoverSet.has(fornecedor),
+        );
+
+        const fornecedorIds = Array.isArray(produto.fornecedor_id)
+          ? produto.fornecedor_id
+          : produto.fornecedor_id
+            ? [produto.fornecedor_id]
+            : [];
+
+        const fornecedorIdsAtualizados = fornecedorIds.filter(
+          (fornecedor) => !fornecedoresParaRemoverSet.has(fornecedor),
+        );
+
+        if (
+          fornecedoresProdutoAtualizados.length !== (produto.fornecedores ?? []).length ||
+          fornecedorIdsAtualizados.length !== fornecedorIds.length
+        ) {
+          houveAlteracao = true;
+        }
+
+        return {
+          ...produto,
+          fornecedores: fornecedoresProdutoAtualizados,
+          fornecedor_id: fornecedorIdsAtualizados,
+        };
+      });
+
+      return {
+        ...preferencia,
+        fornecedores: fornecedoresPreferenciaAtualizados,
+        produtos: produtosAtualizados,
+      };
+    });
+
+    if (houveAlteracao) {
+      updateCampo('preferencias', preferenciasAtualizadas);
+    }
+  };
+
+  const handleBlockedSuppliersChange = (fornecedoresBloqueados: string[]) => {
+    onChange(fornecedoresBloqueados);
+
+    const fornecedoresEspecificos = combinacao.fornecedores_especificos ?? [];
+    const fornecedoresEspecificosAtualizados = fornecedoresEspecificos.filter(
+      (fornecedor) => !fornecedoresBloqueados.includes(fornecedor),
+    );
+
+    if (fornecedoresEspecificosAtualizados.length !== fornecedoresEspecificos.length) {
+      updateCampo('fornecedores_especificos', fornecedoresEspecificosAtualizados);
+    }
+
+    removerFornecedoresDasPreferencias(fornecedoresBloqueados);
+  };
+
   const updateFornecedorLabel = (value: string) => {
     setSelectFornecedoresContextoBloq((prevState) => {
       return prevState.map((obj) => {
@@ -136,7 +208,7 @@ export function BloqueioFornecedoresCampo({
                 ? combinacao.fornecedores_bloqueados
                 : []
             }
-            onChange={onChange}
+            onChange={handleBlockedSuppliersChange}
             schemaPath="fornecedores_bloqueados"
             extraValidationContext={{
               bloquear_fornecedores: combinacao.bloquear_fornecedores,

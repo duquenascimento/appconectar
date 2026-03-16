@@ -79,8 +79,73 @@ export function PreferenciaFornecedorCampo({
     }
   }, [combinacao, suppliers]);
 
+  const sincronizarPreferenciasComFornecedoresEspecificos = (fornecedoresEspecificos: string[]) => {
+    const fornecedoresEspecificosSet = new Set(fornecedoresEspecificos);
+    const preferenciasAtuais = combinacao.preferencias ?? [];
+    let houveAlteracao = false;
+
+    const preferenciasAtualizadas = preferenciasAtuais.map((preferencia) => {
+      const fornecedoresPreferenciaAtualizados = (preferencia.fornecedores ?? []).filter(
+        (fornecedor) => fornecedoresEspecificosSet.has(fornecedor),
+      );
+
+      if (fornecedoresPreferenciaAtualizados.length !== (preferencia.fornecedores ?? []).length) {
+        houveAlteracao = true;
+      }
+
+      const produtosAtualizados = (preferencia.produtos ?? []).map((produto) => {
+        const fornecedoresProdutoAtualizados = (produto.fornecedores ?? []).filter(
+          (fornecedor) => fornecedoresEspecificosSet.has(fornecedor),
+        );
+
+        const fornecedorIds = Array.isArray(produto.fornecedor_id)
+          ? produto.fornecedor_id
+          : produto.fornecedor_id
+            ? [produto.fornecedor_id]
+            : [];
+
+        const fornecedorIdsAtualizados = fornecedorIds.filter((fornecedor) =>
+          fornecedoresEspecificosSet.has(fornecedor),
+        );
+
+        if (
+          fornecedoresProdutoAtualizados.length !== (produto.fornecedores ?? []).length ||
+          fornecedorIdsAtualizados.length !== fornecedorIds.length
+        ) {
+          houveAlteracao = true;
+        }
+
+        return {
+          ...produto,
+          fornecedores: fornecedoresProdutoAtualizados,
+          fornecedor_id: fornecedorIdsAtualizados,
+        };
+      });
+
+      return {
+        ...preferencia,
+        fornecedores: fornecedoresPreferenciaAtualizados,
+        produtos: produtosAtualizados,
+      };
+    });
+
+    if (houveAlteracao) {
+      updateCampo('preferencias', preferenciasAtualizadas);
+    }
+  };
+
+  const handleSpecificSuppliersChange = (fornecedoresEspecificos: string[]) => {
+    onChange(fornecedoresEspecificos);
+
+    if (combinacao.preferencia_fornecedor_tipo === TipoFornecedor.ESPECIFICO) {
+      sincronizarPreferenciasComFornecedoresEspecificos(fornecedoresEspecificos);
+    }
+  };
+
   const resetarPreferenciaFornecedor = () => {
     if (!tipoTemporario) return;
+
+    sincronizarPreferenciasComFornecedoresEspecificos([]);
 
     updateCampo('preferencia_fornecedor_tipo', tipoTemporario);
     updateCampo('definir_preferencia_produto', true);
@@ -169,7 +234,7 @@ export function PreferenciaFornecedorCampo({
               ? combinacao.fornecedores_especificos
               : []
           }
-          onChange={onChange}
+          onChange={handleSpecificSuppliersChange}
           onRemove={(item) => {
             const fornecedoresAtuais = combinacao.fornecedores_especificos ?? [];
             if (fornecedoresAtuais.length === 1) {
@@ -177,9 +242,8 @@ export function PreferenciaFornecedorCampo({
               setTipoTemporario(combinacao.preferencia_fornecedor_tipo ?? null);
               setShowModal(true);
             } else {
-              // Remove normalmente
               const updated = fornecedoresAtuais.filter((v) => v !== item);
-              updateCampo('fornecedores_especificos', updated);
+              handleSpecificSuppliersChange(updated);
             }
           }}
           schemaPath="fornecedores_especificos"
