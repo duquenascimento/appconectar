@@ -1,8 +1,8 @@
 import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
-import { CombinationProvider } from '@/src/contexts/combination.context';
 import { CombinationSuppliersProvider } from '@/src/contexts/combination-suppliers.context';
+import { CombinationProvider } from '@/src/contexts/combination.context';
 import { DeliveryDateProvider } from '@/src/contexts/deliveryDate.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
@@ -10,7 +10,7 @@ import { ProductProvider } from '@/src/contexts/produtos.context';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 import { checkLocalVersionAndClearData } from '@/src/services/versionService';
 import { useFonts } from 'expo-font';
-import { Stack, useSegments } from 'expo-router';
+import { router, Stack, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
 import 'react-native-gesture-handler';
@@ -42,7 +42,12 @@ export default function RootLayout() {
 
   useEffect(() => {
     const initApp = async () => {
-      await checkLocalVersionAndClearData();
+      const versionCheckResult = await checkLocalVersionAndClearData();
+
+      if (versionCheckResult.cleared) {
+        router.replace('/');
+        return;
+      }
     };
     initApp();
   }, []);
@@ -63,20 +68,20 @@ export default function RootLayout() {
                   <CombinationSuppliersProvider>
                     <SupplierProvider>
                       <CombinationProvider>
-                      {isScreenLoading ? (
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                          <ActivityIndicator size="large" color="#04BF7B" />
-                        </View>
-                      ) : (
-                        <Stack
-                          screenOptions={{
-                            headerShown: false,
-                            animation: 'slide_from_right',
-                            gestureEnabled: true,
-                          }}
-                        />
-                      )}
-                    </CombinationProvider>
+                        {isScreenLoading ? (
+                          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                            <ActivityIndicator size="large" color="#04BF7B" />
+                          </View>
+                        ) : (
+                          <Stack
+                            screenOptions={{
+                              headerShown: false,
+                              animation: 'slide_from_right',
+                              gestureEnabled: true,
+                            }}
+                          />
+                        )}
+                      </CombinationProvider>
                     </SupplierProvider>
                   </CombinationSuppliersProvider>
                 </CombinacaoProvider>
