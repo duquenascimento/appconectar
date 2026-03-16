@@ -316,10 +316,8 @@ export function PreferenciaProdutoCard({
             left={0}
             right={0}
             bottom={0}
-            // Use a transparent background so it doesn't block content visually,
-            // but still captures touches/clicks.
             backgroundColor="transparent"
-            zIndex={1000} // Ensure the overlay is above other content but below the list/modal itself
+            zIndex={1000}
           />
         </TouchableWithoutFeedback>
       )}

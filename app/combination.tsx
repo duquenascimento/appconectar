@@ -130,8 +130,8 @@ export function Combination(): JSX.Element {
 
     setAlertTitle('Atenção');
     setAlertMessage(
-      'Alguns dos fornecedores selecionados para essa combinação não estão mais disponíveis, ' +
-        'verifique as seleções para os seguintes:\n\n' +
+      'Alguns dos fornecedores nesta preferência não estão mais disponíveis, ' +
+        'verifique os fornecedores a seguir:\n\n' +
         formatSupplierNames(unavailableSupplierNames),
     );
     setIsAlertVisible(true);
@@ -442,7 +442,7 @@ export function Combination(): JSX.Element {
       <TwoButtonCustomAlert
         visible={showUnavailableSuppliersConfirm}
         title="Atenção"
-        message="Existem fornecedores indisponíveis na sua combinação. Isso pode afetar o funcionamento das cotações do Conéctar+. Deseja continuar mesmo assim?"
+        message="Existem fornecedores indisponíveis na sua combinação. Isso pode afetar o resultado das cotações do Conéctar+. Deseja continuar mesmo assim?"
         onCancel={handleUnavailableSuppliersCancel}
         onConfirm={handleUnavailableSuppliersConfirm}
         cancelText="Cancelar"
