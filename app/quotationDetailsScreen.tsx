@@ -7,9 +7,9 @@ import { SameDayOrder } from '@/src/types/types';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { HttpStatusCode } from 'axios';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
@@ -33,6 +33,9 @@ import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
+import { createCreditCard, getCreditCards } from '@/src/services/creditCardService';
+import { CreateCreditCardDto, CreditCard } from '@/src/types/paymentTypes';
+import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
 
 export interface Product {
   price: number;
@@ -131,6 +134,9 @@ export default function QuotationDetailsScreen() {
   const { deliveryDate, resetDeliveryDate, isRetroactiveDate } = useDeliveryDate();
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
+  const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
+  const [isCpf, setIsCpf] = useState<boolean>(false);
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const { isLargeScreen } = useResponsiveness();
 
@@ -270,6 +276,7 @@ export default function QuotationDetailsScreen() {
           suppliers: suppliers.map((s) => s.supplier),
           restaurant: restaurantData,
           deliveryDate,
+          creditCardId: selectedCreditCard?.id,
           appVersion: process.env.EXPO_PUBLIC_VERSION,
           missingProducts: parsedMissingProducts,
         };
@@ -311,8 +318,29 @@ export default function QuotationDetailsScreen() {
         setDisableConfirm(false);
       }
     },
-    [suppliers, disableConfirm, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
+    [suppliers, disableConfirm, deliveryDate, selectedCreditCard, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
   );
+
+  const loadCreditCards = useCallback(async () => {
+      const restaurantId = selectedRestaurant?.id;
+      if (!restaurantId) return;
+  
+      try {
+        const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
+        setIsCpf(isCpfRestaurant);
+        if(isCpfRestaurant) {
+          const creditCards = await getCreditCards(restaurantId);
+          if(creditCards.length > 0) {
+            setSelectedCreditCard(creditCards[0]);
+          } else {
+            setOpenCreditCardDialog(true);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      
+    }, [selectedRestaurant]);
 
   const handleConfirmSundayWarning = useCallback(async () => {
     setShowSundayWarning(false);
@@ -332,6 +360,12 @@ export default function QuotationDetailsScreen() {
         trailing: false,
       }) as unknown as () => void,
     [handleConfirm],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCreditCards();
+    }, [loadCreditCards])
   );
 
   if (!suppliers || suppliers.length === 0) {
@@ -431,6 +465,14 @@ export default function QuotationDetailsScreen() {
           onConfirm={() => setShowNotification(false)}
           width="35%"
         />
+        <CreateCreditCardModal
+          open={openCreditCardDialog}
+          setOpen={setOpenCreditCardDialog}
+          onSave={async (creditCard: CreateCreditCardDto) => {
+            await createCreditCard(creditCard);
+            await loadCreditCards()
+          }}
+        />
         <SundayOrderAlert
           visible={showSundayWarning}
           onCancel={handleCloseSundayWarning}
@@ -494,7 +536,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  disabled={disableConfirm || isRetroactiveDate}
+                  disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
                   onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
@@ -530,7 +572,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <CustomButton
-                  disabled={disableConfirm || isRetroactiveDate}
+                  disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
                   title={isBefore13h ? 'Agendar' : 'Confirmar'}
                   onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"

@@ -3,6 +3,8 @@ import { Formik } from 'formik';
 import { Button, Dialog, Input, Label, Text, XStack, YStack } from "tamagui";
 import { CreateCreditCardDto } from '@/src/types/paymentTypes';
 import React from 'react';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { Restaurant } from '@/src/types/restaurantTypes';
 
 const formatCardNumber = (text: string) => {
   return text
@@ -34,19 +36,25 @@ async function onSubmit(data: {
     holderName: string;
     holderDoc: string;
     nickname: string;
-}, onSave: Function, onClose: Function, setError: Function): Promise<void> {
+}, restaurant: Restaurant | null | undefined, onSave: (creditCard: CreateCreditCardDto) => Promise<void>, onClose: Function, setError: Function): Promise<void> {
     try {
         setError('');
+
+        const restaurantId = restaurant ? restaurant.id : '';
+        if(!restaurantId) {
+            setError('Selecione um restaurante válido!');
+            return;
+        }
         const cardData: CreateCreditCardDto = {
-            restaurantId: '',
+            restaurantId: restaurantId,
             nickname: data.nickname,
             isDefault: true,
             creditCard: {
                 holderName: data.holderName,
-                number: data.number,
+                number: data.number.replaceAll(' ', ''),
                 expiryMonth: data.expiry.split('/')[0],
                 expiryYear: `20${data.expiry.split('/')[1]}`,
-                cvv: data.cvv
+                ccv: data.cvv
             },
             creditCardHolderInfo: {
                 name: data.holderName,
@@ -57,21 +65,17 @@ async function onSubmit(data: {
         onClose();
     } catch (err) {
         console.log(err);
-        setError('Ops, algo deu errado');
+        setError(err instanceof Error ? err.message : 'Ops, algo deu errado');
     }
 }
 
-export function CreateCreditCardModal(props: {onSave: Function}) {
-    const { onSave } = props;
-    const [open, setOpen] = React.useState(false);
+export function CreateCreditCardModal(props: {onSave: (creditCard: CreateCreditCardDto) => Promise<void>, open: boolean, setOpen: (open: boolean) => void}) {
+    const { onSave, open, setOpen } = props;
+    const { selectedRestaurant } = useRestaurantContext();
     const [error, setError] = React.useState('');
     
     return (
         <Dialog modal open={open} onOpenChange={setOpen}>
-            <Dialog.Trigger asChild>
-                <Button>Adicionar cartão de crédito</Button>
-            </Dialog.Trigger>
-
             <Dialog.Portal>
                 <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} />
                 <Dialog.Content bordered elevate key="content" animation="quick">
@@ -79,12 +83,12 @@ export function CreateCreditCardModal(props: {onSave: Function}) {
                     <Formik
                         initialValues={{ number: '', expiry: '', cvv: '', holderName: '', nickname: '', holderDoc: '' }}
                         validationSchema={CardSchema}
-                        onSubmit={(values) => onSubmit(values, onSave, () => setOpen(false), setError)}
+                        onSubmit={(values) => onSubmit(values, selectedRestaurant, onSave, () => setOpen(false), setError)}
                     >
                         {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                             <YStack gap={"$2"}>
                                 <Dialog.Title>Novo cartão de crédito</Dialog.Title>
-                                <Dialog.Description>Conteúdo do modal.</Dialog.Description>
+                                <Dialog.Description>Para realizar compras na plataforma, cadastre um cartão de crédito válido</Dialog.Description>
 
                                 <YStack gap={"$1"}>
                                     <Label htmlFor="number">Apelido do Cartão</Label>
@@ -185,9 +189,11 @@ export function CreateCreditCardModal(props: {onSave: Function}) {
                                 <Button 
                                     // @ts-ignore
                                     type="submit"
+                                    backgroundColor={'#04BF7B'}
+                                    color="white"
                                     onPress={() => handleSubmit()} 
                                 >
-                                    Salvar
+                                    Cadastrar
                                 </Button>
                                 
                             </YStack>

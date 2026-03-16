@@ -17,10 +17,21 @@ export interface CreateCreditCardDto {
     number: string;
     expiryMonth: string;
     expiryYear: string;
-    cvv: string;
+    ccv: string;
   }
   creditCardHolderInfo: {
     name: string;
     cpfCnpj: string;
   }
+}
+
+export type CreditCard = {
+  id: string;
+  restaurantId: string;
+  nickname: string;
+  fourLastDigits: string;
+  brand: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
