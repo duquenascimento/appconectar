@@ -61,8 +61,6 @@ export const checkLocalVersionAndClearData = async (): Promise<ClearedVersionChe
     newVersion: EXPO_APP_VERSION,
   };
 
-  if (Platform.OS === 'web') return defaultResult;
-
   try {
     const savedVersion = await getStorage(STORAGE_DEFAULT_KEYS.EXPO_APP_VERSION);
 
