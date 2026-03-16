@@ -1,25 +1,22 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
+import { useCombinationSuppliers } from '@/src/contexts/combination-suppliers.context';
 import { ComboOption } from '@/src/types/componentTypes';
-import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { getCombinationSupplierDTOLabel } from '@/src/utils/supplierUtils';
 import { useEffect, useMemo, useState } from 'react';
 import { Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
 import CustomSubtitle from '../subtitle/customSubtitle';
 import { ContainerSelecaoItems } from './ContainerSelecaoItems';
-import { getSupplierLabel } from '@/src/utils/supplierUtils';
 
 export function BloqueioFornecedoresCampo({
-  suppliers,
   error,
   onChange,
-  loadingSuppliers,
 }: {
-  suppliers: CombinationSupplier[];
   error?: string;
   onChange: (val: string[]) => void;
-  loadingSuppliers: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
+  const { suppliers, loading: loadingSuppliers } = useCombinationSuppliers();
   const [showModal, setShowModal] = useState(false);
 
   const [selectFornecedoresContextoBloq, setSelectFornecedoresContextoBloq] = useState<
@@ -27,22 +24,107 @@ export function BloqueioFornecedoresCampo({
   >([]);
 
   const fornecedoresContexto = useMemo(() => {
-    const todosFornecedores = [...suppliers];
-
-    const fornecedoresNaoSelecionados = todosFornecedores.filter(
-      (supplier) => !combinacao.fornecedores_especificos?.includes(supplier.idexterno),
-    );
+    const fornecedoresNaoSelecionados = suppliers
+      .filter((s) => s.isAvailable)
+      .filter((supplier) => !combinacao.fornecedores_especificos?.includes(supplier.externalId));
 
     return fornecedoresNaoSelecionados.map((supplier) => ({
-      label: getSupplierLabel(supplier),
-      value: supplier.idexterno,
+      label: getCombinationSupplierDTOLabel(supplier),
+      value: supplier.externalId,
     }));
   }, [suppliers, combinacao.fornecedores_especificos]);
+
+  const todosFornecedores = useMemo(
+    () =>
+      suppliers.map((supplier) => ({
+        label: getCombinationSupplierDTOLabel(supplier),
+        value: supplier.externalId,
+      })),
+    [suppliers],
+  );
+
+  const unavailableSupplierIds = useMemo(
+    () =>
+      suppliers.filter((supplier) => !supplier.isAvailable).map((supplier) => supplier.externalId),
+    [suppliers],
+  );
 
   const resetFornecedoresBloqueados = () => {
     updateCampo('bloquear_fornecedores', false);
     updateCampo('fornecedores_bloqueados', []);
     setShowModal(false);
+  };
+
+  const removerFornecedoresDasPreferencias = (fornecedoresParaRemover: string[]) => {
+    if (fornecedoresParaRemover.length === 0) return;
+
+    const fornecedoresParaRemoverSet = new Set(fornecedoresParaRemover);
+    const preferenciasAtuais = combinacao.preferencias ?? [];
+    let houveAlteracao = false;
+
+    const preferenciasAtualizadas = preferenciasAtuais.map((preferencia) => {
+      const fornecedoresPreferenciaAtualizados = (preferencia.fornecedores ?? []).filter(
+        (fornecedor) => !fornecedoresParaRemoverSet.has(fornecedor),
+      );
+
+      if (fornecedoresPreferenciaAtualizados.length !== (preferencia.fornecedores ?? []).length) {
+        houveAlteracao = true;
+      }
+
+      const produtosAtualizados = (preferencia.produtos ?? []).map((produto) => {
+        const fornecedoresProdutoAtualizados = (produto.fornecedores ?? []).filter(
+          (fornecedor) => !fornecedoresParaRemoverSet.has(fornecedor),
+        );
+
+        const fornecedorIds = Array.isArray(produto.fornecedor_id)
+          ? produto.fornecedor_id
+          : produto.fornecedor_id
+            ? [produto.fornecedor_id]
+            : [];
+
+        const fornecedorIdsAtualizados = fornecedorIds.filter(
+          (fornecedor) => !fornecedoresParaRemoverSet.has(fornecedor),
+        );
+
+        if (
+          fornecedoresProdutoAtualizados.length !== (produto.fornecedores ?? []).length ||
+          fornecedorIdsAtualizados.length !== fornecedorIds.length
+        ) {
+          houveAlteracao = true;
+        }
+
+        return {
+          ...produto,
+          fornecedores: fornecedoresProdutoAtualizados,
+          fornecedor_id: fornecedorIdsAtualizados,
+        };
+      });
+
+      return {
+        ...preferencia,
+        fornecedores: fornecedoresPreferenciaAtualizados,
+        produtos: produtosAtualizados,
+      };
+    });
+
+    if (houveAlteracao) {
+      updateCampo('preferencias', preferenciasAtualizadas);
+    }
+  };
+
+  const handleBlockedSuppliersChange = (fornecedoresBloqueados: string[]) => {
+    onChange(fornecedoresBloqueados);
+
+    const fornecedoresEspecificos = combinacao.fornecedores_especificos ?? [];
+    const fornecedoresEspecificosAtualizados = fornecedoresEspecificos.filter(
+      (fornecedor) => !fornecedoresBloqueados.includes(fornecedor),
+    );
+
+    if (fornecedoresEspecificosAtualizados.length !== fornecedoresEspecificos.length) {
+      updateCampo('fornecedores_especificos', fornecedoresEspecificosAtualizados);
+    }
+
+    removerFornecedoresDasPreferencias(fornecedoresBloqueados);
   };
 
   const updateFornecedorLabel = (value: string) => {
@@ -112,19 +194,21 @@ export function BloqueioFornecedoresCampo({
         </Switch>
       </XStack>
 
-      {combinacao.bloquear_fornecedores && (
+      {combinacao.bloquear_fornecedores && !loadingSuppliers && (
         <>
           <Separator marginVertical="$3" />
           <ContainerSelecaoItems
             loading={loadingSuppliers}
             label="Fornecedores bloqueados"
             items={selectFornecedoresContextoBloq}
+            allItems={todosFornecedores}
+            unavailableValues={unavailableSupplierIds}
             value={
               Array.isArray(combinacao?.fornecedores_bloqueados)
                 ? combinacao.fornecedores_bloqueados
                 : []
             }
-            onChange={onChange}
+            onChange={handleBlockedSuppliersChange}
             schemaPath="fornecedores_bloqueados"
             extraValidationContext={{
               bloquear_fornecedores: combinacao.bloquear_fornecedores,

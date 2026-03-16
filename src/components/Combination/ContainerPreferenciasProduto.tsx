@@ -1,7 +1,7 @@
 import { useCombinacao } from '@/src/contexts/combinacao.context';
-import { CombinationSupplier } from '@/src/types/suppliersDataTypes';
+import { AcaoNaFalha, PreferenciaProduto, TipoProduto } from '@/src/types/combinationTypes';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Button, Separator, Switch, Text, XStack, YStack } from 'tamagui';
 import { resetarPreferencias } from '../../utils/preferenciaUtils';
 import { TwoButtonCustomAlert } from '../modais/TwoButtonCustomAlert';
@@ -10,16 +10,12 @@ import { PreferenciaProdutoCard } from './PreferenciaProdutoCard';
 
 export function ContainerPreferenciasProduto({
   error,
-  suppliers,
   onClearErrors,
   triggerValidation,
-  loadingSuppliers,
 }: {
   error?: string;
-  suppliers: CombinationSupplier[];
   onClearErrors: () => void;
   triggerValidation?: boolean;
-  loadingSuppliers: boolean;
 }) {
   const { combinacao, updateCampo } = useCombinacao();
   const [showModal, setShowModal] = useState(false);
@@ -34,8 +30,6 @@ export function ContainerPreferenciasProduto({
     onClearErrors();
   };
 
-  useEffect(() => {}, [showModal]);
-
   const handleDefinirPreferencias = () => {
     if (preferencias.length !== 0) {
       setShowModal(true);
@@ -46,15 +40,16 @@ export function ContainerPreferenciasProduto({
   };
 
   const adicionarPreferencia = () => {
-    const novaPreferencia = {
+    const novaPreferencia: PreferenciaProduto = {
       ordem: preferencias.length + 1,
-      tipo: 'fixar' as const,
+      tipo: TipoProduto.FIXAR,
+      fornecedores: [],
       produtos: [
         {
           produto_sku: undefined,
           classe: undefined,
           fornecedores: [],
-          acao_na_falha: 'ignorar' as const,
+          acao_na_falha: AcaoNaFalha.IGNORAR,
         },
       ],
     };
@@ -140,12 +135,10 @@ export function ContainerPreferenciasProduto({
           <PreferenciaProdutoCard
             key={index}
             index={index}
-            suppliers={suppliers}
             onRemove={() => removerPreferencia(index)}
             onMoveUp={() => moverPreferencia(index, index - 1)}
             onMoveDown={() => moverPreferencia(index, index + 1)}
             triggerValidation={triggerValidation}
-            loadingSuppliers={loadingSuppliers}
           />
         ))}
 
