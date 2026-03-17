@@ -73,7 +73,19 @@ export function CreateCreditCardModal(props: {
   const [isLoading, setIsLoading] = React.useState(false);
 
   return (
-    <Dialog modal open={open} onOpenChange={setOpen}>
+    <Dialog 
+      modal 
+      open={open} 
+      onOpenChange={(value) => {
+        if(!value && isLoading) {
+          return;
+        }
+
+        if(!value) {
+          setError('');
+        }
+        setOpen(value);
+      }}>
       <Dialog.Portal>
         <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} />
         <Dialog.Content bordered elevate key="content" animation="quick">
