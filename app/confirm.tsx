@@ -32,6 +32,7 @@ import { extractErrorMessage } from '@/src/utils/errorUtils';
 import { createCreditCard, getCreditCards } from '@/src/services/creditCardService';
 import { CreateCreditCardDto, CreditCard } from '@/src/types/paymentTypes';
 import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
+import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -123,10 +124,11 @@ export default function Confirm() {
     try {
       const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
       setIsCpf(isCpfRestaurant);
-      if(isCpfRestaurant) {
+      if (isCpfRestaurant) {
         const creditCards = await getCreditCards(restaurantId);
-        if(creditCards.length > 0) {
-          setSelectedCreditCard(creditCards[0]);
+        const defaultCreditCard = extractDefaultCreditCart(creditCards);
+        if (defaultCreditCard) {
+          setSelectedCreditCard(defaultCreditCard);
         } else {
           setOpenCreditCardDialog(true);
         }
@@ -134,7 +136,6 @@ export default function Confirm() {
     } catch (err) {
       console.error(err);
     }
-    
   }, [selectedRestaurant]);
 
   useEffect(() => {
@@ -158,8 +159,8 @@ export default function Confirm() {
   useFocusEffect(
     useCallback(() => {
       loadCreditCards();
-    }, [loadCreditCards])
-  )
+    }, [loadCreditCards]),
+  );
 
   useEffect(() => {
     const tryToLoadCartOrder = async () => {
@@ -170,8 +171,8 @@ export default function Confirm() {
       } catch (e) {
         console.error('Erro ao carregar cartOrder:', e);
       }
-    }
-    
+    };
+
     tryToLoadCartOrder();
   }, []);
 
@@ -211,11 +212,11 @@ export default function Confirm() {
 
   const handleConfirmOrder = useCallback(
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
-      if(disableConfirm) {
+      if (disableConfirm) {
         return;
       }
       setDisableConfirm(true);
-      
+
       try {
         if (isRetroactiveDate) {
           setAlertMessage(
@@ -282,7 +283,7 @@ export default function Confirm() {
 
         const result = await confirmOrder(body);
 
-        if(result.status !== HttpStatusCode.Ok) {
+        if (result.status !== HttpStatusCode.Ok) {
           throw new Error(result.data?.msg ?? 'Ocorreu um erro ao confirmar o pedido.');
         }
 
@@ -290,7 +291,6 @@ export default function Confirm() {
         resetDeliveryDate();
         setConfirmedWarnings({ missingItems: false, sundayWarning: false });
         router.push('/finalConfirm');
-        
       } catch (error) {
         const errorMessage = extractErrorMessage(error);
         console.error('Erro ao confirmar o pedido por fornecedor:', error);
@@ -414,7 +414,7 @@ export default function Confirm() {
           setOpen={setOpenCreditCardDialog}
           onSave={async (creditCard: CreateCreditCardDto) => {
             await createCreditCard(creditCard);
-            await loadCreditCards()
+            await loadCreditCards();
           }}
         />
         <CustomAlert
@@ -864,7 +864,9 @@ export default function Confirm() {
             <Text color="white">Alterar itens</Text>
           </Button>
           <Button
-            disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
+            disabled={
+              disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)
+            }
             onPress={onConfirmPressDebounced}
             width={170}
             backgroundColor="#04BF7B"

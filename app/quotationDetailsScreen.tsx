@@ -36,6 +36,7 @@ import { extractErrorMessage } from '@/src/utils/errorUtils';
 import { createCreditCard, getCreditCards } from '@/src/services/creditCardService';
 import { CreateCreditCardDto, CreditCard } from '@/src/types/paymentTypes';
 import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
+import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
 
 export interface Product {
   price: number;
@@ -330,8 +331,9 @@ export default function QuotationDetailsScreen() {
         setIsCpf(isCpfRestaurant);
         if(isCpfRestaurant) {
           const creditCards = await getCreditCards(restaurantId);
-          if(creditCards.length > 0) {
-            setSelectedCreditCard(creditCards[0]);
+          const defaultCreditCard = extractDefaultCreditCart(creditCards);
+          if(defaultCreditCard) {
+            setSelectedCreditCard(defaultCreditCard);
           } else {
             setOpenCreditCardDialog(true);
           }
