@@ -12,6 +12,7 @@ import { Restaurant } from '../types/restaurantTypes';
 import { getStorageRestaurant, setStorageRestaurant } from '../utils/restaurantUtils';
 import { useAuthContext } from './auth.context';
 import { useDeliveryDate } from './deliveryDate.context';
+import { deleteStorage } from '../utils/utils';
 
 interface RestaurantContextProps {
   restaurants: Restaurant[];
@@ -42,6 +43,8 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
     async (restaurant: Restaurant | null): Promise<void> => {
       try {
         if (!restaurant) return;
+
+        await deleteStorage('productObservations');
 
         const reloadedRestaurants = await loadRestaurants(restaurant);
 
