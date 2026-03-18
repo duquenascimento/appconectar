@@ -14,6 +14,7 @@ export function transformCombinacaoForSave(data: any): Combinacao {
           ...produto,
           fornecedores: produto.fornecedor_id ? [produto.fornecedor_id] : [],
           acao_na_falha: produto.acao_na_falha || pref.acao_na_falha,
+          fornecedor_id: produto.fornecedor_id,
         }
 
         // Remover campos com valor null (mutuamente exclusivos)

@@ -1,7 +1,7 @@
 interface RestaurantDeliveryPolicy {
   canCreateSundayOrders: boolean;
 }
-interface Address {
+export interface Address {
   id: string;
   restaurant: string[];
   active: boolean;
