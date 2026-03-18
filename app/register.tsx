@@ -457,8 +457,8 @@ export default function Register() {
       formik.setFieldTouched('stateNumberId', false, false);
     }
   };
-  const handleCheckBoxCloseDoor = () => {
-    formik.setFieldValue('closeDoor', !formik.values.closeDoor);
+  const handleCheckBoxCloseDoor = (checked: boolean) => {
+    formik.setFieldValue('closeDoor', checked);
   };
 
   const daysOptions = [
@@ -1267,7 +1267,10 @@ export default function Register() {
                   alignItems="center"
                   flexDirection="row"
                 >
-                  <Checkbox onPress={handleCheckBoxCloseDoor} checked={formik.values.closeDoor}>
+                  <Checkbox
+                    onCheckedChange={handleCheckBoxCloseDoor}
+                    checked={formik.values.closeDoor}
+                  >
                     {formik.values.closeDoor ? <Icons name="checkmark"></Icons> : <></>}
                   </Checkbox>
                   <Text paddingLeft={5} fontSize={12}>
