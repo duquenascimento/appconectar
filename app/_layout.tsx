@@ -10,7 +10,7 @@ import { ProductProvider } from '@/src/contexts/produtos.context';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 import { checkLocalVersionAndClearData } from '@/src/services/versionService';
 import { useFonts } from 'expo-font';
-import { router, Stack, useSegments } from 'expo-router';
+import { router, Stack, usePathname, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
 import 'react-native-gesture-handler';
@@ -30,6 +30,7 @@ export default function RootLayout() {
 
   const { isAuthenticated } = useAuthGuard();
   const segments = useSegments();
+  const pathname = usePathname();
 
   useEffect(() => {
     const backAction = () => {
@@ -44,13 +45,13 @@ export default function RootLayout() {
     const initApp = async () => {
       const versionCheckResult = await checkLocalVersionAndClearData();
 
-      if (versionCheckResult.cleared) {
+      if (versionCheckResult.cleared && pathname !== '/') {
         router.replace('/');
         return;
       }
     };
     initApp();
-  }, []);
+  }, [pathname]);
 
   const isScreenLoading =
     !loaded ||
