@@ -47,6 +47,7 @@ export const getPaymentDate = (paymentWay: string, emergencyOrder: boolean): str
     ME15: calculateNextMonthly(deliveryDay, 15),
     AV01: deliveryDay.minus({ days: 1 }),
     AV00: deliveryDay,
+    CC32: deliveryDay,
   };
 
   const paymentDate = paymentDates[paymentWay];
@@ -78,6 +79,7 @@ export const getPaymentDescription = (paymentWay: string): string => {
     ME15: 'Mensal: vencimento dia 15',
     AV01: 'À Vista: pix no dia anterior à entrega',
     AV00: 'À Vista: pix no dia da entrega',
+    CC32: 'Cartão de Crédito'
   };
 
   return paymentDescriptions[paymentWay] || '';

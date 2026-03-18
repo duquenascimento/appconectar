@@ -90,6 +90,7 @@ export interface ConfirmOrderRequestBody {
   token: string;
   supplier: Supplier;
   restaurant: any;
+  creditCardId?: string;
   appVersion: string;
   deliveryDate?: string | undefined | null;
 }
@@ -129,6 +130,7 @@ export interface ConfirmConectarPlusOrderRequestBody {
   suppliers: ConectarPlusSupplier[];
   restaurant: any;
   deliveryDate: string;
+  creditCardId?: string;
   appVersion: string;
   missingProducts: CombinationMissingProducts[];
 }
