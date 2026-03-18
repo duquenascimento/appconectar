@@ -16,7 +16,7 @@ import {
   validatePosition,
 } from '@/src/utils/validateFields';
 import { isAxiosError } from 'axios';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, usePathname } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -210,6 +210,7 @@ export default function Sign() {
   const [closeModal, setCloseModal] = useState<boolean>(false);
   const { width } = useWindowDimensions();
   const { authToken, logout, getUserRoles } = useAuthContext();
+  const pathname = usePathname();
 
   const handleCloseModal = () => {
     setCloseModal(!closeModal);
@@ -235,7 +236,7 @@ export default function Sign() {
             router.replace('/register');
           } else if (userRoles?.includes('registered') || userRoles?.includes('client')) {
             router.replace('/products');
-          } else {
+          } else if (pathname !== '/') {
             router.replace('/');
           }
         } catch (err) {
@@ -246,7 +247,7 @@ export default function Sign() {
       };
 
       checkLogin();
-    }, []),
+    }, [pathname]),
   );
 
   const handleButtonPress = (page: string) => {
