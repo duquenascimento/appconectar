@@ -9,7 +9,7 @@ import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
@@ -33,10 +33,11 @@ import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
-import { createCreditCard, getCreditCards } from '@/src/services/creditCardService';
-import { CreateCreditCardDto, CreditCard } from '@/src/types/paymentTypes';
+import { getCreditCards } from '@/src/services/creditCardService';
 import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
 import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
+import { CreditCard } from '@/src/types/creditCardTypes';
+import { CreditCardSection } from '@/src/components/CreditCardSection';
 
 export interface Product {
   price: number;
@@ -450,6 +451,7 @@ export default function QuotationDetailsScreen() {
                 {totals.missingItems !== 1 ? 's' : ''}
               </Text>
             </YStack>
+            {selectedCreditCard && (<CreditCardSection creditCard={selectedCreditCard} />)}
           </YStack>
         </ScrollView>
 
@@ -470,8 +472,7 @@ export default function QuotationDetailsScreen() {
         <CreateCreditCardModal
           open={openCreditCardDialog}
           setOpen={setOpenCreditCardDialog}
-          onSave={async (creditCard: CreateCreditCardDto) => {
-            await createCreditCard(creditCard);
+          onSaved={async (creditCard: CreditCard) => {
             await loadCreditCards()
           }}
         />
