@@ -23,7 +23,13 @@ import { Button, Checkbox, Input, ScrollView, Text, View } from 'tamagui';
 import { dividirLogradouro } from '../src/utils/DividirLogradouro';
 import { campoString } from '../src/utils/formatCampos';
 import { formatCep } from '../src/utils/formatCep';
-import { clearStorage, getStorage } from '../src/utils/utils';
+import {
+  clearRegisterProgress,
+  clearStorage,
+  getStorage,
+  setStorage,
+  STORAGE_DEFAULT_KEYS,
+} from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
 import { getPaymentDescription } from '@/src/utils/paymentUtils';
 
@@ -93,6 +99,7 @@ export default function Register() {
     validateOnChange: false,
     validateOnBlur: true,
     onSubmit: async (values) => {
+      let hasRegistered: boolean = false;
       try {
         setLoading(true);
 
@@ -107,9 +114,18 @@ export default function Register() {
           cityNumberId: cityNumberId.length > 0 && noStateNumberId ? cityNumberId : undefined,
         });
 
-        await Promise.all([clearStorage(), loadRestaurants()]);
-        router.push('registerFinished');
+        await setStorage(STORAGE_DEFAULT_KEYS.USER_ROLES, 'registered');
+
+        hasRegistered = true;
+
+        router.push('/registerFinished');
+
+        await clearRegisterProgress();
+        await loadRestaurants();
       } catch (error) {
+        if (hasRegistered) {
+          router.push('/registerFinished');
+        }
         const errorMessage = getErrorMessage(error);
         setErros([errorMessage]);
         setRegisterInvalid(true);
