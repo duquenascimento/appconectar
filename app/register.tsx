@@ -471,14 +471,17 @@ export default function Register() {
     formik.setFieldError('document', undefined);
   };
 
-  const handleCheckBox = () => {
-    const newValue = !formik.values.noStateNumberId;
-    formik.setFieldValue('noStateNumberId', newValue);
-    if (newValue) {
+  const handleCheckBox = (checked: boolean) => {
+    formik.setFieldValue('noStateNumberId', checked);
+    if (checked) {
       formik.setFieldValue('stateNumberId', '');
       formik.setFieldTouched('stateNumberId', false, false);
+    } else {
+      formik.setFieldValue('cityNumberId', '');
+      formik.setFieldTouched('cityNumberId', false, false);
     }
   };
+
   const handleCheckBoxCloseDoor = (checked: boolean) => {
     formik.setFieldValue('closeDoor', checked);
   };
@@ -704,7 +707,10 @@ export default function Register() {
                       </Text>
                     )}
                     <View marginTop={15} alignItems="center" flexDirection="row">
-                      <Checkbox onPress={handleCheckBox}>
+                      <Checkbox
+                        onCheckedChange={handleCheckBox}
+                        checked={formik.values.noStateNumberId}
+                      >
                         {formik.values.noStateNumberId ? <Icons name="checkmark" /> : null}
                       </Checkbox>
                       <Text paddingLeft={5} fontSize={12}>
