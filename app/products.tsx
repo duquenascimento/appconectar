@@ -35,7 +35,7 @@ import { SearchProducts } from '../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
 import { HeaderText } from '../src/components/text/HeaderText';
 import { UpdateAppModal } from '../src/components/UpdateAppModal';
-import { useCart } from '../src/components/useCart';
+import { useCart } from '../src/components/hooks/useCart';
 import { useProductContext } from '../src/contexts/produtos.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { checkVersion, saveUserAppInfo } from '../src/services/versionService';
@@ -508,7 +508,7 @@ export default function Products() {
       if (exists) initialRestaurant = exists;
     }
 
-    if  (initialRestaurant) {
+    if (initialRestaurant) {
       await setStorageRestaurant(initialRestaurant);
     }
 

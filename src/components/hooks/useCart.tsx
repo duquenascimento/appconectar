@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
-import { useRestaurantContext } from '../contexts/restaurant.context';
-import { saveProductObservations } from '../utils/productObservation';
-import { getStorageRestaurant } from '../utils/restaurantUtils';
-import { deleteStorage, getStorage, getToken, setStorage } from '../utils/utils';
+import { useRestaurantContext } from '../../contexts/restaurant.context';
+import { saveProductObservations } from '../../utils/productObservation';
+import { getStorageRestaurant } from '../../utils/restaurantUtils';
+import { getStorage, getToken, setStorage } from '../../utils/utils';
 
 type Cart = {
   productId: string;
@@ -57,7 +57,7 @@ export function useCart() {
         }
       });
 
-      await deleteStorage('cart-inside');
+      // await deleteStorage('cart-inside');
       await setStorage(
         `cart_${selectedRestaurant?.externalId}`,
         JSON.stringify(Array.from(cartMap.entries())),
