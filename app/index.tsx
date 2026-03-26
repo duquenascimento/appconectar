@@ -227,10 +227,6 @@ export default function Sign() {
         setLoading(true);
 
         try {
-          /* if (authToken == null) {
-            return;
-          } */
-
           const token = await getToken();
 
           if (!token) {

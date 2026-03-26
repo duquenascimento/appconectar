@@ -396,7 +396,6 @@ export default React.memo(function Cart() {
   });
 
   useEffect(() => {
-    // Garantir que o modal esteja fechado ao montar o componente
     setConfirmDelete(false);
     setConfirmDeleteItem(false);
   }, []);
@@ -516,7 +515,6 @@ export default React.memo(function Cart() {
           const products = await loadProducts();
           if (products.length > 0) setProducts(products);
         } else {
-          // setCart(new Map());
           setProducts([]);
         }
         if (products.length > 0) setProducts(products);
@@ -659,7 +657,6 @@ export default React.memo(function Cart() {
                   <Button
                     backgroundColor="black"
                     onPress={async () => {
-                      console.log('Botão de lixo pressionado, setConfirmDelete(true)');
                       setConfirmDelete(true);
                     }}
                   >
@@ -718,7 +715,6 @@ export default React.memo(function Cart() {
 
           {confirmDelte && (
             <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
-              {console.log('Modal de apagar carrinho sendo renderizado')}
               <Modal transparent>
                 <View
                   flex={1}
@@ -787,7 +783,7 @@ export default React.memo(function Cart() {
                               }),
                             });
                             deleteStorage(`cart_${restaurant?.externalId}`);
-                            setConfirmDelete(false); // Adicionar para garantir que o modal seja fechado
+                            setConfirmDelete(false);
                             router.push('products');
                           }}
                         >

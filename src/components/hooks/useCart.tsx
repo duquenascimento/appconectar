@@ -29,7 +29,6 @@ export function useCart() {
   const loadCart = useCallback(async (): Promise<Map<string, Cart>> => {
     try {
       const token = await getToken();
-      // const restaurant = await getSavedRestaurant();
 
       if (!token || !selectedRestaurant) return new Map();
 
@@ -57,7 +56,6 @@ export function useCart() {
         }
       });
 
-      // await deleteStorage('cart-inside');
       await setStorage(
         `cart_${selectedRestaurant?.externalId}`,
         JSON.stringify(Array.from(cartMap.entries())),
