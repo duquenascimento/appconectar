@@ -64,7 +64,7 @@ export default function OrderConfirmedScreen() {
   }, []);
 
   useEffect(() => {
-    return () => { 
+    return () => {
       router.dismissTo('/products');
     };
   }, []);
@@ -203,8 +203,8 @@ export default function OrderConfirmedScreen() {
 
         <YStack paddingVertical="$4" paddingHorizontal="$4" backgroundColor="#F0F4F8">
           <CustomButton
-            title="Ir para Meus pedidos"
-            onPress={() => router.push('/ordersScreen')}
+            title="Ok"
+            onPress={() => router.push('/products')}
             backgroundColor="white"
             textColor="black"
           />
