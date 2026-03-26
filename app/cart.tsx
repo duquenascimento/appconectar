@@ -357,8 +357,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox';
 
-export default function Cart() {
-  console.log('Cart component mounted');
+export default React.memo(function Cart() {
   const [loading, setLoading] = useState<boolean>(true);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -874,4 +873,4 @@ export default function Cart() {
       </Stack>
     </PageContainer>
   );
-}
+});
