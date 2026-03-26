@@ -5,7 +5,7 @@ import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import LoadingActivityIndicator from '@/src/components/loading/loadingActivityIndicator';
 import { SupplierData } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { clearStorage, getStorage, setStorage } from '@/src/utils/utils';
+import { clearPurchaseStorage, clearStorage, getStorage, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -87,7 +87,7 @@ export default function Prices() {
 
   const handleConfirm = () => {
     setFinalCotacao(true);
-    clearStorage();
+    clearPurchaseStorage();
     setTimeout(() => {
       router.push('/products');
     }, 1000);
