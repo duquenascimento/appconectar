@@ -13,7 +13,7 @@ import { useFocusEffect, usePathname, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
-import { Button, Image, ScrollView, Stack, Text, View } from 'tamagui';
+import { Button, Image, ScrollView, Stack, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -29,10 +29,11 @@ import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/ut
 import { validateAddress } from '../src/utils/validateAddress';
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
-import { createCreditCard, getCreditCards } from '@/src/services/creditCardService';
-import { CreateCreditCardDto, CreditCard } from '@/src/types/paymentTypes';
+import { getCreditCards } from '@/src/services/creditCardService';
 import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
 import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
+import { CreditCard } from '@/src/types/creditCardTypes';
+import { CreditCardSection } from '@/src/components/CreditCardSection';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -412,8 +413,7 @@ export default function Confirm() {
         <CreateCreditCardModal
           open={openCreditCardDialog}
           setOpen={setOpenCreditCardDialog}
-          onSave={async (creditCard: CreateCreditCardDto) => {
-            await createCreditCard(creditCard);
+          onSaved={async (creditCard: CreditCard) => {
             await loadCreditCards();
           }}
         />
@@ -684,6 +684,7 @@ export default function Confirm() {
                 {getPaymentDescription(selectedRestaurant.paymentWay)}
               </Text>
             </View>
+            {selectedCreditCard && (<CreditCardSection creditCard={selectedCreditCard} />)}
             <View
               style={{
                 flexDirection: 'row',

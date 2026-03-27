@@ -1,11 +1,16 @@
-import { Formik } from 'formik';
-import { Button, Dialog, Input, Label, Text, XStack, YStack } from 'tamagui';
-import { CreateCreditCardDto } from '@/src/types/paymentTypes';
-import React from 'react';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import { createCreditCard } from '@/src/services/creditCardService';
+import { CreateCreditCardDto, CreditCard } from '@/src/types/creditCardTypes';
 import { Restaurant } from '@/src/types/restaurantTypes';
-import { creditCardCreationValidator } from '@/src/validators/payment.form.validators';
 import { formatCreditCardNumber } from '@/src/utils/creditCardUtils';
+import { ApiException } from '@/src/utils/errorUtils';
+import { creditCardCreationValidator } from '@/src/validators/payment.form.validators';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { openURL } from 'expo-linking';
+import { Formik } from 'formik';
+import React from 'react';
+import { Platform } from 'react-native';
+import { Button, Dialog, Input, Label, Text, XStack, YStack } from 'tamagui';
 
 async function onSubmit(
   data: {
@@ -17,9 +22,9 @@ async function onSubmit(
     nickname: string;
   },
   restaurant: Restaurant | null | undefined,
-  onSave: (creditCard: CreateCreditCardDto) => Promise<void>,
+  onSaved: (creditCard: CreditCard) => Promise<void>,
   onClose: Function,
-  setError: Function,
+  onError: (error: any) => void,
   isLoading: boolean,
   setIsLoading: (value: boolean) => void,
 ): Promise<void> {
@@ -28,13 +33,11 @@ async function onSubmit(
   }
 
   try {
-    setError('');
     setIsLoading(true);
 
     const restaurantId = restaurant ? restaurant.id : '';
     if (!restaurantId) {
-      setError('Selecione um restaurante válido!');
-      return;
+      throw new Error('Selecione um restaurante válido!');
     }
     const cardData: CreateCreditCardDto = {
       restaurantId: restaurantId,
@@ -52,40 +55,51 @@ async function onSubmit(
         cpfCnpj: data.holderDoc,
       },
     };
-    await onSave(cardData);
+    const newCreditCard = await createCreditCard(cardData);
+    await onSaved(newCreditCard);
     onClose();
   } catch (err) {
-    console.log(err);
-    setError(err instanceof Error ? err.message : 'Ops, algo deu errado');
+    onError(err);
   } finally {
     setIsLoading(false);
   }
 }
 
 export function CreateCreditCardModal(props: {
-  onSave: (creditCard: CreateCreditCardDto) => Promise<void>;
+  onSaved: (creditCard: CreditCard) => Promise<void>;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
-  const { onSave, open, setOpen } = props;
+  const { onSaved, open, setOpen } = props;
   const { selectedRestaurant } = useRestaurantContext();
   const [error, setError] = React.useState('');
+  const [isServerError, setIsServerError] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const onError = (err: any) => {
+    if (err instanceof ApiException && err.statusCode >= 500) {
+      setIsServerError(true);
+      setError('Ops, algo deu errado');
+    } else {
+      setError(err instanceof Error ? err.message : 'Ops, algo deu errado');
+    }
+  };
+
   return (
-    <Dialog 
-      modal 
-      open={open} 
+    <Dialog
+      modal
+      open={open}
       onOpenChange={(value) => {
-        if(!value && isLoading) {
+        if (!value && isLoading) {
           return;
         }
 
-        if(!value) {
+        if (!value) {
           setError('');
         }
         setOpen(value);
-      }}>
+      }}
+    >
       <Dialog.Portal>
         <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} />
         <Dialog.Content bordered elevate key="content" animation="quick">
@@ -99,13 +113,23 @@ export function CreateCreditCardModal(props: {
               holderDoc: '',
             }}
             validationSchema={creditCardCreationValidator}
-            onSubmit={(values) =>
-              onSubmit(values, selectedRestaurant, onSave, () => setOpen(false), setError, isLoading, setIsLoading)
-            }
+            onSubmit={(values) => {
+              setError('');
+              setIsServerError(false);
+              onSubmit(
+                values,
+                selectedRestaurant,
+                onSaved,
+                () => setOpen(false),
+                onError,
+                isLoading,
+                setIsLoading,
+              );
+            }}
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
               <YStack gap={'$2'}>
-                <Dialog.Title>Novo cartão de crédito</Dialog.Title>
+                <Dialog.Title>Cartão de crédito</Dialog.Title>
                 <Dialog.Description>
                   Para realizar compras na plataforma, cadastre um cartão de crédito válido
                 </Dialog.Description>
@@ -238,6 +262,28 @@ export function CreateCreditCardModal(props: {
                   <Text padding={'$1'} color="red">
                     {error}
                   </Text>
+                )}
+                {true && (
+                  <Button
+                    disabled={isLoading}
+                    marginBottom={'$2'}
+                    target="_blank"
+                    onPress={() => {
+                      const msg =
+                        'Olá, estou com problemas com o cadastro de cartão de crédito. Preciso de ajuda!';
+                      const endpoint = `https://wa.me/5521999954372?text=${msg}`;
+                      if (Platform.OS === 'web') {
+                        window.open(endpoint, '_blank');
+                      } else {
+                        openURL(endpoint).catch((err) =>
+                          console.error(`Erro ao redirecionar ao Whatsapp: ${err}`),
+                        );
+                      }
+                    }}
+                  >
+                    <FontAwesome name="whatsapp" size={24} color="black" />
+                    Solicite apoio da nossa equipe pelo WhatsApp
+                  </Button>
                 )}
                 <Button
                   // @ts-ignore
