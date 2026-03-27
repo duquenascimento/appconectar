@@ -1,15 +1,16 @@
-import { Formik } from 'formik';
-import { Button, Dialog, Input, Label, Text, XStack, YStack } from 'tamagui';
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { Restaurant } from '@/src/types/restaurantTypes';
-import { creditCardCreationValidator } from '@/src/validators/payment.form.validators';
-import { formatCreditCardNumber } from '@/src/utils/creditCardUtils';
 import { createCreditCard } from '@/src/services/creditCardService';
 import { CreateCreditCardDto, CreditCard } from '@/src/types/creditCardTypes';
+import { Restaurant } from '@/src/types/restaurantTypes';
+import { formatCreditCardNumber } from '@/src/utils/creditCardUtils';
 import { ApiException } from '@/src/utils/errorUtils';
+import { creditCardCreationValidator } from '@/src/validators/payment.form.validators';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { openURL } from 'expo-linking';
+import { Formik } from 'formik';
+import React from 'react';
+import { Platform } from 'react-native';
+import { Button, Dialog, Input, Label, Text, XStack, YStack } from 'tamagui';
 
 async function onSubmit(
   data: {
@@ -59,8 +60,6 @@ async function onSubmit(
     onClose();
   } catch (err) {
     onError(err);
-    
-    
   } finally {
     setIsLoading(false);
   }
@@ -78,7 +77,7 @@ export function CreateCreditCardModal(props: {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const onError = (err: any) => {
-    if(err instanceof ApiException && err.error?.code >= 500) {
+    if (err instanceof ApiException && err.statusCode >= 500) {
       setIsServerError(true);
       setError('Ops, algo deu errado');
     } else {
@@ -87,19 +86,20 @@ export function CreateCreditCardModal(props: {
   };
 
   return (
-    <Dialog 
-      modal 
-      open={open} 
+    <Dialog
+      modal
+      open={open}
       onOpenChange={(value) => {
-        if(!value && isLoading) {
+        if (!value && isLoading) {
           return;
         }
 
-        if(!value) {
+        if (!value) {
           setError('');
         }
         setOpen(value);
-      }}>
+      }}
+    >
       <Dialog.Portal>
         <Dialog.Overlay key="overlay" animation="quick" opacity={0.5} />
         <Dialog.Content bordered elevate key="content" animation="quick">
@@ -116,7 +116,15 @@ export function CreateCreditCardModal(props: {
             onSubmit={(values) => {
               setError('');
               setIsServerError(false);
-              onSubmit(values, selectedRestaurant, onSaved, () => setOpen(false), onError, isLoading, setIsLoading);
+              onSubmit(
+                values,
+                selectedRestaurant,
+                onSaved,
+                () => setOpen(false),
+                onError,
+                isLoading,
+                setIsLoading,
+              );
             }}
           >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
@@ -255,16 +263,23 @@ export function CreateCreditCardModal(props: {
                     {error}
                   </Text>
                 )}
-                {isServerError && (
+                {/* {isServerError && ( */}
+                {true && (
                   <Button
                     disabled={isLoading}
                     marginBottom={'$2'}
+                    target="_blank"
                     onPress={() => {
-                      const msg = 'Olá, estou com problemas com o cadastro de cartão de crédito. Preciso de ajuda!';
+                      const msg =
+                        'Olá, estou com problemas com o cadastro de cartão de crédito. Preciso de ajuda!';
                       const endpoint = `https://wa.me/5521999954372?text=${msg}`;
-                      openURL(endpoint, ).catch((err) =>
-                        console.error(`Erro ao redirecionar ao Whatsapp: ${err}`),
-                      );
+                      if (Platform.OS === 'web') {
+                        window.open(endpoint, '_blank');
+                      } else {
+                        openURL(endpoint).catch((err) =>
+                          console.error(`Erro ao redirecionar ao Whatsapp: ${err}`),
+                        );
+                      }
                     }}
                   >
                     <FontAwesome name="whatsapp" size={24} color="black" />
