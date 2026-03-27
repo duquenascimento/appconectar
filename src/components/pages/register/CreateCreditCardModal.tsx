@@ -263,7 +263,6 @@ export function CreateCreditCardModal(props: {
                     {error}
                   </Text>
                 )}
-                {/* {isServerError && ( */}
                 {true && (
                   <Button
                     disabled={isLoading}
