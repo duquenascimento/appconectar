@@ -25,7 +25,6 @@ import { campoString } from '../src/utils/formatCampos';
 import { formatCep } from '../src/utils/formatCep';
 import {
   clearRegisterProgress,
-  clearStorage,
   getStorage,
   setStorage,
   STORAGE_DEFAULT_KEYS,

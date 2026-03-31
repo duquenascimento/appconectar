@@ -17,6 +17,7 @@ import { CustomImageBadge } from '../src/components/image/customImageBadge';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
+import { useCart } from '@/src/components/hooks/useCart';
 
 export type Product = {
   name: string;
@@ -356,12 +357,10 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
 
 ProductBox.displayName = 'ProductBox';
 
-export default function Cart() {
+export default React.memo(function Cart() {
   const [loading, setLoading] = useState<boolean>(true);
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
-  const [cart, setCart] = useState<Map<string, TCart>>(new Map());
   const [products, setProducts] = useState<Product[]>([]);
-  const [cartToExclude, setCartToExclude] = useState<Map<string, TCart>>(new Map());
   const [cartInside, setCartInside] = useState<Map<string, TCart>>(new Map());
   const [confirmDelte, setConfirmDelete] = useState<boolean>(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<boolean>(false);
@@ -373,10 +372,9 @@ export default function Cart() {
   const [modalDescription, setModalDescription] = useState('');
   const [modalButtonText, setModalButtonText] = useState('Ok');
   const [modalOnConfirm, setModalOnConfirm] = useState<() => void>(() => {});
-  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
-
-  const isLargeScreen = screenWidth >= 800;
+  const { cart, setCart, cartToExclude, setCartToExclude, loadCart, saveCart, saveCartArray } =
+    useCart();
 
   useEffect(() => {
     const fetchRestaurant = async () => {
@@ -396,6 +394,11 @@ export default function Cart() {
     });
     return true;
   });
+
+  useEffect(() => {
+    setConfirmDelete(false);
+    setConfirmDeleteItem(false);
+  }, []);
 
   const flatListRef = useRef<VirtualizedList<Product>>(null);
 
@@ -450,83 +453,6 @@ export default function Cart() {
     });
   }, 300);
 
-  const loadCart = useCallback(async (): Promise<Map<string, TCart>> => {
-    try {
-      const token = await getToken();
-      const restaurant = await getStorageRestaurant();
-      if (!token || !restaurant) return new Map();
-
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          selectedRestaurant: { id: restaurant.id },
-        }),
-      });
-
-      if (!result.ok) return new Map();
-
-      const cart = await result.json();
-      if (!cart.data || cart.data.length < 1) return new Map();
-
-      const cartMap = new Map<string, TCart>(
-        cart.data.map((item: TCart) => [item.productId, item]),
-      );
-
-      const localCartString = await getStorage(`cart_${restaurant?.externalId}`);
-      const localCart = localCartString
-        ? new Map<string, TCart>(JSON.parse(localCartString))
-        : new Map();
-      localCart.forEach((value, key) => {
-        cartMap.set(key, value);
-      });
-      setCartInside(cartMap);
-
-      return cartMap;
-    } catch (error) {
-      console.error('Erro ao carregar carrinho:', error);
-      return new Map();
-    }
-  }, []);
-
-  const saveCart = useCallback(async (cart: TCart, isCart: boolean) => {
-    let newCart = new Map();
-    const restaurant = await getStorageRestaurant();
-    const attCart = async (): Promise<void> => {
-      setCart((prevCart) => {
-        newCart = new Map(prevCart);
-
-        if (cart.amount === 0) {
-          if (isCart) {
-            newCart.delete(cart.productId);
-            setCartToExclude((prevCartToExclude) => {
-              const newCartToExclude = new Map(prevCartToExclude);
-              newCartToExclude.set(cart.productId, cart);
-              return newCartToExclude;
-            });
-          }
-        } else {
-          newCart.set(cart.productId, cart);
-          setCartToExclude((prevCartToExclude) => {
-            const newCartToExclude = new Map(prevCartToExclude);
-            newCartToExclude.delete(cart.productId);
-            return newCartToExclude;
-          });
-        }
-
-        return newCart;
-      });
-    };
-    await attCart();
-    await setStorage(
-      `cart_${restaurant?.externalId}`,
-      JSON.stringify(Array.from(newCart.entries())),
-    );
-  }, []);
-
   const loadProducts = useCallback(async () => {
     try {
       const token = await getToken();
@@ -579,33 +505,6 @@ export default function Cart() {
     setConfirmDeleteItem(true);
   };
 
-  const saveCartArray = useCallback(
-    async (carts: Map<string, TCart>, cartsToExclude: Map<string, TCart>) => {
-      const token = await getToken();
-      const restaurant = await getStorageRestaurant();
-      if (!token || restaurant == null) return;
-
-      const cartsArray = Array.from(carts.values());
-      const cartsToExcludeArray = Array.from(cartsToExclude.values());
-      const cartsFiltered = filterCarts(cartsArray, cartsToExcludeArray);
-
-      await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          carts: cartsFiltered.carts,
-          cartToExclude: cartsFiltered.cartToExclude,
-          selectedRestaurant: { id: restaurant.id },
-        }),
-      });
-      setCartToExclude(new Map());
-    },
-    [],
-  );
-
   useEffect(() => {
     const loadInitialData = async () => {
       setLoading(true);
@@ -616,7 +515,6 @@ export default function Cart() {
           const products = await loadProducts();
           if (products.length > 0) setProducts(products);
         } else {
-          setCart(new Map());
           setProducts([]);
         }
         if (products.length > 0) setProducts(products);
@@ -885,6 +783,7 @@ export default function Cart() {
                               }),
                             });
                             deleteStorage(`cart_${restaurant?.externalId}`);
+                            setConfirmDelete(false);
                             router.push('products');
                           }}
                         >
@@ -970,4 +869,4 @@ export default function Cart() {
       </Stack>
     </PageContainer>
   );
-}
+});

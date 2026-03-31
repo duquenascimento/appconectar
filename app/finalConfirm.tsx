@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { Button, Image, Text, View } from 'tamagui';
 import { saveUserAppInfo } from '../src/services/versionService';
-import { clearStorage, getStorage } from '../src/utils/utils';
+import { clearPurchaseStorage, getStorage } from '../src/utils/utils';
 import { SupplierData } from './prices';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 
@@ -35,8 +35,9 @@ export default function FinalConfirm() {
       const deliveryDataResult = JSON.parse(deliveryDataText);
       setDeliveryData(deliveryDataResult);
     }
-    await clearStorage();
+    await clearPurchaseStorage();
   }, []);
+
   useEffect(() => {
     const loadSupplierAsync = async () => {
       try {
@@ -50,7 +51,7 @@ export default function FinalConfirm() {
   }, [loadSupplier, router]);
 
   useEffect(() => {
-    return () => { 
+    return () => {
       router.dismissTo('/products');
     };
   }, []);

@@ -11,6 +11,7 @@ import { Image, Separator, Text, XStack, YStack } from 'tamagui';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { getPaymentDate } from '../src/utils/paymentUtils';
 import { getDeliveryWindow } from '../src/utils/timeUtils';
+import { clearPurchaseStorage } from '@/src/utils/utils';
 
 export default function OrderConfirmedScreen() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function OrderConfirmedScreen() {
   }, []);
 
   useEffect(() => {
-    return () => { 
+    return () => {
       router.dismissTo('/products');
     };
   }, []);
@@ -203,10 +204,13 @@ export default function OrderConfirmedScreen() {
 
         <YStack paddingVertical="$4" paddingHorizontal="$4" backgroundColor="#F0F4F8">
           <CustomButton
-            title="Ir para Meus pedidos"
-            onPress={() => router.push('/ordersScreen')}
-            backgroundColor="white"
-            textColor="black"
+            title="Ok"
+            onPress={async () => {
+              await clearPurchaseStorage();
+              router.push('/products');
+            }}
+            backgroundColor="#04BF7B"
+            textColor="white"
           />
         </YStack>
       </YStack>

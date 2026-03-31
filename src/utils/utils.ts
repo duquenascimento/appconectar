@@ -42,6 +42,19 @@ const REGISTER_KEYS = [
   'registerProgress',
 ];
 
+const PURCHASE_KEYS = [
+  'availableSuppliers',
+  'unavailableSuppliers',
+  'myCombinations',
+  'conectarCombinations',
+  'unavailableCombinations',
+  'combinationData',
+  'finalConfirmData',
+  'productObservations',
+  'supplierSelected',
+  'cartOrder',
+];
+
 export enum STORAGE_DEFAULT_KEYS {
   USER_ROLES = 'userRoles',
   SELECTED_RESTAURANT = 'selectedRestaurant',
@@ -111,6 +124,14 @@ export const clearRegisterProgress = async (): Promise<void> => {
     REGISTER_KEYS.forEach((key) => localStorage.removeItem(key));
   } else {
     await AsyncStorage.multiRemove(REGISTER_KEYS);
+  }
+};
+
+export const clearPurchaseStorage = async (): Promise<void> => {
+  if (isWebPlatform) {
+    PURCHASE_KEYS.forEach((key) => localStorage.removeItem(key));
+  } else {
+    await AsyncStorage.multiRemove(PURCHASE_KEYS);
   }
 };
 
