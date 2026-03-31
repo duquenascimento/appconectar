@@ -2,7 +2,7 @@ import { DropdownCampo } from '@/src/components/Combination/DropdownCampo';
 import { CustomImageBadge } from '@/src/components/image/customImageBadge';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
-import { useCart } from '@/src/components/useCart';
+import { useCart } from '@/src/components/hooks/useCart';
 import { getCartProducts } from '@/src/services/cartService';
 import { getCombinationsByRestaurant } from '@/src/services/combinationsService';
 import { getPricesBySupplierOrCombination } from '@/src/services/pricesService';

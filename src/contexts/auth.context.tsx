@@ -23,6 +23,7 @@ interface AuthContextProps {
   authToken: string | null;
   userRoles: UserRole[] | null;
   isAdmin: boolean;
+  isInitialized: boolean;
   saveLogin: (token: string, userRoles: UserRole[]) => Promise<void>;
   logout: () => Promise<void>;
   getUserRoles: () => Promise<UserRole[] | null>;
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [userRoles, setUserRoles] = useState<UserRole[] | null>(null);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const router = useRouter();
 
   const getAuthToken = async () => {
@@ -106,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const initialize = async () => {
       await Promise.all([getAuthToken(), getUserRoles()]);
+      setIsInitialized(true);
     };
     initialize();
   }, []);
@@ -113,7 +116,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     try {
       await Promise.all([deleteAuthToken(), saveUserRoles(null), clearAllStoragesData()]);
-
       if (router.canDismiss()) {
         router.dismissAll();
       }
@@ -129,6 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authToken,
       userRoles,
       isAdmin,
+      isInitialized,
       saveLogin,
       logout,
       getUserRoles,

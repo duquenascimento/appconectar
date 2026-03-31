@@ -8,6 +8,7 @@ import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authServi
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { UserRole } from '@/src/types/userRoleTypes';
 import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
+import { clearAllStoragesData, getToken } from '@/src/utils/utils';
 import {
   validateEmail,
   validateName,
@@ -120,6 +121,7 @@ async function handleLogin(
     } else if (response.data.role.includes('registered') || response.data.role.includes('client')) {
       router.replace('/products');
     } else {
+      await clearAllStoragesData();
       router.replace('/');
     }
   } catch (err) {
@@ -209,7 +211,7 @@ export default function Sign() {
   const [loading, setLoading] = useState(false);
   const [closeModal, setCloseModal] = useState<boolean>(false);
   const { width } = useWindowDimensions();
-  const { authToken, logout, getUserRoles } = useAuthContext();
+  const { isInitialized, logout, getUserRoles } = useAuthContext();
   const pathname = usePathname();
 
   const handleCloseModal = () => {
@@ -219,19 +221,30 @@ export default function Sign() {
   useFocusEffect(
     useCallback(() => {
       const checkLogin = async () => {
+        if (!isInitialized) return;
         if (loading) return;
 
         setLoading(true);
 
         try {
-          if (authToken == null) {
+          const token = await getToken();
+
+          if (!token) {
+            await clearAllStoragesData();
             return;
           }
+
           process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-          await authLoginCheck(authToken);
+          await authLoginCheck(token);
 
           const userRoles = await getUserRoles();
+
+          if (!userRoles || userRoles.length === 0) {
+            await logout();
+            return;
+          }
+
           if (userRoles?.includes('registering')) {
             router.replace('/register');
           } else if (userRoles?.includes('registered') || userRoles?.includes('client')) {
@@ -247,7 +260,7 @@ export default function Sign() {
       };
 
       checkLogin();
-    }, [pathname]),
+    }, [isInitialized, pathname]),
   );
 
   const handleButtonPress = (page: string) => {
