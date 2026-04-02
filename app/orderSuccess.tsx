@@ -1,5 +1,6 @@
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
+import * as Clipboard from 'expo-clipboard';
 import { Restaurant } from '@/src/types/restaurantTypes';
 import { SupplierData } from '@/src/types/types';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -7,41 +8,46 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, SafeAreaView, ScrollView } from 'react-native';
-import { Image, Separator, Text, XStack, YStack } from 'tamagui';
+import { Button, Image, Separator, Text, View, XStack, YStack } from 'tamagui';
 import { formatCurrency } from '../src/utils/formatCurrency';
-import { getPaymentDate } from '../src/utils/paymentUtils';
+import { getPaymentDate, getPaymentMethod } from '../src/utils/paymentUtils';
 import { getDeliveryWindow } from '../src/utils/timeUtils';
 import { clearPurchaseStorage } from '@/src/utils/utils';
+import { getQrCodeByOrderId } from '@/src/services/pixService';
+import { PixCharge } from '@/src/types/pixTypes';
+import { PixDisplay } from '@/src/components/PixDisplay';
 
-export default function OrderConfirmedScreen() {
+export default function OrderSuccess() {
   const router = useRouter();
   const { suppliers: suppliersParam, deliveryDate } = useLocalSearchParams<{
     suppliers?: string;
     deliveryDate?: string;
   }>();
-
+  
   const [suppliers, setSuppliers] = useState<SupplierData[]>([]);
-
-  useEffect(() => {
-    if (suppliersParam) {
-      try {
-        const parsed = JSON.parse(decodeURIComponent(suppliersParam));
-        if (Array.isArray(parsed)) {
-          setSuppliers(parsed);
-        } else {
-          console.error('suppliers não é um array:', parsed);
-        }
-      } catch (error) {
-        console.error('Erro ao parsear suppliers:', error);
-      }
-    }
-  }, [suppliersParam]);
-
   const [restaurantDetails, setRestaurantDetails] = useState<Restaurant | null>(null);
+  const [pixCharge, setPixCharge] = useState<PixCharge | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [paymentDateOrder, setPaymentDateOrder] = useState<string | null>(null);
 
   useEffect(() => {
+    const loadSuppliers = (): SupplierData[] => {
+      if (suppliersParam) {
+        try {
+          const parsed = JSON.parse(decodeURIComponent(suppliersParam));
+          if (Array.isArray(parsed)) {
+            setSuppliers(parsed);
+            return parsed;
+          } else {
+            console.error('suppliers não é um array:', parsed);
+          }
+        } catch (error) {
+          console.error('Erro ao parsear suppliers:', error);
+        }
+      }
+      return [];
+    }
+
     const loadRestaurantData = async () => {
       try {
         const restaurantData = await getStorageRestaurant();
@@ -56,19 +62,45 @@ export default function OrderConfirmedScreen() {
       } catch (error) {
         console.error('Erro ao carregar dados do restaurante:', error);
         Alert.alert('Erro', 'Ocorreu um problema ao carregar as informações do restaurante.');
+      } 
+    };
+
+    const loadPixQrCode = async (currentSuppliers: SupplierData[]) => {
+      const someOrderId = currentSuppliers[0]?.supplier.orderId;
+      console.log('loadPixQrCode', currentSuppliers);
+      if(!someOrderId) {
+        console.error('Nenhum ID de pedido encontrado');
+        return;
+      }
+
+      try {
+        const qrCode = await getQrCodeByOrderId(someOrderId);
+        setPixCharge(qrCode);
+      } catch (error) {
+        console.error('Erro ao carregar QR Code:', error);
+      }
+    }
+
+    const loadInitalData = async () => {
+      try {
+        setIsLoading(true);
+        const currentSuppliers = loadSuppliers();
+        await Promise.all([loadRestaurantData(), loadPixQrCode(currentSuppliers)]);
       } finally {
         setIsLoading(false);
       }
     };
 
-    loadRestaurantData();
+    loadInitalData();
+
+    // return () => {
+    //   router.dismissTo('/products');
+    // };
   }, []);
 
   useEffect(() => {
-    return () => {
-      router.dismissTo('/products');
-    };
-  }, []);
+    
+  }, [])
 
   const getFormattedAddress = () => {
     if (!restaurantDetails || !restaurantDetails.addressInfos.length) return '';
@@ -92,6 +124,7 @@ export default function OrderConfirmedScreen() {
     );
   }
 
+  const isPixPayment = 'AV01' === restaurantDetails?.paymentWay;
   return (
     <PageContainer backgroundColor="gray">
       <YStack
@@ -119,9 +152,15 @@ export default function OrderConfirmedScreen() {
                 <Icons name="checkmark" size={48} color="#1DC588" />
               </YStack>
               <Text fontSize={24} fontWeight="bold" color="$gray12">
-                Pedidos confirmados!
+                {isPixPayment ? 'Pagamento pendente!' : 'Pedidos confirmados!'}
               </Text>
             </YStack>
+
+            {isPixPayment && (
+              <YStack width="100%" backgroundColor="white" borderRadius={8} padding="$4" gap="$3" alignItems="center">
+                <PixDisplay pixCharge={pixCharge} />
+              </YStack>
+            )}
 
             <YStack width="100%" backgroundColor="white" borderRadius={8} padding="$4" gap="$3">
               {suppliers.map(({ supplier }, index) => (
@@ -193,7 +232,7 @@ export default function OrderConfirmedScreen() {
                       {!paymentDateOrder ? '' : `Venc. ${paymentDateOrder}`}
                     </Text>
                     <Text fontSize={14} color="$gray10">
-                      Pagamento via Boleto
+                      Pagamento via {getPaymentMethod(restaurantDetails.paymentWay)}
                     </Text>
                   </YStack>
                 </XStack>

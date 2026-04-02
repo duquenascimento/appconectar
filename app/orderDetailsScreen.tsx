@@ -7,7 +7,6 @@ import LabelAndBoxContent from '../src/components/box/LabelAndBoxContent';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { cancelOrder, getOrder } from '../src/services/orderService';
 import { OrderData } from '../src/types/IOrder';
-
 import PageContainer from '@/src/components/box/PageContainer';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
@@ -15,6 +14,20 @@ import TimerButton from '@/src/components/button/timerButton';
 import { CancelationRulesType, CancelationOrderErrorKind } from '@/src/types/cancelOrderTypes';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
 import { ModalDocumentsAndInvoices } from '@/src/components/modais/ModalDocumentsAndInvoices';
+import { PixDisplay } from '@/src/components/PixDisplay';
+import { getQrCodeByOrderId } from '@/src/services/pixService';
+import { PixCharge } from '@/src/types/pixTypes';
+
+function getStatusDescription(statusId: number, deliveryDate: string): string {
+  switch (statusId) {
+    case 6:
+      return 'Cancelado';
+    case 8:
+      return 'Pendente';
+    default:
+      return `Confirmado ${getBrazilLocaleString(deliveryDate)}`;
+  }
+}
 
 export default function OrderDetailsScreen() {
   const router = useRouter();
@@ -27,31 +40,55 @@ export default function OrderDetailsScreen() {
   const [modalSuccessCanceledVisibility, setModalSuccessCanceledVisbility] = useState(false);
   const [showDocumentsModal, setShowDocumentsModal] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pixCharge, setPixCharge] = useState<PixCharge | null>(null);
   const [showPdfModal, setShowPdfModal] = useState<boolean>(false);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [errorTitle, setErrorTitle] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    const loadOrders = async () => {
+    const loadOrders = async (): Promise<OrderData | null> => {
       if (!orderId) {
         console.error('orderId não encontrado nos parâmetros da rota');
-        setLoading(false);
-        return;
+        return null;
       }
 
       try {
         const orderData = await getOrder(orderId);
         setOrder(orderData.data);
         setCancelationRule(orderData.data.cancelationRule);
+        return orderData.data;
       } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
+        return null;
+      }
+    };
+
+    const loadPixData = async (currentOrder: OrderData) => {
+      if (!['AV00', 'AV01'].includes(currentOrder.paymentWay)) {
+        return;
+      }
+      try {
+        const pix = await getQrCodeByOrderId(orderId);
+        setPixCharge(pix);
+      } catch (error) {
+        console.error('Erro ao carregar QR Code:', error);
+      }
+    };
+
+    const loadInitalData = async () => {
+      try {
+        setLoading(true);
+        const currentOrder = await loadOrders();
+        if (currentOrder) {
+          await loadPixData(currentOrder);
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    loadOrders();
+    loadInitalData();
   }, [orderId]);
 
   const showErrorModal = (title: string, message: string) => {
@@ -109,7 +146,7 @@ export default function OrderDetailsScreen() {
   )?.supplier;
 
   const supplierName = supplier ? supplier.name : 'Fornecedor não encontrado';
-
+  const isPixPayment = order.paymentWay === 'AV01';
   return (
     <PageContainer backgroundColor="gray">
       <View flex={1} backgroundColor="#F0F2F6">
@@ -178,15 +215,9 @@ export default function OrderDetailsScreen() {
           <Icons onPress={() => router.push('/ordersScreen')} size={30} name="chevron-back" />
           <View flex={1} marginBottom={5}>
             <Text>Pedido {order.id}</Text>
-            {order.status_id === 6 ? (
-              <Text fontSize={10} color="gray">
-                Cancelado
-              </Text>
-            ) : (
-              <Text fontSize={10} color="gray">
-                Entregue {getBrazilLocaleString(order.deliveryDate)}
-              </Text>
-            )}
+            <Text fontSize={10} color="gray">
+              {getStatusDescription(order.status_id, order.deliveryDate)}
+            </Text>
           </View>
         </View>
         <View
@@ -198,6 +229,11 @@ export default function OrderDetailsScreen() {
             alignSelf: 'center',
           }}
         >
+          {isPixPayment && order && order.status_id !== 7 &&  (
+            <View width={'100%'} alignItems="center">
+              {(order.status_id === 6 || order.status_id === 14) ? (<Text>QR Code expirado</Text>) : (<PixDisplay pixCharge={pixCharge} />)}
+            </View>
+          )}
           <Text fontSize={10} color="gray">
             Documentos
           </Text>

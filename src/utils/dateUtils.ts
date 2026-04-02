@@ -100,3 +100,8 @@ export const isDateBeforeToday = (date?: string | undefined | null): boolean => 
 
   return targetDate < today
 }
+
+export function addMinutes(minutes: number, date: string | Date): DateTime {
+  const dt = getBrazilDateTime(date)
+  return dt.plus({ minutes })
+} 

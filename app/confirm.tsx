@@ -7,13 +7,12 @@ import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/R
 import { SupplierData } from '@/src/types/types';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { HttpStatusCode } from 'axios';
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
-import { Button, Image, ScrollView, Stack, Text, View, XStack, YStack } from 'tamagui';
+import { Button, Image, ScrollView, Stack, Text, View } from 'tamagui';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -25,15 +24,16 @@ import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
 import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils';
 import { isBefore13Hours } from '../src/utils/timeUtils';
-import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import { deleteStorage, getStorage, getToken } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
 import { getCreditCards } from '@/src/services/creditCardService';
-import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
+import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
 import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
 import { CreditCard } from '@/src/types/creditCardTypes';
 import { CreditCardSection } from '@/src/components/CreditCardSection';
+import { processOrderResponse } from '@/src/utils/processOrderResponse';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -121,6 +121,10 @@ export default function Confirm() {
   const loadCreditCards = useCallback(async () => {
     const restaurantId = selectedRestaurant?.id;
     if (!restaurantId) return;
+
+    if(selectedRestaurant.paymentWay !== 'CC32') {
+      return;
+    }
 
     try {
       const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
@@ -284,14 +288,18 @@ export default function Confirm() {
 
         const result = await confirmOrder(body);
 
-        if (result.status !== HttpStatusCode.Ok) {
-          throw new Error(result.data?.msg ?? 'Ocorreu um erro ao confirmar o pedido.');
-        }
-
-        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
         resetDeliveryDate();
         setConfirmedWarnings({ missingItems: false, sundayWarning: false });
-        router.push('/finalConfirm');
+
+        const suppliersWithOrderId = processOrderResponse([supplier], [{orderId: result.data.orderId, externalId: supplier.supplier.externalId}]);
+
+        router.push({
+            pathname: '/orderSuccess',
+            params: {
+              suppliers: JSON.stringify(suppliersWithOrderId),
+              deliveryDate: getFormattedDate(deliveryDate),
+            },
+          });  
       } catch (error) {
         const errorMessage = extractErrorMessage(error);
         console.error('Erro ao confirmar o pedido por fornecedor:', error);

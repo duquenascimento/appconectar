@@ -34,7 +34,7 @@ import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
 import { getCreditCards } from '@/src/services/creditCardService';
-import { CreateCreditCardModal } from '@/src/components/pages/register/CreateCreditCardModal';
+import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
 import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
 import { CreditCard } from '@/src/types/creditCardTypes';
 import { CreditCardSection } from '@/src/components/CreditCardSection';
@@ -264,7 +264,7 @@ export default function QuotationDetailsScreen() {
         if (scheduleId) {
           await confirmScheduleOrder(scheduleId, { appVersion: process.env.EXPO_PUBLIC_VERSION });
           router.push({
-            pathname: '/orderConfirmedScreen',
+            pathname: '/orderSuccess',
             params: {
               suppliers: suppliersDataParam,
               deliveryDate: getBrazilDateTimeTomorrow().toFormat('dd/MM/yyyy'),
@@ -301,7 +301,7 @@ export default function QuotationDetailsScreen() {
           resetDeliveryDate();
 
           router.push({
-            pathname: '/orderConfirmedScreen',
+            pathname: '/orderSuccess',
             params: {
               suppliers: JSON.stringify(supplierWithOrderId),
               deliveryDate: deliveryDateFormated,
@@ -326,6 +326,11 @@ export default function QuotationDetailsScreen() {
   const loadCreditCards = useCallback(async () => {
       const restaurantId = selectedRestaurant?.id;
       if (!restaurantId) return;
+
+      if(selectedRestaurant.paymentWay !== 'CC32') {
+        return;
+      }
+
   
       try {
         const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
