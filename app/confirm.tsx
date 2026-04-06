@@ -122,7 +122,7 @@ export default function Confirm() {
     const restaurantId = selectedRestaurant?.id;
     if (!restaurantId) return;
 
-    if(selectedRestaurant.paymentWay !== 'CC32') {
+    if (selectedRestaurant.paymentWay !== 'CC32') {
       return;
     }
 
@@ -291,15 +291,18 @@ export default function Confirm() {
         resetDeliveryDate();
         setConfirmedWarnings({ missingItems: false, sundayWarning: false });
 
-        const suppliersWithOrderId = processOrderResponse([supplier], [{orderId: result.data.orderId, externalId: supplier.supplier.externalId}]);
+        const suppliersWithOrderId = processOrderResponse(
+          [supplier],
+          [{ orderId: result.data.orderId, externalId: supplier.supplier.externalId }],
+        );
 
         router.push({
-            pathname: '/orderSuccess',
-            params: {
-              suppliers: JSON.stringify(suppliersWithOrderId),
-              deliveryDate: getFormattedDate(deliveryDate),
-            },
-          });  
+          pathname: '/orderSuccess',
+          params: {
+            suppliers: JSON.stringify(suppliersWithOrderId),
+            deliveryDate: getFormattedDate(deliveryDate),
+          },
+        });
       } catch (error) {
         const errorMessage = extractErrorMessage(error);
         console.error('Erro ao confirmar o pedido por fornecedor:', error);
@@ -692,7 +695,7 @@ export default function Confirm() {
                 {getPaymentDescription(selectedRestaurant.paymentWay)}
               </Text>
             </View>
-            {selectedCreditCard && (<CreditCardSection creditCard={selectedCreditCard} />)}
+            {selectedCreditCard && <CreditCardSection creditCard={selectedCreditCard} />}
             <View
               style={{
                 flexDirection: 'row',

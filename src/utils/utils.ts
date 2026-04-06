@@ -49,7 +49,6 @@ const PURCHASE_KEYS = [
   'conectarCombinations',
   'unavailableCombinations',
   'combinationData',
-  'finalConfirmData',
   'productObservations',
   'supplierSelected',
   'cartOrder',

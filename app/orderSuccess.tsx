@@ -1,6 +1,5 @@
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomButton from '@/src/components/button/customButton';
-import * as Clipboard from 'expo-clipboard';
 import { Restaurant } from '@/src/types/restaurantTypes';
 import { SupplierData } from '@/src/types/types';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -8,12 +7,12 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, SafeAreaView, ScrollView } from 'react-native';
-import { Button, Image, Separator, Text, View, XStack, YStack } from 'tamagui';
+import { Image, Separator, Text, View, XStack, YStack } from 'tamagui';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { getPaymentDate, getPaymentMethod } from '../src/utils/paymentUtils';
 import { getDeliveryWindow } from '../src/utils/timeUtils';
 import { clearPurchaseStorage } from '@/src/utils/utils';
-import { getQrCodeByOrderId } from '@/src/services/pixService';
+import { getPixChargeByOrderId } from '@/src/services/pixService';
 import { PixCharge } from '@/src/types/pixTypes';
 import { PixDisplay } from '@/src/components/PixDisplay';
 
@@ -67,15 +66,14 @@ export default function OrderSuccess() {
 
     const loadPixQrCode = async (currentSuppliers: SupplierData[]) => {
       const someOrderId = currentSuppliers[0]?.supplier.orderId;
-      console.log('loadPixQrCode', currentSuppliers);
       if(!someOrderId) {
         console.error('Nenhum ID de pedido encontrado');
         return;
       }
 
       try {
-        const qrCode = await getQrCodeByOrderId(someOrderId);
-        setPixCharge(qrCode);
+        const currentPixCharge = await getPixChargeByOrderId(someOrderId);
+        setPixCharge(currentPixCharge);
       } catch (error) {
         console.error('Erro ao carregar QR Code:', error);
       }
@@ -93,9 +91,9 @@ export default function OrderSuccess() {
 
     loadInitalData();
 
-    // return () => {
-    //   router.dismissTo('/products');
-    // };
+    return () => {
+      router.dismissTo('/products');
+    };
   }, []);
 
   useEffect(() => {
@@ -124,7 +122,7 @@ export default function OrderSuccess() {
     );
   }
 
-  const isPixPayment = 'AV01' === restaurantDetails?.paymentWay;
+  const isPixPayment =  getPaymentMethod(restaurantDetails?.paymentWay ?? '') === 'PIX';
   return (
     <PageContainer backgroundColor="gray">
       <YStack
