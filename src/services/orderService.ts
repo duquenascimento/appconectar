@@ -1,9 +1,10 @@
-import { Supplier } from '@/app/prices';
 import { ConectarPlusSupplier } from '@/app/quotationDetailsScreen';
 import axios, { HttpStatusCode } from 'axios';
 import { CombinationMissingProducts } from '../types/combinationTypes';
 import { CancelationOrderErrorKind, CancelOrderResult } from '../types/cancelOrderTypes';
 import { getToken } from '../utils/utils';
+import { OrderData } from '../types/IOrder';
+import { Supplier } from '../types/types';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -31,7 +32,7 @@ export const getOrder = async (orderId: string) => {
       throw new Error('Pedido selecionado não encontrado.');
     }
 
-    const response = await axios.get(`${API_URL}/orders/${orderId}`, {
+    const response = await axios.get<{status: number, data: OrderData}>(`${API_URL}/orders/${orderId}`, {
       headers: { Authorization: `Bearer ${await getToken()}` },
     });
     return response.data;
@@ -95,12 +96,23 @@ export interface ConfirmOrderRequestBody {
   deliveryDate?: string | undefined | null;
 }
 
-export const confirmOrder = async (body: ConfirmOrderRequestBody) => {
+export interface ConfirmOrderResponse {
+  orderId: string;
+  externalId: string;
+  restName: string;
+  address: string;
+  maxHour: string;
+  minHour: string;
+  deliveryDateFormated: string;
+  paymentWay: string;
+}
+
+export const confirmOrder = async (body: ConfirmOrderRequestBody): Promise<{status: number, data: ConfirmOrderResponse}> => {
   try {
-    const response = await axios.post(`${API_URL}/confirm`, body, {
+    const response = await axios.post<{status: number, data: ConfirmOrderResponse}>(`${API_URL}/confirm`, body, {
       headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Erro ao confirmar pedido:', error);
     throw error;

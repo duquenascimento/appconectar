@@ -40,7 +40,7 @@ export interface Supplier {
   hour: string;
   discount: Discount;
   star: string;
-  orderId?: string;
+  orderId?: string | null;
   sameDayOrders: SameDayOrder[];
 }
 

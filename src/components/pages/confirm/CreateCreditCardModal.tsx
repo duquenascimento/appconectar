@@ -263,7 +263,7 @@ export function CreateCreditCardModal(props: {
                     {error}
                   </Text>
                 )}
-                {true && (
+                {isServerError && (
                   <Button
                     disabled={isLoading}
                     marginBottom={'$2'}
