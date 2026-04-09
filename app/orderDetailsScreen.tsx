@@ -55,9 +55,11 @@ export default function OrderDetailsScreen() {
     };
 
     const loadPixData = async (currentOrder: OrderData) => {
-      if (getPaymentMethod(currentOrder.paymentWay) !== 'PIX') {
+      /* status_id 8 = pagamento pendente */
+      if (!(getPaymentMethod(currentOrder.paymentWay) === 'PIX' && currentOrder.status_id === 8)) {
         return;
       }
+
       try {
         const currentPixCharge = await getPixChargeByOrderId(orderId);
         setPixCharge(currentPixCharge);
@@ -219,10 +221,10 @@ export default function OrderDetailsScreen() {
             alignSelf: 'center',
           }}
         >
-          {isPixPayment && order && order.status_id !== 7 && (
+          {isPixPayment && order && ![7, 12].includes(order.status_id) && (
             <View width={'100%'} alignItems="center">
-              {order.status_id === 6 || order.status_id === 14 ? (
-                <Text>QR Code expirado</Text>
+              {order.status_id !== 8 ? (
+                <Text fontSize={10} color="$gray9">QR Code expirado ou cancelado</Text>
               ) : (
                 <PixDisplay pixCharge={pixCharge} />
               )}

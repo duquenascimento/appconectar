@@ -7,7 +7,6 @@ import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
 import { ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
-import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -19,7 +18,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from 'react-native';
-import { Input, Text, View, XStack, YStack } from 'tamagui';
+import { Input, Text, View, XStack } from 'tamagui';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { getOrders } from '../src/services/orderService';
 import { VersionInfo } from '../src/utils/VersionApp';
