@@ -4,7 +4,6 @@ import Icons from '@expo/vector-icons/Ionicons';
 
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import { getStatusAndColor } from '@/src/utils/ordersScreenUtils';
 import BadgeText from '@/src/components/text/BadgeText';
 import { ordersScreenStyles as styles } from '@/src/styles/styles';
 import { OrderData } from '@/src/types/IOrder';
@@ -47,7 +46,23 @@ export default function OrderListItem({
     }
   }, []);
 
-  const [status, statusColor] = isScheduledOrder ? getStatusAndColor(item) : [];
+  const isPix = isScheduledOrder || isCanceled ? false : (item.paymentWay === 'AV01' || item.paymentWay === 'AV00');
+
+  const BadgeComponent = () => {
+    if(isCanceled) {
+      return (<BadgeText text="Pedido Cancelado" color="#ff2233" />);
+    }
+
+    if(isPix && 'status_id' in item) {
+      if(item.status_id === 8) {
+        return (<BadgeText text="Pagamento Pendente" color="#183fc0ff" />);
+      } else if(item.status_id === 12) {
+        return (<BadgeText text="Pagamento Confirmado" color='#04BF7B' />);
+      }
+    }
+
+    return undefined;
+  };
 
   return (
     <TouchableOpacity
@@ -72,7 +87,6 @@ export default function OrderListItem({
         <View style={styles.leftColumn}>
           {isScheduledOrder ? (
             <View
-              backgroundColor={statusColor}
               borderRadius={20}
               paddingHorizontal={8}
               paddingVertical={2}
@@ -90,7 +104,7 @@ export default function OrderListItem({
         </View>
 
         <YStack alignItems="flex-end">
-          {isCanceled && <BadgeText text="Pedido Cancelado" color="#ff2233" />}
+          <BadgeComponent />
 
           {!isScheduledOrder && (
             <Text marginBottom={10} style={styles.total}>
