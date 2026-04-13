@@ -19,7 +19,8 @@
     "lint": "expo lint",
     "prod": "npx serve ./dist",
     "build-web": "npx expo export --platform web",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "patch-package"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
@@ -50,10 +51,10 @@
     "@types/react": "~19.0.10",
     "@types/react-test-renderer": "^18.0.7",
     "@types/uuid": "^11.0.0",
-    "axios": "^1.7.9",
-    "burnt": "0.5.0",
+    "axios": "1.7.9",
+    "burnt": "^0.8.1",
     "eslint-config-expo": "~9.2.0",
-    "expo": "53.0.27",
+    "expo": "53.0.22",
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
     "expo-file-system": "~18.1.11",
@@ -123,6 +124,8 @@
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
+    "patch-package": "^8.0.1",
+    "postinstall-postinstall": "^2.1.0",
     "prettier": "^3.6.2"
   }
 }

@@ -1,0 +1,101 @@
+diff --git a/node_modules/burnt/ios/Burnt.podspec b/node_modules/burnt/ios/Burnt.podspec
+index 678869f..af186bf 100644
+--- a/node_modules/burnt/ios/Burnt.podspec
++++ b/node_modules/burnt/ios/Burnt.podspec
+@@ -10,12 +10,11 @@ Pod::Spec.new do |s|
+   s.license        = package['license']
+   s.author         = package['author']
+   s.homepage       = package['homepage']
+-  s.platform       = :ios, '13.0'
++  s.platforms      = { :ios => '13.4', :tvos => '13.4' }
+   s.swift_version  = '5.4'
+-  s.source         = { git: 'https://github.com/nandorojo/burnt' }
+-  s.static_framework = true
+-  s.dependency 'SPIndicator'
+-  s.dependency 'SPAlert'
++  s.source         = { git: 'https://github.com/nandorojo/burnt', tag: "v#{s.version}" }
++  s.source_files   = '**/*.{h,m,mm,swift}'
++  s.module_name    = 'burnt'
+ 
+   s.dependency 'ExpoModulesCore'
+ 
+@@ -24,6 +23,4 @@ Pod::Spec.new do |s|
+     'DEFINES_MODULE' => 'YES',
+     'SWIFT_COMPILATION_MODE' => 'wholemodule'
+   }
+-  
+-  s.source_files = "**/*.{h,m,swift}"
+ end
+diff --git a/node_modules/burnt/ios/BurntModule.swift b/node_modules/burnt/ios/BurntModule.swift
+index 81e87fd..18f004c 100644
+--- a/node_modules/burnt/ios/BurntModule.swift
++++ b/node_modules/burnt/ios/BurntModule.swift
+@@ -1,6 +1,20 @@
+ import ExpoModulesCore
+-import SPIndicator
+-import SPAlert
++import UIKit
++
++// Stub types to replace SPAlert dependencies
++struct SPAlertIconPreset: Hashable {
++  static let done = SPAlertIconPreset()
++  static let error = SPAlertIconPreset()
++  static let heart = SPAlertIconPreset()
++  static let spinner = SPAlertIconPreset()
++}
++
++struct SPAlertHaptic: Hashable {
++  static let success = SPAlertHaptic()
++  static let warning = SPAlertHaptic()
++  static let error = SPAlertHaptic()
++  static let none = SPAlertHaptic()
++}
+  
+ enum AlertPreset: String, EnumArgument {
+   case done
+@@ -155,39 +169,18 @@ public class BurntModule: Module {
+     Name("Burnt")
+ 
+     AsyncFunction("toastAsync") { (options: ToastOptions) -> Void in
+-      let view = SPIndicatorView(title: options.title, message: options.message, preset: options.preset.toSPIndicatorPreset())
+-
+-      if let duration = options.duration {
+-        view.duration = duration
+-      }
+-
+-      if let icon = options.layout?.iconSize {
+-        view.layout.iconSize = .init(width: icon.width, height: icon.height)
+-      }
+-
+-      view.dismissByDrag = options.shouldDismissByDrag
+-
+-      view.present(haptic: options.haptic.toSPIndicatorHaptic())
++      // Stub implementation - just log
++      print("Burnt toastAsync called: \(options.title)")
+     }.runOnQueue(.main) 
+ 
+     AsyncFunction("alertAsync")  { (options: AlertOptions) -> Void in
+-      let view = SPAlertView(
+-        title: options.title, 
+-        message: options.message, 
+-        preset: options.preset.toSPAlertIconPreset())
+-
+-        if let duration = options.duration {
+-          view.duration = duration
+-        }
+-
+-        view.dismissByTap = options.shouldDismissByTap
+-
+-        view.present(
+-          haptic: options.haptic.toSPAlertHaptic())
++      // Stub implementation - just log
++      print("Burnt alertAsync called: \(options.title)")
+      }.runOnQueue(.main) 
+ 
+     AsyncFunction("dismissAllAlertsAsync") {
+-      return SPAlert.dismiss()
++      // Stub implementation
++      return
+     }.runOnQueue(.main) 
+   }
+ }
