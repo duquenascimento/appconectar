@@ -27,16 +27,16 @@ index 678869f..af186bf 100644
 -  s.source_files = "**/*.{h,m,swift}"
  end
 diff --git a/node_modules/burnt/ios/BurntModule.swift b/node_modules/burnt/ios/BurntModule.swift
-index 81e87fd..18f004c 100644
+index 81e87fd..118aaa5 100644
 --- a/node_modules/burnt/ios/BurntModule.swift
 +++ b/node_modules/burnt/ios/BurntModule.swift
-@@ -1,6 +1,20 @@
+@@ -1,6 +1,32 @@
  import ExpoModulesCore
 -import SPIndicator
 -import SPAlert
 +import UIKit
 +
-+// Stub types to replace SPAlert dependencies
++// Stub types to replace SPAlert/SPIndicator dependencies
 +struct SPAlertIconPreset: Hashable {
 +  static let done = SPAlertIconPreset()
 +  static let error = SPAlertIconPreset()
@@ -50,10 +50,22 @@ index 81e87fd..18f004c 100644
 +  static let error = SPAlertHaptic()
 +  static let none = SPAlertHaptic()
 +}
++
++struct SPIndicatorIconPreset: Hashable {
++  static let done = SPIndicatorIconPreset()
++  static let error = SPIndicatorIconPreset()
++}
++
++struct SPIndicatorHaptic: Hashable {
++  static let success = SPIndicatorHaptic()
++  static let warning = SPIndicatorHaptic()
++  static let error = SPIndicatorHaptic()
++  static let none = SPIndicatorHaptic()
++}
   
  enum AlertPreset: String, EnumArgument {
    case done
-@@ -155,39 +169,18 @@ public class BurntModule: Module {
+@@ -155,39 +181,18 @@ public class BurntModule: Module {
      Name("Burnt")
  
      AsyncFunction("toastAsync") { (options: ToastOptions) -> Void in
