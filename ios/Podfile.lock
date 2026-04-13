@@ -2216,8 +2216,6 @@ DEPENDENCIES:
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNReanimated (from `../node_modules/react-native-reanimated`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - SPAlert (~> 5.1)
-  - SPIndicator (~> 1.6)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2525,6 +2523,6 @@ SPEC CHECKSUMS:
   SPIndicator: 93e0a4fb23de51294ac48e874c0f081a5e293e4f
   Yoga: adb397651e1c00672c12e9495babca70777e411e
 
-PODFILE CHECKSUM: 8b48fcc12b25db6872b39cdf3ae78369aa09107f
+PODFILE CHECKSUM: 478a36f973be6752040b3529f5e349f90847fe0b
 
 COCOAPODS: 1.16.2
