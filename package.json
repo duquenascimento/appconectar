@@ -3,6 +3,9 @@
   "main": "expo-router/entry",
   "version": "2.4.4",
   "license": "MIT",
+  "overrides": {
+    "metro-transform-worker": "0.82.5"
+  },
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -33,11 +36,11 @@
     "@react-native-picker/picker": "2.11.1",
     "@react-native-seoul/masonry-list": "^1.4.2",
     "@react-navigation/native": "^7.1.6",
-    "@tamagui/babel-plugin": "1.135.3",
-    "@tamagui/config": "1.135.3",
-    "@tamagui/metro-plugin": "1.135.3",
-    "@tamagui/static": "1.135.3",
-    "@tamagui/toast": "1.135.3",
+    "@tamagui/babel-plugin": "^1.144.4",
+    "@tamagui/config": "^1.144.4",
+    "@tamagui/metro-plugin": "^1.144.4",
+    "@tamagui/static": "^1.144.4",
+    "@tamagui/toast": "^1.144.4",
     "@types/jest": "^29.5.12",
     "@types/js-cookie": "^3.0.6",
     "@types/luxon": "^3.4.2",
@@ -45,9 +48,9 @@
     "@types/react-test-renderer": "^18.0.7",
     "@types/uuid": "^11.0.0",
     "axios": "^1.7.9",
-    "burnt": "^0.11.1",
+    "burnt": "0.5.0",
     "eslint-config-expo": "~9.2.0",
-    "expo": "^53.0.27",
+    "expo": "53.0.27",
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
     "expo-file-system": "~18.1.11",
@@ -96,7 +99,11 @@
   "overrides": {
     "metro": "^0.82.0",
     "metro-resolver": "^0.82.0",
-    "metro-config": "^0.82.0"
+    "metro-config": "^0.82.0",
+    "metro-transform-worker": "0.82.5"
+  },
+  "resolutions": {
+    "metro-transform-worker": "0.82.5"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
