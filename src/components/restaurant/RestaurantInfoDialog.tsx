@@ -259,14 +259,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
         // Check if date is excluded
         const restaurant = draftSelectedRestaurant || selectedRestaurant;
         const isExcluded = isDateExcluded(selectedDate, restaurant?.allowEmergencyOrder);
-        
+
         if (isExcluded) {
           const excludedDateName = restaurant?.allowEmergencyOrder ? 'amanhã' : 'hoje';
-          Alert.alert(
-            'Data inválida',
-            `A data ${excludedDateName} não pode ser selecionada.`,
-            [{ text: 'OK' }]
-          );
+          Alert.alert('Data inválida', `A data ${excludedDateName} não pode ser selecionada.`, [
+            { text: 'OK' },
+          ]);
           return;
         }
 
@@ -286,16 +284,16 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   const isDateExcluded = (date: Date, allowEmergencyOrder?: boolean): boolean => {
     const today = getBrazilJSDate();
     const tomorrow = getBrazilJSDateTomorrow();
-    
+
     // Normalize dates to compare only year, month, day
     const normalizeDate = (d: Date) => {
       return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
     };
-    
+
     const selectedTime = normalizeDate(date);
     const todayTime = normalizeDate(today);
     const tomorrowTime = normalizeDate(tomorrow);
-    
+
     if (allowEmergencyOrder) {
       // If emergency order is allowed, exclude tomorrow
       return selectedTime === tomorrowTime;
@@ -310,14 +308,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
       // Check if date is excluded before confirming
       const restaurant = draftSelectedRestaurant || selectedRestaurant;
       const isExcluded = isDateExcluded(tempSelectedDate, restaurant?.allowEmergencyOrder);
-      
+
       if (isExcluded) {
         const excludedDateName = restaurant?.allowEmergencyOrder ? 'amanhã' : 'hoje';
-        Alert.alert(
-          'Data inválida',
-          `A data ${excludedDateName} não pode ser selecionada.`,
-          [{ text: 'OK' }]
-        );
+        Alert.alert('Data inválida', `A data ${excludedDateName} não pode ser selecionada.`, [
+          { text: 'OK' },
+        ]);
         setShowNativeDatePicker(false);
         setTempSelectedDate(null);
         return;
@@ -464,10 +460,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   return (
     <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
       <Modal transparent={true} animationType={isLargeScreen ? 'fade' : 'slide'}>
-        <View
-          flex={1}
-          backgroundColor="rgba(0, 0, 0, 0.9)"
-        >
+        <View flex={1} backgroundColor="rgba(0, 0, 0, 0.9)">
           <ScrollView
             contentContainerStyle={{
               flexGrow: 1,
@@ -745,7 +738,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         setOpen={setMinHourOpen}
                         {...(!isLargeScreen && {
                           onOpen: () => setMaxHourOpen(false),
-                          listMode: Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW',
+                          listMode: 'MODAL',
                           modalProps: {
                             animationType: 'slide',
                             transparent: false,
@@ -796,7 +789,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         setOpen={setMaxHourOpen}
                         {...(!isLargeScreen && {
                           onOpen: () => setMinHourOpen(false),
-                          listMode: Platform.OS === 'ios' ? 'MODAL' : 'SCROLLVIEW',
+                          listMode: 'MODAL',
                           modalProps: {
                             animationType: 'slide',
                             transparent: false,
