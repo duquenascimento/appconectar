@@ -72,8 +72,6 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
       try {
         setLoadingCombinations(true);
 
-        // await loadRestaurants();
-
         const currentRestaurant = restaurants.find((r: any) => r.id === restaurantId);
 
         if (!currentRestaurant) return;
