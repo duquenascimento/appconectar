@@ -446,11 +446,6 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
     if (!restaurant) return;
 
-    if (restaurant?.registrationReleasedNewApp === true) {
-      setShowBlockedModal(true);
-      return;
-    }
-
     setDraftSelectedRestaurant(restaurant);
     initializeDeliveryDates(restaurant.id);
   };
