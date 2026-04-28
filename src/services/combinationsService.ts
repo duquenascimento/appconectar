@@ -99,8 +99,6 @@ export const getAllCombinationsByRestaurant = async (restaurantId: string) => {
 export interface GetCombinationSuppliersRequestDTO {
   city: string;
   neighborhood: string;
-  minimumTime: string;
-  maximumTime: string;
   blockedBySuppliers: string[];
 }
 

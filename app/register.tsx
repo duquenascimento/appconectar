@@ -30,6 +30,7 @@ import {
   STORAGE_DEFAULT_KEYS,
 } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
+import { getPaymentDescription } from '@/src/utils/paymentUtils';
 
 export default function Register() {
   const [step, setStep] = useState<number>(0);
@@ -460,6 +461,11 @@ export default function Register() {
 
   const handleDocumentTypeToggle = (type: DocumentType) => {
     setDocumentType(type);
+    if (type === 'CPF') {
+      formik.setFieldValue('paymentWay', 'CC32');
+    } else {
+      formik.setFieldValue('paymentWay', '');
+    }
     formik.setFieldValue('document', '');
     formik.setFieldError('document', undefined);
   };
@@ -959,16 +965,26 @@ export default function Register() {
                       dropDownContainerStyle={{
                         position: 'relative',
                       }}
-                      items={[
-                        {
-                          label: 'Diário: 7 dias após a entrega',
-                          value: 'DI07',
-                        },
-                        {
-                          label: 'Semanal: vencimento na quarta',
-                          value: 'UQ10',
-                        },
-                      ]}
+                      disabled={isCpf}
+                      items={
+                        isCpf
+                          ? [
+                              {
+                                label: getPaymentDescription('CC32'),
+                                value: 'CC32',
+                              },
+                            ]
+                          : [
+                              {
+                                label: 'Diário: 7 dias após a entrega',
+                                value: 'DI07',
+                              },
+                              {
+                                label: 'Semanal: vencimento na quarta',
+                                value: 'UQ10',
+                              },
+                            ]
+                      }
                       multiple={false}
                       open={paymentWayOpen}
                       setOpen={setPaymentWayOpen}

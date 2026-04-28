@@ -1,8 +1,14 @@
 {
   "name": "conectarapp",
   "main": "expo-router/entry",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "license": "MIT",
+  "overrides": {
+    "metro": "^0.82.0",
+    "metro-resolver": "^0.82.0",
+    "metro-config": "^0.82.0",
+    "metro-transform-worker": "0.82.5"
+  },
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -33,19 +39,22 @@
     "@react-native-picker/picker": "2.11.1",
     "@react-native-seoul/masonry-list": "^1.4.2",
     "@react-navigation/native": "^7.1.6",
-    "@tamagui/babel-plugin": "1.135.3",
-    "@tamagui/config": "1.135.3",
-    "@tamagui/metro-plugin": "1.135.3",
-    "@tamagui/static": "1.135.3",
+    "@tamagui/babel-plugin": "^1.135.3",
+    "@tamagui/config": "^1.135.3",
+    "@tamagui/metro-plugin": "^1.135.3",
+    "@tamagui/static": "^1.135.3",
+    "@tamagui/toast": "^1.135.3",
     "@types/jest": "^29.5.12",
     "@types/js-cookie": "^3.0.6",
     "@types/luxon": "^3.4.2",
     "@types/react": "~19.0.10",
     "@types/react-test-renderer": "^18.0.7",
     "@types/uuid": "^11.0.0",
-    "axios": "^1.7.9",
+    "axios": "1.7.9",
+    "burnt": "^0.12.2",
     "eslint-config-expo": "~9.2.0",
     "expo": "53.0.22",
+    "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
     "expo-file-system": "~18.1.11",
     "expo-font": "~13.3.2",
@@ -84,16 +93,14 @@
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5",
     "react-test-renderer": "19.0.0",
-    "tamagui": "1.135.3",
+    "tamagui": "^1.135.3",
     "typescript": "~5.8.3",
     "uuid": "^13.0.0",
     "yup": "^1.6.1"
   },
   "private": true,
-  "overrides": {
-    "metro": "^0.82.0",
-    "metro-resolver": "^0.82.0",
-    "metro-config": "^0.82.0"
+  "resolutions": {
+    "metro-transform-worker": "0.82.5"
   },
   "devDependencies": {
     "@eslint/compat": "^1.4.0",

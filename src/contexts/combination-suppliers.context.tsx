@@ -24,16 +24,9 @@ export function CombinationSuppliersProvider({ children }: { children: ReactNode
       try {
         setLoading(true);
 
-        const { minimumTime, maximumTime } = resolveMinMaxTimeForRoute(
-          restaurantAddressInfo.initialDeliveryTime,
-          restaurantAddressInfo.finalDeliveryTime,
-        );
-
         const dto: GetCombinationSuppliersRequestDTO = {
           city: restaurantAddressInfo.city,
           neighborhood: restaurantAddressInfo.neighborhood,
-          minimumTime,
-          maximumTime,
           blockedBySuppliers: blockedBySuppliers,
         };
 

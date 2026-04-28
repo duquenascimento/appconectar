@@ -47,6 +47,7 @@ export const getPaymentDate = (paymentWay: string, emergencyOrder: boolean): str
     ME15: calculateNextMonthly(deliveryDay, 15),
     AV01: deliveryDay.minus({ days: 1 }),
     AV00: deliveryDay,
+    CC32: deliveryDay,
   };
 
   const paymentDate = paymentDates[paymentWay];
@@ -78,6 +79,35 @@ export const getPaymentDescription = (paymentWay: string): string => {
     ME15: 'Mensal: vencimento dia 15',
     AV01: 'À Vista: pix no dia anterior à entrega',
     AV00: 'À Vista: pix no dia da entrega',
+    CC32: 'Cartão de Crédito'
+  };
+
+  return paymentDescriptions[paymentWay] || '';
+};
+
+export const getPaymentMethod = (paymentWay: string): string => {
+  const paymentDescriptions: PaymentDescriptions = {
+    DI00: 'Boleto',
+    DI01: 'Boleto',
+    DI02: 'Boleto',
+    DI07: 'Boleto',
+    DI10: 'Boleto',
+    DI14: 'Boleto',
+    DI15: 'Boleto',
+    DI28: 'Boleto',
+    US08: 'Boleto',
+    UQ10: 'Boleto',
+    UX12: 'Boleto',
+    BX10: 'Boleto',
+    BX12: 'Boleto',
+    BX16: 'Boleto',
+    ME01: 'Boleto',
+    ME05: 'Boleto',
+    ME10: 'Boleto',
+    ME15: 'Boleto',
+    AV01: 'PIX',
+    AV00: 'PIX',
+    CC32: 'Cartão de Crédito'
   };
 
   return paymentDescriptions[paymentWay] || '';

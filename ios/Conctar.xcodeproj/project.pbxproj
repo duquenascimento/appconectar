@@ -8,24 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		2D2E1AF37B0BF75B369F3DE7 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A4B452FEEB68D0D4163179AF /* PrivacyInfo.xcprivacy */; };
+		162B20D526B595CE5F71B219 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 1D4811A1284A0322DCEDCA71 /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4BB5FD75710ED10D0CCD2D02 /* libPods-Conctar.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0810482C78904AFADE30C03A /* libPods-Conctar.a */; };
-		9E5DD64957DE20E4BCC62B98 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA8912F518D0B265EA7C3321 /* ExpoModulesProvider.swift */; };
+		4471181D3A23BD73E59B029A /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9F16B5E764935085D615B00 /* ExpoModulesProvider.swift */; };
+		6BE9C20EA3D4881604A5A250 /* libPods-Conctar.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D2A5F992F5C00240AB25D34 /* libPods-Conctar.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0810482C78904AFADE30C03A /* libPods-Conctar.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Conctar.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* Conctar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Conctar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Conctar/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Conctar/Info.plist; sourceTree = "<group>"; };
-		87AEA6C0374BE0B8AB78CB75 /* Pods-Conctar.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Conctar.release.xcconfig"; path = "Target Support Files/Pods-Conctar/Pods-Conctar.release.xcconfig"; sourceTree = "<group>"; };
-		898AC2C83BB2D41D97293183 /* Pods-Conctar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Conctar.debug.xcconfig"; path = "Target Support Files/Pods-Conctar/Pods-Conctar.debug.xcconfig"; sourceTree = "<group>"; };
-		A4B452FEEB68D0D4163179AF /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Conctar/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1D2A5F992F5C00240AB25D34 /* libPods-Conctar.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Conctar.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D4811A1284A0322DCEDCA71 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Conctar/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		59BD91968FD09A9A59FB85F4 /* Pods-Conctar.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Conctar.release.xcconfig"; path = "Target Support Files/Pods-Conctar/Pods-Conctar.release.xcconfig"; sourceTree = "<group>"; };
+		8D2DB4527F71DF14B862E5D7 /* Pods-Conctar.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Conctar.debug.xcconfig"; path = "Target Support Files/Pods-Conctar/Pods-Conctar.debug.xcconfig"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Conctar/SplashScreen.storyboard; sourceTree = "<group>"; };
-		AA8912F518D0B265EA7C3321 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Conctar/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		B9F16B5E764935085D615B00 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Conctar/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Conctar/AppDelegate.swift; sourceTree = "<group>"; };
@@ -37,7 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4BB5FD75710ED10D0CCD2D02 /* libPods-Conctar.a in Frameworks */,
+				6BE9C20EA3D4881604A5A250 /* libPods-Conctar.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,26 +53,44 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				A4B452FEEB68D0D4163179AF /* PrivacyInfo.xcprivacy */,
+				1D4811A1284A0322DCEDCA71 /* PrivacyInfo.xcprivacy */,
 			);
 			name = Conctar;
+			sourceTree = "<group>";
+		};
+		1DD7663429BAC7F377F66CC9 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				8D2DB4527F71DF14B862E5D7 /* Pods-Conctar.debug.xcconfig */,
+				59BD91968FD09A9A59FB85F4 /* Pods-Conctar.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				0810482C78904AFADE30C03A /* libPods-Conctar.a */,
+				1D2A5F992F5C00240AB25D34 /* libPods-Conctar.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		65ACBD1FD2633486C21F4716 /* ExpoModulesProviders */ = {
+		30CB0917B08F882C4D13AD68 /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				C060851C624F5F7B6EDC9EAB /* Conctar */,
+				7358BA34316BCA6FEC2CF980 /* Conctar */,
 			);
 			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
+		7358BA34316BCA6FEC2CF980 /* Conctar */ = {
+			isa = PBXGroup;
+			children = (
+				B9F16B5E764935085D615B00 /* ExpoModulesProvider.swift */,
+			);
+			name = Conctar;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -89,8 +107,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				E67B366AF9361838B82A6B53 /* Pods */,
-				65ACBD1FD2633486C21F4716 /* ExpoModulesProviders */,
+				1DD7663429BAC7F377F66CC9 /* Pods */,
+				30CB0917B08F882C4D13AD68 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -114,24 +132,6 @@
 			path = Conctar/Supporting;
 			sourceTree = "<group>";
 		};
-		C060851C624F5F7B6EDC9EAB /* Conctar */ = {
-			isa = PBXGroup;
-			children = (
-				AA8912F518D0B265EA7C3321 /* ExpoModulesProvider.swift */,
-			);
-			name = Conctar;
-			sourceTree = "<group>";
-		};
-		E67B366AF9361838B82A6B53 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				898AC2C83BB2D41D97293183 /* Pods-Conctar.debug.xcconfig */,
-				87AEA6C0374BE0B8AB78CB75 /* Pods-Conctar.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -140,13 +140,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Conctar" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				C7402B0D1D2DC209A8A2BB08 /* [Expo] Configure project */,
+				B73297D0F5FA817F4D0BD35A /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				8B57C6CA54344E42F273BF19 /* [CP] Embed Pods Frameworks */,
+				BAA633E1CFAFD3349AA5C82A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -196,7 +196,7 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				2D2E1AF37B0BF75B369F3DE7 /* PrivacyInfo.xcprivacy in Resources */,
+				162B20D526B595CE5F71B219 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,25 +280,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Conctar/Pods-Conctar-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		8B57C6CA54344E42F273BF19 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Conctar/Pods-Conctar-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Conctar/Pods-Conctar-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C7402B0D1D2DC209A8A2BB08 /* [Expo] Configure project */ = {
+		B73297D0F5FA817F4D0BD35A /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -317,6 +299,24 @@
 			shellPath = /bin/sh;
 			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Conctar/expo-configure-project.sh\"\n";
 		};
+		BAA633E1CFAFD3349AA5C82A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Conctar/Pods-Conctar-frameworks.sh",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/hermes-engine/Pre-built/hermes.framework/hermes",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/hermes.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Conctar/Pods-Conctar-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -325,7 +325,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				9E5DD64957DE20E4BCC62B98 /* ExpoModulesProvider.swift in Sources */,
+				4471181D3A23BD73E59B029A /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,7 +334,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 898AC2C83BB2D41D97293183 /* Pods-Conctar.debug.xcconfig */;
+			baseConfigurationReference = 8D2DB4527F71DF14B862E5D7 /* Pods-Conctar.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -370,7 +370,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 87AEA6C0374BE0B8AB78CB75 /* Pods-Conctar.release.xcconfig */;
+			baseConfigurationReference = 59BD91968FD09A9A59FB85F4 /* Pods-Conctar.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;

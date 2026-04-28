@@ -7,9 +7,8 @@ import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/R
 import { SupplierData } from '@/src/types/types';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { HttpStatusCode } from 'axios';
 import * as Notifications from 'expo-notifications';
-import { usePathname, useRouter } from 'expo-router';
+import { useFocusEffect, usePathname, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
@@ -25,10 +24,16 @@ import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
 import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils';
 import { isBefore13Hours } from '../src/utils/timeUtils';
-import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import { deleteStorage, getStorage, getToken } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
+import { getCreditCards } from '@/src/services/creditCardService';
+import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
+import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
+import { CreditCard } from '@/src/types/creditCardTypes';
+import { CreditCardSection } from '@/src/components/CreditCardSection';
+import { processOrderResponse } from '@/src/utils/processOrderResponse';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -59,6 +64,9 @@ export default function Confirm() {
   const [alertMessage, setAlertMessage] = useState<string>('');
   const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
+  const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
+  const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
+  const [isCpf, setIsCpf] = useState<boolean>(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{
     missingItems: boolean;
     sundayWarning: boolean;
@@ -110,6 +118,31 @@ export default function Confirm() {
     setSupplier(supplier);
   }, []);
 
+  const loadCreditCards = useCallback(async () => {
+    const restaurantId = selectedRestaurant?.id;
+    if (!restaurantId) return;
+
+    if (selectedRestaurant.paymentWay !== 'CC32') {
+      return;
+    }
+
+    try {
+      const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
+      setIsCpf(isCpfRestaurant);
+      if (isCpfRestaurant) {
+        const creditCards = await getCreditCards(restaurantId);
+        const defaultCreditCard = extractDefaultCreditCart(creditCards);
+        if (defaultCreditCard) {
+          setSelectedCreditCard(defaultCreditCard);
+        } else {
+          setOpenCreditCardDialog(true);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [selectedRestaurant]);
+
   useEffect(() => {
     const loadSupplierAsync = async () => {
       try {
@@ -128,8 +161,14 @@ export default function Confirm() {
     loadSupplierAsync();
   }, [loadSupplier, router]);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadCreditCards();
+    }, [loadCreditCards]),
+  );
+
   useEffect(() => {
-    (async () => {
+    const tryToLoadCartOrder = async () => {
       try {
         const data = await getStorage('cartOrder');
         const parsed = JSON.parse(data || '[]');
@@ -137,7 +176,9 @@ export default function Confirm() {
       } catch (e) {
         console.error('Erro ao carregar cartOrder:', e);
       }
-    })();
+    };
+
+    tryToLoadCartOrder();
   }, []);
 
   const productsWithAddOrder = useMemo(
@@ -176,11 +217,11 @@ export default function Confirm() {
 
   const handleConfirmOrder = useCallback(
     async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
-      if(disableConfirm) {
+      if (disableConfirm) {
         return;
       }
       setDisableConfirm(true);
-      
+
       try {
         if (isRetroactiveDate) {
           setAlertMessage(
@@ -218,6 +259,7 @@ export default function Confirm() {
           supplier: supplier.supplier,
           restaurant: selectedRestaurant,
           appVersion: process.env.EXPO_PUBLIC_VERSION,
+          creditCardId: selectedCreditCard?.id,
           deliveryDate: selectedRestaurant.allowEmergencyOrder
             ? getBrazilDateTime().toISODate()
             : deliveryDate,
@@ -246,15 +288,21 @@ export default function Confirm() {
 
         const result = await confirmOrder(body);
 
-        if(result.status !== HttpStatusCode.Ok) {
-          throw new Error(result.data?.msg ?? 'Ocorreu um erro ao confirmar o pedido.');
-        }
-
-        await setStorage('finalConfirmData', JSON.stringify(result.data.data));
         resetDeliveryDate();
         setConfirmedWarnings({ missingItems: false, sundayWarning: false });
-        router.push('/finalConfirm');
-        
+
+        const suppliersWithOrderId = processOrderResponse(
+          [supplier],
+          [{ orderId: result.data.orderId, externalId: supplier.supplier.externalId }],
+        );
+
+        router.push({
+          pathname: '/orderSuccess',
+          params: {
+            suppliers: JSON.stringify(suppliersWithOrderId),
+            deliveryDate: getFormattedDate(deliveryDate),
+          },
+        });
       } catch (error) {
         const errorMessage = extractErrorMessage(error);
         console.error('Erro ao confirmar o pedido por fornecedor:', error);
@@ -273,6 +321,7 @@ export default function Confirm() {
       confirmedWarnings,
       displayMissingItems,
       deliveryDate,
+      selectedCreditCard,
       resetDeliveryDate,
     ],
   );
@@ -371,6 +420,13 @@ export default function Confirm() {
           onClose={handleCloseMissingItems}
           onConfirm={handleConfirmMissingItems}
           missingItemsCount={displayMissingItems}
+        />
+        <CreateCreditCardModal
+          open={openCreditCardDialog}
+          setOpen={setOpenCreditCardDialog}
+          onSaved={async (creditCard: CreditCard) => {
+            await loadCreditCards();
+          }}
         />
         <CustomAlert
           visible={isAlertVisible}
@@ -639,6 +695,7 @@ export default function Confirm() {
                 {getPaymentDescription(selectedRestaurant.paymentWay)}
               </Text>
             </View>
+            {selectedCreditCard && <CreditCardSection creditCard={selectedCreditCard} />}
             <View
               style={{
                 flexDirection: 'row',
@@ -819,7 +876,9 @@ export default function Confirm() {
             <Text color="white">Alterar itens</Text>
           </Button>
           <Button
-            disabled={disableConfirm || isRetroactiveDate}
+            disabled={
+              disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)
+            }
             onPress={onConfirmPressDebounced}
             width={170}
             backgroundColor="#04BF7B"

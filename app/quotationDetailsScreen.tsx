@@ -7,7 +7,7 @@ import { SameDayOrder } from '@/src/types/types';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { HttpStatusCode } from 'axios';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
@@ -33,6 +33,11 @@ import { processOrderResponse } from '../src/utils/processOrderResponse';
 import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
 import { extractErrorMessage } from '@/src/utils/errorUtils';
+import { getCreditCards } from '@/src/services/creditCardService';
+import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
+import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
+import { CreditCard } from '@/src/types/creditCardTypes';
+import { CreditCardSection } from '@/src/components/CreditCardSection';
 
 export interface Product {
   price: number;
@@ -131,6 +136,9 @@ export default function QuotationDetailsScreen() {
   const { deliveryDate, resetDeliveryDate, isRetroactiveDate } = useDeliveryDate();
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string | null>(null);
   const [showPdfModal, setShowPdfModal] = useState(false);
+  const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
+  const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
+  const [isCpf, setIsCpf] = useState<boolean>(false);
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const { isLargeScreen } = useResponsiveness();
 
@@ -256,7 +264,7 @@ export default function QuotationDetailsScreen() {
         if (scheduleId) {
           await confirmScheduleOrder(scheduleId, { appVersion: process.env.EXPO_PUBLIC_VERSION });
           router.push({
-            pathname: '/orderConfirmedScreen',
+            pathname: '/orderSuccess',
             params: {
               suppliers: suppliersDataParam,
               deliveryDate: getBrazilDateTimeTomorrow().toFormat('dd/MM/yyyy'),
@@ -270,6 +278,7 @@ export default function QuotationDetailsScreen() {
           suppliers: suppliers.map((s) => s.supplier),
           restaurant: restaurantData,
           deliveryDate,
+          creditCardId: selectedCreditCard?.id,
           appVersion: process.env.EXPO_PUBLIC_VERSION,
           missingProducts: parsedMissingProducts,
         };
@@ -292,7 +301,7 @@ export default function QuotationDetailsScreen() {
           resetDeliveryDate();
 
           router.push({
-            pathname: '/orderConfirmedScreen',
+            pathname: '/orderSuccess',
             params: {
               suppliers: JSON.stringify(supplierWithOrderId),
               deliveryDate: deliveryDateFormated,
@@ -311,8 +320,35 @@ export default function QuotationDetailsScreen() {
         setDisableConfirm(false);
       }
     },
-    [suppliers, disableConfirm, deliveryDate, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
+    [suppliers, disableConfirm, deliveryDate, selectedCreditCard, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
   );
+
+  const loadCreditCards = useCallback(async () => {
+      const restaurantId = selectedRestaurant?.id;
+      if (!restaurantId) return;
+
+      if(selectedRestaurant.paymentWay !== 'CC32') {
+        return;
+      }
+
+  
+      try {
+        const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
+        setIsCpf(isCpfRestaurant);
+        if(isCpfRestaurant) {
+          const creditCards = await getCreditCards(restaurantId);
+          const defaultCreditCard = extractDefaultCreditCart(creditCards);
+          if(defaultCreditCard) {
+            setSelectedCreditCard(defaultCreditCard);
+          } else {
+            setOpenCreditCardDialog(true);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      
+    }, [selectedRestaurant]);
 
   const handleConfirmSundayWarning = useCallback(async () => {
     setShowSundayWarning(false);
@@ -332,6 +368,12 @@ export default function QuotationDetailsScreen() {
         trailing: false,
       }) as unknown as () => void,
     [handleConfirm],
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCreditCards();
+    }, [loadCreditCards])
   );
 
   if (!suppliers || suppliers.length === 0) {
@@ -414,6 +456,7 @@ export default function QuotationDetailsScreen() {
                 {totals.missingItems !== 1 ? 's' : ''}
               </Text>
             </YStack>
+            {selectedCreditCard && (<CreditCardSection creditCard={selectedCreditCard} />)}
           </YStack>
         </ScrollView>
 
@@ -430,6 +473,13 @@ export default function QuotationDetailsScreen() {
           message="Sua notificação foi agendada para as 13h para que você possa confirmar seu pedido."
           onConfirm={() => setShowNotification(false)}
           width="35%"
+        />
+        <CreateCreditCardModal
+          open={openCreditCardDialog}
+          setOpen={setOpenCreditCardDialog}
+          onSaved={async (creditCard: CreditCard) => {
+            await loadCreditCards()
+          }}
         />
         <SundayOrderAlert
           visible={showSundayWarning}
@@ -494,7 +544,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  disabled={disableConfirm || isRetroactiveDate}
+                  disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
                   onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
@@ -530,7 +580,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <CustomButton
-                  disabled={disableConfirm || isRetroactiveDate}
+                  disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
                   title={isBefore13h ? 'Agendar' : 'Confirmar'}
                   onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"
