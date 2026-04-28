@@ -63,18 +63,18 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
 
   const getCombinationsByRestaurant = useCallback(
     async (restaurantIdParam?: string, deliveryDateParam?: string) => {
-      if (!selectedRestaurant || !hasConectarPlusAccess) {
+      const restaurantId = restaurantIdParam ?? selectedRestaurant?.id;
+      const hasConectarPlus = selectedRestaurant?.conectarPlusAuthorization;
+      if (!restaurantId || !hasConectarPlus) {
         return;
       }
 
       try {
         setLoadingCombinations(true);
 
-        await loadRestaurants();
+        // await loadRestaurants();
 
-        const currentRestaurant = restaurants.find(
-          (r: any) => r.id === (restaurantIdParam ?? selectedRestaurant?.id),
-        );
+        const currentRestaurant = restaurants.find((r: any) => r.id === restaurantId);
 
         if (!currentRestaurant) return;
 
@@ -87,7 +87,10 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
 
         const [pricesBySupplier, result] = await Promise.all([
           getPricesBySupplier(currentRestaurant.externalId, dateToUse, false),
-          getQuotationsByCombination({ restaurantId: currentRestaurant.id, deliveryDate: dateToUse }),
+          getQuotationsByCombination({
+            restaurantId: currentRestaurant.id,
+            deliveryDate: dateToUse,
+          }),
         ]);
         const availableSuppliers = pricesBySupplier?.availableSuppliers ?? [];
 
@@ -131,7 +134,7 @@ export function CombinationProvider({ children }: { children?: ReactNode }) {
         setLoadingCombinations(false);
       }
     },
-    [selectedRestaurant?.id, deliveryDate, restaurants?.length],
+    [selectedRestaurant, deliveryDate],
   );
 
   const value = {

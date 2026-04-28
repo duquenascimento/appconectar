@@ -11,6 +11,7 @@ import { campoString } from '../../utils/formatCampos';
 import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
 import CustomAlert from '../modais/CustomAlert';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 // Conditional DatePicker import for web platform
 const getDatePicker = (): any =>
@@ -55,6 +56,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 }) => {
   const {
     selectedRestaurant,
+    handleRestaurantChange,
     restaurants: allRestaurants,
     updateRestaurant,
   } = useRestaurantContext();
@@ -402,9 +404,9 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
     setDialogLoading(true);
 
-    const restaurant: Restaurant = JSON.parse(
-      JSON.stringify(draftSelectedRestaurant ?? selectedRestaurant),
-    );
+    const changeRestaurant = draftSelectedRestaurant ?? selectedRestaurant;
+
+    const restaurant: Restaurant = JSON.parse(JSON.stringify(changeRestaurant));
     const addressInfo = restaurant.addressInfos[0];
 
     addressInfo.neighborhood = neighborhood ?? '';
@@ -420,10 +422,15 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
     addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 
-    await updateRestaurant(restaurant);
+    if (draftSelectedRestaurant) {
+      await setStorageRestaurant(restaurant);
+      await handleRestaurantChange(restaurant);
+    } else {
+      await updateRestaurant(restaurant);
+      handleLoadPrices(restaurant);
+    }
 
-    handleLoadPrices(restaurant);
-
+    setDraftSelectedRestaurant(null);
     setDialogLoading(false);
     onClose();
   };
