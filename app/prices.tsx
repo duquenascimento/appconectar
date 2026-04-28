@@ -8,7 +8,7 @@ import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearPurchaseStorage, clearStorage, getStorage, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { Stack, Text, View } from 'tamagui';
 import CombinationList from '../src/components/combinationList';
@@ -53,12 +53,15 @@ export default function Prices() {
   const { getPricesBySupplier } = useSupplier();
   const { isLargeScreen } = useResponsiveness();
 
+  const lastLoadedRestaurantId = useRef<string | null>(null);
+
   const handleLoadPrices = useCallback(
     async (restaurant: Restaurant) => {
       try {
         const newTab = restaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER;
 
         setTab(newTab);
+        lastLoadedRestaurantId.current = restaurant.id;
 
         // Reload the current tab's content
         switch (newTab) {
@@ -75,6 +78,12 @@ export default function Prices() {
     },
     [getCombinationsByRestaurant, getPricesBySupplier],
   );
+
+  useEffect(() => {
+    if (selectedRestaurant && selectedRestaurant.id !== lastLoadedRestaurantId.current) {
+      handleLoadPrices(selectedRestaurant);
+    }
+  }, [selectedRestaurant, handleLoadPrices]);
 
   useEffect(() => {
     async function getCart() {
@@ -122,15 +131,16 @@ export default function Prices() {
             setShowBlockedModal(true);
           }
 
-          if (validRestaurant) {
+          if (validRestaurant.id !== lastLoadedRestaurantId.current) {
             setTab(validRestaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER);
+            lastLoadedRestaurantId.current = validRestaurant.id;
           }
         } catch (err) {
           console.error(err);
         }
       };
       loadPricesAsync();
-    }, []),
+    }, [selectedRestaurant, restaurants]),
   );
 
   useFocusEffect(
@@ -152,7 +162,7 @@ export default function Prices() {
         }
       };
       handleConectarPlus();
-    }, [selectedRestaurant]),
+    }, []),
   );
 
   if (finalCotacao) {
