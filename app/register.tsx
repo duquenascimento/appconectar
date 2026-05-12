@@ -686,10 +686,11 @@ export default function Register() {
                   </View>
                   <View flex={1}>
                     <Text fontSize={14} fontWeight="700" color="#7A4F00">
-                      Cadastro como pessoa física
+                      Tem um restaurante/CNPJ?
                     </Text>
                     <Text marginTop={4} fontSize={12} color="#7A4F00" lineHeight={18}>
-                      Você escolheu CPF. Preencha apenas os dados solicitados para continuar.
+                      Com o cadastro como Pessoa Jurídica você acessa condições melhores de prazo e
+                      benefícios exclusivos para o seu negócio.
                     </Text>
                   </View>
                 </View>
