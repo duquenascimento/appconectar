@@ -31,6 +31,7 @@ import {
 import { Stack, View } from 'tamagui';
 
 const positionOptions = [
+  { label: 'Pessoa Física', value: 'Pessoa Física' },
   { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
   { label: 'Diretor(a)', value: 'Diretor(a)' },
   { label: 'Coordenador(a)', value: 'Coordenador(a)' },
