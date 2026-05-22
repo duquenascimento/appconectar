@@ -1,16 +1,11 @@
-import { getBrazilDateTime, getBrazilJSDate } from './dateUtils';
+import { DateTime } from 'luxon';
+import { getBrazilJSDate } from './dateUtils';
 
-export function isBefore13Hours(): boolean {
-  const now = getBrazilDateTime(); // Data e hora atual
-  const targetTime = now.set({ hour: 13, minute: 0, second: 0, millisecond: 0 }); // Define 13h00 no mesmo dia
-  return now.valueOf() < targetTime.valueOf(); // Compara os timestamps em milissegundos
-}
-
-export function getSecondsUntil13h() {
+export function getSecondsUntilTime(targetHours: number, targetMinutes: number): number {
   const now = getBrazilJSDate(); // Data e hora atual
   const target = getBrazilJSDate(); // Cria uma nova data (hoje)
 
-  target.setHours(13, 0, 0, 0); // Define 13h00 na data atual
+  target.setHours(targetHours, targetMinutes, 0, 0); // Define o horário alvo na data atual
 
   const differenceInMillis = target.getTime() - now.getTime(); // Diferença em milissegundos
 
@@ -37,4 +32,17 @@ export function formatTime(seconds: number): string {
   const secString = remainingSeconds.toString().padStart(2, '0');
 
   return `${minString}:${secString}`;
+}
+
+export function formatTimeString(time: DateTime | Date | string): string {
+  if (typeof time === 'string') {
+    const dateTime = DateTime.fromISO(time);
+    return dateTime.toFormat('HH:mm');
+  } else if (time instanceof Date) {
+    const dateTime = DateTime.fromJSDate(time);
+    return dateTime.toFormat('HH:mm');
+  } else if (time instanceof DateTime) {
+    return time.toFormat('HH:mm');
+  }
+  return '';
 }

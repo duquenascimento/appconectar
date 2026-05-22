@@ -108,6 +108,7 @@ export interface CombinationSupplierDTO {
   name: string;
   rating: string;
   isAvailable: boolean;
+  openingTime: string | undefined;
 }
 
 export interface GetCombinationSuppliersResponseDTO {
