@@ -83,39 +83,54 @@ export function checkSupplierAvailabilityMessage(supplierOpeningTime: string | u
 export function checkSupplierAvailabilityMessageForConectarPlus(suppliers: ConectarPlusSupplier[]): SupplierAvailabilityOnConfirm {
     const currentTime = getBrazilDateTime();
 
-    const availableSuppliers = suppliers.filter(supplier => {
-        if (!supplier.openingTime) return false;
+    const unavailableSuppliers = suppliers.filter(supplier => {
+        if (!supplier.openingTime) {
+            return true;
+        }
 
         const { hour: openingHour, minute: openingMinute } = parseOpeningTime(supplier.openingTime);
         const openingTime = createOpeningDateTime(openingHour, openingMinute);
 
-        return currentTime.valueOf() >= openingTime.valueOf();
+        return currentTime.valueOf() < openingTime.valueOf();
     });
 
-    if (availableSuppliers.length === 0) {
-        const earliestOpeningSupplier = suppliers.reduce((earliest, supplier) => {
-            if (!supplier.openingTime) return earliest;
+    if (unavailableSuppliers.length > 0) {
+        const earliestOpeningSupplier = unavailableSuppliers.reduce<ConectarPlusSupplier | undefined>((earliest, supplier) => {
+            if (!supplier.openingTime) {
+                return earliest;
+            }
 
             const { hour: openingHour, minute: openingMinute } = parseOpeningTime(supplier.openingTime);
             const openingTime = createOpeningDateTime(openingHour, openingMinute);
 
-            const { hour: earliestOpeningHour, minute: earliestOpeningMinute } = parseOpeningTime(earliest?.openingTime);
+            if (!earliest?.openingTime) {
+                return supplier;
+            }
+
+            const { hour: earliestOpeningHour, minute: earliestOpeningMinute } = parseOpeningTime(earliest.openingTime);
             const earliestOpeningTime = createOpeningDateTime(earliestOpeningHour, earliestOpeningMinute);
 
-            if (!earliest || openingTime.valueOf() < earliestOpeningTime.valueOf()) {
+            if (openingTime.valueOf() < earliestOpeningTime.valueOf()) {
                 return supplier;
             }
 
             return earliest;
-        });
+        }, undefined);
 
-        const { hour: openingHour, minute: openingMinute } = parseOpeningTime(earliestOpeningSupplier?.openingTime);
-        const formattedOpeningTime = formatTimeString(createOpeningDateTime(openingHour, openingMinute));
+        const formattedOpeningTime = earliestOpeningSupplier?.openingTime
+            ? formatTimeString(createOpeningDateTime(
+                parseOpeningTime(earliestOpeningSupplier.openingTime).hour,
+                parseOpeningTime(earliestOpeningSupplier.openingTime).minute,
+            ))
+            : undefined;
+
+        const openingTimeMessage = formattedOpeningTime ? `as ${formattedOpeningTime}` : 'o horário de abertura dos fornecedores';
+
         return {
             openingTime: formattedOpeningTime,
             isSupplierAvailableForOrder: false,
-            mainMessage: `A confirmação só pode ser feita após ${earliestOpeningSupplier ? `as ${formattedOpeningTime}` : 'o horário de abertura dos fornecedores'}`,
-            notificationMessage: `Sua notificação foi agendada para ${earliestOpeningSupplier ? `as ${formattedOpeningTime}` : 'o horário de abertura dos fornecedores'} para que você possa confirmar seu pedido.`
+            mainMessage: `A confirmação só pode ser feita após ${openingTimeMessage}`,
+            notificationMessage: `Sua notificação foi agendada para ${openingTimeMessage} para que você possa confirmar seu pedido.`
         };
     }
 
