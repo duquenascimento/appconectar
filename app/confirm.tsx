@@ -1,11 +1,24 @@
 import { AccordionInfo } from '@/src/components/AccordionInfo';
 import { DialogInstance } from '@/src/components/confirm/dialogInstance';
-import { DialogInstanceNotification } from '@/src/components/confirm/dialogInstanceNotification';
+import { OrderScheduleNotificationDialog } from '@/src/components/confirm/orderScheduleNotificationDialog';
+import { CreditCardSection } from '@/src/components/CreditCardSection';
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
+import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
 import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
+import { getCreditCards } from '@/src/services/creditCardService';
+import { CreditCard } from '@/src/types/creditCardTypes';
 import { SupplierData } from '@/src/types/types';
+import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
+import { extractErrorMessage } from '@/src/utils/errorUtils';
+import { processOrderResponse } from '@/src/utils/processOrderResponse';
+import {
+  checkSupplierAvailabilityMessage,
+  SupplierAvailabilityOnConfirm,
+} from '@/src/utils/supplierUtils';
+import { getSecondsUntilTime } from '@/src/utils/timeUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
@@ -23,17 +36,8 @@ import { confirmOrder, ConfirmOrderRequestBody } from '../src/services/orderServ
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { useInactivityRedirect } from '../src/utils/inativityTimer';
 import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils';
-import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteStorage, getStorage, getToken } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
-import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
-import { extractErrorMessage } from '@/src/utils/errorUtils';
-import { getCreditCards } from '@/src/services/creditCardService';
-import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
-import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
-import { CreditCard } from '@/src/types/creditCardTypes';
-import { CreditCardSection } from '@/src/components/CreditCardSection';
-import { processOrderResponse } from '@/src/utils/processOrderResponse';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -62,7 +66,7 @@ export default function Confirm() {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
-  const [isBefore13h, setIsBefore13h] = useState<boolean>(true);
+  const [supplierAvailability, setSupplierAvailability] = useState<SupplierAvailabilityOnConfirm>();
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
   const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
@@ -116,6 +120,7 @@ export default function Confirm() {
     if (!supplierText) return;
     const supplier = JSON.parse(supplierText);
     setSupplier(supplier);
+    return supplier;
   }, []);
 
   const loadCreditCards = useCallback(async () => {
@@ -147,10 +152,16 @@ export default function Confirm() {
     const loadSupplierAsync = async () => {
       try {
         setLoading(true);
-        await loadSupplier();
-        const activateSchedule =
-          (selectedRestaurant?.allowEmergencyOrder ?? false) ? false : isBefore13Hours();
-        setIsBefore13h(activateSchedule);
+        const loadedSupplier = await loadSupplier();
+        const supplierAvailabilityData = checkSupplierAvailabilityMessage(
+          loadedSupplier?.supplier?.openingTime,
+        );
+
+        if (selectedRestaurant?.allowEmergencyOrder ?? false) {
+          supplierAvailabilityData.isSupplierAvailableForOrder = true;
+        }
+
+        setSupplierAvailability(supplierAvailabilityData);
       } catch (err) {
         console.error(err);
         router.push('/prices');
@@ -348,16 +359,25 @@ export default function Confirm() {
     setConfirmedWarnings({ missingItems: false, sundayWarning: false });
   }, []);
 
+  const isSuppliersAvailableForOrder = supplierAvailability?.isSupplierAvailableForOrder ?? false;
+
   const handleConfirmButtonPress = useCallback(async () => {
     try {
-      if (isBefore13h && selectedRestaurant) {
+      const isSupplierAvailable = supplierAvailability?.isSupplierAvailableForOrder ?? false;
+      if (!isSupplierAvailable && selectedRestaurant) {
+        setDisableConfirm(true);
+        const [targetHours, targetMinutes] = supplierAvailability?.openingTime
+          ?.split(':')
+          .map(Number) ?? [13, 0];
         const errors = await scheduleNotification(
           selectedRestaurant!.addressInfos[0].responsibleReceivingPhoneNumber,
+          getSecondsUntilTime(targetHours, targetMinutes),
         );
 
         setShowErros(errors);
         if (errors.length) setBooleanErros(true);
         else setShowNotification(true);
+        setDisableConfirm(false);
       } else {
         const validationResult = validateAddress(selectedRestaurant);
         if (!validationResult.isValid) {
@@ -371,7 +391,7 @@ export default function Confirm() {
     } catch (error) {
       console.error('Erro no botão de confirmação:', error);
     }
-  }, [isBefore13h, selectedRestaurant, handleConfirmOrder]);
+  }, [supplierAvailability, selectedRestaurant, handleConfirmOrder]);
 
   // Debounce para evitar múltiplos cliques rápidos
   const onConfirmPressDebounced = useMemo(
@@ -411,9 +431,10 @@ export default function Confirm() {
           erros={showErros}
         />
 
-        <DialogInstanceNotification
+        <OrderScheduleNotificationDialog
           openModal={showNotification}
           setRegisterInvalid={setShowNotification}
+          supplierOpeningTime={supplierAvailability?.openingTime}
         />
         <MissingItemsDialog
           open={showMissingItemsModal}
@@ -852,9 +873,9 @@ export default function Confirm() {
             color="red"
             fontSize={10}
             textAlign="center"
-            display={isBefore13h ? 'flex' : 'none'}
+            display={isSuppliersAvailableForOrder ? 'none' : 'flex'}
           >
-            A confirmação só pode ser feita após as 13h
+            {supplierAvailability?.mainMessage || 'Fornecedor indisponível para pedidos no momento'}
             {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário'}
           </Text>
         </View>
@@ -877,7 +898,9 @@ export default function Confirm() {
           </Button>
           <Button
             disabled={
-              disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)
+              disableConfirm ||
+              isRetroactiveDate ||
+              (isCpf && isSuppliersAvailableForOrder && !selectedCreditCard)
             }
             onPress={onConfirmPressDebounced}
             width={170}
@@ -887,7 +910,7 @@ export default function Confirm() {
             }}
           >
             <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
-              {isBefore13h ? 'Agendar notificação' : 'Confirmar pedido'}
+              {isSuppliersAvailableForOrder ? 'Confirmar pedido' : 'Agendar notificação'}
             </Text>
           </Button>
         </View>
