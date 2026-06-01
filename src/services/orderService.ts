@@ -1,4 +1,4 @@
-import type { ConectarPlusSupplier } from '@/app/quotationDetailsScreen';
+import { ConectarPlusSupplier } from '@/app/quotationDetailsScreen';
 import axios, { HttpStatusCode } from 'axios';
 import { CombinationMissingProducts } from '../types/combinationTypes';
 import { CancelationOrderErrorKind, CancelOrderResult } from '../types/cancelOrderTypes';

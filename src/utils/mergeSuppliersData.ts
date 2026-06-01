@@ -71,7 +71,6 @@ export function mergeSupplierData(
               sku: "",
             },
             sameDayOrders: matchingSupplier.supplier.sameDayOrders,
-            openingTime: matchingSupplier.supplier.openingTime,
           },
         };
 

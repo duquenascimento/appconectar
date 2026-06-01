@@ -1,11 +1,8 @@
 import { Supplier } from '@/src/types/types';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import { formatCurrency } from '@/src/utils/formatCurrency';
-import { isSupplierOpen, getFormattedOpeningTime } from '@/src/utils/supplierUtils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect } from 'expo-router';
 import { Platform } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
 import { Button, Image, Text, View, XStack, YStack } from 'tamagui';
 import { AccordionInfo } from '../AccordionInfo';
 import { ProductItemCard } from './ProductItemCard';
@@ -18,8 +15,6 @@ interface SupplierCardProps {
 
 export function SupplierCard({ supplier, deliveryDate, onShowPdf }: SupplierCardProps) {
   const hasSameDayOrders = supplier.sameDayOrders.length > 0;
-  const isOpen = isSupplierOpen(supplier.openingTime);
-  const formattedOpeningTime = getFormattedOpeningTime(supplier.openingTime);
 
   return (
     <YStack
@@ -39,15 +34,10 @@ export function SupplierCard({ supplier, deliveryDate, onShowPdf }: SupplierCard
           borderRadius={20}
         />
         <YStack marginLeft="$3" flex={1}>
-          <XStack alignItems="center" gap="$2">
+          <XStack>
             <Text fontSize={16} fontWeight="bold">
               {supplier.name.replace('Distribuidora', '').trim()}
             </Text>
-            {!isOpen && (
-              <Text fontSize={12} color="#DC2626" fontWeight="500">
-                Abre às {formattedOpeningTime}
-              </Text>
-            )}
             {hasSameDayOrders && (
               <View
                 marginLeft={8}
