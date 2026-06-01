@@ -8,7 +8,6 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { TokenPayload } from '../types/authTypes';
 import { UserRole } from '../types/userRoleTypes';
 import {
   clearAllStoragesData,
@@ -19,7 +18,6 @@ import {
   setToken,
   STORAGE_DEFAULT_KEYS,
 } from '../utils/utils';
-import { jwtDecode } from 'jwt-decode';
 
 interface AuthContextProps {
   authToken: string | null;
@@ -27,9 +25,8 @@ interface AuthContextProps {
   isAdmin: boolean;
   isInitialized: boolean;
   saveLogin: (token: string, userRoles: UserRole[]) => Promise<void>;
-  getUserRoles: () => Promise<UserRole[] | null>;
-  getTokenPayload: () => Promise<TokenPayload | null>;
   logout: () => Promise<void>;
+  getUserRoles: () => Promise<UserRole[] | null>;
 }
 
 const AuthContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -116,19 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     initialize();
   }, []);
 
-  const getTokenPayload = useCallback(async (): Promise<TokenPayload | null> => {
-    try {
-      const token = await getToken();
-      if (!token) return null;
-
-      const decodedPayload = jwtDecode<TokenPayload>(token);
-      return decodedPayload;
-    } catch (error) {
-      console.error('Erro ao decodificar token:', error);
-      return null;
-    }
-  }, []);
-
   const logout = useCallback(async () => {
     try {
       await Promise.all([deleteAuthToken(), saveUserRoles(null), clearAllStoragesData()]);
@@ -149,11 +133,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAdmin,
       isInitialized,
       saveLogin,
-      getTokenPayload,
-      getUserRoles,
       logout,
+      getUserRoles,
     }),
-    [authToken, userRoles, isAdmin, saveLogin, logout, getTokenPayload],
+    [authToken, userRoles, isAdmin, saveLogin, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

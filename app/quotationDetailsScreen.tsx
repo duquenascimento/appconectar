@@ -1,19 +1,11 @@
-import { CreditCardSection } from '@/src/components/CreditCardSection';
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
-import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
 import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
-import { getCreditCards } from '@/src/services/creditCardService';
 import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
 import { CombinationMissingProducts } from '@/src/types/combinationTypes';
-import { CreditCard } from '@/src/types/creditCardTypes';
 import { SameDayOrder } from '@/src/types/types';
-import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
-import { extractErrorMessage } from '@/src/utils/errorUtils';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { checkSupplierAvailabilityMessageForConectarPlus } from '@/src/utils/supplierUtils';
-import { getSecondsUntilTime } from '@/src/utils/timeUtils';
 import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
@@ -38,7 +30,14 @@ import {
 import { scheduleNotification } from '../src/utils/agendamentoUtils';
 import { formatCurrency } from '../src/utils/formatCurrency';
 import { processOrderResponse } from '../src/utils/processOrderResponse';
+import { isBefore13Hours } from '../src/utils/timeUtils';
 import { deleteMultiStorage, getToken } from '../src/utils/utils';
+import { extractErrorMessage } from '@/src/utils/errorUtils';
+import { getCreditCards } from '@/src/services/creditCardService';
+import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
+import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
+import { CreditCard } from '@/src/types/creditCardTypes';
+import { CreditCardSection } from '@/src/components/CreditCardSection';
 
 export interface Product {
   price: number;
@@ -77,7 +76,6 @@ export interface ConectarPlusSupplier {
   discount: Discount;
   star: string;
   sameDayOrders: SameDayOrder[];
-  openingTime: string | undefined;
 }
 
 export interface SupplierData {
@@ -114,10 +112,10 @@ export default function QuotationDetailsScreen() {
     scheduleId?: string;
   }>();
 
-  const suppliersData = useMemo<SupplierData[]>(() => {
+  const suppliersData = useMemo(() => {
     if (!suppliersDataParam) return [];
     try {
-      return JSON.parse(decodeURIComponent(suppliersDataParam as string)) as SupplierData[];
+      return JSON.parse(decodeURIComponent(suppliersDataParam as string));
     } catch (error) {
       console.error('Erro ao parsear suppliersData:', error);
       return [];
@@ -210,14 +208,7 @@ export default function QuotationDetailsScreen() {
     );
   }, [suppliers]);
 
-  const suppliersAvailability = checkSupplierAvailabilityMessageForConectarPlus(
-    suppliers.map((s) => s.supplier),
-  );
-  if (selectedRestaurant?.allowEmergencyOrder) {
-    suppliersAvailability.isSupplierAvailableForOrder = true;
-  }
-
-  const areAllSuppliersAvailableForOrder = suppliersAvailability.isSupplierAvailableForOrder;
+  const isBefore13h = selectedRestaurant?.allowEmergencyOrder ? false : isBefore13Hours();
 
   const handleBackPress = () => {
     if (router.canGoBack()) {
@@ -226,11 +217,11 @@ export default function QuotationDetailsScreen() {
       router.push('prices');
     }
   };
-
+  
   const handleConfirm = useCallback(
     async (overrideWarnings?: { sundayWarning?: boolean }) => {
-      if (disableConfirm) {
-        return;
+      if(disableConfirm) {
+        return
       }
       setDisableConfirm(true);
       try {
@@ -256,13 +247,9 @@ export default function QuotationDetailsScreen() {
           return;
         }
 
-        if (!areAllSuppliersAvailableForOrder) {
-          const [targetHours, targetMinutes] = suppliersAvailability?.openingTime
-            ?.split(':')
-            .map(Number) ?? [13, 0];
+        if (isBefore13h) {
           const errors = await scheduleNotification(
             restaurantData.addressInfos[0].responsibleReceivingPhoneNumber,
-            getSecondsUntilTime(targetHours, targetMinutes),
           );
 
           setShowErros(errors);
@@ -333,42 +320,35 @@ export default function QuotationDetailsScreen() {
         setDisableConfirm(false);
       }
     },
-    [
-      suppliers,
-      disableConfirm,
-      deliveryDate,
-      selectedCreditCard,
-      confirmedWarnings,
-      areAllSuppliersAvailableForOrder,
-      resetDeliveryDate,
-      router,
-    ],
+    [suppliers, disableConfirm, deliveryDate, selectedCreditCard, confirmedWarnings, isBefore13h, resetDeliveryDate, router],
   );
 
   const loadCreditCards = useCallback(async () => {
-    const restaurantId = selectedRestaurant?.id;
-    if (!restaurantId) return;
+      const restaurantId = selectedRestaurant?.id;
+      if (!restaurantId) return;
 
-    if (selectedRestaurant.paymentWay !== 'CC32') {
-      return;
-    }
-
-    try {
-      const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
-      setIsCpf(isCpfRestaurant);
-      if (isCpfRestaurant) {
-        const creditCards = await getCreditCards(restaurantId);
-        const defaultCreditCard = extractDefaultCreditCart(creditCards);
-        if (defaultCreditCard) {
-          setSelectedCreditCard(defaultCreditCard);
-        } else {
-          setOpenCreditCardDialog(true);
-        }
+      if(selectedRestaurant.paymentWay !== 'CC32') {
+        return;
       }
-    } catch (err) {
-      console.error(err);
-    }
-  }, [selectedRestaurant]);
+
+  
+      try {
+        const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
+        setIsCpf(isCpfRestaurant);
+        if(isCpfRestaurant) {
+          const creditCards = await getCreditCards(restaurantId);
+          const defaultCreditCard = extractDefaultCreditCart(creditCards);
+          if(defaultCreditCard) {
+            setSelectedCreditCard(defaultCreditCard);
+          } else {
+            setOpenCreditCardDialog(true);
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      
+    }, [selectedRestaurant]);
 
   const handleConfirmSundayWarning = useCallback(async () => {
     setShowSundayWarning(false);
@@ -393,7 +373,7 @@ export default function QuotationDetailsScreen() {
   useFocusEffect(
     useCallback(() => {
       loadCreditCards();
-    }, [loadCreditCards]),
+    }, [loadCreditCards])
   );
 
   if (!suppliers || suppliers.length === 0) {
@@ -476,7 +456,7 @@ export default function QuotationDetailsScreen() {
                 {totals.missingItems !== 1 ? 's' : ''}
               </Text>
             </YStack>
-            {selectedCreditCard && <CreditCardSection creditCard={selectedCreditCard} />}
+            {selectedCreditCard && (<CreditCardSection creditCard={selectedCreditCard} />)}
           </YStack>
         </ScrollView>
 
@@ -490,10 +470,7 @@ export default function QuotationDetailsScreen() {
         <CustomAlert
           visible={showNotification}
           title="Notificação agendada!"
-          message={
-            suppliersAvailability.notificationMessage ||
-            'Sua notificação foi agendada para o horário de abertura dos fornecedores.'
-          }
+          message="Sua notificação foi agendada para as 13h para que você possa confirmar seu pedido."
           onConfirm={() => setShowNotification(false)}
           width="35%"
         />
@@ -501,7 +478,7 @@ export default function QuotationDetailsScreen() {
           open={openCreditCardDialog}
           setOpen={setOpenCreditCardDialog}
           onSaved={async (creditCard: CreditCard) => {
-            await loadCreditCards();
+            await loadCreditCards()
           }}
         />
         <SundayOrderAlert
@@ -536,10 +513,9 @@ export default function QuotationDetailsScreen() {
               color="red"
               fontSize={12}
               textAlign="center"
-              display={areAllSuppliersAvailableForOrder ? 'none' : 'flex'}
+              display={isBefore13h ? 'flex' : 'none'}
             >
-              {suppliersAvailability?.mainMessage ||
-                'Fornecedor indisponível para pedidos no momento'}
+              A confirmação só pode ser feita após as 13h
               {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário.'}
             </Text>
           </View>
@@ -568,11 +544,7 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <Button
-                  disabled={
-                    disableConfirm ||
-                    isRetroactiveDate ||
-                    (isCpf && areAllSuppliersAvailableForOrder && !selectedCreditCard)
-                  }
+                  disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
                   onPress={onConfirmPressDebounced}
                   hoverStyle={{
                     backgroundColor: '#1DC588',
@@ -586,9 +558,7 @@ export default function QuotationDetailsScreen() {
                   borderColor="#A9A9A9"
                   borderWidth={1}
                 >
-                  {areAllSuppliersAvailableForOrder
-                    ? 'Confirmar combinação'
-                    : 'Agendar notificação'}
+                  {isBefore13h ? 'Agendar notificação' : 'Confirmar combinação'}
                 </Button>
               </YStack>
             </XStack>
@@ -610,12 +580,8 @@ export default function QuotationDetailsScreen() {
               </YStack>
               <YStack flex={1}>
                 <CustomButton
-                  disabled={
-                    disableConfirm ||
-                    isRetroactiveDate ||
-                    (isCpf && areAllSuppliersAvailableForOrder && !selectedCreditCard)
-                  }
-                  title={areAllSuppliersAvailableForOrder ? 'Confirmar' : 'Agendar'}
+                  disabled={disableConfirm || isRetroactiveDate || (isCpf && !isBefore13h && !selectedCreditCard)}
+                  title={isBefore13h ? 'Agendar' : 'Confirmar'}
                   onPress={() => handleConfirm()}
                   backgroundColor="#1DC588"
                   textColor="#FFFFFF"

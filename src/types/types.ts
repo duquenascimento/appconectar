@@ -42,7 +42,6 @@ export interface Supplier {
   star: string;
   orderId?: string | null;
   sameDayOrders: SameDayOrder[];
-  openingTime: string | undefined;
 }
 
 export interface SupplierData {

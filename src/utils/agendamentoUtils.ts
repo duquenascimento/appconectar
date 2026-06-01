@@ -1,9 +1,10 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { getBrazilDateTime } from './dateUtils';
+import { getSecondsUntil13h } from './timeUtils';
 import { getToken } from './utils';
 
-export const scheduleNotification = async (phoneNumber: string, timeToNotifyInSeconds: number): Promise<string[]> => {
+export const scheduleNotification = async (phoneNumber: string): Promise<string[]> => {
   const erros: string[] = [];
   if (!phoneNumber) {
     erros.push('Por favor, cadastre o telefone do resposável pelo recebimento.');
@@ -34,7 +35,7 @@ export const scheduleNotification = async (phoneNumber: string, timeToNotifyInSe
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-          seconds: timeToNotifyInSeconds,
+          seconds: getSecondsUntil13h(),
         },
       });
       console.log('Notificação local agendada');
