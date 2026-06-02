@@ -6,6 +6,7 @@ import { loadProgress, saveStepData } from '@/src/services/registerProgressServi
 import { checkDocument, sendFullRegister } from '@/src/services/registerService';
 import { getErrorMessage } from '@/src/types/apiErrorTypes';
 import { formatDocument, isCnpjData, type DocumentType } from '@/src/utils/documentUtils';
+import { getPaymentDescription } from '@/src/utils/paymentUtils';
 import {
   step0Validation,
   step1Validation,
@@ -30,7 +31,6 @@ import {
   STORAGE_DEFAULT_KEYS,
 } from '../src/utils/utils';
 import { VersionInfo } from '../src/utils/VersionApp';
-import { getPaymentDescription } from '@/src/utils/paymentUtils';
 
 export default function Register() {
   const [step, setStep] = useState<number>(0);
@@ -46,9 +46,11 @@ export default function Register() {
   const [paymentWayOpen, setPaymentWayOpen] = useState(false);
   const [daysOpen, setDaysOpen] = useState(false);
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
-  const { logout } = useAuthContext();
+  const { getTokenPayload, logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
   const { isLargeScreen } = useResponsiveness();
+
+  const isCpf = documentType === 'CPF';
 
   const allClosedDropdowns = () => {
     setMinHourOpen(false);
@@ -259,7 +261,7 @@ export default function Register() {
         if (progress.values.document) {
           const onlyNumbers = progress.values.document.replace(/\D/g, '');
           if (onlyNumbers.length > 0) {
-            setDocumentType(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ');
+            await handleDocumentTypeToggle(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ', false);
           }
         }
         return;
@@ -304,7 +306,7 @@ export default function Register() {
       const storedValuesArray = await Promise.all(fieldsToLoad.map((field) => getStorage(field)));
 
       const loadedValues: any = {};
-      fieldsToLoad.forEach((field, index) => {
+      fieldsToLoad.forEach(async (field, index) => {
         const value = storedValuesArray[index];
         if (value !== null) {
           if (field === 'noStateNumberId' || field === 'closeDoor') {
@@ -316,7 +318,7 @@ export default function Register() {
             loadedValues['document'] = value;
             const onlyNumbers = value.replace(/\D/g, '');
             if (onlyNumbers.length > 0) {
-              setDocumentType(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ');
+              await handleDocumentTypeToggle(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ', false);
             }
           } else {
             loadedValues[field] = value;
@@ -459,15 +461,23 @@ export default function Register() {
     formik.setFieldValue('document', formatted);
   };
 
-  const handleDocumentTypeToggle = (type: DocumentType) => {
+  const handleDocumentTypeToggle = async (type: DocumentType, resetDocument: boolean = true) => {
     setDocumentType(type);
     if (type === 'CPF') {
+      const userTokenPayload = await getTokenPayload();
+      const userName = userTokenPayload?.name;
+      formik.setFieldValue('restaurantName', userName || '');
+
       formik.setFieldValue('paymentWay', 'CC32');
     } else {
+      formik.setFieldValue('restaurantName', '');
       formik.setFieldValue('paymentWay', '');
     }
-    formik.setFieldValue('document', '');
-    formik.setFieldError('document', undefined);
+
+    if (resetDocument) {
+      formik.setFieldValue('document', '');
+      formik.setFieldError('document', undefined);
+    }
   };
 
   const handleCheckBox = (checked: boolean) => {
@@ -515,8 +525,6 @@ export default function Register() {
       formik.setFieldError('localNumber', undefined);
     }
   };
-
-  const isCpf = documentType === 'CPF';
 
   return (
     <KeyboardAvoidingView
@@ -607,26 +615,30 @@ export default function Register() {
                     </Button>
                   </View>
                 </View>
-                <Text marginTop={15}>Nome na fachada da rua</Text>
-                <Input
-                  placeholder="Nome do restaurante"
-                  onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
-                  onBlur={formik.handleBlur('restaurantName')}
-                  value={formik.values.restaurantName}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  borderColor={
-                    formik.touched.restaurantName && formik.errors.restaurantName
-                      ? 'red'
-                      : 'lightgray'
-                  }
-                  focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                />
-                {formik.touched.restaurantName && formik.errors.restaurantName && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.restaurantName}
-                  </Text>
+                {!isCpf && (
+                  <>
+                    <Text marginTop={15}>Nome na fachada da rua</Text>
+                    <Input
+                      placeholder="Nome do restaurante"
+                      onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
+                      onBlur={formik.handleBlur('restaurantName')}
+                      value={formik.values.restaurantName}
+                      backgroundColor="white"
+                      borderRadius={2}
+                      borderColor={
+                        formik.touched.restaurantName && formik.errors.restaurantName
+                          ? 'red'
+                          : 'lightgray'
+                      }
+                      focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                      hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
+                    />
+                    {formik.touched.restaurantName && formik.errors.restaurantName && (
+                      <Text color="red" fontSize={12}>
+                        {formik.errors.restaurantName}
+                      </Text>
+                    )}
+                  </>
                 )}
 
                 <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
@@ -650,6 +662,39 @@ export default function Register() {
                   </Text>
                 )}
               </View>
+              {isCpf && (
+                <View
+                  marginTop={12}
+                  backgroundColor="#FFF7E6"
+                  borderColor="#F5C542"
+                  borderWidth={1}
+                  borderRadius={8}
+                  padding={12}
+                  flexDirection="row"
+                  alignItems="flex-start"
+                  gap={12}
+                >
+                  <View
+                    width={36}
+                    height={36}
+                    borderRadius={18}
+                    backgroundColor="#FFE8B3"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Icons name="warning" size={20} color="#9A6700" />
+                  </View>
+                  <View flex={1}>
+                    <Text fontSize={14} fontWeight="700" color="#7A4F00">
+                      Tem um restaurante/CNPJ?
+                    </Text>
+                    <Text marginTop={4} fontSize={12} color="#7A4F00" lineHeight={18}>
+                      Com o cadastro como Pessoa Jurídica você acessa condições melhores de prazo e
+                      benefícios exclusivos para o seu negócio.
+                    </Text>
+                  </View>
+                </View>
+              )}
             </View>
           ) : step === 1 ? (
             <View flex={1} marginTop={20} padding={20}>
@@ -660,14 +705,18 @@ export default function Register() {
                 borderRadius={5}
                 padding={10}
               >
-                <Text>Nome na fachada da rua</Text>
-                <Input
-                  value={formik.values.restaurantName}
-                  disabled
-                  opacity={0.5}
-                  backgroundColor="white"
-                  borderRadius={2}
-                />
+                {!isCpf && (
+                  <>
+                    <Text>Nome na fachada da rua</Text>
+                    <Input
+                      value={formik.values.restaurantName}
+                      disabled
+                      opacity={0.5}
+                      backgroundColor="white"
+                      borderRadius={2}
+                    />
+                  </>
+                )}
 
                 <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
                 <Input

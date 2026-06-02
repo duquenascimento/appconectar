@@ -1,14 +1,16 @@
 import { Dialog, Adapt, Sheet, XStack, Text, Button } from 'tamagui';
 
-type DialogInstanceNotificationProps = {
+type OrderScheduleNotificationDialogProps = {
   openModal: boolean;
   setRegisterInvalid: (value: boolean) => void;
+  supplierOpeningTime: string | undefined;
 };
 
-export function DialogInstanceNotification({
+export function OrderScheduleNotificationDialog({
   openModal,
   setRegisterInvalid,
-}: DialogInstanceNotificationProps) {
+  supplierOpeningTime,
+}: OrderScheduleNotificationDialogProps) {
   return (
     <Dialog modal open={openModal}>
       <Adapt /* when="sm" */ platform="touch">
@@ -65,7 +67,7 @@ export function DialogInstanceNotification({
           <Dialog.Title>Pronto!</Dialog.Title>
           <Dialog.Description>Sua notificação foi agendada</Dialog.Description>
 
-          <Text>As 13h você será alertado em sua barra de notificação, até logo.</Text>
+          <Text>Às {supplierOpeningTime} você será alertado em sua barra de notificação, até logo.</Text>
 
           <XStack alignSelf="center" gap="$4">
             <Dialog.Close displayWhenAdapted asChild>

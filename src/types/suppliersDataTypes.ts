@@ -63,6 +63,7 @@ export interface AvailableSupplier {
       product: SupplierProduct[];
     };
     sameDayOrders: SameDayOrder[];
+    openingTime?: string;
   };
 }
 
@@ -102,6 +103,7 @@ export interface OutputSupplier {
       sku: string;
     };
     sameDayOrders: SameDayOrder[];
+    openingTime?: string;
   };
 }
 
@@ -110,6 +112,7 @@ export interface CombinationSupplier {
   idexterno: string;
   nomefornecedor: string;
   nota: string;
+  horarioabertura: string | undefined;
 }
 
 export type FornecedorOrderBy = 'nomefornecedor' | 'nota' | 'idexterno';
