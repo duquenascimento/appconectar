@@ -1,18 +1,12 @@
-name: Notifications and Sync
+name: Notify Slack on PR
 
 on:
   pull_request:
     types:
       - opened
 
-  push:
-    branches:
-      - develop
-      - main
-
 jobs:
-  notify-slack:
-    if: github.event_name == 'pull_request'
+  notify:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,40 +23,3 @@ jobs:
               \"text\": \"Nova Pull Request criada por *$GITHUB_ACTOR*:\n*<$PR_URL|$PR_TITLE>*\"
             }" \
             "$SLACK_WEBHOOK_URL"
-
-  sync-beta:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Configure SSH
-        run: |
-          mkdir -p ~/.ssh
-
-          echo "${{ secrets.MIRROR_SSH_KEY }}" > ~/.ssh/id_ed25519
-
-          chmod 600 ~/.ssh/id_ed25519
-
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
-
-      - name: Configure Git
-        run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
-      - name: Add beta remote
-        run: |
-          git remote add beta git@github.com:duquenascimento/appconectar.git
-
-      - name: Push current branch
-        run: |
-          BRANCH=${GITHUB_REF_NAME}
-
-          echo "Sincronizando branch: $BRANCH"
-
-          git push beta $BRANCH:$BRANCH --force
