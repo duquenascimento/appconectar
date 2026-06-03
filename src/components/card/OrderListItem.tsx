@@ -3,26 +3,50 @@ import { View, Text, YStack } from 'tamagui';
 import Icons from '@expo/vector-icons/Ionicons';
 
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
+import { isScheduleOrderResponse, ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
 import BadgeText from '@/src/components/text/BadgeText';
 import { ordersScreenStyles as styles } from '@/src/styles/styles';
-import { OrderHistory } from '@/src/types/IOrder';
+import { OrderData } from '@/src/types/IOrder';
+import { useEffect, useState } from 'react';
 
 interface OrderListItemProps {
-  item: OrderHistory;
+  item: OrderData | ScheduleOrderResponse;
   isLargeScreen?: boolean;
   selectedOrders: string[];
   onToggleSelect: (orderId: string) => void;
-  onPress: (orderId: string) => void;
+  onPress: (orderId: string, isScheduled: boolean) => void;
 }
 
 export default function OrderListItem({
   item,
+  isLargeScreen,
   selectedOrders,
   onToggleSelect,
   onPress,
 }: OrderListItemProps) {
-  const isCanceled = item.status_id === 6;
-  const isPix = isCanceled ? false : (item.paymentWay === 'AV01' || item.paymentWay === 'AV00');
+  const [supplierName, setSupplierName] = useState<string>('Fornecedor Indisponível');
+  const [isCanceled, setIsCanceled] = useState<boolean>(false);
+
+  const isScheduledOrder = isScheduleOrderResponse(item);
+
+  useEffect(() => {
+    if (!isScheduledOrder) {
+      setIsCanceled(item.status_id === 6);
+
+      const newFormatSupplier = Object.values(item.calcOrderAgain)
+        .map((sup: any) => sup.supplier)
+        .find((supplier) => supplier?.externalId === item.supplierId);
+
+      const name = item.calcOrderAgain?.data[0]?.supplier?.name || newFormatSupplier?.name;
+
+      if (name) setSupplierName(name);
+    } else {
+      const name = item.combination?.nome || item.supplier?.name;
+      if (name) setSupplierName(name);
+    }
+  }, []);
+
+  const isPix = isScheduledOrder || isCanceled ? false : (item.paymentWay === 'AV01' || item.paymentWay === 'AV00');
 
   const BadgeComponent = () => {
     if(isCanceled) {
@@ -42,15 +66,17 @@ export default function OrderListItem({
 
   return (
     <TouchableOpacity
-      onPress={() => onPress(item.id)}
+      onPress={() => onPress(item.id, isScheduledOrder)}
+      style={({ pressed }) => [styles.itemContainer]}
     >
       <View flex={1} flexDirection="row" marginVertical={15} gap={3}>
         <TouchableOpacity
-          onPress={() => onToggleSelect(item.id)}
+          onPress={() => !isScheduledOrder && onToggleSelect(item.id)}
+          disabled={isScheduledOrder}
           style={[
             styles.checkboxContainer,
             {
-              borderColor: '#04BF7B',
+              borderColor: isScheduledOrder ? '#ccc' : '#04BF7B',
               borderWidth: 3,
             },
           ]}
@@ -59,9 +85,20 @@ export default function OrderListItem({
         </TouchableOpacity>
 
         <View style={styles.leftColumn}>
-          <Text marginBottom={10} style={styles.orderId}>
-            {item.id}
-          </Text>
+          {isScheduledOrder ? (
+            <View
+              borderRadius={20}
+              paddingHorizontal={8}
+              paddingVertical={2}
+              marginBottom={4}
+            >
+              <Text color="white">{status}</Text>
+            </View>
+          ) : (
+            <Text marginBottom={10} style={styles.orderId}>
+              {item.id}
+            </Text>
+          )}
 
           <Text style={styles.deliveryDate}>{getBrazilLocaleString(item.deliveryDate)}</Text>
         </View>
@@ -69,11 +106,13 @@ export default function OrderListItem({
         <YStack alignItems="flex-end">
           <BadgeComponent />
 
-          <Text marginBottom={10} style={styles.total}>
+          {!isScheduledOrder && (
+            <Text marginBottom={10} style={styles.total}>
               R$ {Number(item.totalConectar).toFixed(2)}
             </Text>
+          )}
 
-          <Text numberOfLines={1}>{item.supplier?.nomefornecedor ?? 'Fornecedor Indiponível'}</Text>
+          <Text numberOfLines={1}>{supplierName}</Text>
         </YStack>
 
         <Icons name="chevron-forward" size={20} color="#000" />
