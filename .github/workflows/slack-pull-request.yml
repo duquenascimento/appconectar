@@ -2,11 +2,13 @@ name: Notify Slack on PR
 
 on:
   pull_request:
-    types: [opened]
+    types:
+      - opened
 
 jobs:
   notify:
     runs-on: ubuntu-latest
+
     steps:
       - name: Send PR notification to Slack
         env:
@@ -15,7 +17,9 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data "{
-            \"text\": \"Nova Pull Request criada por *$GITHUB_ACTOR*:\n*<$PR_URL|$PR_TITLE>*\"
-          }" $SLACK_WEBHOOK_URL
+          curl -X POST \
+            -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"Nova Pull Request criada por *$GITHUB_ACTOR*:\n*<$PR_URL|$PR_TITLE>*\"
+            }" \
+            "$SLACK_WEBHOOK_URL"
