@@ -3,12 +3,12 @@ import axios, { HttpStatusCode } from 'axios';
 import { CombinationMissingProducts } from '../types/combinationTypes';
 import { CancelationOrderErrorKind, CancelOrderResult } from '../types/cancelOrderTypes';
 import { getToken } from '../utils/utils';
-import { OrderData, OrderHistory } from '../types/IOrder';
+import { OrderData } from '../types/IOrder';
 import { Supplier } from '../types/types';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-export const getOrders = async (page = 1, limit = 200, restaurantId: string): Promise<OrderHistory[]> => {
+export const getOrders = async (page = 1, limit = 200, restaurantId: string) => {
   try {
     const response = await axios.get(`${API_URL}/orders/filter`, {
       headers: { Authorization: `Bearer ${await getToken()}` },

@@ -1,5 +1,3 @@
-import { SupplierApiDb } from "./suppliersDataTypes";
-
 export interface OrderData {
   addressId: string;
   calcOrderAgain: {
@@ -24,8 +22,6 @@ export interface OrderData {
   totalConectar: string;
   totalSupplier: string;
 }
-
-export type OrderHistory = Omit<OrderData, 'calcOrderAgain'> & { supplier?: SupplierApiDb};
 
 interface Supplier {
   discount: number;

@@ -22,12 +22,16 @@ import { Input, Text, View, XStack } from 'tamagui';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import { getOrders } from '../src/services/orderService';
 import { VersionInfo } from '../src/utils/VersionApp';
-import { OrderHistory } from '@/src/types/IOrder';
+import { OrderData } from '@/src/types/IOrder';
 import OrderListItem from '@/src/components/card/OrderListItem';
 
 export default function OrdersScreen() {
-  const [orders, setOrders] = useState<OrderHistory[]>([]);
-  const [filteredOrders, setFilteredOrders] = useState<OrderHistory[]>([]);
+  const [orders, setOrders] = useState<OrderData[]>([]);
+  const [filteredOrders, setFilteredOrders] = useState<OrderData[]>([]);
+  const [scheduledOrders, setScheduledOrders] = useState<ScheduleOrderResponse[]>([]);
+  const [filteredScheduledOrders, setFilteredScheduledOrders] = useState<ScheduleOrderResponse[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -52,10 +56,29 @@ export default function OrdersScreen() {
         }
         setLoading(true);
         try {
-          const fetchedOrders = await getOrders(1, 100, selectedRestaurant.externalId);
+          const [result, scheduleOrders] = await Promise.all([
+            getOrders(1, 100, selectedRestaurant.externalId),
+            getAllScheduleOrders(),
+          ]);
 
-          setOrders(fetchedOrders);
-          setFilteredOrders(fetchedOrders);
+          const ordersData = result.map((order: OrderData) => {
+            const filteredSupplier =
+              order.calcOrderAgain?.data?.filter(
+                (item) => item.supplier?.externalId === order.supplierId,
+              ) || [];
+
+            return {
+              ...order,
+              calcOrderAgain: {
+                ...order.calcOrderAgain,
+                data: filteredSupplier,
+              },
+            };
+          });
+          setOrders(ordersData);
+          setScheduledOrders(scheduleOrders);
+          setFilteredScheduledOrders(scheduleOrders);
+          setFilteredOrders(ordersData);
         } catch (error) {
           console.error('Erro ao carregar pedidos:', error);
         } finally {
@@ -70,7 +93,7 @@ export default function OrdersScreen() {
     setSearchQuery(query);
     const datePartialRegex = /^(\d{1,2})(\/\d{1,2})?(\/\d{1,4})?$/;
     const isDatePartial = datePartialRegex.test(query);
-    const fOrders = orders.filter((order) => {
+    const fOrders = orders.filter((order: OrderData) => {
       if (isDatePartial) {
         const [day, month, year] = query.split('/');
         const deliveryDate = order.deliveryDate.split('T')[0];
@@ -82,8 +105,11 @@ export default function OrdersScreen() {
       }
       const matchesId = order.id?.toLowerCase().includes(query.toLowerCase());
       const matchesTotal = order.totalConectar.toString().includes(query);
+      const matchExternalId = order.calcOrderAgain?.data?.find(
+        (item) => item.supplier && item.supplier.externalId === order.supplierId,
+      );
 
-      const matchesSupplier = order?.supplier?.nomefornecedor
+      const matchesSupplier = matchExternalId?.supplier?.name
         .toLowerCase()
         .includes(query.toLowerCase());
 
@@ -91,6 +117,22 @@ export default function OrdersScreen() {
     });
 
     setFilteredOrders(fOrders);
+
+    const fScheduledOrders = scheduledOrders.filter((order: ScheduleOrderResponse) => {
+      const matchType = 'agendamento'.includes(query.toLowerCase());
+      const matchesSuppleir =
+        order.supplier?.name.toLowerCase().includes(query.toLowerCase()) ||
+        order.supplier?.externalId.toLowerCase().includes(query.toLowerCase());
+
+      const matchDate = getBrazilDateTime(order.deliveryDate)
+        .toFormat('dd/MM/yyyy')
+        .toLowerCase()
+        .includes(query.toLowerCase());
+
+      return matchType || matchesSuppleir || matchDate;
+    });
+
+    setFilteredScheduledOrders(fScheduledOrders);
   };
 
   const toggleOrderSelection = (orderId: string) => {
@@ -246,7 +288,7 @@ export default function OrdersScreen() {
           width: isLargeScreen ? '50%' : '92%',
           alignSelf: 'center',
         }}
-        data={filteredOrders}
+        data={[...filteredScheduledOrders, ...filteredOrders]}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={() => <Text>Nenhum pedido encontrado.</Text>}
         renderItem={({ item }) => (
@@ -255,11 +297,18 @@ export default function OrdersScreen() {
             isLargeScreen={isLargeScreen}
             selectedOrders={selectedOrders}
             onToggleSelect={toggleOrderSelection}
-            onPress={(orderId) => {
-              router.push({
-                pathname: '/orderDetailsScreen',
-                params: { orderId },
-              });
+            onPress={(orderId, isScheduled) => {
+              router.push(
+                isScheduled
+                  ? {
+                      pathname: '/schedule',
+                      params: { orderId },
+                    }
+                  : {
+                      pathname: '/orderDetailsScreen',
+                      params: { orderId },
+                    },
+              );
             }}
           />
         )}

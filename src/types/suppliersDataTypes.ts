@@ -124,23 +124,3 @@ export interface GetAllSuppliersParams {
   order?: OrderByDirection;
   routeFilters?: SuppliersRouteFilterParams;
 }
-
-export interface SupplierApiDb {
-    id: string;
-    idexterno: string;
-    nomefornecedor: string;
-    razaosocial: string;
-    responsavel: string;
-    telefonecontato: string;
-    cnpj: string;
-    inscricaoestadual?: string | null,
-    email: string;
-    ativo: boolean;
-    nomeresponsavelentregas: string,
-    bloqueio: boolean;
-    datacadastro: string;
-    dataalteracao: string;
-    responsavelalteracao?: string | null;
-    urlrelatorio: string;
-    nota: string;
-}
