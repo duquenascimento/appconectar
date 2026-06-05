@@ -84,11 +84,8 @@ export function checkSupplierAvailabilityMessageForConectarPlus(suppliers: Conec
     const currentTime = getBrazilDateTime();
 
     const unavailableSuppliers = suppliers.filter(supplier => {
-        if (!supplier.openingTime) {
-            return true;
-        }
-
-        const { hour: openingHour, minute: openingMinute } = parseOpeningTime(supplier.openingTime);
+        const tempOpeningTime = supplier.openingTime ?? '13:00:00'; // Default to 1 PM if opening time is missing
+        const { hour: openingHour, minute: openingMinute } = parseOpeningTime(tempOpeningTime);
         const openingTime = createOpeningDateTime(openingHour, openingMinute);
 
         return currentTime.valueOf() < openingTime.valueOf();
