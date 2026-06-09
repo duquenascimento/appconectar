@@ -61,7 +61,7 @@ export default function RootLayout() {
     (isAuthenticated === false && isProtectedRoute(segments));
 
   return (
-    <TamaguiProvider config={config}>
+    <TamaguiProvider config={config} defaultTheme="light">
       <ToastProvider>
         <AuthProvider>
           <DeliveryDateProvider>
