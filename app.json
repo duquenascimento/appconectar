@@ -6,7 +6,8 @@
     "scheme": "conectarapp",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#ffffff",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
