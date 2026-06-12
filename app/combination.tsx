@@ -25,6 +25,8 @@ import { getCombinationsByRestaurant } from '../src/services/combinationsService
 import { Combinacao } from '../src/types/combinationTypes';
 import { combinacaoValidationSchema } from '../src/validators/combination.form.validator';
 
+const visibleOverflowStyle = Platform.OS === 'web' ? { overflow: 'visible' as const } : undefined;
+
 export function Combination(): JSX.Element {
   const route = useRoute();
   const params = route.params as { id?: string } | undefined;
@@ -454,13 +456,14 @@ export function Combination(): JSX.Element {
         cancelText="Cancelar"
         confirmText="Excluir"
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={visibleOverflowStyle}>
         <YStack
           width={Platform.OS === 'web' ? '76%' : '92%'}
           alignSelf="center"
           padding="$2"
           gap={15}
           marginTop="$2"
+          overflow="visible"
         >
           <InputNome
             error={validationErrors.nome}
@@ -491,11 +494,13 @@ export function Combination(): JSX.Element {
           />
 
           {['especifico', 'qualquer'].includes(combinacao.preferencia_fornecedor_tipo ?? '') && (
-            <ContainerPreferenciasProduto
-              error={validationErrors.preferencias}
-              onClearErrors={clearPreferenceErrors}
-              triggerValidation={triggerValidation}
-            />
+            <View zIndex={4000} overflow="visible">
+              <ContainerPreferenciasProduto
+                error={validationErrors.preferencias}
+                onClearErrors={clearPreferenceErrors}
+                triggerValidation={triggerValidation}
+              />
+            </View>
           )}
         </YStack>
         {Platform.OS === 'web' ? (
