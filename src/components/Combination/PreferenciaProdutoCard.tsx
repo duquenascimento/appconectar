@@ -304,9 +304,20 @@ export function PreferenciaProdutoCard({
     }
   }, [triggerValidation]);
 
+  const hasSearchSuggestions = busca.length > 0 && sugestoes.length > 0;
+
   return (
-    <YStack borderWidth={1} borderColor="$gray6" borderRadius="$4" padding="$4" gap="$3">
-      {busca.length > 0 && sugestoes.length > 0 && (
+    <YStack
+      borderWidth={1}
+      borderColor="$gray6"
+      borderRadius="$4"
+      padding="$4"
+      gap="$3"
+      overflow="visible"
+      position="relative"
+      zIndex={hasSearchSuggestions ? 5000 : 1}
+    >
+      {hasSearchSuggestions && (
         <TouchableWithoutFeedback onPress={() => setBusca('')}>
           <View
             position="absolute"
@@ -350,7 +361,13 @@ export function PreferenciaProdutoCard({
         Fixar produtos e/ou classes
       </Text>
 
-      <XStack alignItems="center" gap="$2">
+      <XStack
+        alignItems="center"
+        gap="$2"
+        overflow="visible"
+        position="relative"
+        zIndex={hasSearchSuggestions ? 6000 : 1}
+      >
         <Input
           flex={1}
           placeholder="Buscar produto ou classe"
@@ -378,12 +395,12 @@ export function PreferenciaProdutoCard({
           <Icons name="add" size={20} />
         </Button>
 
-        {busca.length > 0 && sugestoes.length > 0 && (
+        {hasSearchSuggestions && (
           <ScrollView
             height={200}
             top={45}
             position="absolute"
-            zIndex={2000}
+            zIndex={7000}
             width="100%"
             backgroundColor="white"
             nestedScrollEnabled={true}
