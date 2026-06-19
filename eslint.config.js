@@ -113,6 +113,19 @@ module.exports = defineConfig([
       '@typescript-eslint/lines-between-class-members': 'off',
       'no-throw-literal': 'off',
       '@typescript-eslint/no-throw-literal': 'off',
+      'import/no-extraneous-dependencies': [
+        'error',
+        {
+          devDependencies: [
+            '**/*.test.js',
+            '**/*.test.ts',
+            '**/*.test.tsx',
+            '**/*.spec.js',
+            'webpack.config.js',
+            'jest.config.js',
+          ],
+        },
+      ],
     },
 
     settings: {

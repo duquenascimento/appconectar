@@ -47,6 +47,8 @@ import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaur
 import { normalizeText } from '../src/utils/stringUtils';
 import { getToken } from '../src/utils/utils';
 import DialogBlockInstance from '@/src/components/dialogBlockInstance';
+import { useNotifications } from '@/src/contexts/notification.context';
+import { NotificationModal } from '@/src/components/modais/NotificationModal';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -475,6 +477,8 @@ export default function Products() {
   } = useCart();
   const router = useRouter();
 
+  const { reloadNotifications } = useNotifications();
+
   useBackHandler(() => {
     if (router.canGoBack()) {
       router.back();
@@ -637,6 +641,13 @@ export default function Products() {
       loadInitialData();
     }, [selectedRestaurant, restaurants]),
   );
+
+  useFocusEffect(
+    useCallback(() => {
+      reloadNotifications();
+    }, [reloadNotifications]),
+  );
+
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
       try {
@@ -1126,6 +1137,9 @@ export default function Products() {
           router.push('cart');
         }}
       />
+      {!selectedRestaurant.financeBlock &&
+        !selectedRestaurant.comercialBlock &&
+        !selectedRestaurant.registrationReleasedNewApp && <NotificationModal />}
     </PageContainer>
   );
 }
