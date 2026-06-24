@@ -882,6 +882,7 @@ export default function Products() {
 
   return (
     <PageContainer backgroundColor="white">
+      <Text data-testid="pagina-produtos">Produtos</Text>
       <DialogBlockInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
@@ -944,7 +945,6 @@ export default function Products() {
       </Modal>
 
       <HeaderText>Meus Restaurantes</HeaderText>
-
       <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
@@ -954,6 +954,7 @@ export default function Products() {
           renderItemsFunction={renderClassItem}
           keyExtractorFunction={(item: any) => item.name}
         />
+
 
         <View
           backgroundColor="#F0F2F6"
