@@ -1,3 +1,9 @@
+import { useFonts } from 'expo-font';
+import { router, Stack, usePathname, useSegments } from 'expo-router';
+import { useEffect } from 'react';
+import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
+import { TamaguiProvider } from 'tamagui';
+import { ToastProvider, ToastViewport } from '@tamagui/toast';
 import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
@@ -9,14 +15,8 @@ import { SupplierProvider } from '@/src/contexts/fornecedores.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 import { checkLocalVersionAndClearData } from '@/src/services/versionService';
-import { useFonts } from 'expo-font';
-import { router, Stack, usePathname, useSegments } from 'expo-router';
-import { useEffect } from 'react';
-import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
 import 'react-native-gesture-handler';
-import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
-import { ToastProvider, ToastViewport } from '@tamagui/toast';
 import { DefaultToast } from '@/src/components/DefaultToast';
 import { NotificationProvider } from '@/src/contexts/notification.context';
 
@@ -50,7 +50,6 @@ export default function RootLayout() {
 
       if (versionCheckResult.cleared && pathname !== '/') {
         router.replace('/');
-        return;
       }
     };
     initApp();
@@ -100,7 +99,7 @@ export default function RootLayout() {
           </NotificationProvider>
         </AuthProvider>
         <DefaultToast />
-        <ToastViewport left={0} right={0} bottom={'$4'} />
+        <ToastViewport left={0} right={0} bottom="$4" />
       </ToastProvider>
     </TamaguiProvider>
   );

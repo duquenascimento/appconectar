@@ -1,3 +1,16 @@
+import { isAxiosError } from 'axios';
+import { router, useFocusEffect, usePathname } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  Platform,
+  ScrollView,
+  useWindowDimensions,
+} from 'react-native';
+import { Stack, View } from 'tamagui';
 import { PwRecoveryModal } from '@/src/components/pages/sign/PwdRecoveryModal';
 import { SignInMobile } from '@/src/components/pages/sign/SignInMobile';
 import { SignInWeb } from '@/src/components/pages/sign/SignInWeb';
@@ -16,19 +29,6 @@ import {
   validatePhone,
   validatePosition,
 } from '@/src/utils/validateFields';
-import { isAxiosError } from 'axios';
-import { router, useFocusEffect, usePathname } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-  Platform,
-  ScrollView,
-  useWindowDimensions,
-} from 'react-native';
-import { Stack, View } from 'tamagui';
 
 const positionOptions = [
   { label: 'Pessoa Física', value: 'Pessoa Física' },
@@ -287,7 +287,7 @@ export default function Sign() {
   }
 
   return (
-    <Stack backgroundColor={'$background'} height="100%">
+    <Stack backgroundColor="$background" height="100%">
       {closeModal && <PwRecoveryModal onClose={handleCloseModal} />}
       <ScrollView
         horizontal
@@ -326,7 +326,7 @@ export default function Sign() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
               >
-                <ScrollView nestedScrollEnabled={true} contentContainerStyle={{ flexGrow: 1 }}>
+                <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
                   <SignInMobile
                     page={currentPage}
                     onButtonPress={handleButtonPress}
@@ -341,7 +341,7 @@ export default function Sign() {
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                 style={{ flex: 1 }}
               >
-                <ScrollView nestedScrollEnabled={true} contentContainerStyle={{ flexGrow: 1 }}>
+                <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
                   <SignUpMobile
                     page={currentPage}
                     positionOptions={positionOptions}

@@ -1,3 +1,8 @@
+import Icons from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
+import { Button, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '@/src/components/box/PageContainer';
 import CustomAlert from '@/src/components/modais/CustomAlert';
 import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
@@ -5,11 +10,9 @@ import { useAuthContext } from '@/src/contexts/auth.context';
 import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 import { deleteUser, getUserData } from '@/src/utils/userUtils';
 import { VersionInfo } from '@/src/utils/VersionApp';
-import Icons from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
-import { Button, Text, View, XStack, YStack } from 'tamagui';
+import { JoinChatPayload } from '../../src/types/chatTypes';
+import { useChat } from '../../src/contexts/chat.context';
+import { useRestaurantContext } from '../../src/contexts/restaurant.context';
 
 interface User {
   name: string;
@@ -24,8 +27,38 @@ export default function UserInfo() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
-  const { logout } = useAuthContext();
+  const { logout, getTokenPayload } = useAuthContext();
+  const { selectedRestaurant } = useRestaurantContext();
   const router = useRouter();
+
+  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+
+  useEffect(() => {
+    async function handleJoinChat() {
+      if (isConnected) {
+        const token = await getTokenPayload();
+        if (!token || !selectedRestaurant) return;
+        const payload: JoinChatPayload = {
+          userId: token.id,
+          userName: token.name,
+          restaurantId: selectedRestaurant.id,
+          channelType: 'restaurant',
+          channelId: selectedRestaurant.id,
+          userType: 'restaurant',
+          allChannels: [selectedRestaurant.id],
+          channelName: selectedRestaurant.name,
+        };
+
+        await joinChat(payload);
+        getUnreadMessages({
+          channelId: selectedRestaurant.id,
+          channelType: 'restaurant',
+        });
+      }
+    }
+
+    handleJoinChat();
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
 
   useEffect(() => {
     let isMounted = true;
@@ -227,6 +260,48 @@ export default function UserInfo() {
           <Icons name="person" size={20} color="#04BF7B" />
           <Text fontSize={12} color="#04BF7B">
             Perfil
+          </Text>
+        </View>
+        <View
+          onPress={() => {
+            router.push('/chat');
+          }}
+          padding={10}
+          marginVertical={10}
+          borderRadius={8}
+          flexWrap="nowrap"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          width={80}
+          height={70}
+          position="relative"
+        >
+          <View position="relative">
+            <Icons name="chatbubbles" size={20} color="gray" />
+
+            {unreadMessages > 0 && (
+              <View
+                position="absolute"
+                top={-4}
+                right={-10}
+                minWidth={16}
+                height={16}
+                borderRadius={999}
+                backgroundColor="#04BF7B"
+                justifyContent="center"
+                alignItems="center"
+                paddingHorizontal={5}
+              >
+                <Text fontSize={9} color="white" fontWeight="bold">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <Text fontSize={12} color="gray">
+            Chat
           </Text>
         </View>
         <View
