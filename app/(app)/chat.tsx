@@ -97,6 +97,7 @@ function Chat() {
     sendMessage,
     markMessagesAsRead,
     markMessagesAsReadDebounced,
+    roomConnected,
   } = useChat();
 
   const didMarkInitialMessagesAsReadRef = useRef(false);
@@ -307,7 +308,39 @@ function Chat() {
         >
           <Ionicons name="chevron-back" size={24} color="#04BF7B" />
         </TouchableOpacity>
-        <Text style={{ fontSize: 18, fontWeight: '600', color: '#000', marginLeft: -4 }}>Chat</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -4 }}>
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#000' }}>Chat</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 10,
+              backgroundColor: roomConnected ? '#e6f4ea' : '#fce8e6',
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 12,
+            }}
+          >
+            <View
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: 3,
+                backgroundColor: roomConnected ? '#34a853' : '#ea4335',
+                marginRight: 4,
+              }}
+            />
+            <Text
+              style={{
+                fontSize: 12,
+                color: roomConnected ? '#137333' : '#c5221f',
+                fontWeight: '500',
+              }}
+            >
+              {roomConnected ? 'Conectado' : 'Desconectado'}
+            </Text>
+          </View>
+        </View>
       </View>
 
       <View style={{ flex: 1 }}>
@@ -322,12 +355,6 @@ function Chat() {
           keyboardAvoidingViewProps={{ keyboardVerticalOffset: 0 }}
           locale="pt-br"
           colorScheme="light"
-          listViewProps={{
-            contentContainerStyle: {
-              flexGrow: 1,
-              justifyContent: 'flex-end',
-            },
-          }}
           renderDay={renderDay}
           renderInputToolbar={renderInputToolbar}
           renderComposer={renderComposer}

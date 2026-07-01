@@ -16,6 +16,7 @@ type ChatContextData = {
   isLoadingChat: boolean;
   messages: GiftedChatMessage[];
   unreadMessages: number;
+  roomConnected: boolean;
   joinChat: (payload: JoinChatPayload) => Promise<void>;
   leaveChat: (payload: LeaveChatPayload) => void;
   getMessages: (payload: LeaveChatPayload) => void;
@@ -35,7 +36,8 @@ type Props = {
 
 export function ChatProvider({ children }: Props) {
   const { isConnected, isLoadingChat } = useChatConnection();
-  const { messages, unreadMessages, clearMessages, clearUnreadMessages } = useChatMessages();
+  const { messages, unreadMessages, clearMessages, clearUnreadMessages, roomConnected } =
+    useChatMessages();
   const {
     joinChat,
     leaveChat,
@@ -53,6 +55,7 @@ export function ChatProvider({ children }: Props) {
 
       messages,
       unreadMessages,
+      roomConnected,
 
       joinChat,
       leaveChat,
@@ -71,6 +74,7 @@ export function ChatProvider({ children }: Props) {
       isLoadingChat,
       messages,
       unreadMessages,
+      roomConnected,
       joinChat,
       leaveChat,
       getMessages,

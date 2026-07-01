@@ -27,7 +27,6 @@ export function useChatConnection() {
 
         if (!currentToken) {
           const keyCloakToken = await getClientCredentialsToken();
-          console.log(keyCloakToken);
           currentToken = keyCloakToken.access_token as string;
 
           await setChatToken(currentToken);
@@ -70,7 +69,7 @@ export function useChatConnection() {
         setIsLoadingChat(false);
       }
 
-      console.log('Chat socket conectado:', chatSocket.id);
+      console.log('Conexão estabelecida com o servidor:', chatSocket.id);
     }
 
     function handleDisconnect() {

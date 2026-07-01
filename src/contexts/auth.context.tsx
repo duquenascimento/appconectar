@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import { TokenPayload } from '../types/authTypes';
 import { UserRole } from '../types/userRoleTypes';
 import {
@@ -19,7 +20,6 @@ import {
   setToken,
   STORAGE_DEFAULT_KEYS,
 } from '../utils/utils';
-import { jwtDecode } from 'jwt-decode';
 
 interface AuthContextProps {
   authToken: string | null;

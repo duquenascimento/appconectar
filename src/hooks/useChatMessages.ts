@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { chatSocket } from '../services/chatSocketService';
-import { ChatMessage, GiftedChatMessage, JoinChatResponse, SocketError } from '../types/chatTypes';
+import { ChatMessage, GiftedChatMessage, SocketError } from '../types/chatTypes';
 
 interface MessagesReadResponse {
   channelKey: string;
@@ -24,14 +24,19 @@ const mapChatMessageToGifted = (message: ChatMessage): GiftedChatMessage => ({
 export function useChatMessages() {
   const [messages, setMessages] = useState<GiftedChatMessage[]>([]);
   const [unreadMessages, setUnreadMessages] = useState<number>(0);
+  const [roomConnected, setRoomConnected] = useState<boolean>(false);
 
   useEffect(() => {
     function handleSocketError(err: SocketError) {
+      if (err.code === 'JOIN_CHAT_FAILED') {
+        setRoomConnected(false);
+        return;
+      }
       console.log('Erro no chat socket:', err.message);
     }
 
-    function handleJoinChatResponse(response: JoinChatResponse) {
-      console.log(response.message);
+    function handleJoinChatResponse() {
+      setRoomConnected(true);
     }
 
     function handleMessagesResponse(response: ChatMessage[]) {
@@ -114,6 +119,7 @@ export function useChatMessages() {
   return {
     messages,
     unreadMessages,
+    roomConnected,
     clearMessages,
     clearUnreadMessages,
   };
