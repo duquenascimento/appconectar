@@ -178,7 +178,7 @@ function Chat() {
           channelType: 'restaurant',
           channelId: selectedRestaurant.id,
           content: newMessages[0].text,
-          externalId: 'AAAA',
+          externalId: selectedRestaurant.externalId,
         });
       }
     },
