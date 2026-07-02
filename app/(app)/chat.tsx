@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Text, View } from 'tamagui';
+import { Text, View, styled } from 'tamagui';
 import { TouchableOpacity, SafeAreaView, Platform, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +16,38 @@ import { renderBubble } from '../../src/components/chat/renderBubble';
 import { renderInputToolbar } from '../../src/components/chat/renderInputToolbar';
 import BottomMenu from '../../src/components/chat/BottomMenu';
 import { renderDay } from '../../src/components/chat/renderDay';
+
+const OuterBackground = styled(View, {
+  flex: 1,
+  backgroundColor: '#fff',
+
+  $gtSm: {
+    backgroundColor: '#F3F4F6',
+  },
+});
+
+const ChatContainerStyled = styled(View, {
+  flex: 1,
+  width: '100%',
+  marginHorizontal: 'auto',
+  backgroundColor: '#fff',
+
+  $gtSm: {
+    width: '100%',
+    maxWidth: 700,
+    marginTop: 24,
+    marginBottom: 24,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+});
 
 function Chat() {
   const MESSAGE_LIMIT = 20;
@@ -192,10 +224,12 @@ function Chat() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-      <KeyboardAvoidingView
-        style={{ flex: 1, paddingBottom: 7 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <OuterBackground>
+        <KeyboardAvoidingView
+          style={{ flex: 1, paddingBottom: 7 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <ChatContainerStyled>
         <View
           style={{
             flexDirection: 'row',
@@ -260,7 +294,6 @@ function Chat() {
                 marginRight: 6,
               }}
             />
-
             <Text
               style={{
                 fontSize: 12,
@@ -303,8 +336,10 @@ function Chat() {
           />
         </View>
 
-        <BottomMenu />
-      </KeyboardAvoidingView>
+          </ChatContainerStyled>
+          <BottomMenu />
+        </KeyboardAvoidingView>
+      </OuterBackground>
 
       <VersionInfo />
     </SafeAreaView>
