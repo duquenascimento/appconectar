@@ -42,7 +42,13 @@ export function useChatMessages() {
     function handleMessagesResponse(response: GetPagesResponse) {
       console.log(response);
       const mappedMessages = response.items.map(mapChatMessageToGifted);
-      setMessages((prev) => [...prev, ...mappedMessages]);
+      setMessages((previousMessages) => {
+        if (response.metadata.currentPage === 1) {
+          return mappedMessages;
+        }
+
+        return [...previousMessages, ...mappedMessages];
+      });
     }
 
     function handleUnreadMessagesResponse(response: number) {
