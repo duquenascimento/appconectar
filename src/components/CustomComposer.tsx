@@ -2,7 +2,8 @@ import { ComposerProps } from 'react-native-gifted-chat';
 import { Platform, TextInput, View } from 'react-native';
 import { useEffect, useState } from 'react';
 
-export default function CustomComposer({ text, textInputProps }: ComposerProps) {
+export default function CustomComposer(props: any) {
+  const { text, textInputProps, onSend } = props;
   const [height, setHeight] = useState(40);
 
   useEffect(() => {
@@ -37,6 +38,16 @@ export default function CustomComposer({ text, textInputProps }: ComposerProps) 
           onContentSizeChange={(e) => {
             const contentHeight = e.nativeEvent.contentSize.height;
             setHeight(Math.min(100, Math.max(40, contentHeight)));
+          }}
+          onKeyPress={(e: any) => {
+            if (Platform.OS === 'web') {
+              if (e.nativeEvent.key === 'Enter' && !e.nativeEvent.shiftKey) {
+                e.preventDefault();
+                if (text && text.trim().length > 0 && onSend) {
+                  onSend({ text: text.trim() }, true);
+                }
+              }
+            }
           }}
           style={[
             {

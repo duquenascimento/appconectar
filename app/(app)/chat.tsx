@@ -3,8 +3,7 @@ import { Text, View } from 'tamagui';
 import { TouchableOpacity, SafeAreaView, Platform, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { GiftedChat, IMessage, DayProps, ComposerProps } from 'react-native-gifted-chat';
-import dayjs from 'dayjs';
+import { GiftedChat, IMessage, ComposerProps } from 'react-native-gifted-chat';
 import { useChat } from '@/src/contexts/chat.context';
 import { JoinChatPayload } from '../../src/types/chatTypes';
 import 'dayjs/locale/pt-br';
@@ -16,6 +15,7 @@ import { renderSend } from '../../src/components/chat/renderSend';
 import { renderBubble } from '../../src/components/chat/renderBubble';
 import { renderInputToolbar } from '../../src/components/chat/renderInputToolbar';
 import BottomMenu from '../../src/components/chat/BottomMenu';
+import { renderDay } from '../../src/components/chat/renderDay';
 
 function Chat() {
   const MESSAGE_LIMIT = 20;
@@ -104,15 +104,6 @@ function Chat() {
     if (!roomConnected) return;
     if (isFetchingMoreMessagesRef.current) return;
 
-    /**
-     * Se carregou menos mensagens do que deveria para a página atual,
-     * provavelmente não existem mais mensagens antigas.
-     *
-     * Exemplo:
-     * page 1 deveria ter 20.
-     * page 2 deveria totalizar 40.
-     * Se tiver só 27, não chama page 3.
-     */
     const expectedLoadedMessages = messagesPageRef.current * MESSAGE_LIMIT;
 
     if (messages.length < expectedLoadedMessages) return;
@@ -174,7 +165,6 @@ function Chat() {
         channelId: selectedRestaurant.id,
       });
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, lastMessageId, markMessagesAsReadDebounced, selectedRestaurant]);
 
@@ -191,52 +181,6 @@ function Chat() {
     },
     [sendMessage, selectedRestaurant],
   );
-
-  const renderDay = (props: DayProps) => {
-    if (!props.currentMessage) return null;
-
-    const messageDate = dayjs(props.currentMessage.createdAt).startOf('day');
-    const now = dayjs().startOf('day');
-    const diff = now.diff(messageDate, 'days');
-
-    let dateText = messageDate.locale('pt-br').format('D [de] MMMM');
-
-    if (diff === 0) {
-      dateText = 'Hoje';
-    } else if (diff === 1) {
-      dateText = 'Ontem';
-    }
-
-    return (
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginVertical: 16,
-          paddingHorizontal: 24,
-        }}
-      >
-        <View style={{ flex: 1, height: 1, backgroundColor: '#E5EbEB' }} />
-
-        <View
-          style={{
-            marginLeft: 10,
-            marginRight: 10,
-            backgroundColor: '#F3F4F6',
-            paddingLeft: 8,
-            paddingRight: 8,
-            paddingTop: 2,
-            paddingBottom: 2,
-            borderRadius: 12,
-          }}
-        >
-          <Text style={{ color: '#6B7280', fontSize: 12, fontWeight: '500' }}>{dateText}</Text>
-        </View>
-
-        <View style={{ flex: 1, height: 1, backgroundColor: '#E5EbEB' }} />
-      </View>
-    );
-  };
 
   const renderComposer = (props: ComposerProps) => {
     return <CustomComposer {...props} />;
