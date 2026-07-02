@@ -33,8 +33,7 @@ const ChatContainerStyled = styled(View, {
   backgroundColor: '#fff',
 
   $gtSm: {
-    width: '100%',
-    maxWidth: 700,
+    width: '50%',
     marginTop: 24,
     marginBottom: 24,
     borderRadius: 24,
@@ -230,112 +229,111 @@ function Chat() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ChatContainerStyled>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            paddingHorizontal: 16,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: '#F3F4F6',
-            backgroundColor: '#fff',
-            zIndex: 10,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.05,
-            shadowRadius: 4,
-            elevation: 3,
-            height: 60,
-          }}
-        >
-          <TouchableOpacity
-            onPress={() => router.navigate('/(app)/products')}
-            style={{
-              padding: 8,
-              marginRight: 8,
-              marginLeft: -8,
-              borderRadius: 20,
-            }}
-          >
-            <Ionicons name="chevron-back" size={24} color="#04BF7B" />
-          </TouchableOpacity>
-
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: '700',
-              color: '#111827',
-            }}
-          >
-            Chat
-          </Text>
-
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              backgroundColor: roomConnected ? '#ECFDF5' : '#FEF2F2',
-              paddingTop: 2,
-              paddingBottom: 2,
-              paddingLeft: 8,
-              paddingRight: 8,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: roomConnected ? '#D1FAE5' : '#FEE2E2',
-              marginLeft: 12,
-            }}
-          >
             <View
               style={{
-                width: 8,
-                height: 8,
-                borderRadius: 4,
-                backgroundColor: roomConnected ? '#10B981' : '#EF4444',
-                marginRight: 6,
-              }}
-            />
-            <Text
-              style={{
-                fontSize: 12,
-                color: roomConnected ? '#065F46' : '#991B1B',
-                fontWeight: '600',
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderBottomWidth: 1,
+                borderBottomColor: '#F3F4F6',
+                backgroundColor: '#fff',
+                zIndex: 10,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+                elevation: 3,
+                height: 60,
               }}
             >
-              {roomConnected ? 'Conectado' : 'Desconectado'}
-            </Text>
-          </View>
-        </View>
+              <TouchableOpacity
+                onPress={() => router.navigate('/(app)/products')}
+                style={{
+                  padding: 8,
+                  marginRight: 8,
+                  marginLeft: -8,
+                  borderRadius: 20,
+                }}
+              >
+                <Ionicons name="chevron-back" size={24} color="#04BF7B" />
+              </TouchableOpacity>
 
-        <View style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
-          <GiftedChat
-            messages={messages}
-            onSend={(mes) => onSend(mes)}
-            user={{
-              _id: userId || '',
-            }}
-            isUsernameVisible
-            keyboardAvoidingViewProps={{ keyboardVerticalOffset: 0 }}
-            locale="pt-br"
-            colorScheme="light"
-            renderDay={renderDay}
-            renderInputToolbar={renderInputToolbar}
-            renderComposer={renderComposer}
-            renderSend={renderSend}
-            renderBubble={renderBubble}
-            renderLoadEarlier={renderLoadEarlier}
-            textInputProps={{
-              placeholder: 'Digite uma mensagem...',
-            }}
-            isSendButtonAlwaysVisible
-            loadEarlierMessagesProps={{
-              isAvailable: messages.length >= MESSAGE_LIMIT,
-              isInfiniteScrollEnabled: true,
-              isLoading: isLoadingEarlierMessages,
-              onPress: handleLoadEarlierMessages,
-            }}
-          />
-        </View>
+              <Text
+                style={{
+                  fontSize: 20,
+                  fontWeight: '700',
+                  color: '#111827',
+                }}
+              >
+                Chat
+              </Text>
 
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: roomConnected ? '#ECFDF5' : '#FEF2F2',
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                  paddingLeft: 8,
+                  paddingRight: 8,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: roomConnected ? '#D1FAE5' : '#FEE2E2',
+                  marginLeft: 12,
+                }}
+              >
+                <View
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: 4,
+                    backgroundColor: roomConnected ? '#10B981' : '#EF4444',
+                    marginRight: 6,
+                  }}
+                />
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: roomConnected ? '#065F46' : '#991B1B',
+                    fontWeight: '600',
+                  }}
+                >
+                  {roomConnected ? 'Conectado' : 'Desconectado'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+              <GiftedChat
+                messages={messages}
+                onSend={(mes) => onSend(mes)}
+                user={{
+                  _id: userId || '',
+                }}
+                isUsernameVisible
+                keyboardAvoidingViewProps={{ keyboardVerticalOffset: 0 }}
+                locale="pt-br"
+                colorScheme="light"
+                renderDay={renderDay}
+                renderInputToolbar={renderInputToolbar}
+                renderComposer={renderComposer}
+                renderSend={renderSend}
+                renderBubble={renderBubble}
+                renderLoadEarlier={renderLoadEarlier}
+                textInputProps={{
+                  placeholder: 'Digite uma mensagem...',
+                }}
+                isSendButtonAlwaysVisible
+                loadEarlierMessagesProps={{
+                  isAvailable: messages.length >= MESSAGE_LIMIT,
+                  isInfiniteScrollEnabled: true,
+                  isLoading: isLoadingEarlierMessages,
+                  onPress: handleLoadEarlierMessages,
+                }}
+              />
+            </View>
           </ChatContainerStyled>
           <BottomMenu />
         </KeyboardAvoidingView>
