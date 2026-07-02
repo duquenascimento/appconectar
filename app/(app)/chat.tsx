@@ -1,5 +1,13 @@
+import Icons from '@expo/vector-icons/Ionicons';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { Text, View } from 'tamagui';
+import {
+  TouchableOpacity,
+  TextInput,
+  SafeAreaView,
+  Platform,
+  KeyboardAvoidingView,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import {
@@ -20,6 +28,7 @@ import { JoinChatPayload, GiftedChatMessage } from '../../src/types/chatTypes';
 import 'dayjs/locale/pt-br';
 import { useRestaurantContext } from '../../src/contexts/restaurant.context';
 import { useAuthContext } from '../../src/contexts/auth.context';
+import { VersionInfo } from '../../src/utils/VersionApp';
 
 function CustomComposer({ text, textInputProps }: ComposerProps) {
   const [height, setHeight] = useState(40);
@@ -31,48 +40,42 @@ function CustomComposer({ text, textInputProps }: ComposerProps) {
   }, [text]);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center' }}>
+    <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 6 }}>
       <View
         style={{
-          height,
-          backgroundColor: '#ffffff',
+          minHeight: 40,
+          height: Math.max(40, height),
+          backgroundColor: '#f0f2f5',
           borderRadius: 20,
-          marginRight: 4,
-          borderWidth: 0.5,
-          borderColor: '#d1d1d1',
+          marginRight: 8,
+          paddingHorizontal: 16,
+          justifyContent: 'center',
           overflow: 'hidden',
         }}
       >
         <TextInput
           {...textInputProps}
           placeholder="Digite uma mensagem..."
-          placeholderTextColor="#888"
+          placeholderTextColor="#8e8e93"
           multiline
           value={text}
           showsVerticalScrollIndicator={false}
           underlineColorAndroid="transparent"
-          scrollEnabled={height >= 120}
+          scrollEnabled={height >= 100}
           onContentSizeChange={(e) => {
             const contentHeight = e.nativeEvent.contentSize.height;
-            setHeight(Math.min(120, Math.max(40, contentHeight)));
+            setHeight(Math.min(100, Math.max(40, contentHeight)));
           }}
           style={[
             {
-              height,
               fontSize: 16,
               color: '#000',
-              textAlignVertical: 'top',
-
-              paddingLeft: 16,
-              paddingTop: 8,
-              paddingBottom: 8,
-
-              marginRight: -24,
-              paddingRight: 40,
-
-              backgroundColor: 'transparent',
-              borderWidth: 0,
-
+              textAlignVertical: 'center',
+              paddingTop: Platform.OS === 'ios' ? 10 : 8,
+              paddingBottom: Platform.OS === 'ios' ? 10 : 8,
+              paddingLeft: 12,
+              paddingRight: 12,
+              maxHeight: 100,
               outlineStyle: 'none' as unknown as 'none',
             },
             textInputProps?.style,
@@ -85,7 +88,7 @@ function CustomComposer({ text, textInputProps }: ComposerProps) {
 
 function Chat() {
   const { selectedRestaurant } = useRestaurantContext();
-  const { getTokenPayload } = useAuthContext();
+  const { getTokenPayload, logout } = useAuthContext();
   const [userId, setUserId] = useState<string | null>(null);
 
   const {
@@ -98,6 +101,7 @@ function Chat() {
     markMessagesAsRead,
     markMessagesAsReadDebounced,
     roomConnected,
+    unreadMessages,
   } = useChat();
 
   const didMarkInitialMessagesAsReadRef = useRef(false);
@@ -206,14 +210,25 @@ function Chat() {
           flexDirection: 'row',
           alignItems: 'center',
           marginVertical: 16,
-          paddingHorizontal: 16,
+          paddingHorizontal: 24,
         }}
       >
-        <View style={{ flex: 1, height: 1, backgroundColor: '#E5E7EB' }} />
-        <View style={{ marginHorizontal: 12 }}>
-          <Text style={{ color: '#9CA3AF', fontSize: 12, fontWeight: 'normal' }}>{dateText}</Text>
+        <View style={{ flex: 1, height: 1, backgroundColor: '#E5EbEB' }} />
+        <View
+          style={{
+            marginLeft: 10,
+            marginRight: 10,
+            backgroundColor: '#F3F4F6',
+            paddingLeft: 8,
+            paddingRight: 8,
+            paddingTop: 2,
+            paddingBottom: 2,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ color: '#6B7280', fontSize: 12, fontWeight: '500' }}>{dateText}</Text>
         </View>
-        <View style={{ flex: 1, height: 1, backgroundColor: '#E5E7EB' }} />
+        <View style={{ flex: 1, height: 1, backgroundColor: '#E5EbEB' }} />
       </View>
     );
   };
@@ -223,9 +238,10 @@ function Chat() {
       {...props}
       containerStyle={{
         backgroundColor: '#fff',
-        borderTopWidth: 0,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderTopWidth: 1,
+        borderTopColor: '#E5E7EB',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
       }}
       primaryStyle={{ alignItems: 'flex-end' }}
     />
@@ -248,15 +264,20 @@ function Chat() {
     >
       <View
         style={{
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          backgroundColor: '#00a884',
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: '#04BF7B',
           alignItems: 'center',
           justifyContent: 'center',
+          shadowColor: '#04BF7B',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.3,
+          shadowRadius: 3,
+          elevation: 2,
         }}
       >
-        <MaterialCommunityIcons name="send" size={20} color="white" style={{ marginLeft: 4 }} />
+        <MaterialCommunityIcons name="send" size={18} color="white" style={{ marginLeft: 3 }} />
       </View>
     </Send>
   );
@@ -266,107 +287,274 @@ function Chat() {
       {...props}
       wrapperStyle={{
         left: {
-          backgroundColor: '#f7fafc',
-          shadowColor: '#555',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.1,
-          shadowRadius: 2,
-          elevation: 1.5,
+          backgroundColor: '#F3F4F6',
+          borderBottomLeftRadius: 4,
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          borderBottomRightRadius: 16,
+          padding: 2,
+          marginBottom: 4,
         },
         right: {
           backgroundColor: '#04BF7B',
+          borderBottomRightRadius: 4,
+          borderTopLeftRadius: 16,
+          borderTopRightRadius: 16,
+          borderBottomLeftRadius: 16,
+          padding: 2,
+          marginBottom: 4,
         },
+      }}
+      textStyle={{
+        left: { color: '#1F2937' },
+        right: { color: '#FFFFFF' },
       }}
     />
   );
 
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          paddingHorizontal: 8,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: '#e5e5e5',
-          backgroundColor: '#fff',
-          elevation: 2,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 1 },
-          shadowOpacity: 0.05,
-          shadowRadius: 1,
-        }}
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1, paddingBottom: 7 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <TouchableOpacity
-          onPress={() => router.navigate('/(app)/products')}
+        <View
           style={{
             flexDirection: 'row',
             alignItems: 'center',
-            paddingRight: 8,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: '#F3F4F6',
+            backgroundColor: '#fff',
+            zIndex: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.05,
+            shadowRadius: 4,
+            elevation: 3,
+            height: 60,
           }}
         >
-          <Ionicons name="chevron-back" size={24} color="#04BF7B" />
-        </TouchableOpacity>
-        <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: -4 }}>
-          <Text style={{ fontSize: 18, fontWeight: '600', color: '#000' }}>Chat</Text>
+          <TouchableOpacity
+            onPress={() => router.navigate('/(app)/products')}
+            style={{
+              padding: 8,
+              marginRight: 8,
+              marginLeft: -8,
+              borderRadius: 20,
+            }}
+          >
+            <Ionicons name="chevron-back" size={24} color="#04BF7B" />
+          </TouchableOpacity>
+
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: '700',
+              color: '#111827',
+            }}
+          >
+            Chat
+          </Text>
+
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              marginLeft: 10,
-              backgroundColor: roomConnected ? '#e6f4ea' : '#fce8e6',
-              paddingHorizontal: 8,
-              paddingVertical: 4,
-              borderRadius: 12,
+              backgroundColor: roomConnected ? '#ECFDF5' : '#FEF2F2',
+              paddingTop: 2,
+              paddingBottom: 2,
+              paddingLeft: 8,
+              paddingRight: 8,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: roomConnected ? '#D1FAE5' : '#FEE2E2',
+              marginLeft: 12,
             }}
           >
             <View
               style={{
-                width: 6,
-                height: 6,
-                borderRadius: 3,
-                backgroundColor: roomConnected ? '#34a853' : '#ea4335',
-                marginRight: 4,
+                width: 8,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: roomConnected ? '#10B981' : '#EF4444',
+                marginRight: 6,
               }}
             />
+
             <Text
               style={{
                 fontSize: 12,
-                color: roomConnected ? '#137333' : '#c5221f',
-                fontWeight: '500',
+                color: roomConnected ? '#065F46' : '#991B1B',
+                fontWeight: '600',
               }}
             >
               {roomConnected ? 'Conectado' : 'Desconectado'}
             </Text>
           </View>
         </View>
-      </View>
 
-      <View style={{ flex: 1 }}>
-        <GiftedChat
-          messages={messages}
-          onSend={(mes) => onSend(mes)}
-          user={{
-            _id: userId || '',
-          }}
-          isUsernameVisible
-          isAlignedTop
-          keyboardAvoidingViewProps={{ keyboardVerticalOffset: 0 }}
-          locale="pt-br"
-          colorScheme="light"
-          renderDay={renderDay}
-          renderInputToolbar={renderInputToolbar}
-          renderComposer={renderComposer}
-          renderSend={renderSend}
-          renderBubble={renderBubble}
-          textInputProps={{
-            placeholder: 'Digite uma mensagem...',
-          }}
-          isSendButtonAlwaysVisible
-        />
-      </View>
-    </View>
+        <View style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+          <GiftedChat
+            messages={messages}
+            onSend={(mes) => onSend(mes)}
+            user={{
+              _id: userId || '',
+            }}
+            isUsernameVisible
+            isAlignedTop
+            keyboardAvoidingViewProps={{ keyboardVerticalOffset: 0 }}
+            locale="pt-br"
+            colorScheme="light"
+            renderDay={renderDay}
+            renderInputToolbar={renderInputToolbar}
+            renderComposer={renderComposer}
+            renderSend={renderSend}
+            renderBubble={renderBubble}
+            textInputProps={{
+              placeholder: 'Digite uma mensagem...',
+            }}
+            isSendButtonAlwaysVisible
+          />
+        </View>
+
+        <View
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="row"
+          gap={10}
+          height={50}
+          borderTopWidth={0.4}
+          borderTopColor="#EcEcEc"
+          backgroundColor="white"
+          paddingLeft={20}
+          paddingRight={20}
+        >
+          <View
+            onPress={() => router.push('/products')}
+            paddingLeft={15}
+            paddingRight={15}
+            marginVertical={10}
+            borderRadius={8}
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            width={50}
+            height={70}
+          >
+            <Icons name="home" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Home
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              router.push('/ordersScreen');
+            }}
+            paddingLeft={15}
+            paddingRight={15}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            height={70}
+          >
+            <Icons name="journal" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Meus Pedidos
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              router.push('/userInfo');
+            }}
+            paddingLeft={15}
+            paddingRight={15}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            height={70}
+          >
+            <Icons name="person" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Perfil
+            </Text>
+          </View>
+          <View
+            onPress={() => {
+              router.push('/chat');
+            }}
+            paddingLeft={15}
+            paddingRight={15}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            height={70}
+            position="relative"
+          >
+            <View position="relative">
+              <Icons name="chatbubbles" size={20} color="#04BF7B" />
+
+              {unreadMessages > 0 && (
+                <View
+                  position="absolute"
+                  top={-4}
+                  right={-10}
+                  minWidth={16}
+                  height={16}
+                  borderRadius={999}
+                  backgroundColor="#04BF7B"
+                  justifyContent="center"
+                  alignItems="center"
+                  paddingHorizontal={5}
+                >
+                  <Text fontSize={9} color="white" fontWeight="bold">
+                    {unreadMessages > 99 ? '99+' : unreadMessages}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <Text fontSize={12} color="#04BF7B">
+              Chat
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              await handleLogout();
+            }}
+            paddingLeft={15}
+            paddingRight={15}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            height={70}
+          >
+            <Icons name="log-out" size={20} color="gray" />
+            <Text fontSize={12} color="gray">
+              Sair
+            </Text>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+      <VersionInfo />
+    </SafeAreaView>
   );
 }
 

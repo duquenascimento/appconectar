@@ -26,8 +26,6 @@ import {
   ProductCardStyled,
 } from '../../src/components/card/productCard';
 import { CartButton } from '../../src/components/cartButton';
-import DialogComercialInstance from '../../src/components/dialogComercialInstance';
-import { DialogFinanceInstance } from '../../src/components/dialogFinanceInstance';
 import { useBackHandler } from '../../src/components/hooks/useBackHandler';
 import { CustomImageBadge } from '../../src/components/image/customImageBadge';
 import { DropDownPickerRestaurant } from '../../src/components/input/DropDownPickerRestaurant';
