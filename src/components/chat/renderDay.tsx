@@ -22,8 +22,10 @@ export const renderDay = (props: DayProps) => {
       style={{
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 16,
-        paddingHorizontal: 24,
+        marginTop: 16,
+        paddingLeft: 10,
+        paddingRight: 10,
+        marginBottom: 16,
       }}
     >
       <View style={{ flex: 1, height: 1, backgroundColor: '#E5EbEB' }} />

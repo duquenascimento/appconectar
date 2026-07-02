@@ -8,20 +8,21 @@ export default function CustomComposer(props: any) {
 
   useEffect(() => {
     if (!text) {
-      setHeight(40);
+      setHeight(44);
     }
   }, [text]);
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 6 }}>
+    <View style={{ flex: 1, justifyContent: 'center' }}>
       <View
         style={{
-          minHeight: 40,
-          height: Math.max(40, height),
+          minHeight: 44,
+          height: Math.max(44, height),
           backgroundColor: '#f0f2f5',
           borderRadius: 20,
           marginRight: 8,
-          paddingHorizontal: 16,
+          paddingLeft: 16,
+          paddingRight: 16,
           justifyContent: 'center',
           overflow: 'hidden',
         }}
@@ -37,7 +38,7 @@ export default function CustomComposer(props: any) {
           scrollEnabled={height >= 100}
           onContentSizeChange={(e) => {
             const contentHeight = e.nativeEvent.contentSize.height;
-            setHeight(Math.min(100, Math.max(40, contentHeight)));
+            setHeight(Math.min(100, Math.max(44, contentHeight)));
           }}
           onKeyPress={(e: any) => {
             if (Platform.OS === 'web') {
@@ -54,10 +55,10 @@ export default function CustomComposer(props: any) {
               fontSize: 16,
               color: '#000',
               textAlignVertical: 'center',
-              paddingTop: Platform.OS === 'ios' ? 10 : 8,
+              paddingTop: Platform.OS === 'ios' ? 12 : 10,
               paddingBottom: Platform.OS === 'ios' ? 10 : 8,
-              paddingLeft: 12,
-              paddingRight: 12,
+              paddingLeft: 4,
+              paddingRight: 4,
               maxHeight: 100,
               outlineStyle: 'none' as unknown as 'none',
             },

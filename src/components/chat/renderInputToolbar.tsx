@@ -8,8 +8,10 @@ export const renderInputToolbar = (props: InputToolbarProps<GiftedChatMessage>) 
       backgroundColor: '#fff',
       borderTopWidth: 1,
       borderTopColor: '#E5E7EB',
-      paddingHorizontal: 12,
-      paddingVertical: 8,
+      paddingLeft: 12,
+      paddingRight: 12,
+      paddingBottom: 12,
+      paddingTop: 12,
     }}
     primaryStyle={{ alignItems: 'flex-end' }}
   />
