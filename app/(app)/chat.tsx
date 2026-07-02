@@ -130,6 +130,8 @@ function Chat() {
           getMessages({
             channelId: payload.channelId,
             channelType: payload.channelType,
+            page: 1,
+            limit: 20,
           });
           clearUnreadMessages();
         }

@@ -1,11 +1,5 @@
 export type ChannelType = 'restaurant' | 'supplier';
 
-export interface GetMessagesPayload {
-  userType: 'restaurant' | 'supplier' | 'attendant';
-  channelType: 'restaurant' | 'supplier';
-  channelId: string;
-}
-
 export type JoinChatPayload = {
   userId: string;
   channelType: 'restaurant' | 'supplier';
@@ -29,16 +23,21 @@ export type LeaveChatPayload = {
   channelId: string;
 };
 
+export type GetMessagesPayload = {
+  channelType: ChannelType;
+  channelId: string;
+  page: number;
+  limit: number;
+};
+
 interface RestaurantMessage {
   restaurantId: string;
   restaurantName: string;
-  externalId: string | null;
 }
 
 interface SupplierMessage {
   supplierId: string;
   supplierName: string;
-  externalId: string | null;
 }
 
 interface AttendantMessage {
@@ -56,8 +55,20 @@ export type ChatMessage = {
   userType: 'restaurant' | 'supplier' | 'attendant';
   userId: string;
   userName: string;
+  externalId: string | null;
   target: (RestaurantMessage | SupplierMessage | AttendantMessage)[];
 };
+
+export interface GetPagesResponse {
+  items: ChatMessage[];
+  metadata: {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+}
 
 export type SocketError = {
   code: string;

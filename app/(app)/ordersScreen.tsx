@@ -296,20 +296,24 @@ export default function OrdersScreen() {
         justifyContent="center"
         alignItems="center"
         flexDirection="row"
-        gap={15}
-        height={55}
+        gap={10}
+        height={50}
         borderTopWidth={0.4}
         borderTopColor="lightgray"
+        backgroundColor="white"
+        paddingLeft={20}
+        paddingRight={20}
       >
         <View
           onPress={() => router.push('/products')}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={60}
+          width={50}
           height={70}
         >
           <Icons name="home" size={20} color="gray" />
@@ -322,14 +326,14 @@ export default function OrdersScreen() {
             setLoading(true);
             router.push('/ordersScreen');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={120}
           height={70}
         >
           <Icons name="journal" size={20} color="#04BF7B" />
@@ -343,14 +347,14 @@ export default function OrdersScreen() {
             setLoading(false);
             router.push('/userInfo');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={80}
           height={70}
         >
           <Icons name="person" size={20} color="gray" />
@@ -362,14 +366,14 @@ export default function OrdersScreen() {
           onPress={() => {
             router.push('/chat');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={80}
           height={70}
           position="relative"
         >
@@ -405,14 +409,14 @@ export default function OrdersScreen() {
             setLoading(true);
             await logout();
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={50}
           height={70}
         >
           <Icons name="log-out" size={20} color="gray" />

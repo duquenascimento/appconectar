@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { chatSocket } from '../services/chatSocketService';
-import { ChatMessage, GiftedChatMessage, SocketError } from '../types/chatTypes';
+import { ChatMessage, GetPagesResponse, GiftedChatMessage, SocketError } from '../types/chatTypes';
 
 interface MessagesReadResponse {
   channelKey: string;
@@ -39,8 +39,9 @@ export function useChatMessages() {
       setRoomConnected(true);
     }
 
-    function handleMessagesResponse(response: ChatMessage[]) {
-      const mappedMessages = response.map(mapChatMessageToGifted);
+    function handleMessagesResponse(response: GetPagesResponse) {
+      console.log(response);
+      const mappedMessages = response.items.map(mapChatMessageToGifted);
       setMessages(mappedMessages);
     }
 

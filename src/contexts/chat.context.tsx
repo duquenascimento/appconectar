@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 
 import {
+  GetMessagesPayload,
   GiftedChatMessage,
   JoinChatPayload,
   LeaveChatPayload,
@@ -19,7 +20,7 @@ type ChatContextData = {
   roomConnected: boolean;
   joinChat: (payload: JoinChatPayload) => Promise<void>;
   leaveChat: (payload: LeaveChatPayload) => void;
-  getMessages: (payload: LeaveChatPayload) => void;
+  getMessages: (payload: GetMessagesPayload) => void;
   getUnreadMessages: (payload: LeaveChatPayload) => void;
   sendMessage: (payload: SendMessagePayload) => void;
   markMessagesAsRead: (payload: MarkMessagesAsReadPayload) => void;

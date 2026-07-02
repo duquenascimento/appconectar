@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { chatSocket } from '../services/chatSocketService';
-import { JoinChatPayload, LeaveChatPayload, SendMessagePayload } from '../types/chatTypes';
+import {
+  GetMessagesPayload,
+  JoinChatPayload,
+  LeaveChatPayload,
+  SendMessagePayload,
+} from '../types/chatTypes';
 
 export interface MarkMessagesAsReadPayload {
   channelType: 'restaurant' | 'supplier';
@@ -49,7 +54,7 @@ export function useChatActions() {
     chatSocket.emit('leave_chat', payload);
   }, []);
 
-  const getMessages = useCallback((payload: LeaveChatPayload) => {
+  const getMessages = useCallback((payload: GetMessagesPayload) => {
     if (!chatSocket.connected) {
       console.log({
         code: 'SOCKET_NOT_CONNECTED',
