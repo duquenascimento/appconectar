@@ -1,9 +1,3 @@
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { useFavoritesContext } from '@/src/contexts/favoritos.context';
-import { addFavorite, deleteFavorite, updateFavorite } from '@/src/services/favoritosService';
-import { TCart } from '@/src/types/cartTypes';
-import { Product } from '@/src/types/productTypes';
-import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { MotiView } from 'moti';
@@ -19,36 +13,45 @@ import {
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
-import PageContainer from '../src/components/box/PageContainer';
+import { VersionInfo } from '@/src/utils/VersionApp';
+import { Product } from '@/src/types/productTypes';
+import { TCart } from '@/src/types/cartTypes';
+import { addFavorite, deleteFavorite, updateFavorite } from '@/src/services/favoritosService';
+import { useFavoritesContext } from '@/src/contexts/favoritos.context';
+import { useAuthContext } from '@/src/contexts/auth.context';
+import PageContainer from '../../src/components/box/PageContainer';
 import {
   ProductCardBottomStyled,
   ProductCardObsUnitContainerStyled,
   ProductCardStyled,
-} from '../src/components/card/productCard';
-import { CartButton } from '../src/components/cartButton';
-import DialogComercialInstance from '../src/components/dialogComercialInstance';
-import { DialogFinanceInstance } from '../src/components/dialogFinanceInstance';
-import { useBackHandler } from '../src/components/hooks/useBackHandler';
-import { CustomImageBadge } from '../src/components/image/customImageBadge';
-import { DropDownPickerRestaurant } from '../src/components/input/DropDownPickerRestaurant';
-import { SearchProducts } from '../src/components/input/SearchProducts';
-import { ProductsCategoriesList } from '../src/components/list/ProductsCategoriesList';
-import { HeaderText } from '../src/components/text/HeaderText';
-import { UpdateAppModal } from '../src/components/UpdateAppModal';
-import { useCart } from '../src/components/hooks/useCart';
-import { useProductContext } from '../src/contexts/produtos.context';
-import { useRestaurantContext } from '../src/contexts/restaurant.context';
-import { checkVersion, saveUserAppInfo } from '../src/services/versionService';
-import { Restaurant } from '../src/types/restaurantTypes';
-import CustomFlatList from '../src/utils/FlatList_VirtualizeList/FlatList_Products';
-import CustomVirtualizedList from '../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
-import { loadProductObservations, saveProductObservations } from '../src/utils/productObservation';
-import { getStorageRestaurant, setStorageRestaurant } from '../src/utils/restaurantUtils';
-import { normalizeText } from '../src/utils/stringUtils';
-import { getToken } from '../src/utils/utils';
+} from '../../src/components/card/productCard';
+import { CartButton } from '../../src/components/cartButton';
+import { useBackHandler } from '../../src/components/hooks/useBackHandler';
+import { CustomImageBadge } from '../../src/components/image/customImageBadge';
+import { DropDownPickerRestaurant } from '../../src/components/input/DropDownPickerRestaurant';
+import { SearchProducts } from '../../src/components/input/SearchProducts';
+import { ProductsCategoriesList } from '../../src/components/list/ProductsCategoriesList';
+import { HeaderText } from '../../src/components/text/HeaderText';
+import { UpdateAppModal } from '../../src/components/UpdateAppModal';
+import { useCart } from '../../src/components/hooks/useCart';
+import { useProductContext } from '../../src/contexts/produtos.context';
+import { useRestaurantContext } from '../../src/contexts/restaurant.context';
+import { checkVersion, saveUserAppInfo } from '../../src/services/versionService';
+import { Restaurant } from '../../src/types/restaurantTypes';
+import CustomFlatList from '../../src/utils/FlatList_VirtualizeList/FlatList_Products';
+import CustomVirtualizedList from '../../src/utils/FlatList_VirtualizeList/VirtualizeList_Products';
+import {
+  loadProductObservations,
+  saveProductObservations,
+} from '../../src/utils/productObservation';
+import { getStorageRestaurant, setStorageRestaurant } from '../../src/utils/restaurantUtils';
+import { normalizeText } from '../../src/utils/stringUtils';
+import { getToken } from '../../src/utils/utils';
 import DialogBlockInstance from '@/src/components/dialogBlockInstance';
 import { useNotifications } from '@/src/contexts/notification.context';
 import { NotificationModal } from '@/src/components/modais/NotificationModal';
+import { useChat } from '../../src/contexts/chat.context';
+import { JoinChatPayload } from '../../src/types/chatTypes';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -234,6 +237,7 @@ const ProductBox = React.memo(
         }
       }
     }, [addObservation, id, obs]);
+
     return (
       <Stack
         onPress={toggleOpen}
@@ -244,9 +248,9 @@ const ProductBox = React.memo(
         borderColor="#F0F2F6"
       >
         <ProductCardStyled
-          selected={cart.get(id) ? true : false}
+          selected={!!cart.get(id)}
           resetBottomBorderRadius={
-            open || isCart || (isFavorite && currentClass === 'Favoritos') ? true : false
+            !!(open || isCart || (isFavorite && currentClass === 'Favoritos'))
           }
         >
           <View flexDirection="row" alignItems="center">
@@ -305,14 +309,11 @@ const ProductBox = React.memo(
           </View>
         </ProductCardStyled>
         {(open || isCart || (isFavorite && currentClass === 'Favoritos')) && (
-          <ProductCardBottomStyled
-            selected={cart.get(id) ? true : false}
-            onPress={(e) => e.stopPropagation()}
-          >
+          <ProductCardBottomStyled selected={!!cart.get(id)} onPress={(e) => e.stopPropagation()}>
             <View flexDirection="row" alignItems="center">
               <ProductCardObsUnitContainerStyled>
-                <View flex={1} width={'100%'}>
-                  <View flex={1} width={'100%'}>
+                <View flex={1} width="100%">
+                  <View flex={1} width="100%">
                     <XStack
                       backgroundColor="#F0F2F6"
                       borderWidth={0}
@@ -462,7 +463,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, saveRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
-  const { logout } = useAuthContext();
+  const { logout, getTokenPayload } = useAuthContext();
   const {
     cart,
     setCart,
@@ -647,6 +648,35 @@ export default function Products() {
       reloadNotifications();
     }, [reloadNotifications]),
   );
+
+  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+
+  useEffect(() => {
+    async function handleJoinChat() {
+      if (isConnected) {
+        const token = await getTokenPayload();
+        if (!token || !selectedRestaurant) return;
+        const payload: JoinChatPayload = {
+          userId: token.id,
+          userName: token.name,
+          restaurantId: selectedRestaurant.id,
+          channelType: 'restaurant',
+          channelId: selectedRestaurant.id,
+          userType: 'restaurant',
+          allChannels: [selectedRestaurant.id],
+          channelName: selectedRestaurant.name,
+        };
+
+        await joinChat(payload);
+        getUnreadMessages({
+          channelId: selectedRestaurant.id,
+          channelType: 'restaurant',
+        });
+      }
+    }
+
+    handleJoinChat();
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
@@ -955,11 +985,10 @@ export default function Products() {
           keyExtractorFunction={(item: any) => item.name}
         />
 
-
         <View
           backgroundColor="#F0F2F6"
           flex={1}
-          width={'100%'}
+          width="100%"
           display="flex"
           justifyContent="center"
           alignSelf="center"
@@ -1039,21 +1068,24 @@ export default function Products() {
           justifyContent="center"
           alignItems="center"
           flexDirection="row"
-          gap={15}
+          gap={10}
           height={50}
           borderTopWidth={0.4}
           borderTopColor="lightgray"
-          backgroundColor={'white'}
+          backgroundColor="white"
+          paddingLeft={20}
+          paddingRight={20}
         >
           <View
             onPress={() => router.push('/products')}
-            padding={10}
+            paddingLeft={15}
+            paddingRight={15}
             marginVertical={10}
             borderRadius={8}
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={60}
+            width={50}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
@@ -1068,14 +1100,14 @@ export default function Products() {
               setLoading(false);
               router.push('/ordersScreen');
             }}
-            padding={10}
+            paddingLeft={15}
+            paddingRight={15}
             marginVertical={10}
             borderRadius={8}
             flexWrap="nowrap"
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={120}
             height={70}
           >
             <Icons name="journal" size={20} color="gray" />
@@ -1090,14 +1122,14 @@ export default function Products() {
               setLoading(false);
               router.push('/userInfo');
             }}
-            padding={10}
+            paddingLeft={15}
+            paddingRight={15}
             marginVertical={10}
             borderRadius={8}
             flexWrap="nowrap"
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={80}
             height={70}
           >
             <Icons name="person" size={20} color="gray" />
@@ -1106,19 +1138,61 @@ export default function Products() {
             </Text>
           </View>
           <View
-            onPress={async () => {
-              setLoading(true);
-              await saveCartArray(cart, cartToExclude);
-              await logout();
+            onPress={() => {
+              router.push('/chat');
             }}
-            padding={10}
+            paddingLeft={15}
+            paddingRight={15}
             marginVertical={10}
             borderRadius={8}
             flexWrap="nowrap"
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={50}
+            height={70}
+            position="relative"
+          >
+            <View position="relative">
+              <Icons name="chatbubbles" size={20} color="gray" />
+
+              {unreadMessages > 0 && (
+                <View
+                  position="absolute"
+                  top={-4}
+                  right={-10}
+                  minWidth={16}
+                  height={16}
+                  borderRadius={999}
+                  backgroundColor="#04BF7B"
+                  justifyContent="center"
+                  alignItems="center"
+                  paddingHorizontal={5}
+                >
+                  <Text fontSize={9} color="white" fontWeight="bold">
+                    {unreadMessages > 99 ? '99+' : unreadMessages}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            <Text fontSize={12} color="gray">
+              Chat
+            </Text>
+          </View>
+          <View
+            onPress={async () => {
+              setLoading(true);
+              await saveCartArray(cart, cartToExclude);
+              await logout();
+            }}
+            paddingLeft={15}
+            paddingRight={15}
+            marginVertical={10}
+            borderRadius={8}
+            flexWrap="nowrap"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
             height={70}
           >
             <Icons name="log-out" size={20} color="gray" />

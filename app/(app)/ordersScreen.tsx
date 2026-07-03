@@ -1,15 +1,6 @@
-import PageContainer from '@/src/components/box/PageContainer';
-import DialogComercialInstance from '@/src/components/dialogComercialInstance';
-import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '@/src/components/text/HeaderText';
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { getAllScheduleOrders } from '@/src/services/scheduleOrderService';
-import { ScheduleOrderResponse } from '@/src/types/scheduleOrderTypes';
-import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -19,11 +10,19 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Input, Text, View, XStack } from 'tamagui';
-import CustomAlert from '../src/components/modais/CustomAlert';
-import { getOrders } from '../src/services/orderService';
-import { VersionInfo } from '../src/utils/VersionApp';
+import PageContainer from '@/src/components/box/PageContainer';
+import DialogComercialInstance from '@/src/components/dialogComercialInstance';
+import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
+import { HeaderText } from '@/src/components/text/HeaderText';
+import { useAuthContext } from '@/src/contexts/auth.context';
+import { useRestaurantContext } from '@/src/contexts/restaurant.context';
+import CustomAlert from '../../src/components/modais/CustomAlert';
+import { getOrders } from '../../src/services/orderService';
+import { VersionInfo } from '../../src/utils/VersionApp';
 import { OrderHistory } from '@/src/types/IOrder';
 import OrderListItem from '@/src/components/card/OrderListItem';
+import { JoinChatPayload } from '../../src/types/chatTypes';
+import { useChat } from '../../src/contexts/chat.context';
 
 export default function OrdersScreen() {
   const [orders, setOrders] = useState<OrderHistory[]>([]);
@@ -39,9 +38,38 @@ export default function OrdersScreen() {
   const [customAlertMessage, setCustomAlertMessage] = useState('');
   const { width: screenWidth } = useWindowDimensions();
   const isLargeScreen = screenWidth > 800;
-  const { logout } = useAuthContext();
+  const { logout, getTokenPayload } = useAuthContext();
 
   const router = useRouter();
+
+  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+
+  useEffect(() => {
+    async function handleJoinChat() {
+      if (isConnected) {
+        const token = await getTokenPayload();
+        if (!token || !selectedRestaurant) return;
+        const payload: JoinChatPayload = {
+          userId: token.id,
+          userName: token.name,
+          restaurantId: selectedRestaurant.id,
+          channelType: 'restaurant',
+          channelId: selectedRestaurant.id,
+          userType: 'restaurant',
+          allChannels: [selectedRestaurant.id],
+          channelName: selectedRestaurant.name,
+        };
+
+        await joinChat(payload);
+        getUnreadMessages({
+          channelId: payload.channelId,
+          channelType: payload.channelType,
+        });
+      }
+    }
+
+    handleJoinChat();
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
 
   // Só carrega pedidos ao entrar na tela e se restaurante mudar
   useFocusEffect(
@@ -170,7 +198,7 @@ export default function OrdersScreen() {
       <PageContainer backgroundColor="white">
         <View flex={1} justifyContent="center" alignItems="center">
           <ActivityIndicator size="large" color="#04BF7B" />
-          <Text fontSize={16} marginTop={5} color="gray" textAlign="center" width={'90%'}>
+          <Text fontSize={16} marginTop={5} color="gray" textAlign="center" width="90%">
             Carregando histórico de pedidos. Por favor Aguarde...
           </Text>
         </View>
@@ -268,20 +296,24 @@ export default function OrdersScreen() {
         justifyContent="center"
         alignItems="center"
         flexDirection="row"
-        gap={15}
-        height={55}
+        gap={10}
+        height={50}
         borderTopWidth={0.4}
         borderTopColor="lightgray"
+        backgroundColor="white"
+        paddingLeft={20}
+        paddingRight={20}
       >
         <View
           onPress={() => router.push('/products')}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={60}
+          width={50}
           height={70}
         >
           <Icons name="home" size={20} color="gray" />
@@ -294,14 +326,14 @@ export default function OrdersScreen() {
             setLoading(true);
             router.push('/ordersScreen');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={120}
           height={70}
         >
           <Icons name="journal" size={20} color="#04BF7B" />
@@ -315,14 +347,14 @@ export default function OrdersScreen() {
             setLoading(false);
             router.push('/userInfo');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={80}
           height={70}
         >
           <Icons name="person" size={20} color="gray" />
@@ -331,18 +363,60 @@ export default function OrdersScreen() {
           </Text>
         </View>
         <View
-          onPress={async () => {
-            setLoading(true);
-            await logout();
+          onPress={() => {
+            router.push('/chat');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={50}
+          height={70}
+          position="relative"
+        >
+          <View position="relative">
+            <Icons name="chatbubbles" size={20} color="gray" />
+
+            {unreadMessages > 0 && (
+              <View
+                position="absolute"
+                top={-4}
+                right={-10}
+                minWidth={16}
+                height={16}
+                borderRadius={999}
+                backgroundColor="#04BF7B"
+                justifyContent="center"
+                alignItems="center"
+                paddingHorizontal={5}
+              >
+                <Text fontSize={9} color="white" fontWeight="bold">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <Text fontSize={12} color="gray">
+            Chat
+          </Text>
+        </View>
+        <View
+          onPress={async () => {
+            setLoading(true);
+            await logout();
+          }}
+          paddingLeft={15}
+          paddingRight={15}
+          marginVertical={10}
+          borderRadius={8}
+          flexWrap="nowrap"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
           height={70}
         >
           <Icons name="log-out" size={20} color="gray" />

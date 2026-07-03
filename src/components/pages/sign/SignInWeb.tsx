@@ -1,9 +1,9 @@
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { ActivityIndicator, Linking } from 'react-native';
 import { Button, Image, Input, Stack, Text, View, XStack, YStack } from 'tamagui';
+import { VersionInfo } from '@/src/utils/VersionApp';
+import { useAuthContext } from '@/src/contexts/auth.context';
 import { ValidationDialog } from './ValidationDialog';
 
 export function SignInWeb(props: {
@@ -116,7 +116,7 @@ export function SignInWeb(props: {
           onPress={() => {
             setShowPw(!showPw);
           }}
-        ></Icons>
+        />
       </XStack>
 
       <Button
@@ -133,12 +133,7 @@ export function SignInWeb(props: {
       >
         Entrar
       </Button>
-      {erros.length > 0 && (
-        <Text data-testid="mensagem-erro">
-          {erros[0]}
-        </Text>
-      )}
-
+      {erros.length > 0 && <Text data-testid="mensagem-erro">{erros[0]}</Text>}
 
       <Text onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
         Esqueceu sua senha?
