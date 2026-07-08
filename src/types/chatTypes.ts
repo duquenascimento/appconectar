@@ -1,3 +1,4 @@
+export type UserType = 'restaurant' | 'supplier' | 'attendant';
 export type ChannelType = 'restaurant' | 'supplier';
 
 export type JoinChatPayload = {
@@ -90,4 +91,51 @@ export type GiftedChatMessage = {
   userType?: 'restaurant' | 'supplier' | 'attendant';
   read?: boolean;
   channelKey?: string;
+};
+
+export type ChatSocketConnectError = Error & {
+  data?: {
+    code?: 'TOKEN_EXPIRED' | 'INVALID_TOKEN' | 'TOKEN_MISSING';
+    message?: string;
+  };
+};
+
+export type NativePushPlatform = 'android' | 'ios';
+
+export type WebPushSubscriptionPayload = {
+  endpoint: string;
+  expirationTime: number | null;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+};
+
+export type ExpoPushRegisterPayload = {
+  userType: UserType;
+  userId: string;
+  channelType: ChannelType;
+  channelIds: string[];
+  platform: NativePushPlatform;
+  deviceId: string;
+  pushProvider: 'expo';
+  expoPushToken: string;
+};
+
+export type WebPushRegisterPayload = {
+  userType: UserType;
+  userId: string;
+  channelType: ChannelType;
+  channelIds: string[];
+  platform: 'web';
+  deviceId: string;
+  pushProvider: 'web-push';
+  webPushSubscription: WebPushSubscriptionPayload;
+};
+
+export type PushRegisterPayload = ExpoPushRegisterPayload | WebPushRegisterPayload;
+
+export type PushRegisterResponse = {
+  ok: boolean;
+  error?: string;
 };

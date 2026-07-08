@@ -62,6 +62,7 @@
     "dayjs": "^1.11.21",
     "eslint-config-expo": "~9.2.0",
     "expo": "53.0.22",
+    "expo-application": "~6.1.5",
     "expo-clipboard": "~7.1.5",
     "expo-constants": "~17.1.7",
     "expo-file-system": "~18.1.11",

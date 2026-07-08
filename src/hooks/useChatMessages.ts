@@ -40,7 +40,6 @@ export function useChatMessages() {
     }
 
     function handleMessagesResponse(response: GetPagesResponse) {
-      console.log(response);
       const mappedMessages = response.items.map(mapChatMessageToGifted);
       setMessages((previousMessages) => {
         if (response.metadata.currentPage === 1) {
