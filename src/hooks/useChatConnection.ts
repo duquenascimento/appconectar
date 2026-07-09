@@ -18,6 +18,7 @@ import {
   WebPushSubscriptionPayload,
 } from '../types/chatTypes';
 import { useAuthContext } from '../contexts/auth.context';
+import { useRestaurantContext } from '../contexts/restaurant.context';
 
 const PUSH_LAST_EXPO_TOKEN_STORAGE_KEY = '@chat/push/last-expo-token';
 const PUSH_LAST_EXPO_SYNC_AT_STORAGE_KEY = '@chat/push/last-expo-sync-at';
@@ -75,30 +76,6 @@ function makePushRegistrationHash(params: {
   });
 }
 
-function getRestaurantChannelIds(tokenPayload: { restaurant?: unknown }): string[] | null {
-  if (!Array.isArray(tokenPayload.restaurant)) {
-    console.log({
-      code: 'INVALID_PUSH_CHANNELS',
-      message: 'Lista de restaurantes inválida ou não encontrada para registrar push.',
-    });
-
-    return null;
-  }
-
-  const channelIds = normalizeChannelIds(tokenPayload.restaurant);
-
-  if (channelIds.length === 0) {
-    console.log({
-      code: 'NO_PUSH_CHANNELS_FOUND',
-      message: 'Nenhum restaurante encontrado para registrar push.',
-    });
-
-    return null;
-  }
-
-  return channelIds;
-}
-
 function getExpoProjectId() {
   const projectId = Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId;
 
@@ -110,9 +87,6 @@ function getExpoProjectId() {
 }
 
 function getWebPushPublicKey() {
-  console.log('Constants.expoConfig?.extra:', Constants.expoConfig?.extra);
-  console.log('Constants.easConfig:', Constants.easConfig);
-
   const publicKey = Constants.expoConfig?.extra?.webPush?.vapidPublicKey;
 
   if (!publicKey) {
@@ -533,6 +507,7 @@ export function useChatConnection() {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoadingChat, setIsLoadingChat] = useState(true);
   const { getTokenPayload } = useAuthContext();
+  const { restaurants } = useRestaurantContext();
   const hasRetriedTokenRef = useRef(false);
 
   useEffect(() => {
@@ -543,9 +518,7 @@ export function useChatConnection() {
         if (!chatSocket.connected) {
           return;
         }
-
         const tokenPayload = await getTokenPayload();
-
         if (!tokenPayload) {
           console.log({
             code: 'TOKEN_PAYLOAD_NOT_FOUND',
@@ -555,7 +528,16 @@ export function useChatConnection() {
           return;
         }
 
-        const channelIds = getRestaurantChannelIds(tokenPayload);
+        if (!restaurants?.length) {
+          console.log({
+            code: 'TOKEN_PAYLOAD_NOT_FOUND',
+            message: 'Token não encontrado.',
+          });
+
+          return;
+        }
+
+        const channelIds = restaurants.map((res) => res.id);
 
         if (!channelIds) {
           return;
@@ -731,11 +713,11 @@ export function useChatConnection() {
             return;
           }
 
-          const channelIds = getRestaurantChannelIds(tokenPayload);
-
-          if (!channelIds) {
+          if (!restaurants?.length) {
             return;
           }
+
+          const channelIds = restaurants.map((res) => res.id);
 
           const deviceId = await getCurrentDeviceId();
 
@@ -778,7 +760,7 @@ export function useChatConnection() {
 
       chatSocket.disconnect();
     };
-  }, []);
+  }, [restaurants]);
 
   return { isConnected, isLoadingChat };
 }
