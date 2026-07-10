@@ -9,6 +9,7 @@
     "metro-config": "^0.82.0",
     "metro-transform-worker": "0.82.5"
   },
+  
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
