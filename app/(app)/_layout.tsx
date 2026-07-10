@@ -1,4 +1,4 @@
-import { Slot, useRouter } from 'expo-router';
+import { Slot, useRouter, usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatProvider } from '../../src/contexts/chat.context';
 import { useRestaurantContext } from '../../src/contexts/restaurant.context';
@@ -9,9 +9,12 @@ import { useInitialNotificationUrlHandler } from '../../src/hooks/useInitialNoti
 // eslint-disable-next-line max-len
 import { useMobileNotificationClickHandler } from '../../src/hooks/useMobileNotificationClickHandler';
 import { chatSocket } from '../../src/services/chatSocketService';
+import { useActiveChannelResponder } from '../../src/hooks/useActiveChannelResponder';
+import { useMobileNotificationPresentationState } from '../../src/services/useMobileNotificationPresentationState';
 
 function LayoutContent() {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { handleRestaurantChange, restaurants, selectedRestaurant } = useRestaurantContext();
 
@@ -25,6 +28,18 @@ function LayoutContent() {
 
   usePushRegistration({
     isConnected,
+  });
+
+  const isChatScreen = pathname === '/chat';
+
+  const activeNotificationChannelId = isChatScreen ? (selectedRestaurant?.id ?? null) : null;
+
+  useActiveChannelResponder({
+    activeChannelId: activeNotificationChannelId,
+  });
+
+  useMobileNotificationPresentationState({
+    activeChannelId: activeNotificationChannelId,
   });
 
   const handleNotificationChannelId = useCallback(async (channelId: string) => {
@@ -65,7 +80,7 @@ function LayoutContent() {
       return;
     }
 
-    if (!restaurants.length) {
+    if (!restaurants?.length) {
       return;
     }
 
@@ -88,24 +103,23 @@ function LayoutContent() {
 
     async function processNotification() {
       try {
-        if (
-          chatSocket.connected &&
-          previousRestaurantId &&
-          previousRestaurantId !== restaurant.id
-        ) {
-          chatSocket.emit('leave_chat', {
-            channelId: previousRestaurantId,
-            channelType: 'restaurant',
-          });
-        }
+        if (previousRestaurantId !== restaurant.id) {
+          if (chatSocket.connected && previousRestaurantId) {
+            chatSocket.emit('leave_chat', {
+              channelId: previousRestaurantId,
+              channelType: 'restaurant',
+            });
+          }
 
-        await handleRestaurantChange(restaurant);
+          await handleRestaurantChange(restaurant);
+        }
 
         router.navigate('/chat');
 
         setPendingNotificationChannelId(null);
       } catch (error) {
         console.log('Erro ao abrir chat pela notificação:', error);
+        setPendingNotificationChannelId(null);
       } finally {
         isProcessingNotificationRef.current = false;
       }
