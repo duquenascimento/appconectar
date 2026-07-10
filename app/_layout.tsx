@@ -19,6 +19,7 @@ import 'react-native-gesture-handler';
 import config from '../tamagui.config';
 import { DefaultToast } from '@/src/components/DefaultToast';
 import { NotificationProvider } from '@/src/contexts/notification.context';
+import '../src/config/notification';
 
 // Import react-datepicker CSS for web platform
 if (Platform.OS === 'web') {
