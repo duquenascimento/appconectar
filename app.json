@@ -33,6 +33,7 @@
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
+      "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "light",
       "permissions": [
         "POST_NOTIFICATIONS",
@@ -58,7 +59,12 @@
       "expo-font",
       "expo-secure-store",
       "expo-web-browser",
-      "expo-notifications"
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "chat-messages"
+        }
+      ]
     ]
   }
 }
