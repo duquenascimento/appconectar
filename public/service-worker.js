@@ -32,7 +32,21 @@ self.addEventListener('push', function (event) {
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
 
-  const urlToOpen = event.notification.data?.url || '/';
+  const notificationData = event.notification.data || {};
+  const payloadData = notificationData.data || notificationData;
+
+  const channelId = payloadData.channelId;
+
+  console.log('[SW] notificationclick disparou');
+  console.log('[SW] notificationData:', notificationData);
+  console.log('[SW] payloadData:', payloadData);
+  console.log('[SW] channelId:', channelId);
+
+  const urlToOpen = new URL('/', self.location.origin);
+
+  if (channelId) {
+    urlToOpen.searchParams.set('notificationChannelId', channelId);
+  }
 
   event.waitUntil(
     self.clients
@@ -40,42 +54,34 @@ self.addEventListener('notificationclick', function (event) {
         type: 'window',
         includeUncontrolled: true,
       })
-      .then(function (clientList) {
+      .then(async function (clientList) {
+        console.log('[SW] clients encontrados:', clientList.length);
+
+        const message = {
+          type: 'NOTIFICATION_CLICK',
+          payload: {
+            channelId,
+          },
+        };
+
         for (const client of clientList) {
+          console.log('[SW] client encontrado:', client.url);
+
           if ('focus' in client) {
-            return client.focus();
+            await client.focus();
+
+            if (channelId) {
+              console.log('[SW] enviando postMessage:', message);
+              client.postMessage(message);
+            }
+
+            return;
           }
         }
 
         if (self.clients.openWindow) {
-          return self.clients.openWindow(urlToOpen);
-        }
-
-        return null;
-      }),
-  );
-});
-
-self.addEventListener('notificationclick', function (event) {
-  event.notification.close();
-
-  const urlToOpen = event.notification.data?.url || '/';
-
-  event.waitUntil(
-    self.clients
-      .matchAll({
-        type: 'window',
-        includeUncontrolled: true,
-      })
-      .then(function (clientList) {
-        for (const client of clientList) {
-          if ('focus' in client) {
-            return client.focus();
-          }
-        }
-
-        if (self.clients.openWindow) {
-          return self.clients.openWindow(urlToOpen);
+          console.log('[SW] abrindo nova janela:', urlToOpen.toString());
+          return self.clients.openWindow(urlToOpen.toString());
         }
 
         return null;
