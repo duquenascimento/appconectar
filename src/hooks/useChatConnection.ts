@@ -81,6 +81,12 @@ export function useChatConnection() {
     }
 
     async function handleConnectError(err: ChatSocketConnectError) {
+      console.log('=== CONNECT ERROR COMPLETO ===');
+      console.log(error);
+      console.log('message:', error.message);
+      console.log('data:', error.data);
+      console.log('description:', error.description);
+      console.log('context:', error.context);
       const code = err.data?.code;
       const message = err.data?.message ?? err.message;
 
