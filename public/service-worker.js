@@ -1,32 +1,56 @@
+const DEBUG = false;
+
+function debugLog(...args) {
+  if (DEBUG) {
+    console.log('[SW]', ...args);
+  }
+}
+
 function getNotificationPayload(event) {
   if (!event.data) {
     return {};
   }
 
   try {
-    return event.data.json();
-  } catch {
-    return {
-      title: 'Nova mensagem',
-      body: event.data.text(),
-    };
+    const rawPayload = event.data.text();
+
+    if (!rawPayload) {
+      return {};
+    }
+
+    try {
+      return JSON.parse(rawPayload);
+    } catch {
+      return {
+        title: 'Nova mensagem',
+        body: rawPayload,
+      };
+    }
+  } catch (error) {
+    console.error('[SW] Erro ao ler payload da push:', error);
+    return {};
   }
 }
 
 async function getFocusedVisibleClient() {
-  const clientList = await self.clients.matchAll({
-    type: 'window',
-    includeUncontrolled: true,
-  });
+  try {
+    const clientList = await self.clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    });
 
-  return (
-    clientList.find(function (client) {
-      return (
-        client.focused === true &&
-        client.visibilityState === 'visible'
-      );
-    }) || null
-  );
+    return (
+      clientList.find(function (client) {
+        return (
+          client.focused === true &&
+          client.visibilityState === 'visible'
+        );
+      }) || null
+    );
+  } catch (error) {
+    console.error('[SW] Erro ao procurar aba focada:', error);
+    return null;
+  }
 }
 
 async function getActiveChannelIdFromClient(client) {
@@ -34,6 +58,7 @@ async function getActiveChannelIdFromClient(client) {
     const messageChannel = new MessageChannel();
 
     let finished = false;
+    let timeoutId = null;
 
     function finish(channelId) {
       if (finished) {
@@ -41,7 +66,12 @@ async function getActiveChannelIdFromClient(client) {
       }
 
       finished = true;
-      clearTimeout(timeout);
+
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      messageChannel.port1.close();
 
       resolve(
         typeof channelId === 'string'
@@ -51,31 +81,102 @@ async function getActiveChannelIdFromClient(client) {
     }
 
     /*
-     * Caso a aplicação não responda, a notificação é exibida.
-     * É mais seguro mostrar uma notificação extra do que
-     * perder uma notificação importante.
+     * Se o React não responder dentro do prazo,
+     * a notificação será exibida normalmente.
      */
-    const timeout = setTimeout(function () {
+    timeoutId = setTimeout(function () {
+      debugLog('Timeout ao consultar canal ativo.');
       finish(null);
-    }, 500);
+    }, 750);
 
     messageChannel.port1.onmessage = function (event) {
       finish(event.data?.channelId);
     };
 
-    client.postMessage(
-      {
-        type: 'GET_ACTIVE_CHANNEL',
-      },
-      [messageChannel.port2],
-    );
+    messageChannel.port1.onmessageerror = function () {
+      debugLog('Resposta inválida ao consultar canal ativo.');
+      finish(null);
+    };
+
+    try {
+      client.postMessage(
+        {
+          type: 'GET_ACTIVE_CHANNEL',
+        },
+        [messageChannel.port2],
+      );
+    } catch (error) {
+      console.error(
+        '[SW] Erro ao consultar canal ativo:',
+        error,
+      );
+
+      finish(null);
+    }
   });
 }
+
+async function shouldSuppressNotification(
+  notificationChannelId,
+) {
+  if (!notificationChannelId) {
+    return false;
+  }
+
+  try {
+    const focusedClient =
+      await getFocusedVisibleClient();
+
+    if (!focusedClient) {
+      return false;
+    }
+
+    const activeChannelId =
+      await getActiveChannelIdFromClient(
+        focusedClient,
+      );
+
+    debugLog('Verificação da notificação:', {
+      notificationChannelId,
+      activeChannelId,
+      focusedClientUrl: focusedClient.url,
+    });
+
+    return (
+      activeChannelId === notificationChannelId
+    );
+  } catch (error) {
+    /*
+     * Falha aberta:
+     * se não for possível verificar o canal ativo,
+     * a notificação deve ser exibida.
+     */
+    console.error(
+      '[SW] Erro ao decidir supressão da notificação:',
+      error,
+    );
+
+    return false;
+  }
+}
+
+self.addEventListener('install', function (event) {
+  /*
+   * Ativa imediatamente a nova versão do worker,
+   * sem aguardar o fechamento das abas antigas.
+   */
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener('activate', function (event) {
+  event.waitUntil(self.clients.claim());
+});
 
 self.addEventListener('push', function (event) {
   event.waitUntil(
     (async function () {
-      const payload = getNotificationPayload(event);
+      const payload =
+        getNotificationPayload(event);
 
       const payloadData =
         payload.data &&
@@ -84,57 +185,62 @@ self.addEventListener('push', function (event) {
           : {};
 
       const notificationChannelId =
-        payloadData.channelId ||
-        payload.channelId ||
-        null;
+        typeof payloadData.channelId === 'string'
+          ? payloadData.channelId
+          : typeof payload.channelId === 'string'
+            ? payload.channelId
+            : null;
 
       const channelType =
-        payloadData.channelType ||
-        payload.channelType ||
-        'restaurant';
+        payloadData.channelType === 'supplier' ||
+        payload.channelType === 'supplier'
+          ? 'supplier'
+          : 'restaurant';
 
-      const focusedClient =
-        await getFocusedVisibleClient();
+      const shouldSuppress =
+        await shouldSuppressNotification(
+          notificationChannelId,
+        );
 
-      /*
-       * Somente pergunta pelo canal ativo quando:
-       *
-       * - há uma aba focada;
-       * - a notificação possui channelId.
-       */
-      if (focusedClient && notificationChannelId) {
-        const activeChannelId =
-          await getActiveChannelIdFromClient(
-            focusedClient,
-          );
+      if (shouldSuppress) {
+        debugLog(
+          'Notificação ignorada porque o canal já está aberto.',
+          {
+            channelId: notificationChannelId,
+            channelType,
+          },
+        );
 
-        if (
-          activeChannelId === notificationChannelId
-        ) {
-          console.log(
-            '[SW] Notificação ignorada: canal já está aberto.',
-          );
-
-          return;
-        }
+        return;
       }
 
       const title =
-        payload.title || 'Nova mensagem';
+        typeof payload.title === 'string'
+          ? payload.title
+          : 'Nova mensagem';
 
       const options = {
         body:
-          payload.body ||
-          'Você recebeu uma nova mensagem no chat.',
+          typeof payload.body === 'string'
+            ? payload.body
+            : 'Você recebeu uma nova mensagem no chat.',
 
-        icon: payload.icon || '/icon.png',
-        badge: payload.badge || '/badge.png',
+        icon:
+          typeof payload.icon === 'string'
+            ? payload.icon
+            : '/icon.png',
+
+        badge:
+          typeof payload.badge === 'string'
+            ? payload.badge
+            : '/badge.png',
 
         tag:
-          payload.tag ||
-          (notificationChannelId
-            ? `chat-message:${notificationChannelId}`
-            : 'chat-message'),
+          typeof payload.tag === 'string'
+            ? payload.tag
+            : notificationChannelId
+              ? `chat-message:${notificationChannelId}`
+              : 'chat-message',
 
         renotify: true,
 
@@ -145,16 +251,30 @@ self.addEventListener('push', function (event) {
           channelType,
 
           url:
-            payloadData.url ||
-            payload.url ||
-            '/',
+            typeof payloadData.url === 'string'
+              ? payloadData.url
+              : typeof payload.url === 'string'
+                ? payload.url
+                : '/',
         },
       };
 
-      await self.registration.showNotification(
+      debugLog('Exibindo notificação:', {
         title,
         options,
-      );
+      });
+
+      try {
+        await self.registration.showNotification(
+          title,
+          options,
+        );
+      } catch (error) {
+        console.error(
+          '[SW] Erro ao exibir notificação:',
+          error,
+        );
+      }
     })(),
   );
 });
@@ -200,13 +320,25 @@ self.addEventListener(
     }
 
     event.waitUntil(
-      self.clients
-        .matchAll({
-          type: 'window',
-          includeUncontrolled: true,
-        })
-        .then(async function (clientList) {
+      (async function () {
+        try {
+          const clientList =
+            await self.clients.matchAll({
+              type: 'window',
+              includeUncontrolled: true,
+            });
+
+          /*
+           * Prioriza uma aba focada e visível.
+           * Caso não exista, utiliza qualquer aba da aplicação.
+           */
           const existingClient =
+            clientList.find(function (client) {
+              return (
+                client.focused === true &&
+                client.visibilityState === 'visible'
+              );
+            }) ||
             clientList.find(function (client) {
               try {
                 return (
@@ -233,13 +365,17 @@ self.addEventListener(
           }
 
           if (self.clients.openWindow) {
-            return self.clients.openWindow(
+            await self.clients.openWindow(
               urlToOpen.toString(),
             );
           }
-
-          return null;
-        }),
+        } catch (error) {
+          console.error(
+            '[SW] Erro ao processar clique na notificação:',
+            error,
+          );
+        }
+      })(),
     );
   },
 );
