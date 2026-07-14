@@ -5,9 +5,9 @@ import getDeviceId from './getDeviceId';
 import { ExpoPushRegisterPayload, WebPushRegisterPayload } from '../types/chatTypes';
 import { makePushRegistrationHash } from './pushRegistration';
 
-const PUSH_LAST_EXPO_TOKEN_STORAGE_KEY = '@chat/push/last-expo-token';
-const PUSH_LAST_EXPO_SYNC_AT_STORAGE_KEY = '@chat/push/last-expo-sync-at';
-const PUSH_LAST_EXPO_REGISTRATION_HASH_STORAGE_KEY = '@chat/push/last-expo-registration-hash';
+const PUSH_LAST_EXPO_TOKEN_STORAGE_KEY = 'chat.push.last-expo-token';
+const PUSH_LAST_EXPO_SYNC_AT_STORAGE_KEY = 'chat.push.last-expo-sync-at';
+const PUSH_LAST_EXPO_REGISTRATION_HASH_STORAGE_KEY = 'chat.push.last-expo-registration-hash';
 
 const PUSH_LAST_WEB_SUBSCRIPTION_STORAGE_KEY = '@chat/push/last-web-subscription';
 const PUSH_LAST_WEB_SYNC_AT_STORAGE_KEY = '@chat/push/last-web-sync-at';
