@@ -305,7 +305,7 @@ function Chat() {
               </View>
             </View>
 
-            <View style={{ flex: 1, backgroundColor: '#FAFAFA' }}>
+            <View style={{ flex: 1, backgroundColor: '#F6F6F6' }}>
               <GiftedChat
                 messages={messages}
                 onSend={(mes) => onSend(mes)}
