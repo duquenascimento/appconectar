@@ -404,6 +404,7 @@ const ProductBox = React.memo(
                     backgroundColor="white"
                   >
                     <Icons
+                      testID={`remover-produto-${name}`}
                       name="remove"
                       color="#04BF7B"
                       size={24}
@@ -416,6 +417,7 @@ const ProductBox = React.memo(
                       {valueQuant} {orderUnit.replace('Unid', 'Un')}
                     </Text>
                     <Icons
+                      testID={`adicionar-produto-${name}`}
                       name="add"
                       color="#04BF7B"
                       size={24}
@@ -1180,6 +1182,7 @@ export default function Products() {
             </Text>
           </View>
           <View
+            testID='botao-logout'
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);

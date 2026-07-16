@@ -79,9 +79,14 @@ export function useChatConnection() {
       console.log('Chat socket desconectado:', reason);
     }
 
-    async function handleConnectError(error: ChatSocketConnectError) {
-      const code = error.data?.code;
-      const message = error.data?.message ?? error.message;
+    async function handleConnectError(err: ChatSocketConnectError) {
+      console.log('=== CONNECT ERROR COMPLETO ===');
+      console.log(err);
+      console.log('message:', err.message);
+      console.log('data:', err.data);
+
+      const code = err.data?.code;
+      const message = err.data?.message ?? err.message;
 
       if (isMounted) {
         setIsConnected(false);

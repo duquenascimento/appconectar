@@ -74,6 +74,7 @@ export function SignInMobile(props: {
           borderWidth="$0"
           borderColor="$colorTransparent"
           flex={1}
+          testID='input-email'
           maxLength={256}
           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
           value={email}
@@ -97,6 +98,7 @@ export function SignInMobile(props: {
           onChangeText={setPassword}
           backgroundColor="$colorTransparent"
           borderWidth="$0"
+          testID='input-senha'
           borderColor="$colorTransparent"
           secureTextEntry={showPw}
           flex={1}
@@ -121,6 +123,7 @@ export function SignInMobile(props: {
         color="white"
         fontWeight="$10"
         width={230}
+        testID='botao-entrar'
         onPress={() =>
           props.onLoginPress(email, password, setRegisterInvalid, setLoading, setErros, saveLogin)
         }
@@ -132,7 +135,7 @@ export function SignInMobile(props: {
             <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$5'><Icons name='logo-google' />Continuar com Google</Button>
             <Button backgroundColor='white' borderColor='lightgray' width={230} marginTop='$3.5'><Icons name='logo-microsoft' />Continuar com Microsoft</Button> */}
 
-      <Text onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
+      <Text data-testid="botao-recuperar-senha" onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
         Esqueceu sua senha?
       </Text>
       <Text

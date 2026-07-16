@@ -3,20 +3,19 @@ exports.config = {
   hostname: '127.0.0.1',
   port: 4723,
   path: '/', // Appium 3 usa caminho raiz
-  specs: ['./testes/e2e/login.web.spec.js'],
+  specs: ['./testes/e2e/*.web.spec.js'],
   maxInstances: 1,
-
-  services: [['appium', { command: 'appium' }]],
+  services: [], 
   framework: 'mocha',
   reporters: ['spec'],
   mochaOpts: { timeout: 40000 },
-
+  // ANDROID BROWSER
   capabilities: [{
-    platformName: 'windows',        // ← NÃO é "web"
-    browserName: 'chrome',
-    'appium:automationName': 'chromium',
-    'goog:chromeOptions': {
-      args: ['--start-maximized', '--no-sandbox', '--disable-dev-shm-usage', '--disable-infobars']
-    }
+    // platformName: 'windows',        // ← NÃO é "web"
+    platformName: 'Android',
+    'appium:automationName': 'UiAutomator2',
+    'appium:deviceName': 'Android Emulator',
+    'appium:browserName': 'Chrome',
+    'appium:chromedriverAutodownload': true,
   }]
 };

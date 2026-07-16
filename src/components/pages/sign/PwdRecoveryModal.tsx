@@ -114,6 +114,7 @@ export const PwRecoveryModal = ({
                   Informe o e-mail abaixo e insira o código enviado
                 </Text>
                 <Input
+                  testID="input-email-recuperacao-senha"
                   autoCapitalize="none"
                   keyboardType="email-address"
                   marginTop={15}
@@ -126,6 +127,7 @@ export const PwRecoveryModal = ({
                 />
                 {step === 2 && (
                   <Input
+                    testID="input-codigo-recuperacao-senha"
                     autoCapitalize="none"
                     onChangeText={setCodeModal}
                     maxLength={5}
@@ -245,6 +247,7 @@ export const PwRecoveryModal = ({
                   </Text>
                 </Button>
                 <Button
+                  testID="botao-avancar"
                   onPress={onSubmit}
                   backgroundColor="#04BF7B"
                   flex={1}

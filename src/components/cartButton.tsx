@@ -91,6 +91,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
           }}
         >
           <button
+            data-testid="botao-carrinho"
             style={{
               border: 'none',
               background: 'none',
@@ -121,6 +122,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
               >
                 <Icons size={25} color="white" name="cart" />
                 <div
+                  data-testid="quantidade-carrinho"
                   style={{
                     position: 'absolute',
                     bottom: -1,

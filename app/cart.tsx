@@ -121,7 +121,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
   };
 
   return (
-    <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+    <View testID={`produto-cartao-${produto.sku}`} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
       <View
         onPress={toggleOpen}
         flex={1}
@@ -149,6 +149,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
               badgeColor="#0BC07D"
             />
             <View
+              testID={`deletar-produto-${produto.sku}`}
               marginLeft={Platform.OS === 'web' ? 10 : 5}
               onPress={() => {
                 produto.setConfirmDeleteItem({
@@ -308,6 +309,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
               gap={16}
             >
               <Icons
+                testID={`remover-produto-${produto.sku}`}
                 name="remove"
                 color="#04BF7B"
                 size={24}
@@ -315,6 +317,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
               />
               <Text>{valueQuant}</Text>
               <Icons
+                testID={`adicionar-produto-${produto.sku}`}
                 name="add"
                 color="#04BF7B"
                 size={24}
@@ -362,7 +365,7 @@ export default React.memo(function Cart() {
   const [displayedProducts, setDisplayedProducts] = useState<Product[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [cartInside, setCartInside] = useState<Map<string, TCart>>(new Map());
-  const [confirmDelte, setConfirmDelete] = useState<boolean>(false);
+  const [confirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [confirmDeleteItem, setConfirmDeleteItem] = useState<boolean>(false);
   const [itemToDelete, setItemToDelete] = useState<TCart>();
   const [alertItems, setAlertItems] = useState<Product[]>([]);
@@ -632,7 +635,7 @@ export default React.memo(function Cart() {
 
           <View
             backgroundColor="#F0F2F6"
-            display={confirmDelte ? 'none' : 'flex'}
+            display={confirmDelete ? 'none' : 'flex'}
             paddingHorizontal={20}
             justifyContent="center"
             alignItems="center"
@@ -655,6 +658,7 @@ export default React.memo(function Cart() {
               <View justifyContent="center" alignItems="center">
                 {cart.size > 0 && (
                   <Button
+                    testID='deletar-carrinho'
                     backgroundColor="black"
                     onPress={async () => {
                       setConfirmDelete(true);
@@ -713,7 +717,7 @@ export default React.memo(function Cart() {
             />
           </View>
 
-          {confirmDelte && (
+          {confirmDelete && (
             <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
               <Modal transparent>
                 <View
@@ -766,6 +770,7 @@ export default React.memo(function Cart() {
                       </TouchableOpacity>
                       <TouchableOpacity style={{ flex: 1 }}>
                         <Button
+                          testID='deletar-carrinho-confirmacao'
                           backgroundColor="black"
                           onPress={async () => {
                             setLoading(true);
@@ -848,6 +853,7 @@ export default React.memo(function Cart() {
                       </TouchableOpacity>
                       <TouchableOpacity style={{ flex: 1 }}>
                         <Button
+                        testID='deletar-produto-carrinho-confirmacao'
                           backgroundColor="black"
                           onPress={async () => {
                             setLoading(true);
