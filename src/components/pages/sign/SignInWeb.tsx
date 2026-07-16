@@ -135,7 +135,7 @@ export function SignInWeb(props: {
       </Button>
       {erros.length > 0 && <Text data-testid="mensagem-erro">{erros[0]}</Text>}
 
-      <Text onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
+      <Text data-testid="botao-recuperar-senha" onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
         Esqueceu sua senha?
       </Text>
 
