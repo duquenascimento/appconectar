@@ -777,37 +777,72 @@ export default function Products() {
     }
   }, [currentClass, searchQuery]);
 
+  // Normaliza nome/classe uma única vez por mudança de productsList, em vez de
+  // recalcular (NFD + regex) para a lista inteira a cada tecla digitada na busca.
+  const normalizedProductsList = useMemo(
+    () =>
+      (productsList ?? []).map((product) => {
+        const normalizedName = normalizeText(product.name);
+        return {
+          product,
+          normalizedName,
+          normalizedNameWords: normalizedName.split(' '),
+          normalizedClass: normalizeText(product.class),
+        };
+      }),
+    [productsList],
+  );
+
+  const favoriteIds = useMemo(() => new Set(favorites.map((product) => product.id)), [favorites]);
+
+  const sortProducts = useCallback(
+    (products: Product[]) =>
+      [...products].sort((a, b) => {
+        if (currentClass !== 'Favoritos') {
+          const isFavoriteA = favoriteIds.has(a.id);
+          const isFavoriteB = favoriteIds.has(b.id);
+          if (isFavoriteA !== isFavoriteB) return isFavoriteA ? -1 : 1;
+        }
+
+        const isLargeQuantityA = a.isLargeQuantity ?? false;
+        const isLargeQuantityB = b.isLargeQuantity ?? false;
+        if (isLargeQuantityA !== isLargeQuantityB) return isLargeQuantityA ? 1 : -1;
+
+        return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
+      }),
+    [currentClass, favoriteIds],
+  );
+
   const filteredProducts = useMemo(() => {
-    let products = productsList || [];
-
-    // Favoritos
-    if (currentClass === 'Favoritos') {
-      products = favorites;
-    } else {
-      products =
-        productsList?.filter(
-          (product) => product.class.toLowerCase() === currentClass.toLowerCase(),
-        ) || [];
-    }
-
     if (searchQuery) {
-      const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
-      const normalizedQuery = normalizeText(searchQuery);
-      const queryWords = normalizedQuery.split(' ').filter((word) => word !== '');
+      const excludeClass = classItems[3]?.name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+      const normalizedExcludeClass = normalizeText(excludeClass);
+      const queryWords = normalizeText(searchQuery)
+        .split(' ')
+        .filter((word) => word !== '');
 
-      products =
-        productsList?.filter((product) => {
-          const normalizedProductName = normalizeText(product.name);
-          const productNameWords = normalizedProductName.split(' ');
+      const matches = normalizedProductsList
+        .filter(({ normalizedNameWords, normalizedClass }) => {
           const isMatchingName = queryWords.every((queryWord) =>
-            productNameWords.some((productWord) => productWord.includes(queryWord)),
+            normalizedNameWords.some((productWord) => productWord.includes(queryWord)),
           );
-          const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
-          return isMatchingName && isNotExcludedClass;
-        }) ?? [];
+          return isMatchingName && normalizedClass !== normalizedExcludeClass;
+        })
+        .map(({ product }) => product);
+
+      return sortProducts(matches);
     }
-    return products;
-  }, [currentClass, productsList, favorites, searchQuery]);
+
+    if (currentClass === 'Favoritos') {
+      return sortProducts(favorites);
+    }
+
+    const normalizedCurrentClass = currentClass.toLowerCase();
+    const matches = (productsList ?? []).filter(
+      (product) => product.class.toLowerCase() === normalizedCurrentClass,
+    );
+    return sortProducts(matches);
+  }, [currentClass, productsList, favorites, searchQuery, normalizedProductsList, sortProducts]);
 
   useEffect(() => {
     setDisplayedProducts(filteredProducts);
@@ -1182,7 +1217,7 @@ export default function Products() {
             </Text>
           </View>
           <View
-            testID='botao-logout'
+            testID="botao-logout"
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);
