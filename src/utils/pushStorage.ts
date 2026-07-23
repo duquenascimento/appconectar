@@ -46,8 +46,8 @@ function setWebStorageItem(key: string, value: string): void {
 
   try {
     window.localStorage.setItem(key, value);
-  } catch (error) {
-    console.log('Erro ao salvar item no localStorage:', error);
+  } catch {
+    // console.log('Erro ao salvar item no localStorage:', error);
   }
 }
 
@@ -58,8 +58,8 @@ function removeWebStorageItem(key: string): void {
 
   try {
     window.localStorage.removeItem(key);
-  } catch (error) {
-    console.log('Erro ao remover item do localStorage:', error);
+  } catch {
+    // console.log('Erro ao remover item do localStorage:', error);
   }
 }
 

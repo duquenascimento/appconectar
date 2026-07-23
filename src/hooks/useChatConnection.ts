@@ -51,9 +51,7 @@ export function useChatConnection() {
         if (!chatSocket.connected) {
           chatSocket.connect();
         }
-      } catch (error) {
-        console.log('Erro ao preparar conexão com o chat:', error);
-
+      } catch {
         if (isMounted) {
           setIsLoadingChat(false);
         }
@@ -71,33 +69,20 @@ export function useChatConnection() {
       console.log('Conexão estabelecida com o servidor:', chatSocket.id);
     }
 
-    function handleDisconnect(reason: string) {
+    function handleDisconnect(_reason: string) {
       if (isMounted) {
         setIsConnected(false);
       }
-
-      console.log('Chat socket desconectado:', reason);
     }
 
     async function handleConnectError(err: ChatSocketConnectError) {
-      console.log('=== CONNECT ERROR COMPLETO ===');
-      console.log(err);
-      console.log('message:', err.message);
-      console.log('data:', err.data);
-
       const code = err.data?.code;
-      const message = err.data?.message ?? err.message;
 
       if (isMounted) {
         setIsConnected(false);
       }
 
       if (code !== 'TOKEN_EXPIRED') {
-        console.log('Erro ao conectar no chat socket:', {
-          code: code ?? 'CONNECT_ERROR',
-          message,
-        });
-
         if (isMounted) {
           setIsLoadingChat(false);
         }
@@ -106,11 +91,6 @@ export function useChatConnection() {
       }
 
       if (hasRetriedTokenRef.current) {
-        console.log({
-          code: 'TOKEN_REFRESH_ALREADY_RETRIED',
-          message: 'O token expirou, uma nova tentativa já foi feita e falhou.',
-        });
-
         if (isMounted) {
           setIsLoadingChat(false);
         }
@@ -139,9 +119,7 @@ export function useChatConnection() {
         };
 
         chatSocket.connect();
-      } catch (refreshError) {
-        console.log('Erro ao gerar novo token do chat:', refreshError);
-
+      } catch {
         if (isMounted) {
           setIsLoadingChat(false);
         }

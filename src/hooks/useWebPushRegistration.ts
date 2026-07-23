@@ -118,10 +118,6 @@ export function useWebPushRegistration({
       const hasPermission = await requestWebNotificationPermission();
 
       if (!hasPermission) {
-        console.log({
-          code: 'WEB_PUSH_PERMISSION_NOT_GRANTED',
-          message: 'Permissão de push notification web não concedida.',
-        });
         return;
       }
 
@@ -131,10 +127,6 @@ export function useWebPushRegistration({
       ]);
 
       if (!deviceId) {
-        console.log({
-          code: 'DEVICE_ID_NOT_FOUND',
-          message: 'Não foi possível obter o deviceId.',
-        });
         return;
       }
 
@@ -150,10 +142,6 @@ export function useWebPushRegistration({
       const webPushSubscription = normalizeWebPushSubscription(subscription);
 
       if (!webPushSubscription) {
-        console.log({
-          code: 'WEB_PUSH_SUBSCRIPTION_INVALID',
-          message: 'PushSubscription web inválida.',
-        });
         return;
       }
 
@@ -188,13 +176,8 @@ export function useWebPushRegistration({
 
       await registerPushWithSocket(payload);
       markWebPushAsSynced(payload);
-
-      console.log({
-        code: 'WEB_PUSH_REGISTERED',
-        message: 'Web Push registrado com sucesso.',
-      });
-    } catch (error) {
-      console.log('Erro ao sincronizar Web Push:', error);
+    } catch {
+      // console.log('Erro ao sincronizar Web Push:', error);
     } finally {
       isSyncingRef.current = false;
     }

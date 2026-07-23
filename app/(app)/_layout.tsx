@@ -10,6 +10,7 @@ import { useInitialNotificationUrlHandler } from '../../src/hooks/useInitialNoti
 import { useMobileNotificationClickHandler } from '../../src/hooks/useMobileNotificationClickHandler';
 import { chatSocket } from '../../src/services/chatSocketService';
 import { useActiveChannelResponder } from '../../src/hooks/useActiveChannelResponder';
+// eslint-disable-next-line max-len
 import { useMobileNotificationPresentationState } from '../../src/services/useMobileNotificationPresentationState';
 
 function LayoutContent() {
@@ -43,8 +44,6 @@ function LayoutContent() {
   });
 
   const handleNotificationChannelId = useCallback(async (channelId: string) => {
-    console.log('Notificação clicada. ChannelId:', channelId);
-
     if (!channelId) {
       return;
     }
