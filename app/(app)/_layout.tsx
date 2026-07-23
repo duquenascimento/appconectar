@@ -86,12 +86,6 @@ function LayoutContent() {
     const restaurant = restaurants.find((item) => item.id === pendingNotificationChannelId);
 
     if (!restaurant) {
-      console.log({
-        code: 'NOTIFICATION_RESTAURANT_NOT_FOUND',
-        message: 'O restaurante da notificação não foi encontrado para o usuário.',
-        channelId: pendingNotificationChannelId,
-      });
-
       setPendingNotificationChannelId(null);
       return;
     }
@@ -116,8 +110,7 @@ function LayoutContent() {
         router.navigate('/chat');
 
         setPendingNotificationChannelId(null);
-      } catch (error) {
-        console.log('Erro ao abrir chat pela notificação:', error);
+      } catch {
         setPendingNotificationChannelId(null);
       } finally {
         isProcessingNotificationRef.current = false;

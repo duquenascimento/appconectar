@@ -177,7 +177,7 @@ export function useWebPushRegistration({
       await registerPushWithSocket(payload);
       markWebPushAsSynced(payload);
     } catch {
-      // console.log('Erro ao sincronizar Web Push:', error);
+      // no-op: nenhuma ação é executada
     } finally {
       isSyncingRef.current = false;
     }

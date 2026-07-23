@@ -32,11 +32,6 @@ export function useChatConnection() {
         }
 
         if (!currentToken) {
-          console.log({
-            code: 'CHAT_TOKEN_NOT_FOUND',
-            message: 'Token do chat não encontrado.',
-          });
-
           if (isMounted) {
             setIsLoadingChat(false);
           }
@@ -65,8 +60,6 @@ export function useChatConnection() {
         setIsConnected(true);
         setIsLoadingChat(false);
       }
-
-      console.log('Conexão estabelecida com o servidor:', chatSocket.id);
     }
 
     function handleDisconnect(_reason: string) {
