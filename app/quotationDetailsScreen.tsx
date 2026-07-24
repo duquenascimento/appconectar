@@ -1,25 +1,30 @@
-import { CreditCardSection } from '@/src/components/CreditCardSection';
-import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
-import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
-import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
-import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
-import { getCreditCards } from '@/src/services/creditCardService';
-import { confirmScheduleOrder } from '@/src/services/scheduleOrderService';
-import { CombinationMissingProducts } from '@/src/types/combinationTypes';
-import { CreditCard } from '@/src/types/creditCardTypes';
-import { SameDayOrder } from '@/src/types/types';
-import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
-import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '@/src/utils/dateUtils';
-import { extractErrorMessage } from '@/src/utils/errorUtils';
-import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { checkSupplierAvailabilityMessageForConectarPlus } from '@/src/utils/supplierUtils';
-import { getSecondsUntilTime } from '@/src/utils/timeUtils';
+/* eslint-disable max-len */
+/* eslint-disable react-native/no-inline-styles */
 import { HttpStatusCode } from 'axios';
 import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { debounce } from 'lodash';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
+import { CreditCardSection } from '../src/components/CreditCardSection';
+import { useResponsiveness } from '../src/components/hooks/useResponsiveness';
+import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
+import PdfViewerModal from '../src/components/modais/PdfViewerModal';
+import { CreateCreditCardModal } from '../src/components/pages/confirm/CreateCreditCardModal';
+
+import { RetroactiveQuotationWarningBanner } from '../src/components/quotations/RetroactiveQuotationWarningBanner';
+import { getCreditCards } from '../src/services/creditCardService';
+import { confirmScheduleOrder } from '../src/services/scheduleOrderService';
+import { CombinationMissingProducts } from '../src/types/combinationTypes';
+import { CreditCard } from '../src/types/creditCardTypes';
+import { SameDayOrder } from '../src/types/types';
+import { extractDefaultCreditCart } from '../src/utils/creditCardUtils';
+import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../src/utils/dateUtils';
+import { extractErrorMessage } from '../src/utils/errorUtils';
+import { getStorageRestaurant } from '../src/utils/restaurantUtils';
+import { checkSupplierAvailabilityMessageForConectarPlus } from '../src/utils/supplierUtils';
+import { getSecondsUntilTime } from '../src/utils/timeUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
@@ -53,6 +58,7 @@ export interface Product {
   image: string[];
   orderUnit: string;
   quotationUnit: string;
+  scheduled: boolean;
 }
 
 export interface Discount {
@@ -84,24 +90,9 @@ export interface SupplierData {
   supplier: ConectarPlusSupplier;
 }
 
-type RootStackParamList = {
-  Home: undefined;
-  Products: undefined;
-  Cart: undefined;
-  Prices: undefined;
-  OrderConfirmed: { suppliers: SupplierData[]; deliveryDate?: string };
-  QuotationDetails: {
-    combinationId: string;
-    combinationName?: string;
-    suppliersData: SupplierData[];
-    missingProducts: CombinationMissingProducts[];
-  };
-};
-
 export default function QuotationDetailsScreen() {
   const router = useRouter();
   const {
-    combinationId,
     combinationName,
     suppliersData: suppliersDataParam,
     missingProducts,
@@ -124,6 +115,16 @@ export default function QuotationDetailsScreen() {
     }
   }, [suppliersDataParam]);
 
+  const hasScheduled = useMemo(() => {
+    let qty = 0;
+    suppliersData.forEach((supD) => {
+      supD.supplier.discount.product.forEach((prod) => {
+        if (prod.scheduled) qty += 1;
+      });
+    });
+    return qty;
+  }, [suppliersData]);
+
   const [suppliers] = useState<SupplierData[]>(suppliersData || []);
   const [headerTitle] = useState<string>(combinationName || 'Detalhes da Cotação');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -132,6 +133,7 @@ export default function QuotationDetailsScreen() {
   const [showNotification, setShowNotification] = useState(false);
   const { selectedRestaurant } = useRestaurantContext();
   const [showSundayWarning, setShowSundayWarning] = useState(false);
+  const [showMissingItemsModal, setShowMissingItemsModal] = useState(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{ sundayWarning: boolean }>({
     sundayWarning: false,
   });
@@ -153,8 +155,8 @@ export default function QuotationDetailsScreen() {
     if (!missingProducts) return [];
 
     try {
-      // Extract string from URL param (can be string or string[])
       const raw =
+        // eslint-disable-next-line no-nested-ternary
         typeof missingProducts === 'string'
           ? missingProducts
           : Array.isArray(missingProducts) && missingProducts.length > 0
@@ -325,7 +327,6 @@ export default function QuotationDetailsScreen() {
         }
       } catch (error) {
         const errorMessage = extractErrorMessage(error);
-        console.error('Erro ao confirmar a combinação:', error);
         setShowErros([errorMessage]);
         setBooleanErros(true);
       } finally {
@@ -381,13 +382,30 @@ export default function QuotationDetailsScreen() {
     setConfirmedWarnings({ sundayWarning: false });
   }, []);
 
+  const handleConfirmMissingItems = useCallback(async () => {
+    setShowMissingItemsModal(false);
+    await handleConfirm();
+  }, [handleConfirm]);
+
+  const handleCloseMissingItems = useCallback(() => {
+    setShowMissingItemsModal(false);
+  }, []);
+
+  const onConfirmPress = useCallback(() => {
+    if (hasScheduled > 0) {
+      setShowMissingItemsModal(true);
+      return;
+    }
+    handleConfirm();
+  }, [hasScheduled, handleConfirm]);
+
   const onConfirmPressDebounced = useMemo(
     () =>
-      debounce(handleConfirm, 300, {
+      debounce(onConfirmPress, 300, {
         leading: true,
         trailing: false,
       }) as unknown as () => void,
-    [handleConfirm],
+    [onConfirmPress],
   );
 
   useFocusEffect(
@@ -500,7 +518,7 @@ export default function QuotationDetailsScreen() {
         <CreateCreditCardModal
           open={openCreditCardDialog}
           setOpen={setOpenCreditCardDialog}
-          onSaved={async (creditCard: CreditCard) => {
+          onSaved={async () => {
             await loadCreditCards();
           }}
         />
@@ -508,6 +526,12 @@ export default function QuotationDetailsScreen() {
           visible={showSundayWarning}
           onCancel={handleCloseSundayWarning}
           onConfirm={handleConfirmSundayWarning}
+        />
+        <MissingItemsDialog
+          open={showMissingItemsModal}
+          onClose={handleCloseMissingItems}
+          onConfirm={handleConfirmMissingItems}
+          scheduleItemsCount={hasScheduled}
         />
         {/* PDF Modal */}
         {selectedPdfUrl && showPdfModal && (
@@ -616,7 +640,7 @@ export default function QuotationDetailsScreen() {
                     (isCpf && areAllSuppliersAvailableForOrder && !selectedCreditCard)
                   }
                   title={areAllSuppliersAvailableForOrder ? 'Confirmar' : 'Agendar'}
-                  onPress={() => handleConfirm()}
+                  onPress={onConfirmPress}
                   backgroundColor="#1DC588"
                   textColor="#FFFFFF"
                 />

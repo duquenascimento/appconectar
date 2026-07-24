@@ -1,12 +1,14 @@
 import { Platform } from 'react-native';
 import { YStack, XStack, Text, Image } from 'tamagui';
-import { formatCurrency } from '@/src/utils/formatCurrency';
-import { formatUnit } from '@/src/utils/formatUnit';
-import { Product } from '@/src/types/types';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { formatUnit } from '../../utils/formatUnit';
+import { Product } from '../../types/types';
+import BadgeText from '../text/BadgeText';
 
 interface ProductItemCardProps {
   product: Product;
-  missing: boolean;
+  // eslint-disable-next-line react/require-default-props
+  missing?: boolean;
 }
 
 export function ProductItemCard({ product, missing = false }: ProductItemCardProps) {
@@ -29,6 +31,9 @@ export function ProductItemCard({ product, missing = false }: ProductItemCardPro
             Obs: {product.obs}
           </Text>
         ) : null}
+        {product.scheduled && (
+          <BadgeText fontSize={10} text="Por encomenda" color="#3B82F6" marginTop={4} />
+        )}
       </YStack>
 
       <YStack alignItems="flex-end">

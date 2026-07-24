@@ -6,14 +6,13 @@ import {
   Modal,
   Platform,
   TouchableOpacity,
-  useWindowDimensions,
   VirtualizedList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { deleteStorage, getStorage, getToken, setStorage } from '../src/utils/utils';
+import { deleteStorage, getToken, setStorage } from '../src/utils/utils';
 import DialogInstanceNotification from '../src/components/modais/DialogInstanceNotification';
-import { filterCarts } from '../src/utils/filterCarts';
 import { CustomImageBadge } from '../src/components/image/customImageBadge';
+import BadgeText from '../src/components/text/BadgeText';
 import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
@@ -41,6 +40,7 @@ export type Product = {
   secondUnit: number;
   thirdUnit: number;
   addOrder: number;
+  scheduled?: boolean;
 };
 
 type TCart = {
@@ -121,7 +121,14 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
   };
 
   return (
-    <View testID={`produto-cartao-${produto.sku}`} flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+    <View
+      testID={`produto-cartao-${produto.sku}`}
+      flex={1}
+      minHeight={40}
+      borderWidth={1}
+      borderRadius={12}
+      borderColor="#F0F2F6"
+    >
       <View
         onPress={toggleOpen}
         flex={1}
@@ -179,6 +186,7 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             <Text color="#aaa" fontSize={10}>
               Obs.: {obsC || '--'}
             </Text>
+            {produto.scheduled && <BadgeText text="Por encomenda" color="#3B82F6" marginTop={4} />}
           </View>
         </View>
         <View
@@ -482,7 +490,6 @@ export default React.memo(function Cart() {
       );
 
       setAlertItems(alertItems);
-
       return cart.data;
     } catch (error) {
       console.error('Erro ao carregar favoritos:', error);
@@ -658,7 +665,7 @@ export default React.memo(function Cart() {
               <View justifyContent="center" alignItems="center">
                 {cart.size > 0 && (
                   <Button
-                    testID='deletar-carrinho'
+                    testID="deletar-carrinho"
                     backgroundColor="black"
                     onPress={async () => {
                       setConfirmDelete(true);
@@ -770,7 +777,7 @@ export default React.memo(function Cart() {
                       </TouchableOpacity>
                       <TouchableOpacity style={{ flex: 1 }}>
                         <Button
-                          testID='deletar-carrinho-confirmacao'
+                          testID="deletar-carrinho-confirmacao"
                           backgroundColor="black"
                           onPress={async () => {
                             setLoading(true);
@@ -853,7 +860,7 @@ export default React.memo(function Cart() {
                       </TouchableOpacity>
                       <TouchableOpacity style={{ flex: 1 }}>
                         <Button
-                        testID='deletar-produto-carrinho-confirmacao'
+                          testID="deletar-produto-carrinho-confirmacao"
                           backgroundColor="black"
                           onPress={async () => {
                             setLoading(true);

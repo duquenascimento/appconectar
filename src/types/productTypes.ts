@@ -19,6 +19,7 @@ export type Product = {
   thirdUnit: number;
   obs: string;
   isLargeQuantity?: boolean;
+  scheduled?: boolean;
 };
 
 export type ProductClass = {

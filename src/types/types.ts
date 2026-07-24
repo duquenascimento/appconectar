@@ -11,6 +11,7 @@ export interface Product {
   image: string[];
   orderUnit: string;
   quotationUnit: string;
+  scheduled: boolean;
 }
 
 export interface Discount {

@@ -28,6 +28,7 @@ import {
 import { CartButton } from '../../src/components/cartButton';
 import { useBackHandler } from '../../src/components/hooks/useBackHandler';
 import { CustomImageBadge } from '../../src/components/image/customImageBadge';
+import BadgeText from '../../src/components/text/BadgeText';
 import { DropDownPickerRestaurant } from '../../src/components/input/DropDownPickerRestaurant';
 import { SearchProducts } from '../../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../../src/components/list/ProductsCategoriesList';
@@ -86,6 +87,7 @@ const ProductBox = React.memo(
     secondUnit,
     thirdUnit,
     orderUnit,
+    scheduled,
     toggleFavorite,
     favorites,
     saveCart,
@@ -269,8 +271,9 @@ const ProductBox = React.memo(
                 badgeTextSize={10}
               />
             </View>
-            <View marginLeft={8} maxWidth={130}>
+            <View marginLeft={8} maxWidth={130} flexDirection="column">
               <Text fontSize={12}>{name}</Text>
+              {scheduled && <BadgeText text="Por encomenda" color="#3B82F6" marginTop={4} />}
             </View>
           </View>
           <View marginRight={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
@@ -901,6 +904,7 @@ export default function Products() {
         key={item.id}
         toggleFavorite={toggleFavorite}
         {...item}
+        scheduled={item.scheduled}
         favorites={favorites}
         saveCart={saveCart}
         setLoading={setLoading}
