@@ -13,10 +13,10 @@ import {
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
-import { VersionInfo } from '@/src/utils/VersionApp';
-import { Product } from '@/src/types/productTypes';
-import { TCart } from '@/src/types/cartTypes';
-import { addFavorite, deleteFavorite, updateFavorite } from '@/src/services/favoritosService';
+import { VersionInfo } from '../../src/utils/VersionApp';
+import { Product } from '../../src/types/productTypes';
+import { TCart } from '../../src/types/cartTypes';
+import { addFavorite, deleteFavorite, updateFavorite } from '../../src/services/favoritosService';
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import PageContainer from '../../src/components/box/PageContainer';
@@ -47,11 +47,10 @@ import {
 import { getStorageRestaurant, setStorageRestaurant } from '../../src/utils/restaurantUtils';
 import { normalizeText } from '../../src/utils/stringUtils';
 import { getToken } from '../../src/utils/utils';
-import DialogBlockInstance from '@/src/components/dialogBlockInstance';
+import DialogBlockInstance from '../../src/components/dialogBlockInstance';
 import { useNotifications } from '@/src/contexts/notification.context';
-import { NotificationModal } from '@/src/components/modais/NotificationModal';
-import { useChat } from '../../src/contexts/chat.context';
-import { JoinChatPayload } from '../../src/types/chatTypes';
+import { NotificationModal } from '../../src/components/modais/NotificationModal';
+// import { useChat } from '../../src/contexts/chat.context';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -465,7 +464,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, saveRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
-  const { logout, getTokenPayload } = useAuthContext();
+  const { logout } = useAuthContext();
   const {
     cart,
     setCart,
@@ -538,7 +537,7 @@ export default function Products() {
           setUpdateRequired(false);
           setUpdateMessage('');
         }
-      } catch (error) {
+      } catch {
         setUpdateRequired(false);
         setUpdateMessage('');
       }
@@ -651,7 +650,9 @@ export default function Products() {
     }, [reloadNotifications]),
   );
 
-  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+
+  /* const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
 
   useEffect(() => {
     async function handleJoinChat() {
@@ -678,7 +679,7 @@ export default function Products() {
     }
 
     handleJoinChat();
-  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]); */
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
@@ -1174,7 +1175,10 @@ export default function Products() {
               Perfil
             </Text>
           </View>
-          <View
+          {/* 
+            OBS: CHAT REMOVIDO TEMPORARIAMENTE
+           */}
+          {/* <View
             onPress={() => {
               router.push('/chat');
             }}
@@ -1215,7 +1219,7 @@ export default function Products() {
             <Text fontSize={12} color="gray">
               Chat
             </Text>
-          </View>
+          </View> */}
           <View
             testID="botao-logout"
             onPress={async () => {

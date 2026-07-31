@@ -1,4 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+/* 
+  OBS: CHAT REMOVIDO TEMPORARIAMENTE
+*/
+
+/* import { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, View, styled } from 'tamagui';
 import { TouchableOpacity, SafeAreaView, Platform, KeyboardAvoidingView } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -344,3 +348,4 @@ function Chat() {
   );
 }
 export default Chat;
+ */

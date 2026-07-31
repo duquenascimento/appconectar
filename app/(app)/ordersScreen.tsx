@@ -1,6 +1,6 @@
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -10,19 +10,17 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { Input, Text, View, XStack } from 'tamagui';
-import PageContainer from '@/src/components/box/PageContainer';
-import DialogComercialInstance from '@/src/components/dialogComercialInstance';
-import { DropDownPickerRestaurant } from '@/src/components/input/DropDownPickerRestaurant';
-import { HeaderText } from '@/src/components/text/HeaderText';
+import PageContainer from '../../src/components/box/PageContainer';
+import DialogComercialInstance from '../../src/components/dialogComercialInstance';
+import { DropDownPickerRestaurant } from '../../src/components/input/DropDownPickerRestaurant';
+import { HeaderText } from '../../src/components/text/HeaderText';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
 import CustomAlert from '../../src/components/modais/CustomAlert';
 import { getOrders } from '../../src/services/orderService';
 import { VersionInfo } from '../../src/utils/VersionApp';
-import { OrderHistory } from '@/src/types/IOrder';
-import OrderListItem from '@/src/components/card/OrderListItem';
-import { JoinChatPayload } from '../../src/types/chatTypes';
-import { useChat } from '../../src/contexts/chat.context';
+import { OrderHistory } from '../../src/types/IOrder';
+import OrderListItem from '../../src/components/card/OrderListItem';
 
 export default function OrdersScreen() {
   const [orders, setOrders] = useState<OrderHistory[]>([]);
@@ -38,13 +36,15 @@ export default function OrdersScreen() {
   const [customAlertMessage, setCustomAlertMessage] = useState('');
   const { width: screenWidth } = useWindowDimensions();
   const isLargeScreen = screenWidth > 800;
-  const { logout, getTokenPayload } = useAuthContext();
+  const { logout } = useAuthContext();
 
   const router = useRouter();
 
-  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
 
-  useEffect(() => {
+  /* const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+
+   useEffect(() => {
     async function handleJoinChat() {
       if (isConnected) {
         const token = await getTokenPayload();
@@ -69,7 +69,7 @@ export default function OrdersScreen() {
     }
 
     handleJoinChat();
-  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]); */
 
   // Só carrega pedidos ao entrar na tela e se restaurante mudar
   useFocusEffect(
@@ -362,7 +362,10 @@ export default function OrdersScreen() {
             Perfil
           </Text>
         </View>
-        <View
+        {/* 
+          OBS: CHAT REMOVIDO TEMPORARIAMENTE
+        */}
+        {/* <View
           onPress={() => {
             router.push('/chat');
           }}
@@ -403,7 +406,7 @@ export default function OrdersScreen() {
           <Text fontSize={12} color="gray">
             Chat
           </Text>
-        </View>
+        </View> */}
         <View
           onPress={async () => {
             setLoading(true);
