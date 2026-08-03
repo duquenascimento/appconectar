@@ -1,11 +1,14 @@
 import Icons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { Text, View } from 'tamagui';
-import { useChat } from '../../contexts/chat.context';
+// import { useChat } from '../../contexts/chat.context';
 import { useAuthContext } from '../../contexts/auth.context';
 
 function BottomMenu() {
-  const { unreadMessages } = useChat();
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+
+  // const { unreadMessages } = useChat();
+
   const { logout } = useAuthContext();
 
   const handleLogout = async () => {
@@ -97,8 +100,10 @@ function BottomMenu() {
       >
         <View position="relative">
           <Icons name="chatbubbles" size={20} color="#04BF7B" />
-
-          {unreadMessages > 0 && (
+          {/*
+           OBS: CHAT REMOVIDO TEMPORARIAMENTE
+          */}
+          {/* {unreadMessages > 0 && (
             <View
               position="absolute"
               top={-4}
@@ -115,7 +120,7 @@ function BottomMenu() {
                 {unreadMessages > 99 ? '99+' : unreadMessages}
               </Text>
             </View>
-          )}
+          )} */}
         </View>
 
         <Text fontSize={12} color="#04BF7B">
