@@ -77,9 +77,11 @@ export default function Confirm() {
   const [isCpf, setIsCpf] = useState<boolean>(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{
     missingItems: boolean;
+    scheduleItems: boolean;
     sundayWarning: boolean;
   }>({
     missingItems: false,
+    scheduleItems: false,
     sundayWarning: false,
   });
   const { selectedRestaurant } = useRestaurantContext();
@@ -234,7 +236,11 @@ export default function Confirm() {
   );
 
   const handleConfirmOrder = useCallback(
-    async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+    async (overrideWarnings?: {
+      missingItems?: boolean;
+      scheduleItems?: boolean;
+      sundayWarning?: boolean;
+    }) => {
       if (disableConfirm) {
         return;
       }
@@ -264,7 +270,7 @@ export default function Confirm() {
 
         if (
           (displayMissingItems > 0 && !effectiveWarnings.missingItems) ||
-          hasScheduledProduct.length > 0
+          (hasScheduledProduct.length > 0 && !effectiveWarnings.scheduleItems)
         ) {
           setShowMissingItemsModal(true);
           return;
@@ -311,7 +317,7 @@ export default function Confirm() {
         const result = await confirmOrder(body);
 
         resetDeliveryDate();
-        setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+        setConfirmedWarnings({ missingItems: false, scheduleItems: false, sundayWarning: false });
 
         const suppliersWithOrderId = processOrderResponse(
           [supplier],
@@ -350,8 +356,8 @@ export default function Confirm() {
 
   const handleConfirmMissingItems = useCallback(async () => {
     setShowMissingItemsModal(false);
-    setConfirmedWarnings((prev) => ({ ...prev, missingItems: true }));
-    await handleConfirmOrder({ missingItems: true });
+    setConfirmedWarnings((prev) => ({ ...prev, missingItems: true, scheduleItems: true }));
+    await handleConfirmOrder({ missingItems: true, scheduleItems: true });
   }, [handleConfirmOrder]);
 
   const handleConfirmSundayWarning = useCallback(async () => {
@@ -362,12 +368,12 @@ export default function Confirm() {
 
   const handleCloseMissingItems = useCallback(() => {
     setShowMissingItemsModal(false);
-    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+    setConfirmedWarnings({ missingItems: false, scheduleItems: false, sundayWarning: false });
   }, []);
 
   const handleCloseSundayWarning = useCallback(() => {
     setShowSundayWarning(false);
-    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+    setConfirmedWarnings({ missingItems: false, scheduleItems: false, sundayWarning: false });
   }, []);
 
   const isSuppliersAvailableForOrder = supplierAvailability?.isSupplierAvailableForOrder ?? false;
