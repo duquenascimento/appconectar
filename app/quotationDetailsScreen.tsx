@@ -142,9 +142,13 @@ export default function QuotationDetailsScreen() {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
   const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
-  const [isCpf, setIsCpf] = useState<boolean>(false);
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const { isLargeScreen } = useResponsiveness();
+
+  const isCreditCardRequired = useMemo(() => 
+    selectedRestaurant?.paymentWay === 'CC32', 
+    [selectedRestaurant]
+  );
 
   const handleShowPdf = (pdfUrl: string) => {
     setSelectedPdfUrl(pdfUrl);
@@ -350,21 +354,17 @@ export default function QuotationDetailsScreen() {
     const restaurantId = selectedRestaurant?.id;
     if (!restaurantId) return;
 
-    if (selectedRestaurant.paymentWay !== 'CC32') {
+    if (!isCreditCardRequired) {
       return;
     }
 
     try {
-      const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
-      setIsCpf(isCpfRestaurant);
-      if (isCpfRestaurant) {
-        const creditCards = await getCreditCards(restaurantId);
-        const defaultCreditCard = extractDefaultCreditCart(creditCards);
-        if (defaultCreditCard) {
-          setSelectedCreditCard(defaultCreditCard);
-        } else {
-          setOpenCreditCardDialog(true);
-        }
+      const creditCards = await getCreditCards(restaurantId);
+      const defaultCreditCard = extractDefaultCreditCart(creditCards);
+      if (defaultCreditCard) {
+        setSelectedCreditCard(defaultCreditCard);
+      } else {
+        setOpenCreditCardDialog(true);
       }
     } catch (err) {
       console.error(err);
@@ -595,7 +595,7 @@ export default function QuotationDetailsScreen() {
                   disabled={
                     disableConfirm ||
                     isRetroactiveDate ||
-                    (isCpf && areAllSuppliersAvailableForOrder && !selectedCreditCard)
+                    (isCreditCardRequired && areAllSuppliersAvailableForOrder && !selectedCreditCard)
                   }
                   onPress={onConfirmPressDebounced}
                   hoverStyle={{
@@ -637,7 +637,7 @@ export default function QuotationDetailsScreen() {
                   disabled={
                     disableConfirm ||
                     isRetroactiveDate ||
-                    (isCpf && areAllSuppliersAvailableForOrder && !selectedCreditCard)
+                    (isCreditCardRequired && areAllSuppliersAvailableForOrder && !selectedCreditCard)
                   }
                   title={areAllSuppliersAvailableForOrder ? 'Confirmar' : 'Agendar'}
                   onPress={onConfirmPress}
