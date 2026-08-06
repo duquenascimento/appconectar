@@ -74,7 +74,6 @@ export default function Confirm() {
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
   const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
-  const [isCpf, setIsCpf] = useState<boolean>(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{
     missingItems: boolean;
     scheduleItems: boolean;
@@ -90,6 +89,10 @@ export default function Confirm() {
   const { isLargeScreen } = useResponsiveness();
   const router = useRouter();
   const pathname = usePathname();
+  const isCreditCardRequired = useMemo(() => 
+    selectedRestaurant?.paymentWay === 'CC32', 
+    [selectedRestaurant]
+  )
 
   const hasSameDayOrdersWithSupplier = useMemo(() => {
     return supplier?.supplier?.sameDayOrders?.length > 0;
@@ -133,21 +136,17 @@ export default function Confirm() {
     const restaurantId = selectedRestaurant?.id;
     if (!restaurantId) return;
 
-    if (selectedRestaurant.paymentWay !== 'CC32') {
+    if (!isCreditCardRequired) {
       return;
     }
 
     try {
-      const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
-      setIsCpf(isCpfRestaurant);
-      if (isCpfRestaurant) {
-        const creditCards = await getCreditCards(restaurantId);
-        const defaultCreditCard = extractDefaultCreditCart(creditCards);
-        if (defaultCreditCard) {
-          setSelectedCreditCard(defaultCreditCard);
-        } else {
-          setOpenCreditCardDialog(true);
-        }
+      const creditCards = await getCreditCards(restaurantId);
+      const defaultCreditCard = extractDefaultCreditCart(creditCards);
+      if (defaultCreditCard) {
+        setSelectedCreditCard(defaultCreditCard);
+      } else {
+        setOpenCreditCardDialog(true);
       }
     } catch (err) {
       console.error(err);
@@ -920,7 +919,7 @@ export default function Confirm() {
             disabled={
               disableConfirm ||
               isRetroactiveDate ||
-              (isCpf && isSuppliersAvailableForOrder && !selectedCreditCard)
+              (isCreditCardRequired && isSuppliersAvailableForOrder && !selectedCreditCard)
             }
             onPress={onConfirmPressDebounced}
             width={170}
