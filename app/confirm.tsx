@@ -89,10 +89,10 @@ export default function Confirm() {
   const { isLargeScreen } = useResponsiveness();
   const router = useRouter();
   const pathname = usePathname();
-  const isCreditCardRequired = useMemo(() => 
-    selectedRestaurant?.paymentWay === 'CC32', 
-    [selectedRestaurant]
-  )
+  const isCreditCardRequired = useMemo(
+    () => selectedRestaurant?.paymentWay === 'CC32',
+    [selectedRestaurant],
+  );
 
   const hasSameDayOrdersWithSupplier = useMemo(() => {
     return supplier?.supplier?.sameDayOrders?.length > 0;
@@ -629,7 +629,7 @@ export default function Confirm() {
                           Obs: {item.obs ? item.obs : ''}
                         </Text>
                         {item.scheduled && (
-                          <BadgeText text="Por encomenda" color="#3B82F6" marginTop={4} />
+                          <BadgeText text="Entrega em até 48h" color="#3B82F6" marginTop={4} />
                         )}
                       </View>
                     </View>

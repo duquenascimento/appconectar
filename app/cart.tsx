@@ -186,7 +186,9 @@ const ProductBox = React.memo((produto: ProductBoxProps) => {
             <Text color="#aaa" fontSize={10}>
               Obs.: {obsC || '--'}
             </Text>
-            {produto.scheduled && <BadgeText text="Por encomenda" color="#3B82F6" marginTop={4} />}
+            {produto.scheduled && (
+              <BadgeText text="Entrega em até 48h" color="#3B82F6" marginTop={4} />
+            )}
           </View>
         </View>
         <View

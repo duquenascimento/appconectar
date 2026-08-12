@@ -12,6 +12,7 @@ export default function BadgeText({ text, color, marginTop = 0, fontSize }: Badg
   return (
     <View
       alignSelf="flex-start"
+      flexShrink={0}
       paddingHorizontal={8}
       paddingVertical={2}
       borderRadius={12}
@@ -20,7 +21,7 @@ export default function BadgeText({ text, color, marginTop = 0, fontSize }: Badg
       backgroundColor="transparent"
       marginTop={marginTop}
     >
-      <Text fontSize={fontSize || 12} color={color} fontWeight="600">
+      <Text fontSize={fontSize || 12} color={color} fontWeight="600" numberOfLines={1}>
         {text}
       </Text>
     </View>

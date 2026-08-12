@@ -32,7 +32,7 @@ export function ProductItemCard({ product, missing = false }: ProductItemCardPro
           </Text>
         ) : null}
         {product.scheduled && (
-          <BadgeText fontSize={10} text="Por encomenda" color="#3B82F6" marginTop={4} />
+          <BadgeText fontSize={10} text="Entrega em até 48h" color="#3B82F6" marginTop={4} />
         )}
       </YStack>
 
