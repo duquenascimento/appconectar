@@ -1,23 +1,26 @@
-import React, { forwardRef, useEffect, useState } from 'react';
+import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
+import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { Button, Input, ScrollView, Text, View } from 'tamagui';
+import { useClientSettings } from '../../contexts/clientSettings.context';
 import { useDeliveryDate } from '../../contexts/deliveryDate.context';
 import { useRestaurantContext } from '../../contexts/restaurant.context';
 import { Restaurant } from '../../types/restaurantTypes';
-import { getBrazilDateTime, getBrazilJSDate, getBrazilJSDateTomorrow } from '../../utils/dateUtils';
+import {
+  getBrazilJSDate,
+  getBrazilJSDateTomorrow,
+  getMinRetroactiveJSDate,
+} from '../../utils/dateUtils';
 import { campoString } from '../../utils/formatCampos';
 import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
 import CustomAlert from '../modais/CustomAlert';
-import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 
 // Conditional DatePicker import for web platform
 const getDatePicker = (): any =>
   Platform.OS === 'web' ? require('react-datepicker').default : null;
-
-const MAX_DAYS_FOR_RETROACTIVE_DATE = 60;
 
 // Custom DatePicker input to match DropDownPicker style
 const CustomDateInput = forwardRef<any, { value?: string; onClick?: () => void }>(
@@ -106,6 +109,13 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     isRetroactiveDate,
     loading: areDeliveryDatesLoading,
   } = useDeliveryDate();
+
+  const { clientSettings } = useClientSettings();
+
+  const minRetroactiveDeliveryDate = useMemo(
+    () => getMinRetroactiveJSDate(clientSettings.maxRetroactiveQuotationDays),
+    [clientSettings.maxRetroactiveQuotationDays],
+  );
 
   // Load form data when selected restaurant or draft changes
   useEffect(() => {
@@ -513,7 +523,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         zIndex: 5000,
                         zIndexInverse: 5000,
                       })}
-                      setValue={() => {}}
+                      setValue={() => { }}
                       items={allRestaurants.map((item) => ({
                         label: item?.name,
                         value: item?.name,
@@ -566,9 +576,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                                     (draftSelectedRestaurant || selectedRestaurant)
                                       ?.allowEmergencyOrder
                                   }
-                                  minDate={getBrazilDateTime()
-                                    .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
-                                    .toJSDate()}
+                                  minDate={minRetroactiveDeliveryDate}
                                   excludeDates={
                                     (draftSelectedRestaurant || selectedRestaurant)
                                       ?.allowEmergencyOrder
@@ -659,9 +667,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                                           mode="date"
                                           display="spinner"
                                           onChange={handleNativeDateChange}
-                                          minimumDate={getBrazilDateTime()
-                                            .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
-                                            .toJSDate()}
+                                          minimumDate={minRetroactiveDeliveryDate}
                                           maximumDate={getBrazilJSDate(
                                             deliveryDatesDropdownOptions()[
                                               deliveryDatesDropdownOptions().length - 1
@@ -680,9 +686,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                                   mode="date"
                                   display="default"
                                   onChange={handleNativeDateChange}
-                                  minimumDate={getBrazilDateTime()
-                                    .minus({ days: MAX_DAYS_FOR_RETROACTIVE_DATE })
-                                    .toJSDate()}
+                                  minimumDate={minRetroactiveDeliveryDate}
                                   maximumDate={getBrazilJSDate(
                                     deliveryDatesDropdownOptions()[
                                       deliveryDatesDropdownOptions().length - 1
