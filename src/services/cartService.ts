@@ -1,22 +1,52 @@
-import { CartProduct } from '../types/cartTypes';
+import axios from 'axios';
+import { CartProduct, TCart } from '../types/cartTypes';
 import { getToken } from '../utils/utils';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export async function getCartProducts(restaurantId: string): Promise<CartProduct[]> {
   const token = await getToken();
-  const result = await fetch(`${API_URL}/cart/full-list`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${await getToken()}`,
-    },
-    body: JSON.stringify({
-      token,
-      selectedRestaurant: { id: restaurantId },
-    }),
-  });
-  if (!result.ok) return [];
-  const cart = await result.json();
-  return cart.data;
+  try {
+    const result = await axios.post<{ data: CartProduct[] }>(
+      `${API_URL}/cart/full-list`,
+      {
+        token,
+        selectedRestaurant: { id: restaurantId },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    return result.data.data;
+  } catch (error) {
+    console.error('Erro ao buscar produtos do carrinho:', error);
+    return [];
+  }
 }
+
+export async function getCartList(restaurantId: string): Promise<TCart[]> {
+  const token = await getToken();
+  try {
+    const result = await axios.post(
+      `${process.env.EXPO_PUBLIC_API_URL}/cart/list`,
+
+      { token, selectedRestaurant: { id: restaurantId } },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    return result.data.data;
+  } catch (error) {
+    console.error('Erro ao buscar produtos do carrinho:', error);
+    return [];
+  }
+}
+

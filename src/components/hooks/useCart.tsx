@@ -4,6 +4,7 @@ import { useRestaurantContext } from '../../contexts/restaurant.context';
 import { saveProductObservations } from '../../utils/productObservation';
 import { getStorageRestaurant } from '../../utils/restaurantUtils';
 import { getStorage, getToken, setStorage } from '../../utils/utils';
+import { getCartList } from '@/src/services/cartService';
 
 type Cart = {
   productId: string;
@@ -32,16 +33,10 @@ export function useCart() {
 
       if (!token || !selectedRestaurant) return new Map();
 
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, selectedRestaurant: { id: selectedRestaurant.id } }),
-      });
+      const cart = await getCartList(selectedRestaurant.id);
+      if (!cart || cart.length < 1) return new Map();
 
-      if (!result.ok) return new Map();
-
-      const cart = await result.json();
-      const cartMap = new Map<string, Cart>(cart.data.map((item: Cart) => [item.productId, item]));
+      const cartMap = new Map<string, Cart>(cart.map((item: Cart) => [item.productId, item]));
 
       const localCartString = await getStorage(`cart_${selectedRestaurant?.externalId}`);
       const localCart = localCartString
@@ -149,7 +144,7 @@ export function useCart() {
 
         const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/add`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
             token,
             carts: Array.from(carts.values()),

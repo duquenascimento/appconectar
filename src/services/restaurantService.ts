@@ -50,6 +50,7 @@ export async function getUserRestaurants(): Promise<Restaurant[]> {
     const response = await axios.post(`${API_URL}/restaurant/list`, JSON.stringify({ token }), {
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${await getToken()}`,
       },
     });
     return response.data.data;
@@ -66,7 +67,10 @@ export const updateRestaurantDeliveryInfo = async (
   try {
     await fetch(`${API_URL}/address/update`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${await getToken()}`,
+      },
       body: JSON.stringify({
         restaurantId,
         ...data,
