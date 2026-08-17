@@ -1072,8 +1072,8 @@ export default function Products() {
               />
             )
           ) : (
-            <ScrollView>
-              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+            <ScrollView >
+              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" alignSelf="center" width={ '50%'} style={{ paddingBottom: 90 }} >
                 {[...Array(7)].map((_, index) => (
                   <View
                     key={index}
