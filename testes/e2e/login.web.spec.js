@@ -84,6 +84,6 @@ describe('Tela de Login - Web', () => {
     // Verifica pelo elemento visível (mais confiável que URL)
     const paginaProdutos = await $('[data-testid="pagina-produtos"]');
     await paginaProdutos.waitForDisplayed({ timeout: 25000 });
-    expect(await paginaProdutos.getText()).toBe('Produtos');
+    expect(await paginaProdutos.getText()).toBe('Meus Restaurantes');
   });
 });
