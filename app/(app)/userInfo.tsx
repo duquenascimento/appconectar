@@ -1,15 +1,16 @@
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { getBrazilLocaleString } from '@/src/utils/dateUtils';
-import { deleteUser, getUserData } from '@/src/utils/userUtils';
-import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import { Button, Text, View, XStack, YStack } from 'tamagui';
+import PageContainer from '../../src/components/box/PageContainer';
+import CustomAlert from '../../src/components/modais/CustomAlert';
+import { TwoButtonCustomAlert } from '../../src/components/modais/TwoButtonCustomAlert';
+import { useAuthContext } from '../../src/contexts/auth.context';
+import { getBrazilLocaleString } from '../../src/utils/dateUtils';
+import { deleteUser, getUserData } from '../../src/utils/userUtils';
+import { VersionInfo } from '../../src/utils/VersionApp';
+// import { useChat } from '../../src/contexts/chat.context';
 
 interface User {
   name: string;
@@ -26,6 +27,37 @@ export default function UserInfo() {
   const [deleted, setDeleted] = useState<boolean>(false);
   const { logout } = useAuthContext();
   const router = useRouter();
+
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+
+  /* const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+
+  useEffect(() => {
+    async function handleJoinChat() {
+      if (isConnected) {
+        const token = await getTokenPayload();
+        if (!token || !selectedRestaurant) return;
+        const payload: JoinChatPayload = {
+          userId: token.id,
+          userName: token.name,
+          restaurantId: selectedRestaurant.id,
+          channelType: 'restaurant',
+          channelId: selectedRestaurant.id,
+          userType: 'restaurant',
+          allChannels: [selectedRestaurant.id],
+          channelName: selectedRestaurant.name,
+        };
+
+        await joinChat(payload);
+        getUnreadMessages({
+          channelId: selectedRestaurant.id,
+          channelType: 'restaurant',
+        });
+      }
+    }
+
+    handleJoinChat();
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]); */
 
   useEffect(() => {
     let isMounted = true;
@@ -166,14 +198,18 @@ export default function UserInfo() {
         justifyContent="center"
         alignItems="center"
         flexDirection="row"
-        gap={15}
+        gap={10}
         height={50}
         borderTopWidth={0.4}
         borderTopColor="lightgray"
+        backgroundColor="white"
+        paddingLeft={20}
+        paddingRight={20}
       >
         <View
           onPress={() => router.push('/products')}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexDirection="column"
@@ -193,14 +229,14 @@ export default function UserInfo() {
             setLoading(false);
             router.push('/ordersScreen');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={120}
           height={70}
         >
           <Icons name="journal" size={20} color="gray" />
@@ -214,14 +250,14 @@ export default function UserInfo() {
             setLoading(false);
             router.push('/userInfo');
           }}
-          padding={10}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={80}
           height={70}
         >
           <Icons name="person" size={20} color="#04BF7B" />
@@ -229,17 +265,65 @@ export default function UserInfo() {
             Perfil
           </Text>
         </View>
-        <View
-          onPress={handleLogout}
-          padding={10}
+        {/* 
+          OBS: CHAT REMOVIDO TEMPORARIAMENTE
+          */}
+        {/* <View
+          onPress={() => {
+            router.push('/chat');
+          }}
+          paddingLeft={15}
+          paddingRight={15}
           marginVertical={10}
           borderRadius={8}
           flexWrap="nowrap"
           flexDirection="column"
           justifyContent="center"
           alignItems="center"
-          width={50}
           height={70}
+          position="relative"
+        >
+          <View position="relative">
+            <Icons name="chatbubbles" size={20} color="gray" />
+
+            {unreadMessages > 0 && (
+              <View
+                position="absolute"
+                top={-4}
+                right={-10}
+                minWidth={16}
+                height={16}
+                borderRadius={999}
+                backgroundColor="#04BF7B"
+                justifyContent="center"
+                alignItems="center"
+                paddingHorizontal={5}
+              >
+                <Text fontSize={9} color="white" fontWeight="bold">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                </Text>
+              </View>
+            )}
+          </View>
+
+          <Text fontSize={12} color="gray">
+            Chat
+          </Text>
+        </View> */}
+        <View
+          paddingLeft={15}
+          paddingRight={15}
+          marginVertical={10}
+          borderRadius={8}
+          flexWrap="nowrap"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          height={70}
+          onPress={async () => {
+            setLoading(true);
+            await logout();
+          }}
         >
           <Icons name="log-out" size={20} color="gray" />
           <Text fontSize={12} color="gray">

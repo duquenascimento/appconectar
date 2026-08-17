@@ -2,6 +2,7 @@ import { getStorage, setStorage, STORAGE_DEFAULT_KEYS } from '@/src/utils/utils'
 import { createContext, ReactNode, useCallback, useContext, useState } from 'react';
 import { getQuotationsBySupplier } from '../services/quotationService';
 import { SupplierData, SuppliersQuotationDTO } from '../types/types';
+import { extractErrorMessage } from '../utils/errorUtils';
 import { useDeliveryDate } from './deliveryDate.context';
 import { useRestaurantContext } from './restaurant.context';
 
@@ -15,6 +16,8 @@ interface SupplierContextType {
     deliveryDate?: string,
     reloadRestaurants?: boolean,
   ) => Promise<SuppliersQuotationDTO | undefined>;
+  errorMessage: string | null;
+  clearErrorMessage: () => void;
 }
 
 const SupplierContext = createContext({} as SupplierContextType);
@@ -23,6 +26,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
   const [availableSuppliers, setAvailableSuppliers] = useState<SupplierData[]>([]);
   const [unavailableSuppliers, setUnavailableSuppliers] = useState<SupplierData[]>([]);
   const [loadingSuppliers, setLoadingSuppliers] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { selectedRestaurant, restaurants, loadRestaurants } = useRestaurantContext();
   const { deliveryDate } = useDeliveryDate();
 
@@ -74,6 +78,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
 
       try {
         setLoadingSuppliers(true);
+        setErrorMessage(null);
 
         if (reloadRestaurants) {
           await loadRestaurants();
@@ -98,6 +103,7 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
         return result;
       } catch (error) {
         console.error('Erro ao carregar preços:', error);
+        setErrorMessage(extractErrorMessage(error, 'Erro ao carregar preços'));
       } finally {
         setLoadingSuppliers(false);
       }
@@ -105,12 +111,16 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
     [selectedRestaurant?.externalId, deliveryDate, restaurants?.length, saveSuppliersToStorage],
   );
 
+  const clearErrorMessage = useCallback(() => setErrorMessage(null), []);
+
   const value = {
     getSuppliersFromStorage,
     availableSuppliers,
     unavailableSuppliers,
     loadingSuppliers,
     getPricesBySupplier,
+    errorMessage,
+    clearErrorMessage,
   };
 
   return <SupplierContext.Provider value={value}>{children}</SupplierContext.Provider>;

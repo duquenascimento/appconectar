@@ -1,9 +1,9 @@
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { VersionInfo } from '@/src/utils/VersionApp';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { ActivityIndicator, Linking } from 'react-native';
 import { Button, Image, Input, Stack, Text, View, XStack, YStack } from 'tamagui';
+import { VersionInfo } from '@/src/utils/VersionApp';
+import { useAuthContext } from '@/src/contexts/auth.context';
 import { ValidationDialog } from './ValidationDialog';
 
 export function SignInWeb(props: {
@@ -78,6 +78,7 @@ export function SignInWeb(props: {
           flex={1}
           maxLength={256}
           width="100%"
+          data-testid="input-email"
         />
       </XStack>
       <XStack
@@ -107,6 +108,7 @@ export function SignInWeb(props: {
           flex={1}
           marginRight="$3.5"
           maxLength={20}
+          data-testid="input-senha"
         />
         <Icons
           name={showPw ? 'eye' : 'eye-off'}
@@ -114,7 +116,7 @@ export function SignInWeb(props: {
           onPress={() => {
             setShowPw(!showPw);
           }}
-        ></Icons>
+        />
       </XStack>
 
       <Button
@@ -127,11 +129,13 @@ export function SignInWeb(props: {
         color="white"
         fontWeight="$10"
         width="$20"
+        data-testid="botao-entrar"
       >
         Entrar
       </Button>
+      {erros.length > 0 && <Text data-testid="mensagem-erro">{erros[0]}</Text>}
 
-      <Text onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
+      <Text data-testid="botao-recuperar-senha" onPress={props.modal} fontSize="$5" marginTop="$5" fontWeight="$15" cursor="pointer">
         Esqueceu sua senha?
       </Text>
 

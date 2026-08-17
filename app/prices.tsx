@@ -5,7 +5,7 @@ import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import LoadingActivityIndicator from '@/src/components/loading/loadingActivityIndicator';
 import { SupplierData } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { clearPurchaseStorage, clearStorage, getStorage, setStorage } from '@/src/utils/utils';
+import { clearPurchaseStorage, getStorage, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -50,7 +50,11 @@ export default function Prices() {
   } = useRestaurantContext();
   const { errorMessage: deliveryDateErrorMessage } = useDeliveryDate();
   const { getCombinationsByRestaurant } = useCombination();
-  const { getPricesBySupplier } = useSupplier();
+  const {
+    getPricesBySupplier,
+    errorMessage: pricesErrorMessage,
+    clearErrorMessage: clearPricesErrorMessage,
+  } = useSupplier();
   const { isLargeScreen } = useResponsiveness();
 
   const lastLoadedRestaurantId = useRef<string | null>(null);
@@ -312,6 +316,12 @@ export default function Prices() {
             title="Erro ao carregar datas de entrega disponíveis"
             message={deliveryDateErrorMessage || ''}
             onConfirm={() => setDeliveryDatesAlertVisible(false)}
+          />
+          <CustomAlert
+            visible={pricesErrorMessage !== null}
+            title="Não foi possível carregar os preços"
+            message={pricesErrorMessage || ''}
+            onConfirm={clearPricesErrorMessage}
           />
           <DialogComercialInstance
             openModal={showBlockedModal}

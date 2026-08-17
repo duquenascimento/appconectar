@@ -1,14 +1,18 @@
+import { DefaultToast } from '@/src/components/DefaultToast';
 import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
+import { ClientSettingsProvider } from '@/src/contexts/clientSettings.context';
 import { CombinacaoProvider } from '@/src/contexts/combinacao.context';
 import { CombinationSuppliersProvider } from '@/src/contexts/combination-suppliers.context';
 import { CombinationProvider } from '@/src/contexts/combination.context';
 import { DeliveryDateProvider } from '@/src/contexts/deliveryDate.context';
 import { FavoritesProvider } from '@/src/contexts/favoritos.context';
 import { SupplierProvider } from '@/src/contexts/fornecedores.context';
+import { NotificationProvider } from '@/src/contexts/notification.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 import { checkLocalVersionAndClearData } from '@/src/services/versionService';
+import { ToastProvider, ToastViewport } from '@tamagui/toast';
 import { useFonts } from 'expo-font';
 import { router, Stack, usePathname, useSegments } from 'expo-router';
 import { useEffect } from 'react';
@@ -16,8 +20,6 @@ import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
 import 'react-native-gesture-handler';
 import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
-import { ToastProvider, ToastViewport } from '@tamagui/toast';
-import { DefaultToast } from '@/src/components/DefaultToast';
 
 // Import react-datepicker CSS for web platform
 if (Platform.OS === 'web') {
@@ -49,7 +51,6 @@ export default function RootLayout() {
 
       if (versionCheckResult.cleared && pathname !== '/') {
         router.replace('/');
-        return;
       }
     };
     initApp();
@@ -64,40 +65,48 @@ export default function RootLayout() {
     <TamaguiProvider config={config} defaultTheme="light">
       <ToastProvider>
         <AuthProvider>
-          <DeliveryDateProvider>
-            <RestaurantProvider>
-              <FavoritesProvider>
-                <ProductProvider>
-                  <CombinacaoProvider>
-                    <CombinationSuppliersProvider>
-                      <SupplierProvider>
-                        <CombinationProvider>
-                          {isScreenLoading ? (
-                            <View
-                              style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-                            >
-                              <ActivityIndicator size="large" color="#04BF7B" />
-                            </View>
-                          ) : (
-                            <Stack
-                              screenOptions={{
-                                headerShown: false,
-                                animation: 'slide_from_right',
-                                gestureEnabled: true,
-                              }}
-                            />
-                          )}
-                        </CombinationProvider>
-                      </SupplierProvider>
-                    </CombinationSuppliersProvider>
-                  </CombinacaoProvider>
-                </ProductProvider>
-              </FavoritesProvider>
-            </RestaurantProvider>
-          </DeliveryDateProvider>
+          <ClientSettingsProvider>
+            <NotificationProvider>
+              <DeliveryDateProvider>
+                <RestaurantProvider>
+                  <FavoritesProvider>
+                    <ProductProvider>
+                      <CombinacaoProvider>
+                        <CombinationSuppliersProvider>
+                          <SupplierProvider>
+                            <CombinationProvider>
+                              {isScreenLoading ? (
+                                <View
+                                  style={{
+                                    flex: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <ActivityIndicator size="large" color="#04BF7B" />
+                                </View>
+                              ) : (
+                                <Stack
+                                  screenOptions={{
+                                    headerShown: false,
+                                    animation: 'slide_from_right',
+                                    gestureEnabled: true,
+                                  }}
+                                />
+                              )}
+                            </CombinationProvider>
+                          </SupplierProvider>
+                        </CombinationSuppliersProvider>
+                      </CombinacaoProvider>
+                    </ProductProvider>
+                  </FavoritesProvider>
+                </RestaurantProvider>
+              </DeliveryDateProvider>
+            </NotificationProvider>
+          </ClientSettingsProvider>
         </AuthProvider>
         <DefaultToast />
-        <ToastViewport left={0} right={0} bottom={'$4'} />
+        <ToastViewport left={0} right={0} bottom="$4" />
       </ToastProvider>
     </TamaguiProvider>
   );

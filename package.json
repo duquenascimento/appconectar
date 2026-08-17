@@ -1,7 +1,7 @@
 {
   "name": "conectarapp",
   "main": "expo-router/entry",
-  "version": "2.4.5",
+  "version": "2.4.6",
   "license": "MIT",
   "overrides": {
     "metro": "^0.82.0",
@@ -9,6 +9,7 @@
     "metro-config": "^0.82.0",
     "metro-transform-worker": "0.82.5"
   },
+  
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -16,6 +17,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
+    "teste:web": "npx wdio run wdio.web.conf.js",
     "lint": "expo lint",
     "prod": "npx serve ./dist",
     "build-web": "npx expo export --platform web",
@@ -29,7 +31,13 @@
     ]
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg)"
+    ],
+    "setupFilesAfterEnv": [
+      "./jest-setup.js"
+    ]
   },
   "dependencies": {
     "@babel/core": "^7.26.0",
@@ -52,6 +60,7 @@
     "@types/uuid": "^11.0.0",
     "axios": "1.7.9",
     "burnt": "^0.12.2",
+    "dayjs": "^1.11.21",
     "eslint-config-expo": "~9.2.0",
     "expo": "53.0.22",
     "expo-clipboard": "~7.1.5",
@@ -70,8 +79,8 @@
     "expo-web-browser": "~14.2.0",
     "formik": "^2.4.6",
     "fuse.js": "^7.0.0",
-    "jest": "^29.2.1",
-    "jest-expo": "~53.0.10",
+    "jest": "~29.7.0",
+    "jest-expo": "~53.0.14",
     "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "luxon": "^3.4.4",
@@ -85,7 +94,9 @@
     "react-native": "0.79.5",
     "react-native-dropdown-picker": "^5.4.6",
     "react-native-gesture-handler": "~2.24.0",
+    "react-native-gifted-chat": "^3.4.0",
     "react-native-image-zoom-viewer": "^3.0.1",
+    "react-native-keyboard-controller": "^1.21.12",
     "react-native-masked-text": "^1.13.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
@@ -93,6 +104,7 @@
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5",
     "react-test-renderer": "19.0.0",
+    "socket.io-client": "^4.8.3",
     "tamagui": "^1.135.3",
     "typescript": "~5.8.3",
     "uuid": "^13.0.0",
@@ -106,10 +118,19 @@
     "@eslint/compat": "^1.4.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.36.0",
+    "@testing-library/react-native": "^13.3.3",
     "@types/lodash": "^4.17.21",
     "@types/react-datepicker": "^6.2.0",
     "@typescript-eslint/eslint-plugin": "^8.45.0",
     "@typescript-eslint/parser": "^8.45.0",
+    "@wdio/appium-service": "^9.29.0",
+    "@wdio/cli": "^9.29.0",
+    "@wdio/local-runner": "^9.29.0",
+    "@wdio/mocha-framework": "^9.29.0",
+    "@wdio/spec-reporter": "^9.29.0",
+    "appium": "^3.5.2",
+    "appium-uiautomator2-driver": "^8.1.0",
+    "chromedriver": "^150.0.3",
     "eslint": "^9.36.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-airbnb-typescript": "^18.0.0",
@@ -123,6 +144,7 @@
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "webdriverio": "^9.29.0"
   }
 }

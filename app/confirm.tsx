@@ -1,24 +1,4 @@
-import { AccordionInfo } from '@/src/components/AccordionInfo';
-import { DialogInstance } from '@/src/components/confirm/dialogInstance';
-import { OrderScheduleNotificationDialog } from '@/src/components/confirm/orderScheduleNotificationDialog';
-import { CreditCardSection } from '@/src/components/CreditCardSection';
-import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
-import { ImageWithFallback } from '@/src/components/image/ImageWithFallback';
-import PdfViewerModal from '@/src/components/modais/PdfViewerModal';
-import { CreateCreditCardModal } from '@/src/components/pages/confirm/CreateCreditCardModal';
-import { RetroactiveQuotationWarningBanner } from '@/src/components/quotations/RetroactiveQuotationWarningBanner';
-import { getCreditCards } from '@/src/services/creditCardService';
-import { CreditCard } from '@/src/types/creditCardTypes';
-import { SupplierData } from '@/src/types/types';
-import { extractDefaultCreditCart } from '@/src/utils/creditCardUtils';
-import { getBrazilDateTime } from '@/src/utils/dateUtils';
-import { extractErrorMessage } from '@/src/utils/errorUtils';
-import { processOrderResponse } from '@/src/utils/processOrderResponse';
-import {
-  checkSupplierAvailabilityMessage,
-  SupplierAvailabilityOnConfirm,
-} from '@/src/utils/supplierUtils';
-import { getSecondsUntilTime } from '@/src/utils/timeUtils';
+/* eslint-disable react-native/no-inline-styles */
 import Icons from '@expo/vector-icons/Ionicons';
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
@@ -26,6 +6,29 @@ import { debounce } from 'lodash';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
 import { Button, Image, ScrollView, Stack, Text, View } from 'tamagui';
+import { AccordionInfo } from '../src/components/AccordionInfo';
+import { DialogInstance } from '../src/components/confirm/dialogInstance';
+// eslint-disable-next-line max-len
+import { OrderScheduleNotificationDialog } from '../src/components/confirm/orderScheduleNotificationDialog';
+import { CreditCardSection } from '../src/components/CreditCardSection';
+import { useResponsiveness } from '../src/components/hooks/useResponsiveness';
+import { ImageWithFallback } from '../src/components/image/ImageWithFallback';
+import PdfViewerModal from '../src/components/modais/PdfViewerModal';
+import { CreateCreditCardModal } from '../src/components/pages/confirm/CreateCreditCardModal';
+// eslint-disable-next-line max-len
+import { RetroactiveQuotationWarningBanner } from '../src/components/quotations/RetroactiveQuotationWarningBanner';
+import { getCreditCards } from '../src/services/creditCardService';
+import { CreditCard } from '../src/types/creditCardTypes';
+import { SupplierData } from './quotationDetailsScreen';
+import { extractDefaultCreditCart } from '../src/utils/creditCardUtils';
+import { getBrazilDateTime } from '../src/utils/dateUtils';
+import { extractErrorMessage } from '../src/utils/errorUtils';
+import { processOrderResponse } from '../src/utils/processOrderResponse';
+import {
+  checkSupplierAvailabilityMessage,
+  SupplierAvailabilityOnConfirm,
+} from '../src/utils/supplierUtils';
+import { getSecondsUntilTime } from '../src/utils/timeUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -38,6 +41,7 @@ import { useInactivityRedirect } from '../src/utils/inativityTimer';
 import { getPaymentDate, getPaymentDescription } from '../src/utils/paymentUtils';
 import { deleteStorage, getStorage, getToken } from '../src/utils/utils';
 import { validateAddress } from '../src/utils/validateAddress';
+import BadgeText from '../src/components/text/BadgeText';
 
 if (Platform.OS !== 'web') {
   Notifications.setNotificationHandler({
@@ -70,12 +74,13 @@ export default function Confirm() {
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
   const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
-  const [isCpf, setIsCpf] = useState<boolean>(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{
     missingItems: boolean;
+    scheduleItems: boolean;
     sundayWarning: boolean;
   }>({
     missingItems: false,
+    scheduleItems: false,
     sundayWarning: false,
   });
   const { selectedRestaurant } = useRestaurantContext();
@@ -84,6 +89,10 @@ export default function Confirm() {
   const { isLargeScreen } = useResponsiveness();
   const router = useRouter();
   const pathname = usePathname();
+  const isCreditCardRequired = useMemo(
+    () => selectedRestaurant?.paymentWay === 'CC32',
+    [selectedRestaurant],
+  );
 
   const hasSameDayOrdersWithSupplier = useMemo(() => {
     return supplier?.supplier?.sameDayOrders?.length > 0;
@@ -127,21 +136,17 @@ export default function Confirm() {
     const restaurantId = selectedRestaurant?.id;
     if (!restaurantId) return;
 
-    if (selectedRestaurant.paymentWay !== 'CC32') {
+    if (!isCreditCardRequired) {
       return;
     }
 
     try {
-      const isCpfRestaurant = selectedRestaurant.companyRegistrationNumber.length === 11;
-      setIsCpf(isCpfRestaurant);
-      if (isCpfRestaurant) {
-        const creditCards = await getCreditCards(restaurantId);
-        const defaultCreditCard = extractDefaultCreditCart(creditCards);
-        if (defaultCreditCard) {
-          setSelectedCreditCard(defaultCreditCard);
-        } else {
-          setOpenCreditCardDialog(true);
-        }
+      const creditCards = await getCreditCards(restaurantId);
+      const defaultCreditCard = extractDefaultCreditCart(creditCards);
+      if (defaultCreditCard) {
+        setSelectedCreditCard(defaultCreditCard);
+      } else {
+        setOpenCreditCardDialog(true);
       }
     } catch (err) {
       console.error(err);
@@ -225,9 +230,16 @@ export default function Confirm() {
   };
 
   const displayMissingItems = supplier?.supplier?.missingItens ?? 0;
+  const hasScheduledProduct = supplier?.supplier?.discount?.product.filter(
+    (p) => p.scheduled === true,
+  );
 
   const handleConfirmOrder = useCallback(
-    async (overrideWarnings?: { missingItems?: boolean; sundayWarning?: boolean }) => {
+    async (overrideWarnings?: {
+      missingItems?: boolean;
+      scheduleItems?: boolean;
+      sundayWarning?: boolean;
+    }) => {
       if (disableConfirm) {
         return;
       }
@@ -236,6 +248,7 @@ export default function Confirm() {
       try {
         if (isRetroactiveDate) {
           setAlertMessage(
+            // eslint-disable-next-line max-len
             'Cotação retroativa: Não é possível criar pedidos com datas passadas. Esta funcionalidade é apenas para comparação de preços históricos.',
           );
           setIsAlertVisible(true);
@@ -254,7 +267,10 @@ export default function Confirm() {
           ...overrideWarnings,
         };
 
-        if (displayMissingItems > 0 && !effectiveWarnings.missingItems) {
+        if (
+          (displayMissingItems > 0 && !effectiveWarnings.missingItems) ||
+          (hasScheduledProduct.length > 0 && !effectiveWarnings.scheduleItems)
+        ) {
           setShowMissingItemsModal(true);
           return;
         }
@@ -300,7 +316,7 @@ export default function Confirm() {
         const result = await confirmOrder(body);
 
         resetDeliveryDate();
-        setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+        setConfirmedWarnings({ missingItems: false, scheduleItems: false, sundayWarning: false });
 
         const suppliersWithOrderId = processOrderResponse(
           [supplier],
@@ -339,8 +355,8 @@ export default function Confirm() {
 
   const handleConfirmMissingItems = useCallback(async () => {
     setShowMissingItemsModal(false);
-    setConfirmedWarnings((prev) => ({ ...prev, missingItems: true }));
-    await handleConfirmOrder({ missingItems: true });
+    setConfirmedWarnings((prev) => ({ ...prev, missingItems: true, scheduleItems: true }));
+    await handleConfirmOrder({ missingItems: true, scheduleItems: true });
   }, [handleConfirmOrder]);
 
   const handleConfirmSundayWarning = useCallback(async () => {
@@ -351,12 +367,12 @@ export default function Confirm() {
 
   const handleCloseMissingItems = useCallback(() => {
     setShowMissingItemsModal(false);
-    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+    setConfirmedWarnings({ missingItems: false, scheduleItems: false, sundayWarning: false });
   }, []);
 
   const handleCloseSundayWarning = useCallback(() => {
     setShowSundayWarning(false);
-    setConfirmedWarnings({ missingItems: false, sundayWarning: false });
+    setConfirmedWarnings({ missingItems: false, scheduleItems: false, sundayWarning: false });
   }, []);
 
   const isSuppliersAvailableForOrder = supplierAvailability?.isSupplierAvailableForOrder ?? false;
@@ -441,11 +457,12 @@ export default function Confirm() {
           onClose={handleCloseMissingItems}
           onConfirm={handleConfirmMissingItems}
           missingItemsCount={displayMissingItems}
+          scheduleItemsCount={hasScheduledProduct.length}
         />
         <CreateCreditCardModal
           open={openCreditCardDialog}
           setOpen={setOpenCreditCardDialog}
-          onSaved={async (creditCard: CreditCard) => {
+          onSaved={async () => {
             await loadCreditCards();
           }}
         />
@@ -476,7 +493,7 @@ export default function Confirm() {
           backgroundColor="white"
           flexDirection="row"
           style={{ width: isLargeScreen ? '74%' : '90%' }}
-          marginHorizontal={'auto'}
+          marginHorizontal="auto"
         >
           <View alignItems="center" flexDirection="row" paddingVertical="$4" gap="$4">
             <Icons
@@ -492,6 +509,7 @@ export default function Confirm() {
           <View flexDirection="row" marginLeft={10} alignSelf="center">
             <View justifyContent="center">
               <ImageWithFallback
+                // eslint-disable-next-line max-len
                 uri={`https://cdn.conectarhortifruti.com.br/files/images/supplier/${supplier?.supplier?.externalId}.jpg`}
               />
             </View>
@@ -516,44 +534,41 @@ export default function Confirm() {
                 alignSelf="center"
               >
                 <AccordionInfo
+                  // eslint-disable-next-line max-len
                   title={`Você já possui ${supplier?.supplier?.sameDayOrders.length} pedido${supplier?.supplier?.sameDayOrders.length > 1 ? 's' : ''} com esse fornecedor para o dia ${getBrazilDateTime(deliveryDate).toFormat('dd/MM/yyyy')}`}
-                  content={
-                    <>
-                      {supplier?.supplier?.sameDayOrders.map((order, index) => (
-                        <View key={order.id || index}>
-                          <View padding={12} backgroundColor="#F9F9F9" borderRadius={8} gap={8}>
-                            <View
-                              flexDirection="row"
-                              justifyContent="space-between"
-                              alignItems="center"
-                            >
-                              <View>
-                                <Text fontSize={14} fontWeight="600">
-                                  Pedido {order.id || 'N/A'}
-                                </Text>
-                              </View>
-                              {order.orderDocument && (
-                                <Button
-                                  onPress={() => handleShowPdf(order.orderDocument!)}
-                                  backgroundColor="#04BF7B"
-                                  size="$3"
-                                  paddingHorizontal={16}
-                                  paddingVertical={8}
-                                >
-                                  <Text fontSize={12} color="white" fontWeight="600">
-                                    Ver recibo
-                                  </Text>
-                                </Button>
-                              )}
-                            </View>
+                  content={supplier?.supplier?.sameDayOrders.map((order, index) => (
+                    <View key={order.id || index}>
+                      <View padding={12} backgroundColor="#F9F9F9" borderRadius={8} gap={8}>
+                        <View
+                          flexDirection="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                        >
+                          <View>
+                            <Text fontSize={14} fontWeight="600">
+                              Pedido {order.id || 'N/A'}
+                            </Text>
                           </View>
-                          {index < supplier?.supplier?.sameDayOrders.length - 1 && (
-                            <View height={1} backgroundColor="#E0E0E0" marginVertical={8} />
+                          {order.orderDocument && (
+                            <Button
+                              onPress={() => handleShowPdf(order.orderDocument!)}
+                              backgroundColor="#04BF7B"
+                              size="$3"
+                              paddingHorizontal={16}
+                              paddingVertical={8}
+                            >
+                              <Text fontSize={12} color="white" fontWeight="600">
+                                Ver recibo
+                              </Text>
+                            </Button>
                           )}
                         </View>
-                      ))}
-                    </>
-                  }
+                      </View>
+                      {index < (supplier?.supplier?.sameDayOrders.length || 0) - 1 && (
+                        <View height={1} backgroundColor="#E0E0E0" marginVertical={8} />
+                      )}
+                    </View>
+                  ))}
                 />
               </View>
             )}
@@ -591,7 +606,6 @@ export default function Confirm() {
           <View
             width={isLargeScreen ? '70vw' : '92%'}
             alignSelf="center"
-            gap={20}
             flex={1}
             backgroundColor="white"
           >
@@ -600,8 +614,9 @@ export default function Confirm() {
                 <View
                   key={item.sku}
                   borderBottomColor="lightgray"
-                  paddingVertical={1}
+                  paddingVertical={10}
                   borderBottomWidth={0.5}
+                  justifyContent="center"
                 >
                   <View flexDirection="row" alignItems="center">
                     <View flex={1} flexDirection="row" alignItems="center">
@@ -613,6 +628,9 @@ export default function Confirm() {
                         <Text fontSize={12} color="gray">
                           Obs: {item.obs ? item.obs : ''}
                         </Text>
+                        {item.scheduled && (
+                          <BadgeText text="Entrega em até 48h" color="#3B82F6" marginTop={4} />
+                        )}
                       </View>
                     </View>
                     <View>
@@ -633,8 +651,9 @@ export default function Confirm() {
                         <Text color="gray">
                           |{' '}
                           {item.priceUniqueWithTaxAndDiscount
-                            ? 'R$ ' +
-                              item.priceUniqueWithTaxAndDiscount.toFixed(2).replace('.', ',')
+                            ? `R$ ${item.priceUniqueWithTaxAndDiscount
+                                .toFixed(2)
+                                .replace('.', ',')}`
                             : 'R$ ----'}
                           /{item.orderUnit.replace('Unid', 'Un')}
                         </Text>
@@ -900,7 +919,7 @@ export default function Confirm() {
             disabled={
               disableConfirm ||
               isRetroactiveDate ||
-              (isCpf && isSuppliersAvailableForOrder && !selectedCreditCard)
+              (isCreditCardRequired && isSuppliersAvailableForOrder && !selectedCreditCard)
             }
             onPress={onConfirmPressDebounced}
             width={170}
