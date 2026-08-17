@@ -68,7 +68,7 @@ describe('Tela de Login - Android', () => {
       timeout: 25000
     });
 
-    await expect(paginaProdutos).toHaveText('Meus Restaurantes');
+    await expect(paginaProdutos).toHaveText('Produtos');
   });
 
 });

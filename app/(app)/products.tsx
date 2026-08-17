@@ -954,6 +954,7 @@ export default function Products() {
 
   return (
     <PageContainer backgroundColor="white">
+      <Text data-testid="pagina-produtos">Produtos</Text>
       <DialogBlockInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
@@ -1015,7 +1016,7 @@ export default function Products() {
         </TouchableOpacity>
       </Modal>
 
-      <HeaderText data-testid="pagina-produtos">Meus Restaurantes</HeaderText>
+      <HeaderText>Meus Restaurantes</HeaderText>
       <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
