@@ -817,6 +817,12 @@ export default function Products() {
     [currentClass, favoriteIds],
   );
 
+  const sortAlphabetically = useCallback(
+    (products: Product[]) =>
+      [...products].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' })),
+    [],
+  );
+
   const filteredProducts = useMemo(() => {
     if (searchQuery) {
       const excludeClass = classItems[3]?.name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
@@ -838,15 +844,23 @@ export default function Products() {
     }
 
     if (currentClass === 'Favoritos') {
-      return sortProducts(favorites);
+      return sortAlphabetically(favorites);
     }
 
     const normalizedCurrentClass = currentClass.toLowerCase();
     const matches = (productsList ?? []).filter(
       (product) => product.class.toLowerCase() === normalizedCurrentClass,
     );
-    return sortProducts(matches);
-  }, [currentClass, productsList, favorites, searchQuery, normalizedProductsList, sortProducts]);
+    return sortAlphabetically(matches);
+  }, [
+    currentClass,
+    productsList,
+    favorites,
+    searchQuery,
+    normalizedProductsList,
+    sortProducts,
+    sortAlphabetically,
+  ]);
 
   useEffect(() => {
     setDisplayedProducts(filteredProducts);
