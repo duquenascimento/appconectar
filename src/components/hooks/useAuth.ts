@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useRouter, useSegments } from 'expo-router';
+import { useGlobalSearchParams, useRouter, useSegments } from 'expo-router';
+import { capturePendingInviteCode } from '../../utils/inviteCode';
 import { getToken, getStorage, STORAGE_DEFAULT_KEYS } from '../../utils/utils';
 
 export function useAuthGuard() {
@@ -7,21 +8,28 @@ export function useAuthGuard() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const segments = useSegments();
+  const { indicacao } = useGlobalSearchParams<{ indicacao?: string }>();
 
   const checkAuth = async () => {
     try {
       setIsLoading(true);
+
+      if (indicacao) {
+        await capturePendingInviteCode(indicacao);
+      }
+
       const token = await getToken();
       const authenticated = !!token;
       setIsAuthenticated(authenticated);
 
       if (authenticated) {
         const role = await getStorage(STORAGE_DEFAULT_KEYS.USER_ROLES);
+        const currentRoute = getCurrentRouteSegment(segments);
 
         if (isPublicRoute(segments)) {
-          if (role?.includes('registered') || role?.includes('client')) {
+          if ((role?.includes('registered') || role?.includes('client')) && currentRoute !== 'products') {
             router.dismissTo('/products');
-          } else if (role?.includes('registering')) {
+          } else if (role?.includes('registering') && currentRoute !== 'register') {
             router.dismissTo('/register');
           }
           return authenticated;
@@ -50,7 +58,7 @@ export function useAuthGuard() {
 
   useEffect(() => {
     checkAuth();
-  }, [segments]);
+  }, [segments, indicacao]);
 
   return {
     isAuthenticated,
@@ -89,7 +97,7 @@ export function isProtectedRoute(segments: string[]): boolean {
 }
 
 export function isPublicRoute(segments: string[]): boolean {
-  const publicRoutes = ['', 'register', 'forgot-password', 'reset-password'];
+  const publicRoutes = ['', 'cadastro', 'register', 'forgot-password', 'reset-password'];
 
   const currentRoute = getCurrentRouteSegment(segments);
 

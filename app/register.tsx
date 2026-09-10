@@ -1,4 +1,5 @@
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
+import { InviteCodeField } from '@/src/components/pages/register/InviteCodeField';
 import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
@@ -6,7 +7,13 @@ import { loadProgress, saveStepData } from '@/src/services/registerProgressServi
 import { checkDocument, sendFullRegister } from '@/src/services/registerService';
 import { getErrorMessage } from '@/src/types/apiErrorTypes';
 import { formatDocument, isCnpjData, type DocumentType } from '@/src/utils/documentUtils';
+import {
+  clearPendingInviteCode,
+  getPendingInviteCode,
+  shouldResetForNewInvite,
+} from '@/src/utils/inviteCode';
 import { getPaymentDescription } from '@/src/utils/paymentUtils';
+import { isRegistrationExpired } from '@/src/utils/registerExpiration';
 import {
   step0Validation,
   step1Validation,
@@ -254,16 +261,43 @@ export default function Register() {
     setLoading(true);
     try {
       const progress = await loadProgress();
+      const pendingInviteCode = await getPendingInviteCode();
 
       if (progress && progress.roleUser === 'registering') {
-        formik.setValues(progress.values);
-        setStep(progress.step);
-        if (progress.values.document) {
-          const onlyNumbers = progress.values.document.replace(/\D/g, '');
-          if (onlyNumbers.length > 0) {
-            await handleDocumentTypeToggle(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ', false);
+        const tokenPayload = await getTokenPayload();
+        const expired = isRegistrationExpired(tokenPayload?.createdAt);
+        const inviteCodeChanged = shouldResetForNewInvite(
+          progress.values?.inviteCode,
+          pendingInviteCode,
+        );
+
+        if (expired || inviteCodeChanged) {
+          await clearRegisterProgress();
+          setStep(0);
+          const resetValues = {
+            ...formik.initialValues,
+            inviteCode: pendingInviteCode ?? '',
+          };
+          formik.resetForm({ values: resetValues });
+          // Persiste imediatamente para que initData() fique idempotente caso rode de novo
+          // (ex: remontagem da tela) antes do usuário avançar para o próximo step.
+          await saveStepData(resetValues, 0);
+        } else {
+          formik.setValues(progress.values);
+          setStep(progress.step);
+          if (progress.values.document) {
+            const onlyNumbers = progress.values.document.replace(/\D/g, '');
+            if (onlyNumbers.length > 0) {
+              await handleDocumentTypeToggle(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ', false);
+            }
+          }
+          if (pendingInviteCode) {
+            formik.setFieldValue('inviteCode', pendingInviteCode);
+            await saveStepData({ ...progress.values, inviteCode: pendingInviteCode }, progress.step);
           }
         }
+
+        await clearPendingInviteCode();
         return;
       }
 
@@ -326,12 +360,18 @@ export default function Register() {
         }
       });
 
+      if (pendingInviteCode) {
+        loadedValues.inviteCode = pendingInviteCode;
+      }
+
       formik.resetForm({
         values: {
           ...formik.initialValues,
           ...loadedValues,
         },
       });
+
+      await clearPendingInviteCode();
     } catch (error) {
       // Error loading stored data - continue with empty form
     } finally {
@@ -1468,28 +1508,7 @@ export default function Register() {
                   </Text>
                 )}
               </View>
-              <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
-                Código do promotor
-              </Text>
-              <View
-                backgroundColor="white"
-                borderColor="lightgray"
-                borderWidth={1}
-                borderRadius={5}
-                padding={10}
-              >
-                <Input
-                  onChangeText={(text) => {
-                    formik.setFieldValue('inviteCode', text.toUpperCase());
-                  }}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  maxLength={5}
-                  value={formik.values.inviteCode}
-                ></Input>
-              </View>
+              <InviteCodeField value={formik.values.inviteCode} />
             </View>
           ) : (
             <></>

@@ -48,7 +48,7 @@ export default function RootLayout() {
     const initApp = async () => {
       const versionCheckResult = await checkLocalVersionAndClearData();
 
-      if (versionCheckResult.cleared && pathname !== '/') {
+      if (versionCheckResult.cleared && pathname !== '/' && pathname !== '/cadastro') {
         router.replace('/');
       }
     };
