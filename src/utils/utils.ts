@@ -64,6 +64,7 @@ export enum STORAGE_DEFAULT_KEYS {
   CONECTAR_COMBINATIONS = 'conectarCombinations',
   UNAVAILABLE_COMBINATIONS = 'unavailableCombinations',
   COMBINATION_DATA = 'combinationData',
+  CLIENT_SETTINGS = 'clientSettings',
 }
 
 export const getToken = async (): Promise<string | null | undefined> => {

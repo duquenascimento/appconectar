@@ -13,10 +13,10 @@ import {
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
 import { Button, Input, ScrollView, Stack, Text, View, XStack } from 'tamagui';
-import { VersionInfo } from '@/src/utils/VersionApp';
-import { Product } from '@/src/types/productTypes';
-import { TCart } from '@/src/types/cartTypes';
-import { addFavorite, deleteFavorite, updateFavorite } from '@/src/services/favoritosService';
+import { VersionInfo } from '../../src/utils/VersionApp';
+import { Product } from '../../src/types/productTypes';
+import { TCart } from '../../src/types/cartTypes';
+import { addFavorite, deleteFavorite, updateFavorite } from '../../src/services/favoritosService';
 import { useFavoritesContext } from '@/src/contexts/favoritos.context';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import PageContainer from '../../src/components/box/PageContainer';
@@ -28,6 +28,7 @@ import {
 import { CartButton } from '../../src/components/cartButton';
 import { useBackHandler } from '../../src/components/hooks/useBackHandler';
 import { CustomImageBadge } from '../../src/components/image/customImageBadge';
+import BadgeText from '../../src/components/text/BadgeText';
 import { DropDownPickerRestaurant } from '../../src/components/input/DropDownPickerRestaurant';
 import { SearchProducts } from '../../src/components/input/SearchProducts';
 import { ProductsCategoriesList } from '../../src/components/list/ProductsCategoriesList';
@@ -47,11 +48,10 @@ import {
 import { getStorageRestaurant, setStorageRestaurant } from '../../src/utils/restaurantUtils';
 import { normalizeText } from '../../src/utils/stringUtils';
 import { getToken } from '../../src/utils/utils';
-import DialogBlockInstance from '@/src/components/dialogBlockInstance';
+import DialogBlockInstance from '../../src/components/dialogBlockInstance';
 import { useNotifications } from '@/src/contexts/notification.context';
-import { NotificationModal } from '@/src/components/modais/NotificationModal';
-import { useChat } from '../../src/contexts/chat.context';
-import { JoinChatPayload } from '../../src/types/chatTypes';
+import { NotificationModal } from '../../src/components/modais/NotificationModal';
+// import { useChat } from '../../src/contexts/chat.context';
 
 type ProductBoxProps = Product & {
   toggleFavorite: (productId: string) => void;
@@ -86,6 +86,7 @@ const ProductBox = React.memo(
     secondUnit,
     thirdUnit,
     orderUnit,
+    scheduled,
     toggleFavorite,
     favorites,
     saveCart,
@@ -269,8 +270,9 @@ const ProductBox = React.memo(
                 badgeTextSize={10}
               />
             </View>
-            <View marginLeft={8} maxWidth={130}>
+            <View marginLeft={8} maxWidth={130} flexDirection="column">
               <Text fontSize={12}>{name}</Text>
+              {scheduled && <BadgeText text="Entrega em até 48h" color="#3B82F6" marginTop={4} />}
             </View>
           </View>
           <View marginRight={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
@@ -465,7 +467,7 @@ export default function Products() {
   const { productsContext, isLoading } = useProductContext();
   const { selectedRestaurant, restaurants, saveRestaurant } = useRestaurantContext();
   const { favorites, setFavorites, loadFavorites } = useFavoritesContext();
-  const { logout, getTokenPayload } = useAuthContext();
+  const { logout } = useAuthContext();
   const {
     cart,
     setCart,
@@ -538,7 +540,7 @@ export default function Products() {
           setUpdateRequired(false);
           setUpdateMessage('');
         }
-      } catch (error) {
+      } catch {
         setUpdateRequired(false);
         setUpdateMessage('');
       }
@@ -651,7 +653,9 @@ export default function Products() {
     }, [reloadNotifications]),
   );
 
-  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+
+  /* const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
 
   useEffect(() => {
     async function handleJoinChat() {
@@ -678,7 +682,7 @@ export default function Products() {
     }
 
     handleJoinChat();
-  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]); */
 
   const addToFavorites = useCallback(
     async (productId: string, obs: string) => {
@@ -777,37 +781,86 @@ export default function Products() {
     }
   }, [currentClass, searchQuery]);
 
+  // Normaliza nome/classe uma única vez por mudança de productsList, em vez de
+  // recalcular (NFD + regex) para a lista inteira a cada tecla digitada na busca.
+  const normalizedProductsList = useMemo(
+    () =>
+      (productsList ?? []).map((product) => {
+        const normalizedName = normalizeText(product.name);
+        return {
+          product,
+          normalizedName,
+          normalizedNameWords: normalizedName.split(' '),
+          normalizedClass: normalizeText(product.class),
+        };
+      }),
+    [productsList],
+  );
+
+  const favoriteIds = useMemo(() => new Set(favorites.map((product) => product.id)), [favorites]);
+
+  const sortProducts = useCallback(
+    (products: Product[]) =>
+      [...products].sort((a, b) => {
+        if (currentClass !== 'Favoritos') {
+          const isFavoriteA = favoriteIds.has(a.id);
+          const isFavoriteB = favoriteIds.has(b.id);
+          if (isFavoriteA !== isFavoriteB) return isFavoriteA ? -1 : 1;
+        }
+
+        const isLargeQuantityA = a.isLargeQuantity ?? false;
+        const isLargeQuantityB = b.isLargeQuantity ?? false;
+        if (isLargeQuantityA !== isLargeQuantityB) return isLargeQuantityA ? 1 : -1;
+
+        return a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' });
+      }),
+    [currentClass, favoriteIds],
+  );
+
+  const sortAlphabetically = useCallback(
+    (products: Product[]) =>
+      [...products].sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' })),
+    [],
+  );
+
   const filteredProducts = useMemo(() => {
-    let products = productsList || [];
-
-    // Favoritos
-    if (currentClass === 'Favoritos') {
-      products = favorites;
-    } else {
-      products =
-        productsList?.filter(
-          (product) => product.class.toLowerCase() === currentClass.toLowerCase(),
-        ) || [];
-    }
-
     if (searchQuery) {
-      const excludeClass = classItems[3].name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
-      const normalizedQuery = normalizeText(searchQuery);
-      const queryWords = normalizedQuery.split(' ').filter((word) => word !== '');
+      const excludeClass = classItems[3]?.name === 'Verduras - KG' ? 'Verduras' : 'Verduras - KG';
+      const normalizedExcludeClass = normalizeText(excludeClass);
+      const queryWords = normalizeText(searchQuery)
+        .split(' ')
+        .filter((word) => word !== '');
 
-      products =
-        productsList?.filter((product) => {
-          const normalizedProductName = normalizeText(product.name);
-          const productNameWords = normalizedProductName.split(' ');
+      const matches = normalizedProductsList
+        .filter(({ normalizedNameWords, normalizedClass }) => {
           const isMatchingName = queryWords.every((queryWord) =>
-            productNameWords.some((productWord) => productWord.includes(queryWord)),
+            normalizedNameWords.some((productWord) => productWord.includes(queryWord)),
           );
-          const isNotExcludedClass = normalizeText(product.class) !== normalizeText(excludeClass);
-          return isMatchingName && isNotExcludedClass;
-        }) ?? [];
+          return isMatchingName && normalizedClass !== normalizedExcludeClass;
+        })
+        .map(({ product }) => product);
+
+      return sortProducts(matches);
     }
-    return products;
-  }, [currentClass, productsList, favorites, searchQuery]);
+
+    if (currentClass === 'Favoritos') {
+      return sortAlphabetically(favorites);
+    }
+
+    const normalizedCurrentClass = currentClass.toLowerCase();
+    const matches = (productsList ?? []).filter(
+      (product) => product.class.toLowerCase() === normalizedCurrentClass,
+    );
+    return sortAlphabetically(matches);
+  }, [
+    currentClass,
+    productsList,
+    favorites,
+    searchQuery,
+    normalizedProductsList,
+    sortProducts,
+    sortAlphabetically,
+  ]);
 
   useEffect(() => {
     setDisplayedProducts(filteredProducts);
@@ -866,6 +919,7 @@ export default function Products() {
         key={item.id}
         toggleFavorite={toggleFavorite}
         {...item}
+        scheduled={item.scheduled}
         favorites={favorites}
         saveCart={saveCart}
         setLoading={setLoading}
@@ -914,7 +968,6 @@ export default function Products() {
 
   return (
     <PageContainer backgroundColor="white">
-      <Text data-testid="pagina-produtos">Produtos</Text>
       <DialogBlockInstance
         openModal={showRegistrationReleasedNewApp}
         setOpenModal={setShowRegistrationReleasedNewApp}
@@ -976,7 +1029,7 @@ export default function Products() {
         </TouchableOpacity>
       </Modal>
 
-      <HeaderText>Meus Restaurantes</HeaderText>
+      <HeaderText data-testid="pagina-produtos">Meus Restaurantes</HeaderText>
       <DropDownPickerRestaurant onBeforeChange={() => setLoading(true)} />
       <View height={40} flex={1} paddingTop={8}>
         <SearchProducts searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
@@ -1033,8 +1086,8 @@ export default function Products() {
               />
             )
           ) : (
-            <ScrollView>
-              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6">
+            <ScrollView >
+              <View flex={1} minHeight={40} borderWidth={1} borderRadius={12} borderColor="#F0F2F6" alignSelf="center" width={ '50%'} style={{ paddingBottom: 90 }} >
                 {[...Array(7)].map((_, index) => (
                   <View
                     key={index}
@@ -1139,7 +1192,10 @@ export default function Products() {
               Perfil
             </Text>
           </View>
-          <View
+          {/* 
+            OBS: CHAT REMOVIDO TEMPORARIAMENTE
+           */}
+          {/* <View
             onPress={() => {
               router.push('/chat');
             }}
@@ -1180,9 +1236,9 @@ export default function Products() {
             <Text fontSize={12} color="gray">
               Chat
             </Text>
-          </View>
+          </View> */}
           <View
-            testID='botao-logout'
+            testID="botao-logout"
             onPress={async () => {
               setLoading(true);
               await saveCartArray(cart, cartToExclude);

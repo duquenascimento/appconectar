@@ -3,31 +3,27 @@ import {
   ChosenSupplierQuote,
   FinalProductItem,
   OutputSupplier,
-} from "@/src/types/suppliersDataTypes";
-import { generateAbbreviation } from "./generateAbbreviation";
+} from '@/src/types/suppliersDataTypes';
+import { generateAbbreviation } from './generateAbbreviation';
 
 export function mergeSupplierData(
   chosenSuppliers: ChosenSupplierQuote[],
-  allSuppliers: AvailableSupplier[]
+  allSuppliers: AvailableSupplier[],
 ): OutputSupplier[] {
   const finalResult: OutputSupplier[] = [];
 
   for (const selectedCombination of chosenSuppliers) {
-
     for (const chosenSupplier of selectedCombination.resultadoCotacao.supplier) {
-      
       const chosenSupplierId = chosenSupplier.id;
 
-      const matchingSupplier = allSuppliers.find(
-        (s) => s.supplier.externalId === chosenSupplierId
-      );
+      const matchingSupplier = allSuppliers.find((s) => s.supplier.externalId === chosenSupplierId);
 
       if (matchingSupplier) {
         const finalProducts: FinalProductItem[] = [];
 
         for (const chosenProduct of chosenSupplier.cart) {
           const matchingProduct = matchingSupplier.supplier.discount.product.find(
-            (p) => p.sku === chosenProduct.productId
+            (p) => p.sku === chosenProduct.productId,
           );
 
           if (matchingProduct) {
@@ -44,6 +40,7 @@ export function mergeSupplierData(
               image: matchingProduct.image,
               orderUnit: matchingProduct.orderUnit,
               quotationUnit: matchingProduct.quotationUnit,
+              scheduled: matchingProduct.scheduled,
             };
             finalProducts.push(newProduct);
           }
@@ -68,7 +65,7 @@ export function mergeSupplierData(
               missingItens: matchingSupplier.supplier.missingItens,
               orderValueFinish: chosenSupplier.orderValue,
               product: finalProducts,
-              sku: "",
+              sku: '',
             },
             sameDayOrders: matchingSupplier.supplier.sameDayOrders,
             openingTime: matchingSupplier.supplier.openingTime,

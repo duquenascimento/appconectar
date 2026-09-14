@@ -214,52 +214,56 @@ const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
           paddingBottom={5}
           marginTop={10}
           fontSize={16}
-          color={'gray'}
+          color="gray"
         >
           Fornecedores disponíveis
         </Text>
 
-      <VirtualizedList
-        style={{ marginBottom: 5 }}
-        data={availableSuppliers}
-        getItemCount={getItemCount}
-        getItem={getItem}
-        keyExtractor={(item, index) => (item.supplier ? item.supplier.name : `separator-${index}`)}
-        renderItem={(item) => renderItem({ item: item.item, restaurant: selectedRestaurant }, true)}
-        ItemSeparatorComponent={() => <View height={2} />}
-        initialNumToRender={availableSuppliers.length}
-        scrollEnabled={false}
-      />
+        <VirtualizedList
+          style={{ marginBottom: 5 }}
+          data={availableSuppliers}
+          getItemCount={getItemCount}
+          getItem={getItem}
+          keyExtractor={(item, index) =>
+            item.supplier ? item.supplier.name : `separator-${index}`
+          }
+          renderItem={(item) =>
+            renderItem({ item: item.item, restaurant: selectedRestaurant }, true)
+          }
+          ItemSeparatorComponent={() => <View height={2} />}
+          initialNumToRender={availableSuppliers.length}
+          scrollEnabled={false}
+        />
 
-      {unavailableSuppliers.length > 0 && (
-        <>
-          <Text
-            style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
-            paddingBottom={5}
-            marginTop={10}
-            fontSize={16}
-            color={'gray'}
-          >
-            Fornecedores indisponíveis
-          </Text>
+        {unavailableSuppliers.length > 0 && (
+          <>
+            <Text
+              style={{ paddingLeft: Platform.OS === 'web' ? '20.7vw' : '' }}
+              paddingBottom={5}
+              marginTop={10}
+              fontSize={16}
+              color="gray"
+            >
+              Fornecedores indisponíveis
+            </Text>
 
-          <VirtualizedList
-            style={{ marginBottom: 5 }}
-            data={unavailableSuppliers}
-            getItemCount={getItemCount}
-            getItem={getItem}
-            keyExtractor={(item, index) =>
-              item.supplier ? item.supplier.name : `separator-${index}`
-            }
-            renderItem={(item) =>
-              renderItem({ item: item.item, restaurant: selectedRestaurant }, false)
-            }
-            ItemSeparatorComponent={() => <View height={2} />}
-            initialNumToRender={unavailableSuppliers.length}
-            scrollEnabled={false}
-          />
-        </>
-      )}
+            <VirtualizedList
+              style={{ marginBottom: 5 }}
+              data={unavailableSuppliers}
+              getItemCount={getItemCount}
+              getItem={getItem}
+              keyExtractor={(item, index) =>
+                item.supplier ? item.supplier.name : `separator-${index}`
+              }
+              renderItem={(item) =>
+                renderItem({ item: item.item, restaurant: selectedRestaurant }, false)
+              }
+              ItemSeparatorComponent={() => <View height={2} />}
+              initialNumToRender={unavailableSuppliers.length}
+              scrollEnabled={false}
+            />
+          </>
+        )}
       </ScrollView>
     </>
   );

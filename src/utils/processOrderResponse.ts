@@ -11,14 +11,12 @@ export function processOrderResponse(
     ]),
   );
 
-  const supplierWithOrderId: SupplierData[] = suppliers.map(
-    (s) => ({
-      supplier: {
-        ...s.supplier,
-        orderId: orderIdMap.get(s.supplier.externalId) || null,
-      },
-    }),
-  );
+  const supplierWithOrderId: SupplierData[] = suppliers.map((s) => ({
+    supplier: {
+      ...s.supplier,
+      orderId: orderIdMap.get(s.supplier.externalId) || null,
+    },
+  }));
 
   return supplierWithOrderId;
 }

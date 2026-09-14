@@ -3,16 +3,14 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
 import { Button, Text, View, XStack, YStack } from 'tamagui';
-import PageContainer from '@/src/components/box/PageContainer';
-import CustomAlert from '@/src/components/modais/CustomAlert';
-import { TwoButtonCustomAlert } from '@/src/components/modais/TwoButtonCustomAlert';
-import { useAuthContext } from '@/src/contexts/auth.context';
-import { getBrazilLocaleString } from '@/src/utils/dateUtils';
-import { deleteUser, getUserData } from '@/src/utils/userUtils';
-import { VersionInfo } from '@/src/utils/VersionApp';
-import { JoinChatPayload } from '../../src/types/chatTypes';
-import { useChat } from '../../src/contexts/chat.context';
-import { useRestaurantContext } from '../../src/contexts/restaurant.context';
+import PageContainer from '../../src/components/box/PageContainer';
+import CustomAlert from '../../src/components/modais/CustomAlert';
+import { TwoButtonCustomAlert } from '../../src/components/modais/TwoButtonCustomAlert';
+import { useAuthContext } from '../../src/contexts/auth.context';
+import { getBrazilLocaleString } from '../../src/utils/dateUtils';
+import { deleteUser, getUserData } from '../../src/utils/userUtils';
+import { VersionInfo } from '../../src/utils/VersionApp';
+// import { useChat } from '../../src/contexts/chat.context';
 
 interface User {
   name: string;
@@ -27,11 +25,12 @@ export default function UserInfo() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
-  const { logout, getTokenPayload } = useAuthContext();
-  const { selectedRestaurant } = useRestaurantContext();
+  const { logout } = useAuthContext();
   const router = useRouter();
 
-  const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+
+  /* const { unreadMessages, joinChat, getUnreadMessages, isConnected } = useChat();
 
   useEffect(() => {
     async function handleJoinChat() {
@@ -58,7 +57,7 @@ export default function UserInfo() {
     }
 
     handleJoinChat();
-  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]);
+  }, [joinChat, getUnreadMessages, isConnected, getTokenPayload, selectedRestaurant]); */
 
   useEffect(() => {
     let isMounted = true;
@@ -266,7 +265,10 @@ export default function UserInfo() {
             Perfil
           </Text>
         </View>
-        <View
+        {/* 
+          OBS: CHAT REMOVIDO TEMPORARIAMENTE
+          */}
+        {/* <View
           onPress={() => {
             router.push('/chat');
           }}
@@ -307,7 +309,7 @@ export default function UserInfo() {
           <Text fontSize={12} color="gray">
             Chat
           </Text>
-        </View>
+        </View> */}
         <View
           paddingLeft={15}
           paddingRight={15}
@@ -318,6 +320,10 @@ export default function UserInfo() {
           justifyContent="center"
           alignItems="center"
           height={70}
+          onPress={async () => {
+            setLoading(true);
+            await logout();
+          }}
         >
           <Icons name="log-out" size={20} color="gray" />
           <Text fontSize={12} color="gray">

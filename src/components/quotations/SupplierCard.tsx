@@ -1,12 +1,10 @@
-import { Supplier } from '@/src/types/types';
-import { getBrazilDateTime } from '@/src/utils/dateUtils';
-import { formatCurrency } from '@/src/utils/formatCurrency';
-import { isSupplierOpen, getFormattedOpeningTime } from '@/src/utils/supplierUtils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect } from 'expo-router';
 import { Platform } from 'react-native';
-import { useCallback, useEffect, useState } from 'react';
 import { Button, Image, Text, View, XStack, YStack } from 'tamagui';
+import { isSupplierOpen, getFormattedOpeningTime } from '../../utils/supplierUtils';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { getBrazilDateTime } from '../../utils/dateUtils';
+import { Supplier } from '../../types/types';
 import { AccordionInfo } from '../AccordionInfo';
 import { ProductItemCard } from './ProductItemCard';
 

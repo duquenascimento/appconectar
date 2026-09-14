@@ -42,6 +42,7 @@ interface SupplierProduct {
   priceUnique: number;
   orderUnit: string;
   priceUniqueWithTaxAndDiscount: number;
+  scheduled: boolean;
 }
 
 export interface AvailableSupplier {
@@ -80,6 +81,7 @@ export interface FinalProductItem {
   image: string[];
   orderUnit: string;
   quotationUnit: string;
+  scheduled: boolean;
 }
 
 export interface OutputSupplier {
@@ -129,21 +131,21 @@ export interface GetAllSuppliersParams {
 }
 
 export interface SupplierApiDb {
-    id: string;
-    idexterno: string;
-    nomefornecedor: string;
-    razaosocial: string;
-    responsavel: string;
-    telefonecontato: string;
-    cnpj: string;
-    inscricaoestadual?: string | null,
-    email: string;
-    ativo: boolean;
-    nomeresponsavelentregas: string,
-    bloqueio: boolean;
-    datacadastro: string;
-    dataalteracao: string;
-    responsavelalteracao?: string | null;
-    urlrelatorio: string;
-    nota: string;
+  id: string;
+  idexterno: string;
+  nomefornecedor: string;
+  razaosocial: string;
+  responsavel: string;
+  telefonecontato: string;
+  cnpj: string;
+  inscricaoestadual?: string | null;
+  email: string;
+  ativo: boolean;
+  nomeresponsavelentregas: string;
+  bloqueio: boolean;
+  datacadastro: string;
+  dataalteracao: string;
+  responsavelalteracao?: string | null;
+  urlrelatorio: string;
+  nota: string;
 }

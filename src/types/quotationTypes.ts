@@ -4,6 +4,6 @@ export type QuotationResquestBody = {
     products?: {
         sku: string;
         quantity: number;
-        obs?: string | null;
+        observation?: string | null;
     }[];
 }

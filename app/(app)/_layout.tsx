@@ -12,6 +12,7 @@ import { chatSocket } from '../../src/services/chatSocketService';
 import { useActiveChannelResponder } from '../../src/hooks/useActiveChannelResponder';
 // eslint-disable-next-line max-len
 import { useMobileNotificationPresentationState } from '../../src/services/useMobileNotificationPresentationState';
+// import { ChatProvider } from '../../src/contexts/chat.context';
 
 function LayoutContent() {
   const router = useRouter();

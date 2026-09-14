@@ -2,7 +2,7 @@ import { useState } from 'react';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { styled, useMedia } from 'tamagui';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
-import { useChat } from '../../contexts/chat.context';
+// import { useChat } from '../../contexts/chat.context';
 
 const DropDownPickerRestaurantStyled = styled(DropDownPicker, {
   width: '92%',
@@ -27,7 +27,9 @@ interface DropDownPickerRestaurantProps {
 export function DropDownPickerRestaurant({ onBeforeChange }: DropDownPickerRestaurantProps) {
   const { restaurants, selectedRestaurant, handleRestaurantChange } = useRestaurantContext();
   const [restaurantOpen, setRestaurantOpen] = useState(false);
-  const { leaveChat } = useChat();
+
+  // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+  // const { leaveChat } = useChat();
 
   const media = useMedia();
 
@@ -43,12 +45,13 @@ export function DropDownPickerRestaurant({ onBeforeChange }: DropDownPickerResta
         const value =
           typeof callback === 'function' ? callback(selectedRestaurant?.externalId) : callback;
         const restaurant = restaurants.find((r) => r.externalId === value);
-        if (selectedRestaurant) {
+        // OBS: CHAT REMOVIDO TEMPORARIAMENTE
+        /* if (selectedRestaurant) {
           leaveChat({
             channelId: selectedRestaurant.id,
             channelType: 'restaurant',
           });
-        }
+        } */
         await handleRestaurantChange(restaurant ?? null);
       }}
       items={restaurants.map((restaurant) => ({

@@ -22,28 +22,27 @@ export default function OrderListItem({
   onPress,
 }: OrderListItemProps) {
   const isCanceled = item.status_id === 6;
-  const isPix = isCanceled ? false : (item.paymentWay === 'AV01' || item.paymentWay === 'AV00');
+  const isPix = isCanceled ? false : item.paymentWay === 'AV01' || item.paymentWay === 'AV00';
 
-  const BadgeComponent = () => {
-    if(isCanceled) {
-      return (<BadgeText text="Pedido Cancelado" color="#ff2233" />);
+  function BadgeComponent() {
+    if (isCanceled) {
+      return <BadgeText text="Pedido Cancelado" color="#ff2233" />;
     }
 
-    if(isPix && 'status_id' in item) {
-      if(item.status_id === 8) {
-        return (<BadgeText text="Pagamento Pendente" color="#183fc0ff" />);
-      } else if(item.status_id === 12) {
-        return (<BadgeText text="Pagamento Confirmado" color='#04BF7B' />);
+    if (isPix && 'status_id' in item) {
+      if (item.status_id === 8) {
+        return <BadgeText text="Pagamento Pendente" color="#183fc0ff" />;
+      }
+      if (item.status_id === 12) {
+        return <BadgeText text="Pagamento Confirmado" color="#04BF7B" />;
       }
     }
 
     return undefined;
-  };
+  }
 
   return (
-    <TouchableOpacity
-      onPress={() => onPress(item.id)}
-    >
+    <TouchableOpacity onPress={() => onPress(item.id)}>
       <View flex={1} flexDirection="row" marginVertical={15} gap={3}>
         <TouchableOpacity
           onPress={() => onToggleSelect(item.id)}
@@ -70,8 +69,8 @@ export default function OrderListItem({
           <BadgeComponent />
 
           <Text marginBottom={10} style={styles.total}>
-              R$ {Number(item.totalConectar).toFixed(2)}
-            </Text>
+            R$ {Number(item.totalConectar).toFixed(2)}
+          </Text>
 
           <Text numberOfLines={1}>{item.supplier?.nomefornecedor ?? 'Fornecedor Indiponível'}</Text>
         </YStack>

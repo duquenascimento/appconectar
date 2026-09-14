@@ -87,6 +87,10 @@ export const getBrazilJSDateTomorrow = (): Date => {
   return getBrazilDateTimeTomorrow().toJSDate();
 };
 
+export const getMinRetroactiveJSDate = (maxRetroactiveDays: number): Date => {
+  return getBrazilDateTime().minus({ days: maxRetroactiveDays }).toJSDate();
+};
+
 export const getBrazilLocaleString = (date?: DateUtilsInput): string => {
   const dt = getBrazilDateTime(date);
   return dt.toLocaleString(DateTime.DATE_SHORT, { locale: 'pt-BR' });

@@ -1,11 +1,11 @@
-import { mergeSupplierData } from '@/src/utils/mergeSuppliersData';
-import { getToken } from '@/src/utils/utils';
 import { HttpStatusCode } from 'axios';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform, SectionList, StyleSheet } from 'react-native';
 import { Button, Text, View } from 'tamagui';
 import { validate as validateUuid } from 'uuid';
+import { getToken } from '../utils/utils';
+import { mergeSupplierData } from '../utils/mergeSuppliersData';
 import { useCombination } from '../contexts/combination.context';
 import { useDeliveryDate } from '../contexts/deliveryDate.context';
 import { useSupplier } from '../contexts/fornecedores.context';
@@ -22,7 +22,16 @@ interface CombinationListProps {
   handleConfirm: () => void;
 }
 
-const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  listContentContainer: {
+    paddingBottom: 100,
+  },
+});
+
+export default function CombinationList({ handleConfirm }: CombinationListProps) {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
@@ -44,7 +53,7 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
     const initialize = async () => {
       try {
         await getCombinationsByRestaurant();
-      } catch (error) {
+      } catch {
         setIsAlertVisible(true);
       }
     };
@@ -54,7 +63,7 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
   const handleCombinationPress = async (item: Combination) => {
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
     const combinationSelected = selectedCombination as ChosenSupplierQuote[];
-    const mergedData: any = mergeSupplierData(combinationSelected, availableSuppliers);
+    const mergedData = mergeSupplierData(combinationSelected, availableSuppliers);
 
     const params = {
       combinationId: item.id,
@@ -97,7 +106,7 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
             const result = await confirmPremiumOrder({
               token: await getToken(),
               selectedRestaurant,
-              deliveryDate: deliveryDate,
+              deliveryDate,
             });
 
             if (result.status === HttpStatusCode.Ok) {
@@ -126,7 +135,11 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
     );
   }
 
-  if (myCombinations.length === 0 && conectarCombinations.length === 0 && unavailableCombinations.length === 0) {
+  if (
+    myCombinations.length === 0 &&
+    conectarCombinations.length === 0 &&
+    unavailableCombinations.length === 0
+  ) {
     return (
       <View flex={1} justifyContent="center" alignItems="center" padding={20}>
         <CustomSubtitle>
@@ -178,7 +191,8 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
             terminationCondition={item.terminationCondition}
             tooltip={
               !validateUuid(item.id) && !!unavailableCombinations.includes(item)
-                ? 'A falta de fornecedores pode acontecer devido ao horário do seu pedido ou à região de entrega.'
+                ? // eslint-disable-next-line max-len
+                  'A falta de fornecedores pode acontecer devido ao horário do seu pedido ou à região de entrega.'
                 : undefined
             }
             onPress={() => handleCombinationPress(item)}
@@ -196,15 +210,4 @@ const CombinationList: React.FC<CombinationListProps> = ({ handleConfirm }) => {
       />
     </>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContentContainer: {
-    paddingBottom: 100,
-  },
-});
-
-export default CombinationList;
+}
