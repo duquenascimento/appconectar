@@ -1,6 +1,4 @@
-import { deleteStorage, getStorage, setStorage } from './utils';
-
-const PENDING_INVITE_CODE_KEY = 'pendingInviteCode';
+import { deleteStorage, getStorage, PENDING_INVITE_CODE_KEY, setStorage } from './utils';
 
 export async function capturePendingInviteCode(code: string): Promise<void> {
   await setStorage(PENDING_INVITE_CODE_KEY, code);

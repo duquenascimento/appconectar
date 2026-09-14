@@ -4,7 +4,7 @@ import { authSignUp } from '@/src/services/authService';
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { UserRole } from '@/src/types/userRoleTypes';
 import { SignUpRequest } from '@/src/types/userTypes';
-import { capturePendingInviteCode, getPendingInviteCode } from '@/src/utils/inviteCode';
+import { getPendingInviteCode } from '@/src/utils/inviteCode';
 import {
   validateEmail,
   validateName,
@@ -78,11 +78,9 @@ export async function handleRegister(
       ...(pendingInviteCode ? { inviteCode: pendingInviteCode } : {}),
     });
 
+    // clearStoragesAndSaveCurrentVersion() preserva o pendingInviteCode sozinho
+    // (ver clearAllStoragesData em utils.ts) — não precisa recapturar aqui.
     await clearStoragesAndSaveCurrentVersion();
-
-    if (pendingInviteCode) {
-      await capturePendingInviteCode(pendingInviteCode);
-    }
 
     await saveLogin(response.data.token, response.data.role);
 

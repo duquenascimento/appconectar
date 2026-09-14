@@ -10,6 +10,15 @@ enum SECURE_STORE_KEYS {
   TOKEN = 'token',
 }
 
+// Sinal transitório de "código de indicação capturado, aguardando ser aplicado
+// ao cadastro" (ver src/utils/inviteCode.ts). Precisa sobreviver a QUALQUER
+// limpeza de storage disparada entre a captura (useAuthGuard, ao abrir um link
+// de indicação) e o consumo (register.tsx initData) — por isso é preservado
+// explicitamente dentro de clearAllStoragesData, e não apenas nos pontos que
+// hoje sabemos que limpam storage no meio desse fluxo (mais deles podem
+// aparecer no futuro).
+export const PENDING_INVITE_CODE_KEY = 'pendingInviteCode';
+
 const REGISTER_KEYS = [
   'document',
   'stateNumberId',
@@ -135,5 +144,11 @@ export const clearPurchaseStorage = async (): Promise<void> => {
 };
 
 export const clearAllStoragesData = async (): Promise<void> => {
+  const pendingInviteCode = await getStorage(PENDING_INVITE_CODE_KEY);
+
   await Promise.all([clearStorage(), clearSecureStorage()]).catch(async () => {});
+
+  if (pendingInviteCode) {
+    await setStorage(PENDING_INVITE_CODE_KEY, pendingInviteCode);
+  }
 };

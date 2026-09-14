@@ -11,7 +11,6 @@ import { authLoginCheck, authSignIn } from '@/src/services/authService';
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { UserRole } from '@/src/types/userRoleTypes';
 import { SignInRequest } from '@/src/types/userTypes';
-import { capturePendingInviteCode, getPendingInviteCode } from '@/src/utils/inviteCode';
 import { clearAllStoragesData, getToken } from '@/src/utils/utils';
 import { validateEmail, validatePassword } from '@/src/utils/validateFields';
 
@@ -44,15 +43,12 @@ async function handleLogin(
       email: email.toLowerCase(),
       password,
     } as SignInRequest;
-    const pendingInviteCode = await getPendingInviteCode();
 
     const response = await authSignIn(signInData);
 
+    // clearStoragesAndSaveCurrentVersion() preserva um pendingInviteCode
+    // eventualmente capturado antes do login (ver clearAllStoragesData em utils.ts).
     await clearStoragesAndSaveCurrentVersion();
-
-    if (pendingInviteCode) {
-      await capturePendingInviteCode(pendingInviteCode);
-    }
 
     await saveLogin(response.data.token, response.data.role);
 
