@@ -66,4 +66,49 @@ describe('handleRegister — preservação do código de indicação pendente', 
 
     await expect(getPendingInviteCode()).resolves.toBeNull();
   });
+
+  it('envia o pendingInviteCode como "inviteCode" no payload de /auth/signup (CH-754)', async () => {
+    await capturePendingInviteCode('ABC12');
+
+    mockedAuthSignUp.mockResolvedValue({
+      data: { token: 'token-123', role: ['registering'] },
+    });
+
+    await handleRegister(
+      'Nome Teste',
+      'Gerente',
+      '(21) 99999-9999',
+      'teste3@indicacao.com',
+      'Senha@123',
+      registerInvalid,
+      setLoading,
+      setErros,
+      saveLogin,
+    );
+
+    expect(mockedAuthSignUp).toHaveBeenCalledWith(
+      expect.objectContaining({ inviteCode: 'ABC12' }),
+    );
+  });
+
+  it('não envia inviteCode no payload quando não há código pendente', async () => {
+    mockedAuthSignUp.mockResolvedValue({
+      data: { token: 'token-123', role: ['registering'] },
+    });
+
+    await handleRegister(
+      'Nome Teste',
+      'Gerente',
+      '(21) 99999-9999',
+      'teste4@indicacao.com',
+      'Senha@123',
+      registerInvalid,
+      setLoading,
+      setErros,
+      saveLogin,
+    );
+
+    const sentPayload = mockedAuthSignUp.mock.calls[0][0];
+    expect(sentPayload).not.toHaveProperty('inviteCode');
+  });
 });

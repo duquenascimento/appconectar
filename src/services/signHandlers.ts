@@ -73,7 +73,10 @@ export async function handleRegister(
 
     const pendingInviteCode = await getPendingInviteCode();
 
-    const response = await authSignUp(signUpData);
+    const response = await authSignUp({
+      ...signUpData,
+      ...(pendingInviteCode ? { inviteCode: pendingInviteCode } : {}),
+    });
 
     await clearStoragesAndSaveCurrentVersion();
 

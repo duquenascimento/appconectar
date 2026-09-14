@@ -54,21 +54,13 @@ export default function Cadastro() {
     router.replace('/');
   };
 
-  const welcomeBanner = indicacao ? (
-    <YStack width="100%" alignItems="center" paddingTop={24} paddingHorizontal={24}>
-      <Text fontSize="$7" fontWeight="$10" textAlign="center">
-        {promoterName ? `Você foi indicado por ${promoterName}!` : 'Você foi indicado por um promotor Conéctar!'}
-      </Text>
-    </YStack>
-  ) : null;
-
   return (
     <Stack backgroundColor="$background" height="100%">
       {Platform.OS === 'web' ? (
         <View height="100%">
-          {welcomeBanner}
           <SignUpWeb
             page="SignUp"
+            promoterName={promoterName}
             positionOptions={positionOptions}
             onRegisterPress={handleRegister}
             onButtonPress={handleButtonPress}
@@ -81,7 +73,6 @@ export default function Cadastro() {
           style={{ flex: 1 }}
         >
           <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
-            {welcomeBanner}
             <SignUpMobile
               page="SignUp"
               positionOptions={positionOptions}

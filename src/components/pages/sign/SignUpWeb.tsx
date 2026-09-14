@@ -12,6 +12,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 export function SignUpWeb(props: {
   page: string;
   positionOptions: { label: string; value: string }[];
+  promoterName?: string;
   onButtonPress: (page: string) => void;
   onRegisterPress: (
     name: string,
@@ -45,6 +46,19 @@ export function SignUpWeb(props: {
   const [loading, setLoading] = useState(false);
   const { saveLogin } = useAuthContext();
 
+  const welcomeBanner = props.promoterName ? (
+      <YStack width="100%" alignItems="center" paddingTop={24} paddingHorizontal={24}>
+        <Text
+          data-testid="cadastro-banner-indicacao"
+          fontSize="$7"
+          fontWeight="$10"
+          textAlign="center"
+        >
+          {props.promoterName ? `Você foi indicado por ${props.promoterName}!` : 'Você foi indicado por um promotor Conéctar!'}
+        </Text>
+      </YStack>
+    ) : null;
+
   if (loading) {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
@@ -70,7 +84,7 @@ export function SignUpWeb(props: {
         />
       )}
 
-      <Stack width="$20">
+      <Stack width="$20" alignItems="center" marginBottom="$3.5">
         <Text fontSize="$8">Criar conta</Text>
         <Text color="$gray10Dark">Preencha com os seus dados abaixo:</Text>
       </Stack>
@@ -87,6 +101,7 @@ export function SignUpWeb(props: {
         zIndex={20}
       >
         <Input
+          data-testid="cadastro-input-nome"
           placeholder="Nome"
           onChangeText={(e) => {
             setName(e);
@@ -113,6 +128,7 @@ export function SignUpWeb(props: {
         zIndex={30}
       >
         <DropDownPicker
+          testID="cadastro-select-cargo"
           open={open}
           value={position}
           items={positionItems}
@@ -152,6 +168,7 @@ export function SignUpWeb(props: {
         }}
       >
         <TextInputMask
+          testID="cadastro-input-telefone"
           type="cel-phone"
           options={{
             maskType: 'BRL',
@@ -192,6 +209,7 @@ export function SignUpWeb(props: {
         zIndex={20}
       >
         <Input
+          data-testid="cadastro-input-email"
           autoCapitalize="none"
           placeholder="Email"
           onChangeText={(email) => {
@@ -229,6 +247,7 @@ export function SignUpWeb(props: {
         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
       >
         <Input
+          data-testid="cadastro-input-senha"
           autoCapitalize="none"
           placeholder="Senha"
           backgroundColor="$colorTransparent"
@@ -274,6 +293,7 @@ export function SignUpWeb(props: {
         hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
       >
         <Input
+          data-testid="cadastro-input-confirmar-senha"
           autoCapitalize="none"
           placeholder="Confirmar senha"
           backgroundColor="$colorTransparent"
@@ -299,7 +319,8 @@ export function SignUpWeb(props: {
       </XStack>
 
       <Button
-        onPress={() => 
+        data-testid="cadastro-botao-cadastrar"
+        onPress={() =>
           props.onRegisterPress(
             name,
             position,
@@ -335,9 +356,12 @@ export function SignUpWeb(props: {
             'https://www.conectarhortifruti.com.br/termos/politica-de-privacidade',
           ).catch((err) => console.error('Erro ao abrir URL:', err));
         }}
-      >
+        >
         Politica de privacidade
       </Text>
+      
+      {welcomeBanner}
+
 
       <XStack marginTop="$6" borderColor="$gray7Light" borderWidth={1} borderRadius={9} width="$20">
         <Button

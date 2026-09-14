@@ -2,6 +2,7 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import { ClearedVersionCheck, VersionCheck } from '../types/versionTypes';
 import { getStorageRestaurant } from '../utils/restaurantUtils';
+import { capturePendingInviteCode, getPendingInviteCode } from '../utils/inviteCode';
 import {
   clearAllStoragesData,
   getStorage,
@@ -65,8 +66,17 @@ export const checkLocalVersionAndClearData = async (): Promise<ClearedVersionChe
     const savedVersion = await getStorage(STORAGE_DEFAULT_KEYS.EXPO_APP_VERSION);
 
     if (!savedVersion) {
+      // O código de indicação pode ter acabado de ser capturado da URL (?indicacao=CODIGO)
+      // pelo useAuthGuard, no mesmo carregamento em que esta limpeza de primeiro acesso
+      // acontece — preservar para não perder a indicação de um cliente novo.
+      const pendingInviteCode = await getPendingInviteCode();
+
       await clearAllStoragesData();
       await setStorage(STORAGE_DEFAULT_KEYS.EXPO_APP_VERSION, EXPO_APP_VERSION);
+
+      if (pendingInviteCode) {
+        await capturePendingInviteCode(pendingInviteCode);
+      }
 
       return { ...defaultResult, cleared: true };
     }

@@ -16,6 +16,7 @@ export function InviteCodeField(props: { value?: string }) {
         padding={10}
       >
         <Input
+          data-testid="invite-code-field"
           value={props.value}
           disabled
           opacity={0.5}
