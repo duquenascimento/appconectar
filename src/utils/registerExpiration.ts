@@ -1,4 +1,4 @@
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
+export const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 export function isRegistrationExpired(
   createdAt: string | Date | undefined | null,

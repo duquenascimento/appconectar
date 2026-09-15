@@ -1,6 +1,4 @@
-import { isRegistrationExpired } from './registerExpiration';
-
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
+import { isRegistrationExpired, DAY_IN_MS } from './registerExpiration';
 
 describe('isRegistrationExpired', () => {
   it('retorna false quando não há data de criação', () => {
