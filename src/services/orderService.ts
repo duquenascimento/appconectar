@@ -1,5 +1,5 @@
-import type { ConectarPlusSupplier } from '@/app/quotationDetailsScreen';
 import axios, { HttpStatusCode } from 'axios';
+import type { ConectarPlusSupplier } from '@/app/quotationDetailsScreen';
 import { CombinationMissingProducts } from '../types/combinationTypes';
 import { CancelationOrderErrorKind, CancelOrderResult } from '../types/cancelOrderTypes';
 import { getToken } from '../utils/utils';
@@ -8,7 +8,13 @@ import { Supplier } from '../types/types';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-export const getOrders = async (page = 1, limit = 200, restaurantId: string): Promise<OrderHistory[]> => {
+const apiClient = axios.create({ baseURL: API_URL, timeout: 30000 });
+
+export const getOrders = async (
+  page = 1,
+  limit = 200,
+  restaurantId: string,
+): Promise<OrderHistory[]> => {
   try {
     const response = await axios.get(`${API_URL}/orders/filter`, {
       headers: { Authorization: `Bearer ${await getToken()}` },
@@ -32,9 +38,12 @@ export const getOrder = async (orderId: string) => {
       throw new Error('Pedido selecionado não encontrado.');
     }
 
-    const response = await axios.get<{status: number, data: OrderData}>(`${API_URL}/orders/${orderId}`, {
-      headers: { Authorization: `Bearer ${await getToken()}` },
-    });
+    const response = await axios.get<{ status: number; data: OrderData }>(
+      `${API_URL}/orders/${orderId}`,
+      {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+      },
+    );
     return response.data;
   } catch (error) {
     console.error('Erro ao buscar pedido:', error);
@@ -107,11 +116,20 @@ export interface ConfirmOrderResponse {
   paymentWay: string;
 }
 
-export const confirmOrder = async (body: ConfirmOrderRequestBody): Promise<{status: number, data: ConfirmOrderResponse}> => {
+export const confirmOrder = async (
+  body: ConfirmOrderRequestBody,
+): Promise<{ status: number; data: ConfirmOrderResponse }> => {
   try {
-    const response = await axios.post<{status: number, data: ConfirmOrderResponse}>(`${API_URL}/confirm`, body, {
-      headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
-    });
+    const response = await apiClient.post<{ status: number; data: ConfirmOrderResponse }>(
+      '/confirm',
+      body,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${await getToken()}`,
+        },
+      },
+    );
     return response.data;
   } catch (error) {
     console.error('Erro ao confirmar pedido:', error);
@@ -127,8 +145,8 @@ export interface ConfirmPremiumOrderRequestBody {
 
 export const confirmPremiumOrder = async (body: ConfirmPremiumOrderRequestBody) => {
   try {
-    const response = await axios.post(`${API_URL}/confirm/premium`, body, {
-      headers: { 'Content-Type': 'application/json',  Authorization: `Bearer ${await getToken()}` },
+    const response = await apiClient.post('/confirm/premium', body, {
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` },
     });
     return response;
   } catch (error) {
@@ -149,7 +167,7 @@ export interface ConfirmConectarPlusOrderRequestBody {
 
 export const confirmConectarPlusOrder = async (body: ConfirmConectarPlusOrderRequestBody) => {
   try {
-    const response = await axios.post(`${API_URL}/confirm/conectar-plus`, body, {
+    const response = await apiClient.post('/confirm/conectar-plus', body, {
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${await getToken()}` },
     });
     return response;

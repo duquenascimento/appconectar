@@ -270,6 +270,7 @@ export default function OrdersScreen() {
       </TouchableOpacity>
 
       <FlatList
+        testID="lista-pedidos"
         style={{
           width: isLargeScreen ? '50%' : '92%',
           alignSelf: 'center',

@@ -1,10 +1,10 @@
-import { AxiosError } from "axios";
+import { AxiosError } from 'axios';
 
 export class ApiException extends Error {
-   public readonly statusCode: number;
-   public readonly error: any;
-  
-  constructor( message: string, status: number, error?: any) {
+  public readonly statusCode: number;
+  public readonly error: any;
+
+  constructor(message: string, status: number, error?: any) {
     super(message);
     this.statusCode = status;
     this.error = error;
@@ -16,7 +16,7 @@ export class ApiException extends Error {
   }
 
   toString() {
-    return `API Exception: Error ${this.statusCode} - ${this.message}`
+    return `API Exception: Error ${this.statusCode} - ${this.message}`;
   }
 }
 
@@ -29,13 +29,15 @@ export function handleHttpException(error: any): Error {
 export function extractErrorMessage(error: any, defaultMessage?: string): string {
   let message: string | undefined;
 
-  if(error instanceof AxiosError) {
-    if (error.response) {
+  if (error instanceof AxiosError) {
+    if (error.code === 'ECONNABORTED' || error.message?.toLowerCase().includes('timeout')) {
+      message = 'Tempo limite excedido. Verifique sua conexão e tente novamente.';
+    } else if (error.response) {
       message = error.response.data.msg ?? error.response.data.message;
     } else {
-      message = error.message
+      message = error.message;
     }
-  } else if(error instanceof Error) {
+  } else if (error instanceof Error) {
     message = error.message;
   }
 

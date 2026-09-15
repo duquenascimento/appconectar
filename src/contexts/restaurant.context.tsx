@@ -93,20 +93,15 @@ export function RestaurantProvider({ children }: { children: ReactNode }) {
 
         setRestaurants(fetchedRestaurants);
 
-        let newSelectedRestaurant = currentRestaurant ?? selectedRestaurant;
+        const stored = await getStorageRestaurant();
+        const targetExternalId =
+          currentRestaurant?.externalId ?? selectedRestaurant?.externalId ?? stored?.externalId;
 
-        if (newSelectedRestaurant !== null && fetchedRestaurants.length > 0) {
-          const listRestaurant = fetchedRestaurants.find(
-            (r) => r.externalId === newSelectedRestaurant?.externalId,
-          );
-          if (listRestaurant) {
-            newSelectedRestaurant = listRestaurant;
-          }
-        } else {
-          const stored = await getStorageRestaurant();
-          const storedRestaurant = stored ?? fetchedRestaurants[0];
-          newSelectedRestaurant = storedRestaurant;
-        }
+        const freshMatch = targetExternalId
+          ? fetchedRestaurants.find((r) => r.externalId === targetExternalId)
+          : undefined;
+
+        const newSelectedRestaurant = freshMatch ?? fetchedRestaurants[0];
 
         await saveRestaurant(newSelectedRestaurant);
         await initializeDeliveryDates(newSelectedRestaurant.id);
