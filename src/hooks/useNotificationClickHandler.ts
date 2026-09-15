@@ -1,12 +1,15 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
+import { PushNotificationData } from '../types/pushTypes';
+import { parsePushNotificationData } from '../utils/pushNotificationData';
+
 interface UseNotificationClickHandlerParams {
-  onNotificationChannelId: (channelId: string) => void | Promise<void>;
+  onNotificationData: (data: PushNotificationData) => void | Promise<void>;
 }
 
 export function useNotificationClickHandler({
-  onNotificationChannelId,
+  onNotificationData,
 }: UseNotificationClickHandlerParams) {
   useEffect(() => {
     if (Platform.OS !== 'web') {
@@ -22,15 +25,17 @@ export function useNotificationClickHandler({
     }
 
     function handleMessage(event: MessageEvent) {
-      const { data } = event;
-
-      const channelId = data?.payload?.channelId || data?.channelId || data?.data?.channelId;
-
-      if (!channelId) {
+      if (event.data?.type !== 'NOTIFICATION_CLICK') {
         return;
       }
 
-      onNotificationChannelId(channelId);
+      const notificationData = parsePushNotificationData(event.data?.payload);
+
+      if (!notificationData) {
+        return;
+      }
+
+      onNotificationData(notificationData);
     }
 
     navigator.serviceWorker.addEventListener('message', handleMessage);
@@ -38,5 +43,5 @@ export function useNotificationClickHandler({
     return () => {
       navigator.serviceWorker.removeEventListener('message', handleMessage);
     };
-  }, [onNotificationChannelId]);
+  }, [onNotificationData]);
 }

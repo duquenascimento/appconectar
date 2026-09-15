@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Platform } from 'react-native';
 
-import { registerPushWithSocket } from '../services/registerPushWithSocket';
-import { WebPushRegisterPayload, WebPushSubscriptionPayload } from '../types/chatTypes';
+import { registerPushSubscription } from '../services/pushNotificationService';
+import { WebPushRegisterPayload, WebPushSubscriptionPayload } from '../types/pushTypes';
 import { getCurrentDeviceId, getWebPushSyncState, markWebPushAsSynced } from '../utils/pushStorage';
 import {
   getWebPushPublicKey,
@@ -174,10 +174,10 @@ export function useWebPushRegistration({
         return;
       }
 
-      await registerPushWithSocket(payload);
+      await registerPushSubscription(payload);
       markWebPushAsSynced(payload);
-    } catch {
-      // no-op: nenhuma ação é executada
+    } catch (error) {
+      console.log('Erro ao sincronizar Web Push:', error);
     } finally {
       isSyncingRef.current = false;
     }

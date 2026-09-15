@@ -5,11 +5,7 @@ import { useRestaurantContext } from '../contexts/restaurant.context';
 import { useMobilePushRegistration } from './useMobilePushRegistration';
 import { useWebPushRegistration } from './useWebPushRegistration';
 
-interface UsePushRegistrationParams {
-  isConnected: boolean;
-}
-
-export function usePushRegistration({ isConnected }: UsePushRegistrationParams): void {
+export function usePushRegistration(): void {
   const { getTokenPayload } = useAuthContext();
   const { restaurants } = useRestaurantContext();
   const [userId, setUserId] = useState<string | null>(null);
@@ -23,13 +19,6 @@ export function usePushRegistration({ isConnected }: UsePushRegistrationParams):
     let isMounted = true;
 
     async function loadUserId() {
-      if (!isConnected) {
-        if (isMounted) {
-          setUserId(null);
-        }
-        return;
-      }
-
       try {
         const tokenPayload = await getTokenPayload();
 
@@ -54,9 +43,9 @@ export function usePushRegistration({ isConnected }: UsePushRegistrationParams):
     return () => {
       isMounted = false;
     };
-  }, [getTokenPayload, isConnected]);
+  }, [getTokenPayload]);
 
-  const registrationEnabled = isConnected && Boolean(userId) && channelIds.length > 0;
+  const registrationEnabled = Boolean(userId) && channelIds.length > 0;
 
   useMobilePushRegistration({
     enabled: registrationEnabled,

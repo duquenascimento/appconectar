@@ -2,7 +2,6 @@ import { Slot, useRouter, usePathname } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ChatProvider } from '../../src/contexts/chat.context';
 import { useRestaurantContext } from '../../src/contexts/restaurant.context';
-import { useChatConnection } from '../../src/hooks/useChatConnection';
 import { usePushRegistration } from '../../src/hooks/usePushRegistration';
 import { useNotificationClickHandler } from '../../src/hooks/useNotificationClickHandler';
 import { useInitialNotificationUrlHandler } from '../../src/hooks/useInitialNotificationUrlHandler';
@@ -12,6 +11,7 @@ import { chatSocket } from '../../src/services/chatSocketService';
 import { useActiveChannelResponder } from '../../src/hooks/useActiveChannelResponder';
 // eslint-disable-next-line max-len
 import { useMobileNotificationPresentationState } from '../../src/services/useMobileNotificationPresentationState';
+import { PushNotificationData } from '../../src/types/pushTypes';
 // import { ChatProvider } from '../../src/contexts/chat.context';
 
 function LayoutContent() {
@@ -20,17 +20,11 @@ function LayoutContent() {
 
   const { handleRestaurantChange, restaurants, selectedRestaurant } = useRestaurantContext();
 
-  const { isConnected } = useChatConnection();
-
-  const [pendingNotificationChannelId, setPendingNotificationChannelId] = useState<string | null>(
-    null,
-  );
+  const [pendingNotification, setPendingNotification] = useState<PushNotificationData | null>(null);
 
   const isProcessingNotificationRef = useRef(false);
 
-  usePushRegistration({
-    isConnected,
-  });
+  usePushRegistration();
 
   const isChatScreen = pathname === '/chat';
 
@@ -44,35 +38,28 @@ function LayoutContent() {
     activeChannelId: activeNotificationChannelId,
   });
 
-  const handleNotificationChannelId = useCallback(async (channelId: string) => {
-    if (!channelId) {
+  const handleNotificationData = useCallback((data: PushNotificationData) => {
+    if (!data?.channelId) {
       return;
     }
 
-    setPendingNotificationChannelId(channelId);
+    setPendingNotification(data);
   }, []);
 
   useNotificationClickHandler({
-    onNotificationChannelId: handleNotificationChannelId,
+    onNotificationData: handleNotificationData,
   });
 
   useInitialNotificationUrlHandler({
-    onNotificationChannelId: handleNotificationChannelId,
+    onNotificationData: handleNotificationData,
   });
 
-  const handleMobileNotification = useCallback(
-    async ({ channelId }: { channelId: string }) => {
-      await handleNotificationChannelId(channelId);
-    },
-    [handleNotificationChannelId],
-  );
-
   useMobileNotificationClickHandler({
-    onOpenChat: handleMobileNotification,
+    onNotificationOpen: handleNotificationData,
   });
 
   useEffect(() => {
-    if (!pendingNotificationChannelId) {
+    if (!pendingNotification) {
       return;
     }
 
@@ -84,20 +71,22 @@ function LayoutContent() {
       return;
     }
 
-    const restaurant = restaurants.find((item) => item.id === pendingNotificationChannelId);
+    const restaurant = restaurants.find((item) => item.id === pendingNotification.channelId);
 
     if (!restaurant) {
-      setPendingNotificationChannelId(null);
+      setPendingNotification(null);
       return;
     }
 
     isProcessingNotificationRef.current = true;
 
     const previousRestaurantId = selectedRestaurant?.id;
+    const notification = pendingNotification;
+    const targetRestaurant = restaurant;
 
     async function processNotification() {
       try {
-        if (previousRestaurantId !== restaurant.id) {
+        if (previousRestaurantId !== targetRestaurant.id) {
           if (chatSocket.connected && previousRestaurantId) {
             chatSocket.emit('leave_chat', {
               channelId: previousRestaurantId,
@@ -105,27 +94,28 @@ function LayoutContent() {
             });
           }
 
-          await handleRestaurantChange(restaurant);
+          await handleRestaurantChange(targetRestaurant);
         }
 
-        router.navigate('/chat');
+        if (notification.type === 'order_confirmed') {
+          router.navigate({
+            pathname: '/orderDetailsScreen',
+            params: { orderId: notification.orderId },
+          });
+        } else {
+          router.navigate('/chat');
+        }
 
-        setPendingNotificationChannelId(null);
+        setPendingNotification(null);
       } catch {
-        setPendingNotificationChannelId(null);
+        setPendingNotification(null);
       } finally {
         isProcessingNotificationRef.current = false;
       }
     }
 
     void processNotification();
-  }, [
-    pendingNotificationChannelId,
-    restaurants,
-    selectedRestaurant?.id,
-    handleRestaurantChange,
-    router,
-  ]);
+  }, [pendingNotification, restaurants, selectedRestaurant?.id, handleRestaurantChange, router]);
 
   return <Slot />;
 }

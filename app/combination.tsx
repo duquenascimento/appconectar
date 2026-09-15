@@ -1,3 +1,9 @@
+import { useRoute } from '@react-navigation/native';
+import { router } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Platform } from 'react-native';
+import { Button, ScrollView, View, XStack, YStack } from 'tamagui';
+import * as Yup from 'yup';
 import { useCombinacao } from '@/src/contexts/combinacao.context';
 import { useCombinationSuppliers } from '@/src/contexts/combination-suppliers.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
@@ -5,12 +11,6 @@ import { getMaxSpecificSuppliersNumber } from '@/src/services/restaurantService'
 import { ComboOption } from '@/src/types/componentTypes';
 import { mapMaxSpecificSuppliers } from '@/src/utils/mapMaxSpecificSuppliers';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
-import { useRoute } from '@react-navigation/native';
-import { router } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Platform } from 'react-native';
-import { Button, ScrollView, View, XStack, YStack } from 'tamagui';
-import * as Yup from 'yup';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
 import { BloqueioFornecedoresCampo } from '../src/components/Combination/BloqueioFornecedores';
@@ -130,8 +130,7 @@ export function Combination(): JSX.Element {
     setAlertTitle('Atenção');
     setAlertMessage(
       'Alguns dos fornecedores nesta preferência não estão mais disponíveis, ' +
-        'verifique os fornecedores a seguir:\n\n' +
-        formatSupplierNames(unavailableSupplierNames),
+        `verifique os fornecedores a seguir:\n\n${formatSupplierNames(unavailableSupplierNames)}`,
     );
     setIsAlertVisible(true);
   }, [id, loadingSuppliers, getUnavailableSelectedSuppliersBySection, formatSupplierNames]);

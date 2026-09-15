@@ -2,45 +2,22 @@ import { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
-export interface ChatNotificationData {
-  type: 'chat_message';
-  channelType: 'restaurant' | 'supplier';
-  channelId: string;
-}
+import { PushNotificationData } from '../types/pushTypes';
+import { parsePushNotificationData } from '../utils/pushNotificationData';
 
 interface UseMobileNotificationClickHandlerParams {
-  onOpenChat: (data: ChatNotificationData) => void | Promise<void>;
-}
-
-function parseChatNotificationData(data: Record<string, unknown>): ChatNotificationData | null {
-  if (data.type !== 'chat_message') {
-    return null;
-  }
-
-  if (data.channelType !== 'restaurant' && data.channelType !== 'supplier') {
-    return null;
-  }
-
-  if (typeof data.channelId !== 'string' || !data.channelId.trim()) {
-    return null;
-  }
-
-  return {
-    type: 'chat_message',
-    channelType: data.channelType,
-    channelId: data.channelId.trim(),
-  };
+  onNotificationOpen: (data: PushNotificationData) => void | Promise<void>;
 }
 
 export function useMobileNotificationClickHandler({
-  onOpenChat,
+  onNotificationOpen,
 }: UseMobileNotificationClickHandlerParams): void {
-  const onOpenChatRef = useRef(onOpenChat);
+  const onNotificationOpenRef = useRef(onNotificationOpen);
   const handledNotificationIdsRef = useRef(new Set<string>());
 
   useEffect(() => {
-    onOpenChatRef.current = onOpenChat;
-  }, [onOpenChat]);
+    onNotificationOpenRef.current = onNotificationOpen;
+  }, [onNotificationOpen]);
 
   useEffect(() => {
     if (Platform.OS === 'web') {
@@ -60,14 +37,14 @@ export function useMobileNotificationClickHandler({
         return;
       }
 
-      const notificationData = parseChatNotificationData(
+      const notificationData = parsePushNotificationData(
         response.notification.request.content.data,
       );
 
       if (!notificationData) {
         console.log({
-          code: 'INVALID_CHAT_NOTIFICATION_DATA',
-          message: 'Dados da notificação de chat são inválidos.',
+          code: 'INVALID_PUSH_NOTIFICATION_DATA',
+          message: 'Dados da notificação push são inválidos.',
         });
         return;
       }
@@ -75,7 +52,7 @@ export function useMobileNotificationClickHandler({
       handledNotificationIdsRef.current.add(notificationId);
 
       try {
-        await onOpenChatRef.current(notificationData);
+        await onNotificationOpenRef.current(notificationData);
         await Notifications.clearLastNotificationResponseAsync();
       } catch (error) {
         handledNotificationIdsRef.current.delete(notificationId);

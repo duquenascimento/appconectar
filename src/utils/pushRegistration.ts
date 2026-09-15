@@ -1,10 +1,10 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
-import { UserType } from '../types/chatTypes';
+import { UserType } from '../types/pushTypes';
 
 export const PUSH_SYNC_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
 export const WEB_PUSH_SERVICE_WORKER_PATH = '/service-worker.js';
-export const ANDROID_CHAT_NOTIFICATION_CHANNEL_ID = 'chat-messages';
+export const ANDROID_PUSH_NOTIFICATION_CHANNEL_ID = 'chat-messages';
 
 export type PushUserType = 'restaurant' | 'supplier';
 export type PushChannelType = 'restaurant' | 'supplier';

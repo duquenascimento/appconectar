@@ -1,12 +1,23 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
+import { PushNotificationData } from '../types/pushTypes';
+import { parsePushNotificationData } from '../utils/pushNotificationData';
+
 interface UseInitialNotificationUrlHandlerParams {
-  onNotificationChannelId: (channelId: string) => void | Promise<void>;
+  onNotificationData: (data: PushNotificationData) => void | Promise<void>;
 }
 
+const NOTIFICATION_QUERY_PARAMS = [
+  'notificationChannelId',
+  'notificationChannelType',
+  'notificationType',
+  'notificationOrderId',
+  'notificationMessageId',
+];
+
 export function useInitialNotificationUrlHandler({
-  onNotificationChannelId,
+  onNotificationData,
 }: UseInitialNotificationUrlHandlerParams) {
   useEffect(() => {
     if (Platform.OS !== 'web') {
@@ -24,9 +35,19 @@ export function useInitialNotificationUrlHandler({
       return undefined;
     }
 
-    onNotificationChannelId(channelId);
+    const notificationData = parsePushNotificationData({
+      channelId,
+      channelType: params.get('notificationChannelType'),
+      type: params.get('notificationType'),
+      orderId: params.get('notificationOrderId'),
+      messageId: params.get('notificationMessageId'),
+    });
 
-    params.delete('notificationChannelId');
+    if (notificationData) {
+      onNotificationData(notificationData);
+    }
+
+    NOTIFICATION_QUERY_PARAMS.forEach((param) => params.delete(param));
 
     const newSearch = params.toString();
 
@@ -35,5 +56,5 @@ export function useInitialNotificationUrlHandler({
     window.history.replaceState({}, '', newUrl);
 
     return undefined;
-  }, [onNotificationChannelId]);
+  }, [onNotificationData]);
 }

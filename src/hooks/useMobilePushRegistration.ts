@@ -2,15 +2,15 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
-import { registerPushWithSocket } from '../services/registerPushWithSocket';
-import { ExpoPushRegisterPayload, NativePushPlatform } from '../types/chatTypes';
+import { registerPushSubscription } from '../services/pushNotificationService';
+import { ExpoPushRegisterPayload, NativePushPlatform } from '../types/pushTypes';
 import {
   getCurrentDeviceId,
   getExpoPushSyncState,
   markExpoPushAsSynced,
 } from '../utils/pushStorage';
 import {
-  ANDROID_CHAT_NOTIFICATION_CHANNEL_ID,
+  ANDROID_PUSH_NOTIFICATION_CHANNEL_ID,
   getExpoProjectId,
   isLastSyncExpired,
   isNativePushPlatform,
@@ -33,7 +33,7 @@ async function configureAndroidNotificationChannel(): Promise<void> {
     return;
   }
 
-  await Notifications.setNotificationChannelAsync(ANDROID_CHAT_NOTIFICATION_CHANNEL_ID, {
+  await Notifications.setNotificationChannelAsync(ANDROID_PUSH_NOTIFICATION_CHANNEL_ID, {
     name: 'Mensagens do chat',
     importance: Notifications.AndroidImportance.MAX,
     vibrationPattern: [0, 250, 250, 250],
@@ -170,7 +170,7 @@ export function useMobilePushRegistration({
           }
         }
 
-        await registerPushWithSocket(payload);
+        await registerPushSubscription(payload);
         await markExpoPushAsSynced(payload);
 
         console.log({

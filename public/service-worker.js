@@ -197,6 +197,11 @@ self.addEventListener('push', function (event) {
           ? 'supplier'
           : 'restaurant';
 
+      const notificationType =
+        typeof payloadData.type === 'string'
+          ? payloadData.type
+          : 'notification';
+
       const shouldSuppress =
         await shouldSuppressNotification(
           notificationChannelId,
@@ -217,13 +222,13 @@ self.addEventListener('push', function (event) {
       const title =
         typeof payload.title === 'string'
           ? payload.title
-          : 'Nova mensagem';
+          : 'Nova notificação';
 
       const options = {
         body:
           typeof payload.body === 'string'
             ? payload.body
-            : 'Você recebeu uma nova mensagem no chat.',
+            : 'Você recebeu uma nova notificação.',
 
         icon:
           typeof payload.icon === 'string'
@@ -239,8 +244,8 @@ self.addEventListener('push', function (event) {
           typeof payload.tag === 'string'
             ? payload.tag
             : notificationChannelId
-              ? `chat-message:${notificationChannelId}`
-              : 'chat-message',
+              ? `${notificationType}:${notificationChannelId}`
+              : notificationType,
 
         renotify: true,
 
@@ -297,6 +302,21 @@ self.addEventListener(
         ? 'supplier'
         : 'restaurant';
 
+    const notificationType =
+      typeof notificationData.type === 'string'
+        ? notificationData.type
+        : 'chat_message';
+
+    const orderId =
+      typeof notificationData.orderId === 'string'
+        ? notificationData.orderId
+        : null;
+
+    const messageId =
+      typeof notificationData.messageId === 'string'
+        ? notificationData.messageId
+        : null;
+
     const targetPath =
       typeof notificationData.url === 'string'
         ? notificationData.url
@@ -317,6 +337,25 @@ self.addEventListener(
         'notificationChannelType',
         channelType,
       );
+
+      urlToOpen.searchParams.set(
+        'notificationType',
+        notificationType,
+      );
+
+      if (orderId) {
+        urlToOpen.searchParams.set(
+          'notificationOrderId',
+          orderId,
+        );
+      }
+
+      if (messageId) {
+        urlToOpen.searchParams.set(
+          'notificationMessageId',
+          messageId,
+        );
+      }
     }
 
     event.waitUntil(
@@ -358,6 +397,9 @@ self.addEventListener(
               payload: {
                 channelId,
                 channelType,
+                type: notificationType,
+                orderId,
+                messageId,
               },
             });
 
