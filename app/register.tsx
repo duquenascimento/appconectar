@@ -1,4 +1,5 @@
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
+import { InviteCodeField } from '@/src/components/pages/register/InviteCodeField';
 import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
@@ -6,7 +7,13 @@ import { loadProgress, saveStepData } from '@/src/services/registerProgressServi
 import { checkDocument, sendFullRegister } from '@/src/services/registerService';
 import { getErrorMessage } from '@/src/types/apiErrorTypes';
 import { formatDocument, isCnpjData, type DocumentType } from '@/src/utils/documentUtils';
+import {
+  clearPendingInviteCode,
+  getPendingInviteCode,
+  shouldResetForNewInvite,
+} from '@/src/utils/inviteCode';
 import { getPaymentDescription } from '@/src/utils/paymentUtils';
+import { isRegistrationExpired } from '@/src/utils/registerExpiration';
 import {
   step0Validation,
   step1Validation,
@@ -254,16 +261,43 @@ export default function Register() {
     setLoading(true);
     try {
       const progress = await loadProgress();
+      const pendingInviteCode = await getPendingInviteCode();
 
       if (progress && progress.roleUser === 'registering') {
-        formik.setValues(progress.values);
-        setStep(progress.step);
-        if (progress.values.document) {
-          const onlyNumbers = progress.values.document.replace(/\D/g, '');
-          if (onlyNumbers.length > 0) {
-            await handleDocumentTypeToggle(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ', false);
+        const tokenPayload = await getTokenPayload();
+        const expired = isRegistrationExpired(tokenPayload?.createdAt);
+        const inviteCodeChanged = shouldResetForNewInvite(
+          progress.values?.inviteCode,
+          pendingInviteCode,
+        );
+
+        if (expired || inviteCodeChanged) {
+          await clearRegisterProgress();
+          setStep(0);
+          const resetValues = {
+            ...formik.initialValues,
+            inviteCode: pendingInviteCode ?? '',
+          };
+          formik.resetForm({ values: resetValues });
+          // Persiste imediatamente para que initData() fique idempotente caso rode de novo
+          // (ex: remontagem da tela) antes do usuário avançar para o próximo step.
+          await saveStepData(resetValues, 0);
+        } else {
+          formik.setValues(progress.values);
+          setStep(progress.step);
+          if (progress.values.document) {
+            const onlyNumbers = progress.values.document.replace(/\D/g, '');
+            if (onlyNumbers.length > 0) {
+              await handleDocumentTypeToggle(onlyNumbers.length <= 11 ? 'CPF' : 'CNPJ', false);
+            }
+          }
+          if (pendingInviteCode) {
+            formik.setFieldValue('inviteCode', pendingInviteCode);
+            await saveStepData({ ...progress.values, inviteCode: pendingInviteCode }, progress.step);
           }
         }
+
+        await clearPendingInviteCode();
         return;
       }
 
@@ -326,12 +360,18 @@ export default function Register() {
         }
       });
 
+      if (pendingInviteCode) {
+        loadedValues.inviteCode = pendingInviteCode;
+      }
+
       formik.resetForm({
         values: {
           ...formik.initialValues,
           ...loadedValues,
         },
       });
+
+      await clearPendingInviteCode();
     } catch (error) {
       // Error loading stored data - continue with empty form
     } finally {
@@ -496,13 +536,13 @@ export default function Register() {
   };
 
   const daysOptions = [
-    { value: '1', label: '1 dia' },
-    { value: '2', label: '2 dias' },
-    { value: '3', label: '3 dias' },
-    { value: '4', label: '4 dias' },
-    { value: '5', label: '5 dias' },
-    { value: '6', label: '6 dias' },
-    { value: '7', label: '7 dias' },
+    { value: '1', label: '1 dia', testID: 'frequencia-opcao-1' },
+    { value: '2', label: '2 dias', testID: 'frequencia-opcao-2' },
+    { value: '3', label: '3 dias', testID: 'frequencia-opcao-3' },
+    { value: '4', label: '4 dias', testID: 'frequencia-opcao-4' },
+    { value: '5', label: '5 dias', testID: 'frequencia-opcao-5' },
+    { value: '6', label: '6 dias', testID: 'frequencia-opcao-6' },
+    { value: '7', label: '7 dias', testID: 'frequencia-opcao-7' },
   ];
 
   const onNeighChange = (value: string) => {
@@ -619,6 +659,7 @@ export default function Register() {
                   <>
                     <Text marginTop={15}>Nome na fachada da rua</Text>
                     <Input
+                      data-testid="register-input-nome-restaurante"
                       placeholder="Nome do restaurante"
                       onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
                       onBlur={formik.handleBlur('restaurantName')}
@@ -643,6 +684,7 @@ export default function Register() {
 
                 <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
                 <Input
+                  data-testid="register-input-documento"
                   placeholder={isCpf ? '000.000.000-00' : '00.000.000/0001-00'}
                   onChangeText={handleDocumentChange}
                   value={formik.values.document}
@@ -742,6 +784,7 @@ export default function Register() {
                       </Text>
                     </View>
                     <Input
+                      data-testid="register-input-inscricao-estadual"
                       onChangeText={(text) => formik.setFieldValue('stateNumberId', text)}
                       value={formik.values.stateNumberId}
                       disabled={formik.values.noStateNumberId}
@@ -816,6 +859,7 @@ export default function Register() {
                     </Text>
                   </View>
                   <Input
+                    data-testid="register-input-cep"
                     onBlur={() => formik.setFieldTouched('zipcode', true)}
                     onChangeText={cepChange}
                     placeholder="00000-000"
@@ -836,6 +880,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Bairro</Text>
                   <Input
+                    data-testid="register-input-bairro"
                     onBlur={() => formik.setFieldTouched('neigh', true)}
                     onChangeText={onNeighChange}
                     value={formik.values.neigh}
@@ -852,6 +897,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Logradouro</Text>
                   <Input
+                    data-testid="register-input-logradouro"
                     onBlur={() => formik.setFieldTouched('street', true)}
                     onChangeText={onStreetChange}
                     placeholder="exemplo: Dois Amores"
@@ -871,6 +917,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Número</Text>
                   <Input
+                    data-testid="register-input-numero"
                     onBlur={() => formik.setFieldTouched('localNumber', true)}
                     onChangeText={onNumberChange}
                     placeholder="Exemplo: 12"
@@ -890,6 +937,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Complemento</Text>
                   <Input
+                    data-testid="register-input-complemento"
                     onChangeText={(text) => formik.setFieldValue('complement', text)}
                     placeholder="Exemplo: Loja A"
                     value={formik.values.complement}
@@ -928,6 +976,7 @@ export default function Register() {
                   </Text>
                 </View>
                 <Input
+                  data-testid="register-input-email"
                   value={formik.values.email}
                   autoCapitalize="none"
                   onChangeText={(text) => formik.setFieldValue('email', text)}
@@ -989,6 +1038,7 @@ export default function Register() {
                     zIndex={99}
                   >
                     <DropDownPicker
+                      testID="register-select-forma-pagamento"
                       value={formik.values.paymentWay}
                       style={{
                         borderWidth: 1,
@@ -1021,16 +1071,19 @@ export default function Register() {
                               {
                                 label: getPaymentDescription('CC32'),
                                 value: 'CC32',
+                                testID: 'pagamento-opcao-cc32',
                               },
                             ]
                           : [
                               {
                                 label: 'Diário: 7 dias após a entrega',
                                 value: 'DI07',
+                                testID: 'pagamento-opcao-di07',
                               },
                               {
                                 label: 'Semanal: vencimento na quarta',
                                 value: 'UQ10',
+                                testID: 'pagamento-opcao-uq10',
                               },
                             ]
                       }
@@ -1083,6 +1136,7 @@ export default function Register() {
                         zIndex={101}
                       >
                         <Input
+                          data-testid="register-input-responsavel-financeiro"
                           fontSize={14}
                           flex={1}
                           backgroundColor="$colorTransparent"
@@ -1128,6 +1182,7 @@ export default function Register() {
                         zIndex={101}
                       >
                         <Input
+                          data-testid="register-input-telefone-financeiro"
                           maxLength={15}
                           fontSize={14}
                           flex={1}
@@ -1178,6 +1233,7 @@ export default function Register() {
                         </Text>
                       </View>
                       <Input
+                        data-testid="register-input-email-cobranca"
                         value={formik.values.emailBilling}
                         autoCapitalize="none"
                         onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
@@ -1240,6 +1296,7 @@ export default function Register() {
                       zIndex={101}
                     >
                       <DropDownPicker
+                        testID="register-select-horario-minimo"
                         value={formik.values.minHour}
                         style={{
                           borderWidth: 1,
@@ -1266,7 +1323,11 @@ export default function Register() {
                           }
                         }}
                         items={minhours.map((item) => {
-                          return { label: item, value: item };
+                          return {
+                            label: item,
+                            value: item,
+                            testID: `horario-minimo-opcao-${item.replace(':', '')}`,
+                          };
                         })}
                         multiple={false}
                         open={minHourOpen}
@@ -1399,6 +1460,7 @@ export default function Register() {
                   marginTop={10}
                 >
                   <DropDownPicker
+                    testID="register-select-frequencia-pedidos"
                     value={formik.values.weeklyOrderAmount}
                     setValue={(callback) => {
                       const value =
@@ -1445,6 +1507,7 @@ export default function Register() {
                   Qual o valor médio de um pedido?
                 </Text>
                 <TextInputMask
+                  testID="register-input-valor-pedido"
                   placeholder="R$ 0"
                   type="only-numbers"
                   onChangeText={(value) => formik.setFieldValue('orderValue', value)}
@@ -1468,28 +1531,7 @@ export default function Register() {
                   </Text>
                 )}
               </View>
-              <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
-                Código do promotor
-              </Text>
-              <View
-                backgroundColor="white"
-                borderColor="lightgray"
-                borderWidth={1}
-                borderRadius={5}
-                padding={10}
-              >
-                <Input
-                  onChangeText={(text) => {
-                    formik.setFieldValue('inviteCode', text.toUpperCase());
-                  }}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  maxLength={5}
-                  value={formik.values.inviteCode}
-                ></Input>
-              </View>
+              <InviteCodeField value={formik.values.inviteCode} />
             </View>
           ) : (
             <></>
@@ -1515,6 +1557,7 @@ export default function Register() {
             <Text>Voltar</Text>
           </Button>
           <Button
+            data-testid="register-botao-avancar"
             flex={1}
             backgroundColor="#04BF7B"
             onPress={() => {
