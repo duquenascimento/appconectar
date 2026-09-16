@@ -44,6 +44,7 @@ export function DialogInstance({ openModal, setRegisterInvalid, erros }: DialogI
         />
 
         <Dialog.Content
+          testID="dialogo-erro-conteudo"
           bordered
           elevate
           key="content"
