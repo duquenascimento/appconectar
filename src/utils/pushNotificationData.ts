@@ -1,4 +1,9 @@
-import { ChannelType, PushNotificationData } from '../types/pushTypes';
+import {
+  ChannelType,
+  OrderNotificationData,
+  OrderNotificationType,
+  PushNotificationData,
+} from '../types/pushTypes';
 
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === 'string' && value.trim().length > 0;
@@ -6,6 +11,14 @@ function isNonEmptyString(value: unknown): value is string {
 
 function parseChannelType(value: unknown): ChannelType | null {
   return value === 'restaurant' || value === 'supplier' ? value : null;
+}
+
+function parseOrderNotificationType(value: unknown): OrderNotificationType | null {
+  return value === 'order_confirmed' || value === 'order_rejected' ? value : null;
+}
+
+export function isOrderNotification(data: PushNotificationData): data is OrderNotificationData {
+  return parseOrderNotificationType(data.type) !== null;
 }
 
 export function parsePushNotificationData(
@@ -26,13 +39,15 @@ export function parsePushNotificationData(
     ? data.channelKey
     : `${channelType}:${channelId}`;
 
-  if (data.type === 'order_confirmed') {
+  const orderNotificationType = parseOrderNotificationType(data.type);
+
+  if (orderNotificationType) {
     if (!isNonEmptyString(data.orderId)) {
       return null;
     }
 
     return {
-      type: 'order_confirmed',
+      type: orderNotificationType,
       channelType,
       channelId,
       channelKey,

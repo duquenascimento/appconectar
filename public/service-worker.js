@@ -118,8 +118,13 @@ async function getActiveChannelIdFromClient(client) {
 
 async function shouldSuppressNotification(
   notificationChannelId,
+  notificationType,
 ) {
   if (!notificationChannelId) {
+    return false;
+  }
+
+  if (notificationType !== 'chat_message') {
     return false;
   }
 
@@ -205,6 +210,7 @@ self.addEventListener('push', function (event) {
       const shouldSuppress =
         await shouldSuppressNotification(
           notificationChannelId,
+          notificationType,
         );
 
       if (shouldSuppress) {

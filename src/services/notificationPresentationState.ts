@@ -14,8 +14,15 @@ export function setActiveNotificationChannelId(channelId: string | null) {
   activeChannelId = channelId;
 }
 
-export function shouldSuppressMobileNotification(notificationChannelId: unknown) {
+export function shouldSuppressMobileNotification(
+  notificationChannelId: unknown,
+  notificationType: unknown,
+) {
   if (typeof notificationChannelId !== 'string') {
+    return false;
+  }
+
+  if (notificationType !== 'chat_message') {
     return false;
   }
 

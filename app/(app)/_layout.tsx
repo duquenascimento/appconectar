@@ -12,6 +12,7 @@ import { useActiveChannelResponder } from '../../src/hooks/useActiveChannelRespo
 // eslint-disable-next-line max-len
 import { useMobileNotificationPresentationState } from '../../src/services/useMobileNotificationPresentationState';
 import { PushNotificationData } from '../../src/types/pushTypes';
+import { isOrderNotification } from '../../src/utils/pushNotificationData';
 // import { ChatProvider } from '../../src/contexts/chat.context';
 
 function LayoutContent() {
@@ -97,7 +98,7 @@ function LayoutContent() {
           await handleRestaurantChange(targetRestaurant);
         }
 
-        if (notification.type === 'order_confirmed') {
+        if (isOrderNotification(notification)) {
           router.navigate({
             pathname: '/orderDetailsScreen',
             params: { orderId: notification.orderId },

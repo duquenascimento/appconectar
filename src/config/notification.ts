@@ -7,8 +7,12 @@ if (Platform.OS === 'android' || Platform.OS === 'ios') {
   Notifications.setNotificationHandler({
     handleNotification: async (notification) => {
       const notificationChannelId = notification.request.content.data?.channelId;
+      const notificationType = notification.request.content.data?.type;
 
-      const shouldSuppress = shouldSuppressMobileNotification(notificationChannelId);
+      const shouldSuppress = shouldSuppressMobileNotification(
+        notificationChannelId,
+        notificationType,
+      );
 
       if (shouldSuppress) {
         console.log('Notificação ignorada: usuário já está visualizando esse canal.');

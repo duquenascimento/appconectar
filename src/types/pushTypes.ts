@@ -44,12 +44,14 @@ export type ChatMessageNotificationData = {
   messageId?: string;
 };
 
-export type OrderConfirmedNotificationData = {
-  type: 'order_confirmed';
+export type OrderNotificationType = 'order_confirmed' | 'order_rejected';
+
+export type OrderNotificationData = {
+  type: OrderNotificationType;
   channelType: ChannelType;
   channelId: string;
   channelKey?: string;
   orderId: string;
 };
 
-export type PushNotificationData = ChatMessageNotificationData | OrderConfirmedNotificationData;
+export type PushNotificationData = ChatMessageNotificationData | OrderNotificationData;
