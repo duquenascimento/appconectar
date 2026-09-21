@@ -70,6 +70,7 @@ export default function Confirm() {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
+  const [showStaleQuotationAlert, setShowStaleQuotationAlert] = useState<boolean>(false);
   const [supplierAvailability, setSupplierAvailability] = useState<SupplierAvailabilityOnConfirm>();
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
@@ -284,6 +285,8 @@ export default function Confirm() {
 
         setLoadingToConfirm(true);
 
+        const allowEmergencyOrderBeforeRefresh = selectedRestaurant.allowEmergencyOrder;
+
         let restaurantForValidation = selectedRestaurant;
         try {
           const freshRestaurants = await loadRestaurants(selectedRestaurant);
@@ -328,9 +331,17 @@ export default function Confirm() {
           }
 
           if (erros.length > 0) {
+            setLoadingToConfirm(false);
+
+            const emergencyFlagChanged =
+              allowEmergencyOrderBeforeRefresh !== restaurantForValidation.allowEmergencyOrder;
+            if (emergencyFlagChanged) {
+              setShowStaleQuotationAlert(true);
+              return;
+            }
+
             setShowErros(erros);
             setBooleanErros(true);
-            setLoadingToConfirm(false);
             return;
           }
         }
@@ -509,6 +520,18 @@ export default function Confirm() {
           title="Endereço Incompleto"
           message={alertMessage}
           onConfirm={() => setIsAlertVisible(false)}
+          width="80%"
+        />
+        <CustomAlert
+          visible={showStaleQuotationAlert}
+          title="Cotação desatualizada"
+          // eslint-disable-next-line max-len
+          message="As condições deste fornecedor mudaram desde que a cotação foi gerada. Você será redirecionado para gerar uma nova cotação."
+          onConfirm={async () => {
+            setShowStaleQuotationAlert(false);
+            await deleteStorage('supplierSelected');
+            router.push('/prices');
+          }}
           width="80%"
         />
         <SundayOrderAlert

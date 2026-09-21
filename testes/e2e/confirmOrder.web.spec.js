@@ -2,13 +2,8 @@ import { expect } from '@wdio/globals';
 
 describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
   const APP_URL = 'http://localhost:8081';
-
-  // Conta de teste dedicada: o restaurante correspondente deve ter, no backend de teste,
-  // allowEmergencyOrder = false e um fornecedor de teste cujo minimumOrder seja maior que o
-  // orderValueFinish usado no fixture de `supplier` abaixo (ver cenário 2).
   const TEST_EMAIL = 'teste35@teste.com';
   const TEST_PASSWORD = 'teste35@teste.com';
-  // externalId real do restaurante da conta de teste no backend usado nos testes.
   const RESTAURANT_EXTERNAL_ID = 'C939';
   const SUPPLIER_EXTERNAL_ID = 'F0';
 
@@ -29,15 +24,6 @@ describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
     }
   }
 
-  // O backend (`confirmService.ts:158`) valida o carrinho REAL do restaurante no banco
-  // (getCurrentCartWithProducts), não o `supplier.discount.product` do fixture abaixo — e
-  // apaga esse carrinho após uma confirmação bem-sucedida (`confirmService.ts:465-466`,
-  // `shouldDeleteCart` default true). Por isso cada teste que chega ao /confirm precisa
-  // garantir seu próprio item no carrinho real via UI, em vez de depender de sobra de
-  // execuções anteriores (foi exatamente a falha "Seu carrinho está vazio!" observada).
-  // O catálogo de produtos é dinâmico por restaurante/fornecedor, então não há um nome
-  // fixo garantido em qualquer conta de teste (diferente de cart.web.spec.js, que usa uma
-  // conta com catálogo conhecido) — pega o primeiro "adicionar-produto-*" disponível na tela.
   async function addProductToCart() {
     const selector = '[data-testid^="adicionar-produto-"]';
     await browser.waitUntil(async () => (await $$(selector)).length > 0, {
@@ -49,9 +35,6 @@ describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
     await browser.pause(1000);
   }
 
-  // Fixture do fornecedor selecionado (chave 'supplierSelected'), lido por app/confirm.tsx.
-  // orderValueFinish abaixo do minimumOrder força o erro de "valor mínimo" quando a
-  // validação de fato roda (ou seja, quando allowEmergencyOrder é tratado como false).
   function buildSupplierFixture({ minimumOrder = 500, orderValueFinish = 100 } = {}) {
     return {
       supplier: {
@@ -60,10 +43,6 @@ describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
         image: '',
         missingItens: 0,
         minimumOrder,
-        // isOpen() em app/confirm.tsx compara `Number(hour.replaceAll(':', ''))` contra um
-        // "currentHour" no formato HHMMSS (6 dígitos) — hour precisa incluir segundos,
-        // senão a comparação numérica falha e o fornecedor aparece como "fechado" mesmo
-        // com um horário de fechamento tardio.
         hour: '23:59:59',
         discount: {
           orderValue: orderValueFinish,
@@ -94,10 +73,6 @@ describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
     await browser.pause(3000);
   }
 
-  // Espera o desfecho do clique em "Confirmar pedido": sucesso, o diálogo de erro
-  // genérico (DialogInstance, alimentado por `erros`/catch de handleConfirmOrder), ou o
-  // alerta "Endereço Incompleto" (CustomAlert, alimentado por validateAddress/isRetroactiveDate).
-  // Falha com o texto do erro capturado em vez de um timeout sem contexto.
   async function waitForOrderOutcome({ timeout = 30000 } = {}) {
     const paginaConfirmado = await $('[data-testid="pagina-pedido-confirmado"]');
     const dialogoErro = await $('[data-testid="dialogo-erro-conteudo"]');
@@ -127,10 +102,6 @@ describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
   it('cache desatualizado (allowEmergencyOrder=true) não é confiado: valor mínimo continua bloqueando o pedido', async () => {
     await login();
 
-    // Simula o cenário do DT-252: um `selectedRestaurant` desatualizado no cache local,
-    // com allowEmergencyOrder=true, enquanto o backend real da conta de teste já tem
-    // allowEmergencyOrder=false. Sem a correção da causa 1/2, o app confiaria nesse valor
-    // e puclaria a validação de valor mínimo do fornecedor.
     await browser.execute(
       (externalId) => {
         const stale = {
@@ -209,11 +180,6 @@ describe('Fluxo de confirmação de pedido - Web (DT-252)', () => {
       `[data-testid^="pedido-"]`,
     );
 
-    // Verificação básica: a lista carregou. Uma asserção mais forte (exatamente 1 pedido
-    // novo para este fornecedor/data) depende de uma forma de isolar os pedidos criados
-    // neste teste especificamente (ex.: limpar o histórico antes, ou filtrar por um
-    // identificador exclusivo do fornecedor de teste) — ajustar conforme os dados de teste
-    // disponíveis no backend usado para rodar esta suíte.
     expect(pedidosDoFornecedorDeTeste.length).toBeGreaterThan(0);
   });
 });
