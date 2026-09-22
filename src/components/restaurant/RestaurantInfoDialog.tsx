@@ -15,6 +15,7 @@ import {
 } from '../../utils/dateUtils';
 import { extractErrorMessage } from '../../utils/errorUtils';
 import { campoString } from '../../utils/formatCampos';
+import { filterLettersAndSpaces, removeZeroWidthChars } from '../../utils/stringUtils';
 import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
 import CustomAlert from '../modais/CustomAlert';
@@ -388,7 +389,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   };
 
   const handleStreetChange = (value: string) => {
-    const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+    const formattedValue = filterLettersAndSpaces(value);
     const parts = formattedValue.trim().split(' ');
     const localType = parts[0]?.toUpperCase() || '';
     const streetName = parts.slice(1).join(' ');
@@ -423,16 +424,21 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     const restaurant: Restaurant = JSON.parse(JSON.stringify(changeRestaurant));
     const addressInfo = restaurant.addressInfos[0];
 
+    const sanitizeText = (value?: string) =>
+      removeZeroWidthChars(value ?? '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
     addressInfo.neighborhood = neighborhood ?? '';
     addressInfo.city = city ?? '';
     addressInfo.localType = localType ?? '';
     addressInfo.localNumber = localNumber;
-    addressInfo.responsibleReceivingName = responsibleReceivingName ?? '';
+    addressInfo.responsibleReceivingName = sanitizeText(responsibleReceivingName);
     addressInfo.responsibleReceivingPhoneNumber = responsibleReceivingPhoneNumber ?? '';
     addressInfo.zipCode = zipCode?.replaceAll(' ', '').replace('-', '') ?? '';
-    addressInfo.address = street ?? '';
-    addressInfo.complement = complement ?? '';
-    addressInfo.deliveryInformation = deliveryInformation ?? '';
+    addressInfo.address = sanitizeText(street);
+    addressInfo.complement = sanitizeText(complement);
+    addressInfo.deliveryInformation = sanitizeText(deliveryInformation);
     addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
     addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 
@@ -909,6 +915,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Cidade <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        maxLength={200}
                         color="gray"
                         fontSize={12}
                         disabled
@@ -939,6 +946,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       Bairro <Text color="red"> *</Text>
                     </Text>
                     <Input
+                      maxLength={200}
                       color="gray"
                       fontSize={12}
                       disabled
@@ -975,6 +983,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Rua <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        maxLength={200}
                         onChangeText={handleStreetChange}
                         backgroundColor="white"
                         borderColor="lightgray"
@@ -1013,6 +1022,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Nº <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        maxLength={25}
                         {...(isLargeScreen && { height: 43 })}
                         fontSize={14}
                         flex={1}
@@ -1041,6 +1051,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Complemento
                       </Text>
                       <Input
+                        maxLength={200}
                         fontSize={14}
                         flex={1}
                         backgroundColor="white"
@@ -1075,6 +1086,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Resp. recebimento <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        maxLength={200}
                         fontSize={14}
                         flex={1}
                         backgroundColor="white"
@@ -1082,7 +1094,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         borderRadius={5}
                         value={responsibleReceivingName}
                         onChangeText={(value) => {
-                          const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                          const formattedValue = filterLettersAndSpaces(value);
                           setResponsibleReceivingName(formattedValue);
                         }}
                         focusStyle={{
@@ -1134,6 +1146,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Info de entrega
                       </Text>
                       <Input
+                        maxLength={500}
                         fontSize={14}
                         flex={1}
                         backgroundColor="white"

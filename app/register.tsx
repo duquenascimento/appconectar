@@ -7,6 +7,7 @@ import { checkDocument, sendFullRegister } from '@/src/services/registerService'
 import { getErrorMessage } from '@/src/types/apiErrorTypes';
 import { formatDocument, isCnpjData, type DocumentType } from '@/src/utils/documentUtils';
 import { getPaymentDescription } from '@/src/utils/paymentUtils';
+import { filterLettersAndSpaces } from '@/src/utils/stringUtils';
 import {
   step0Validation,
   step1Validation,
@@ -1099,7 +1100,7 @@ export default function Register() {
                           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                           value={formik.values.financeResponsibleName}
                           onChangeText={(value) => {
-                            const formattedValue = value.replace(/[^A-Za-z\s]/g, '');
+                            const formattedValue = filterLettersAndSpaces(value);
                             formik.setFieldValue('financeResponsibleName', formattedValue);
                           }}
                         />
