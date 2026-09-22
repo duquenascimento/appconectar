@@ -59,12 +59,17 @@ export async function getUserRestaurants(): Promise<Restaurant[]> {
   }
 }
 
+const UPDATE_DELIVERY_INFO_ERROR_MSG =
+  'Não foi possível salvar as informações de entrega. Tente novamente.';
+
 export const updateRestaurantDeliveryInfo = async (
   restaurantId: string,
   data: Partial<Restaurant>,
 ) => {
+  let response: Response;
+
   try {
-    await fetch(`${API_URL}/address/update`, {
+    response = await fetch(`${API_URL}/address/update`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -74,5 +79,16 @@ export const updateRestaurantDeliveryInfo = async (
     });
   } catch (error) {
     console.error('Falha ao atualizar dados de restaurante', error);
+    throw new Error(UPDATE_DELIVERY_INFO_ERROR_MSG);
+  }
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    console.error('Falha ao atualizar dados de restaurante', response.status, body);
+
+    // Só erro de validação traz mensagem escrita para o cliente; 5xx traz texto interno.
+    const serverMessage = response.status < 500 ? (body?.msg ?? body?.message) : undefined;
+
+    throw new Error(serverMessage || UPDATE_DELIVERY_INFO_ERROR_MSG);
   }
 };

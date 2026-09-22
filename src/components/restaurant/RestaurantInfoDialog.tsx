@@ -13,6 +13,7 @@ import {
   getBrazilJSDateTomorrow,
   getMinRetroactiveJSDate,
 } from '../../utils/dateUtils';
+import { extractErrorMessage } from '../../utils/errorUtils';
 import { campoString } from '../../utils/formatCampos';
 import { useResponsiveness } from '../hooks/useResponsiveness';
 import LoadingActivityIndicator from '../loading/loadingActivityIndicator';
@@ -93,6 +94,9 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   const [restOpen, setRestOpen] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [saveFeedback, setSaveFeedback] = useState<{ succeeded: boolean; message: string } | null>(
+    null,
+  );
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [showNativeDatePicker, setShowNativeDatePicker] = useState(false);
   const [tempSelectedDate, setTempSelectedDate] = useState<Date | null>(null);
@@ -432,17 +436,42 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     addressInfo.finalDeliveryTime = `1970-01-01T${maxHour}:00.000Z`;
     addressInfo.initialDeliveryTime = `1970-01-01T${minHour}:00.000Z`;
 
-    if (draftSelectedRestaurant) {
-      await setStorageRestaurant(restaurant);
-      await handleRestaurantChange(restaurant);
-    } else {
+    try {
+      if (draftSelectedRestaurant) {
+        await setStorageRestaurant(restaurant);
+        await handleRestaurantChange(restaurant);
+        setDraftSelectedRestaurant(null);
+        onClose();
+        return;
+      }
+
       await updateRestaurant(restaurant);
       handleLoadPrices(restaurant);
-    }
 
-    setDraftSelectedRestaurant(null);
-    setDialogLoading(false);
-    onClose();
+      setSaveFeedback({
+        succeeded: true,
+        message: 'As informações de entrega foram atualizadas.',
+      });
+    } catch (error) {
+      setSaveFeedback({
+        succeeded: false,
+        message: extractErrorMessage(
+          error,
+          'Não foi possível salvar as informações de entrega. Tente novamente.',
+        ),
+      });
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const handleSaveFeedbackConfirm = () => {
+    const succeeded = saveFeedback?.succeeded;
+
+    setSaveFeedback(null);
+
+    // Em caso de erro o modal continua aberto, para o cliente não perder o que digitou.
+    if (succeeded) onClose();
   };
 
   const handleCancelPress = () => {
@@ -1176,6 +1205,13 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
           title="Campos obrigatórios"
           message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`}
           onConfirm={() => setIsAlertVisible(false)}
+        />
+        <CustomAlert
+          visible={!!saveFeedback}
+          title={saveFeedback?.succeeded ? 'Dados salvos' : 'Não foi possível salvar'}
+          message={saveFeedback?.message ?? ''}
+          onConfirm={handleSaveFeedbackConfirm}
+          buttonText="Ok"
         />
       </Modal>
     </View>
