@@ -8,9 +8,11 @@ import { TCart } from '../types/cartTypes';
 import { Restaurant } from '../types/restaurantTypes';
 import { SupplierData } from '../types/types';
 import { getBrazilDateTime } from '../utils/dateUtils';
+import { getFormattedOpeningTime, isSupplierOpen } from '../utils/supplierUtils';
 import { ImageWithFallback } from './image/ImageWithFallback';
 import LoadingActivityIndicator from './loading/loadingActivityIndicator';
 import CustomAlert from './modais/CustomAlert';
+import BadgeText from './text/BadgeText';
 
 interface SuppliersListProps {
   cart: Map<string, TCart> | undefined;
@@ -82,6 +84,14 @@ function SupplierBox({
           <View flexDirection="row" alignItems="center">
             <Icons color="orange" name="star" />
             <Text paddingLeft={4}>{supplier.supplier.star}</Text>
+            {!isSupplierOpen(supplier.supplier.openingTime) && (
+              <View marginLeft="6px" alignSelf="center">
+                <BadgeText
+                  text={`Abre às ${getFormattedOpeningTime(supplier.supplier.openingTime)}`}
+                  color="#801c1c"
+                />
+              </View>
+            )}
           </View>
           {hasSameDayOrdersWithSupplier && Platform.OS !== 'web' && (
             <View

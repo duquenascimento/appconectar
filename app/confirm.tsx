@@ -909,6 +909,10 @@ export default function Confirm() {
             }}
             width={170}
             backgroundColor="#000"
+            hoverStyle={{
+              backgroundColor: '#000',
+              opacity: 0.9,
+            }}
           >
             <Text color="white">Alterar itens</Text>
           </Button>
@@ -920,12 +924,23 @@ export default function Confirm() {
             }
             onPress={onConfirmPressDebounced}
             width={170}
-            backgroundColor="#04BF7B"
+            backgroundColor={isSuppliersAvailableForOrder ? '#04BF7B' : 'transparent'}
+            borderColor="#04BF7B"
+            hoverStyle={{
+              backgroundColor: isSuppliersAvailableForOrder ? '#04BF7B' : 'transparent',
+              borderColor: '#04BF7B',
+              opacity: 0.9,
+            }}
             disabledStyle={{
               backgroundColor: '#A9A9A9',
             }}
           >
-            <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
+            <Text
+              fontSize={13}
+              color={isSuppliersAvailableForOrder ? 'white' : '#04BF7B'}
+              textAlign="center"
+              style={{ fontSize: 12 }}
+            >
               {isSuppliersAvailableForOrder ? 'Confirmar pedido' : 'Agendar notificação'}
             </Text>
           </Button>
