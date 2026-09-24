@@ -109,7 +109,6 @@ const CustomListItem: React.FC<ListItemProps> = ({
         <ItemContainer>
           <ItemContent  opacity={totalValue === 0 || unavailable ? 0.5 : 1}>
             <LeftContent>
-            <Circle />
             <InfoContainer>
               <ItemTitle>{combination}</ItemTitle>
               {!!supplier && <ItemSubTitle>{supplier}</ItemSubTitle>}

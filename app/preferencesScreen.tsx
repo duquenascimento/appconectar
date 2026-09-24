@@ -33,7 +33,6 @@ export default function PreferencesScreen() {
   const [loading, setLoading] = useState<boolean>(true);
   const { updateCombinacao, resetCombinacao, modificado, setModificado } = useCombinacao();
   const [combinationsFull, setCombinationsFull] = useState<any[]>([]);
-  const [defaultCombinations, setDefaultCombinations] = useState<Combinacao[]>([]);
   const { selectedRestaurant, loadRestaurants } = useRestaurantContext();
 
   useEffect(() => {
@@ -52,14 +51,7 @@ export default function PreferencesScreen() {
     if (!restaurantId) return;
 
     try {
-      const [combinationsByRestaurant, defaultCombinations] = await Promise.all([
-        getCombinationsByRestaurant(restaurantId),
-        getDefaultCombinations(),
-      ]);
-
-      if (Array.isArray(defaultCombinations)) {
-        setDefaultCombinations(defaultCombinations);
-      }
+      const combinationsByRestaurant = await getCombinationsByRestaurant(restaurantId);
 
       if (Array.isArray(combinationsByRestaurant.return)) {
         setCombinations(combinationsByRestaurant.return.map(mapCombination));
@@ -153,19 +145,6 @@ export default function PreferencesScreen() {
                 sameDayOrders={[]}
               />
             ))
-          )}
-          {defaultCombinations.length > 0 && (
-            <>
-              <CustomSubtitle>Combinações Conéctar</CustomSubtitle>
-              {defaultCombinations.map((item) => (
-                <CustomListItem
-                  key={item.nome}
-                  id={item.nome}
-                  combination={item.nome}
-                  sameDayOrders={[]}
-                />
-              ))}
-            </>
           )}
         </YStack>
       </ScrollView>
