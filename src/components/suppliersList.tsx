@@ -31,6 +31,10 @@ function SupplierBox({
   goToConfirm: (supplier: SupplierData, selectedRestaurant: Restaurant) => void;
 }) {
   const isOpen = () => {
+    // Fornecedor sem horário de fechamento cadastrado não é exibido como fechado: sem o dado, não
+    // há o que afirmar.
+    if (!supplier.supplier.hour) return false;
+
     const currentDate = getBrazilDateTime();
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${currentDate.minute.toString().length < 2 ? `0${currentDate.minute}` : currentDate.minute}${currentDate.second.toString().length < 2 ? `0${currentDate.second}` : currentDate.second}`,
@@ -129,7 +133,7 @@ function SupplierBox({
               )}
               {isOpen() && !selectedRestaurant.allowClosedSupplier ? (
                 <Text color="red" fontSize={12}>
-                  Fechado às {supplier.supplier.hour.substring(0, 5)}
+                  Fechado às {supplier.supplier.hour?.substring(0, 5)}
                 </Text>
               ) : (
                 <></>
