@@ -17,6 +17,7 @@ import PdfViewerModal from '../src/components/modais/PdfViewerModal';
 import { CreateCreditCardModal } from '../src/components/pages/confirm/CreateCreditCardModal';
 // eslint-disable-next-line max-len
 import { RetroactiveQuotationWarningBanner } from '../src/components/quotations/RetroactiveQuotationWarningBanner';
+import { SupplierOpeningHourBanner } from '../src/components/quotations/SupplierOpeningHourBanner';
 import { getCreditCards } from '../src/services/creditCardService';
 import { CreditCard } from '../src/types/creditCardTypes';
 import { SupplierData } from './quotationDetailsScreen';
@@ -28,7 +29,6 @@ import {
   checkSupplierAvailabilityMessage,
   SupplierAvailabilityOnConfirm,
 } from '../src/utils/supplierUtils';
-import { getSecondsUntilTime } from '../src/utils/timeUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -387,7 +387,8 @@ export default function Confirm() {
           .map(Number) ?? [13, 0];
         const errors = await scheduleNotification(
           selectedRestaurant!.addressInfos[0].responsibleReceivingPhoneNumber,
-          getSecondsUntilTime(targetHours, targetMinutes),
+          targetHours,
+          targetMinutes,
         );
 
         setShowErros(errors);
@@ -523,6 +524,11 @@ export default function Confirm() {
               </View>
             </View>
           </View>
+          {!isSuppliersAvailableForOrder && supplierAvailability?.openingTime && (
+            <View marginLeft="auto" marginRight="4px" alignSelf="center">
+              <BadgeText text={`Abre às ${supplierAvailability.openingTime}`} color="#801c1c" />
+            </View>
+          )}
         </View>
 
         <ScrollView backgroundColor="white">
@@ -886,18 +892,9 @@ export default function Confirm() {
             </View>
           </View>
         </ScrollView>
-        <View paddingTop={10} paddingHorizontal={10}>
-          <Text
-            marginHorizontal="auto"
-            color="red"
-            fontSize={10}
-            textAlign="center"
-            display={isSuppliersAvailableForOrder ? 'none' : 'flex'}
-          >
-            {supplierAvailability?.mainMessage || 'Fornecedor indisponível para pedidos no momento'}
-            {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário'}
-          </Text>
-        </View>
+        {!isSuppliersAvailableForOrder && (
+          <SupplierOpeningHourBanner message={supplierAvailability?.mainMessage} />
+        )}
         <View
           backgroundColor="white"
           gap={10}
@@ -912,6 +909,10 @@ export default function Confirm() {
             }}
             width={170}
             backgroundColor="#000"
+            hoverStyle={{
+              backgroundColor: '#000',
+              opacity: 0.9,
+            }}
           >
             <Text color="white">Alterar itens</Text>
           </Button>
@@ -923,12 +924,23 @@ export default function Confirm() {
             }
             onPress={onConfirmPressDebounced}
             width={170}
-            backgroundColor="#04BF7B"
+            backgroundColor={isSuppliersAvailableForOrder ? '#04BF7B' : 'transparent'}
+            borderColor="#04BF7B"
+            hoverStyle={{
+              backgroundColor: isSuppliersAvailableForOrder ? '#04BF7B' : 'transparent',
+              borderColor: '#04BF7B',
+              opacity: 0.9,
+            }}
             disabledStyle={{
               backgroundColor: '#A9A9A9',
             }}
           >
-            <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
+            <Text
+              fontSize={13}
+              color={isSuppliersAvailableForOrder ? 'white' : '#04BF7B'}
+              textAlign="center"
+              style={{ fontSize: 12 }}
+            >
               {isSuppliersAvailableForOrder ? 'Confirmar pedido' : 'Agendar notificação'}
             </Text>
           </Button>
