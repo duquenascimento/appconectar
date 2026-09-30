@@ -27,7 +27,7 @@ export const getQuotationsBySupplier = async (
     const response = await axios.post(`${API_URL}/quote/supplier`, body, {
       headers: { Authorization: `Bearer ${await getToken()}` },
     });
-    return response.data.data;
+    return response.data.data ?? { availableSuppliers: [], combinations: [] };
   } catch (error) {
     console.error('Erro ao obter cotações por fornecedor:', error);
     throw error;

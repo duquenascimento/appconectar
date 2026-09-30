@@ -24,7 +24,6 @@ import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../src/utils/dateU
 import { extractErrorMessage } from '../src/utils/errorUtils';
 import { getStorageRestaurant } from '../src/utils/restaurantUtils';
 import { checkSupplierAvailabilityMessageForConectarPlus } from '../src/utils/supplierUtils';
-import { getSecondsUntilTime } from '../src/utils/timeUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomButton from '../src/components/button/customButton';
 import CustomInfoCard from '../src/components/card/customInfoCard';
@@ -34,6 +33,7 @@ import CustomAlert from '../src/components/modais/CustomAlert';
 import SundayOrderAlert from '../src/components/modais/SundayOrderAlert';
 import { MissingItemsList } from '../src/components/quotations/MissingItensList';
 import { SupplierList } from '../src/components/quotations/SupplierList';
+import { SupplierOpeningHourBanner } from '../src/components/quotations/SupplierOpeningHourBanner';
 import { useDeliveryDate } from '../src/contexts/deliveryDate.context';
 import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import {
@@ -268,7 +268,8 @@ export default function QuotationDetailsScreen() {
             .map(Number) ?? [13, 0];
           const errors = await scheduleNotification(
             restaurantData.addressInfos[0].responsibleReceivingPhoneNumber,
-            getSecondsUntilTime(targetHours, targetMinutes),
+            targetHours,
+            targetMinutes,
           );
 
           setShowErros(errors);
@@ -554,19 +555,9 @@ export default function QuotationDetailsScreen() {
           borderTopWidth={1}
           borderTopColor="$gray4"
         >
-          <View paddingVertical={10} paddingHorizontal={10}>
-            <Text
-              marginHorizontal="auto"
-              color="red"
-              fontSize={12}
-              textAlign="center"
-              display={areAllSuppliersAvailableForOrder ? 'none' : 'flex'}
-            >
-              {suppliersAvailability?.mainMessage ||
-                'Fornecedor indisponível para pedidos no momento'}
-              {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário.'}
-            </Text>
-          </View>
+          {!areAllSuppliersAvailableForOrder && (
+            <SupplierOpeningHourBanner message={suppliersAvailability?.mainMessage} />
+          )}
           {isLargeScreen ? (
             <XStack
               width="74%"

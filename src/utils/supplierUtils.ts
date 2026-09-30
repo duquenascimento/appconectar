@@ -67,7 +67,7 @@ export function checkSupplierAvailabilityMessage(supplierOpeningTime: string | u
         return {
             openingTime: formattedOpeningTime,
             isSupplierAvailableForOrder: false,
-            mainMessage: `A confirmação só pode ser feita após as ${formattedOpeningTime}`,
+            mainMessage: `O horário de abertura do fornecedor é às ${formattedOpeningTime}`,
             notificationMessage: `Sua notificação foi agendada para as ${formattedOpeningTime} para que você possa confirmar seu pedido.`
         };
     }
@@ -84,7 +84,7 @@ export function checkSupplierAvailabilityMessageForConectarPlus(suppliers: Conec
     const currentTime = getBrazilDateTime();
 
     const unavailableSuppliers = suppliers.filter(supplier => {
-        const tempOpeningTime = supplier.openingTime ?? '13:00:00'; // Default to 1 PM if opening time is missing
+        const tempOpeningTime = supplier.openingTime ?? '13:00'; // Default to 1 PM if opening time is missing
         const { hour: openingHour, minute: openingMinute } = parseOpeningTime(tempOpeningTime);
         const openingTime = createOpeningDateTime(openingHour, openingMinute);
 

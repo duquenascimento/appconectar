@@ -44,6 +44,7 @@ export function DialogInstance({ openModal, setRegisterInvalid, erros }: DialogI
         />
 
         <Dialog.Content
+          testID="dialogo-erro-conteudo"
           bordered
           elevate
           key="content"
@@ -67,7 +68,11 @@ export function DialogInstance({ openModal, setRegisterInvalid, erros }: DialogI
           )}
 
           {erros.map((erro) => {
-            return <Text key={erro}>- {erro}</Text>;
+            return (
+              <Text key={erro} testID={`erro-${erro}`}>
+                - {erro}
+              </Text>
+            );
           })}
 
           <XStack alignSelf="center" gap="$4">

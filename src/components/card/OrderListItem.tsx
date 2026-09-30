@@ -42,7 +42,7 @@ export default function OrderListItem({
   }
 
   return (
-    <TouchableOpacity onPress={() => onPress(item.id)}>
+    <TouchableOpacity testID={`pedido-${item.id}`} onPress={() => onPress(item.id)}>
       <View flex={1} flexDirection="row" marginVertical={15} gap={3}>
         <TouchableOpacity
           onPress={() => onToggleSelect(item.id)}

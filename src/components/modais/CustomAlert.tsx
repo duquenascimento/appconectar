@@ -21,11 +21,15 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
   color = 'red',
 }) => {
   return (
-    <Modal transparent={true} visible={visible} animationType="fade" onRequestClose={onConfirm}>
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onConfirm}>
       <View style={styles.overlay}>
-        <View style={[styles.alertContainer, { width }]}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={[styles.message]}>{message}</Text>
+        <View testID="alerta-customizado" style={[styles.alertContainer, { width }]}>
+          <Text testID="alerta-titulo" style={styles.title}>
+            {title}
+          </Text>
+          <Text testID="alerta-mensagem" style={styles.message}>
+            {message}
+          </Text>
           <TouchableOpacity style={styles.button} onPress={onConfirm}>
             <Text style={styles.buttonText}>{buttonText}</Text>
           </TouchableOpacity>
@@ -36,39 +40,39 @@ const CustomAlert: React.FC<CustomAlertProps> = ({
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    zIndex: 9999,
-  },
   alertContainer: {
+    alignItems: 'center',
     backgroundColor: 'white',
     borderRadius: 10,
     padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  message: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 20,
   },
   button: {
     backgroundColor: '#04BF7B',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
     borderRadius: 5,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   buttonText: {
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  message: {
+    fontSize: 14,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  overlay: {
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    flex: 1,
+    justifyContent: 'center',
+    zIndex: 9999,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
 });
 

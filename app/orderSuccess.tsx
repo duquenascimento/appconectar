@@ -126,6 +126,7 @@ export default function OrderSuccess() {
   return (
     <PageContainer backgroundColor="gray">
       <YStack
+        testID="pagina-pedido-confirmado"
         flex={1}
         backgroundColor="#F0F4F8"
         alignSelf="center"

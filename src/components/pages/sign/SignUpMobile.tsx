@@ -96,6 +96,7 @@ export function SignUpMobile(props: {
           }}
         >
           <Input
+            testID="cadastro-input-nome"
             placeholder="Nome"
             onChangeText={(e) => {
               setName(e);
@@ -116,6 +117,7 @@ export function SignUpMobile(props: {
 
         <XStack style={{ zIndex: 50, width: '100%' }} marginTop="$3.5">
           <DropDownPicker
+            testID="cadastro-select-cargo"
             open={open}
             value={position}
             items={positionItems}
@@ -156,6 +158,7 @@ export function SignUpMobile(props: {
           }}
         >
           <TextInputMask
+            testID="cadastro-input-telefone"
             type="cel-phone"
             options={{
               maskType: 'BRL',
@@ -196,6 +199,7 @@ export function SignUpMobile(props: {
           zIndex={20}
         >
           <Input
+            testID="cadastro-input-email"
             autoCapitalize="none"
             placeholder="Email"
             onChangeText={(email) => {
@@ -227,6 +231,7 @@ export function SignUpMobile(props: {
           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
         >
           <Input
+            testID="cadastro-input-senha"
             autoCapitalize="none"
             placeholder="Senha"
             backgroundColor="$colorTransparent"
@@ -268,6 +273,7 @@ export function SignUpMobile(props: {
           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
         >
           <Input
+            testID="cadastro-input-confirmar-senha"
             autoCapitalize="none"
             placeholder="Confirmar senha"
             backgroundColor="$colorTransparent"
@@ -293,6 +299,7 @@ export function SignUpMobile(props: {
         </XStack>
 
         <Button
+          testID="cadastro-botao-cadastrar"
           marginTop="$3.5"
           backgroundColor="#04BF7B"
           color="white"

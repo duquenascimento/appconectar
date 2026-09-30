@@ -97,9 +97,9 @@ export function SupplierProvider({ children }: { children?: ReactNode }) {
           restaurantId: currentRestaurant.id,
         });
 
-        setAvailableSuppliers(result.availableSuppliers);
-        setUnavailableSuppliers(result.unavailableSuppliers);
-        await saveSuppliersToStorage(result.availableSuppliers, result.unavailableSuppliers);
+        setAvailableSuppliers(result?.availableSuppliers ?? []);
+        setUnavailableSuppliers(result?.unavailableSuppliers ?? []);
+        await saveSuppliersToStorage(result?.availableSuppliers ?? [], result?.unavailableSuppliers ?? []);
         return result;
       } catch (error) {
         console.error('Erro ao carregar preços:', error);

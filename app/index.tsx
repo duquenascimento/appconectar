@@ -1,85 +1,18 @@
 import { isAxiosError } from 'axios';
 import { router, useFocusEffect, usePathname } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-  Platform,
-  ScrollView,
-  useWindowDimensions,
-} from 'react-native';
+import { useCallback, useState } from 'react';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Stack, View } from 'tamagui';
 import { PwRecoveryModal } from '@/src/components/pages/sign/PwdRecoveryModal';
 import { SignInMobile } from '@/src/components/pages/sign/SignInMobile';
 import { SignInWeb } from '@/src/components/pages/sign/SignInWeb';
-import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
-import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
 import { useAuthContext } from '@/src/contexts/auth.context';
-import { authLoginCheck, authSignIn, authSignUp } from '@/src/services/authService';
+import { authLoginCheck, authSignIn } from '@/src/services/authService';
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { UserRole } from '@/src/types/userRoleTypes';
-import { SignInRequest, SignUpRequest } from '@/src/types/userTypes';
+import { SignInRequest } from '@/src/types/userTypes';
 import { clearAllStoragesData, getToken } from '@/src/utils/utils';
-import {
-  validateEmail,
-  validateName,
-  validatePassword,
-  validatePhone,
-  validatePosition,
-} from '@/src/utils/validateFields';
-
-const positionOptions = [
-  { label: 'Pessoa Física', value: 'Pessoa Física' },
-  { label: 'Proprietário(a)/Sócio(a)', value: 'Proprietário(a)/Sócio(a)' },
-  { label: 'Diretor(a)', value: 'Diretor(a)' },
-  { label: 'Coordenador(a)', value: 'Coordenador(a)' },
-  { label: 'Gerente', value: 'Gerente' },
-  { label: 'Comprador(a)', value: 'Comprador(a)' },
-  { label: 'Caixa/Financeiro', value: 'Caixa/Financeiro' },
-  { label: 'Chef/Cozinheiro(a)', value: 'Chef/Cozinheiro(a)' },
-  { label: 'Sous Chef', value: 'Sous Chef' },
-  { label: 'Maître', value: 'Maître' },
-  { label: 'Nutricionista', value: 'Nutricionista' },
-  { label: 'Estoquista', value: 'Estoquista' },
-  { label: 'Barista', value: 'Barista' },
-  { label: 'Barman', value: 'Barman' },
-  { label: 'Auxiliar de cozinha', value: 'Auxiliar de cozinha' },
-  { label: 'Garçom(ete)', value: 'Garçom(ete)' },
-  { label: 'Auxiliar de limpeza', value: 'Auxiliar de limpeza' },
-  { label: 'Outros', value: 'Outros' },
-];
-
-function validateRegisterInfo(data: SignUpRequest): string[] {
-  const erros: string[] = [];
-  const emailValidation = validateEmail(data.email);
-  if (emailValidation) {
-    erros.push(emailValidation);
-  }
-
-  const passwordValidation = validatePassword(data.password);
-  if (passwordValidation) {
-    erros.push(passwordValidation);
-  }
-
-  const nameValidation = validateName(data.name);
-  if (nameValidation) {
-    erros.push(nameValidation);
-  }
-
-  const positionValidation = validatePosition(data.position);
-  if (positionValidation) {
-    erros.push(positionValidation);
-  }
-
-  const phoneValidation = validatePhone(data.phone);
-  if (phoneValidation) {
-    erros.push(phoneValidation);
-  }
-
-  return erros;
-}
+import { validateEmail, validatePassword } from '@/src/utils/validateFields';
 
 async function handleLogin(
   email: string,
@@ -110,8 +43,11 @@ async function handleLogin(
       email: email.toLowerCase(),
       password,
     } as SignInRequest;
+
     const response = await authSignIn(signInData);
 
+    // clearStoragesAndSaveCurrentVersion() preserva um pendingInviteCode
+    // eventualmente capturado antes do login (ver clearAllStoragesData em utils.ts).
     await clearStoragesAndSaveCurrentVersion();
 
     await saveLogin(response.data.token, response.data.role);
@@ -145,73 +81,9 @@ async function handleLogin(
   }
 }
 
-async function handleRegister(
-  name: string,
-  position: string,
-  phone: string,
-  email: string,
-  password: string,
-  registerInvalid: Function,
-  setLoading: Function,
-  setErros: Function,
-  saveLogin: Function,
-) {
-  const signUpData = {
-    email: email.toLowerCase(),
-    password,
-    name,
-    position,
-    phone,
-  } as SignUpRequest;
-  const registerErrors = validateRegisterInfo(signUpData);
-  if (registerErrors.length > 0) {
-    registerInvalid(true);
-    setErros(registerErrors);
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const response = await authSignUp(signUpData);
-
-    await clearStoragesAndSaveCurrentVersion();
-
-    await saveLogin(response.data.token, response.data.role);
-
-    const userRoles = response.data.role as UserRole[];
-    if (userRoles.includes('registering')) {
-      router.replace('/register');
-    } else if (response.data.role.includes('registered') || response.data.role.includes('client')) {
-      router.replace('/products');
-    } else {
-      router.replace('/');
-    }
-  } catch (err) {
-    console.error(err);
-
-    let errorMessage = 'Houve um erro ao processar a solicitação.';
-    if (isAxiosError(err)) {
-      errorMessage = err.response?.data?.msg ?? err.response?.data?.message ?? errorMessage;
-
-      if (errorMessage === 'email already exists') {
-        errorMessage = 'Este e-mail já existe na plataforma, utilize outro ou logue ao invés disso';
-      }
-    }
-    registerInvalid(true);
-    setErros([errorMessage]);
-  } finally {
-    setLoading(false);
-  }
-}
-
 export default function Sign() {
-  const [currentPage, setCurrentPage] = useState('SignIn');
-  const [visiblePage, setVisiblePage] = useState(true);
-  const scrollRef = useRef<ScrollView>(null);
   const [loading, setLoading] = useState(false);
   const [closeModal, setCloseModal] = useState<boolean>(false);
-  const { width } = useWindowDimensions();
   const { isInitialized, logout, getUserRoles } = useAuthContext();
   const pathname = usePathname();
 
@@ -264,18 +136,8 @@ export default function Sign() {
     }, [isInitialized, pathname]),
   );
 
-  const handleButtonPress = (page: string) => {
-    if (Platform.OS === 'web') {
-      setVisiblePage(!visiblePage);
-      setCurrentPage(page);
-    } else if (scrollRef.current != null) {
-      scrollRef.current.scrollTo({ x: page === 'SignUp' ? width : 0 });
-    }
-  };
-
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const page = event.nativeEvent.contentOffset.x > width / 2 ? 'SignUp' : 'SignIn';
-    setCurrentPage(page);
+  const handleButtonPress = () => {
+    router.push('/cadastro');
   };
 
   if (loading) {
@@ -289,72 +151,30 @@ export default function Sign() {
   return (
     <Stack backgroundColor="$background" height="100%">
       {closeModal && <PwRecoveryModal onClose={handleCloseModal} />}
-      <ScrollView
-        horizontal
-        pagingEnabled
-        onScroll={handleScroll}
-        ref={scrollRef}
-        scrollEnabled={Platform.OS !== 'web'}
-      >
-        {Platform.OS === 'web' ? (
-          <>
-            {visiblePage ? (
-              <View width={width} height="100%">
-                <SignInWeb
-                  page={currentPage}
-                  onButtonPress={handleButtonPress}
-                  onLoginPress={handleLogin}
-                  modal={handleCloseModal}
-                />
-              </View>
-            ) : (
-              <View width={width} height="100%">
-                <SignUpWeb
-                  page={currentPage}
-                  positionOptions={positionOptions}
-                  onRegisterPress={handleRegister}
-                  onButtonPress={handleButtonPress}
-                  modal={handleCloseModal}
-                />
-              </View>
-            )}
-          </>
-        ) : (
-          <>
-            <View width={width} height="100%">
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
-              >
-                <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
-                  <SignInMobile
-                    page={currentPage}
-                    onButtonPress={handleButtonPress}
-                    onLoginPress={handleLogin}
-                    modal={handleCloseModal}
-                  />
-                </ScrollView>
-              </KeyboardAvoidingView>
-            </View>
-            <View width={width} height="100%">
-              <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{ flex: 1 }}
-              >
-                <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
-                  <SignUpMobile
-                    page={currentPage}
-                    positionOptions={positionOptions}
-                    onRegisterPress={handleRegister}
-                    onButtonPress={handleButtonPress}
-                    modal={handleCloseModal}
-                  />
-                </ScrollView>
-              </KeyboardAvoidingView>
-            </View>
-          </>
-        )}
-      </ScrollView>
+      {Platform.OS === 'web' ? (
+        <View height="100%">
+          <SignInWeb
+            page="SignIn"
+            onButtonPress={handleButtonPress}
+            onLoginPress={handleLogin}
+            modal={handleCloseModal}
+          />
+        </View>
+      ) : (
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView nestedScrollEnabled contentContainerStyle={{ flexGrow: 1 }}>
+            <SignInMobile
+              page="SignIn"
+              onButtonPress={handleButtonPress}
+              onLoginPress={handleLogin}
+              modal={handleCloseModal}
+            />
+          </ScrollView>
+        </KeyboardAvoidingView>
+      )}
     </Stack>
   );
 }

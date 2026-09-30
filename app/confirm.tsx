@@ -3,7 +3,7 @@ import Icons from '@expo/vector-icons/Ionicons';
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect, usePathname, useRouter } from 'expo-router';
 import { debounce } from 'lodash';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, Platform } from 'react-native';
 import { Button, Image, ScrollView, Stack, Text, View } from 'tamagui';
 import { AccordionInfo } from '../src/components/AccordionInfo';
@@ -17,6 +17,7 @@ import PdfViewerModal from '../src/components/modais/PdfViewerModal';
 import { CreateCreditCardModal } from '../src/components/pages/confirm/CreateCreditCardModal';
 // eslint-disable-next-line max-len
 import { RetroactiveQuotationWarningBanner } from '../src/components/quotations/RetroactiveQuotationWarningBanner';
+import { SupplierOpeningHourBanner } from '../src/components/quotations/SupplierOpeningHourBanner';
 import { getCreditCards } from '../src/services/creditCardService';
 import { CreditCard } from '../src/types/creditCardTypes';
 import { SupplierData } from './quotationDetailsScreen';
@@ -28,7 +29,6 @@ import {
   checkSupplierAvailabilityMessage,
   SupplierAvailabilityOnConfirm,
 } from '../src/utils/supplierUtils';
-import { getSecondsUntilTime } from '../src/utils/timeUtils';
 import PageContainer from '../src/components/box/PageContainer';
 import CustomAlert from '../src/components/modais/CustomAlert';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
@@ -70,6 +70,7 @@ export default function Confirm() {
   const [showPdfModal, setShowPdfModal] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [alertMessage, setAlertMessage] = useState<string>('');
+  const [showStaleQuotationAlert, setShowStaleQuotationAlert] = useState<boolean>(false);
   const [supplierAvailability, setSupplierAvailability] = useState<SupplierAvailabilityOnConfirm>();
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const [openCreditCardDialog, setOpenCreditCardDialog] = useState<boolean>(false);
@@ -83,7 +84,8 @@ export default function Confirm() {
     scheduleItems: false,
     sundayWarning: false,
   });
-  const { selectedRestaurant } = useRestaurantContext();
+  const { selectedRestaurant, loadRestaurants } = useRestaurantContext();
+  const isSubmittingRef = useRef(false);
   const { deliveryDate, getFormattedDate, resetDeliveryDate, isRetroactiveDate } =
     useDeliveryDate();
   const { isLargeScreen } = useResponsiveness();
@@ -118,10 +120,10 @@ export default function Confirm() {
     }
   }, [loadingToConfirm]);
 
-  useInactivityRedirect({
+  const { resetTimer } = useInactivityRedirect({
     timeout: 120000,
     redirectPath: '/prices',
-    enabled: pathname === '/confirm',
+    enabled: pathname === '/confirm' && !loadingToConfirm,
   });
 
   const loadSupplier = useCallback(async () => {
@@ -213,7 +215,7 @@ export default function Confirm() {
     [supplier, cartOrder],
   );
 
-  const isOpen = () => {
+  const isOpen = (restaurant = selectedRestaurant) => {
     const currentDate = getBrazilDateTime();
     const currentHour = Number(
       `${currentDate.hour.toString().length < 2 ? `0${currentDate.hour}` : currentDate.hour}${
@@ -225,7 +227,7 @@ export default function Confirm() {
       Number(supplier?.supplier?.hour.replaceAll(':', '')) >= currentHour &&
       (supplier?.supplier?.minimumOrder <= supplier?.supplier?.discount.orderValueFinish ||
         hasSameDayOrdersWithSupplier ||
-        (selectedRestaurant?.allowMinimumOrder ?? false))
+        (restaurant?.allowMinimumOrder ?? false))
     );
   };
 
@@ -240,9 +242,10 @@ export default function Confirm() {
       scheduleItems?: boolean;
       sundayWarning?: boolean;
     }) => {
-      if (disableConfirm) {
+      if (isSubmittingRef.current) {
         return;
       }
+      isSubmittingRef.current = true;
       setDisableConfirm(true);
 
       try {
@@ -281,34 +284,64 @@ export default function Confirm() {
         }
 
         setLoadingToConfirm(true);
+
+        const allowEmergencyOrderBeforeRefresh = selectedRestaurant.allowEmergencyOrder;
+
+        let restaurantForValidation = selectedRestaurant;
+        try {
+          const freshRestaurants = await loadRestaurants(selectedRestaurant);
+          restaurantForValidation =
+            freshRestaurants.find((r) => r.externalId === selectedRestaurant.externalId) ??
+            selectedRestaurant;
+        } catch (refreshError) {
+          console.error(
+            'Erro ao revalidar dados do restaurante antes de confirmar pedido:',
+            refreshError,
+          );
+          setShowErros([
+            'Não foi possível validar os dados do restaurante. Verifique sua conexão e tente novamente.',
+          ]);
+          setBooleanErros(true);
+          setLoadingToConfirm(false);
+          return;
+        }
+
         const body: ConfirmOrderRequestBody = {
           token,
           supplier: supplier.supplier,
-          restaurant: selectedRestaurant,
+          restaurant: restaurantForValidation,
           appVersion: process.env.EXPO_PUBLIC_VERSION,
           creditCardId: selectedCreditCard?.id,
-          deliveryDate: selectedRestaurant.allowEmergencyOrder
+          deliveryDate: restaurantForValidation.allowEmergencyOrder
             ? getBrazilDateTime().toISODate()
             : deliveryDate,
         };
 
         const erros = [];
-        if (!selectedRestaurant.allowEmergencyOrder) {
-          if (!isOpen() && !selectedRestaurant.allowClosedSupplier) {
+        if (!restaurantForValidation.allowEmergencyOrder) {
+          if (!isOpen(restaurantForValidation) && !restaurantForValidation.allowClosedSupplier) {
             erros.push('O fornecedor está fechado');
           }
           if (
             supplier?.supplier?.minimumOrder > supplier?.supplier?.discount.orderValueFinish &&
-            !selectedRestaurant.allowMinimumOrder &&
+            !restaurantForValidation.allowMinimumOrder &&
             !hasSameDayOrdersWithSupplier
           ) {
             erros.push('O valor do pedido não atingiu o mínimo do fornecedor');
           }
 
           if (erros.length > 0) {
+            setLoadingToConfirm(false);
+
+            const emergencyFlagChanged =
+              allowEmergencyOrderBeforeRefresh !== restaurantForValidation.allowEmergencyOrder;
+            if (emergencyFlagChanged) {
+              setShowStaleQuotationAlert(true);
+              return;
+            }
+
             setShowErros(erros);
             setBooleanErros(true);
-            setLoadingToConfirm(false);
             return;
           }
         }
@@ -336,13 +369,13 @@ export default function Confirm() {
         setShowErros([errorMessage]);
         setBooleanErros(true);
       } finally {
+        isSubmittingRef.current = false;
         setLoadingToConfirm(false);
         setDisableConfirm(false);
       }
     },
     [
       supplier,
-      disableConfirm,
       selectedRestaurant,
       router,
       confirmedWarnings,
@@ -350,6 +383,7 @@ export default function Confirm() {
       deliveryDate,
       selectedCreditCard,
       resetDeliveryDate,
+      loadRestaurants,
     ],
   );
 
@@ -387,7 +421,8 @@ export default function Confirm() {
           .map(Number) ?? [13, 0];
         const errors = await scheduleNotification(
           selectedRestaurant!.addressInfos[0].responsibleReceivingPhoneNumber,
-          getSecondsUntilTime(targetHours, targetMinutes),
+          targetHours,
+          targetMinutes,
         );
 
         setShowErros(errors);
@@ -429,7 +464,13 @@ export default function Confirm() {
 
   if (loadingToConfirm) {
     return (
-      <View backgroundColor="#e3e6e7" flex={1} justifyContent="center" alignItems="center">
+      <View
+        testID="tela-confirmando-pedido"
+        backgroundColor="#e3e6e7"
+        flex={1}
+        justifyContent="center"
+        alignItems="center"
+      >
         <Image width={300} height={300} source={require('../assets/images/korzina.gif')} />
         <Text fontWeight="800" paddingTop={20}>
           Estamos confirmando o seu pedido{dots}
@@ -440,7 +481,15 @@ export default function Confirm() {
 
   return (
     <PageContainer backgroundColor="white">
-      <Stack backgroundColor="#F9F9F9" height="100%" position="relative">
+      <Stack
+        backgroundColor="#F9F9F9"
+        height="100%"
+        position="relative"
+        onStartShouldSetResponderCapture={() => {
+          resetTimer();
+          return false;
+        }}
+      >
         <DialogInstance
           openModal={booleanErros}
           setRegisterInvalid={setBooleanErros}
@@ -471,6 +520,18 @@ export default function Confirm() {
           title="Endereço Incompleto"
           message={alertMessage}
           onConfirm={() => setIsAlertVisible(false)}
+          width="80%"
+        />
+        <CustomAlert
+          visible={showStaleQuotationAlert}
+          title="Cotação desatualizada"
+          // eslint-disable-next-line max-len
+          message="As condições deste fornecedor mudaram desde que a cotação foi gerada. Você será redirecionado para gerar uma nova cotação."
+          onConfirm={async () => {
+            setShowStaleQuotationAlert(false);
+            await deleteStorage('supplierSelected');
+            router.push('/prices');
+          }}
           width="80%"
         />
         <SundayOrderAlert
@@ -523,6 +584,11 @@ export default function Confirm() {
               </View>
             </View>
           </View>
+          {!isSuppliersAvailableForOrder && supplierAvailability?.openingTime && (
+            <View marginLeft="auto" marginRight="4px" alignSelf="center">
+              <BadgeText text={`Abre às ${supplierAvailability.openingTime}`} color="#801c1c" />
+            </View>
+          )}
         </View>
 
         <ScrollView backgroundColor="white">
@@ -886,18 +952,9 @@ export default function Confirm() {
             </View>
           </View>
         </ScrollView>
-        <View paddingTop={10} paddingHorizontal={10}>
-          <Text
-            marginHorizontal="auto"
-            color="red"
-            fontSize={10}
-            textAlign="center"
-            display={isSuppliersAvailableForOrder ? 'none' : 'flex'}
-          >
-            {supplierAvailability?.mainMessage || 'Fornecedor indisponível para pedidos no momento'}
-            {isLargeScreen ? '.' : ', agende uma notificação para alertar no horário'}
-          </Text>
-        </View>
+        {!isSuppliersAvailableForOrder && (
+          <SupplierOpeningHourBanner message={supplierAvailability?.mainMessage} />
+        )}
         <View
           backgroundColor="white"
           gap={10}
@@ -912,10 +969,15 @@ export default function Confirm() {
             }}
             width={170}
             backgroundColor="#000"
+            hoverStyle={{
+              backgroundColor: '#000',
+              opacity: 0.9,
+            }}
           >
             <Text color="white">Alterar itens</Text>
           </Button>
           <Button
+            testID="botao-confirmar-pedido"
             disabled={
               disableConfirm ||
               isRetroactiveDate ||
@@ -923,12 +985,23 @@ export default function Confirm() {
             }
             onPress={onConfirmPressDebounced}
             width={170}
-            backgroundColor="#04BF7B"
+            backgroundColor={isSuppliersAvailableForOrder ? '#04BF7B' : 'transparent'}
+            borderColor="#04BF7B"
+            hoverStyle={{
+              backgroundColor: isSuppliersAvailableForOrder ? '#04BF7B' : 'transparent',
+              borderColor: '#04BF7B',
+              opacity: 0.9,
+            }}
             disabledStyle={{
               backgroundColor: '#A9A9A9',
             }}
           >
-            <Text fontSize={13} color="white" textAlign="center" style={{ fontSize: 12 }}>
+            <Text
+              fontSize={13}
+              color={isSuppliersAvailableForOrder ? 'white' : '#04BF7B'}
+              textAlign="center"
+              style={{ fontSize: 12 }}
+            >
               {isSuppliersAvailableForOrder ? 'Confirmar pedido' : 'Agendar notificação'}
             </Text>
           </Button>

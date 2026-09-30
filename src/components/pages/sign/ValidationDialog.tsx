@@ -66,7 +66,11 @@ export function ValidationDialog(props: {
           </Dialog.Description>
 
           {props.erros.map((erro) => {
-            return <Text key={erro}>{erro}</Text>;
+            return (
+              <Text key={erro} data-testid="validation-dialog-erro">
+                {erro}
+              </Text>
+            );
           })}
 
           <XStack alignSelf="center" gap="$4">
@@ -74,6 +78,7 @@ export function ValidationDialog(props: {
               {/* Envolva os botões em um container único */}
               <XStack gap="$4">
                 <Button
+                  data-testid="validation-dialog-ok"
                   width="$20"
                   theme="active"
                   aria-label="Close"
@@ -89,6 +94,7 @@ export function ValidationDialog(props: {
                     erro.includes('já existe na plataforma'),
                 ) && (
                   <Button
+                    data-testid="validation-dialog-suporte"
                     width="$20"
                     theme="active"
                     backgroundColor="#FFA500"

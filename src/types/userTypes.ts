@@ -18,6 +18,7 @@ export type SignUpRequest = {
     name: string;
     position: string;
     phone: string;
+    inviteCode?: string;
 }
 
 export type PasswordChangeRequest = {
