@@ -30,6 +30,8 @@ enum PricesTabs {
   ONLY_SUPPLIER = 'onlySupplier',
 }
 
+type EntryStage = 'refreshing' | 'loading' | 'done';
+
 export default function Prices() {
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
   const [editInfos, setEditInfos] = useState<boolean>(false);
@@ -62,9 +64,12 @@ export default function Prices() {
 
   const lastLoadedRestaurantId = useRef<string | null>(null);
   const hasCheckedDeliveryData = useRef(false);
+  const [entryStage, setEntryStage] = useState<EntryStage>(
+    checkDeliveryData === 'true' ? 'refreshing' : 'done',
+  );
 
   const handleLoadPrices = useCallback(
-    async (restaurant: Restaurant) => {
+    async (restaurant: Restaurant, reloadRestaurants: boolean = true) => {
       try {
         const newTab = restaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER;
 
@@ -77,7 +82,7 @@ export default function Prices() {
             await getCombinationsByRestaurant(restaurant.id);
             break;
           case PricesTabs.ONLY_SUPPLIER:
-            await getPricesBySupplier(restaurant.externalId);
+            await getPricesBySupplier(restaurant.externalId, undefined, reloadRestaurants);
             break;
         }
       } catch (err) {
@@ -88,10 +93,18 @@ export default function Prices() {
   );
 
   useEffect(() => {
-    if (selectedRestaurant && selectedRestaurant.id !== lastLoadedRestaurantId.current) {
+    if (!selectedRestaurant || entryStage === 'refreshing') return;
+
+    if (entryStage === 'loading') {
+      setEntryStage('done');
+      handleLoadPrices(selectedRestaurant, false);
+      return;
+    }
+
+    if (selectedRestaurant.id !== lastLoadedRestaurantId.current) {
       handleLoadPrices(selectedRestaurant);
     }
-  }, [selectedRestaurant, handleLoadPrices]);
+  }, [selectedRestaurant, handleLoadPrices, entryStage]);
 
   useEffect(() => {
     async function getCart() {
@@ -119,20 +132,17 @@ export default function Prices() {
 
     hasCheckedDeliveryData.current = true;
 
-    const checkSavedDeliveryData = async () => {
-      let restaurant = selectedRestaurant;
-      try {
-        const freshRestaurants = await loadRestaurants(selectedRestaurant);
-        restaurant =
-          freshRestaurants.find((r) => r.externalId === selectedRestaurant.externalId) ??
-          selectedRestaurant;
-      } catch (error) {
-        console.error('Erro ao atualizar os dados do restaurante:', error);
-      }
+    const refreshAndCheckDeliveryData = async () => {
+      const freshRestaurants = await loadRestaurants(selectedRestaurant);
+      const restaurant = freshRestaurants.find(
+        (r) => r.externalId === selectedRestaurant.externalId,
+      );
 
-      if (hasDeliveryDataPendencies(restaurant.addressInfos?.[0])) setEditInfos(true);
+      if (restaurant && hasDeliveryDataPendencies(restaurant.addressInfos?.[0])) setEditInfos(true);
+
+      setEntryStage('loading');
     };
-    checkSavedDeliveryData();
+    refreshAndCheckDeliveryData();
   }, [checkDeliveryData, selectedRestaurant, loadRestaurants]);
 
   const ensureDeliveryData = (): boolean => {
@@ -218,7 +228,7 @@ export default function Prices() {
     );
   }
 
-  if (confirmLoading || !selectedRestaurant) {
+  if (confirmLoading || !selectedRestaurant || entryStage === 'refreshing') {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <LoadingActivityIndicator />
@@ -310,7 +320,11 @@ export default function Prices() {
                   )}
 
                   {tab === PricesTabs.ONLY_SUPPLIER && (
-                    <SuppliersList cart={cart} goToConfirm={goToConfirm} />
+                    <SuppliersList
+                      cart={cart}
+                      goToConfirm={goToConfirm}
+                      reloadRestaurantsOnMount={entryStage !== 'loading'}
+                    />
                   )}
                 </View>
               </View>

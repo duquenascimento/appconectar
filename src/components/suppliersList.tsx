@@ -17,6 +17,7 @@ import BadgeText from './text/BadgeText';
 interface SuppliersListProps {
   cart: Map<string, TCart> | undefined;
   goToConfirm: (supplier: SupplierData, selectedRestaurant: Restaurant) => void;
+  reloadRestaurantsOnMount?: boolean;
 }
 
 function SupplierBox({
@@ -163,7 +164,11 @@ function SupplierBox({
   );
 }
 
-const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
+const SuppliersList: React.FC<SuppliersListProps> = ({
+  cart,
+  goToConfirm,
+  reloadRestaurantsOnMount = true,
+}) => {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const { selectedRestaurant } = useRestaurantContext();
   const { availableSuppliers, unavailableSuppliers, loadingSuppliers, getPricesBySupplier } =
@@ -172,7 +177,7 @@ const SuppliersList: React.FC<SuppliersListProps> = ({ cart, goToConfirm }) => {
   useEffect(() => {
     const initialize = async () => {
       try {
-        await getPricesBySupplier();
+        await getPricesBySupplier(undefined, undefined, reloadRestaurantsOnMount);
       } catch (error) {
         setIsAlertVisible(true);
       }

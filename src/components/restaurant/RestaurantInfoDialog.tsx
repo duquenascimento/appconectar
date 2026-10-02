@@ -1,6 +1,6 @@
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import React, { forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Input, ScrollView, Text, View } from 'tamagui';
@@ -52,6 +52,8 @@ const CustomDateInput = forwardRef<any, { value?: string; onClick?: () => void }
     </TouchableOpacity>
   ),
 );
+
+const INPUT_HEIGHT = 43;
 
 interface RestaurantInfoDialogProps {
   visible: boolean;
@@ -127,18 +129,11 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     [clientSettings.maxRetroactiveQuotationDays],
   );
 
-  // The form always opens with the saved data, discarding any unsaved restaurant switch
-  useEffect(() => {
-    if (visible) setDraftSelectedRestaurant(null);
-  }, [visible]);
+  const wasVisible = useRef(false);
+  const selectedRestaurantRef = useRef(selectedRestaurant);
+  selectedRestaurantRef.current = selectedRestaurant;
 
-  // Load form data when selected restaurant or draft changes, and every time the form opens
-  useEffect(() => {
-    if (!visible) return;
-
-    const restaurant = draftSelectedRestaurant || selectedRestaurant;
-    if (!restaurant) return;
-
+  const fillForm = (restaurant: Restaurant) => {
     const addressInfo = restaurant.addressInfos?.[0];
     if (!addressInfo) return;
 
@@ -157,7 +152,24 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
     setIsCityLocked(!!addressInfo.city?.trim());
     setIsNeighborhoodLocked(!!addressInfo.neighborhood?.trim());
-  }, [visible, draftSelectedRestaurant, selectedRestaurant]);
+  };
+
+  // Fields are loaded only when the form opens or the client picks another restaurant, so a
+  // refresh of the selected restaurant never overwrites what is being typed
+  useEffect(() => {
+    const isOpening = visible && !wasVisible.current;
+    wasVisible.current = visible;
+
+    if (!visible) return;
+
+    if (isOpening) {
+      setDraftSelectedRestaurant(null);
+      if (selectedRestaurantRef.current) fillForm(selectedRestaurantRef.current);
+      return;
+    }
+
+    if (draftSelectedRestaurant) fillForm(draftSelectedRestaurant);
+  }, [visible, draftSelectedRestaurant]);
 
   // Generate hour options
   useEffect(() => {
@@ -916,6 +928,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       <Input
                         testID="dados-entrega-input-cep"
                         maxLength={9}
+                        height={INPUT_HEIGHT}
                         backgroundColor="white"
                         borderColor={errorBorderColor('cep')}
                         borderRadius={5}
@@ -948,7 +961,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         color={isCityLocked ? 'gray' : 'black'}
                         fontSize={12}
                         disabled={isCityLocked}
-                        flex={1}
+                        height={INPUT_HEIGHT}
                         backgroundColor="white"
                         borderColor={errorBorderColor('cidade')}
                         borderRadius={5}
@@ -982,6 +995,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       color={isNeighborhoodLocked ? 'gray' : 'black'}
                       fontSize={12}
                       disabled={isNeighborhoodLocked}
+                      height={INPUT_HEIGHT}
                       backgroundColor="white"
                       borderColor={errorBorderColor('bairro')}
                       borderRadius={5}
@@ -1019,6 +1033,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       <Input
                         testID="dados-entrega-input-rua"
                         maxLength={200}
+                        height={INPUT_HEIGHT}
                         onChangeText={handleStreetChange}
                         backgroundColor="white"
                         borderColor={errorBorderColor('rua')}
@@ -1060,9 +1075,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       <Input
                         testID="dados-entrega-input-numero"
                         maxLength={25}
-                        {...(isLargeScreen && { height: 43 })}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor={errorBorderColor('numero')}
                         borderRadius={5}
@@ -1090,8 +1104,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       </Text>
                       <Input
                         maxLength={200}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor="lightgray"
                         borderRadius={5}
@@ -1126,8 +1140,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       <Input
                         testID="dados-entrega-input-responsavel"
                         maxLength={200}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor={errorBorderColor('responsavel')}
                         borderRadius={5}
@@ -1155,8 +1169,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       <Input
                         testID="dados-entrega-input-telefone"
                         maxLength={15}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor={errorBorderColor('telefone')}
                         borderRadius={5}
@@ -1189,8 +1203,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       </Text>
                       <Input
                         maxLength={500}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor="lightgray"
                         borderRadius={5}
