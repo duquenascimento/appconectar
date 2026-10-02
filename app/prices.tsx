@@ -7,7 +7,7 @@ import { SupplierData } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearPurchaseStorage, getStorage, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { Stack, Text, View } from 'tamagui';
@@ -23,11 +23,14 @@ import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
+import { hasDeliveryDataPendencies } from '../src/utils/deliveryDataValidation';
 
 enum PricesTabs {
   CONECTAR_PLUS = 'plus',
   ONLY_SUPPLIER = 'onlySupplier',
 }
+
+type EntryStage = 'refreshing' | 'loading' | 'done';
 
 export default function Prices() {
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
@@ -41,12 +44,14 @@ export default function Prices() {
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
+  const { checkDeliveryData } = useLocalSearchParams<{ checkDeliveryData?: string }>();
   const {
     restaurants,
     selectedRestaurant,
     handleRestaurantChange,
     areRestaurantsLoading,
     hasConectarPlusAccess,
+    loadRestaurants,
   } = useRestaurantContext();
   const { errorMessage: deliveryDateErrorMessage } = useDeliveryDate();
   const { getCombinationsByRestaurant } = useCombination();
@@ -58,9 +63,13 @@ export default function Prices() {
   const { isLargeScreen } = useResponsiveness();
 
   const lastLoadedRestaurantId = useRef<string | null>(null);
+  const hasCheckedDeliveryData = useRef(false);
+  const [entryStage, setEntryStage] = useState<EntryStage>(
+    checkDeliveryData === 'true' ? 'refreshing' : 'done',
+  );
 
   const handleLoadPrices = useCallback(
-    async (restaurant: Restaurant) => {
+    async (restaurant: Restaurant, reloadRestaurants: boolean = true) => {
       try {
         const newTab = restaurant.premium ? PricesTabs.CONECTAR_PLUS : PricesTabs.ONLY_SUPPLIER;
 
@@ -73,7 +82,7 @@ export default function Prices() {
             await getCombinationsByRestaurant(restaurant.id);
             break;
           case PricesTabs.ONLY_SUPPLIER:
-            await getPricesBySupplier(restaurant.externalId);
+            await getPricesBySupplier(restaurant.externalId, undefined, reloadRestaurants);
             break;
         }
       } catch (err) {
@@ -84,10 +93,18 @@ export default function Prices() {
   );
 
   useEffect(() => {
-    if (selectedRestaurant && selectedRestaurant.id !== lastLoadedRestaurantId.current) {
+    if (!selectedRestaurant || entryStage === 'refreshing') return;
+
+    if (entryStage === 'loading') {
+      setEntryStage('done');
+      handleLoadPrices(selectedRestaurant, false);
+      return;
+    }
+
+    if (selectedRestaurant.id !== lastLoadedRestaurantId.current) {
       handleLoadPrices(selectedRestaurant);
     }
-  }, [selectedRestaurant, handleLoadPrices]);
+  }, [selectedRestaurant, handleLoadPrices, entryStage]);
 
   useEffect(() => {
     async function getCart() {
@@ -106,11 +123,42 @@ export default function Prices() {
     }, 1000);
   };
 
-  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: Restaurant) => {
+  const hasPendingDeliveryData =
+    !!selectedRestaurant && hasDeliveryDataPendencies(selectedRestaurant.addressInfos?.[0]);
+
+  useEffect(() => {
+    if (checkDeliveryData !== 'true' || hasCheckedDeliveryData.current || !selectedRestaurant)
+      return;
+
+    hasCheckedDeliveryData.current = true;
+
+    const refreshAndCheckDeliveryData = async () => {
+      const freshRestaurants = await loadRestaurants(selectedRestaurant);
+      const restaurant = freshRestaurants.find(
+        (r) => r.externalId === selectedRestaurant.externalId,
+      );
+
+      if (restaurant && hasDeliveryDataPendencies(restaurant.addressInfos?.[0])) setEditInfos(true);
+
+      setEntryStage('loading');
+    };
+    refreshAndCheckDeliveryData();
+  }, [checkDeliveryData, selectedRestaurant, loadRestaurants]);
+
+  const ensureDeliveryData = (): boolean => {
+    if (!hasPendingDeliveryData) return true;
+
+    setEditInfos(true);
+    return false;
+  };
+
+  const goToConfirm = async (supplier: SupplierData, restaurant: Restaurant) => {
+    if (!ensureDeliveryData()) return;
+
     try {
       setConfirmLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
-      await setStorageRestaurant(selectedRestaurant);
+      await setStorageRestaurant(restaurant);
       router.push('/confirm');
     } catch (err) {
       console.error(err);
@@ -180,7 +228,7 @@ export default function Prices() {
     );
   }
 
-  if (confirmLoading || !selectedRestaurant) {
+  if (confirmLoading || !selectedRestaurant || entryStage === 'refreshing') {
     return (
       <View flex={1} justifyContent="center" alignItems="center">
         <LoadingActivityIndicator />
@@ -220,6 +268,7 @@ export default function Prices() {
             alignSelf="center"
           >
             <View
+              testID="aba-conectar-plus"
               disabled={!selectedRestaurant?.premium}
               opacity={selectedRestaurant?.premium ? 1 : 0.4}
               onPress={() => setTab(PricesTabs.CONECTAR_PLUS)}
@@ -238,6 +287,7 @@ export default function Prices() {
               />
             </View>
             <View
+              testID="aba-por-fornecedor"
               onPress={() => setTab(PricesTabs.ONLY_SUPPLIER)}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}
@@ -265,11 +315,18 @@ export default function Prices() {
               <View backgroundColor="white" flex={1} paddingHorizontal={5}>
                 <View padding={10} paddingTop={0} height="100%">
                   {tab === PricesTabs.CONECTAR_PLUS && (
-                    <CombinationList handleConfirm={handleConfirm} />
+                    <CombinationList
+                      handleConfirm={handleConfirm}
+                      ensureDeliveryData={ensureDeliveryData}
+                    />
                   )}
 
                   {tab === PricesTabs.ONLY_SUPPLIER && (
-                    <SuppliersList cart={cart} goToConfirm={goToConfirm} />
+                    <SuppliersList
+                      cart={cart}
+                      goToConfirm={goToConfirm}
+                      reloadRestaurantsOnMount={entryStage !== 'loading'}
+                    />
                   )}
                 </View>
               </View>

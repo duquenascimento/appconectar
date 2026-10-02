@@ -170,7 +170,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
         ]}
         pointerEvents="box-none"
       >
-        <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+        <TouchableOpacity testID="botao-carrinho" activeOpacity={0.9} onPress={onPress}>
           <View
             backgroundColor="#FFA500"
             width={160}

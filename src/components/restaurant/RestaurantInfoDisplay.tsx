@@ -56,6 +56,7 @@ export const RestaurantInfoDisplay: React.FC<RestaurantInfoDisplayProps> = ({
 
   return (
     <View
+      testID="botao-editar-dados-entrega"
       onPress={onEditPress}
       backgroundColor="white"
       paddingBottom={10}

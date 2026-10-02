@@ -696,12 +696,13 @@ export default React.memo(function Cart() {
                 </View>
               )} */}
               <Button
+                testID="botao-ver-cotacoes"
                 borderRadius={10}
                 onPress={() => {
                   setLoading(true);
                   checkAlertItems(products);
                   saveCartArray(cart, cartToExclude).then(() => {
-                    router.push('prices');
+                    router.push({ pathname: 'prices', params: { checkDeliveryData: 'true' } });
                   });
                 }}
                 justifyContent="center"

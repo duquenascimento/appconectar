@@ -1,6 +1,6 @@
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-import React, { forwardRef, useEffect, useMemo, useState } from 'react';
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, TouchableOpacity } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { Button, Input, ScrollView, Text, View } from 'tamagui';
@@ -13,6 +13,11 @@ import {
   getBrazilJSDateTomorrow,
   getMinRetroactiveJSDate,
 } from '../../utils/dateUtils';
+import {
+  DeliveryDataField,
+  toValidHour,
+  validateDeliveryData,
+} from '../../utils/deliveryDataValidation';
 import { extractErrorMessage } from '../../utils/errorUtils';
 import { campoString } from '../../utils/formatCampos';
 import { filterLettersAndSpaces, removeZeroWidthChars } from '../../utils/stringUtils';
@@ -47,6 +52,8 @@ const CustomDateInput = forwardRef<any, { value?: string; onClick?: () => void }
     </TouchableOpacity>
   ),
 );
+
+const INPUT_HEIGHT = 43;
 
 interface RestaurantInfoDialogProps {
   visible: boolean;
@@ -93,8 +100,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   const [minHourOpen, setMinHourOpen] = useState(false);
   const [maxHourOpen, setMaxHourOpen] = useState(false);
   const [restOpen, setRestOpen] = useState(false);
-  const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [isCityLocked, setIsCityLocked] = useState<boolean>(false);
+  const [isNeighborhoodLocked, setIsNeighborhoodLocked] = useState<boolean>(false);
   const [saveFeedback, setSaveFeedback] = useState<{ succeeded: boolean; message: string } | null>(
     null,
   );
@@ -122,11 +129,11 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     [clientSettings.maxRetroactiveQuotationDays],
   );
 
-  // Load form data when selected restaurant or draft changes
-  useEffect(() => {
-    const restaurant = draftSelectedRestaurant || selectedRestaurant;
-    if (!restaurant) return;
+  const wasVisible = useRef(false);
+  const selectedRestaurantRef = useRef(selectedRestaurant);
+  selectedRestaurantRef.current = selectedRestaurant;
 
+  const fillForm = (restaurant: Restaurant) => {
     const addressInfo = restaurant.addressInfos?.[0];
     if (!addressInfo) return;
 
@@ -140,10 +147,29 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     setStreet(addressInfo.address);
     setComplement(addressInfo.complement);
     setDeliveryInformation(addressInfo.deliveryInformation);
-    setMinHour(addressInfo.initialDeliveryTime?.substring(11, 16));
-    setMaxHour(addressInfo.finalDeliveryTime?.substring(11, 16));
+    setMinHour(toValidHour(addressInfo.initialDeliveryTime?.substring(11, 16)));
+    setMaxHour(toValidHour(addressInfo.finalDeliveryTime?.substring(11, 16)));
     setStreetComplete(`${addressInfo.localType ?? ''} ${addressInfo.address ?? ''}`.trim());
-  }, [draftSelectedRestaurant, selectedRestaurant]);
+    setIsCityLocked(!!addressInfo.city?.trim());
+    setIsNeighborhoodLocked(!!addressInfo.neighborhood?.trim());
+  };
+
+  // Fields are loaded only when the form opens or the client picks another restaurant, so a
+  // refresh of the selected restaurant never overwrites what is being typed
+  useEffect(() => {
+    const isOpening = visible && !wasVisible.current;
+    wasVisible.current = visible;
+
+    if (!visible) return;
+
+    if (isOpening) {
+      setDraftSelectedRestaurant(null);
+      if (selectedRestaurantRef.current) fillForm(selectedRestaurantRef.current);
+      return;
+    }
+
+    if (draftSelectedRestaurant) fillForm(draftSelectedRestaurant);
+  }, [visible, draftSelectedRestaurant]);
 
   // Generate hour options
   useEffect(() => {
@@ -202,40 +228,43 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     }
   }, [minHour, maxHour]);
 
-  const validateFields = () => {
-    const fieldLabels: { [key: string]: string } = {
-      zipCode: 'CEP',
-      localNumber: 'Número',
-      street: 'Rua',
-      responsibleReceivingName: 'Nome do responsável',
-      responsibleReceivingPhoneNumber: 'Telefone do responsável',
-      localType: 'Logradouro',
-      city: 'Cidade',
-      neighborhood: 'Bairro',
-    };
-
-    const fields: Record<string, string | undefined> = {
+  const pendencies = useMemo(
+    () =>
+      validateDeliveryData({
+        zipCode,
+        city,
+        neighborhood,
+        localType,
+        street,
+        localNumber,
+        responsibleName: responsibleReceivingName,
+        phone: responsibleReceivingPhoneNumber,
+        initialTime: minHour,
+        finalTime: maxHour,
+      }),
+    [
       zipCode,
-      localNumber,
-      street,
-      responsibleReceivingName,
-      responsibleReceivingPhoneNumber,
-      localType,
       city,
       neighborhood,
-    };
+      localType,
+      street,
+      localNumber,
+      responsibleReceivingName,
+      responsibleReceivingPhoneNumber,
+      minHour,
+      maxHour,
+    ],
+  );
+  const hasPendencies = Object.keys(pendencies).length > 0;
 
-    const requiredFields = Object.values(fields);
-    const isValid = requiredFields.every((field) => field?.trim());
+  const renderFieldError = (field: DeliveryDataField) =>
+    pendencies[field] ? (
+      <Text testID={`dados-entrega-erro-${field}`} color="red" fontSize={12} paddingLeft={5}>
+        {pendencies[field]}
+      </Text>
+    ) : null;
 
-    if (!isValid) {
-      const emptyFields = Object.keys(fields).filter((key) => !fields[key]?.trim());
-      setMissingFields(emptyFields.map((key) => fieldLabels[key]));
-      setIsAlertVisible(true);
-    }
-
-    return isValid;
-  };
+  const errorBorderColor = (field: DeliveryDataField) => (pendencies[field] ? 'red' : 'lightgray');
 
   const isDateSelectionDisabled = () => {
     const restaurant = draftSelectedRestaurant || selectedRestaurant;
@@ -369,20 +398,33 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
     if (formatted.length === 9) {
       setDialogLoading(true);
-      const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`);
-      const result = await response.json();
-      if (response.ok && !result.erro) {
-        const rawStreet = campoString(result.logradouro);
-        const [streetType, ...streetNameParts] = rawStreet.trim().split(' ');
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cleaned}/json/`);
+        const result = await response.json();
+        if (response.ok && !result.erro) {
+          const rawStreet = campoString(result.logradouro);
+          const [streetType, ...streetNameParts] = rawStreet.trim().split(' ');
+          const foundCity = campoString(result.localidade);
+          const foundNeighborhood = campoString(result.bairro);
 
-        setCity(campoString(result.localidade));
-        setNeighborhood(campoString(result.bairro));
-        setLocalType(streetType?.toUpperCase() || '');
-        setStreet(streetNameParts.join(' '));
-        setStreetComplete(rawStreet);
-        setLocalNumber('');
+          setCity(foundCity);
+          setNeighborhood(foundNeighborhood);
+          setIsCityLocked(!!foundCity.trim());
+          setIsNeighborhoodLocked(!!foundNeighborhood.trim());
+          setLocalType(streetType?.toUpperCase() || '');
+          setStreet(streetNameParts.join(' '));
+          setStreetComplete(rawStreet);
+          setLocalNumber('');
+        } else {
+          setIsCityLocked(false);
+          setIsNeighborhoodLocked(false);
+        }
+      } catch {
+        setIsCityLocked(false);
+        setIsNeighborhoodLocked(false);
+      } finally {
+        setDialogLoading(false);
       }
-      setDialogLoading(false);
     }
 
     setZipCode(formatted);
@@ -415,7 +457,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
   };
 
   const handleSavePress = async () => {
-    if (!validateFields()) return;
+    if (hasPendencies) return;
 
     setDialogLoading(true);
 
@@ -495,15 +537,6 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
     initializeDeliveryDates(restaurant.id);
   };
 
-  const isSaveButtonEnabled =
-    zipCode?.length === 9 &&
-    localNumber?.length &&
-    street?.length &&
-    responsibleReceivingName?.length &&
-    responsibleReceivingPhoneNumber?.length &&
-    localType?.length &&
-    city?.length;
-
   return (
     <View flex={1} justifyContent="center" alignItems="center" backgroundColor="white">
       <Modal transparent={true} animationType={isLargeScreen ? 'fade' : 'slide'}>
@@ -516,6 +549,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
             keyboardShouldPersistTaps="handled"
           >
             <View
+              testID="modal-dados-entrega"
               paddingBottom={15}
               paddingHorizontal={15}
               paddingTop={isLargeScreen ? 40 : 60}
@@ -768,6 +802,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         A partir de
                       </Text>
                       <DropDownPicker
+                        testID="dados-entrega-input-horario-inicio"
                         value={minHour}
                         setValue={setMinHour}
                         items={minhours.map((item) => ({
@@ -801,11 +836,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         placeholder=""
                         style={{
                           borderWidth: 1,
-                          borderColor: 'lightgray',
+                          borderColor: errorBorderColor('horario-inicio'),
                           borderRadius: 5,
                           flex: 1,
                         }}
                       />
+                      {renderFieldError('horario-inicio')}
                     </View>
 
                     <View
@@ -819,6 +855,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Até
                       </Text>
                       <DropDownPicker
+                        testID="dados-entrega-input-horario-fim"
                         value={maxHour}
                         setValue={setMaxHour}
                         items={maxhours.map((item) => ({
@@ -851,11 +888,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         placeholder=""
                         style={{
                           borderWidth: 1,
-                          borderColor: 'lightgray',
+                          borderColor: errorBorderColor('horario-fim'),
                           borderRadius: 5,
                           flex: 1,
                         }}
                       />
+                      {renderFieldError('horario-fim')}
                     </View>
                   </View>
 
@@ -888,9 +926,11 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Cep <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        testID="dados-entrega-input-cep"
                         maxLength={9}
+                        height={INPUT_HEIGHT}
                         backgroundColor="white"
-                        borderColor="lightgray"
+                        borderColor={errorBorderColor('cep')}
                         borderRadius={5}
                         focusStyle={{
                           borderColor: '#049A63',
@@ -903,6 +943,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         onChangeText={handleCepChange}
                         value={zipCode}
                       />
+                      {renderFieldError('cep')}
                     </View>
 
                     <View zIndex={-1} flex={1} {...(isLargeScreen && { marginTop: 10 })}>
@@ -915,15 +956,17 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Cidade <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        testID="dados-entrega-input-cidade"
                         maxLength={200}
-                        color="gray"
+                        color={isCityLocked ? 'gray' : 'black'}
                         fontSize={12}
-                        disabled
-                        flex={1}
+                        disabled={isCityLocked}
+                        height={INPUT_HEIGHT}
                         backgroundColor="white"
-                        borderColor="lightgray"
+                        borderColor={errorBorderColor('cidade')}
                         borderRadius={5}
                         value={city}
+                        onChangeText={setCity}
                         {...(!isLargeScreen && {
                           marginBottom: 10,
                           marginRight: 1,
@@ -938,6 +981,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                           borderWidth: 1,
                         }}
                       />
+                      {renderFieldError('cidade')}
                     </View>
                   </View>
 
@@ -946,14 +990,17 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       Bairro <Text color="red"> *</Text>
                     </Text>
                     <Input
+                      testID="dados-entrega-input-bairro"
                       maxLength={200}
-                      color="gray"
+                      color={isNeighborhoodLocked ? 'gray' : 'black'}
                       fontSize={12}
-                      disabled
+                      disabled={isNeighborhoodLocked}
+                      height={INPUT_HEIGHT}
                       backgroundColor="white"
-                      borderColor="lightgray"
+                      borderColor={errorBorderColor('bairro')}
                       borderRadius={5}
                       value={neighborhood}
+                      onChangeText={setNeighborhood}
                       {...(!isLargeScreen && {
                         marginBottom: 10,
                         marginRight: 1,
@@ -967,6 +1014,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         borderWidth: 1,
                       }}
                     />
+                    {renderFieldError('bairro')}
                   </View>
 
                   <View
@@ -983,10 +1031,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Rua <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        testID="dados-entrega-input-rua"
                         maxLength={200}
+                        height={INPUT_HEIGHT}
                         onChangeText={handleStreetChange}
                         backgroundColor="white"
-                        borderColor="lightgray"
+                        borderColor={errorBorderColor('rua')}
                         borderRadius={5}
                         value={streetComplete}
                         {...(isLargeScreen && {
@@ -1005,12 +1055,13 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                           borderWidth: 1,
                         }}
                       />
+                      {renderFieldError('rua')}
                     </View>
                   </View>
 
                   <View
                     zIndex={-1}
-                    height={70}
+                    minHeight={70}
                     marginBottom={5}
                     paddingTop={10}
                     gap={10}
@@ -1022,12 +1073,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Nº <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        testID="dados-entrega-input-numero"
                         maxLength={25}
-                        {...(isLargeScreen && { height: 43 })}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
-                        borderColor="lightgray"
+                        borderColor={errorBorderColor('numero')}
                         borderRadius={5}
                         value={localNumber}
                         keyboardType="numeric"
@@ -1044,6 +1095,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                           borderWidth: 1,
                         }}
                       />
+                      {renderFieldError('numero')}
                     </View>
 
                     <View flex={1} {...(!isLargeScreen && { position: 'relative' })}>
@@ -1052,8 +1104,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       </Text>
                       <Input
                         maxLength={200}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor="lightgray"
                         borderRadius={5}
@@ -1075,7 +1127,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
 
                   <View
                     zIndex={-1}
-                    height={70}
+                    minHeight={70}
                     paddingTop={10}
                     gap={10}
                     justifyContent="space-between"
@@ -1086,11 +1138,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Resp. recebimento <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        testID="dados-entrega-input-responsavel"
                         maxLength={200}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
-                        borderColor="lightgray"
+                        borderColor={errorBorderColor('responsavel')}
                         borderRadius={5}
                         value={responsibleReceivingName}
                         onChangeText={(value) => {
@@ -1106,6 +1159,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                           borderWidth: 1,
                         }}
                       />
+                      {renderFieldError('responsavel')}
                     </View>
 
                     <View flex={1}>
@@ -1113,11 +1167,12 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         Cel Resp. recebimento <Text color="red"> *</Text>
                       </Text>
                       <Input
+                        testID="dados-entrega-input-telefone"
                         maxLength={15}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
-                        borderColor="lightgray"
+                        borderColor={errorBorderColor('telefone')}
                         borderRadius={5}
                         value={responsibleReceivingPhoneNumber}
                         keyboardType="phone-pad"
@@ -1131,6 +1186,7 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                         }}
                         onChangeText={handlePhoneChange}
                       />
+                      {renderFieldError('telefone')}
                     </View>
                   </View>
 
@@ -1147,8 +1203,8 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                       </Text>
                       <Input
                         maxLength={500}
+                        height={INPUT_HEIGHT}
                         fontSize={14}
-                        flex={1}
                         backgroundColor="white"
                         borderColor="lightgray"
                         borderRadius={5}
@@ -1177,13 +1233,19 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
                 justifyContent="space-between"
                 flexDirection="row"
               >
-                <Button onPress={handleCancelPress} backgroundColor="#ff6d6d" flex={1}>
+                <Button
+                  testID="dados-entrega-cancelar"
+                  onPress={handleCancelPress}
+                  backgroundColor="#ff6d6d"
+                  flex={1}
+                >
                   <Text paddingLeft={5} fontSize={12} color="white">
                     Cancelar
                   </Text>
                 </Button>
                 <Button
-                  {...(isSaveButtonEnabled ? {} : { opacity: 0.4, disabled: true })}
+                  testID="dados-entrega-salvar"
+                  {...(hasPendencies ? { opacity: 0.4, disabled: true } : {})}
                   onPress={handleSavePress}
                   backgroundColor="#04BF7B"
                   flex={1}
@@ -1213,12 +1275,6 @@ export const RestaurantInfoDialog: React.FC<RestaurantInfoDialogProps> = ({
             </View>
           </ScrollView>
         </View>
-        <CustomAlert
-          visible={isAlertVisible}
-          title="Campos obrigatórios"
-          message={`Por favor, preencha todos os campos obrigatórios:\n\n- ${missingFields.join('\n- ')}`}
-          onConfirm={() => setIsAlertVisible(false)}
-        />
         <CustomAlert
           visible={!!saveFeedback}
           title={saveFeedback?.succeeded ? 'Dados salvos' : 'Não foi possível salvar'}
