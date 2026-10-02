@@ -696,6 +696,7 @@ export default React.memo(function Cart() {
                 </View>
               )} */}
               <Button
+                testID="botao-ver-cotacoes"
                 borderRadius={10}
                 onPress={() => {
                   setLoading(true);

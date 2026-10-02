@@ -184,6 +184,7 @@ export default function CombinationList({
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <CustomListItem
+            testID={`combinacao-${item.id}`}
             id={item.id}
             combination={item.combination}
             supplier={item.supplier}

@@ -47,6 +47,7 @@ function SupplierBox({
 
   return (
     <View
+      testID={`fornecedor-${supplier.supplier.externalId}`}
       opacity={available ? 1.0 : 0.4}
       onPress={() => {
         if (available) {

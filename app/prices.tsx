@@ -268,6 +268,7 @@ export default function Prices() {
             alignSelf="center"
           >
             <View
+              testID="aba-conectar-plus"
               disabled={!selectedRestaurant?.premium}
               opacity={selectedRestaurant?.premium ? 1 : 0.4}
               onPress={() => setTab(PricesTabs.CONECTAR_PLUS)}
@@ -286,6 +287,7 @@ export default function Prices() {
               />
             </View>
             <View
+              testID="aba-por-fornecedor"
               onPress={() => setTab(PricesTabs.ONLY_SUPPLIER)}
               cursor="pointer"
               hoverStyle={{ opacity: 0.75 }}

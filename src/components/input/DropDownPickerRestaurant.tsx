@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { TouchableOpacityProps } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { styled, useMedia } from 'tamagui';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
@@ -35,6 +36,8 @@ export function DropDownPickerRestaurant({ onBeforeChange }: DropDownPickerResta
 
   return (
     <DropDownPickerRestaurantStyled
+      testID="seletor-restaurante"
+      props={{ dataSet: { testid: 'seletor-restaurante' } } as TouchableOpacityProps}
       open={restaurantOpen}
       setOpen={setRestaurantOpen}
       value={selectedRestaurant?.externalId ?? ''}
