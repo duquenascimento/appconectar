@@ -701,7 +701,7 @@ export default React.memo(function Cart() {
                   setLoading(true);
                   checkAlertItems(products);
                   saveCartArray(cart, cartToExclude).then(() => {
-                    router.push('prices');
+                    router.push({ pathname: 'prices', params: { checkDeliveryData: 'true' } });
                   });
                 }}
                 justifyContent="center"

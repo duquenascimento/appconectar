@@ -7,7 +7,7 @@ import { SupplierData } from '@/src/types/types';
 import { setStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { clearPurchaseStorage, getStorage, setStorage } from '@/src/utils/utils';
 import Icons from '@expo/vector-icons/Ionicons';
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { Stack, Text, View } from 'tamagui';
@@ -23,6 +23,7 @@ import { useRestaurantContext } from '../src/contexts/restaurant.context';
 import { TCart } from '../src/types/cartTypes';
 import { Restaurant } from '../src/types/restaurantTypes';
 import { loadCart } from '../src/utils/cartUtils';
+import { hasDeliveryDataPendencies } from '../src/utils/deliveryDataValidation';
 
 enum PricesTabs {
   CONECTAR_PLUS = 'plus',
@@ -41,12 +42,14 @@ export default function Prices() {
   const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [cart, setCart] = useState<Map<string, TCart>>();
   const router = useRouter();
+  const { checkDeliveryData } = useLocalSearchParams<{ checkDeliveryData?: string }>();
   const {
     restaurants,
     selectedRestaurant,
     handleRestaurantChange,
     areRestaurantsLoading,
     hasConectarPlusAccess,
+    loadRestaurants,
   } = useRestaurantContext();
   const { errorMessage: deliveryDateErrorMessage } = useDeliveryDate();
   const { getCombinationsByRestaurant } = useCombination();
@@ -58,6 +61,7 @@ export default function Prices() {
   const { isLargeScreen } = useResponsiveness();
 
   const lastLoadedRestaurantId = useRef<string | null>(null);
+  const hasCheckedDeliveryData = useRef(false);
 
   const handleLoadPrices = useCallback(
     async (restaurant: Restaurant) => {
@@ -106,11 +110,45 @@ export default function Prices() {
     }, 1000);
   };
 
-  const goToConfirm = async (supplier: SupplierData, selectedRestaurant: Restaurant) => {
+  const hasPendingDeliveryData =
+    !!selectedRestaurant && hasDeliveryDataPendencies(selectedRestaurant.addressInfos?.[0]);
+
+  useEffect(() => {
+    if (checkDeliveryData !== 'true' || hasCheckedDeliveryData.current || !selectedRestaurant)
+      return;
+
+    hasCheckedDeliveryData.current = true;
+
+    const checkSavedDeliveryData = async () => {
+      let restaurant = selectedRestaurant;
+      try {
+        const freshRestaurants = await loadRestaurants(selectedRestaurant);
+        restaurant =
+          freshRestaurants.find((r) => r.externalId === selectedRestaurant.externalId) ??
+          selectedRestaurant;
+      } catch (error) {
+        console.error('Erro ao atualizar os dados do restaurante:', error);
+      }
+
+      if (hasDeliveryDataPendencies(restaurant.addressInfos?.[0])) setEditInfos(true);
+    };
+    checkSavedDeliveryData();
+  }, [checkDeliveryData, selectedRestaurant, loadRestaurants]);
+
+  const ensureDeliveryData = (): boolean => {
+    if (!hasPendingDeliveryData) return true;
+
+    setEditInfos(true);
+    return false;
+  };
+
+  const goToConfirm = async (supplier: SupplierData, restaurant: Restaurant) => {
+    if (!ensureDeliveryData()) return;
+
     try {
       setConfirmLoading(true);
       await setStorage('supplierSelected', JSON.stringify(supplier));
-      await setStorageRestaurant(selectedRestaurant);
+      await setStorageRestaurant(restaurant);
       router.push('/confirm');
     } catch (err) {
       console.error(err);
@@ -265,7 +303,10 @@ export default function Prices() {
               <View backgroundColor="white" flex={1} paddingHorizontal={5}>
                 <View padding={10} paddingTop={0} height="100%">
                   {tab === PricesTabs.CONECTAR_PLUS && (
-                    <CombinationList handleConfirm={handleConfirm} />
+                    <CombinationList
+                      handleConfirm={handleConfirm}
+                      ensureDeliveryData={ensureDeliveryData}
+                    />
                   )}
 
                   {tab === PricesTabs.ONLY_SUPPLIER && (
