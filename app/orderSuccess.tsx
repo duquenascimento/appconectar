@@ -9,7 +9,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, SafeAreaView, ScrollView } from 'react-native';
 import { Image, Separator, Text, View, XStack, YStack } from 'tamagui';
 import { formatCurrency } from '../src/utils/formatCurrency';
-import { getPaymentDate, getPaymentMethod } from '../src/utils/paymentUtils';
+import { getPaymentDate, getPaymentMethod, isPixPaymentMethod } from '../src/utils/paymentUtils';
 import { getDeliveryWindow } from '../src/utils/timeUtils';
 import { clearPurchaseStorage } from '@/src/utils/utils';
 import { getPixChargeByOrderId } from '@/src/services/pixService';
@@ -122,7 +122,7 @@ export default function OrderSuccess() {
     );
   }
 
-  const isPixPayment =  getPaymentMethod(restaurantDetails?.paymentWay ?? '') === 'PIX';
+  const isPixPayment =  isPixPaymentMethod(restaurantDetails?.paymentWay ?? '');
   return (
     <PageContainer backgroundColor="gray">
       <YStack
