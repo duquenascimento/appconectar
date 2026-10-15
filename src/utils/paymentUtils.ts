@@ -102,6 +102,8 @@ export const getPaymentDescription = (paymentWay: string): string => {
   return paymentDescriptions[paymentWay] || '';
 };
 
+export const isPixPaymentMethod = (paymentWay: string): boolean => paymentWay === 'AV01' || paymentWay === 'AV00';
+
 export const getPaymentMethod = (paymentWay: string): string => {
   const paymentDescriptions: PaymentDescriptions = {
     DI00: 'Diário',

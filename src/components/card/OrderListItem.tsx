@@ -6,6 +6,7 @@ import { getBrazilLocaleString } from '@/src/utils/dateUtils';
 import BadgeText from '@/src/components/text/BadgeText';
 import { ordersScreenStyles as styles } from '@/src/styles/styles';
 import { OrderHistory } from '@/src/types/IOrder';
+import { isPixPaymentMethod } from '@/src/utils/paymentUtils';
 
 interface OrderListItemProps {
   item: OrderHistory;
@@ -22,7 +23,7 @@ export default function OrderListItem({
   onPress,
 }: OrderListItemProps) {
   const isCanceled = item.status_id === 6;
-  const isPix = isCanceled ? false : item.paymentWay === 'AV01' || item.paymentWay === 'AV00';
+  const isPix = isCanceled ? false : isPixPaymentMethod(item.paymentWay);
 
   function BadgeComponent() {
     if (isCanceled) {
