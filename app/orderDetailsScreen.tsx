@@ -17,7 +17,7 @@ import { PixDisplay } from '@/src/components/PixDisplay';
 import { getPixChargeByOrderId } from '@/src/services/pixService';
 import { PixCharge } from '@/src/types/pixTypes';
 import { getOrderStatusDescription } from '@/src/utils/orderUtils';
-import { getPaymentMethod } from '@/src/utils/paymentUtils';
+import { isPixPaymentMethod } from '@/src/utils/paymentUtils';
 
 export default function OrderDetailsScreen() {
   const router = useRouter();
@@ -56,7 +56,7 @@ export default function OrderDetailsScreen() {
 
     const loadPixData = async (currentOrder: OrderData) => {
       /* status_id 8 = pagamento pendente */
-      if (!(getPaymentMethod(currentOrder.paymentWay) === 'PIX' && currentOrder.status_id === 8)) {
+      if (!(isPixPaymentMethod(currentOrder.paymentWay) && [8, 13].includes(currentOrder.status_id))) {
         return;
       }
 
@@ -138,7 +138,7 @@ export default function OrderDetailsScreen() {
   )?.supplier;
 
   const supplierName = supplier ? supplier.name : 'Fornecedor não encontrado';
-  const isPixPayment =  getPaymentMethod(order.paymentWay ?? '') === 'PIX';
+  const isPixPayment =  isPixPaymentMethod(order.paymentWay ?? '');
   return (
     <PageContainer backgroundColor="gray">
       <View flex={1} backgroundColor="#F0F2F6">
@@ -223,7 +223,7 @@ export default function OrderDetailsScreen() {
         >
           {isPixPayment && order && ![7, 12].includes(order.status_id) && (
             <View width={'100%'} alignItems="center">
-              {order.status_id !== 8 ? (
+              {![8, 13].includes(order.status_id) ? (
                 <Text fontSize={10} color="$gray9">QR Code expirado ou cancelado</Text>
               ) : (
                 <PixDisplay pixCharge={pixCharge} />
