@@ -284,7 +284,7 @@ export default function Register() {
           // (ex: remontagem da tela) antes do usuário avançar para o próximo step.
           await saveStepData(resetValues, 0);
         } else {
-          formik.setValues(progress.values);
+          formik.setValues({ ...formik.initialValues, ...progress.values });
           setStep(progress.step);
           if (progress.values.document) {
             const onlyNumbers = progress.values.document.replace(/\D/g, '');
