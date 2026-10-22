@@ -8,7 +8,7 @@ export const getFavorites = async (token: string, restaurantId: string): Promise
         const response = await axios.post(
             `${API_URL}/favorite/list`,
             { token, restaurantId },
-            { headers: { 'Content-Type': 'application/json' } }
+            { headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` } }
         )
 
         if (!response.data || !response.data.data) {
