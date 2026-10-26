@@ -44,8 +44,9 @@ export const step1Validation = Yup.object().shape({
   zipcode: Yup.string()
     .required('CEP é obrigatório')
     .min(9, 'CEP inválido')
-    .test('cep-valid', 'CEP inválido', async (value) => {
+    .test('cep-valid', 'CEP inválido', async function (value) {
       if (!value || value.replace(/\D/g, '').length !== 8) return false
+      if (this.options.context?.skipRemoteCepCheck) return true
       try {
         const response = await fetch(`https://viacep.com.br/ws/${value.replace(/\D/g, '')}/json/`)
         const result = await response.json()
@@ -131,3 +132,26 @@ export const step3Validation = Yup.object().shape({
   weeklyOrderAmount: Yup.string().required('Frequência de pedidos é obrigatória'),
   orderValue: Yup.string().required('Valor médio é obrigatório')
 })
+
+const stepSchemas = [step0Validation, step1Validation, step2Validation, step3Validation];
+
+export type InvalidStep = { step: number; errors: Yup.ValidationError[] };
+
+export const findFirstInvalidStep = async (
+  values: Record<string, unknown>,
+  beforeStep: number,
+): Promise<InvalidStep | null> => {
+  for (let step = 0; step < beforeStep; step += 1) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await stepSchemas[step].validate(values, {
+        abortEarly: false,
+        context: { skipRemoteCepCheck: true },
+      });
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) return { step, errors: error.inner };
+      throw error;
+    }
+  }
+  return null;
+};

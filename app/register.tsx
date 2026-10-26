@@ -16,6 +16,7 @@ import { getPaymentDescription } from '@/src/utils/paymentUtils';
 import { filterLettersAndSpaces } from '@/src/utils/stringUtils';
 import { isRegistrationExpired } from '@/src/utils/registerExpiration';
 import {
+  findFirstInvalidStep,
   step0Validation,
   step1Validation,
   step2Validation,
@@ -284,7 +285,7 @@ export default function Register() {
           // (ex: remontagem da tela) antes do usuário avançar para o próximo step.
           await saveStepData(resetValues, 0);
         } else {
-          formik.setValues(progress.values);
+          formik.setValues({ ...formik.initialValues, ...progress.values });
           setStep(progress.step);
           if (progress.values.document) {
             const onlyNumbers = progress.values.document.replace(/\D/g, '');
@@ -389,6 +390,22 @@ export default function Register() {
     allClosedDropdowns();
     try {
       await formik.validateForm();
+
+      const invalidPreviousStep = await findFirstInvalidStep(formik.values, step);
+      if (invalidPreviousStep) {
+        formik.setErrors(
+          invalidPreviousStep.errors.reduce<Record<string, string>>((acc, err) => {
+            acc[err.path ?? ''] = err.message;
+            return acc;
+          }, {}),
+        );
+        invalidPreviousStep.errors.forEach((err) => {
+          formik.setFieldTouched(err.path ?? '', true, false);
+        });
+        setStep(invalidPreviousStep.step);
+        setLoading(false);
+        return;
+      }
 
       let currentStepIsValid = true;
       const currentSchema =
