@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Stack, Text, View, YStack } from 'tamagui';
 import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
+import { ReferralLanding } from '@/src/components/pages/sign/landing/ReferralLanding';
 import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
 import { getPromoterNameByCode } from '@/src/services/promoterService';
 import { handleRegister } from '@/src/services/signHandlers';
@@ -54,20 +55,32 @@ export default function Cadastro() {
     router.replace('/');
   };
 
+  const isWeb = Platform.OS === 'web';
+  const landingCode = isWeb ? indicacao : undefined;
+
   return (
     <Stack backgroundColor="$background" height="100%">
-      {Platform.OS === 'web' ? (
+      {landingCode && (
+        <ReferralLanding
+          code={landingCode}
+          promoterName={promoterName}
+          positionOptions={positionOptions}
+          onRegisterPress={handleRegister}
+          onLoginPress={handleButtonPress}
+        />
+      )}
+      {isWeb && !landingCode && (
         <View height="100%">
           <SignUpWeb
             page="SignUp"
-            promoterName={promoterName}
             positionOptions={positionOptions}
             onRegisterPress={handleRegister}
             onButtonPress={handleButtonPress}
             modal={noop}
           />
         </View>
-      ) : (
+      )}
+      {!isWeb && (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}

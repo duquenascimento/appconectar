@@ -244,8 +244,8 @@ describe('Programa de indicação - Web', () => {
     await limparSessao();
     await acessarAplicacao(`/cadastro?indicacao=${CODIGO_PROMOTOR_REAL}`);
 
-    // O banner (SignUpWeb.tsx) só renderiza quando getPromoterNameByCode resolve
-    // um nome de verdade (props.promoterName ? ... : null — sem fallback genérico).
+    // O banner (PromoterBanner.tsx) só renderiza quando getPromoterNameByCode resolve
+    // um nome de verdade (sem fallback genérico).
     // Por isso usamos aqui um código de promotor REAL (fornecido pelo usuário),
     // diferente do PROMA/PROMB fictícios usados no teste de matriz de reset.
     const banner = await $('[data-testid="cadastro-banner-indicacao"]');

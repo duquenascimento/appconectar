@@ -8,6 +8,7 @@ interface ButtonComponentProps {
   backgroundColor?: string;
   textColor?: string;
   width?: string;
+  height?: number;
   disabled?: boolean;
 }
 
@@ -17,11 +18,13 @@ const CustomButton: React.FC<ButtonComponentProps> = ({
   backgroundColor = '#04BF7B',
   textColor = 'white',
   width,
+  height,
   disabled,
 }) => {
   return (
     <Button
       disabled={disabled}
+      height={height}
       backgroundColor={backgroundColor}
       onPress={onPress}
       alignItems="center"
