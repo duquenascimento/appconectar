@@ -9,6 +9,7 @@ import CustomAlert from '../modais/CustomAlert';
 interface ListItemProps extends Combination {
   tooltip?: string;
   onPress?: (id: string) => void;
+  testID?: string;
 }
 
 const ItemContainer = styled(XStack, {
@@ -96,6 +97,7 @@ const CustomListItem: React.FC<ListItemProps> = ({
   terminationCondition,
   tooltip,
   onPress,
+  testID,
 }) => {
   let description = unavailable
     ? (terminationCondition ?? `Fornecedor(es) \nfechado(s) ou \nabaixo do \nvalor mínimo`)
@@ -103,6 +105,7 @@ const CustomListItem: React.FC<ListItemProps> = ({
   const [tooltipVisible, setTooltipVisible] = React.useState(false);
   return (
     <TouchableOpacity
+      testID={testID}
       disabled={onPress === undefined || totalValue === 0 || unavailable ? true : false}
       onPress={onPress && (() => onPress(id))}
     >

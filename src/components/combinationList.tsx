@@ -20,6 +20,7 @@ import CustomSubtitle from './subtitle/customSubtitle';
 
 interface CombinationListProps {
   handleConfirm: () => void;
+  ensureDeliveryData: () => boolean;
 }
 
 const styles = StyleSheet.create({
@@ -31,7 +32,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export default function CombinationList({ handleConfirm }: CombinationListProps) {
+export default function CombinationList({
+  handleConfirm,
+  ensureDeliveryData,
+}: CombinationListProps) {
   const [isAlertVisible, setIsAlertVisible] = useState<boolean>(false);
   const [showNotification, setShowNotification] = useState(false);
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
@@ -61,6 +65,8 @@ export default function CombinationList({ handleConfirm }: CombinationListProps)
   }, []);
 
   const handleCombinationPress = async (item: Combination) => {
+    if (!ensureDeliveryData()) return;
+
     const selectedCombination = combinationData.filter((data) => data.id === item.id);
     const combinationSelected = selectedCombination as ChosenSupplierQuote[];
     const mergedData = mergeSupplierData(combinationSelected, availableSuppliers);
@@ -178,6 +184,7 @@ export default function CombinationList({ handleConfirm }: CombinationListProps)
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <CustomListItem
+            testID={`combinacao-${item.id}`}
             id={item.id}
             combination={item.combination}
             supplier={item.supplier}

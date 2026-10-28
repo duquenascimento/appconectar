@@ -22,6 +22,7 @@ import { SameDayOrder } from '../src/types/types';
 import { extractDefaultCreditCart } from '../src/utils/creditCardUtils';
 import { getBrazilDateTime, getBrazilDateTimeTomorrow } from '../src/utils/dateUtils';
 import { extractErrorMessage } from '../src/utils/errorUtils';
+import { validateAddress } from '../src/utils/validateAddress';
 import { getStorageRestaurant } from '../src/utils/restaurantUtils';
 import { checkSupplierAvailabilityMessageForConectarPlus } from '../src/utils/supplierUtils';
 import PageContainer from '../src/components/box/PageContainer';
@@ -133,6 +134,8 @@ export default function QuotationDetailsScreen() {
   const [showNotification, setShowNotification] = useState(false);
   const { selectedRestaurant } = useRestaurantContext();
   const [showSundayWarning, setShowSundayWarning] = useState(false);
+  const [isAddressAlertVisible, setIsAddressAlertVisible] = useState(false);
+  const [addressAlertMessage, setAddressAlertMessage] = useState('');
   const [showMissingItemsModal, setShowMissingItemsModal] = useState(false);
   const [confirmedWarnings, setConfirmedWarnings] = useState<{ sundayWarning: boolean }>({
     sundayWarning: false,
@@ -279,6 +282,13 @@ export default function QuotationDetailsScreen() {
           return;
         }
 
+        const addressValidation = validateAddress(selectedRestaurant);
+        if (!addressValidation.isValid) {
+          setAddressAlertMessage(addressValidation.message);
+          setIsAddressAlertVisible(true);
+          return;
+        }
+
         setIsLoading(true);
 
         if (scheduleId) {
@@ -348,6 +358,7 @@ export default function QuotationDetailsScreen() {
       areAllSuppliersAvailableForOrder,
       resetDeliveryDate,
       router,
+      selectedRestaurant,
     ],
   );
 
@@ -505,6 +516,13 @@ export default function QuotationDetailsScreen() {
           message={showErros.join('\n')}
           onConfirm={() => setBooleanErros(false)}
           width="35%"
+        />
+        <CustomAlert
+          visible={isAddressAlertVisible}
+          title="Endereço Incompleto"
+          message={addressAlertMessage}
+          onConfirm={() => setIsAddressAlertVisible(false)}
+          width="80%"
         />
         <CustomAlert
           visible={showNotification}

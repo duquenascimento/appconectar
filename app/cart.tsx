@@ -17,6 +17,7 @@ import { useBackHandler } from '../src/components/hooks/useBackHandler';
 import PageContainer from '../src/components/box/PageContainer';
 import { getStorageRestaurant } from '@/src/utils/restaurantUtils';
 import { useCart } from '@/src/components/hooks/useCart';
+import { getCartProducts } from '@/src/services/cartService';
 
 export type Product = {
   name: string;
@@ -472,27 +473,16 @@ export default React.memo(function Cart() {
       const restaurant = await getStorageRestaurant();
       if (!token || !restaurant) return [];
 
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/full-list`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-          selectedRestaurant: { id: restaurant.id },
-        }),
-      });
-      if (!result.ok) return [];
-      const cart = await result.json();
-      if (cart.data.length < 1) return [];
+      const cart = await getCartProducts(restaurant.id);
+      if (cart.length < 1) return [];
 
-      const alertItems = cart.data.filter(
+      const alertItems = cart.filter(
         (item: Product) =>
           item.name.toLowerCase().includes('caixa') || item.name.toLowerCase().includes('saca'),
       );
 
       setAlertItems(alertItems);
-      return cart.data;
+      return cart;
     } catch (error) {
       console.error('Erro ao carregar favoritos:', error);
       return [];
@@ -696,12 +686,13 @@ export default React.memo(function Cart() {
                 </View>
               )} */}
               <Button
+                testID="botao-ver-cotacoes"
                 borderRadius={10}
                 onPress={() => {
                   setLoading(true);
                   checkAlertItems(products);
                   saveCartArray(cart, cartToExclude).then(() => {
-                    router.push('prices');
+                    router.push({ pathname: 'prices', params: { checkDeliveryData: 'true' } });
                   });
                 }}
                 justifyContent="center"
@@ -790,6 +781,7 @@ export default React.memo(function Cart() {
                               method: 'POST',
                               headers: {
                                 'Content-Type': 'application/json',
+                                Authorization: `Bearer ${token}`,
                               },
                               body: JSON.stringify({
                                 token,

@@ -1,3 +1,4 @@
+import { getCartList } from '../services/cartService';
 import { TCart } from '../types/cartTypes';
 import { getStorageRestaurant } from './restaurantUtils';
 import { getStorage, getToken } from './utils';
@@ -9,20 +10,11 @@ export async function loadCart(): Promise<Map<string, TCart>> {
     const restaurant = await getStorageRestaurant();
     if (!token || !restaurant) return new Map();
 
-    const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/cart/list`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ token, selectedRestaurant: { id: restaurant.id } }),
-    });
+    const cart = await getCartList(restaurant.id);
 
-    if (!result.ok) return new Map();
+    if (!cart || cart.length < 1) return new Map();
 
-    const cart = await result.json();
-    if (!cart.data || cart.data.length < 1) return new Map();
-
-    const cartMap = new Map<string, TCart>(cart.data.map((item: TCart) => [item.productId, item]));
+    const cartMap = new Map<string, TCart>(cart.map((item: TCart) => [item.productId, item]));
 
     const localCartString = await getStorage('cart');
     const localCart = localCartString
