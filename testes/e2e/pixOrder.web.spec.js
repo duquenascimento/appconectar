@@ -11,8 +11,8 @@ import { expect } from '@wdio/globals';
 // "Por fornecedor" para o clique efetivamente levar à tela de confirmação.
 describe('Fluxo de criação de pedido PIX - Web', () => {
   const APP_URL = 'http://localhost:8081';
-  const TEST_EMAIL = 'TROCAR_PELA_CONTA_PIX@teste.com';
-  const TEST_PASSWORD = 'TROCAR_PELA_CONTA_PIX@teste.com';
+  const TEST_EMAIL = 'teste39@teste.com';
+  const TEST_PASSWORD = 'teste39@teste.com';
 
   async function login() {
     await browser.url(APP_URL);
