@@ -17,7 +17,6 @@ export function SignUpWeb(props: {
     setErros: Function,
     saveLogin: Function,
   ) => void;
-  modal: () => void;
 }) {
   return (
     <YStack paddingHorizontal={24} flex={1} justifyContent="center" alignItems="center">

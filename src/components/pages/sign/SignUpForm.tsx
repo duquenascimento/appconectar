@@ -204,9 +204,9 @@ export function SignUpForm(props: {
           placeholder="Email"
           keyboardType="email-address"
           autoComplete="email"
-          onChangeText={(email) => {
-            setEmail(email);
-            setEmailValid(validateEmail(email) === null);
+          onChangeText={(text) => {
+            setEmail(text);
+            setEmailValid(validateEmail(text) === null);
           }}
           value={email}
           textContentType="emailAddress"

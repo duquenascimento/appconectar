@@ -1,5 +1,7 @@
-import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { InviteCodeField } from '@/src/components/pages/register/InviteCodeField';
+import { RegisterHeader } from '@/src/components/pages/register/RegisterHeader';
+import { RegisterNavButtons } from '@/src/components/pages/register/RegisterNavButtons';
+import { useRegisterLayout } from '@/src/components/pages/register/useRegisterLayout';
 import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
@@ -56,9 +58,11 @@ export default function Register() {
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
   const { getTokenPayload, logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
-  const { isLargeScreen } = useResponsiveness();
+  const { isLargeScreen, isWeb, pagePadding, touchHeight, field, dropdownText, containerProps } =
+    useRegisterLayout();
 
   const isCpf = documentType === 'CPF';
+  const nextLabel = step === 3 ? 'Finalizar Cadastro' : 'Avançar';
 
   const allClosedDropdowns = () => {
     setMinHourOpen(false);
@@ -580,42 +584,10 @@ export default function Register() {
           erros={erros}
           document={formik.values.document}
         />
-        <View marginBottom={10} paddingTop={50} alignItems="center" justifyContent="center">
-          <Text fontSize={20}>Cadastro</Text>
-          <View paddingTop={20} justifyContent="center" flexDirection="row">
-            <View alignItems="center">
-              <Icons name="disc"></Icons>
-              <Text fontSize={10}>Empresa</Text>
-            </View>
-            <View
-              marginTop={5}
-              backgroundColor={step > 1 ? 'black' : 'lightgray'}
-              width={50}
-              height={2}
-            ></View>
-            <View alignItems="center">
-              <Icons color={step > 1 ? 'black' : 'lightgray'} name="disc"></Icons>
-              <Text color={step > 1 ? 'black' : 'lightgray'} fontSize={10}>
-                Contato
-              </Text>
-            </View>
-            <View
-              marginTop={5}
-              backgroundColor={step === 3 ? 'black' : 'lightgray'}
-              width={50}
-              height={2}
-            ></View>
-            <View alignItems="center">
-              <Icons color={step > 2 ? 'black' : 'lightgray'} name="disc"></Icons>
-              <Text color={step > 2 ? 'black' : 'lightgray'} fontSize={10}>
-                Entrega
-              </Text>
-            </View>
-          </View>
-        </View>
-        <ScrollView nestedScrollEnabled={true} scrollEnabled={scrollEnabled}>
+        <RegisterHeader step={step} />
+        <ScrollView nestedScrollEnabled={true} scrollEnabled={isWeb || scrollEnabled}>
           {step === 0 ? (
-            <View flex={1} marginTop={20} padding={20}>
+            <View flex={1} marginTop={20} padding={pagePadding} {...containerProps}>
               <Text fontSize={12} marginBottom={5} color="gray">
                 Dados do restaurante
               </Text>
@@ -631,26 +603,31 @@ export default function Register() {
                     <Button
                       flex={isLargeScreen ? 0 : 1}
                       size="$2"
+                      height={touchHeight}
                       paddingHorizontal={15}
                       backgroundColor={isCpf ? '#04BF7B' : 'white'}
                       borderColor="lightgray"
                       borderWidth={1}
                       onPress={() => handleDocumentTypeToggle('CPF')}
                     >
-                      <Text color={isCpf ? 'white' : 'black'} fontSize={12}>
+                      <Text color={isCpf ? 'white' : 'black'} fontSize={isWeb ? 14 : 12}>
                         Pessoa Física
                       </Text>
                     </Button>
                     <Button
                       flex={isLargeScreen ? 0 : 1}
                       size="$2"
+                      height={touchHeight}
                       paddingHorizontal={15}
                       backgroundColor={documentType === 'CNPJ' ? '#04BF7B' : 'white'}
                       borderColor="lightgray"
                       borderWidth={1}
                       onPress={() => handleDocumentTypeToggle('CNPJ')}
                     >
-                      <Text color={documentType === 'CNPJ' ? 'white' : 'black'} fontSize={12}>
+                      <Text
+                        color={documentType === 'CNPJ' ? 'white' : 'black'}
+                        fontSize={isWeb ? 14 : 12}
+                      >
                         Pessoa Jurídica
                       </Text>
                     </Button>
@@ -660,6 +637,7 @@ export default function Register() {
                   <>
                     <Text marginTop={15}>Nome na fachada da rua</Text>
                     <Input
+                      {...field}
                       data-testid="register-input-nome-restaurante"
                       placeholder="Nome do restaurante"
                       onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
@@ -685,6 +663,7 @@ export default function Register() {
 
                 <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
                 <Input
+                  {...field}
                   data-testid="register-input-documento"
                   placeholder={isCpf ? '000.000.000-00' : '00.000.000/0001-00'}
                   onChangeText={handleDocumentChange}
@@ -740,7 +719,7 @@ export default function Register() {
               )}
             </View>
           ) : step === 1 ? (
-            <View flex={1} marginTop={20} padding={20}>
+            <View flex={1} marginTop={20} padding={pagePadding} {...containerProps}>
               <View
                 backgroundColor="white"
                 borderColor="lightgray"
@@ -752,6 +731,7 @@ export default function Register() {
                   <>
                     <Text>Nome na fachada da rua</Text>
                     <Input
+                      {...field}
                       value={formik.values.restaurantName}
                       disabled
                       opacity={0.5}
@@ -763,6 +743,7 @@ export default function Register() {
 
                 <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
                 <Input
+                  {...field}
                   value={formik.values.document}
                   disabled
                   opacity={0.5}
@@ -785,6 +766,7 @@ export default function Register() {
                       </Text>
                     </View>
                     <Input
+                      {...field}
                       data-testid="register-input-inscricao-estadual"
                       onChangeText={(text) => formik.setFieldValue('stateNumberId', text)}
                       value={formik.values.stateNumberId}
@@ -798,14 +780,25 @@ export default function Register() {
                         {formik.errors.stateNumberId}
                       </Text>
                     )}
-                    <View marginTop={15} alignItems="center" flexDirection="row">
+                    <View
+                      marginTop={15}
+                      minHeight={touchHeight}
+                      alignItems="center"
+                      flexDirection="row"
+                    >
                       <Checkbox
                         onCheckedChange={handleCheckBox}
                         checked={formik.values.noStateNumberId}
                       >
                         {formik.values.noStateNumberId ? <Icons name="checkmark" /> : null}
                       </Checkbox>
-                      <Text paddingLeft={5} fontSize={12}>
+                      <Text
+                        paddingLeft={5}
+                        fontSize={12}
+                        onPress={
+                          isWeb ? () => handleCheckBox(!formik.values.noStateNumberId) : undefined
+                        }
+                      >
                         Sou isento de IE
                       </Text>
                     </View>
@@ -821,6 +814,7 @@ export default function Register() {
                       </Text>
                     </View>
                     <Input
+                      {...field}
                       placeholder="00000000"
                       onChangeText={(text) => formik.setFieldValue('cityNumberId', text)}
                       value={formik.values.cityNumberId}
@@ -839,7 +833,7 @@ export default function Register() {
                     <Text marginTop={15} disabled>
                       Razão Social
                     </Text>
-                    <Input value={formik.values.legalRestaurantName} opacity={0.5} />
+                    <Input value={formik.values.legalRestaurantName} opacity={0.5} {...field} />
                   </>
                 )}
 
@@ -860,7 +854,11 @@ export default function Register() {
                     </Text>
                   </View>
                   <Input
+                    {...field}
                     data-testid="register-input-cep"
+                    keyboardType="number-pad"
+                    autoComplete="postal-code"
+                    textContentType="postalCode"
                     onBlur={() => formik.setFieldTouched('zipcode', true)}
                     onChangeText={cepChange}
                     placeholder="00000-000"
@@ -881,6 +879,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Bairro</Text>
                   <Input
+                    {...field}
                     data-testid="register-input-bairro"
                     onBlur={() => formik.setFieldTouched('neigh', true)}
                     onChangeText={onNeighChange}
@@ -898,7 +897,10 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Logradouro</Text>
                   <Input
+                    {...field}
                     data-testid="register-input-logradouro"
+                    autoComplete="street-address"
+                    textContentType="streetAddressLine1"
                     onBlur={() => formik.setFieldTouched('street', true)}
                     onChangeText={onStreetChange}
                     placeholder="exemplo: Dois Amores"
@@ -918,6 +920,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Número</Text>
                   <Input
+                    {...field}
                     data-testid="register-input-numero"
                     onBlur={() => formik.setFieldTouched('localNumber', true)}
                     onChangeText={onNumberChange}
@@ -938,6 +941,7 @@ export default function Register() {
                   )}
                   <Text marginTop={15}>Complemento</Text>
                   <Input
+                    {...field}
                     data-testid="register-input-complemento"
                     onChangeText={(text) => formik.setFieldValue('complement', text)}
                     placeholder="Exemplo: Loja A"
@@ -959,7 +963,7 @@ export default function Register() {
               </View>
             </View>
           ) : step === 2 ? (
-            <View flex={10} marginTop={20} padding={20}>
+            <View flex={10} marginTop={20} padding={pagePadding} {...containerProps}>
               <Text fontSize={12} marginBottom={5} color="gray">
                 Contato
               </Text>
@@ -977,7 +981,11 @@ export default function Register() {
                   </Text>
                 </View>
                 <Input
+                  {...field}
                   data-testid="register-input-email"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
                   value={formik.values.email}
                   autoCapitalize="none"
                   onChangeText={(text) => formik.setFieldValue('email', text)}
@@ -999,7 +1007,12 @@ export default function Register() {
                   </Text>
                 </View>
                 <Input
+                  {...field}
                   value={formik.values.alternativeEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
                   onChangeText={(text) => formik.setFieldValue('alternativeEmail', text)}
                   onBlur={() => formik.setFieldTouched('alternativeEmail', true)}
                   backgroundColor="white"
@@ -1061,6 +1074,7 @@ export default function Register() {
                         }
                       }}
                       listMode="SCROLLVIEW"
+                      {...dropdownText}
                       dropDownDirection="BOTTOM"
                       dropDownContainerStyle={{
                         position: 'relative',
@@ -1137,8 +1151,9 @@ export default function Register() {
                         zIndex={101}
                       >
                         <Input
+                          {...field}
                           data-testid="register-input-responsavel-financeiro"
-                          fontSize={14}
+                          fontSize={field.fontSize ?? 14}
                           flex={1}
                           backgroundColor="$colorTransparent"
                           borderWidth="$0"
@@ -1183,9 +1198,10 @@ export default function Register() {
                         zIndex={101}
                       >
                         <Input
+                          {...field}
                           data-testid="register-input-telefone-financeiro"
                           maxLength={15}
-                          fontSize={14}
+                          fontSize={field.fontSize ?? 14}
                           flex={1}
                           backgroundColor="$colorTransparent"
                           borderWidth="$0"
@@ -1200,6 +1216,8 @@ export default function Register() {
                           focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                           hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                           keyboardType="phone-pad"
+                          autoComplete="tel"
+                          textContentType="telephoneNumber"
                           value={formik.values.financeResponsiblePhoneNumber}
                           onChangeText={(value) => {
                             let onlyNums = value.replace(/\D/g, '');
@@ -1234,7 +1252,11 @@ export default function Register() {
                         </Text>
                       </View>
                       <Input
+                        {...field}
                         data-testid="register-input-email-cobranca"
+                        keyboardType="email-address"
+                        autoComplete="email"
+                        textContentType="emailAddress"
                         value={formik.values.emailBilling}
                         autoCapitalize="none"
                         onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
@@ -1259,7 +1281,7 @@ export default function Register() {
               </View>
             </View>
           ) : step === 3 ? (
-            <View flex={1} padding={20} gap={10}>
+            <View flex={1} padding={pagePadding} gap={10} {...containerProps}>
               <Text fontSize={12} marginBottom={5} color="gray">
                 Entrega
               </Text>
@@ -1307,6 +1329,7 @@ export default function Register() {
                           position: 'absolute',
                         }}
                         listMode="SCROLLVIEW"
+                        {...dropdownText}
                         dropDownDirection="BOTTOM"
                         dropDownContainerStyle={{
                           position: 'relative',
@@ -1371,6 +1394,7 @@ export default function Register() {
                           position: 'absolute',
                         }}
                         listMode="SCROLLVIEW"
+                        {...dropdownText}
                         dropDownDirection="BOTTOM"
                         dropDownContainerStyle={{
                           position: 'relative',
@@ -1412,6 +1436,7 @@ export default function Register() {
                 </View>
                 <View
                   marginTop={formik.errors.maxHour || formik.errors.minHour ? 10 : 65}
+                  minHeight={touchHeight}
                   alignItems="center"
                   flexDirection="row"
                 >
@@ -1421,12 +1446,19 @@ export default function Register() {
                   >
                     {formik.values.closeDoor ? <Icons name="checkmark"></Icons> : <></>}
                   </Checkbox>
-                  <Text paddingLeft={5} fontSize={12}>
+                  <Text
+                    paddingLeft={5}
+                    fontSize={12}
+                    onPress={
+                      isWeb ? () => handleCheckBoxCloseDoor(!formik.values.closeDoor) : undefined
+                    }
+                  >
                     Aceito receber de portas fechadas
                   </Text>
                 </View>
                 <Text marginTop={15}>Informações adicionais</Text>
                 <Input
+                  {...field}
                   onChangeText={(text) => {
                     formik.setFieldValue('deliveryObs', text);
                   }}
@@ -1487,6 +1519,7 @@ export default function Register() {
                     }}
                     placeholder="Escolha uma opção"
                     listMode="SCROLLVIEW"
+                    {...dropdownText}
                     dropDownDirection="BOTTOM"
                     dropDownContainerStyle={{ position: 'relative' }}
                     style={{
@@ -1516,8 +1549,8 @@ export default function Register() {
                   onBlur={formik.handleBlur('orderValue')}
                   style={{
                     padding: 8,
-                    fontSize: 14,
-                    height: 50,
+                    fontSize: field.fontSize ?? 14,
+                    height: field.height ?? 50,
                     backgroundColor: 'white',
                     borderRadius: 2,
                     borderWidth: 1,
@@ -1537,37 +1570,17 @@ export default function Register() {
           ) : (
             <></>
           )}
+          {isWeb && (
+            <RegisterNavButtons
+              nextLabel={nextLabel}
+              onBack={handleBackBtn}
+              onNext={handleNextBtn}
+            />
+          )}
         </ScrollView>
-        <View
-          paddingHorizontal={20}
-          height={60}
-          justifyContent="center"
-          gap={15}
-          flexDirection="row"
-        >
-          <Button
-            flex={1}
-            borderColor="lightgray"
-            display={'flex'}
-            borderWidth={0.5}
-            backgroundColor="white"
-            onPress={() => {
-              handleBackBtn();
-            }}
-          >
-            <Text>Voltar</Text>
-          </Button>
-          <Button
-            data-testid="register-botao-avancar"
-            flex={1}
-            backgroundColor="#04BF7B"
-            onPress={() => {
-              handleNextBtn();
-            }}
-          >
-            <Text color="white">{step === 3 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
-          </Button>
-        </View>
+        {!isWeb && (
+          <RegisterNavButtons nextLabel={nextLabel} onBack={handleBackBtn} onNext={handleNextBtn} />
+        )}
         <VersionInfo />
 
         {loading && (

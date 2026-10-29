@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Stack, Text, View, YStack } from 'tamagui';
+import { Stack, View } from 'tamagui';
 import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
 import { ReferralLanding } from '@/src/components/pages/sign/landing/ReferralLanding';
 import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
@@ -76,7 +76,6 @@ export default function Cadastro() {
             positionOptions={positionOptions}
             onRegisterPress={handleRegister}
             onButtonPress={handleButtonPress}
-            modal={noop}
           />
         </View>
       )}
