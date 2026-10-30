@@ -1140,7 +1140,6 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={50}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
