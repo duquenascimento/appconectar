@@ -1,6 +1,10 @@
 import { Input, Text, View } from 'tamagui';
+import { registerBoxProps } from '@/src/components/pages/register/RegisterField';
+import { useRegisterLayout } from '@/src/components/pages/register/useRegisterLayout';
 
 export function InviteCodeField(props: { value?: string }) {
+  const { field } = useRegisterLayout();
+
   if (!props.value) return null;
 
   return (
@@ -16,12 +20,12 @@ export function InviteCodeField(props: { value?: string }) {
         padding={10}
       >
         <Input
+          {...registerBoxProps(false)}
+          {...field}
           data-testid="invite-code-field"
           value={props.value}
           disabled
           opacity={0.5}
-          backgroundColor="white"
-          borderRadius={2}
         />
       </View>
     </View>
