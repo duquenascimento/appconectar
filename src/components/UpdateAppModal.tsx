@@ -1,6 +1,7 @@
-import { Linking, Platform } from 'react-native'
+import { Platform } from 'react-native'
 import { Button, XStack, Text, View } from 'tamagui'
 import { BaseDialog } from './BaseDialog'
+import { openStore } from './stores/storeLinks'
 
 interface UpdateAppModalProps {
   openModal: boolean
@@ -11,11 +12,7 @@ export function UpdateAppModal({ openModal, message }: UpdateAppModalProps) {
   if (Platform.OS === 'web') return null
 
   const handleUpdatePress = () => {
-    const link =
-      Platform.OS === 'ios'
-        ? 'https://apps.apple.com/br/app/con%C3%A9ctar/id6471991824'
-        : 'https://play.google.com/store/search?q=Con%C3%A9ctar&c=apps&hl=pt-BR'
-    Linking.openURL(link).catch(() => console.error('Erro ao abrir loja'))
+    openStore(Platform.OS === 'ios' ? 'ios' : 'android')
   }
 
   return (
