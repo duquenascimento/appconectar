@@ -1,5 +1,5 @@
 import axios from "axios";
-import { PasswordChangeRequest, SignInRequest, SignInResponse, SignUpRequest } from "../types/userTypes";
+import { PasswordChangeRequest, SignInRequest, SignInResponse, SignUpRequest, SignUpResponse } from "../types/userTypes";
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -13,7 +13,7 @@ export async function authSignIn(data: SignInRequest): Promise<SignInResponse> {
     }
 }
 
-export async function authSignUp(data: SignUpRequest): Promise<SignInResponse> {
+export async function authSignUp(data: SignUpRequest): Promise<SignUpResponse> {
     try {
         const response = await axios.post(`${API_URL}/auth/signup`, data);
         return response.data;

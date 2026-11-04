@@ -12,6 +12,16 @@ export type SignInResponse = {
     }
 }
 
+export type SignUpResponse = {
+    status: number;
+    msg?: string | null;
+    data: {
+        token: string;
+        role: string[];
+        inviteCodeDiscarded?: boolean;
+    }
+}
+
 export type SignUpRequest = {
     email: string;
     password: string;

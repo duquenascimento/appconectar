@@ -5,7 +5,7 @@ import { Stack, View } from 'tamagui';
 import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
 import { ReferralLanding } from '@/src/components/pages/sign/landing/ReferralLanding';
 import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
-import { getPromoterNameByCode } from '@/src/services/promoterService';
+import { getPromoterNameByCode, PromoterLookup } from '@/src/services/promoterService';
 import { handleRegister } from '@/src/services/signHandlers';
 
 const positionOptions = [
@@ -33,17 +33,15 @@ function noop() {}
 
 export default function Cadastro() {
   const { indicacao } = useLocalSearchParams<{ indicacao?: string }>();
-  const [promoterName, setPromoterName] = useState<string | undefined>(undefined);
+  const [promoterLookup, setPromoterLookup] = useState<PromoterLookup | undefined>(undefined);
 
   useEffect(() => {
-    if (!indicacao) {
-      setPromoterName(undefined);
-      return;
-    }
+    setPromoterLookup(undefined);
+    if (!indicacao) return;
 
     let active = true;
-    getPromoterNameByCode(indicacao).then((name) => {
-      if (active) setPromoterName(name);
+    getPromoterNameByCode(indicacao).then((lookup) => {
+      if (active) setPromoterLookup(lookup);
     });
 
     return () => {
@@ -63,7 +61,7 @@ export default function Cadastro() {
       {landingCode && (
         <ReferralLanding
           code={landingCode}
-          promoterName={promoterName}
+          promoterLookup={promoterLookup}
           positionOptions={positionOptions}
           onRegisterPress={handleRegister}
           onLoginPress={handleButtonPress}

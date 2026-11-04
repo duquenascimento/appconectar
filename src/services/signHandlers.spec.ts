@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { authSignUp } from '@/src/services/authService';
 import { capturePendingInviteCode, getPendingInviteCode } from '@/src/utils/inviteCode';
 import { clearStorage } from '@/src/utils/utils';
@@ -110,5 +111,66 @@ describe('handleRegister — preservação do código de indicação pendente', 
 
     const sentPayload = mockedAuthSignUp.mock.calls[0][0];
     expect(sentPayload).not.toHaveProperty('inviteCode');
+  });
+});
+
+describe('handleRegister — inviteCodeDiscarded', () => {
+  const callHandleRegister = (email: string) =>
+    handleRegister(
+      'Nome Teste',
+      'Gerente',
+      '(21) 99999-9999',
+      email,
+      'Senha@123',
+      jest.fn(),
+      jest.fn(),
+      jest.fn(),
+      jest.fn(),
+    );
+
+  beforeEach(async () => {
+    jest.clearAllMocks();
+    await clearStorage();
+  });
+
+  it('apaga o código pendente antes de ir para o /register quando inviteCodeDiscarded é true', async () => {
+    await capturePendingInviteCode('ZZZZZ');
+    mockedAuthSignUp.mockResolvedValue({
+      data: { token: 'token-123', role: ['registering'], inviteCodeDiscarded: true },
+    });
+
+    let pendingCodeAtRedirect: Promise<string | null> | undefined;
+    (router.replace as jest.Mock).mockImplementation(() => {
+      pendingCodeAtRedirect = getPendingInviteCode();
+    });
+
+    await callHandleRegister('descartado@indicacao.com');
+
+    expect(mockedAuthSignUp).toHaveBeenCalledWith(expect.objectContaining({ inviteCode: 'ZZZZZ' }));
+    expect(router.replace).toHaveBeenCalledWith('/register');
+    await expect(pendingCodeAtRedirect).resolves.toBeNull();
+    await expect(getPendingInviteCode()).resolves.toBeNull();
+  });
+
+  it('mantém o código pendente quando inviteCodeDiscarded é false', async () => {
+    await capturePendingInviteCode('ABC12');
+    mockedAuthSignUp.mockResolvedValue({
+      data: { token: 'token-123', role: ['registering'], inviteCodeDiscarded: false },
+    });
+
+    await callHandleRegister('mantido@indicacao.com');
+
+    await expect(getPendingInviteCode()).resolves.toBe('ABC12');
+  });
+
+  it('mantém o código pendente quando a resposta não traz inviteCodeDiscarded (backend antigo)', async () => {
+    await capturePendingInviteCode('ABC12');
+    mockedAuthSignUp.mockResolvedValue({
+      data: { token: 'token-123', role: ['registering'] },
+    });
+
+    await callHandleRegister('antigo@indicacao.com');
+
+    await expect(getPendingInviteCode()).resolves.toBe('ABC12');
   });
 });

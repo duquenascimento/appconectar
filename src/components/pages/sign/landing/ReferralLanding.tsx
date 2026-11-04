@@ -1,5 +1,6 @@
 import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import CustomButton from '@/src/components/button/customButton';
+import { PromoterLookup } from '@/src/services/promoterService';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import { useRef } from 'react';
 import { ScrollView } from 'react-native';
@@ -20,7 +21,7 @@ const FORM_CARD_WIDTH = 440;
 
 export function ReferralLanding(props: {
   code: string;
-  promoterName?: string;
+  promoterLookup?: PromoterLookup;
   positionOptions: { label: string; value: string }[];
   onRegisterPress: React.ComponentProps<typeof SignUpForm>['onRegisterPress'];
   onLoginPress: () => void;
@@ -45,9 +46,13 @@ export function ReferralLanding(props: {
     />
   );
 
-  const promoterBanner = props.promoterName ? (
-    <PromoterBanner promoterName={props.promoterName} />
-  ) : null;
+  const lookupStatus = props.promoterLookup?.status;
+  const showCodeChip = lookupStatus === 'found' || lookupStatus === 'unconfirmed';
+
+  const promoterBanner =
+    props.promoterLookup?.status === 'found' ? (
+      <PromoterBanner promoterName={props.promoterLookup.name} />
+    ) : null;
 
   const header = (
     <XStack
@@ -94,7 +99,7 @@ export function ReferralLanding(props: {
     >
       <Text fontSize="$8">{landingContent.formCard.title}</Text>
       <YStack marginTop="$2" gap="$2">
-        <ReferralCodeChip code={props.code} />
+        {showCodeChip && <ReferralCodeChip code={props.code} />}
         <Text color="$gray10Dark">{landingContent.formCard.subtitle}</Text>
       </YStack>
       <SignUpForm positionOptions={props.positionOptions} onRegisterPress={props.onRegisterPress} />
