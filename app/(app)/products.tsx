@@ -272,7 +272,7 @@ const ProductBox = React.memo(
             </View>
             <View marginLeft={8} maxWidth={130} flexDirection="column">
               <Text fontSize={12}>{name}</Text>
-              {scheduled && <BadgeText text="Entrega em até 48h" color="#3B82F6" marginTop={4} />}
+              {scheduled && <BadgeText text="Em até 48h" color="#3B82F6" marginTop={4} />}
             </View>
           </View>
           <View marginRight={10} flexDirection="row" alignItems="center" gap={16} cursor="pointer">
@@ -1140,7 +1140,6 @@ export default function Products() {
             flexDirection="column"
             justifyContent="center"
             alignItems="center"
-            width={50}
             height={70}
           >
             <Icons name="home" size={20} color="#04BF7B" />
