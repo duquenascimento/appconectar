@@ -11,6 +11,7 @@ import http from 'node:http';
 
 export const PORTA_API_FALSA = 3333;
 export const CNPJ_JA_CADASTRADO = '46423800000116';
+export const EMAIL_JA_CADASTRADO = 'ja.cadastrado@teste-e2e.com';
 
 // Promotores conhecidos pela API falsa. `atrasoMs` e `falha` simulam a consulta
 // lenta e a consulta que não consegue confirmar o código.
@@ -109,6 +110,14 @@ export function criarApiFalsa() {
     }
 
     if (req.method === 'POST' && caminho === '/auth/signup') {
+      const emailNormalizado = String(corpo.email || '').toLowerCase();
+      const emailJaUsado =
+        emailNormalizado === EMAIL_JA_CADASTRADO ||
+        [...usuarios.values()].some((u) => String(u.email).toLowerCase() === emailNormalizado);
+      if (emailJaUsado) {
+        responder(res, 409, { status: 409, msg: 'email already exists' });
+        return;
+      }
       const codigo = corpo.inviteCode;
       const promotor = codigo ? PROMOTORES[codigo] : null;
       const descartado = Boolean(codigo) && !promotor;

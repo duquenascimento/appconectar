@@ -9,7 +9,7 @@ export function ValidationDialog(props: {
 }) {
   return (
     <Dialog modal open={props.openModal}>
-      <Adapt platform="touch">
+      <Adapt platform="native">
         <Sheet
           animationConfig={{
             type: 'spring',
@@ -59,6 +59,8 @@ export function ValidationDialog(props: {
           enterStyle={{ x: 0, y: -20, opacity: 0, scale: 0.9 }}
           exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
           gap="$4"
+          width="90%"
+          maxWidth={420}
         >
           <Dialog.Title>Ops!</Dialog.Title>
           <Dialog.Description>
@@ -73,13 +75,14 @@ export function ValidationDialog(props: {
             );
           })}
 
-          <XStack alignSelf="center" gap="$4">
+          <XStack alignSelf="center" maxWidth="100%" gap="$4">
             <Dialog.Close displayWhenAdapted asChild>
               {/* Envolva os botões em um container único */}
-              <XStack gap="$4">
+              <XStack gap="$4" flexWrap="wrap" justifyContent="center" maxWidth="100%">
                 <Button
                   data-testid="validation-dialog-ok"
                   width="$20"
+                  maxWidth="100%"
                   theme="active"
                   aria-label="Close"
                   backgroundColor="#04BF7B"
@@ -96,6 +99,7 @@ export function ValidationDialog(props: {
                   <Button
                     data-testid="validation-dialog-suporte"
                     width="$20"
+                    maxWidth="100%"
                     theme="active"
                     backgroundColor="#FFA500"
                     color="$white1"

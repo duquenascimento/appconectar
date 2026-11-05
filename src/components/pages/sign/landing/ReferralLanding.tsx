@@ -3,21 +3,20 @@ import CustomButton from '@/src/components/button/customButton';
 import { PromoterLookup } from '@/src/services/promoterService';
 import { getBrazilDateTime } from '@/src/utils/dateUtils';
 import { useRef } from 'react';
-import { ScrollView } from 'react-native';
+import { ScrollView, useWindowDimensions } from 'react-native';
 import { Image, TamaguiElement, Text, View, XStack, YStack } from 'tamagui';
 import { SignUpForm } from '../SignUpForm';
 import { BenefitCard } from './BenefitCard';
 import { LANDING_VIDEO_URL, landingColors, landingContent } from './landingContent';
 import { PromoterBanner } from './PromoterBanner';
 import { ReferralCodeChip } from './ReferralCodeChip';
+import { computeScrollTop } from './scrollPosition';
 import { VideoSection } from './VideoSection';
-
-type ScrollableElement = {
-  scrollIntoView?: (options?: { behavior?: 'smooth'; block?: 'start' }) => void;
-};
 
 const PAGE_MAX_WIDTH = 1200;
 const FORM_CARD_WIDTH = 440;
+const SMOOTH_SCROLL_SETTLE_MS = 700;
+const SCROLL_TOLERANCE_PX = 2;
 
 export function ReferralLanding(props: {
   code: string;
@@ -28,13 +27,28 @@ export function ReferralLanding(props: {
 }) {
   const { isLargeScreen } = useResponsiveness();
   const formRef = useRef<TamaguiElement>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const { height: windowHeight } = useWindowDimensions();
   const horizontalPadding = isLargeScreen ? 24 : 16;
 
   const scrollToForm = () => {
-    (formRef.current as unknown as ScrollableElement | null)?.scrollIntoView?.({
-      behavior: 'smooth',
-      block: 'start',
+    const card = formRef.current as unknown as HTMLElement | null;
+    const scrollNode = scrollRef.current?.getScrollableNode() as unknown as HTMLElement | null;
+    if (!card?.getBoundingClientRect || !scrollNode?.getBoundingClientRect) return;
+
+    const y = computeScrollTop({
+      elementTop: card.getBoundingClientRect().top,
+      containerTop: scrollNode.getBoundingClientRect().top,
+      currentScrollTop: scrollNode.scrollTop,
+      maxScrollTop: scrollNode.scrollHeight - scrollNode.clientHeight,
     });
+
+    scrollRef.current?.scrollTo({ y, animated: true });
+    setTimeout(() => {
+      if (Math.abs(scrollNode.scrollTop - y) > SCROLL_TOLERANCE_PX) {
+        scrollRef.current?.scrollTo({ y, animated: false });
+      }
+    }, SMOOTH_SCROLL_SETTLE_MS);
   };
 
   const ctaButton = (
@@ -187,16 +201,18 @@ export function ReferralLanding(props: {
           </XStack>
         ))}
       </YStack>
-      {formCard}
-      <VideoSection url={LANDING_VIDEO_URL} stacked>
-        {ctaButton}
-      </VideoSection>
+      <YStack gap="$4" minHeight={windowHeight}>
+        {formCard}
+        <VideoSection url={LANDING_VIDEO_URL} stacked>
+          {ctaButton}
+        </VideoSection>
+      </YStack>
     </YStack>
   );
 
   return (
     <View flex={1} backgroundColor={landingColors.background}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView ref={scrollRef} contentContainerStyle={{ flexGrow: 1 }}>
         {header}
         {content}
         <Text

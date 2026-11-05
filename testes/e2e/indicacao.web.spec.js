@@ -1,5 +1,5 @@
 import { expect } from '@wdio/globals';
-import { CNPJ_JA_CADASTRADO, criarApiFalsa } from './apiFalsa.js';
+import { CNPJ_JA_CADASTRADO, criarApiFalsa, EMAIL_JA_CADASTRADO } from './apiFalsa.js';
 
 /**
  * Testes E2E do fluxo de indicação no navegador (CH-753 / CH-715), no computador
@@ -58,6 +58,8 @@ describe('Programa de indicação - Web', () => {
   // Código que não pertence a nenhum promotor.
   const CODIGO_SEM_PROMOTOR = MODO_REAL ? 'PROMA' : 'SEMPROMOTOR';
   const SENHA = 'Senha@12345';
+  const RESPIRO_ROLAGEM = 16;
+  const TOLERANCIA_ROLAGEM = 8;
 
   const IPHONE = 'iPhone 15';
   const ANDROID = 'Pixel 7';
@@ -100,6 +102,17 @@ describe('Programa de indicação - Web', () => {
   async function emularCelular(dispositivo) {
     await usarComputador();
     restaurarEmulacao = await browser.emulate('device', dispositivo);
+    await ligarToque();
+  }
+
+  // O navegador do celular tem toque, e é por isso que o Tamagui escolhe a folha em vez
+  // do modal. A emulação de aparelho do WebdriverIO não liga o toque sozinha.
+  async function ligarToque() {
+    const contexto = await browser.getWindowHandle();
+    await browser.send({
+      method: 'emulation.setTouchOverride',
+      params: { maxTouchPoints: 5, contexts: [contexto] },
+    });
   }
 
   // Limpa cookies/localStorage e garante que a sessão do browser começa
@@ -252,6 +265,27 @@ describe('Programa de indicação - Web', () => {
       const r = el.getBoundingClientRect();
       return { top: r.top, bottom: r.bottom, altura: window.innerHeight };
     }, `[data-testid="${testId}"]`);
+  }
+
+  // Retângulo de um elemento que precisa estar inteiro dentro da janela.
+  async function expectDentroDaJanela(testId, onde) {
+    const r = await browser.execute((seletor) => {
+      const el = document.querySelector(seletor);
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return {
+        top: b.top,
+        bottom: b.bottom,
+        left: b.left,
+        right: b.right,
+        alturaJanela: window.innerHeight,
+        larguraJanela: window.innerWidth,
+      };
+    }, `[data-testid="${testId}"]`);
+    if (!r) throw new Error(`${testId} ausente (${onde})`);
+    const dentro =
+      r.top >= 0 && r.bottom <= r.alturaJanela && r.left >= 0 && r.right <= r.larguraJanela;
+    if (!dentro) throw new Error(`${testId} fora da área visível (${onde}): ${JSON.stringify(r)}`);
   }
 
   async function semRolagemHorizontal(onde) {
@@ -731,19 +765,41 @@ describe('Programa de indicação - Web', () => {
         ).toBe(false);
 
         await $('[data-testid="cadastro-botao-criar-conta"]').click();
-        // A rolagem é suave e a página não rola além do fim: em aparelho alto o cartão
-        // para abaixo do topo. O que importa é o formulário estar na área visível.
+        // O topo do cartão chega perto do topo da janela, com o respiro de 16 px.
         await browser.waitUntil(
           async () => {
             const r = await retangulo('cadastro-cartao-formulario');
-            return r.top >= -2 && r.top <= r.altura / 2;
+            return Math.abs(r.top - RESPIRO_ROLAGEM) <= TOLERANCIA_ROLAGEM;
           },
-          { timeout: 5000, timeoutMsg: 'O formulário não subiu para a metade de cima da janela' },
+          { timeout: 5000, timeoutMsg: 'O topo do formulário não chegou perto do topo da janela' },
         );
         expect(
           await $('[data-testid="cadastro-input-nome"]').isDisplayed({ withinViewport: true }),
         ).toBe(true);
         await semRolagemHorizontal(`landing depois do clique (${aparelho})`);
+      });
+    }
+
+    for (const aparelho of [IPHONE, ANDROID]) {
+      it(`e-mail já usado no ${aparelho} mostra o modal com texto e "Ok" na área visível, e "Ok" fecha`, async function () {
+        if (MODO_REAL) this.skip();
+        this.timeout(90000);
+
+        await limparSessao();
+        await emularCelular(aparelho);
+        await acessarAplicacao(`/cadastro?indicacao=${CODIGO_SEM_PROMOTOR}`);
+        await $('[data-testid="cadastro-titulo-landing"]').waitForDisplayed({ timeout: 20000 });
+        await criarConta(EMAIL_JA_CADASTRADO);
+
+        const erro = await $('[data-testid="validation-dialog-erro"]');
+        await erro.waitForDisplayed({ timeout: 20000 });
+        expect(await erro.getText()).toContain('Este e-mail já existe na plataforma');
+        await expectDentroDaJanela('validation-dialog-erro', aparelho);
+        await expectDentroDaJanela('validation-dialog-ok', aparelho);
+        await semRolagemHorizontal(`modal de e-mail já usado (${aparelho})`);
+
+        await $('[data-testid="validation-dialog-ok"]').click();
+        await erro.waitForExist({ reverse: true, timeout: 5000 });
       });
     }
 
