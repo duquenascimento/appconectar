@@ -12,3 +12,6 @@ web-build/
 
 # macOS
 .DS_Store
+
+# variáveis locais do Expo (o npm run web:e2e cria o .env.development.local)
+.env*.local

@@ -1,0 +1,230 @@
+import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
+import CustomButton from '@/src/components/button/customButton';
+import { PromoterLookup } from '@/src/services/promoterService';
+import { getBrazilDateTime } from '@/src/utils/dateUtils';
+import { useRef } from 'react';
+import { ScrollView, useWindowDimensions } from 'react-native';
+import { Image, TamaguiElement, Text, View, XStack, YStack } from 'tamagui';
+import { SignUpForm } from '../SignUpForm';
+import { BenefitCard } from './BenefitCard';
+import { LANDING_VIDEO_URL, landingColors, landingContent } from './landingContent';
+import { PromoterBanner } from './PromoterBanner';
+import { ReferralCodeChip } from './ReferralCodeChip';
+import { computeScrollTop } from './scrollPosition';
+import { VideoSection } from './VideoSection';
+
+const PAGE_MAX_WIDTH = 1200;
+const FORM_CARD_WIDTH = 440;
+const SMOOTH_SCROLL_SETTLE_MS = 700;
+const SCROLL_TOLERANCE_PX = 2;
+
+export function ReferralLanding(props: {
+  code: string;
+  promoterLookup?: PromoterLookup;
+  positionOptions: { label: string; value: string }[];
+  onRegisterPress: React.ComponentProps<typeof SignUpForm>['onRegisterPress'];
+  onLoginPress: () => void;
+}) {
+  const { isLargeScreen } = useResponsiveness();
+  const formRef = useRef<TamaguiElement>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const { height: windowHeight } = useWindowDimensions();
+  const horizontalPadding = isLargeScreen ? 24 : 16;
+
+  const scrollToForm = () => {
+    const card = formRef.current as unknown as HTMLElement | null;
+    const scrollNode = scrollRef.current?.getScrollableNode() as unknown as HTMLElement | null;
+    if (!card?.getBoundingClientRect || !scrollNode?.getBoundingClientRect) return;
+
+    const y = computeScrollTop({
+      elementTop: card.getBoundingClientRect().top,
+      containerTop: scrollNode.getBoundingClientRect().top,
+      currentScrollTop: scrollNode.scrollTop,
+      maxScrollTop: scrollNode.scrollHeight - scrollNode.clientHeight,
+    });
+
+    scrollRef.current?.scrollTo({ y, animated: true });
+    setTimeout(() => {
+      if (Math.abs(scrollNode.scrollTop - y) > SCROLL_TOLERANCE_PX) {
+        scrollRef.current?.scrollTo({ y, animated: false });
+      }
+    }, SMOOTH_SCROLL_SETTLE_MS);
+  };
+
+  const ctaButton = (
+    <CustomButton
+      testId="cadastro-botao-criar-conta"
+      title={landingContent.ctaButton}
+      onPress={scrollToForm}
+      width={isLargeScreen ? '260px' : '100%'}
+      height={isLargeScreen ? 44 : 48}
+    />
+  );
+
+  const lookupStatus = props.promoterLookup?.status;
+  const showCodeChip = lookupStatus === 'found' || lookupStatus === 'unconfirmed';
+
+  const promoterBanner =
+    props.promoterLookup?.status === 'found' ? (
+      <PromoterBanner promoterName={props.promoterLookup.name} />
+    ) : null;
+
+  const header = (
+    <XStack
+      width="100%"
+      maxWidth={PAGE_MAX_WIDTH}
+      alignSelf="center"
+      alignItems="center"
+      justifyContent="space-between"
+      paddingHorizontal={horizontalPadding}
+      paddingVertical="$3"
+    >
+      <Image
+        src={require('@assets/images/logo-conectar-positivo.svg')}
+        width={isLargeScreen ? 180 : 135}
+        height={isLargeScreen ? 60 : 45}
+        objectFit="fill"
+      />
+      <Text fontSize={16} color="$gray10Dark">
+        {landingContent.loginPrompt}{' '}
+        <Text
+          fontSize={16}
+          fontWeight="700"
+          color={landingColors.greenDark}
+          cursor="pointer"
+          onPress={props.onLoginPress}
+        >
+          {landingContent.loginAction}
+        </Text>
+      </Text>
+    </XStack>
+  );
+
+  const formCard = (
+    <View
+      ref={formRef}
+      data-testid="cadastro-cartao-formulario"
+      width="100%"
+      maxWidth={isLargeScreen ? FORM_CARD_WIDTH : 480}
+      alignSelf="center"
+      backgroundColor="white"
+      borderWidth={1}
+      borderColor="lightgray"
+      borderRadius={9}
+      padding={isLargeScreen ? '$5' : '$4'}
+    >
+      <Text fontSize="$8">{landingContent.formCard.title}</Text>
+      <YStack marginTop="$2" gap="$2">
+        {showCodeChip && <ReferralCodeChip code={props.code} />}
+        <Text color="$gray10Dark">{landingContent.formCard.subtitle}</Text>
+      </YStack>
+      <SignUpForm positionOptions={props.positionOptions} onRegisterPress={props.onRegisterPress} />
+    </View>
+  );
+
+  const title = (
+    <Text
+      data-testid="cadastro-titulo-landing"
+      fontSize={isLargeScreen ? 36 : 26}
+      lineHeight={isLargeScreen ? 44 : 32}
+      fontWeight="700"
+    >
+      {landingContent.title}
+    </Text>
+  );
+
+  const description = (
+    <Text fontSize={isLargeScreen ? 18 : 16} color="$gray10Dark">
+      {landingContent.description}
+    </Text>
+  );
+
+  const benefitPairs = [landingContent.benefits.slice(0, 2), landingContent.benefits.slice(2)];
+
+  const content = isLargeScreen ? (
+    <>
+      <XStack
+        width="100%"
+        maxWidth={PAGE_MAX_WIDTH}
+        alignSelf="center"
+        alignItems="flex-start"
+        gap={48}
+        paddingHorizontal={horizontalPadding}
+        paddingTop="$4"
+      >
+        <YStack flex={1} gap="$4">
+          {promoterBanner}
+          {title}
+          {description}
+          <YStack gap="$3">
+            {benefitPairs.map((pair) => (
+              <XStack key={pair[0].title} gap="$3" alignItems="stretch">
+                {pair.map((benefit) => (
+                  <BenefitCard key={benefit.title} {...benefit} iconPosition="top" />
+                ))}
+              </XStack>
+            ))}
+          </YStack>
+        </YStack>
+        <View width={FORM_CARD_WIDTH}>{formCard}</View>
+      </XStack>
+
+      <XStack
+        width="100%"
+        maxWidth={PAGE_MAX_WIDTH}
+        alignSelf="center"
+        paddingHorizontal={horizontalPadding}
+        paddingTop={64}
+      >
+        <VideoSection url={LANDING_VIDEO_URL} stacked={false}>
+          {ctaButton}
+        </VideoSection>
+      </XStack>
+    </>
+  ) : (
+    <YStack
+      width="100%"
+      maxWidth={PAGE_MAX_WIDTH}
+      alignSelf="center"
+      paddingHorizontal={horizontalPadding}
+      paddingTop="$2"
+      gap="$4"
+    >
+      {promoterBanner}
+      {title}
+      {description}
+      {ctaButton}
+      <YStack gap="$3">
+        {landingContent.benefits.map((benefit) => (
+          <XStack key={benefit.title}>
+            <BenefitCard {...benefit} iconPosition="left" />
+          </XStack>
+        ))}
+      </YStack>
+      <YStack gap="$4" minHeight={windowHeight}>
+        {formCard}
+        <VideoSection url={LANDING_VIDEO_URL} stacked>
+          {ctaButton}
+        </VideoSection>
+      </YStack>
+    </YStack>
+  );
+
+  return (
+    <View flex={1} backgroundColor={landingColors.background}>
+      <ScrollView ref={scrollRef} contentContainerStyle={{ flexGrow: 1 }}>
+        {header}
+        {content}
+        <Text
+          fontSize={12}
+          color="gray"
+          textAlign="center"
+          paddingVertical="$6"
+          paddingHorizontal={horizontalPadding}
+        >
+          {landingContent.footer(getBrazilDateTime().year)}
+        </Text>
+      </ScrollView>
+    </View>
+  );
+}

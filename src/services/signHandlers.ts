@@ -4,7 +4,7 @@ import { authSignUp } from '@/src/services/authService';
 import { clearStoragesAndSaveCurrentVersion } from '@/src/services/versionService';
 import { UserRole } from '@/src/types/userRoleTypes';
 import { SignUpRequest } from '@/src/types/userTypes';
-import { getPendingInviteCode } from '@/src/utils/inviteCode';
+import { clearPendingInviteCode, getPendingInviteCode } from '@/src/utils/inviteCode';
 import {
   validateEmail,
   validateName,
@@ -81,6 +81,10 @@ export async function handleRegister(
     // clearStoragesAndSaveCurrentVersion() preserva o pendingInviteCode sozinho
     // (ver clearAllStoragesData em utils.ts) — não precisa recapturar aqui.
     await clearStoragesAndSaveCurrentVersion();
+
+    if (response.data.inviteCodeDiscarded) {
+      await clearPendingInviteCode();
+    }
 
     await saveLogin(response.data.token, response.data.role);
 

@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
-import { Stack, Text, View, YStack } from 'tamagui';
+import { Stack, View } from 'tamagui';
 import { SignUpMobile } from '@/src/components/pages/sign/SignUpMobile';
+import { ReferralLanding } from '@/src/components/pages/sign/landing/ReferralLanding';
 import { SignUpWeb } from '@/src/components/pages/sign/SignUpWeb';
-import { getPromoterNameByCode } from '@/src/services/promoterService';
+import { getPromoterNameByCode, PromoterLookup } from '@/src/services/promoterService';
 import { handleRegister } from '@/src/services/signHandlers';
 
 const positionOptions = [
@@ -32,17 +33,15 @@ function noop() {}
 
 export default function Cadastro() {
   const { indicacao } = useLocalSearchParams<{ indicacao?: string }>();
-  const [promoterName, setPromoterName] = useState<string | undefined>(undefined);
+  const [promoterLookup, setPromoterLookup] = useState<PromoterLookup | undefined>(undefined);
 
   useEffect(() => {
-    if (!indicacao) {
-      setPromoterName(undefined);
-      return;
-    }
+    setPromoterLookup(undefined);
+    if (!indicacao) return;
 
     let active = true;
-    getPromoterNameByCode(indicacao).then((name) => {
-      if (active) setPromoterName(name);
+    getPromoterNameByCode(indicacao).then((lookup) => {
+      if (active) setPromoterLookup(lookup);
     });
 
     return () => {
@@ -54,20 +53,31 @@ export default function Cadastro() {
     router.replace('/');
   };
 
+  const isWeb = Platform.OS === 'web';
+  const landingCode = isWeb ? indicacao : undefined;
+
   return (
     <Stack backgroundColor="$background" height="100%">
-      {Platform.OS === 'web' ? (
+      {landingCode && (
+        <ReferralLanding
+          code={landingCode}
+          promoterLookup={promoterLookup}
+          positionOptions={positionOptions}
+          onRegisterPress={handleRegister}
+          onLoginPress={handleButtonPress}
+        />
+      )}
+      {isWeb && !landingCode && (
         <View height="100%">
           <SignUpWeb
             page="SignUp"
-            promoterName={promoterName}
             positionOptions={positionOptions}
             onRegisterPress={handleRegister}
             onButtonPress={handleButtonPress}
-            modal={noop}
           />
         </View>
-      ) : (
+      )}
+      {!isWeb && (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}

@@ -1,5 +1,13 @@
-import { useResponsiveness } from '@/src/components/hooks/useResponsiveness';
 import { InviteCodeField } from '@/src/components/pages/register/InviteCodeField';
+import {
+  RegisterField,
+  RegisterFieldFrame,
+  registerBoxProps,
+} from '@/src/components/pages/register/RegisterField';
+import { RegisterHeader } from '@/src/components/pages/register/RegisterHeader';
+import { RegisterNavButtons } from '@/src/components/pages/register/RegisterNavButtons';
+import { RegisterSelect } from '@/src/components/pages/register/RegisterSelect';
+import { useRegisterLayout } from '@/src/components/pages/register/useRegisterLayout';
 import { ValidationDialog } from '@/src/components/pages/sign/ValidationDialog';
 import { useAuthContext } from '@/src/contexts/auth.context';
 import { useRestaurantContext } from '@/src/contexts/restaurant.context';
@@ -27,7 +35,6 @@ import { router } from 'expo-router';
 import { useFormik } from 'formik';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
-import DropDownPicker from 'react-native-dropdown-picker';
 import { TextInputMask } from 'react-native-masked-text';
 import { Button, Checkbox, Input, ScrollView, Text, View } from 'tamagui';
 import { dividirLogradouro } from '../src/utils/DividirLogradouro';
@@ -57,9 +64,18 @@ export default function Register() {
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
   const { getTokenPayload, logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
-  const { isLargeScreen } = useResponsiveness();
+  const {
+    isLargeScreen,
+    isWeb,
+    pagePadding,
+    touchHeight,
+    field,
+    containerProps,
+    hourPlaceholderStyle,
+  } = useRegisterLayout();
 
   const isCpf = documentType === 'CPF';
+  const nextLabel = step === 3 ? 'Finalizar Cadastro' : 'Avançar';
 
   const allClosedDropdowns = () => {
     setMinHourOpen(false);
@@ -144,6 +160,9 @@ export default function Register() {
       }
     },
   });
+
+  const errorOf = (name: keyof typeof formik.values) =>
+    formik.touched[name] && formik.errors[name] ? String(formik.errors[name]) : undefined;
 
   useEffect(() => {
     const hours = [];
@@ -597,42 +616,10 @@ export default function Register() {
           erros={erros}
           document={formik.values.document}
         />
-        <View marginBottom={10} paddingTop={50} alignItems="center" justifyContent="center">
-          <Text fontSize={20}>Cadastro</Text>
-          <View paddingTop={20} justifyContent="center" flexDirection="row">
-            <View alignItems="center">
-              <Icons name="disc"></Icons>
-              <Text fontSize={10}>Empresa</Text>
-            </View>
-            <View
-              marginTop={5}
-              backgroundColor={step > 1 ? 'black' : 'lightgray'}
-              width={50}
-              height={2}
-            ></View>
-            <View alignItems="center">
-              <Icons color={step > 1 ? 'black' : 'lightgray'} name="disc"></Icons>
-              <Text color={step > 1 ? 'black' : 'lightgray'} fontSize={10}>
-                Contato
-              </Text>
-            </View>
-            <View
-              marginTop={5}
-              backgroundColor={step === 3 ? 'black' : 'lightgray'}
-              width={50}
-              height={2}
-            ></View>
-            <View alignItems="center">
-              <Icons color={step > 2 ? 'black' : 'lightgray'} name="disc"></Icons>
-              <Text color={step > 2 ? 'black' : 'lightgray'} fontSize={10}>
-                Entrega
-              </Text>
-            </View>
-          </View>
-        </View>
-        <ScrollView nestedScrollEnabled={true} scrollEnabled={scrollEnabled}>
+        <RegisterHeader step={step} />
+        <ScrollView nestedScrollEnabled={true} scrollEnabled={isWeb || scrollEnabled}>
           {step === 0 ? (
-            <View flex={1} marginTop={20} padding={20}>
+            <View flex={1} marginTop={20} padding={pagePadding} {...containerProps}>
               <Text fontSize={12} marginBottom={5} color="gray">
                 Dados do restaurante
               </Text>
@@ -648,79 +635,58 @@ export default function Register() {
                     <Button
                       flex={isLargeScreen ? 0 : 1}
                       size="$2"
+                      height={touchHeight}
                       paddingHorizontal={15}
                       backgroundColor={isCpf ? '#04BF7B' : 'white'}
                       borderColor="lightgray"
                       borderWidth={1}
                       onPress={() => handleDocumentTypeToggle('CPF')}
                     >
-                      <Text color={isCpf ? 'white' : 'black'} fontSize={12}>
+                      <Text color={isCpf ? 'white' : 'black'} fontSize={isWeb ? 14 : 12}>
                         Pessoa Física
                       </Text>
                     </Button>
                     <Button
                       flex={isLargeScreen ? 0 : 1}
                       size="$2"
+                      height={touchHeight}
                       paddingHorizontal={15}
                       backgroundColor={documentType === 'CNPJ' ? '#04BF7B' : 'white'}
                       borderColor="lightgray"
                       borderWidth={1}
                       onPress={() => handleDocumentTypeToggle('CNPJ')}
                     >
-                      <Text color={documentType === 'CNPJ' ? 'white' : 'black'} fontSize={12}>
+                      <Text
+                        color={documentType === 'CNPJ' ? 'white' : 'black'}
+                        fontSize={isWeb ? 14 : 12}
+                      >
                         Pessoa Jurídica
                       </Text>
                     </Button>
                   </View>
                 </View>
                 {!isCpf && (
-                  <>
-                    <Text marginTop={15}>Nome na fachada da rua</Text>
-                    <Input
-                      data-testid="register-input-nome-restaurante"
-                      placeholder="Nome do restaurante"
-                      onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
-                      onBlur={formik.handleBlur('restaurantName')}
-                      value={formik.values.restaurantName}
-                      backgroundColor="white"
-                      borderRadius={2}
-                      borderColor={
-                        formik.touched.restaurantName && formik.errors.restaurantName
-                          ? 'red'
-                          : 'lightgray'
-                      }
-                      focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                      hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    />
-                    {formik.touched.restaurantName && formik.errors.restaurantName && (
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.restaurantName}
-                      </Text>
-                    )}
-                  </>
+                  <RegisterField
+                    label="Nome na fachada da rua"
+                    error={errorOf('restaurantName')}
+                    data-testid="register-input-nome-restaurante"
+                    placeholder="Nome do restaurante"
+                    onChangeText={(text) => formik.setFieldValue('restaurantName', text)}
+                    onBlur={formik.handleBlur('restaurantName')}
+                    value={formik.values.restaurantName}
+                  />
                 )}
 
-                <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
-                <Input
+                <RegisterField
+                  label={isCpf ? 'CPF' : 'CNPJ'}
+                  error={errorOf('document')}
                   data-testid="register-input-documento"
                   placeholder={isCpf ? '000.000.000-00' : '00.000.000/0001-00'}
                   onChangeText={handleDocumentChange}
                   value={formik.values.document}
                   keyboardType="number-pad"
-                  backgroundColor="white"
-                  borderRadius={2}
-                  focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
                   onBlur={() => formik.setFieldTouched('document', true)}
-                  borderColor={
-                    formik.touched.document && formik.errors.document ? 'red' : 'lightgray'
-                  }
                 />
-                {formik.touched.document && formik.errors.document && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.document}
-                  </Text>
-                )}
               </View>
               {isCpf && (
                 <View
@@ -757,7 +723,7 @@ export default function Register() {
               )}
             </View>
           ) : step === 1 ? (
-            <View flex={1} marginTop={20} padding={20}>
+            <View flex={1} marginTop={20} padding={pagePadding} {...containerProps}>
               <View
                 backgroundColor="white"
                 borderColor="lightgray"
@@ -766,42 +732,28 @@ export default function Register() {
                 padding={10}
               >
                 {!isCpf && (
-                  <>
-                    <Text>Nome na fachada da rua</Text>
-                    <Input
-                      value={formik.values.restaurantName}
-                      disabled
-                      opacity={0.5}
-                      backgroundColor="white"
-                      borderRadius={2}
-                    />
-                  </>
+                  <RegisterField
+                    label="Nome na fachada da rua"
+                    marginTop={0}
+                    value={formik.values.restaurantName}
+                    disabled
+                    opacity={0.5}
+                  />
                 )}
 
-                <Text marginTop={15}>{isCpf ? 'CPF' : 'CNPJ'}</Text>
-                <Input
+                <RegisterField
+                  label={isCpf ? 'CPF' : 'CNPJ'}
                   value={formik.values.document}
                   disabled
                   opacity={0.5}
-                  backgroundColor="white"
-                  borderRadius={2}
                 />
 
                 {!isCpf && (
                   <>
-                    <View
-                      opacity={formik.values.noStateNumberId ? 0.5 : 1}
-                      marginTop={15}
-                      alignItems="center"
-                      flexDirection="row"
-                      gap={8}
-                    >
-                      <Text>Inscrição estadual</Text>
-                      <Text fontSize={10} color="gray">
-                        Min. 8 digitos
-                      </Text>
-                    </View>
-                    <Input
+                    <RegisterField
+                      label="Inscrição estadual"
+                      hint="Min. 8 digitos"
+                      error={errorOf('stateNumberId')}
                       data-testid="register-input-inscricao-estadual"
                       onChangeText={(text) => formik.setFieldValue('stateNumberId', text)}
                       value={formik.values.stateNumberId}
@@ -810,19 +762,25 @@ export default function Register() {
                       placeholder={formik.values.noStateNumberId ? 'Isento' : '00000000'}
                       onBlur={() => formik.setFieldTouched('stateNumberId', true)}
                     />
-                    {formik.touched.stateNumberId && formik.errors.stateNumberId && (
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.stateNumberId}
-                      </Text>
-                    )}
-                    <View marginTop={15} alignItems="center" flexDirection="row">
+                    <View
+                      marginTop={15}
+                      minHeight={touchHeight}
+                      alignItems="center"
+                      flexDirection="row"
+                    >
                       <Checkbox
                         onCheckedChange={handleCheckBox}
                         checked={formik.values.noStateNumberId}
                       >
                         {formik.values.noStateNumberId ? <Icons name="checkmark" /> : null}
                       </Checkbox>
-                      <Text paddingLeft={5} fontSize={12}>
+                      <Text
+                        paddingLeft={5}
+                        fontSize={12}
+                        onPress={
+                          isWeb ? () => handleCheckBox(!formik.values.noStateNumberId) : undefined
+                        }
+                      >
                         Sou isento de IE
                       </Text>
                     </View>
@@ -830,34 +788,23 @@ export default function Register() {
                 )}
 
                 {formik.values.noStateNumberId && !isCpf && (
-                  <>
-                    <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                      <Text>Inscrição municipal</Text>
-                      <Text fontSize={10} color="gray">
-                        Min. 8 digitos
-                      </Text>
-                    </View>
-                    <Input
-                      placeholder="00000000"
-                      onChangeText={(text) => formik.setFieldValue('cityNumberId', text)}
-                      value={formik.values.cityNumberId}
-                      onBlur={() => formik.setFieldTouched('cityNumberId', true)}
-                    />
-                    {formik.touched.cityNumberId && formik.errors.cityNumberId && (
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.cityNumberId}
-                      </Text>
-                    )}
-                  </>
+                  <RegisterField
+                    label="Inscrição municipal"
+                    hint="Min. 8 digitos"
+                    error={errorOf('cityNumberId')}
+                    placeholder="00000000"
+                    onChangeText={(text) => formik.setFieldValue('cityNumberId', text)}
+                    value={formik.values.cityNumberId}
+                    onBlur={() => formik.setFieldTouched('cityNumberId', true)}
+                  />
                 )}
 
                 {!isCpf && (
-                  <>
-                    <Text marginTop={15} disabled>
-                      Razão Social
-                    </Text>
-                    <Input value={formik.values.legalRestaurantName} opacity={0.5} />
-                  </>
+                  <RegisterField
+                    label="Razão Social"
+                    value={formik.values.legalRestaurantName}
+                    opacity={0.5}
+                  />
                 )}
 
                 <Text fontSize={12} marginTop={10} marginBottom={5} color="gray">
@@ -870,113 +817,63 @@ export default function Register() {
                   borderRadius={5}
                   padding={10}
                 >
-                  <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                    <Text>Cep</Text>
-                    <Text fontSize={10} color="gray">
-                      8 digitos
-                    </Text>
-                  </View>
-                  <Input
+                  <RegisterField
+                    label="Cep"
+                    hint="8 digitos"
+                    error={errorOf('zipcode')}
                     data-testid="register-input-cep"
+                    keyboardType="number-pad"
+                    autoComplete="postal-code"
+                    textContentType="postalCode"
                     onBlur={() => formik.setFieldTouched('zipcode', true)}
                     onChangeText={cepChange}
                     placeholder="00000-000"
                     value={formik.values.zipcode}
-                    backgroundColor="white"
-                    borderRadius={2}
-                    borderColor={
-                      formik.touched.zipcode && formik.errors.zipcode ? 'red' : 'lightgray'
-                    }
                     focusStyle={getCepBorderStyle()}
                     hoverStyle={getCepBorderStyle()}
                     maxLength={9}
                   />
-                  {formik.touched.zipcode && formik.errors.zipcode && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.zipcode}
-                    </Text>
-                  )}
-                  <Text marginTop={15}>Bairro</Text>
-                  <Input
+                  <RegisterField
+                    label="Bairro"
+                    error={errorOf('neigh')}
                     data-testid="register-input-bairro"
                     onBlur={() => formik.setFieldTouched('neigh', true)}
                     onChangeText={onNeighChange}
                     value={formik.values.neigh}
-                    backgroundColor="white"
-                    borderRadius={2}
-                    borderColor={formik.touched.neigh && formik.errors.neigh ? 'red' : 'lightgray'}
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  ></Input>
-                  {formik.touched.neigh && formik.errors.neigh && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.neigh}
-                    </Text>
-                  )}
-                  <Text marginTop={15}>Logradouro</Text>
-                  <Input
+                  />
+                  <RegisterField
+                    label="Logradouro"
+                    error={errorOf('street')}
                     data-testid="register-input-logradouro"
+                    autoComplete="street-address"
+                    textContentType="streetAddressLine1"
                     onBlur={() => formik.setFieldTouched('street', true)}
                     onChangeText={onStreetChange}
                     placeholder="exemplo: Dois Amores"
                     value={formik.values.street}
-                    backgroundColor="white"
-                    borderRadius={2}
-                    borderColor={
-                      formik.touched.street && formik.errors.street ? 'red' : 'lightgray'
-                    }
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  ></Input>
-                  {formik.touched.street && formik.errors.street && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.street}
-                    </Text>
-                  )}
-                  <Text marginTop={15}>Número</Text>
-                  <Input
+                  />
+                  <RegisterField
+                    label="Número"
+                    error={errorOf('localNumber')}
                     data-testid="register-input-numero"
                     onBlur={() => formik.setFieldTouched('localNumber', true)}
                     onChangeText={onNumberChange}
                     placeholder="Exemplo: 12"
                     value={formik.values.localNumber}
-                    backgroundColor="white"
-                    borderRadius={2}
-                    borderColor={
-                      formik.touched.localNumber && formik.errors.localNumber ? 'red' : 'lightgray'
-                    }
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  ></Input>
-                  {formik.touched.localNumber && formik.errors.localNumber && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.localNumber}
-                    </Text>
-                  )}
-                  <Text marginTop={15}>Complemento</Text>
-                  <Input
+                  />
+                  <RegisterField
+                    label="Complemento"
+                    error={errorOf('complement')}
                     data-testid="register-input-complemento"
                     onChangeText={(text) => formik.setFieldValue('complement', text)}
                     placeholder="Exemplo: Loja A"
                     value={formik.values.complement}
-                    backgroundColor="white"
-                    borderRadius={2}
-                    borderColor={
-                      formik.touched.complement && formik.errors.complement ? 'red' : 'lightgray'
-                    }
-                    focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                    hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  ></Input>
-                  {formik.touched.complement && formik.errors.complement && (
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.complement}
-                    </Text>
-                  )}
+                  />
                 </View>
               </View>
             </View>
           ) : step === 2 ? (
-            <View flex={10} marginTop={20} padding={20}>
+            <View flex={10} marginTop={20} padding={pagePadding} {...containerProps}>
               <Text fontSize={12} marginBottom={5} color="gray">
                 Contato
               </Text>
@@ -987,52 +884,33 @@ export default function Register() {
                 borderRadius={5}
                 padding={10}
               >
-                <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                  <Text>E-mail</Text>
-                  <Text fontSize={10} color="gray">
-                    Para comunicados
-                  </Text>
-                </View>
-                <Input
+                <RegisterField
+                  label="E-mail"
+                  hint="Para comunicados"
+                  error={errorOf('email')}
                   data-testid="register-input-email"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
                   value={formik.values.email}
                   autoCapitalize="none"
                   onChangeText={(text) => formik.setFieldValue('email', text)}
                   onBlur={() => formik.setFieldTouched('email', true)}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  borderColor={formik.touched.email && formik.errors.email ? 'red' : 'lightgray'}
                   placeholder="exemplo@exemplo.com"
                 />
-                {formik.touched.email && formik.errors.email && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.email}
-                  </Text>
-                )}
-                <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                  <Text>E-mail alternativo</Text>
-                  <Text fontSize={10} color="gray">
-                    Opcional
-                  </Text>
-                </View>
-                <Input
+                <RegisterField
+                  label="E-mail alternativo"
+                  hint="Opcional"
+                  error={errorOf('alternativeEmail')}
                   value={formik.values.alternativeEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  autoComplete="email"
+                  textContentType="emailAddress"
                   onChangeText={(text) => formik.setFieldValue('alternativeEmail', text)}
                   onBlur={() => formik.setFieldTouched('alternativeEmail', true)}
-                  backgroundColor="white"
-                  borderRadius={2}
-                  borderColor={
-                    formik.touched.alternativeEmail && formik.errors.alternativeEmail
-                      ? 'red'
-                      : 'lightgray'
-                  }
                   placeholder="exemplo@exemplo.com"
                 />
-                {formik.touched.alternativeEmail && formik.errors.alternativeEmail && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.alternativeEmail}
-                  </Text>
-                )}
               </View>
               <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
                 Informações financeiras
@@ -1044,239 +922,131 @@ export default function Register() {
                 borderRadius={5}
                 padding={10}
               >
-                <View>
-                  <Text>Qual o formato de pagamento preferido?</Text>
-                  <View
-                    marginTop={10}
-                    justifyContent="flex-start"
-                    borderWidth={0.5}
-                    borderColor={
-                      formik.touched.paymentWay && formik.errors.paymentWay ? 'red' : 'lightgray'
+                <RegisterSelect
+                  label="Qual o formato de pagamento preferido?"
+                  marginTop={0}
+                  error={errorOf('paymentWay')}
+                  testID="register-select-forma-pagamento"
+                  value={formik.values.paymentWay}
+                  setValue={(callback) => {
+                    const value =
+                      typeof callback === 'function'
+                        ? callback(formik.values.paymentWay)
+                        : callback;
+                    formik.setFieldValue('paymentWay', value);
+                  }}
+                  onSelectItem={(item) => {
+                    if (item.value) {
+                      formik.setFieldError('paymentWay', undefined);
                     }
-                    zIndex={99}
-                  >
-                    <DropDownPicker
-                      testID="register-select-forma-pagamento"
-                      value={formik.values.paymentWay}
-                      style={{
-                        borderWidth: 1,
-                        borderColor: 'lightgray',
-                        borderRadius: 2,
-                        flex: 1,
-                        position: 'absolute',
-                      }}
-                      setValue={(callback) => {
-                        const value =
-                          typeof callback === 'function'
-                            ? callback(formik.values.paymentWay)
-                            : callback;
-                        formik.setFieldValue('paymentWay', value);
-                      }}
-                      onSelectItem={(item) => {
-                        if (item.value) {
-                          formik.setFieldError('paymentWay', undefined);
-                        }
-                      }}
-                      listMode="SCROLLVIEW"
-                      dropDownDirection="BOTTOM"
-                      dropDownContainerStyle={{
-                        position: 'relative',
-                      }}
-                      disabled={isCpf}
-                      items={
-                        isCpf
-                          ? [
-                              {
-                                label: getPaymentDescription('CC32'),
-                                value: 'CC32',
-                                testID: 'pagamento-opcao-cc32',
-                              },
-                            ]
-                          : [
-                              {
-                                label: 'Diário: 7 dias após a entrega',
-                                value: 'DI07',
-                                testID: 'pagamento-opcao-di07',
-                              },
-                              {
-                                label: 'Semanal: vencimento na quarta',
-                                value: 'UQ10',
-                                testID: 'pagamento-opcao-uq10',
-                              },
-                            ]
-                      }
-                      multiple={false}
-                      open={paymentWayOpen}
-                      setOpen={setPaymentWayOpen}
-                      onOpen={() => formik.setFieldError('paymentWay', undefined)}
-                      placeholder=""
-                    ></DropDownPicker>
-                  </View>
-                  {formik.touched.paymentWay && formik.errors.paymentWay && (
-                    <View height={65} flex={1} justifyContent="flex-end">
-                      <Text color="red" fontSize={12}>
-                        {formik.errors.paymentWay}
-                      </Text>
-                    </View>
-                  )}
-                  <View
-                    marginTop={formik.errors.paymentWay ? 10 : 60}
-                    borderColor="lightgray"
-                    borderWidth={0.5}
-                    padding={5}
-                    gap={5}
-                    flexDirection="row"
-                  >
-                    <Icons size={25} color="gray" name="information-circle"></Icons>
-                    <View justifyContent="center">
-                      <Text maxWidth="100%" color="gray" fontSize={10}>
-                        Prazos são sujeitos a avaliação de crédito
-                      </Text>
-                    </View>
+                  }}
+                  disabled={isCpf}
+                  items={
+                    isCpf
+                      ? [
+                          {
+                            label: getPaymentDescription('CC32'),
+                            value: 'CC32',
+                            testID: 'pagamento-opcao-cc32',
+                          },
+                        ]
+                      : [
+                          {
+                            label: 'Diário: 7 dias após a entrega',
+                            value: 'DI07',
+                            testID: 'pagamento-opcao-di07',
+                          },
+                          {
+                            label: 'Semanal: vencimento na quarta',
+                            value: 'UQ10',
+                            testID: 'pagamento-opcao-uq10',
+                          },
+                        ]
+                  }
+                  multiple={false}
+                  open={paymentWayOpen}
+                  setOpen={setPaymentWayOpen}
+                  onOpen={() => formik.setFieldError('paymentWay', undefined)}
+                  placeholder=""
+                />
+                <View
+                  testID="register-aviso-prazos"
+                  marginTop={10}
+                  borderColor="lightgray"
+                  borderWidth={0.5}
+                  padding={5}
+                  gap={5}
+                  flexDirection="row"
+                >
+                  <Icons size={25} color="gray" name="information-circle"></Icons>
+                  <View flex={1} justifyContent="center">
+                    <Text testID="register-aviso-prazos-texto" color="gray" fontSize={10}>
+                      Prazos são sujeitos a avaliação de crédito
+                    </Text>
                   </View>
                 </View>
                 {!isCpf && (
                   <>
-                    <View flex={1}>
-                      <Text marginTop={15}>
-                        Nome responsável financeiro
-                        <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                      </Text>
-                      <View
-                        flex={1}
-                        borderWidth={0.5}
-                        borderColor={
-                          formik.touched.financeResponsibleName &&
-                          formik.errors.financeResponsibleName
-                            ? 'red'
-                            : 'lightgray'
-                        }
-                        zIndex={101}
-                      >
-                        <Input
-                          data-testid="register-input-responsavel-financeiro"
-                          fontSize={14}
-                          flex={1}
-                          backgroundColor="$colorTransparent"
-                          borderWidth="$0"
-                          borderRadius={2}
-                          onBlur={formik.handleBlur('financeResponsibleName')}
-                          borderColor={
-                            formik.touched.financeResponsibleName &&
-                            formik.errors.financeResponsibleName
-                              ? 'red'
-                              : 'lightgray'
-                          }
-                          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                          value={formik.values.financeResponsibleName}
-                          onChangeText={(value) => {
-                            const formattedValue = filterLettersAndSpaces(value);
-                            formik.setFieldValue('financeResponsibleName', formattedValue);
-                          }}
-                        />
-                      </View>
-                      {formik.touched.financeResponsibleName &&
-                        formik.errors.financeResponsibleName && (
-                          <Text color="red" fontSize={12}>
-                            {formik.errors.financeResponsibleName}
-                          </Text>
-                        )}
-                    </View>
-                    <View flex={1}>
-                      <Text marginTop={15}>
-                        Telefone responsável financeiro
-                        <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                      </Text>
-                      <View
-                        flex={1}
-                        borderWidth={0.5}
-                        borderColor={
-                          formik.touched.financeResponsiblePhoneNumber &&
-                          formik.errors.financeResponsiblePhoneNumber
-                            ? 'red'
-                            : 'lightgray'
-                        }
-                        zIndex={101}
-                      >
-                        <Input
-                          data-testid="register-input-telefone-financeiro"
-                          maxLength={15}
-                          fontSize={14}
-                          flex={1}
-                          backgroundColor="$colorTransparent"
-                          borderWidth="$0"
-                          borderRadius={2}
-                          borderColor={
-                            formik.touched.financeResponsiblePhoneNumber &&
-                            formik.errors.financeResponsiblePhoneNumber
-                              ? 'red'
-                              : 'lightgray'
-                          }
-                          onBlur={formik.handleBlur('financeResponsiblePhoneNumber')}
-                          focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                          hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                          keyboardType="phone-pad"
-                          value={formik.values.financeResponsiblePhoneNumber}
-                          onChangeText={(value) => {
-                            let onlyNums = value.replace(/\D/g, '');
+                    <RegisterField
+                      label="Nome responsável financeiro"
+                      required
+                      error={errorOf('financeResponsibleName')}
+                      data-testid="register-input-responsavel-financeiro"
+                      onBlur={formik.handleBlur('financeResponsibleName')}
+                      value={formik.values.financeResponsibleName}
+                      onChangeText={(value) => {
+                        const formattedValue = filterLettersAndSpaces(value);
+                        formik.setFieldValue('financeResponsibleName', formattedValue);
+                      }}
+                    />
+                    <RegisterField
+                      label="Telefone responsável financeiro"
+                      required
+                      error={errorOf('financeResponsiblePhoneNumber')}
+                      data-testid="register-input-telefone-financeiro"
+                      maxLength={15}
+                      onBlur={formik.handleBlur('financeResponsiblePhoneNumber')}
+                      keyboardType="phone-pad"
+                      autoComplete="tel"
+                      textContentType="telephoneNumber"
+                      value={formik.values.financeResponsiblePhoneNumber}
+                      onChangeText={(value) => {
+                        let onlyNums = value.replace(/\D/g, '');
 
-                            if (onlyNums.length > 10) {
-                              onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
-                            } else if (onlyNums.length > 6) {
-                              onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
-                            } else if (onlyNums.length > 2) {
-                              onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
-                            } else if (onlyNums.length > 0) {
-                              onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
-                            }
-
-                            formik.setFieldValue('financeResponsiblePhoneNumber', onlyNums);
-                          }}
-                        />
-                      </View>
-                      {formik.touched.financeResponsiblePhoneNumber &&
-                        formik.errors.financeResponsiblePhoneNumber && (
-                          <Text color="red" fontSize={12}>
-                            {formik.errors.financeResponsiblePhoneNumber}
-                          </Text>
-                        )}
-                      <View marginTop={15} alignItems="center" flexDirection="row" gap={8}>
-                        <Text>
-                          E-mail
-                          <Text style={{ color: 'red', marginLeft: 3 }}>*</Text>
-                        </Text>
-                        <Text fontSize={10} color="gray">
-                          Para cobranças
-                        </Text>
-                      </View>
-                      <Input
-                        data-testid="register-input-email-cobranca"
-                        value={formik.values.emailBilling}
-                        autoCapitalize="none"
-                        onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
-                        onBlur={() => formik.setFieldTouched('emailBilling', true)}
-                        backgroundColor="white"
-                        borderRadius={2}
-                        borderColor={
-                          formik.touched.emailBilling && formik.errors.emailBilling
-                            ? 'red'
-                            : 'lightgray'
+                        if (onlyNums.length > 10) {
+                          onlyNums = onlyNums.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+                        } else if (onlyNums.length > 6) {
+                          onlyNums = onlyNums.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+                        } else if (onlyNums.length > 2) {
+                          onlyNums = onlyNums.replace(/(\d{2})(\d{0,4})/, '($1) $2');
+                        } else if (onlyNums.length > 0) {
+                          onlyNums = onlyNums.replace(/(\d{0,2})/, '($1');
                         }
-                        placeholder="exemplo@exemplo.com"
-                      />
-                      {formik.touched.emailBilling && formik.errors.emailBilling && (
-                        <Text color="red" fontSize={12}>
-                          {formik.errors.emailBilling}
-                        </Text>
-                      )}
-                    </View>
+
+                        formik.setFieldValue('financeResponsiblePhoneNumber', onlyNums);
+                      }}
+                    />
+                    <RegisterField
+                      label="E-mail"
+                      required
+                      hint="Para cobranças"
+                      error={errorOf('emailBilling')}
+                      data-testid="register-input-email-cobranca"
+                      keyboardType="email-address"
+                      autoComplete="email"
+                      textContentType="emailAddress"
+                      value={formik.values.emailBilling}
+                      autoCapitalize="none"
+                      onChangeText={(text) => formik.setFieldValue('emailBilling', text)}
+                      onBlur={() => formik.setFieldTouched('emailBilling', true)}
+                      placeholder="exemplo@exemplo.com"
+                    />
                   </>
                 )}
               </View>
             </View>
           ) : step === 3 ? (
-            <View flex={1} padding={20} gap={10}>
+            <View flex={1} padding={pagePadding} gap={10} {...containerProps}>
               <Text fontSize={12} marginBottom={5} color="gray">
                 Entrega
               </Text>
@@ -1288,6 +1058,7 @@ export default function Register() {
                 padding={10}
               >
                 <View
+                  testID="register-aviso-horario"
                   borderColor="lightgray"
                   borderWidth={0.5}
                   padding={5}
@@ -1295,140 +1066,91 @@ export default function Register() {
                   flexDirection="row"
                 >
                   <Icons size={25} color="gray" name="information-circle"></Icons>
-                  <View justifyContent="center">
-                    <Text maxWidth="99%" color="gray" fontSize={10}>
+                  <View flex={1} justifyContent="center">
+                    <Text testID="register-aviso-horario-texto" color="gray" fontSize={10}>
                       Você deve definir pelo menos 1 hora e 30 minutos de diferença entre o horário
                       mais cedo e o horário mais tarde para sua entrega.
                     </Text>
                   </View>
                 </View>
-                <View flexDirection="row" gap={20}>
+                <View flexDirection="row" gap={10}>
                   <View flex={1}>
-                    <Text marginTop={15}>Quero receber de</Text>
-                    <View
-                      flex={1}
-                      borderWidth={0.5}
-                      borderColor={
-                        formik.touched.minHour && formik.errors.minHour ? 'red' : 'lightgray'
-                      }
-                      zIndex={101}
-                    >
-                      <DropDownPicker
-                        testID="register-select-horario-minimo"
-                        value={formik.values.minHour}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: 'lightgray',
-                          borderRadius: 5,
-                          zIndex: 1000,
-                          position: 'absolute',
-                        }}
-                        listMode="SCROLLVIEW"
-                        dropDownDirection="BOTTOM"
-                        dropDownContainerStyle={{
-                          position: 'relative',
-                        }}
-                        setValue={(callback) => {
-                          const value =
-                            typeof callback === 'function'
-                              ? callback(formik.values.minHour)
-                              : callback;
-                          formik.setFieldValue('minHour', value);
-                        }}
-                        onSelectItem={(item) => {
-                          if (item.value) {
-                            formik.setFieldError('minHour', undefined);
-                          }
-                        }}
-                        items={minhours.map((item) => {
-                          return {
-                            label: item,
-                            value: item,
-                            testID: `horario-minimo-opcao-${item.replace(':', '')}`,
-                          };
-                        })}
-                        multiple={false}
-                        open={minHourOpen}
-                        setOpen={setMinHourOpen}
-                        onOpen={() => {
-                          setScrollEnabled(false);
+                    <RegisterSelect
+                      label="Quero receber de"
+                      compact
+                      error={errorOf('minHour')}
+                      testID="register-select-horario-minimo"
+                      value={formik.values.minHour}
+                      setValue={(callback) => {
+                        const value =
+                          typeof callback === 'function'
+                            ? callback(formik.values.minHour)
+                            : callback;
+                        formik.setFieldValue('minHour', value);
+                      }}
+                      onSelectItem={(item) => {
+                        if (item.value) {
                           formik.setFieldError('minHour', undefined);
-                        }}
-                        onClose={() => {
-                          setScrollEnabled(true);
-                        }}
-                        placeholder="Escolha um horário"
-                      ></DropDownPicker>
-                    </View>
-                    {formik.touched.minHour && formik.errors.minHour && (
-                      <View height={65} flex={1} justifyContent="flex-end">
-                        <Text color="red" fontSize={12}>
-                          {formik.errors.minHour}
-                        </Text>
-                      </View>
-                    )}
+                        }
+                      }}
+                      items={minhours.map((item) => {
+                        return {
+                          label: item,
+                          value: item,
+                          testID: `horario-minimo-opcao-${item.replace(':', '')}`,
+                        };
+                      })}
+                      multiple={false}
+                      open={minHourOpen}
+                      setOpen={setMinHourOpen}
+                      onOpen={() => {
+                        setScrollEnabled(false);
+                        formik.setFieldError('minHour', undefined);
+                      }}
+                      onClose={() => {
+                        setScrollEnabled(true);
+                      }}
+                      placeholderStyle={hourPlaceholderStyle}
+                      placeholder="Escolha um horário"
+                    />
                   </View>
                   <View flex={1}>
-                    <Text marginTop={15}>Até</Text>
-                    <View
-                      flex={1}
-                      borderWidth={0.5}
-                      borderColor={
-                        formik.touched.maxHour && formik.errors.maxHour ? 'red' : 'lightgray'
-                      }
-                      zIndex={100}
-                    >
-                      <DropDownPicker
-                        value={formik.values.maxHour}
-                        style={{
-                          borderWidth: 1,
-                          borderColor: 'lightgray',
-                          borderRadius: 5,
-                          zIndex: 1000,
-                          position: 'absolute',
-                        }}
-                        listMode="SCROLLVIEW"
-                        dropDownDirection="BOTTOM"
-                        dropDownContainerStyle={{
-                          position: 'relative',
-                        }}
-                        setValue={(callback) => {
-                          const value =
-                            typeof callback === 'function'
-                              ? callback(formik.values.maxHour)
-                              : callback;
-                          formik.setFieldValue('maxHour', value);
-                        }}
-                        onSelectItem={(item) => {
-                          if (item.value) {
-                            formik.setFieldError('maxHour', undefined);
-                          }
-                        }}
-                        items={maxhours.map((item) => {
-                          return { label: item, value: item };
-                        })}
-                        multiple={false}
-                        open={maxHourOpen}
-                        setOpen={setMaxHourOpen}
-                        onOpen={() => {
-                          setScrollEnabled(false);
+                    <RegisterSelect
+                      label="Até"
+                      compact
+                      error={errorOf('maxHour')}
+                      testID="register-select-horario-maximo"
+                      value={formik.values.maxHour}
+                      setValue={(callback) => {
+                        const value =
+                          typeof callback === 'function'
+                            ? callback(formik.values.maxHour)
+                            : callback;
+                        formik.setFieldValue('maxHour', value);
+                      }}
+                      onSelectItem={(item) => {
+                        if (item.value) {
                           formik.setFieldError('maxHour', undefined);
-                        }}
-                        onClose={() => setScrollEnabled(true)}
-                        placeholder=""
-                      ></DropDownPicker>
-                    </View>
-                    {formik.touched.maxHour && formik.errors.maxHour && (
-                      <View height={65} flex={1} justifyContent="flex-end">
-                        <Text color="red" fontSize={12}>
-                          {formik.errors.maxHour}
-                        </Text>
-                      </View>
-                    )}
+                        }
+                      }}
+                      items={maxhours.map((item) => {
+                        return { label: item, value: item };
+                      })}
+                      multiple={false}
+                      open={maxHourOpen}
+                      setOpen={setMaxHourOpen}
+                      onOpen={() => {
+                        setScrollEnabled(false);
+                        formik.setFieldError('maxHour', undefined);
+                      }}
+                      onClose={() => setScrollEnabled(true)}
+                      placeholder=""
+                    />
                   </View>
                 </View>
                 <View
-                  marginTop={formik.errors.maxHour || formik.errors.minHour ? 10 : 65}
+                  marginTop={15}
+                  minHeight={touchHeight}
                   alignItems="center"
                   flexDirection="row"
                 >
@@ -1438,22 +1160,24 @@ export default function Register() {
                   >
                     {formik.values.closeDoor ? <Icons name="checkmark"></Icons> : <></>}
                   </Checkbox>
-                  <Text paddingLeft={5} fontSize={12}>
+                  <Text
+                    paddingLeft={5}
+                    fontSize={12}
+                    onPress={
+                      isWeb ? () => handleCheckBoxCloseDoor(!formik.values.closeDoor) : undefined
+                    }
+                  >
                     Aceito receber de portas fechadas
                   </Text>
                 </View>
-                <Text marginTop={15}>Informações adicionais</Text>
-                <Input
+                <RegisterField
+                  label="Informações adicionais"
                   onChangeText={(text) => {
                     formik.setFieldValue('deliveryObs', text);
                   }}
                   value={formik.values.deliveryObs}
                   placeholder="Exemplo: Entrar pela porta lateral"
-                  backgroundColor="white"
-                  borderRadius={2}
-                  focusStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                  hoverStyle={{ borderColor: '#049A63', borderWidth: 1 }}
-                ></Input>
+                />
               </View>
               <Text marginTop={10} fontSize={12} marginBottom={5} color="gray">
                 Perfil de compra
@@ -1465,126 +1189,72 @@ export default function Register() {
                 borderRadius={5}
                 padding={10}
               >
-                <Text>Quantos dias na semana você costuma pedir?</Text>
-                <View
-                  flex={1}
-                  borderWidth={0.5}
-                  borderColor={
-                    formik.touched.weeklyOrderAmount && formik.errors.weeklyOrderAmount
-                      ? 'red'
-                      : 'lightgray'
-                  }
-                  zIndex={101}
-                  marginTop={10}
-                >
-                  <DropDownPicker
-                    testID="register-select-frequencia-pedidos"
-                    value={formik.values.weeklyOrderAmount}
-                    setValue={(callback) => {
-                      const value =
-                        typeof callback === 'function'
-                          ? callback(formik.values.weeklyOrderAmount)
-                          : callback;
-                      formik.setFieldValue('weeklyOrderAmount', value);
-                    }}
-                    items={daysOptions}
-                    open={daysOpen}
-                    setOpen={setDaysOpen}
-                    onOpen={() => {
-                      setScrollEnabled(false);
-                      formik.setFieldError('weeklyOrderAmount', undefined);
-                    }}
-                    onClose={() => {
-                      setScrollEnabled(true);
-                    }}
-                    onSelectItem={(item) => {
-                      if (item.value) {
-                        formik.setFieldError('weeklyOrderAmount', undefined);
-                      }
-                    }}
-                    placeholder="Escolha uma opção"
-                    listMode="SCROLLVIEW"
-                    dropDownDirection="BOTTOM"
-                    dropDownContainerStyle={{ position: 'relative' }}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: 'lightgray',
-                      borderRadius: 5,
-                      position: 'absolute',
-                    }}
-                  />
-                </View>
-                {formik.touched.weeklyOrderAmount && formik.errors.weeklyOrderAmount && (
-                  <View height={65} flex={1} justifyContent={'flex-end'}>
-                    <Text color="red" fontSize={12}>
-                      {formik.errors.weeklyOrderAmount}
-                    </Text>
-                  </View>
-                )}
-                <Text marginTop={formik.errors.weeklyOrderAmount ? 10 : 60}>
-                  Qual o valor médio de um pedido?
-                </Text>
-                <TextInputMask
-                  testID="register-input-valor-pedido"
-                  placeholder="R$ 0"
-                  type="only-numbers"
-                  onChangeText={(value) => formik.setFieldValue('orderValue', value)}
-                  value={formik.values.orderValue}
-                  onBlur={formik.handleBlur('orderValue')}
-                  style={{
-                    padding: 8,
-                    fontSize: 14,
-                    height: 50,
-                    backgroundColor: 'white',
-                    borderRadius: 2,
-                    borderWidth: 1,
-                    borderColor:
-                      formik.touched.orderValue && formik.errors.orderValue ? 'red' : 'lightgray',
+                <RegisterSelect
+                  label="Quantos dias na semana você costuma pedir?"
+                  marginTop={0}
+                  error={errorOf('weeklyOrderAmount')}
+                  testID="register-select-frequencia-pedidos"
+                  value={formik.values.weeklyOrderAmount}
+                  setValue={(callback) => {
+                    const value =
+                      typeof callback === 'function'
+                        ? callback(formik.values.weeklyOrderAmount)
+                        : callback;
+                    formik.setFieldValue('weeklyOrderAmount', value);
                   }}
-                  keyboardType="number-pad"
-                ></TextInputMask>
-                {formik.touched.orderValue && formik.errors.orderValue && (
-                  <Text color="red" fontSize={12}>
-                    {formik.errors.orderValue}
-                  </Text>
-                )}
+                  items={daysOptions}
+                  open={daysOpen}
+                  setOpen={setDaysOpen}
+                  onOpen={() => {
+                    setScrollEnabled(false);
+                    formik.setFieldError('weeklyOrderAmount', undefined);
+                  }}
+                  onClose={() => {
+                    setScrollEnabled(true);
+                  }}
+                  onSelectItem={(item) => {
+                    if (item.value) {
+                      formik.setFieldError('weeklyOrderAmount', undefined);
+                    }
+                  }}
+                  placeholder="Escolha uma opção"
+                />
+                <RegisterFieldFrame
+                  label="Qual o valor médio de um pedido?"
+                  error={errorOf('orderValue')}
+                >
+                  <TextInputMask
+                    testID="register-input-valor-pedido"
+                    placeholder="R$ 0"
+                    type="only-numbers"
+                    customTextInput={Input}
+                    customTextInputProps={{
+                      ...registerBoxProps(!!errorOf('orderValue')),
+                      ...field,
+                    }}
+                    onChangeText={(value) => formik.setFieldValue('orderValue', value)}
+                    value={formik.values.orderValue}
+                    onBlur={formik.handleBlur('orderValue')}
+                    keyboardType="number-pad"
+                  />
+                </RegisterFieldFrame>
               </View>
               <InviteCodeField value={formik.values.inviteCode} />
             </View>
           ) : (
             <></>
           )}
+          {isWeb && (
+            <RegisterNavButtons
+              nextLabel={nextLabel}
+              onBack={handleBackBtn}
+              onNext={handleNextBtn}
+            />
+          )}
         </ScrollView>
-        <View
-          paddingHorizontal={20}
-          height={60}
-          justifyContent="center"
-          gap={15}
-          flexDirection="row"
-        >
-          <Button
-            flex={1}
-            borderColor="lightgray"
-            display={'flex'}
-            borderWidth={0.5}
-            backgroundColor="white"
-            onPress={() => {
-              handleBackBtn();
-            }}
-          >
-            <Text>Voltar</Text>
-          </Button>
-          <Button
-            data-testid="register-botao-avancar"
-            flex={1}
-            backgroundColor="#04BF7B"
-            onPress={() => {
-              handleNextBtn();
-            }}
-          >
-            <Text color="white">{step === 3 ? 'Finalizar Cadastro' : 'Avançar'}</Text>
-          </Button>
-        </View>
+        {!isWeb && (
+          <RegisterNavButtons nextLabel={nextLabel} onBack={handleBackBtn} onNext={handleNextBtn} />
+        )}
         <VersionInfo />
 
         {loading && (
