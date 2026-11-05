@@ -39,6 +39,7 @@ export function ReferralLanding(props: {
 
   const ctaButton = (
     <CustomButton
+      testId="cadastro-botao-criar-conta"
       title={landingContent.ctaButton}
       onPress={scrollToForm}
       width={isLargeScreen ? '260px' : '100%'}
@@ -88,6 +89,7 @@ export function ReferralLanding(props: {
   const formCard = (
     <View
       ref={formRef}
+      data-testid="cadastro-cartao-formulario"
       width="100%"
       maxWidth={isLargeScreen ? FORM_CARD_WIDTH : 480}
       alignSelf="center"
@@ -107,7 +109,12 @@ export function ReferralLanding(props: {
   );
 
   const title = (
-    <Text fontSize={isLargeScreen ? 36 : 26} lineHeight={isLargeScreen ? 44 : 32} fontWeight="700">
+    <Text
+      data-testid="cadastro-titulo-landing"
+      fontSize={isLargeScreen ? 36 : 26}
+      lineHeight={isLargeScreen ? 44 : 32}
+      fontWeight="700"
+    >
       {landingContent.title}
     </Text>
   );

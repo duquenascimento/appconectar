@@ -10,6 +10,7 @@ interface ButtonComponentProps {
   width?: string;
   height?: number;
   disabled?: boolean;
+  testId?: string;
 }
 
 const CustomButton: React.FC<ButtonComponentProps> = ({
@@ -20,9 +21,11 @@ const CustomButton: React.FC<ButtonComponentProps> = ({
   width,
   height,
   disabled,
+  testId,
 }) => {
   return (
     <Button
+      data-testid={testId}
       disabled={disabled}
       height={height}
       backgroundColor={backgroundColor}

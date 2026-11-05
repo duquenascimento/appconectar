@@ -12,6 +12,7 @@ export function BenefitCard(props: {
 
   return (
     <XStack
+      testID="cadastro-cartao-beneficio"
       flex={1}
       flexDirection={iconOnLeft ? 'row' : 'column'}
       alignItems={iconOnLeft ? 'center' : 'flex-start'}

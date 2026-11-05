@@ -3,7 +3,7 @@ import { ComponentProps } from 'react';
 
 export type IconName = ComponentProps<typeof Icons>['name'];
 
-export const LANDING_VIDEO_URL = '';
+export const LANDING_VIDEO_URL = 'https://documents-app-1.s3.us-east-2.amazonaws.com/institucional/landing_page.mp4';
 
 export const landingColors = {
   green: '#04BF7B',

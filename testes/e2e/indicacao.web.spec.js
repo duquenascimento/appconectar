@@ -1,13 +1,39 @@
 import { expect } from '@wdio/globals';
+import { CNPJ_JA_CADASTRADO, criarApiFalsa } from './apiFalsa.js';
 
 /**
- * Testes E2E do fluxo de indicação (CH-753 / CH-715).
+ * Testes E2E do fluxo de indicação no navegador (CH-753 / CH-715), no computador
+ * e no celular (emulação de aparelho do Chrome).
  *
- * Fixtures de uso único: CNPJ_A e CNPJ_B ficam "consumidos" no ambiente de teste
- * depois da primeira execução (CNPJ_A finaliza um cadastro completo; CNPJ_B fica
- * associado a uma conta em "registering" para sempre, já que não há endpoint de
- * reset de cadastro no ambiente de teste). Para rodar a suíte de novo, troque por
- * CNPJs novos e válidos.
+ * Dois modos:
+ *
+ * 1) API falsa (padrão). O teste sobe uma API local (testes/e2e/apiFalsa.js) e o
+ *    web precisa apontar para ela. Não consome CNPJ, não cria conta em homologação
+ *    e não manda mensagem no Slack, então qualquer pessoa roda a qualquer hora:
+ *
+ *      terminal 1:  npm run web:e2e
+ *      terminal 2:  npm run teste:web:indicacao
+ *
+ *    Só prova o front. O contrato real com o backend fica para o modo 2.
+ *
+ * 2) API real (E2E_MODO=real), com o web em homologação (.env, npm run web). Usa
+ *    massa de uso único, informada por variável de ambiente; sem a variável, o
+ *    teste que depende dela fica pendente com o motivo no console:
+ *
+ *      E2E_MODO=real \
+ *      E2E_CNPJ_COMPLETO_COMPUTADOR=<cnpj> E2E_CNPJ_COMPLETO_CELULAR=<cnpj> \
+ *      E2E_CNPJ_MATRIZ=<cnpj> E2E_CODIGO_TESTE_A=<código> E2E_CODIGO_TESTE_B=<código> \
+ *      npm run teste:web:indicacao
+ *
+ *    - E2E_CNPJ_COMPLETO_*: cada um finaliza um cadastro completo e fica consumido.
+ *    - E2E_CNPJ_MATRIZ: fica associado a uma conta em "registering" para sempre,
+ *      já que não há endpoint de reset de cadastro no ambiente de teste.
+ *    - E2E_CODIGO_TESTE_A/B: dois códigos de promotor de teste (válidos, mas que
+ *      não sejam de promotor de verdade). Código inexistente é descartado na
+ *      criação da conta, o que invalida a matriz de reset.
+ *    Cada execução cria uma conta com código sem promotor (PROMA), e o backend
+ *    avisa o canal de bugs e erros do Slack. Mantenha um caso só por execução.
+ *    Para rodar de novo, troque os CNPJs por CNPJs novos e válidos.
  *
  * O caso "cadastro em andamento há mais de 30 dias" não é coberto aqui — exigiria
  * forjar a data de criação da conta no backend, sem hook de teste disponível hoje.
@@ -15,21 +41,65 @@ import { expect } from '@wdio/globals';
  */
 describe('Programa de indicação - Web', () => {
   const APP_URL = 'http://localhost:8081';
+  const MODO_REAL = process.env.E2E_MODO === 'real';
   const CEP = '22010020';
-  const CNPJ_A = '39.264.066/0001-24';
-  const CNPJ_B = '24.201.731/0001-63';
-  const CNPJ_EXISTENTE = '46423800000116';
-  const CODIGO_A = 'PROMA';
-  const CODIGO_B = 'PROMB';
-  // Código de promotor real (fornecido pelo usuário) — usado só no teste de
-  // fluxo completo, pra validar de verdade o nome exibido no banner. PROMA/PROMB
-  // continuam fictícios no teste de matriz de reset (que nunca finaliza o
-  // cadastro) pra não gerar atribuição de lead real pra um promotor de verdade.
-  const CODIGO_PROMOTOR_REAL = 'VMF47';
+  const CNPJ_FALSO = '11.222.333/0001-81';
+  const CNPJ_EXISTENTE = CNPJ_JA_CADASTRADO;
+  const CNPJ_COMPLETO_COMPUTADOR = MODO_REAL
+    ? process.env.E2E_CNPJ_COMPLETO_COMPUTADOR
+    : CNPJ_FALSO;
+  const CNPJ_COMPLETO_CELULAR = MODO_REAL ? process.env.E2E_CNPJ_COMPLETO_CELULAR : CNPJ_FALSO;
+  const CNPJ_MATRIZ = MODO_REAL ? process.env.E2E_CNPJ_MATRIZ : CNPJ_FALSO;
+  const CODIGO_TESTE_A = MODO_REAL ? process.env.E2E_CODIGO_TESTE_A : 'PROMOTOR1';
+  const CODIGO_TESTE_B = MODO_REAL ? process.env.E2E_CODIGO_TESTE_B : 'PROMOTOR2';
+  // No modo real, um código de promotor de verdade, só nos testes de fluxo completo,
+  // pra validar de verdade o nome exibido na faixa. É o único lugar onde ele aparece.
+  const CODIGO_PROMOTOR = MODO_REAL ? 'VMF47' : 'PROMOTOR1';
+  // Código que não pertence a nenhum promotor.
+  const CODIGO_SEM_PROMOTOR = MODO_REAL ? 'PROMA' : 'SEMPROMOTOR';
   const SENHA = 'Senha@12345';
+
+  const IPHONE = 'iPhone 15';
+  const ANDROID = 'Pixel 7';
+  const COMPUTADOR = { width: 1280, height: 800, devicePixelRatio: 1 };
+
+  const URL_APP_STORE = 'apps.apple.com';
+  const ID_APP_STORE = 'id6471991824';
+  const URL_GOOGLE_PLAY = 'play.google.com/store/apps/details?id=io.bubbleapps.app_conectar.twa';
+
+  const api = MODO_REAL ? null : criarApiFalsa();
+
+  let restaurarEmulacao = null;
 
   function emailUnico(prefixo) {
     return `${prefixo}.${Date.now()}@teste-e2e.com`;
+  }
+
+  // Marca o teste como pendente quando falta massa de uso único, dizendo o que falta.
+  function exigirMassa(contexto, faltantes) {
+    if (!MODO_REAL) return;
+    const ausentes = Object.entries(faltantes)
+      .filter(([, valor]) => !valor)
+      .map(([nome]) => nome);
+    if (ausentes.length > 0) {
+      console.log(`[pendente] "${contexto.test.title}" — defina: ${ausentes.join(', ')}`);
+      contexto.skip();
+    }
+  }
+
+  async function usarComputador() {
+    if (restaurarEmulacao) {
+      await restaurarEmulacao();
+      restaurarEmulacao = null;
+    }
+    await browser.setViewport(COMPUTADOR);
+  }
+
+  // A emulação de aparelho troca largura, user agent e proporção de pixels, e vale
+  // para as próximas navegações do teste. Só mexe na sessão de quem a chama.
+  async function emularCelular(dispositivo) {
+    await usarComputador();
+    restaurarEmulacao = await browser.emulate('device', dispositivo);
   }
 
   // Limpa cookies/localStorage e garante que a sessão do browser começa
@@ -155,6 +225,72 @@ describe('Programa de indicação - Web', () => {
     await browser.pause(300);
   }
 
+  // Na landing, "faixa ausente" e "ainda carregando" são idênticos no DOM. Esperar a
+  // resposta de /register/promoter-name evita afirmar a ausência cedo demais.
+  async function esperarConsultaDoPromotor() {
+    await browser.waitUntil(
+      () =>
+        browser.execute(() =>
+          performance
+            .getEntriesByType('resource')
+            .some((r) => r.name.includes('/register/promoter-name') && r.responseEnd > 0),
+        ),
+      { timeout: 20000, timeoutMsg: 'A consulta do promotor não terminou' },
+    );
+    await browser.pause(500);
+  }
+
+  async function existeNoDom(testId) {
+    return (await $$(`[data-testid="${testId}"]`).length) > 0;
+  }
+
+  // Retângulo do elemento em relação à janela, ou null se não existir.
+  async function retangulo(testId) {
+    return browser.execute((seletor) => {
+      const el = document.querySelector(seletor);
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { top: r.top, bottom: r.bottom, altura: window.innerHeight };
+    }, `[data-testid="${testId}"]`);
+  }
+
+  async function semRolagemHorizontal(onde) {
+    const medidas = await browser.execute(() => ({
+      documento: document.documentElement.scrollWidth,
+      corpo: document.body.scrollWidth,
+      janela: window.innerWidth,
+    }));
+    if (medidas.documento > medidas.janela || medidas.corpo > medidas.janela) {
+      throw new Error(`Rolagem horizontal em ${onde}: ${JSON.stringify(medidas)}`);
+    }
+  }
+
+  // Posição vertical (do topo da página) dos elementos, na ordem em que aparecem
+  // no DOM de cada seletor. Mede com a página no topo, antes de qualquer rolagem.
+  async function topos(testIds) {
+    return browser.execute(
+      (ids) =>
+        ids.map((id) => {
+          const el = document.querySelector(`[data-testid="${id}"]`);
+          return el ? el.getBoundingClientRect().top : null;
+        }),
+      testIds,
+    );
+  }
+
+  function expectEmOrdem(ids, posicoes) {
+    posicoes.forEach((posicao, i) => {
+      if (posicao === null) throw new Error(`Elemento ausente na landing: ${ids[i]}`);
+    });
+    for (let i = 1; i < posicoes.length; i += 1) {
+      if (posicoes[i] <= posicoes[i - 1]) {
+        throw new Error(
+          `Ordem errada na landing: ${ids[i]} (${posicoes[i]}) não vem depois de ${ids[i - 1]} (${posicoes[i - 1]})`,
+        );
+      }
+    }
+  }
+
   async function criarConta(email) {
     await $('[data-testid="cadastro-input-nome"]').waitForDisplayed({ timeout: 20000 });
     await $('[data-testid="cadastro-input-nome"]').setValue('Usuário Teste Indicação');
@@ -215,8 +351,110 @@ describe('Programa de indicação - Web', () => {
     await selecionarDropdown('register-select-frequencia-pedidos', '3 dias');
     await $('[data-testid="register-input-valor-pedido"]').setValue('300');
     await clicarViaJS('register-botao-avancar');
-    await esperarProximoStep('div=Cadastro feito!', 'step3->finalizado');
+    await esperarProximoStep('[data-testid="conclusao-titulo"]', 'step3->finalizado');
   }
+
+  // Cria a conta pela landing e percorre as quatro etapas do /register até a
+  // conclusão, conferindo o campo do código de indicação (bloqueado e preenchido).
+  async function percorrerCadastroAteConclusao({ cnpj, codigo, prefixoEmail, nomeRestaurante }) {
+    const email = emailUnico(prefixoEmail);
+    await criarConta(email);
+
+    await preencherStep0(cnpj, nomeRestaurante);
+    await esperarProximoStep('[data-testid="register-input-cep"]', `step0->step1 (${nomeRestaurante})`);
+    await preencherStep1();
+    await preencherStep2();
+
+    const codigoIndicacao = await $('[data-testid="invite-code-field"]');
+    await codigoIndicacao.waitForDisplayed({ timeout: 20000 });
+    expect(await codigoIndicacao.getValue()).toBe(codigo);
+    expect(await codigoIndicacao.getAttribute('readonly')).not.toBeNull();
+
+    await finalizarStep3();
+
+    if (api) {
+      const conta = api.conta(email);
+      expect(conta.inviteCode).toBe(codigo);
+      expect(conta.inviteCodeDiscarded).toBe(false);
+      expect(conta.cadastroCompleto.inviteCode).toBe(codigo);
+    }
+  }
+
+  // Troca window.open por uma função que guarda o endereço, para conferir para onde
+  // o botão da loja aponta sem abrir a loja.
+  async function interceptarAberturaDeLoja() {
+    await browser.execute(() => {
+      window.__urlsAbertas = [];
+      window.open = (url) => {
+        window.__urlsAbertas.push(String(url));
+        return null;
+      };
+    });
+  }
+
+  async function urlAbertaPeloBotao(testId) {
+    await browser.execute(() => {
+      window.__urlsAbertas = [];
+    });
+    const botao = await $(`[data-testid="${testId}"]`);
+    await botao.waitForDisplayed({ timeout: 10000 });
+    await botao.click();
+    await browser.waitUntil(
+      async () => (await browser.execute(() => window.__urlsAbertas.length)) > 0,
+      { timeout: 5000, timeoutMsg: `O botão ${testId} não abriu nenhuma loja` },
+    );
+    const urls = await browser.execute(() => window.__urlsAbertas);
+    return decodeURIComponent(urls[0]);
+  }
+
+  async function lojaDoAparelhoVemPrimeiro(primeira, segunda) {
+    const [topoPrimeira, topoSegunda] = await topos([
+      `loja-botao-${primeira}`,
+      `loja-botao-${segunda}`,
+    ]);
+    expect(topoPrimeira).not.toBeNull();
+    expect(topoSegunda).not.toBeNull();
+    expect(topoPrimeira).toBeLessThan(topoSegunda);
+  }
+
+  before(async function () {
+    if (MODO_REAL) return;
+    this.timeout(90000);
+
+    await api.iniciar();
+
+    // O web só conversa com a API falsa se foi iniciado com `npm run web:e2e`. Se
+    // estiver apontando para homologação, os testes criariam contas de verdade.
+    await browser.url(`${APP_URL}/cadastro?indicacao=${CODIGO_PROMOTOR}`);
+    try {
+      await browser.waitUntil(
+        async () => api.requisicoes('GET', '/register/promoter-name').length > 0,
+        { timeout: 60000 },
+      );
+    } catch {
+      throw new Error(
+        'O web não está falando com a API falsa (http://localhost:3333). ' +
+          'Inicie com `npm run web:e2e` ou use E2E_MODO=real.',
+      );
+    }
+
+    // ViaCEP é um serviço público de terceiros; no modo falso a resposta é fixa.
+    const viaCep = await browser.mock('https://viacep.com.br/ws/**');
+    viaCep.respond(
+      { logradouro: 'Rua Teste', bairro: 'Centro', localidade: 'Rio de Janeiro', uf: 'RJ' },
+      {
+        headers: {
+          'content-type': 'application/json',
+          'access-control-allow-origin': '*',
+        },
+      },
+    );
+  });
+
+  beforeEach(async () => {
+    if (api) api.reiniciarRegistro();
+    await usarComputador();
+  });
 
   // Se um teste falhar, despeja o console do navegador — ajuda a pegar erros de
   // JS que o WebDriver não reporta (precisa de 'goog:loggingPrefs' no wdio.web.conf.js).
@@ -236,110 +474,334 @@ describe('Programa de indicação - Web', () => {
     }
   });
 
-  it('cadastro completo com código de indicação aplica o código e finaliza', async function () {
-    // Fluxo completo (criar conta + 4 steps + chamadas reais de CNPJ/ViaCEP) é
-    // mais lento que o timeout padrão do mochaOpts (40s).
-    this.timeout(120000);
-
-    await limparSessao();
-    await acessarAplicacao(`/cadastro?indicacao=${CODIGO_PROMOTOR_REAL}`);
-
-    // O banner (PromoterBanner.tsx) só renderiza quando getPromoterNameByCode resolve
-    // um nome de verdade (sem fallback genérico).
-    // Por isso usamos aqui um código de promotor REAL (fornecido pelo usuário),
-    // diferente do PROMA/PROMB fictícios usados no teste de matriz de reset.
-    const banner = await $('[data-testid="cadastro-banner-indicacao"]');
-    await banner.waitForDisplayed({ timeout: 20000 });
-    expect(await banner.getText()).toContain('indicado');
-
-    await criarConta(emailUnico('indicacao.completo'));
-
-    await preencherStep0(CNPJ_A, 'Restaurante Teste Indicacao A');
-    await esperarProximoStep('[data-testid="register-input-cep"]', 'step0->step1 (CNPJ_A)');
-    await preencherStep1();
-    await preencherStep2();
-
-    const codigoIndicacao = await $('[data-testid="invite-code-field"]');
-    await codigoIndicacao.waitForDisplayed({ timeout: 20000 });
-    expect(await codigoIndicacao.getValue()).toBe(CODIGO_PROMOTOR_REAL);
-    expect(await codigoIndicacao.getAttribute('readonly')).not.toBeNull();
-
-    // finalizarStep3() já espera "Cadastro feito!" (com diagnóstico em caso de falha).
-    await finalizarStep3();
+  after(async () => {
+    await usarComputador();
+    if (api) {
+      const naoSimuladas = api.naoSimuladas();
+      if (naoSimuladas.length > 0) {
+        console.log(`Rotas chamadas e não simuladas pela API falsa: ${naoSimuladas.join(', ')}`);
+      }
+      await api.parar();
+    }
   });
 
-  it('documento já cadastrado direciona para modal de contato com a OP', async () => {
-    await limparSessao();
-    await acessarAplicacao('/cadastro');
-    await criarConta(emailUnico('indicacao.existente'));
+  describe('computador', () => {
+    it('landing com código de promotor mostra faixa, chip e formulário sem rolar e finaliza o cadastro', async function () {
+      // Fluxo completo (criar conta + 4 steps + chamadas reais de CNPJ/ViaCEP) é
+      // mais lento que o timeout padrão do mochaOpts (40s).
+      this.timeout(180000);
+      exigirMassa(this, { E2E_CNPJ_COMPLETO_COMPUTADOR: CNPJ_COMPLETO_COMPUTADOR });
 
-    await preencherStep0(CNPJ_EXISTENTE, 'Restaurante Documento Existente');
+      await limparSessao();
+      await acessarAplicacao(`/cadastro?indicacao=${CODIGO_PROMOTOR}`);
 
-    const erro = await $('[data-testid="validation-dialog-erro"]');
-    await erro.waitForDisplayed({ timeout: 20000 });
-    expect(await erro.getText()).toContain('já existe na plataforma');
+      // A faixa (PromoterBanner.tsx) só renderiza quando getPromoterNameByCode resolve
+      // um nome de verdade (sem fallback genérico). Por isso usamos aqui um código
+      // de promotor REAL, diferente do fictício usado nos outros testes.
+      const banner = await $('[data-testid="cadastro-banner-indicacao"]');
+      await banner.waitForDisplayed({ timeout: 20000 });
+      expect(await banner.getText()).toContain('indicado');
+      if (!MODO_REAL) expect(await banner.getText()).toContain('Promotora Teste Um');
+      await $('[data-testid="cadastro-chip-codigo-indicacao"]').waitForDisplayed({ timeout: 5000 });
+      await $('[data-testid="cadastro-titulo-landing"]').waitForDisplayed({ timeout: 5000 });
 
-    const botaoSuporte = await $('[data-testid="validation-dialog-suporte"]');
-    expect(await botaoSuporte.isExisting()).toBe(true);
+      // Faixa, chip e formulário inteiro (até o botão "Cadastrar") na primeira tela.
+      for (const id of [
+        'cadastro-banner-indicacao',
+        'cadastro-chip-codigo-indicacao',
+        'cadastro-cartao-formulario',
+        'cadastro-botao-cadastrar',
+      ]) {
+        const r = await retangulo(id);
+        expect(r).not.toBeNull();
+        expect(r.top).toBeGreaterThanOrEqual(0);
+        expect(r.bottom).toBeLessThanOrEqual(r.altura);
+      }
+
+      await percorrerCadastroAteConclusao({
+        cnpj: CNPJ_COMPLETO_COMPUTADOR,
+        codigo: CODIGO_PROMOTOR,
+        prefixoEmail: 'indicacao.completo',
+        nomeRestaurante: 'Restaurante Teste Indicacao Computador',
+      });
+
+      // Computador: sem botões das lojas e com o botão "Continuar".
+      expect(await existeNoDom('loja-botao-ios')).toBe(false);
+      expect(await existeNoDom('loja-botao-android')).toBe(false);
+      expect(await existeNoDom('conclusao-convite')).toBe(false);
+      expect(await existeNoDom('conclusao-continuar-web')).toBe(false);
+      const continuar = await $('[data-testid="conclusao-continuar"]');
+      await continuar.waitForDisplayed({ timeout: 10000 });
+      expect(await continuar.getText()).toContain('Continuar');
+    });
+
+    it('landing com código sem promotor não mostra faixa nem chip, e o /register não mostra o campo do código', async function () {
+      this.timeout(90000);
+
+      await limparSessao();
+      await acessarAplicacao(`/cadastro?indicacao=${CODIGO_SEM_PROMOTOR}`);
+
+      await $('[data-testid="cadastro-titulo-landing"]').waitForDisplayed({ timeout: 20000 });
+      await esperarConsultaDoPromotor();
+
+      expect(await existeNoDom('cadastro-banner-indicacao')).toBe(false);
+      expect(await existeNoDom('cadastro-chip-codigo-indicacao')).toBe(false);
+      expect(await $$('[data-testid="cadastro-cartao-beneficio"]').length).toBe(4);
+      await $('[data-testid="cadastro-cartao-formulario"]').waitForDisplayed({ timeout: 5000 });
+
+      // No modo real, cada criação de conta com código inválido manda uma mensagem
+      // real no Slack.
+      const email = emailUnico('indicacao.sem.promotor');
+      await criarConta(email);
+
+      await $('[data-testid="register-input-nome-restaurante"]').waitForDisplayed({ timeout: 20000 });
+
+      // O campo do código só existe na última etapa do /register. No modo real,
+      // chegar lá consumiria um CNPJ; no modo falso, o teste percorre as etapas.
+      if (api) {
+        const conta = api.conta(email);
+        expect(conta.inviteCode).toBe(CODIGO_SEM_PROMOTOR);
+        expect(conta.inviteCodeDiscarded).toBe(true);
+
+        await preencherStep0(CNPJ_FALSO, 'Restaurante Teste Sem Promotor');
+        await esperarProximoStep('[data-testid="register-input-cep"]', 'sem promotor: step0->step1');
+        await preencherStep1();
+        await preencherStep2();
+        await $('[data-testid="register-select-horario-minimo"]').waitForDisplayed({ timeout: 20000 });
+        expect(await existeNoDom('invite-code-field')).toBe(false);
+      }
+    });
+
+    it('landing enquanto a consulta do promotor demora: sem faixa nem chip, e a faixa aparece quando responde', async function () {
+      if (MODO_REAL) this.skip();
+      this.timeout(60000);
+
+      await limparSessao();
+      await browser.url(`${APP_URL}/cadastro?indicacao=LENTO1`);
+
+      await $('[data-testid="cadastro-titulo-landing"]').waitForDisplayed({ timeout: 20000 });
+      await $('[data-testid="cadastro-cartao-formulario"]').waitForDisplayed({ timeout: 5000 });
+      expect(await existeNoDom('cadastro-banner-indicacao')).toBe(false);
+      expect(await existeNoDom('cadastro-chip-codigo-indicacao')).toBe(false);
+
+      await $('[data-testid="cadastro-banner-indicacao"]').waitForDisplayed({ timeout: 15000 });
+      expect(await $('[data-testid="cadastro-banner-indicacao"]').getText()).toContain(
+        'Promotor Lento',
+      );
+      await $('[data-testid="cadastro-chip-codigo-indicacao"]').waitForDisplayed({ timeout: 5000 });
+    });
+
+    it('landing quando a consulta do promotor falha: sem faixa, com o chip do código, e o cadastro continua', async function () {
+      if (MODO_REAL) this.skip();
+      this.timeout(90000);
+
+      await limparSessao();
+      await browser.url(`${APP_URL}/cadastro?indicacao=FALHA1`);
+
+      await $('[data-testid="cadastro-titulo-landing"]').waitForDisplayed({ timeout: 20000 });
+      await esperarConsultaDoPromotor();
+      await $('[data-testid="cadastro-chip-codigo-indicacao"]').waitForDisplayed({ timeout: 10000 });
+      expect(await existeNoDom('cadastro-banner-indicacao')).toBe(false);
+
+      // Falha na consulta não é código inválido: o código segue com a conta.
+      const email = emailUnico('indicacao.consulta.falhou');
+      await criarConta(email);
+      await $('[data-testid="register-input-nome-restaurante"]').waitForDisplayed({ timeout: 20000 });
+      const conta = api.conta(email);
+      expect(conta.inviteCode).toBe('FALHA1');
+      expect(conta.inviteCodeDiscarded).toBe(false);
+    });
+
+    it('cadastro sem código mostra a tela de sempre, sem landing', async () => {
+      await limparSessao();
+      await acessarAplicacao('/cadastro');
+
+      await $('[data-testid="cadastro-input-nome"]').waitForDisplayed({ timeout: 20000 });
+      expect(await existeNoDom('cadastro-titulo-landing')).toBe(false);
+      expect(await existeNoDom('cadastro-cartao-formulario')).toBe(false);
+      expect(await existeNoDom('cadastro-banner-indicacao')).toBe(false);
+      expect(await existeNoDom('cadastro-chip-codigo-indicacao')).toBe(false);
+    });
+
+    it('documento já cadastrado direciona para modal de contato com a OP', async () => {
+      await limparSessao();
+      await acessarAplicacao('/cadastro');
+      await criarConta(emailUnico('indicacao.existente'));
+
+      await preencherStep0(CNPJ_EXISTENTE, 'Restaurante Documento Existente');
+
+      const erro = await $('[data-testid="validation-dialog-erro"]');
+      await erro.waitForDisplayed({ timeout: 20000 });
+      expect(await erro.getText()).toContain('já existe na plataforma');
+
+      const botaoSuporte = await $('[data-testid="validation-dialog-suporte"]');
+      expect(await botaoSuporte.isExisting()).toBe(true);
+    });
+
+    it('erro de validação no cadastro de conta exibe modal com mensagem correta', async () => {
+      await limparSessao();
+      await acessarAplicacao('/cadastro');
+
+      await $('[data-testid="cadastro-input-nome"]').waitForDisplayed({ timeout: 20000 });
+      await $('[data-testid="cadastro-input-nome"]').setValue('Usuário Teste Validação');
+      await selecionarDropdown('cadastro-select-cargo', 'Gerente');
+      await $('[data-testid="cadastro-input-telefone"]').setValue('(21) 99999-9999');
+      await $('[data-testid="cadastro-input-email"]').setValue('email-invalido');
+      await $('[data-testid="cadastro-input-senha"]').setValue(SENHA);
+      await $('[data-testid="cadastro-input-confirmar-senha"]').setValue(SENHA);
+      await clicarViaJS('cadastro-botao-cadastrar');
+
+      const erro = await $('[data-testid="validation-dialog-erro"]');
+      await erro.waitForDisplayed({ timeout: 10000 });
+      expect(await erro.getText()).toMatch('Formato de e-mail inválido');
+    });
+
+    it('matriz de reset do código de indicação ao retomar cadastro', async function () {
+      // Envolve 4 navegações completas (reload) + preenchimento repetido do step 0.
+      this.timeout(120000);
+      exigirMassa(this, {
+        E2E_CNPJ_MATRIZ: CNPJ_MATRIZ,
+        E2E_CODIGO_TESTE_A: CODIGO_TESTE_A,
+        E2E_CODIGO_TESTE_B: CODIGO_TESTE_B,
+      });
+
+      await limparSessao();
+      await acessarAplicacao('/cadastro');
+      await criarConta(emailUnico('indicacao.matriz'));
+
+      // Sem indicação: preenche step 0 e avança pro step 1
+      await preencherStep0(CNPJ_MATRIZ, 'Restaurante Teste Indicacao Matriz');
+      await esperarProximoStep('[data-testid="register-input-cep"]', 'matriz: step0->step1 (1a vez)');
+
+      // Revisita com um código novo (não havia nenhum antes) -> reseta pro step 0
+      await acessarAplicacao(`/cadastro?indicacao=${CODIGO_TESTE_A}`);
+      await esperarProximoStep(
+        '[data-testid="register-input-documento"]',
+        'matriz: revisita com código novo -> reset',
+      );
+      const documentoAposReset1 = await $('[data-testid="register-input-documento"]');
+      expect(await documentoAposReset1.getValue()).toBe('');
+
+      // Repreenche o step 0 (perdido no reset) e avança pro step 1 de novo
+      await preencherStep0(CNPJ_MATRIZ, 'Restaurante Teste Indicacao Matriz');
+      await esperarProximoStep('[data-testid="register-input-cep"]', 'matriz: step0->step1 (2a vez)');
+
+      // Revisita com o MESMO código -> sem reset, continua no step 1
+      await acessarAplicacao(`/cadastro?indicacao=${CODIGO_TESTE_A}`);
+      await esperarProximoStep(
+        '[data-testid="register-input-cep"]',
+        'matriz: revisita com mesmo código -> sem reset',
+      );
+
+      // Revisita com um código DIFERENTE -> reseta de novo pro step 0
+      await acessarAplicacao(`/cadastro?indicacao=${CODIGO_TESTE_B}`);
+      await esperarProximoStep(
+        '[data-testid="register-input-documento"]',
+        'matriz: revisita com código diferente -> reset',
+      );
+      const documentoAposReset2 = await $('[data-testid="register-input-documento"]');
+      expect(await documentoAposReset2.getValue()).toBe('');
+    });
   });
 
-  it('erro de validação no cadastro de conta exibe modal com mensagem correta', async () => {
-    await limparSessao();
-    await acessarAplicacao('/cadastro');
+  describe('celular', () => {
+    for (const aparelho of [IPHONE, ANDROID]) {
+      it(`landing no ${aparelho} segue a ordem do template, sem rolagem horizontal, e "Criar minha conta" leva ao formulário`, async function () {
+        this.timeout(90000);
 
-    await $('[data-testid="cadastro-input-nome"]').waitForDisplayed({ timeout: 20000 });
-    await $('[data-testid="cadastro-input-nome"]').setValue('Usuário Teste Validação');
-    await selecionarDropdown('cadastro-select-cargo', 'Gerente');
-    await $('[data-testid="cadastro-input-telefone"]').setValue('(21) 99999-9999');
-    await $('[data-testid="cadastro-input-email"]').setValue('email-invalido');
-    await $('[data-testid="cadastro-input-senha"]').setValue(SENHA);
-    await $('[data-testid="cadastro-input-confirmar-senha"]').setValue(SENHA);
-    await clicarViaJS('cadastro-botao-cadastrar');
+        await limparSessao();
+        await emularCelular(aparelho);
+        await acessarAplicacao(`/cadastro?indicacao=${CODIGO_SEM_PROMOTOR}`);
 
-    const erro = await $('[data-testid="validation-dialog-erro"]');
-    await erro.waitForDisplayed({ timeout: 10000 });
-    expect(await erro.getText()).toMatch('Formato de e-mail inválido');
-  });
+        await $('[data-testid="cadastro-titulo-landing"]').waitForDisplayed({ timeout: 20000 });
+        await esperarConsultaDoPromotor();
 
-  it('matriz de reset do código de indicação ao retomar cadastro', async function () {
-    // Envolve 4 navegações completas (reload) + preenchimento repetido do step 0.
-    this.timeout(120000);
+        // Sem promotor, não há faixa: o resto da ordem do template continua.
+        const ids = [
+          'cadastro-titulo-landing',
+          'cadastro-botao-criar-conta',
+          'cadastro-cartao-beneficio',
+          'cadastro-cartao-formulario',
+        ];
+        expectEmOrdem(ids, await topos(ids));
+        await semRolagemHorizontal(`landing (${aparelho})`);
 
-    await limparSessao();
-    await acessarAplicacao('/cadastro');
-    await criarConta(emailUnico('indicacao.matriz'));
+        expect(
+          await $('[data-testid="cadastro-input-nome"]').isDisplayed({ withinViewport: true }),
+        ).toBe(false);
 
-    // Sem indicação: preenche step 0 e avança pro step 1
-    await preencherStep0(CNPJ_B, 'Restaurante Teste Indicacao B');
-    await esperarProximoStep('[data-testid="register-input-cep"]', 'matriz: step0->step1 (1a vez)');
+        await $('[data-testid="cadastro-botao-criar-conta"]').click();
+        // A rolagem é suave e a página não rola além do fim: em aparelho alto o cartão
+        // para abaixo do topo. O que importa é o formulário estar na área visível.
+        await browser.waitUntil(
+          async () => {
+            const r = await retangulo('cadastro-cartao-formulario');
+            return r.top >= -2 && r.top <= r.altura / 2;
+          },
+          { timeout: 5000, timeoutMsg: 'O formulário não subiu para a metade de cima da janela' },
+        );
+        expect(
+          await $('[data-testid="cadastro-input-nome"]').isDisplayed({ withinViewport: true }),
+        ).toBe(true);
+        await semRolagemHorizontal(`landing depois do clique (${aparelho})`);
+      });
+    }
 
-    // Revisita com um código novo (não havia nenhum antes) -> reseta pro step 0
-    await acessarAplicacao(`/cadastro?indicacao=${CODIGO_A}`);
-    await esperarProximoStep(
-      '[data-testid="register-input-documento"]',
-      'matriz: revisita com código novo -> reset',
-    );
-    const documentoAposReset1 = await $('[data-testid="register-input-documento"]');
-    expect(await documentoAposReset1.getValue()).toBe('');
+    it('fluxo completo no Android: landing, cadastro, conclusão com Google Play primeiro; iPhone com App Store primeiro', async function () {
+      this.timeout(240000);
+      exigirMassa(this, { E2E_CNPJ_COMPLETO_CELULAR: CNPJ_COMPLETO_CELULAR });
 
-    // Repreenche o step 0 (perdido no reset) e avança pro step 1 de novo
-    await preencherStep0(CNPJ_B, 'Restaurante Teste Indicacao B');
-    await esperarProximoStep('[data-testid="register-input-cep"]', 'matriz: step0->step1 (2a vez)');
+      await limparSessao();
+      await emularCelular(ANDROID);
+      await acessarAplicacao(`/cadastro?indicacao=${CODIGO_PROMOTOR}`);
 
-    // Revisita com o MESMO código -> sem reset, continua no step 1
-    await acessarAplicacao(`/cadastro?indicacao=${CODIGO_A}`);
-    await esperarProximoStep(
-      '[data-testid="register-input-cep"]',
-      'matriz: revisita com mesmo código -> sem reset',
-    );
+      await $('[data-testid="cadastro-banner-indicacao"]').waitForDisplayed({ timeout: 20000 });
+      const ids = [
+        'cadastro-banner-indicacao',
+        'cadastro-titulo-landing',
+        'cadastro-botao-criar-conta',
+        'cadastro-cartao-beneficio',
+        'cadastro-cartao-formulario',
+      ];
+      expectEmOrdem(ids, await topos(ids));
+      await semRolagemHorizontal('landing (Android, com promotor)');
 
-    // Revisita com um código DIFERENTE -> reseta de novo pro step 0
-    await acessarAplicacao(`/cadastro?indicacao=${CODIGO_B}`);
-    await esperarProximoStep(
-      '[data-testid="register-input-documento"]',
-      'matriz: revisita com código diferente -> reset',
-    );
-    const documentoAposReset2 = await $('[data-testid="register-input-documento"]');
-    expect(await documentoAposReset2.getValue()).toBe('');
+      await percorrerCadastroAteConclusao({
+        cnpj: CNPJ_COMPLETO_CELULAR,
+        codigo: CODIGO_PROMOTOR,
+        prefixoEmail: 'indicacao.celular',
+        nomeRestaurante: 'Restaurante Teste Indicacao Celular',
+      });
+      await semRolagemHorizontal('conclusão (Android)');
+
+      await $('[data-testid="conclusao-convite"]').waitForDisplayed({ timeout: 10000 });
+      expect(await existeNoDom('conclusao-continuar')).toBe(false);
+      await lojaDoAparelhoVemPrimeiro('android', 'ios');
+
+      await interceptarAberturaDeLoja();
+      expect(await urlAbertaPeloBotao('loja-botao-android')).toContain(URL_GOOGLE_PLAY);
+      const urlAppStoreNoAndroid = await urlAbertaPeloBotao('loja-botao-ios');
+      expect(urlAppStoreNoAndroid).toContain(URL_APP_STORE);
+      expect(urlAppStoreNoAndroid).toContain(ID_APP_STORE);
+
+      // A mesma conclusão no iPhone: a sessão do cadastro continua valendo.
+      await emularCelular(IPHONE);
+      await acessarAplicacao('/registerFinished');
+      await $('[data-testid="conclusao-titulo"]').waitForDisplayed({ timeout: 20000 });
+      await semRolagemHorizontal('conclusão (iPhone)');
+      await lojaDoAparelhoVemPrimeiro('ios', 'android');
+
+      await interceptarAberturaDeLoja();
+      const urlAppStore = await urlAbertaPeloBotao('loja-botao-ios');
+      expect(urlAppStore).toContain(URL_APP_STORE);
+      expect(urlAppStore).toContain(ID_APP_STORE);
+      expect(await urlAbertaPeloBotao('loja-botao-android')).toContain(URL_GOOGLE_PLAY);
+
+      await $('[data-testid="conclusao-continuar-web"]').click();
+      await browser.waitUntil(async () => (await browser.getUrl()).includes('/products'), {
+        timeout: 20000,
+        timeoutMsg: '"Continuar na web" não levou para a tela de produtos',
+      });
+    });
   });
 });
