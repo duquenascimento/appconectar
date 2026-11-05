@@ -336,6 +336,64 @@ describe('Programa de indicação - Web', () => {
     await clicarViaJS('cadastro-botao-cadastrar');
   }
 
+  // O texto do aviso precisa ficar inteiro dentro do quadro, ao lado do ícone.
+  async function expectAvisoDentroDoQuadro(idQuadro, idTexto, onde) {
+    const m = await browser.execute(
+      (quadro, texto) => {
+        const q = document.querySelector(`[data-testid="${quadro}"]`);
+        const t = document.querySelector(`[data-testid="${texto}"]`);
+        if (!q || !t) return null;
+        const rq = q.getBoundingClientRect();
+        const rt = t.getBoundingClientRect();
+        return { quadroDireita: rq.right, textoDireita: rt.right, textoEsquerda: rt.left, quadroEsquerda: rq.left };
+      },
+      idQuadro,
+      idTexto,
+    );
+    if (!m) throw new Error(`${idQuadro} ou ${idTexto} ausente (${onde})`);
+    if (m.textoDireita > m.quadroDireita + 0.5 || m.textoEsquerda < m.quadroEsquerda - 0.5) {
+      throw new Error(`Texto do aviso fora do quadro (${onde}): ${JSON.stringify(m)}`);
+    }
+  }
+
+  // A lista "Quero receber de" (com o placeholder) tem a mesma altura da lista "Até".
+  async function expectListasDeHorarioComAMesmaAltura(onde) {
+    const m = await browser.execute(() => {
+      const altura = (id) => {
+        const el = document.querySelector(`[data-testid="${id}"]`);
+        return el ? el.getBoundingClientRect().height : null;
+      };
+      return {
+        minimo: altura('register-select-horario-minimo'),
+        maximo: altura('register-select-horario-maximo'),
+      };
+    });
+    const placeholder = await browser.execute(() => {
+      const caixa = document.querySelector('[data-testid="register-select-horario-minimo"]');
+      if (!caixa) return null;
+      const texto = Array.from(caixa.querySelectorAll('*')).find(
+        (el) => el.children.length === 0 && el.textContent.trim() === 'Escolha um horário',
+      );
+      if (!texto) return null;
+      const estilo = getComputedStyle(texto);
+      const r = texto.getBoundingClientRect();
+      return {
+        altura: r.height,
+        largura: r.width,
+        larguraDoTexto: texto.scrollWidth,
+        fonte: parseFloat(estilo.fontSize),
+      };
+    });
+    console.log(`[medida] ${onde}: ${JSON.stringify({ ...m, placeholder })}`);
+    if (!placeholder) throw new Error(`Placeholder da lista "Quero receber de" ausente (${onde})`);
+    if (placeholder.altura > placeholder.fonte * 1.6) {
+      throw new Error(`Placeholder em mais de uma linha (${onde}): ${JSON.stringify(placeholder)}`);
+    }
+    if (m.minimo === null || m.maximo === null || Math.abs(m.minimo - m.maximo) > 0.5) {
+      throw new Error(`Listas de horário com alturas diferentes (${onde}): ${JSON.stringify(m)}`);
+    }
+  }
+
   async function preencherStep0(documento, nomeRestaurante) {
     await $('[data-testid="register-input-nome-restaurante"]').waitForDisplayed({ timeout: 20000 });
     await $('[data-testid="register-input-nome-restaurante"]').setValue(nomeRestaurante);
@@ -368,6 +426,7 @@ describe('Programa de indicação - Web', () => {
   async function preencherStep2() {
     await $('[data-testid="register-input-email"]').waitForDisplayed({ timeout: 20000 });
     await $('[data-testid="register-input-email"]').setValue(emailUnico('contato'));
+    await expectAvisoDentroDoQuadro('register-aviso-prazos', 'register-aviso-prazos-texto', 'etapa Contato');
     await selecionarDropdown('register-select-forma-pagamento', 'Diário: 7 dias após a entrega');
     await $('[data-testid="register-input-responsavel-financeiro"]').setValue(
       'Responsavel Financeiro Teste',
@@ -380,6 +439,8 @@ describe('Programa de indicação - Web', () => {
 
   async function finalizarStep3() {
     await $('[data-testid="register-select-horario-minimo"]').waitForDisplayed({ timeout: 20000 });
+    await expectAvisoDentroDoQuadro('register-aviso-horario', 'register-aviso-horario-texto', 'etapa Entrega');
+    await expectListasDeHorarioComAMesmaAltura('etapa Entrega');
     await selecionarDropdown('register-select-horario-minimo', '09:00');
     // O horário final é auto-sugerido ao escolher o inicial (respeita 1h30 de diferença mínima)
     await selecionarDropdown('register-select-frequencia-pedidos', '3 dias');
@@ -800,6 +861,29 @@ describe('Programa de indicação - Web', () => {
 
         await $('[data-testid="validation-dialog-ok"]').click();
         await erro.waitForExist({ reverse: true, timeout: 5000 });
+      });
+    }
+
+    for (const largura of [360, 390]) {
+      it(`avisos e listas de horário do /register cabem em ${largura} px`, async function () {
+        if (MODO_REAL) this.skip();
+        this.timeout(120000);
+
+        await limparSessao();
+        await usarComputador();
+        await browser.setViewport({ width: largura, height: 800, devicePixelRatio: 2 });
+        await acessarAplicacao(`/cadastro?indicacao=${CODIGO_SEM_PROMOTOR}`);
+        await criarConta(emailUnico(`indicacao.${largura}`));
+
+        await preencherStep0(CNPJ_COMPLETO_CELULAR, `Restaurante Teste ${largura}`);
+        await esperarProximoStep('[data-testid="register-input-cep"]', `step0->step1 (${largura})`);
+        await preencherStep1();
+        await preencherStep2();
+
+        await $('[data-testid="register-select-horario-minimo"]').waitForDisplayed({ timeout: 20000 });
+        await expectAvisoDentroDoQuadro('register-aviso-horario', 'register-aviso-horario-texto', `Entrega, ${largura} px`);
+        await expectListasDeHorarioComAMesmaAltura(`Entrega, ${largura} px`);
+        await semRolagemHorizontal(`Entrega (${largura} px)`);
       });
     }
 

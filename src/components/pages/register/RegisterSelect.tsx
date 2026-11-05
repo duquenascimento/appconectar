@@ -9,6 +9,10 @@ import { useRegisterLayout } from '@/src/components/pages/register/useRegisterLa
 // Altura padrão do Input do Tamagui ($true), usada no nativo, onde o hook não define medidas.
 const NATIVE_FIELD_HEIGHT = 44;
 
+// Para listas lado a lado em tela estreita: menos espaço interno e em volta da seta.
+const COMPACT_PADDING = 8;
+const COMPACT_ARROW_GAP = 4;
+
 type SingleSelectProps = Extract<DropDownPickerProps<string>, { multiple?: false }>;
 
 type RegisterSelectProps = Omit<
@@ -20,6 +24,7 @@ type RegisterSelectProps = Omit<
   hint?: string;
   error?: string | false;
   marginTop?: number;
+  compact?: boolean;
 };
 
 export function RegisterSelect({
@@ -28,6 +33,7 @@ export function RegisterSelect({
   hint,
   error,
   marginTop,
+  compact,
   ...pickerProps
 }: RegisterSelectProps) {
   const { field, dropdownText } = useRegisterLayout();
@@ -50,7 +56,9 @@ export function RegisterSelect({
           borderColor,
           borderRadius: 2,
           minHeight: field.height ?? NATIVE_FIELD_HEIGHT,
+          ...(compact && { paddingHorizontal: COMPACT_PADDING }),
         }}
+        arrowIconContainerStyle={compact ? { marginLeft: COMPACT_ARROW_GAP } : undefined}
         dropDownContainerStyle={{
           position: 'relative',
           top: 0,

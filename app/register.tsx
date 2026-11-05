@@ -63,8 +63,15 @@ export default function Register() {
   const [scrollEnabled, setScrollEnabled] = useState<boolean>(true);
   const { getTokenPayload, logout } = useAuthContext();
   const { loadRestaurants } = useRestaurantContext();
-  const { isLargeScreen, isWeb, pagePadding, touchHeight, field, containerProps } =
-    useRegisterLayout();
+  const {
+    isLargeScreen,
+    isWeb,
+    pagePadding,
+    touchHeight,
+    field,
+    containerProps,
+    hourPlaceholderStyle,
+  } = useRegisterLayout();
 
   const isCpf = documentType === 'CPF';
   const nextLabel = step === 3 ? 'Finalizar Cadastro' : 'Avançar';
@@ -946,6 +953,7 @@ export default function Register() {
                   placeholder=""
                 />
                 <View
+                  testID="register-aviso-prazos"
                   marginTop={10}
                   borderColor="lightgray"
                   borderWidth={0.5}
@@ -954,8 +962,8 @@ export default function Register() {
                   flexDirection="row"
                 >
                   <Icons size={25} color="gray" name="information-circle"></Icons>
-                  <View justifyContent="center">
-                    <Text maxWidth="100%" color="gray" fontSize={10}>
+                  <View flex={1} justifyContent="center">
+                    <Text testID="register-aviso-prazos-texto" color="gray" fontSize={10}>
                       Prazos são sujeitos a avaliação de crédito
                     </Text>
                   </View>
@@ -1033,6 +1041,7 @@ export default function Register() {
                 padding={10}
               >
                 <View
+                  testID="register-aviso-horario"
                   borderColor="lightgray"
                   borderWidth={0.5}
                   padding={5}
@@ -1040,17 +1049,18 @@ export default function Register() {
                   flexDirection="row"
                 >
                   <Icons size={25} color="gray" name="information-circle"></Icons>
-                  <View justifyContent="center">
-                    <Text maxWidth="99%" color="gray" fontSize={10}>
+                  <View flex={1} justifyContent="center">
+                    <Text testID="register-aviso-horario-texto" color="gray" fontSize={10}>
                       Você deve definir pelo menos 1 hora e 30 minutos de diferença entre o horário
                       mais cedo e o horário mais tarde para sua entrega.
                     </Text>
                   </View>
                 </View>
-                <View flexDirection="row" gap={20}>
+                <View flexDirection="row" gap={10}>
                   <View flex={1}>
                     <RegisterSelect
                       label="Quero receber de"
+                      compact
                       error={errorOf('minHour')}
                       testID="register-select-horario-minimo"
                       value={formik.values.minHour}
@@ -1083,13 +1093,16 @@ export default function Register() {
                       onClose={() => {
                         setScrollEnabled(true);
                       }}
+                      placeholderStyle={hourPlaceholderStyle}
                       placeholder="Escolha um horário"
                     />
                   </View>
                   <View flex={1}>
                     <RegisterSelect
                       label="Até"
+                      compact
                       error={errorOf('maxHour')}
+                      testID="register-select-horario-maximo"
                       value={formik.values.maxHour}
                       setValue={(callback) => {
                         const value =

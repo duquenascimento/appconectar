@@ -7,8 +7,13 @@ const FIELD_FONT_SIZE = 16;
 const TOUCH_HEIGHT_DESKTOP = 44;
 const TOUCH_HEIGHT_MOBILE = 48;
 
+// "Escolha um horário" só cabe em uma linha, na coluna estreita, com 11 px abaixo desta largura.
+const NARROW_SCREEN_WIDTH = 380;
+const HOUR_PLACEHOLDER_FONT_SIZE = 12;
+const HOUR_PLACEHOLDER_FONT_SIZE_NARROW = 11;
+
 export function useRegisterLayout() {
-  const { isLargeScreen } = useResponsiveness();
+  const { isLargeScreen, screenWidth } = useResponsiveness();
   const isWeb = Platform.OS === 'web';
   const touchHeight = isLargeScreen ? TOUCH_HEIGHT_DESKTOP : TOUCH_HEIGHT_MOBILE;
 
@@ -25,6 +30,15 @@ export function useRegisterLayout() {
       }
     : {};
 
+  const hourPlaceholderFontSize = () => {
+    if (isLargeScreen) return FIELD_FONT_SIZE;
+    return screenWidth < NARROW_SCREEN_WIDTH
+      ? HOUR_PLACEHOLDER_FONT_SIZE_NARROW
+      : HOUR_PLACEHOLDER_FONT_SIZE;
+  };
+
+  const hourPlaceholderStyle = { fontSize: hourPlaceholderFontSize() };
+
   const containerProps = isWeb
     ? { width: '100%' as const, maxWidth: REGISTER_MAX_WIDTH, alignSelf: 'center' as const }
     : {};
@@ -36,6 +50,7 @@ export function useRegisterLayout() {
     touchHeight: isWeb ? touchHeight : undefined,
     field,
     dropdownText,
+    hourPlaceholderStyle,
     containerProps,
   };
 }
