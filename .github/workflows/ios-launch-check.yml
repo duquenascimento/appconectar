@@ -104,8 +104,16 @@ jobs:
       - name: Abrir no simulador iOS 27.2
         run: |
           ditto -x -k Conctar.app.zip .
-          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "import json,sys;print([r['identifier'] for r in json.load(sys.stdin)['runtimes'] if r['name'].startswith('iOS 27.2')][0])")
-          UDID=$(xcrun simctl create ios27-check "iPhone 17" "$RUNTIME")
+          # Usa o runtime iOS 27.2 e o primeiro iPhone suportado por ele
+          # (nomes de aparelho variam entre versões da imagem do runner).
+          read -r RUNTIME DEVICE_TYPE < <(xcrun simctl list runtimes -j | python3 -c "
+          import json, sys
+          rt = [r for r in json.load(sys.stdin)['runtimes'] if r['name'].startswith('iOS 27.2') and r.get('isAvailable', True)][0]
+          dt = [d for d in rt['supportedDeviceTypes'] if d.get('productFamily') == 'iPhone'][0]
+          print(rt['identifier'], dt['identifier'])
+          ")
+          echo "Runtime: $RUNTIME | Device type: $DEVICE_TYPE"
+          UDID=$(xcrun simctl create ios27-check "$DEVICE_TYPE" "$RUNTIME")
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID" -b
           xcrun simctl install "$UDID" Conctar.app
