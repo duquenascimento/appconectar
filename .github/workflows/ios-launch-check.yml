@@ -1,0 +1,131 @@
+# Valida que o app iOS abre no iOS 27.
+#
+# Compila o app para simulador com o Xcode 26.6 (mesmo SDK da imagem fixada
+# no eas.json) e com o Xcode 27.2 (controle: deve reproduzir o crash do
+# UIScene life cycle), depois abre os dois num simulador iOS 27.2.
+# O job falha só se o build Xcode 26.6 não ficar aberto.
+name: iOS launch check (iOS 27)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - eas.json
+      - app.json
+      - package.json
+      - package-lock.json
+      - ios/**
+      - .github/workflows/ios-launch-check.yml
+
+concurrency:
+  group: ios-launch-check-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUNDLE_ID: io.bubbleapps.app-conectar
+
+jobs:
+  build:
+    name: build (${{ matrix.name }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: xcode-26.6
+            runner: macos-26
+            xcode: /Applications/Xcode_26.6.app
+          - name: xcode-27.2
+            runner: xcode-27
+            xcode: /Applications/Xcode_27.2.app
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: ${{ matrix.xcode }}/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: pod install
+        working-directory: ios
+        run: pod install
+
+      - name: xcodebuild (simulator, Release)
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ios/Conctar.xcworkspace \
+            -scheme Conctar \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            | tail -n 50
+
+      - name: SDK usado
+        run: |
+          APP=build/Build/Products/Release-iphonesimulator/Conctar.app
+          echo "DTSDKName: $(plutil -extract DTSDKName raw "$APP/Info.plist")"
+          echo "DTXcode:   $(plutil -extract DTXcode raw "$APP/Info.plist")"
+          ditto -c -k --keepParent "$APP" Conctar.app.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.name }}
+          path: Conctar.app.zip
+          retention-days: 3
+
+  launch:
+    name: launch iOS 27.2 (${{ matrix.name }})
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: xcode-26.6
+            must_stay_alive: true
+          - name: xcode-27.2
+            must_stay_alive: false
+    runs-on: xcode-27
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: app-${{ matrix.name }}
+
+      - name: Abrir no simulador iOS 27.2
+        run: |
+          ditto -x -k Conctar.app.zip .
+          RUNTIME=$(xcrun simctl list runtimes -j | python3 -c "import json,sys;print([r['identifier'] for r in json.load(sys.stdin)['runtimes'] if r['name'].startswith('iOS 27.2')][0])")
+          UDID=$(xcrun simctl create ios27-check "iPhone 17" "$RUNTIME")
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" Conctar.app
+          xcrun simctl launch "$UDID" "$BUNDLE_ID" || true
+          sleep 25
+
+          echo "--- logs relevantes"
+          xcrun simctl spawn "$UDID" log show --last 2m --style compact \
+            --predicate 'eventMessage CONTAINS[c] "UIScene" OR eventMessage CONTAINS[c] "NoSceneLifecycle"' \
+            | tail -n 20 || true
+
+          if xcrun simctl spawn "$UDID" launchctl list | grep -E "^[0-9]+.*UIKitApplication:${BUNDLE_ID}"; then
+            echo "RESULTADO: app ABERTO após 25s"
+            ALIVE=true
+          else
+            echo "RESULTADO: app NÃO está rodando (crash)"
+            ALIVE=false
+          fi
+          echo "### ${{ matrix.name }} no iOS 27.2: $([ "$ALIVE" = true ] && echo '✅ abriu' || echo '💥 crash')" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "${{ matrix.must_stay_alive }}" = true ] && [ "$ALIVE" != true ]; then
+            exit 1
+          fi
