@@ -58,6 +58,20 @@ target 'Conctar' do
       end
     end
 
+    min_ios_target = podfile_properties['ios.deploymentTarget'] || '15.1'
+    bump_target = lambda do |build_configurations|
+      build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if current.nil? || Gem::Version.new(current) < Gem::Version.new(min_ios_target)
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_target
+        end
+      end
+    end
+    installer.pods_project.targets.each { |target| bump_target.call(target.build_configurations) }
+    installer.target_installation_results.pod_target_installation_results.each do |_, result|
+      result.resource_bundle_targets.each { |t| bump_target.call(t.build_configurations) }
+    end
+
     installer.pods_project.targets.each do |target|
       if target.name == 'fmt'
         target.build_configurations.each do |config|
