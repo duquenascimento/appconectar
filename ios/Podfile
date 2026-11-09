@@ -59,15 +59,6 @@ target 'Conctar' do
     end
 
     installer.pods_project.targets.each do |target|
-      # --- CORREÇÃO DO IPHONEOS_DEPLOYMENT_TARGET ---
-      target.build_configurations.each do |config|
-        if config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] && 
-           Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']) < Gem::Version.new('15.0')
-          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
-        end
-      end
-      # ----------------------------------------------
-
       if target.name == 'fmt'
         target.build_configurations.each do |config|
           config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= ['$(inherited)']
@@ -80,4 +71,4 @@ target 'Conctar' do
 
   end 
 
-end
+end 
