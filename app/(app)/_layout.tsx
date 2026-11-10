@@ -1,13 +1,17 @@
 import { Slot } from 'expo-router';
-// import { ChatProvider } from '../../src/contexts/chat.context';
+import { ChatProvider } from '../../src/contexts/chat.context';
+import { useNotificationRouting } from '../../src/hooks/useNotificationRouting';
 
-function Layout() {
-  return (
-    // OBS: CHAT REMOVIDO TEMPORARIAMENTE
-    //    <ChatProvider>
-    <Slot />
-    //    </ChatProvider>
-  );
+function LayoutContent() {
+  useNotificationRouting();
+
+  return <Slot />;
 }
 
-export default Layout;
+export default function Layout() {
+  return (
+    <ChatProvider>
+      <LayoutContent />
+    </ChatProvider>
+  );
+}

@@ -1,18 +1,13 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
 import { chatSocket } from '../services/chatSocketService';
+import { ChatSocketConnectError } from '../types/chatTypes';
 import { getChatToken, setChatToken } from '../utils/chat-token';
 import { getClientCredentialsToken } from '../utils/getClientCredentialsToken';
 
-type ChatSocketConnectError = Error & {
-  data?: {
-    code?: 'TOKEN_EXPIRED' | 'INVALID_TOKEN' | 'TOKEN_MISSING';
-    message?: string;
-  };
-};
-
 export function useChatConnection() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoadingChat, setIsLoadingChat] = useState(true);
+  const [isConnected, setIsConnected] = useState(chatSocket.connected);
+  const [isLoadingChat, setIsLoadingChat] = useState(!chatSocket.connected);
 
   const hasRetriedTokenRef = useRef(false);
 
@@ -21,23 +16,22 @@ export function useChatConnection() {
 
     async function connectSocket() {
       try {
-        setIsLoadingChat(true);
+        if (isMounted) {
+          setIsLoadingChat(true);
+        }
 
         let currentToken = await getChatToken();
 
         if (!currentToken) {
-          const keyCloakToken = await getClientCredentialsToken();
-          currentToken = keyCloakToken.access_token as string;
+          const keycloakToken = await getClientCredentialsToken();
+          currentToken = keycloakToken.access_token as string | null;
 
-          await setChatToken(currentToken);
+          if (currentToken) {
+            await setChatToken(currentToken);
+          }
         }
 
         if (!currentToken) {
-          console.log({
-            code: 'CHAT_TOKEN_NOT_FOUND',
-            message: 'Token do chat não encontrado.',
-          });
-
           if (isMounted) {
             setIsLoadingChat(false);
           }
@@ -52,9 +46,7 @@ export function useChatConnection() {
         if (!chatSocket.connected) {
           chatSocket.connect();
         }
-      } catch (err) {
-        console.log('Erro ao preparar conexão com o chat:', err);
-
+      } catch {
         if (isMounted) {
           setIsLoadingChat(false);
         }
@@ -68,95 +60,62 @@ export function useChatConnection() {
         setIsConnected(true);
         setIsLoadingChat(false);
       }
-
-      console.log('Conexão estabelecida com o servidor:', chatSocket.id);
     }
 
-    function handleDisconnect() {
+    function handleDisconnect(_reason: string) {
       if (isMounted) {
         setIsConnected(false);
       }
-
-      console.log('Chat socket desconectado');
     }
 
     async function handleConnectError(err: ChatSocketConnectError) {
-      console.log('=== CONNECT ERROR COMPLETO ===');
-      console.log(err);
-      console.log('message:', err.message);
-      console.log('data:', err.data);
-
       const code = err.data?.code;
-      const message = err.data?.message ?? err.message;
 
       if (isMounted) {
         setIsConnected(false);
       }
 
-      if (code === 'TOKEN_EXPIRED') {
-        if (hasRetriedTokenRef.current) {
-          console.log({
-            code: 'TOKEN_REFRESH_ALREADY_RETRIED',
-            message: 'O token expirou, uma nova tentativa já foi feita e falhou.',
-          });
-
-          if (isMounted) {
-            setIsLoadingChat(false);
-          }
-
-          return;
-        }
-
-        hasRetriedTokenRef.current = true;
-
-        try {
-          console.log('Token do chat expirado. Gerando novo token...');
-
-          if (isMounted) {
-            setIsLoadingChat(true);
-          }
-
-          const keyCloakToken = await getClientCredentialsToken();
-          const newToken = keyCloakToken.access_token;
-
-          if (!newToken) {
-            console.log({
-              code: 'CHAT_TOKEN_REFRESH_FAILED',
-              message: 'Não foi possível obter um novo token do chat.',
-            });
-
-            if (isMounted) {
-              setIsLoadingChat(false);
-            }
-
-            return;
-          }
-
-          await setChatToken(newToken);
-
-          chatSocket.auth = {
-            token: newToken,
-          };
-
-          chatSocket.connect();
-        } catch (refreshError) {
-          console.log('Erro ao gerar novo token do chat:', refreshError);
-
-          if (isMounted) {
-            setIsLoadingChat(false);
-          }
+      if (code !== 'TOKEN_EXPIRED') {
+        if (isMounted) {
+          setIsLoadingChat(false);
         }
 
         return;
       }
 
-      console.log('Erro ao conectar no chat socket:', {
-        code: code ?? 'CONNECT_ERROR',
-        message,
-      });
+      if (hasRetriedTokenRef.current) {
+        if (isMounted) {
+          setIsLoadingChat(false);
+        }
 
-      if (isMounted) {
-        setIsLoadingChat(false);
+        return;
+      }
+
+      hasRetriedTokenRef.current = true;
+
+      try {
+        if (isMounted) {
+          setIsLoadingChat(true);
+        }
+
+        const keycloakToken = await getClientCredentialsToken();
+        const newToken = keycloakToken.access_token;
+
+        if (!newToken) {
+          throw new Error('Não foi possível obter um novo token do chat.');
+        }
+
+        await setChatToken(newToken);
+
+        chatSocket.auth = {
+          token: newToken,
+        };
+
+        chatSocket.connect();
+      } catch {
+        if (isMounted) {
+          setIsLoadingChat(false);
+        }
       }
     }
 
@@ -164,7 +123,11 @@ export function useChatConnection() {
     chatSocket.on('disconnect', handleDisconnect);
     chatSocket.on('connect_error', handleConnectError);
 
-    connectSocket();
+    if (chatSocket.connected) {
+      handleConnect();
+    } else {
+      void connectSocket();
+    }
 
     return () => {
       isMounted = false;
@@ -177,5 +140,8 @@ export function useChatConnection() {
     };
   }, []);
 
-  return { isConnected, isLoadingChat };
+  return {
+    isConnected,
+    isLoadingChat,
+  };
 }

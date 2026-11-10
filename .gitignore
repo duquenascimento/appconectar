@@ -15,3 +15,5 @@ web-build/
 
 # variáveis locais do Expo (o npm run web:e2e cria o .env.development.local)
 .env*.local
+firebase-service-account.json
+*-firebase-adminsdk-*.json

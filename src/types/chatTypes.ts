@@ -1,3 +1,4 @@
+export type UserType = 'restaurant' | 'supplier' | 'attendant';
 export type ChannelType = 'restaurant' | 'supplier';
 
 export type JoinChatPayload = {
@@ -90,4 +91,11 @@ export type GiftedChatMessage = {
   userType?: 'restaurant' | 'supplier' | 'attendant';
   read?: boolean;
   channelKey?: string;
+};
+
+export type ChatSocketConnectError = Error & {
+  data?: {
+    code?: 'TOKEN_EXPIRED' | 'INVALID_TOKEN' | 'TOKEN_MISSING';
+    message?: string;
+  };
 };

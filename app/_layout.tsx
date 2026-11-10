@@ -1,3 +1,9 @@
+import { ToastProvider, ToastViewport } from '@tamagui/toast';
+import { useFonts } from 'expo-font';
+import { router, Stack, usePathname, useSegments } from 'expo-router';
+import { useEffect } from 'react';
+import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
+import { TamaguiProvider } from 'tamagui';
 import { DefaultToast } from '@/src/components/DefaultToast';
 import { isProtectedRoute, useAuthGuard } from '@/src/components/hooks/useAuth';
 import { AuthProvider } from '@/src/contexts/auth.context';
@@ -12,14 +18,10 @@ import { NotificationProvider } from '@/src/contexts/notification.context';
 import { ProductProvider } from '@/src/contexts/produtos.context';
 import { RestaurantProvider } from '@/src/contexts/restaurant.context';
 import { checkLocalVersionAndClearData } from '@/src/services/versionService';
-import { ToastProvider, ToastViewport } from '@tamagui/toast';
-import { useFonts } from 'expo-font';
-import { router, Stack, usePathname, useSegments } from 'expo-router';
-import { useEffect } from 'react';
-import { ActivityIndicator, BackHandler, Platform, View } from 'react-native';
 import 'react-native-gesture-handler';
-import { TamaguiProvider } from 'tamagui';
 import config from '../tamagui.config';
+
+import '../src/config/notification';
 
 // Import react-datepicker CSS for web platform
 if (Platform.OS === 'web') {

@@ -33,8 +33,10 @@
     },
     "android": {
       "package": "io.bubbleapps.app_conectar.twa",
+      "googleServicesFile": "./google-services.json",
       "userInterfaceStyle": "light",
       "permissions": [
+        "POST_NOTIFICATIONS",
         "ACCESS_NOTIFICATION_POLICY",
         "VIBRATE",
         "RECEIVE_BOOT_COMPLETED"
@@ -47,13 +49,23 @@
     "extra": {
       "eas": {
         "projectId": "2152830c-0079-47fc-a3b3-b1d510c77aa7"
+      },
+      "webPush": {
+        "vapidPublicKey": "BDp86TYFIBD_Btq4IORcBmZ_016OSI2zQlq5KPUNhjFxMp1IwVsEMPvkJXpOOx1KStz4iAM3ghju_XWcDcq2il4"
       }
     },
     "plugins": [
       "expo-router",
       "expo-font",
       "expo-secure-store",
-      "expo-web-browser"
-    ]
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "chat-messages"
+        }
+      ]
+    ],
+    "owner": "conectar"
   }
 }

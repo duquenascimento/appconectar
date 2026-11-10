@@ -2,12 +2,18 @@ import Icons from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Platform } from 'react-native';
-import { Button, Text, View, XStack, YStack } from 'tamagui';
+import { Button, Switch, Text, View, XStack, YStack } from 'tamagui';
 import PageContainer from '../../src/components/box/PageContainer';
 import CustomAlert from '../../src/components/modais/CustomAlert';
 import { TwoButtonCustomAlert } from '../../src/components/modais/TwoButtonCustomAlert';
 import { useAuthContext } from '../../src/contexts/auth.context';
+import {
+  getUserNotificationSettings,
+  updateUserNotificationSettings,
+} from '../../src/services/userNotificationSettingsService';
+import { UserNotificationSettings } from '../../src/types/userNotificationSettingsTypes';
 import { getBrazilLocaleString } from '../../src/utils/dateUtils';
+import { extractErrorMessage } from '../../src/utils/errorUtils';
 import { deleteUser, getUserData } from '../../src/utils/userUtils';
 import { VersionInfo } from '../../src/utils/VersionApp';
 // import { useChat } from '../../src/contexts/chat.context';
@@ -25,6 +31,11 @@ export default function UserInfo() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [deleted, setDeleted] = useState<boolean>(false);
+  const [notificationSettings, setNotificationSettings] = useState<UserNotificationSettings | null>(
+    null,
+  );
+  const [savingOrderConfirmed, setSavingOrderConfirmed] = useState<boolean>(false);
+  const [notificationSettingsError, setNotificationSettingsError] = useState<string | null>(null);
   const { logout } = useAuthContext();
   const router = useRouter();
 
@@ -65,10 +76,28 @@ export default function UserInfo() {
     async function loadUser() {
       try {
         setLoading(true);
-        const userData = await getUserData();
-        if (isMounted) setUser(userData);
-      } catch (error) {
-        console.error('Falha ao carregar usuário:', error);
+
+        const [userResult, notificationSettingsResult] = await Promise.allSettled([
+          getUserData(),
+          getUserNotificationSettings(),
+        ]);
+
+        if (!isMounted) return;
+
+        if (userResult.status === 'fulfilled') {
+          setUser(userResult.value);
+        } else {
+          console.error('Falha ao carregar usuário:', userResult.reason);
+        }
+
+        if (notificationSettingsResult.status === 'fulfilled') {
+          setNotificationSettings(notificationSettingsResult.value);
+        } else {
+          console.error(
+            'Falha ao carregar preferências de notificação:',
+            notificationSettingsResult.reason,
+          );
+        }
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -79,6 +108,28 @@ export default function UserInfo() {
       isMounted = false;
     };
   }, []);
+
+  const handleToggleOrderConfirmed = async (checked: boolean) => {
+    if (!notificationSettings || savingOrderConfirmed) {
+      return;
+    }
+
+    const previousSettings = notificationSettings;
+    setNotificationSettings({ ...notificationSettings, orderConfirmed: checked });
+    setSavingOrderConfirmed(true);
+
+    try {
+      const updated = await updateUserNotificationSettings({ orderConfirmed: checked });
+      setNotificationSettings(updated);
+    } catch (error) {
+      setNotificationSettings(previousSettings);
+      setNotificationSettingsError(
+        extractErrorMessage(error, 'Não foi possível atualizar sua preferência de notificação.'),
+      );
+    } finally {
+      setSavingOrderConfirmed(false);
+    }
+  };
 
   const handleDeleteRequest = async () => {
     try {
@@ -127,6 +178,13 @@ export default function UserInfo() {
         onConfirm={handleDeleteRequest}
         onCancel={() => setShowModal(false)}
       />
+
+      <CustomAlert
+        visible={!!notificationSettingsError}
+        title="Não foi possível salvar"
+        message={notificationSettingsError ?? ''}
+        onConfirm={() => setNotificationSettingsError(null)}
+      />
       <View
         flex={1}
         paddingTop={15}
@@ -174,6 +232,34 @@ export default function UserInfo() {
             </YStack>
           ) : (
             <Text color="#999">Não foi possível carregar as informações do usuário.</Text>
+          )}
+        </View>
+
+        <View marginTop={20}>
+          <Text fontSize={16} fontWeight="600" marginBottom={16}>
+            Preferências de notificação
+          </Text>
+
+          {notificationSettings ? (
+            <XStack alignItems="center" gap={10}>
+              <Text fontSize={14} color="#A9A9A9">
+                Confirmação de pedido
+              </Text>
+              <Switch
+                size="$2"
+                checked={notificationSettings.orderConfirmed}
+                onCheckedChange={handleToggleOrderConfirmed}
+                disabled={savingOrderConfirmed}
+                backgroundColor={notificationSettings.orderConfirmed ? '$green10' : '#7c7c7dff'}
+                padding={0}
+              >
+                <Switch.Thumb backgroundColor="white" animation="quick" scale={0.9} />
+              </Switch>
+            </XStack>
+          ) : (
+            <Text color="#999" fontSize={14}>
+              Não foi possível carregar suas preferências de notificação.
+            </Text>
           )}
         </View>
       </View>
