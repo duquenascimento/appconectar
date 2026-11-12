@@ -34,7 +34,13 @@ export function useCart() {
       if (!token || !selectedRestaurant) return new Map();
 
       const cart = await getCartList(selectedRestaurant.id);
-      if (!cart || cart.length < 1) return new Map();
+      if (!cart || cart.length < 1) {
+        // Sem isso, ao trocar para uma unidade de carrinho vazio, os itens da anterior continuam
+        // na tela e acabam salvos no carrinho da nova.
+        setCart(new Map());
+        setDisplayedCartSize(0);
+        return new Map();
+      }
 
       const cartMap = new Map<string, Cart>(cart.map((item: Cart) => [item.productId, item]));
 
