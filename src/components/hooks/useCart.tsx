@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useRestaurantContext } from '../../contexts/restaurant.context';
 import { saveProductObservations } from '../../utils/productObservation';
@@ -19,6 +19,8 @@ export function useCart() {
   const [productObservations, setProductObservations] = useState(new Map<string, string>());
   const [displayedCartSize, setDisplayedCartSize] = useState(cart.size);
   const { selectedRestaurant } = useRestaurantContext();
+  const cartRestaurantId = useRef<string | null>(null);
+  const lastLoadRequestId = useRef(0);
   useEffect(() => {
     const timeout = setTimeout(() => {
       setDisplayedCartSize(cart.size);
@@ -28,15 +30,36 @@ export function useCart() {
   }, [cart.size]);
 
   const loadCart = useCallback(async (): Promise<Map<string, Cart>> => {
-    try {
-      const token = await getToken();
+    lastLoadRequestId.current += 1;
+    const requestId = lastLoadRequestId.current;
+    const isLatestRequest = () => requestId === lastLoadRequestId.current;
 
-      if (!token || !selectedRestaurant) return new Map();
+    try {
+      if (!selectedRestaurant) return new Map();
+
+      const storageKey = `cart_${selectedRestaurant.externalId}`;
+
+      // Lido antes de limpar o estado: telas que gravam o carrinho em memória nesta chave a cada
+      // mudança sobrescreveriam as observações locais da unidade com o carrinho vazio.
+      const localCartString = await getStorage(storageKey);
+      if (!isLatestRequest()) return new Map();
+
+      if (cartRestaurantId.current !== selectedRestaurant.id) {
+        if (cartRestaurantId.current !== null) {
+          setCart(new Map());
+          setCartToExclude(new Map());
+          setDisplayedCartSize(0);
+        }
+        cartRestaurantId.current = selectedRestaurant.id;
+      }
+
+      const token = await getToken();
+      if (!token) return new Map();
 
       const cart = await getCartList(selectedRestaurant.id);
+      if (!isLatestRequest()) return new Map();
+
       if (!cart || cart.length < 1) {
-        // Sem isso, ao trocar para uma unidade de carrinho vazio, os itens da anterior continuam
-        // na tela e acabam salvos no carrinho da nova.
         setCart(new Map());
         setDisplayedCartSize(0);
         return new Map();
@@ -44,7 +67,6 @@ export function useCart() {
 
       const cartMap = new Map<string, Cart>(cart.map((item: Cart) => [item.productId, item]));
 
-      const localCartString = await getStorage(`cart_${selectedRestaurant?.externalId}`);
       const localCart = localCartString
         ? new Map<string, Cart>(JSON.parse(localCartString))
         : new Map();
@@ -57,10 +79,9 @@ export function useCart() {
         }
       });
 
-      await setStorage(
-        `cart_${selectedRestaurant?.externalId}`,
-        JSON.stringify(Array.from(cartMap.entries())),
-      );
+      await setStorage(storageKey, JSON.stringify(Array.from(cartMap.entries())));
+      if (!isLatestRequest()) return new Map();
+
       setCart(cartMap);
       setDisplayedCartSize(cartMap.size);
       return cartMap;
