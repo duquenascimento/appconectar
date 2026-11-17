@@ -2,8 +2,28 @@ import {
   capturePendingInviteCode,
   clearPendingInviteCode,
   getPendingInviteCode,
+  shouldClearPendingInviteCode,
   shouldResetForNewInvite,
 } from './inviteCode';
+
+describe('shouldClearPendingInviteCode', () => {
+  it('cadastro sem indicacao -> apaga', () => {
+    expect(shouldClearPendingInviteCode('cadastro', undefined)).toBe(true);
+    expect(shouldClearPendingInviteCode('cadastro', null)).toBe(true);
+    expect(shouldClearPendingInviteCode('cadastro', '')).toBe(true);
+  });
+
+  it('cadastro com indicacao -> não apaga', () => {
+    expect(shouldClearPendingInviteCode('cadastro', 'ABC12')).toBe(false);
+  });
+
+  it.each(['', 'register', 'products', 'forgot-password'])(
+    'rota "%s" sem indicacao -> não apaga',
+    (route) => {
+      expect(shouldClearPendingInviteCode(route, undefined)).toBe(false);
+    },
+  );
+});
 
 describe('shouldResetForNewInvite', () => {
   it('sem código antes e sem código novo -> não reseta', () => {

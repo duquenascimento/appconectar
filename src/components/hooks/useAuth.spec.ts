@@ -1,6 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react-native';
 import { useGlobalSearchParams, useRouter, useSegments } from 'expo-router';
-import { capturePendingInviteCode } from '../../utils/inviteCode';
+import { Platform } from 'react-native';
+import { capturePendingInviteCode, clearPendingInviteCode } from '../../utils/inviteCode';
 import { getStorage, getToken } from '../../utils/utils';
 import { isPublicRoute, useAuthGuard } from './useAuth';
 
@@ -12,6 +13,9 @@ jest.mock('expo-router', () => ({
 
 jest.mock('../../utils/inviteCode', () => ({
   capturePendingInviteCode: jest.fn(),
+  clearPendingInviteCode: jest.fn(),
+  shouldClearPendingInviteCode:
+    jest.requireActual('../../utils/inviteCode').shouldClearPendingInviteCode,
 }));
 
 jest.mock('../../utils/utils', () => ({
@@ -24,6 +28,7 @@ const mockedUseGlobalSearchParams = useGlobalSearchParams as jest.Mock;
 const mockedUseRouter = useRouter as jest.Mock;
 const mockedUseSegments = useSegments as jest.Mock;
 const mockedCapturePendingInviteCode = capturePendingInviteCode as jest.Mock;
+const mockedClearPendingInviteCode = clearPendingInviteCode as jest.Mock;
 const mockedGetToken = getToken as jest.Mock;
 const mockedGetStorage = getStorage as jest.Mock;
 
@@ -88,5 +93,97 @@ describe('useAuthGuard — captura de indicacao antes do redirecionamento', () =
     // Remontar a tela de /register faria o register.tsx perder o pendingInviteCode
     // já consumido na primeira passada — por isso não pode haver auto-redirect aqui.
     expect(dismissTo).not.toHaveBeenCalled();
+  });
+});
+
+describe('useAuthGuard — limpeza do código guardado', () => {
+  const dismissTo = jest.fn();
+  const replace = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockedUseRouter.mockReturnValue({ dismissTo, replace });
+    mockedUseGlobalSearchParams.mockReturnValue({});
+    mockedGetToken.mockResolvedValue(null);
+  });
+
+  it('apaga o código guardado ao abrir "cadastro" sem indicacao', async () => {
+    mockedUseSegments.mockReturnValue(['cadastro']);
+
+    renderHook(() => useAuthGuard());
+
+    await waitFor(() => expect(mockedClearPendingInviteCode).toHaveBeenCalledTimes(1));
+    expect(mockedCapturePendingInviteCode).not.toHaveBeenCalled();
+  });
+
+  it('guarda o código e não apaga ao abrir "cadastro" com indicacao', async () => {
+    mockedUseSegments.mockReturnValue(['cadastro']);
+    mockedUseGlobalSearchParams.mockReturnValue({ indicacao: 'ABC12' });
+
+    renderHook(() => useAuthGuard());
+
+    await waitFor(() => expect(mockedGetToken).toHaveBeenCalled());
+    expect(mockedCapturePendingInviteCode).toHaveBeenCalledWith('ABC12');
+    expect(mockedClearPendingInviteCode).not.toHaveBeenCalled();
+  });
+
+  it.each([['register'], [''], ['products']])(
+    'não apaga o código guardado na rota "%s" sem indicacao',
+    async (route) => {
+      mockedUseSegments.mockReturnValue(route ? [route] : []);
+
+      renderHook(() => useAuthGuard());
+
+      await waitFor(() => expect(mockedGetToken).toHaveBeenCalled());
+      expect(mockedClearPendingInviteCode).not.toHaveBeenCalled();
+    },
+  );
+
+  describe('na web, com o parâmetro ainda não refletido pelo router', () => {
+    const originalOS = Platform.OS;
+    const originalWindow = (global as { window?: unknown }).window;
+
+    afterEach(() => {
+      Platform.OS = originalOS;
+      (global as { window?: unknown }).window = originalWindow;
+    });
+
+    it('não apaga quando a URL já traz indicacao', async () => {
+      Platform.OS = 'web';
+      (global as { window?: unknown }).window = { location: { search: '?indicacao=ABC12' } };
+      mockedUseSegments.mockReturnValue(['cadastro']);
+
+      renderHook(() => useAuthGuard());
+
+      await waitFor(() => expect(mockedGetToken).toHaveBeenCalled());
+      expect(mockedClearPendingInviteCode).not.toHaveBeenCalled();
+    });
+
+    it('apaga quando a URL não traz indicacao', async () => {
+      Platform.OS = 'web';
+      (global as { window?: unknown }).window = { location: { search: '' } };
+      mockedUseSegments.mockReturnValue(['cadastro']);
+
+      renderHook(() => useAuthGuard());
+
+      await waitFor(() => expect(mockedClearPendingInviteCode).toHaveBeenCalledTimes(1));
+    });
+  });
+
+  it('apaga antes de guardar quando o parâmetro chega um render depois da rota', async () => {
+    mockedUseSegments.mockReturnValue(['cadastro']);
+    let params: { indicacao?: string } = {};
+    mockedUseGlobalSearchParams.mockImplementation(() => params);
+
+    const { rerender } = renderHook(() => useAuthGuard());
+    params = { indicacao: 'ABC12' };
+    rerender({});
+
+    await waitFor(() => expect(mockedCapturePendingInviteCode).toHaveBeenCalledWith('ABC12'));
+    await waitFor(() => expect(mockedGetToken).toHaveBeenCalledTimes(2));
+
+    const clearOrder = mockedClearPendingInviteCode.mock.invocationCallOrder;
+    const captureOrder = mockedCapturePendingInviteCode.mock.invocationCallOrder;
+    expect(clearOrder.every((c: number) => c < captureOrder[0])).toBe(true);
   });
 });

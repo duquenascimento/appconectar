@@ -1,7 +1,22 @@
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { useGlobalSearchParams, useRouter, useSegments } from 'expo-router';
-import { capturePendingInviteCode } from '../../utils/inviteCode';
+import {
+  capturePendingInviteCode,
+  clearPendingInviteCode,
+  shouldClearPendingInviteCode,
+} from '../../utils/inviteCode';
 import { getToken, getStorage, STORAGE_DEFAULT_KEYS } from '../../utils/utils';
+
+// Na web o parâmetro do router pode chegar um render depois da rota; a URL é a fonte
+// de verdade para decidir apagar, para não descartar um código que acabou de chegar.
+function getIndicacaoFromLocation(): string | null {
+  if (Platform.OS !== 'web' || typeof window === 'undefined' || !window.location) {
+    return null;
+  }
+
+  return new URLSearchParams(window.location.search).get('indicacao');
+}
 
 export function useAuthGuard() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -16,6 +31,10 @@ export function useAuthGuard() {
 
       if (indicacao) {
         await capturePendingInviteCode(indicacao);
+      } else if (
+        shouldClearPendingInviteCode(getCurrentRouteSegment(segments), getIndicacaoFromLocation())
+      ) {
+        await clearPendingInviteCode();
       }
 
       const token = await getToken();

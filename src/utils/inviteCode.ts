@@ -12,6 +12,13 @@ export async function clearPendingInviteCode(): Promise<void> {
   await deleteStorage(PENDING_INVITE_CODE_KEY);
 }
 
+export function shouldClearPendingInviteCode(
+  currentRoute: string,
+  indicacao?: string | null,
+): boolean {
+  return currentRoute === 'cadastro' && !indicacao;
+}
+
 export function shouldResetForNewInvite(
   storedInviteCode?: string | null,
   pendingCode?: string | null,
