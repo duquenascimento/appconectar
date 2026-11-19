@@ -8,6 +8,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { Button, ScrollView, Separator, Text, View, XStack, YStack } from 'tamagui';
 import { CreditCardSection } from '../src/components/CreditCardSection';
+import { useAndroidBottomInset } from '../src/components/hooks/useAndroidBottomInset';
 import { useResponsiveness } from '../src/components/hooks/useResponsiveness';
 import MissingItemsDialog from '../src/components/modais/MissingItemsDialog';
 import PdfViewerModal from '../src/components/modais/PdfViewerModal';
@@ -147,6 +148,7 @@ export default function QuotationDetailsScreen() {
   const [selectedCreditCard, setSelectedCreditCard] = useState<CreditCard | undefined>();
   const [disableConfirm, setDisableConfirm] = useState<boolean>(false);
   const { isLargeScreen } = useResponsiveness();
+  const androidBottomInset = useAndroidBottomInset();
 
   const isCreditCardRequired = useMemo(() => 
     selectedRestaurant?.paymentWay === 'CC32', 
@@ -564,7 +566,7 @@ export default function QuotationDetailsScreen() {
         {/* 3. Botões do rodapé com a nova lógica e estilo */}
         <View
           position="absolute"
-          bottom={0}
+          bottom={androidBottomInset}
           left={0}
           right={0}
           paddingVertical="$4"

@@ -1,4 +1,5 @@
 import { SafeAreaView } from 'react-native';
+import { useAndroidBottomInset } from '../hooks/useAndroidBottomInset';
 
 type PageContainerProps = {
   children: React.ReactNode;
@@ -13,13 +14,15 @@ const colorMapping = {
 // children: conteúdo todo da página
 
 export default function PageContainer({ children, backgroundColor }: PageContainerProps) {
+  const androidBottomInset = useAndroidBottomInset();
+
   return (
     <SafeAreaView
       style={{
         flex: 1,
         backgroundColor: `${colorMapping[backgroundColor]}`,
         paddingTop: 40,
-        paddingBottom: 10,
+        paddingBottom: 10 + androidBottomInset,
       }}
     >
       {children}

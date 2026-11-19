@@ -6,6 +6,7 @@ import { Text, View } from 'tamagui';
 import { Restaurant } from '../types/restaurantTypes';
 import { AbandonedCartWatcher } from '../utils/abandonedCart';
 import { getStorageRestaurant } from '../utils/restaurantUtils';
+import { useAndroidBottomInset } from './hooks/useAndroidBottomInset';
 
 type Props = {
   cartSize: number;
@@ -18,6 +19,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
   const translateY = useSharedValue(50);
   const [watcherRestaurant, setWatcherRestaurant] = useState<Restaurant | null>(null);
   const [showWatcher, setShowWatcher] = useState(false);
+  const androidBottomInset = useAndroidBottomInset();
 
   useEffect(() => {
     opacity.value = withTiming(1, { duration: 100 });
@@ -159,7 +161,7 @@ export const CartButton: React.FC<Props> = ({ cartSize, selectedRestaurant, onPr
         style={[
           {
             position: 'absolute',
-            bottom: 75,
+            bottom: 75 + androidBottomInset,
             left: 0,
             right: 0,
             alignItems: 'center',
